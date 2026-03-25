@@ -1,5 +1,6 @@
 package dev.angelcorzo.neoparking.usecase.registertenant;
 
+import dev.angelcorzo.neoparking.model.commons.valueobjects.AppProperties;
 import dev.angelcorzo.neoparking.model.tenants.Tenants;
 import dev.angelcorzo.neoparking.model.tenants.gateways.TenantsRepository;
 import dev.angelcorzo.neoparking.model.tenants.valueobject.TenantReference;
@@ -8,6 +9,7 @@ import dev.angelcorzo.neoparking.model.users.enums.Roles;
 import dev.angelcorzo.neoparking.model.users.exceptions.EmailAlreadyExistsException;
 import dev.angelcorzo.neoparking.model.users.gateways.PasswordEncodeGateway;
 import dev.angelcorzo.neoparking.model.users.gateways.UsersRepository;
+import dev.angelcorzo.neoparking.usecase.sendnotifications.SendNotificationsUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,6 +37,10 @@ class RegisterTenantUseCaseTest {
     private TenantsRepository tenantsRepository;
     @Mock
     private PasswordEncodeGateway passwordEncode;
+    @Mock
+    private SendNotificationsUseCase sendNotificationsUseCase;
+    @Mock
+    private AppProperties appProperties;
 
     @InjectMocks
     private RegisterTenantUseCase registerTenantUseCase;
@@ -62,6 +68,13 @@ class RegisterTenantUseCaseTest {
                 .password("password123")
                 .contactInfo("3000000000")
                 .build();
+
+        when(appProperties.getCtaUrl()).thenReturn("https://cta.test");
+        when(appProperties.getCompanyName()).thenReturn("NeoParking");
+        when(appProperties.getSupportUrl()).thenReturn("https://support.test");
+        when(appProperties.getSocialUrl()).thenReturn("https://social.test");
+        when(appProperties.getUnsubscribeUrl()).thenReturn("https://unsubscribe.test");
+        when(appProperties.getAddressCompany()).thenReturn("Street 123");
     }
 
     @Test
@@ -75,6 +88,7 @@ class RegisterTenantUseCaseTest {
         when(usersRepository.existsByEmail(userToRegister.getEmail())).thenReturn(false);
 
         when(passwordEncode.encrypt(anyString())).thenReturn("encryptedPassword");
+        when(tenantsRepository.getReferenceById(tenantToRegister.getId())).thenReturn(tenant);
 
         // 2. When saving the tenant, return the same tenant (simulating save)
         when(tenantsRepository.save(any(Tenants.class))).thenReturn(tenantToRegister);
@@ -100,6 +114,8 @@ class RegisterTenantUseCaseTest {
         verify(usersRepository, times(1)).existsByEmail("test@example.com");
         verify(tenantsRepository, times(1)).save(any(Tenants.class));
         verify(usersRepository, times(1)).save(userCaptor.capture()); // Capture the argument
+        verify(sendNotificationsUseCase, times(1))
+                .send(any(), any(), anyString(), any(), any(), any());
 
         // Verify that the tenant was correctly assigned to the user before saving
         assertEquals(tenant, userCaptor.getValue().getTenant());

@@ -11,9 +11,9 @@ import dev.angelcorzo.neoparking.model.users.gateways.PasswordEncodeGateway;
 import dev.angelcorzo.neoparking.model.users.gateways.UsersRepository;
 import dev.angelcorzo.neoparking.usecase.acceptinvitation.exceptions.InvitationAlreadyAcceptedException;
 import dev.angelcorzo.neoparking.usecase.acceptinvitation.exceptions.InvitationExpiredException;
+import dev.angelcorzo.neoparking.usecase.notifications.UserNotifier;
 import java.time.OffsetDateTime;
 import java.util.UUID;
-import java.util.function.Function;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +35,7 @@ public class AcceptInvitationUseCase {
   private final UserInvitationsRepository invitationsRepository;
   private final UsersRepository usersRepository;
   private final PasswordEncodeGateway passwordEncode;
+  private final UserNotifier userNotifier;
 
   /**
    * Executes the process of accepting an invitation.
@@ -55,21 +56,31 @@ public class AcceptInvitationUseCase {
 
     this.validateInvitation(invitation);
 
-    Function<Users, Users> encryptedUserPassword =
-        user -> {
-          user.setPassword(this.passwordEncode.encrypt(user.getPassword()));
-          return user;
-        };
-
     final Users user =
-        usersRepository
+        this.usersRepository
             .findByEmail(invitation.getInvitedEmail())
-            .orElseGet(() -> encryptedUserPassword.apply(command.user()));
+            .orElseGet(() -> this.encryptPassword(command.user()));
 
     this.updateUserFromInvitation(user, invitation);
     this.usersRepository.save(user);
 
-    return this.invitationsRepository.acceptedInvitation(invitation.getId());
+    final UserInvitations acceptedInvitation =
+        this.invitationsRepository.acceptedInvitation(invitation.getId());
+
+    this.userNotifier.notifyUserInvitationAccepted(acceptedInvitation, user);
+
+    return acceptedInvitation;
+  }
+
+  /**
+   * Encrypts the password of a new user before persisting.
+   *
+   * @param user The user whose password needs to be encrypted.
+   * @return The same user instance with the encrypted password.
+   */
+  private Users encryptPassword(final Users user) {
+    user.setPassword(this.passwordEncode.encrypt(user.getPassword()));
+    return user;
   }
 
   /**

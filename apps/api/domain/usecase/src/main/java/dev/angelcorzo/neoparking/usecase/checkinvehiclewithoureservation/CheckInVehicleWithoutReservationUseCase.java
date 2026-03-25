@@ -12,9 +12,9 @@ import dev.angelcorzo.neoparking.model.tenants.exceptions.TenantNotExistsExcepti
 import dev.angelcorzo.neoparking.model.tenants.gateways.TenantsRepository;
 import dev.angelcorzo.neoparking.model.tenants.valueobject.TenantReference;
 import dev.angelcorzo.neoparking.model.users.Users;
-import dev.angelcorzo.neoparking.model.users.exceptions.UserNotExistsException;
 import dev.angelcorzo.neoparking.model.users.gateways.UsersRepository;
 import dev.angelcorzo.neoparking.model.users.valueobject.UserReference;
+import dev.angelcorzo.neoparking.usecase.notifications.TicketNotifier;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.Builder;
@@ -27,23 +27,28 @@ public class CheckInVehicleWithoutReservationUseCase {
   private final UsersRepository usersRepository;
   private final SlotsRepository slotsRepository;
   private final RatesRepository ratesRepository;
+  private final TicketNotifier ticketNotifier;
 
-  public ParkingTickets execute(CreatedParkingTicket ticket) {
-    this.validate(ticket);
+  public ParkingTickets execute(CreatedParkingTicket command) {
+    this.validate(command);
 
-    final Users user = this.getUser(ticket.email());
+    final Users user = this.getUser(command.email());
 
     final ParkingTickets parkingTicket =
         ParkingTickets.builder()
-            .slot(SlotsReference.of(this.slotsRepository.getReferenceById(ticket.slotId())))
-            .tenant(TenantReference.of(this.tenantsRepository.getReferenceById(ticket.tenantId())))
+            .slot(SlotsReference.of(this.slotsRepository.getReferenceById(command.slotId())))
+            .tenant(TenantReference.of(this.tenantsRepository.getReferenceById(command.tenantId())))
             .user(UserReference.of(user))
-            .rate(RateReference.of(this.ratesRepository.getReferenceById(ticket.rateId())))
+            .rate(RateReference.of(this.ratesRepository.getReferenceById(command.rateId())))
             .entryTime(OffsetDateTime.now())
-            .licensePlate(ticket.plate())
+            .licensePlate(command.plate())
             .build();
 
-    return this.parkingTicketsRepository.save(parkingTicket);
+    final ParkingTickets ticket = this.parkingTicketsRepository.save(parkingTicket);
+
+    if (user != null) this.ticketNotifier.notifyTicketOpened(ticket);
+
+    return ticket;
   }
 
   private void validate(CreatedParkingTicket ticket) {
@@ -59,9 +64,7 @@ public class CheckInVehicleWithoutReservationUseCase {
   private Users getUser(String email) {
     if (email == null) return null;
 
-    return this.usersRepository
-        .findByEmail(email)
-        .orElseThrow(() -> new UserNotExistsException(email));
+    return this.usersRepository.findByEmail(email).orElse(null);
   }
 
   @Builder(toBuilder = true)

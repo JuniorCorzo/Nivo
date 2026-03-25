@@ -11,6 +11,8 @@ import dev.angelcorzo.neoparking.model.payments.factories.PaymentFactory;
 import dev.angelcorzo.neoparking.model.payments.gateways.PaymentProviderGateway;
 import dev.angelcorzo.neoparking.model.payments.gateways.PaymentsRepository;
 import dev.angelcorzo.neoparking.model.payments.valueobject.ProviderMetadata;
+import dev.angelcorzo.neoparking.usecase.calculaterate.dtos.PriceDetailed;
+import dev.angelcorzo.neoparking.usecase.notifications.PaymentNotifier;
 import dev.angelcorzo.neoparking.usecase.processpayment.strategies.commands.PaymentCommand;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -21,6 +23,7 @@ public class PayLinkPaymentStrategy implements PaymentStrategy {
   private final PaymentsRepository paymentsRepository;
   private final ParkingTicketsRepository parkingTicketsRepository;
   private final PaymentProviderGateway paymentProviderGateway;
+  private final PaymentNotifier paymentNotifier;
 
   @Override
   public Result<Payments, PaymentError> processPayment(PaymentCommand command) {
@@ -36,8 +39,9 @@ public class PayLinkPaymentStrategy implements PaymentStrategy {
             () -> this.processPayment(command, ticket, amount),
             this::updatePaymentsWithMetadata);
 
-    return paymentIntent.onSuccess(
-        (_) -> this.updateTicketStatus(command.ticket().getId(), amount));
+    return paymentIntent
+        .onSuccess((_) -> this.updateTicketStatus(command.ticket().getId(), amount))
+        .onSuccess(payments -> this.sendNotifications(payments, command.amounts()));
   }
 
   private Result<Payments, PaymentError> createPaymentIntent(
@@ -58,5 +62,9 @@ public class PayLinkPaymentStrategy implements PaymentStrategy {
 
   private void updateTicketStatus(UUID ticketId, BigDecimal amountToCharge) {
     this.parkingTicketsRepository.prepareCheckout(ticketId, amountToCharge);
+  }
+
+  private void sendNotifications(Payments paymentIntent, PriceDetailed priceDetailed) {
+    paymentNotifier.notifyPaymentCheckout(paymentIntent, priceDetailed, priceDetailed.getName());
   }
 }

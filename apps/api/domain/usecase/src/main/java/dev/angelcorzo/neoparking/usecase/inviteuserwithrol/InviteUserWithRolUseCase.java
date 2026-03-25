@@ -13,6 +13,7 @@ import dev.angelcorzo.neoparking.model.users.exceptions.UserNotExistsException;
 import dev.angelcorzo.neoparking.model.users.gateways.UsersRepository;
 import dev.angelcorzo.neoparking.model.users.valueobject.UserReference;
 import dev.angelcorzo.neoparking.usecase.acceptinvitation.exceptions.InvalidRoleException;
+import dev.angelcorzo.neoparking.usecase.notifications.UserNotifier;
 import java.time.OffsetDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -23,10 +24,11 @@ import lombok.RequiredArgsConstructor;
  * Use case for inviting a new user to a tenant with a specific role.
  *
  * <p>This class handles the business logic for creating and registering a user invitation,
- * including validation of the tenant, inviter, and the role being assigned.</p>
+ * including validation of the tenant, inviter, and the role being assigned.
  *
- * <p><strong>Layer:</strong> Application (Use Case)</p>
- * <p><strong>Responsibility:</strong> To manage the process of inviting users to a tenant.</p>
+ * <p><strong>Layer:</strong> Application (Use Case)
+ *
+ * <p><strong>Responsibility:</strong> To manage the process of inviting users to a tenant.
  *
  * @author Angel Corzo
  * @since 1.0.0
@@ -41,14 +43,18 @@ public class InviteUserWithRolUseCase {
   private final UsersRepository usersRepository;
   private final UserInvitationsRepository userInvitationsRepository;
   private final TenantsRepository tenantsRepository;
+  private final UserNotifier userNotifier;
 
   /**
    * Registers a new user invitation.
    *
-   * @param inviteUserWithRole The command containing details for the invitation (email, role, tenant ID, inviter ID).
+   * @param inviteUserWithRole The command containing details for the invitation (email, role,
+   *     tenant ID, inviter ID).
    * @return The created {@link UserInvitations} object.
-   * @throws UserAlreadyExistsInTenantException if the invited email already exists within the tenant.
-   * @throws InvalidRoleException if the specified role is not permitted for invitations (e.g., OWNER, SUPERADMIN).
+   * @throws UserAlreadyExistsInTenantException if the invited email already exists within the
+   *     tenant.
+   * @throws InvalidRoleException if the specified role is not permitted for invitations (e.g.,
+   *     OWNER, SUPERADMIN).
    * @throws UserNotExistsException if the inviter user does not exist.
    * @throws TenantNotExistsException if the specified tenant does not exist.
    */
@@ -76,19 +82,21 @@ public class InviteUserWithRolUseCase {
             .expiredAt(OffsetDateTime.now().plusDays(EXPIRATION_DAYS))
             .build();
 
-    return this.userInvitationsRepository.save(userInvitations);
+    UserInvitations userInvitation = this.userInvitationsRepository.save(userInvitations);
+    this.sendNotification(userInvitation);
+    return userInvitation;
   }
 
   /**
    * Validates the invitation details against business rules before registration.
    *
    * @param invitation The invitation command to validate.
-   * @throws UserAlreadyExistsInTenantException if the invited email already exists within the tenant.
+   * @throws UserAlreadyExistsInTenantException if the invited email already exists within the
+   *     tenant.
    * @throws InvalidRoleException if the specified role is not permitted.
    * @throws UserNotExistsException if the inviter user does not exist.
    */
   private void validateInvitation(final InviteUserWithRole invitation) {
-    final UUID inviteBy = invitation.inviteBy();
     final UUID tenantId = invitation.tenantId();
     final String email = invitation.email();
     final Roles rol = invitation.role();
@@ -98,15 +106,11 @@ public class InviteUserWithRolUseCase {
     }
 
     this.validateRolePermitted(rol);
-
-    if (!this.usersRepository.existsById(inviteBy)) {
-      throw new UserNotExistsException(inviteBy);
-    }
   }
 
   /**
-   * Validates if the role specified in the invitation is permitted.
-   * Certain roles (like OWNER, SUPERADMIN) might not be assignable via invitation.
+   * Validates if the role specified in the invitation is permitted. Certain roles (like OWNER,
+   * SUPERADMIN) might not be assignable via invitation.
    *
    * @param rol The role to validate.
    * @throws InvalidRoleException if the role is not permitted.
@@ -114,6 +118,10 @@ public class InviteUserWithRolUseCase {
   private void validateRolePermitted(Roles rol) {
     final Set<Roles> rolesNotPermitted = Set.of(Roles.OWNER, Roles.SUPERADMIN);
     if (rolesNotPermitted.contains(rol)) throw new InvalidRoleException(rol);
+  }
+
+  private void sendNotification(UserInvitations userInvitations) {
+    this.userNotifier.notifyUserInvited(userInvitations);
   }
 
   /**

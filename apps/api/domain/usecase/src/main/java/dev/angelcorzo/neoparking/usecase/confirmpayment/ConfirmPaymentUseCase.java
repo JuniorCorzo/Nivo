@@ -13,6 +13,7 @@ import dev.angelcorzo.neoparking.model.payments.observer.PaymentEvent;
 import dev.angelcorzo.neoparking.model.payments.observer.PaymentEventBroker;
 import dev.angelcorzo.neoparking.model.transactions.Transactions;
 import dev.angelcorzo.neoparking.model.transactions.gateways.TransactionsRepository;
+import dev.angelcorzo.neoparking.usecase.notifications.PaymentNotifier;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +24,7 @@ public class ConfirmPaymentUseCase {
   private final PaymentProviderGateway paymentProviderGateway;
   private final PaymentEventBroker paymentEventBroker;
   private final ParkingTicketsRepository parkingTicketsRepository;
+  private final PaymentNotifier paymentNotifier;
 
   public Payments execute(Map<String, String> receipt, String transactionId) {
     return this.paymentsRepository
@@ -90,6 +92,7 @@ public class ConfirmPaymentUseCase {
   private void notify(Payments currentPayment) {
     final PaymentEvent event = PaymentEvent.of(currentPayment.getId(), currentPayment.getStatus());
     this.paymentEventBroker.notifyObservers(currentPayment.getId().toString(), event);
+    this.paymentNotifier.notifyPaymentCompleted(currentPayment);
   }
 
   private void closeTicket(Payments currentPayment) {
