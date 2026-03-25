@@ -16,7 +16,7 @@ import org.springframework.data.repository.query.Param;
 public interface PaymentsRepositoryData extends JpaRepository<PaymentsData, UUID> {
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
-  @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})
+  @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
   @Query(value = "SELECT p FROM PaymentsData p WHERE  p.checkoutSessionId = :checkoutSessionId")
   Optional<PaymentsData> findByCheckoutSessionId(
       @Param("checkoutSessionId") String checkoutSessionId);

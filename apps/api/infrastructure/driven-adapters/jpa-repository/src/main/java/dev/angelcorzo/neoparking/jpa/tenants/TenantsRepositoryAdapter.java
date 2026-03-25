@@ -6,6 +6,7 @@ import dev.angelcorzo.neoparking.model.tenants.Tenants;
 import dev.angelcorzo.neoparking.model.tenants.gateways.TenantsRepository;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JPA adapter for {@link TenantsRepository}.
@@ -43,6 +44,7 @@ public class TenantsRepositoryAdapter
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Tenants getReferenceById(UUID id) {
     return super.mapper.toEntity(super.repository.getReferenceById(id));
   }
