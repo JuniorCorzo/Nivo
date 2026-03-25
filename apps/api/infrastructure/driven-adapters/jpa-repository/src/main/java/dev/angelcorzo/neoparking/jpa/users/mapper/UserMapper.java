@@ -5,7 +5,6 @@ import dev.angelcorzo.neoparking.jpa.mappers.BaseMapper;
 import dev.angelcorzo.neoparking.jpa.users.UsersData;
 import dev.angelcorzo.neoparking.model.users.Users;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 /**
  * MapStruct mapper for converting between {@link Users} domain entity and {@link UsersData} JPA

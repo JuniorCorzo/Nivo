@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JPA adapter for {@link UsersRepository}.
@@ -83,6 +84,7 @@ public class UserRepositoryAdapter
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Users getReferenceById(UUID id) {
     return super.mapper.toEntity(super.repository.getReferenceById(id));
   }

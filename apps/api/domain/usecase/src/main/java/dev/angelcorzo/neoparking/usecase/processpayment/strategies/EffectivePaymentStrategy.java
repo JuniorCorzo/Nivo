@@ -9,6 +9,8 @@ import dev.angelcorzo.neoparking.model.payments.gateways.PaymentsRepository;
 import dev.angelcorzo.neoparking.model.transactions.Transactions;
 import dev.angelcorzo.neoparking.model.transactions.enums.TransactionStatus;
 import dev.angelcorzo.neoparking.model.transactions.gateways.TransactionsRepository;
+import dev.angelcorzo.neoparking.usecase.notifications.PaymentNotifier;
+import dev.angelcorzo.neoparking.usecase.notifications.TicketNotifier;
 import dev.angelcorzo.neoparking.usecase.processpayment.strategies.commands.PaymentCommand;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +20,19 @@ public class EffectivePaymentStrategy implements PaymentStrategy {
   private final PaymentsRepository paymentsRepository;
   private final ParkingTicketsRepository parkingTicketsRepository;
   private final TransactionsRepository transactionsRepository;
+  private final PaymentNotifier paymentNotifier;
+  private final TicketNotifier ticketNotifier;
 
   @Override
   public Result<Payments, PaymentError> processPayment(PaymentCommand command) {
     final BigDecimal amountToCharge = command.amounts().getTotal();
     final Payments payment = PaymentFactory.registerEffective(command.ticket(), amountToCharge);
 
-    return this.paymentsRepository.processPayment(payment).onSuccess(this::handlerSuccess);
+    return this.paymentsRepository
+        .processPayment(payment)
+        .flatMap(this::handlerSuccess)
+        .onSuccess(this::registerTransaction)
+        .onSuccess(this::sendNotifications);
   }
 
   private Result<Payments, PaymentError> handlerSuccess(Payments payment) {
@@ -32,7 +40,6 @@ public class EffectivePaymentStrategy implements PaymentStrategy {
       this.parkingTicketsRepository.prepareCheckout(
           payment.getParkingTicket().getId(), payment.getAmount());
 
-      this.registerTransaction(payment);
       this.parkingTicketsRepository.closeTicket(payment.getParkingTicket().getId());
 
       return Result.success(payment);
@@ -41,7 +48,12 @@ public class EffectivePaymentStrategy implements PaymentStrategy {
     }
   }
 
-  private Transactions registerTransaction(Payments payment) {
+  private void sendNotifications(Payments payment) {
+    this.ticketNotifier.notifyTicketClosed(payment.getParkingTicket());
+    this.paymentNotifier.notifyPaymentCompleted(payment);
+  }
+
+  private void registerTransaction(Payments payment) {
     Transactions transaction =
         Transactions.builder()
             .payment(payment)
@@ -50,6 +62,6 @@ public class EffectivePaymentStrategy implements PaymentStrategy {
             .status(TransactionStatus.APPROVED)
             .build();
 
-    return this.transactionsRepository.save(transaction);
+    this.transactionsRepository.save(transaction);
   }
 }

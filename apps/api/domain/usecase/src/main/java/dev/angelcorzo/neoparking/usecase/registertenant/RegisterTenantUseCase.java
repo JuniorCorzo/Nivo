@@ -8,6 +8,7 @@ import dev.angelcorzo.neoparking.model.users.enums.Roles;
 import dev.angelcorzo.neoparking.model.users.exceptions.EmailAlreadyExistsException;
 import dev.angelcorzo.neoparking.model.users.gateways.PasswordEncodeGateway;
 import dev.angelcorzo.neoparking.model.users.gateways.UsersRepository;
+import dev.angelcorzo.neoparking.usecase.notifications.RegistrationNotifier;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -30,6 +31,7 @@ public class RegisterTenantUseCase {
   private final UsersRepository usersRepository;
   private final TenantsRepository tenantsRepository;
   private final PasswordEncodeGateway passwordEncode;
+  private final RegistrationNotifier registrationNotifier;
 
   /**
    * Registers a new tenant and creates an associated owner user.
@@ -41,7 +43,7 @@ public class RegisterTenantUseCase {
    * @throws EmailAlreadyExistsException if the email of the provided user already exists in the
    *     system.
    */
-  public Users register(final Users user, final Tenants tenant) {
+  public Users register(Users user, final Tenants tenant) {
     this.validateEmailExists(user);
 
     final Tenants tenantCreated = this.tenantsRepository.save(tenant);
@@ -51,8 +53,10 @@ public class RegisterTenantUseCase {
         TenantReference.of(this.tenantsRepository.getReferenceById(tenantCreated.getId())));
     user.setRole(Roles.OWNER);
     user.setPassword(passwordEncrypted);
+    user = this.usersRepository.save(user);
 
-    return this.usersRepository.save(user);
+    this.registrationNotifier.notifyUserSelfRegistered(user);
+    return user;
   }
 
   /**

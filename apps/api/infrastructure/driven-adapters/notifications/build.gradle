@@ -1,0 +1,8 @@
+dependencies {
+    implementation project(':model')
+
+    implementation 'com.sendgrid:sendgrid-java:4.10.3'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'org.springframework:spring-context'
+    implementation 'org.springframework.boot:spring-boot'
+}

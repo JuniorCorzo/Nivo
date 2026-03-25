@@ -8,7 +8,6 @@ import dev.angelcorzo.neoparking.model.tenants.Tenants;
 import dev.angelcorzo.neoparking.model.users.Users;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 
 /**
  * MapStruct mapper for converting between {@link Tenants} domain entity and {@link TenantsData} JPA

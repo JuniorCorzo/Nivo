@@ -6,5 +6,6 @@ import dev.angelcorzo.neoparking.model.payments.exceptions.PaymentError;
 import dev.angelcorzo.neoparking.usecase.processpayment.strategies.commands.PaymentCommand;
 
 public interface PaymentStrategy {
-  Result<Payments, PaymentError> processPayment(PaymentCommand command);
+  Result<Payments, PaymentError> processPayment(
+      PaymentCommand command);
 }
