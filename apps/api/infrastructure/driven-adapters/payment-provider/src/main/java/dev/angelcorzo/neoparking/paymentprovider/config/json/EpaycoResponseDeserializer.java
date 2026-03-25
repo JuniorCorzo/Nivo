@@ -78,6 +78,6 @@ public class EpaycoResponseDeserializer extends StdDeserializer<EpaycoResponse<?
     if (field == null || field.isNull()) {
       return null;
     }
-    return field.isString() ? field.asText() : field.toString();
+    return field.isString() ? field.asString() : field.toString();
   }
 }
