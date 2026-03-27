@@ -1,0 +1,20 @@
+meta {
+  name: Delete rate
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{BASE_URL}}/rates/:id/delete
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

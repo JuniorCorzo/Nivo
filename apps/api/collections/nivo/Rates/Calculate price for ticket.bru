@@ -1,0 +1,20 @@
+meta {
+  name: Calculate price for ticket
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{BASE_URL}}/rates/:ticketId/calculate
+  body: none
+  auth: inherit
+}
+
+params:path {
+  ticketId: d0edb24b-b41c-44fd-831b-7ce65d783bb5
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

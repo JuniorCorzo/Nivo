@@ -1,0 +1,28 @@
+meta {
+  name: Payment Status WebSocket
+  type: ws
+  seq: 1
+}
+
+ws {
+  url: ws://localhost:8080/api/payments
+  body: ws
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{ACCESS_TOKEN}}
+}
+
+body:ws {
+  name: message 1
+  content: '''
+    SEND
+    destination:/app/payments.info/{{PAYMENT_ID}}
+    content-type:application/json
+    
+    {}
+    \0
+    
+  '''
+}

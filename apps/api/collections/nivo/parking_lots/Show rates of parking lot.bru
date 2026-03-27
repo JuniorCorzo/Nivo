@@ -1,0 +1,20 @@
+meta {
+  name: Show rates of parking lot
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BASE_URL}}/parking-lots/:id/rates
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 8e5085e5-6d7c-4319-8901-d457574c7038
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

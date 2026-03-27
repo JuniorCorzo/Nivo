@@ -1,0 +1,16 @@
+meta {
+  name: Update rate
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{BASE_URL}}/rates/update
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
