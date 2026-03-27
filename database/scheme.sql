@@ -1,5 +1,5 @@
-CREATE SCHEMA IF NOT EXISTS neo_parking;
-SET search_path TO neo_parking;
+CREATE SCHEMA IF NOT EXISTS nivo;
+SET search_path TO nivo;
 
 
 

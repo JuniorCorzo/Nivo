@@ -1,6 +1,6 @@
 ## Context
 
-El sistema NeoParking actualmente tiene capacidad de enviar notificaciones email pero este persiste un historial consultable, la tabla se llama notifications logs
+El sistema Nivo actualmente tiene capacidad de enviar notificaciones email pero este persiste un historial consultable, la tabla se llama notifications logs
 
 ## Goals / Non-Goals
 

@@ -1,6 +1,6 @@
 ## Why
 
-Actualmente el sistema NeoParking puede enviar notificaciones a los usuarios (email, SMS, push), pero NO existe forma de consultar el historial de notificaciones enviadas. Los usuarios y administradores necesitan poder visualizar qué notificaciones se enviaron, a quién, cuándo, y su estado de entrega. Sin esta capacidad, es imposible auditar comunicaciones o diagnosticar problemas de entrega.
+Actualmente el sistema Nivo puede enviar notificaciones a los usuarios (email, SMS, push), pero NO existe forma de consultar el historial de notificaciones enviadas. Los usuarios y administradores necesitan poder visualizar qué notificaciones se enviaron, a quién, cuándo, y su estado de entrega. Sin esta capacidad, es imposible auditar comunicaciones o diagnosticar problemas de entrega.
 
 ## What Changes
 

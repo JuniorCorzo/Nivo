@@ -1,5 +1,5 @@
 -- Seed parking tickets (todos sin pagar - OPEN)
-INSERT INTO "neo-parking_db".neo_parking.parking_tickets (id, tenant_id, user_id, slot_id, rate_id, license_plate,
+INSERT INTO "nivo_db".nivo.parking_tickets (id, tenant_id, user_id, slot_id, rate_id, license_plate,
                                                           entry_time, exit_time, total_to_charge, status, created_at,
                                                           updated_at)
 VALUES ('d0edb24b-b41c-44fd-831b-7ce65d783bb5', '4a4c63e3-9c5d-4f23-9a94-577710307dc7',

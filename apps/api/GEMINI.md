@@ -1,8 +1,8 @@
-# Gemini Project Context: NeoParking API
+# Gemini Project Context: Nivo API
 
 ## 1. Project Overview
 
-This project is the backend API for "NeoParking", a multi-tenant parking management system. It is built with Java 21 and the Spring Boot framework.
+This project is the backend API for "Nivo", a multi-tenant parking management system. It is built with Java 21 and the Spring Boot framework.
 
 The architecture is a key feature, strictly following the principles of **Clean Architecture** using the **"Scaffold de Bancolombia"**. This is a template and a set of Gradle plugins that enforce a modular, decoupled, and maintainable codebase.
 

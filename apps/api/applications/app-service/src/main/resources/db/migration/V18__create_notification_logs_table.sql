@@ -1,10 +1,10 @@
 CREATE TABLE IF NOT EXISTS notification_logs
 (
     id                UUID PRIMARY KEY,
-    tenant_id         UUID         NOT NULL REFERENCES "neo-parking_db".neo_parking.tenants (id) ON DELETE RESTRICT,
-    actor_user_id     UUID         NOT NULL REFERENCES "neo-parking_db".neo_parking.users (id) ON DELETE RESTRICT,
-    recipient_user_id UUID         REFERENCES "neo-parking_db".neo_parking.users (id) ON DELETE SET NULL,
-    template_id       UUID         REFERENCES "neo-parking_db".neo_parking.notification_templates (id) ON DELETE SET NULL,
+    tenant_id         UUID         NOT NULL REFERENCES "nivo_db".nivo.tenants (id) ON DELETE RESTRICT,
+    actor_user_id     UUID         NOT NULL REFERENCES "nivo_db".nivo.users (id) ON DELETE RESTRICT,
+    recipient_user_id UUID         REFERENCES "nivo_db".nivo.users (id) ON DELETE SET NULL,
+    template_id       UUID         REFERENCES "nivo_db".nivo.notification_templates (id) ON DELETE SET NULL,
     event_type        VARCHAR(50)  NOT NULL CHECK (event_type IN (
                                                               'RESERVATION_CREATED',
                                                               'TICKET_OPENED',

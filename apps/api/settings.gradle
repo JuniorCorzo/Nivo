@@ -12,7 +12,7 @@ buildCache {
     }
 }
 
-rootProject.name = 'NeoParking'
+rootProject.name = 'Nivo'
 
 include ':app-service'
 include ':model'

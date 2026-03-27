@@ -1,4 +1,4 @@
-# NeoParking API — Code Style & Architecture Guide
+# Nivo API — Code Style & Architecture Guide
 
 Spring Boot 4.0.3, Java 25, Gradle. Clean Architecture enforced via Bancolombia Scaffold plugin.
 
@@ -35,8 +35,8 @@ apps/api/
 # From apps/api/
 ./gradlew test                          # All tests
 ./gradlew :domain:usecase:test          # Module-scoped test
-./gradlew test --tests "dev.angelcorzo.neoparking.SomeTest"
-./gradlew test --tests "dev.angelcorzo.neoparking.SomeTest.someMethod"
+./gradlew test --tests "dev.angelcorzo.nivo.SomeTest"
+./gradlew test --tests "dev.angelcorzo.nivo.SomeTest.someMethod"
 ./gradlew test jacocoTestReport         # With coverage
 ./gradlew pitest                        # Mutation testing (target 80%+)
 ./gradlew check                         # All verification checks
@@ -46,7 +46,7 @@ apps/api/
 
 | Element | Pattern | Example |
 |---------|---------|---------|
-| Packages | lowercase | `dev.angelcorzo.neoparking.model.parkingtickets` |
+| Packages | lowercase | `dev.angelcorzo.nivo.model.parkingtickets` |
 | Classes | PascalCase | `CheckOutVehicleUseCase` |
 | Methods/Variables | camelCase | `execute()`, `ticketId` |
 | Constants | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |

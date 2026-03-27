@@ -1,1 +1,0 @@
-/home/juniorcorzo/Development/NeoParking/docs/neoparking_use_cases.md

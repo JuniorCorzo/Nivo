@@ -1,12 +1,12 @@
-# NeoParking - Multi-Tenant SaaS Parking Management System
+# Nivo - Multi-Tenant SaaS Parking Management System
 
 ## 1. Executive Summary
 
-NeoParking is a proposed **multi-tenant SaaS web platform** designed for the comprehensive management of parking lots. Each parking lot owner (tenant) can manage their facilities independently, with their data securely isolated from other tenants.
+Nivo is a proposed **multi-tenant SaaS web platform** designed for the comprehensive management of parking lots. Each parking lot owner (tenant) can manage their facilities independently, with their data securely isolated from other tenants.
 
 The system provides a complete solution covering the entire parking lifecycle: from the initial registration and configuration of parking lots and individual spaces to real-time control of vehicle entry and exit using QR codes or physical tickets. It supports advance reservations, on-site payment processing, and the generation of digital receipts. Additionally, the platform features a powerful dashboard and reporting tools to monitor key metrics like occupancy and revenue.
 
-Built on a scalable, cloud-based architecture, NeoParking is designed for reliability and performance, offering responsive web interfaces and public APIs for third-party integrations (e.g., availability checking).
+Built on a scalable, cloud-based architecture, Nivo is designed for reliability and performance, offering responsive web interfaces and public APIs for third-party integrations (e.g., availability checking).
 
 ## 2. Key Features
 
@@ -38,7 +38,7 @@ The system defines several user roles to ensure proper access control (RBAC):
 
 ### Architecture
 
-NeoParking is built on a **multi-tenant SaaS model**, where a single application instance serves multiple tenants. Data isolation is achieved at the logical level using a shared database schema with a `tenant_id` discriminator in relevant tables. This approach ensures confidentiality while simplifying deployment and maintenance.
+Nivo is built on a **multi-tenant SaaS model**, where a single application instance serves multiple tenants. Data isolation is achieved at the logical level using a shared database schema with a `tenant_id` discriminator in relevant tables. This approach ensures confidentiality while simplifying deployment and maintenance.
 
 ### Technology Stack
 
@@ -68,4 +68,4 @@ NeoParking is built on a **multi-tenant SaaS model**, where a single application
 - Advanced fiscal invoicing.
 - Predictive analytics.
 
-This README provides a high-level overview of the NeoParking project. For more detailed functional and non-functional requirements, please refer to the `requirements.md` document.
+This README provides a high-level overview of the Nivo project. For more detailed functional and non-functional requirements, please refer to the `requirements.md` document.

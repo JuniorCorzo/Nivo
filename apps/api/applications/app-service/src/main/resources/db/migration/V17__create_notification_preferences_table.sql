@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS notification_preferences
 (
     id         UUID PRIMARY KEY,
-    user_id    UUID        NOT NULL REFERENCES "neo-parking_db".neo_parking.users (id) ON DELETE CASCADE,
-    tenant_id  UUID        NOT NULL REFERENCES "neo-parking_db".neo_parking.tenants (id) ON DELETE RESTRICT,
+    user_id    UUID        NOT NULL REFERENCES "nivo_db".nivo.users (id) ON DELETE CASCADE,
+    tenant_id  UUID        NOT NULL REFERENCES "nivo_db".nivo.tenants (id) ON DELETE RESTRICT,
     event_type VARCHAR(50) NOT NULL CHECK (event_type IN (
                                                           'RESERVATION_CREATED',
                                                           'TICKET_OPENED',

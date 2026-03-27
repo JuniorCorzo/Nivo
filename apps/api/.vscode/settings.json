@@ -3,10 +3,11 @@
   "java.compile.nullAnalysis.mode": "disabled",
   "cSpell.words": [
     "angelcorzo",
+    "applicationeventbus",
     "desencriptación",
     "epayco",
     "Epayco",
-    "neoparking",
+    "nivo",
     "txtcodigo"
   ],
   "java.debug.settings.onBuildFailureProceed": true,
