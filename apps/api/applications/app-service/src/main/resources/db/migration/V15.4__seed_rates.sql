@@ -1,5 +1,5 @@
 -- Seed rates
-INSERT INTO "neo-parking_db".neo_parking.rates (id, parking_lot_id, tenant_id, name, description, price_per_unit,
+INSERT INTO "nivo_db".nivo.rates (id, parking_lot_id, tenant_id, name, description, price_per_unit,
                                                 time_unit, min_charge_time_minutes, vehicle_type, created_at,
                                                 updated_at)
 VALUES ('4014e6f0-eaf7-45bc-ba23-817bd22a6ad9', '8e5085e5-6d7c-4319-8901-d457574c7038',

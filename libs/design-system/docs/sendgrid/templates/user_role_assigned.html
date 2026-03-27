@@ -1,0 +1,34 @@
+<!--
+Subject: Nuevo rol asignado: {{roleName}} en {{organizationName}}
+Variables: userName, roleName, organizationName, assignedBy, assignedAt, permissions (name), ctaUrl, companyName, supportUrl, socialUrl, unsubscribeUrl, companyAddress
+Descripción: Notifica nuevo rol y muestra permisos si están disponibles.
+-->
+<div style="font-size: 16px; line-height: 1.6">
+  <p style="margin: 0 0 16px">Hola {{userName}},</p>
+
+  <p style="margin: 0 0 16px">
+    Se actualizó tu acceso en <strong>{{organizationName}}</strong>.
+  </p>
+
+  <p style="margin: 0 0 8px"><strong>Nuevo rol:</strong> {{roleName}}</p>
+  <p style="margin: 0 0 8px"><strong>Asignado por:</strong> {{assignedBy}}</p>
+  <p style="margin: 0 0 16px"><strong>Fecha:</strong> {{assignedAt}}</p>
+
+  {{#if permissions}}
+  <p style="margin: 0 0 8px"><strong>Permisos clave:</strong></p>
+  <ul style="margin: 0 0 16px; padding-left: 20px">
+    {{#each permissions}}
+    <li style="margin: 0 0 8px">{{name}}</li>
+    {{/each}}
+  </ul>
+  {{/if}}
+
+  <p style="margin: 0 0 16px">
+    <a href="{{ctaUrl}}" class="btn">Ir al panel</a>
+  </p>
+
+  <p style="margin: 0 0 16px">
+    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if
+    socialUrl}}<a href="{{socialUrl}}" class="link">Síguenos</a> |{{/if}}
+  </p>
+</div>

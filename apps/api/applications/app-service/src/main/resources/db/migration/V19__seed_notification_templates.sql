@@ -1,4 +1,4 @@
-INSERT INTO "neo-parking_db".neo_parking.notification_templates (
+INSERT INTO "nivo_db".nivo.notification_templates (
     id,
     name,
     event_type,

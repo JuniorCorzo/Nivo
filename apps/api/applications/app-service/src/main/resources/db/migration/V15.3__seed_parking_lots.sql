@@ -1,6 +1,6 @@
 -- Seed parking lots
 -- Seed parking lots con tipos compuestos
-INSERT INTO "neo-parking_db".neo_parking.parking_lots (id, tenant_id, owner_id, name, address, total_spots, timezone,
+INSERT INTO "nivo_db".nivo.parking_lots (id, tenant_id, owner_id, name, address, total_spots, timezone,
                                                        currency, operating_hours, created_at, updated_at)
 VALUES ('8e5085e5-6d7c-4319-8901-d457574c7038',
         '4a4c63e3-9c5d-4f23-9a94-577710307dc7',

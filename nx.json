@@ -2,7 +2,9 @@
   "installation": {
     "version": "21.6.4",
     "plugins": {
-      "@nx/gradle": "21.6.4"
+      "@nx/gradle": "21.6.4",
+      "@nx/js": "21.6.4",
+      "@nx/webpack": "21.6.4"
     }
   },
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
@@ -15,6 +17,14 @@
         "classesTargetName": "classes",
         "buildTargetName": "build"
       }
+    },
+    {
+      "plugin": "@nx/js",
+      "options": {
+        "buildTargetName": "build",
+        "lintTargetName": "lint",
+        "testTargetName": "test"
+      }
     }
   ],
   "targetDefaults": {
@@ -22,6 +32,22 @@
       "cache": true,
       "outputs": [
         "{projectRoot}/build"
+      ]
+    },
+    "lint": {
+      "cache": true,
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore"
+      ]
+    },
+    "test": {
+      "cache": true,
+      "inputs": [
+        "default",
+        "{workspaceRoot}/jest.config.js",
+        "{workspaceRoot}/jest.preset.js"
       ]
     }
   },

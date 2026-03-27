@@ -1,6 +1,6 @@
-# Historias de Usuario - NeoParking
+# Historias de Usuario - Nivo
 
-Este documento contiene las historias de usuario y sus criterios de aceptación para el proyecto NeoParking, basados en el documento de requerimientos.
+Este documento contiene las historias de usuario y sus criterios de aceptación para el proyecto Nivo, basados en el documento de requerimientos.
 
 ---
 

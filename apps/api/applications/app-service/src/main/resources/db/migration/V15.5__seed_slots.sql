@@ -1,5 +1,5 @@
 -- Seed slots
-INSERT INTO "neo-parking_db".neo_parking.slots (id, parking_lot_id, tenant_id, slot_number, type, zone, status,
+INSERT INTO "nivo_db".nivo.slots (id, parking_lot_id, tenant_id, slot_number, type, zone, status,
                                                 created_at, updated_at)
 VALUES ('95aba6de-dfdb-4fce-8676-62394efffa67', '8e5085e5-6d7c-4319-8901-d457574c7038',
         '4a4c63e3-9c5d-4f23-9a94-577710307dc7',

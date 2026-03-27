@@ -42,7 +42,7 @@ subprojects {
     test.finalizedBy(project.tasks.jacocoTestReport)
 
     pitest {
-        targetClasses = ['dev.angelcorzo.neoparking.*']
+        targetClasses = ['dev.angelcorzo.nivo.*']
         excludedClasses = []
         excludedTestClasses = []
         pitestVersion = '1.20.1'
