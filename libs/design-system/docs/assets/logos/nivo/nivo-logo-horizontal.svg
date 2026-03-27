@@ -1,0 +1,79 @@
+<svg width="180" height="68" viewBox="0 0 180 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Nivo horizontal – isotipo + wordmark en curvas -->
+  <defs>
+    <mask id="nivo-h-mask">
+      <rect y="2" width="64" height="64" fill="black"/>
+      <rect x="4" y="6" width="56" height="56" rx="13" fill="white"/>
+      <polygon points="47,6 60,6 60,19" fill="black"/>
+      <!-- N en negativo (misma proporción que icon, offset +2 vertical) -->
+      <polygon points="
+        15,51
+        15,17
+        25,17
+        44,43
+        44,17
+        53,17
+        53,51
+        43,51
+        24,25
+        24,51
+      " fill="black"/>
+    </mask>
+  </defs>
+
+  <!-- Isotipo centrado verticalmente: (68-64)/2 = 2 -->
+  <rect x="0" y="2" width="64" height="64" fill="currentColor" mask="url(#nivo-h-mask)"/>
+
+  <!--
+    Wordmark "Nivo" en curvas — proporciones coherentes con isotipo
+    Cap height: 34px (y: 16→50), x-height: 24px (y: 26→50)
+    Stroke: ~5.5px, monospaced glyph width: ~25px, tracking: ~3.5px
+    Start x: 80 (gap 16px desde isotipo)
+  -->
+  <g fill="currentColor">
+    <!-- N — x: 80→105 -->
+    <polygon points="
+      80,50
+      80,16
+      86,16
+      99.5,42
+      99.5,16
+      105,16
+      105,50
+      99,50
+      85.5,24
+      85.5,50
+    "/>
+
+    <!-- i — x: 109→115 -->
+    <rect x="109" y="17" width="5.5" height="5" rx="1"/>
+    <rect x="109" y="26" width="5.5" height="24"/>
+
+    <!-- v — x: 119→143 -->
+    <polygon points="
+      119,26
+      125,26
+      131,45
+      137,26
+      143,26
+      134,50
+      128,50
+    "/>
+
+    <!-- o — x: 147→171, radius=12 -->
+    <path d="
+      M159,26
+      C165.6,26 171,31.4 171,38
+      C171,44.6 165.6,50 159,50
+      C152.4,50 147,44.6 147,38
+      C147,31.4 152.4,26 159,26
+      Z
+      M159,31.5
+      C155.4,31.5 152.5,34.4 152.5,38
+      C152.5,41.6 155.4,44.5 159,44.5
+      C162.6,44.5 165.5,41.6 165.5,38
+      C165.5,34.4 162.6,31.5 159,31.5
+      Z
+    " fill-rule="evenodd"/>
+  </g>
+</svg>

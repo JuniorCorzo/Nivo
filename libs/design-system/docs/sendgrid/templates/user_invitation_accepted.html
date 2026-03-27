@@ -1,0 +1,27 @@
+<!--
+Subject: {{acceptedUserName}} aceptó la invitación a {{organizationName}}
+Variables: userName, acceptedUserName, organizationName, roleName, acceptedAt, ctaUrl, companyName, supportUrl, socialUrl, unsubscribeUrl, companyAddress
+Descripción: Notifica al invitador/admin que la invitación fue aceptada.
+-->
+<div style="font-size: 16px; line-height: 1.6">
+  <p style="margin: 0 0 16px">Hola {{userName}},</p>
+
+  <p style="margin: 0 0 16px">
+    {{acceptedUserName}} aceptó la invitación para unirse a
+    <strong>{{organizationName}}</strong>.
+  </p>
+
+  <p style="margin: 0 0 8px"><strong>Rol asignado:</strong> {{roleName}}</p>
+  <p style="margin: 0 0 16px">
+    <strong>Fecha de aceptación:</strong> {{acceptedAt}}
+  </p>
+
+  <p style="margin: 0 0 16px">
+    <a href="{{ctaUrl}}" class="btn">Ver equipo</a>
+  </p>
+
+  <p style="margin: 0 0 16px">
+    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if
+    socialUrl}}<a href="{{socialUrl}}" class="link">Síguenos</a> |{{/if}}
+  </p>
+</div>

@@ -1,0 +1,29 @@
+<!--
+Subject: Salida registrada — Ticket #{{ticketNumber}}
+Variables: userName, ticketNumber, ticketSubject, resolutionSummary, closedAt, ctaUrl, satisfactionUrl, companyName, supportUrl, socialUrl, unsubscribeUrl, companyAddress
+Descripción: Notificación de ticket cerrado para salida de vehículo con resumen y CTA a calificar.
+-->
+<div style="font-size: 16px; line-height: 1.6">
+  <p style="margin: 0 0 16px">Hola {{userName}},</p>
+
+  <p style="margin: 0 0 16px">
+    Registramos la <strong>salida de tu vehículo</strong> y el cierre del ticket
+    <strong>#{{ticketNumber}}</strong>.
+  </p>
+
+  <p style="margin: 0 0 8px"><strong>Referencia:</strong> {{ticketSubject}}</p>
+  <p style="margin: 0 0 8px"><strong>Hora de salida:</strong> {{closedAt}}</p>
+  <p style="margin: 0 0 16px">
+    <strong>Resumen:</strong> {{resolutionSummary}}
+  </p>
+
+  <p style="margin: 0 0 16px">
+    <a href="{{ctaUrl}}" class="btn">Ver ticket</a> {{#if satisfactionUrl}}|
+    <a href="{{satisfactionUrl}}" class="btn">Calificar atención</a>{{/if}}
+  </p>
+
+  <p style="margin: 0 0 16px">
+    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if
+    socialUrl}}<a href="{{socialUrl}}" class="link">Síguenos</a> |{{/if}}
+  </p>
+</div>

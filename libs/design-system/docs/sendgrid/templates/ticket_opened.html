@@ -1,0 +1,26 @@
+<!--
+Subject: Ingreso registrado — Ticket #{{ticketNumber}}
+Variables: userName, ticketNumber, ticketSubject, ticketDescription, createdAt, responseEta, ctaUrl, companyName, supportUrl, socialUrl, unsubscribeUrl, companyAddress
+Descripción: Confirmación de ticket abierto para ingreso de vehículo con resumen y ETA opcional.
+-->
+<div style="font-size: 16px; line-height: 1.6">
+  <p style="margin: 0 0 16px">Hola {{userName}},</p>
+
+  <p style="margin: 0 0 16px">
+    Registramos el <strong>ingreso de tu vehículo</strong> con el ticket
+    <strong>#{{ticketNumber}}</strong>.
+  </p>
+
+  <p style="margin: 0 0 8px"><strong>Referencia:</strong> {{ticketSubject}}</p>
+  <p style="margin: 0 0 8px"><strong>Hora de ingreso:</strong> {{createdAt}}</p>
+  <p style="margin: 0 0 8px"><strong>Detalle:</strong> {{ticketDescription}}</p>
+
+  <p style="margin: 0 0 16px">
+    <a href="{{ctaUrl}}" class="btn">Ver ticket</a>
+  </p>
+
+  <p style="margin: 0 0 16px">
+    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if
+    socialUrl}}<a href="{{socialUrl}}" class="link">Síguenos</a> |{{/if}}
+  </p>
+</div>

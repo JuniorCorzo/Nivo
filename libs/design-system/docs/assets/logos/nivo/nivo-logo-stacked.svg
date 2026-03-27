@@ -1,0 +1,83 @@
+<svg width="180" height="148" viewBox="0 0 180 148" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Nivo stacked – isotipo centrado + wordmark en curvas debajo -->
+  <defs>
+    <mask id="nivo-s-mask">
+      <!-- Coordenadas en userSpaceOnUse (global viewBox) -->
+      <!-- Isotipo centrado: x=54, y=0, 72x72 -->
+      <rect x="54" y="0" width="72" height="72" fill="black"/>
+      <rect x="58" y="4" width="64" height="64" rx="15" fill="white"/>
+      <polygon points="105,4 122,4 122,21" fill="black"/>
+      <!-- N en negativo (coords globales: +54 horizontal) -->
+      <polygon points="
+        71,55
+        71,17
+        82,17
+        104,46
+        104,17
+        114,17
+        114,55
+        103,55
+        81,26
+        81,55
+      " fill="black"/>
+    </mask>
+  </defs>
+
+  <!-- Isotipo centrado: (180-72)/2 = 54 -->
+  <rect x="54" y="0" width="72" height="72" fill="currentColor" mask="url(#nivo-s-mask)"/>
+
+  <!--
+    Wordmark "Nivo" en curvas – centrado debajo del isotipo
+    Cap height: 38px (y: 86→124)
+    x-height:   26px (y: 98→124)
+    Stroke:     6px
+    Total "Nivo" width: ~104px
+    Center: (180 - 104) / 2 = 38
+  -->
+  <g fill="currentColor">
+    <!-- N — x: 38→66, cap height -->
+    <polygon points="
+      38,124
+      38,86
+      44,86
+      60,114
+      60,86
+      66,86
+      66,124
+      60,124
+      44,96
+      44,124
+    "/>
+
+    <!-- i — x: 70→76 -->
+    <rect x="70" y="87" width="6" height="6" rx="1.5"/>
+    <rect x="70" y="98" width="6" height="26"/>
+
+    <!-- v — x: 82→110 -->
+    <polygon points="
+      82,98
+      88.5,98
+      96,118
+      103.5,98
+      110,98
+      100,124
+      92,124
+    "/>
+
+    <!-- o — x: 114→140, radius=13 -->
+    <path d="
+      M127,98
+      C134.2,98 140,103.8 140,111
+      C140,118.2 134.2,124 127,124
+      C119.8,124 114,118.2 114,111
+      C114,103.8 119.8,98 127,98
+      Z
+      M127,104
+      C123.1,104 120,107.1 120,111
+      C120,114.9 123.1,118 127,118
+      C130.9,118 134,114.9 134,111
+      C134,107.1 130.9,104 127,104
+      Z
+    " fill-rule="evenodd"/>
+  </g>
+</svg>

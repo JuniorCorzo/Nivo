@@ -1,0 +1,8 @@
+{
+  "name": "neo-design-system",
+  "version": "0.0.1",
+  "license": "MIT",
+  "peerDependencies": {},
+  "dependencies": {},
+  "description": "Nivo Design System - Visual identity and UI components"
+}

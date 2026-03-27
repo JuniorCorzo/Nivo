@@ -1,0 +1,31 @@
+<!--
+Subject: Reserva confirmada — {{reservationCode}}
+Variables: userName, reservationCode, parkingName, spotLabel, reservationDate, startTime, endTime, vehiclePlate, ctaUrl, companyName, supportUrl, socialUrl, unsubscribeUrl, companyAddress
+Descripción: Confirmación de reserva con resumen de datos y CTA a detalles.
+-->
+<div style="font-size: 16px; line-height: 1.6">
+  <p style="margin: 0 0 16px">Hola {{userName}},</p>
+
+  <p style="margin: 0 0 16px">
+    Tu reserva quedó confirmada con código <strong>{{reservationCode}}</strong>.
+  </p>
+
+  <p style="margin: 0 0 8px"><strong>Parqueadero:</strong> {{parkingName}}</p>
+  <p style="margin: 0 0 8px"><strong>Plaza:</strong> {{spotLabel}}</p>
+  <p style="margin: 0 0 8px"><strong>Fecha:</strong> {{reservationDate}}</p>
+  <p style="margin: 0 0 8px">
+    <strong>Horario:</strong> {{startTime}} a {{endTime}}
+  </p>
+  <p style="margin: 0 0 16px"><strong>Vehículo:</strong> {{vehiclePlate}}</p>
+
+  <p style="margin: 0 0 16px">
+    <a href="{{ctaUrl}}" class="btn">Ver detalles de la reserva</a>
+  </p>
+
+  <p style="margin: 0 0 16px">
+    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if
+    socialUrl}}<a href="{{socialUrl}}" class="link">Síguenos</a> |{{/if}}
+  </p>
+
+  {{> components/email_footer}}
+</div>
