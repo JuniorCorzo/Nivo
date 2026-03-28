@@ -15,6 +15,7 @@ plugins {
     id 'info.solidsoft.pitest' version "${pitestVersion}" apply false
     id 'org.sonarqube' version "${sonarVersion}"
     id 'jacoco'
+    id 'dev.nx.gradle.project-graph' version '0.1.7'
 }
 
 sonar {
