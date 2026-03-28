@@ -1,0 +1,21 @@
+meta {
+  name: Toggle notification preference
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{BASE_URL}}/notification-preferences/toggle?event=USER_SELF_REGISTERED&channel=WHATSAPP
+  body: none
+  auth: inherit
+}
+
+params:query {
+  event: USER_SELF_REGISTERED
+  channel: WHATSAPP
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,5 +1,5 @@
 {
-  "name": "NeoParkingAPI",
+  "name": "NivoAPI",
   "root": "apps/api",
   "sourceRoot": "apps/api/src",
   "projectType": "application",

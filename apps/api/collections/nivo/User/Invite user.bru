@@ -1,0 +1,25 @@
+meta {
+  name: Invite user
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/users/invite-user
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "josedanielmmf+prueba_invitation@gmail.com",
+    "role": "MANAGER",
+    "tenantId": "4a4c63e3-9c5d-4f23-9a94-577710307dc7",
+    "inviteBy": "bd1b95bf-6584-4421-abe5-c06733e5e722"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

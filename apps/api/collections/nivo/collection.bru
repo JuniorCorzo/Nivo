@@ -1,0 +1,61 @@
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{ACCESS_TOKEN}}
+}
+
+vars:pre-request {
+  PAYMENT_ID: 20b6bb66-5171-4c22-b026-b49bfe54a7fe
+}
+
+script:pre-request {
+  const currentUrl = req.getUrl()
+  if (currentUrl.includes("/tenants/register")) return;
+  
+  const accessToken = bru.getEnvVar("ACCESS_TOKEN")
+  const refreshToken = bru.getEnvVar("REFRESH_TOKEN")
+  const baseUrl = bru.getEnvVar("BASE_URL")
+  const email = bru.getEnvVar("EMAIL")
+  const password = bru.getEnvVar("PASSWORD")
+  
+  if (!refreshToken) {
+    await bru.sendRequest({
+      method: "POST",
+      url: `${baseUrl}/auth/login`,
+      data: {
+        email: email,
+        password: password
+      }
+    }, function (err, res) {
+       if (err) {
+        console.error(err)
+         return
+      }
+      
+      const {accessToken, refreshToken} = res.data.data
+      bru.setEnvVar("ACCESS_TOKEN", accessToken)
+      bru.setEnvVar("REFRESH_TOKEN", refreshToken)
+    })
+    return;
+  } 
+  
+    await bru.sendRequest({
+      method: "POST",
+      url: `${baseUrl}/auth/refresh/${refreshToken}`,
+      data: {
+        email: email,
+        password: password
+      }
+    }, function (err, res) {
+      if (err) {
+        console.error(err)
+        return
+      }
+      const {accessToken, refreshToken} = res.data.data
+      bru.setEnvVar("ACCESS_TOKEN", accessToken)
+      bru.setEnvVar("REFRESH_TOKEN", refreshToken)
+    })
+  
+}

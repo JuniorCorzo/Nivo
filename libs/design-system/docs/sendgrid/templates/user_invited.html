@@ -1,0 +1,29 @@
+<!--
+Subject: Invitación para unirse a {{organizationName}} en {{companyName}}
+Variables: userName, inviterName, organizationName, roleName, ctaUrl, expirationDate, companyName, supportUrl, socialUrl, unsubscribeUrl, companyAddress
+Descripción: Invitación a un nuevo usuario con rol propuesto y vencimiento opcional.
+-->
+<div style="font-size: 16px; line-height: 1.6">
+  <p style="margin: 0 0 16px">Hola {{userName}},</p>
+
+  <p style="margin: 0 0 16px">
+    {{inviterName}} te invitó a unirte a <strong>{{organizationName}}</strong>
+    en {{companyName}}.
+  </p>
+
+  <p style="margin: 0 0 8px"><strong>Rol propuesto:</strong> {{roleName}}</p>
+  {{#if expirationDate}}
+  <p style="margin: 0 0 16px">
+    <strong>Vencimiento de la invitación:</strong> {{expirationDate}}
+  </p>
+  {{/if}}
+
+  <p style="margin: 0 0 16px">
+    <a href="{{ctaUrl}}" class="btn">Aceptar invitación</a>
+  </p>
+
+  <p style="margin: 0 0 16px">
+    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if
+    socialUrl}}<a href="{{socialUrl}}" class="link">Síguenos</a> |{{/if}}
+  </p>
+</div>

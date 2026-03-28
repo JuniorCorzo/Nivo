@@ -6,19 +6,29 @@ spring:
   profiles:
     active: dev
   application:
-    name: "Neo Parking"
+    name: "Nivo"
   devtools:
     add-properties: false
   datasource:
     driverClassName: org.postgresql.Driver
   jpa:
     databasePlatform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+        globally_quoted_identifiers: true
   security:
     oauth2:
       resourceserver:
         jwt:
           public-key-location: classpath:keys/public_key.pem
           issuer-uri: "${jwt.issue}"
+  threads:
+    virtual:
+      enabled: true
+  task:
+    execution:
+      thread-name-prefix: virtual-async-
 management:
   endpoints:
     web:
@@ -29,4 +39,4 @@ management:
       probes:
         enabled: true
 cors:
-  allowed-origins: "http://localhost:4200,http://localhost:8080"
+  allowed-origins: "http://localhost:4200,http://localhost:8080,http://localhost:63342"

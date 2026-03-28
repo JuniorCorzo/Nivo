@@ -1,0 +1,53 @@
+<!--
+Subject: Pago pendiente — {{paymentReference}}
+Variables: userName, paymentReference, paymentAmount, paymentCurrency, dueDate, description, items (name, amount), ctaUrl, companyName, supportUrl, socialUrl, unsubscribeUrl, companyAddress
+Descripción: Recordatorio de pago pendiente con detalle de items y CTA a checkout.
+-->
+<div style="font-size: 16px; line-height: 1.6">
+  <p style="margin: 0 0 16px">Hola {{userName}},</p>
+
+  <p style="margin: 0 0 16px">
+    Tienes un pago pendiente con referencia
+    <strong>{{paymentReference}}</strong> por
+    <strong>{{paymentAmount}} {{paymentCurrency}}</strong>. {{#if dueDate}}Fecha
+    límite: {{dueDate}}.{{/if}}
+  </p>
+
+  <p style="margin: 0 0 8px"><strong>Concepto:</strong> {{description}}</p>
+
+  {{#if items}}
+  <p style="margin: 0 0 8px"><strong>Detalle del cobro:</strong></p>
+  <ul style="margin: 0 0 16px; padding-left: 20px">
+    {{#each items}}
+    <li style="margin: 0 0 10px">
+      <strong>{{this.name}}</strong>
+      {{#if this.description}}<br /><span>{{this.description}}</span>{{/if}}
+      {{#if this.parkingName}}<br />Parqueadero:
+      <span>{{this.parkingName}}</span>{{/if}} {{#if this.spotLabel}}<br />Plaza:
+      <span>{{this.spotLabel}}</span>{{/if}} {{#if this.vehiclePlate}}<br />Vehículo:
+      <span>{{this.vehiclePlate}}</span>{{/if}} {{#if this.startTime}}<br />Inicio:
+      <span>{{this.startTime}}</span>{{/if}} {{#if this.endTime}}<br />Fin:
+      <span>{{this.endTime}}</span>{{/if}} {{#if this.quantity}}<br />Cantidad:
+      <span>{{this.quantity}}</span>{{/if}} {{#if this.unitAmount}}<br />Valor
+      unitario: <span>{{this.unitAmount}}</span>{{/if}} {{#if this.amount}}<br />Subtotal:
+      <span>{{this.amount}}</span>{{/if}}
+    </li>
+    {{/each}}
+  </ul>
+  {{/if}}
+
+  <p style="margin: 0 0 16px">
+    <a href="{{ctaUrl}}" class="btn">Completar pago</a>
+  </p>
+  <p style="margin: 0 0 16px">
+    Si el botón no funciona, copia y pega este enlace en tu navegador:<br />
+    <a href="{{ctaUrl}}" class="link">{{ctaUrl}}</a>
+  </p>
+
+  <p style="margin: 0 0 16px">
+    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if
+    socialUrl}}<a href="{{socialUrl}}" class="link">Síguenos</a> |{{/if}}
+  </p>
+
+  {{> components/email_footer}}
+</div>

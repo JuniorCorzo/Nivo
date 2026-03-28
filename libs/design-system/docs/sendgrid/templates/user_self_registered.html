@@ -1,0 +1,41 @@
+<!--
+Subject: Tu cuenta en {{companyName}} ya está lista
+Variables: userName, email, ctaUrl, companyName, supportUrl, socialUrl, unsubscribeUrl, companyAddress
+Descripción: Bienvenida tras registro propio con primeros pasos y CTA.
+-->
+<div style="font-size: 16px; line-height: 1.6">
+  <p style="margin: 0 0 16px">Hola {{userName}},</p>
+
+  <p style="margin: 0 0 16px">
+    Tu registro en <strong>{{companyName}}</strong> fue exitoso. Ya tienes
+    acceso a tu panel para administrar operaciones, usuarios y reportes desde un
+    solo lugar.
+  </p>
+
+  <p style="margin: 0 0 16px"><strong>Cuenta registrada:</strong> {{email}}</p>
+
+  <p style="margin: 0 0 8px"><strong>Para comenzar rápido:</strong></p>
+  <ul style="margin: 0 0 16px; padding-left: 20px">
+    <li style="margin: 0 0 8px">Configura tu primer estacionamiento.</li>
+    <li style="margin: 0 0 8px">Define accesos y permisos del equipo.</li>
+    <li style="margin: 0">Revisa actividad y métricas en tiempo real.</li>
+  </ul>
+
+  <p style="margin: 0 0 16px">
+    <a href="{{ctaUrl}}" class="btn">Ir al panel de Neo Parking</a>
+  </p>
+  <p style="margin: 0 0 16px">
+    Si el botón no funciona, copia y pega este enlace en tu navegador:<br />
+    <a href="{{ctaUrl}}" class="link">{{ctaUrl}}</a>
+  </p>
+
+  <p style="margin: 0 0 16px">
+    ¿Necesitas ayuda? Nuestro equipo está listo para acompañarte en la puesta en
+    marcha.
+  </p>
+
+  <p style="margin: 0 0 16px">
+    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if
+    socialUrl}}<a href="{{socialUrl}}" class="link">Síguenos</a> |{{/if}}
+  </p>
+</div>

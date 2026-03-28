@@ -1,0 +1,25 @@
+meta {
+  name: CheckOut Vehicle
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{BASE_URL}}/tickets/check-out
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "sendVia": "EMAIL",
+    "ticketId": "f4b59ba5-4ddd-4166-913f-30b97aaa4dce",
+    "paymentMethod": "PAY_LINK",
+    "email":"josedanielmmf@gmail.com"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

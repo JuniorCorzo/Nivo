@@ -3,6 +3,7 @@ dependencies {
 
     implementation 'org.springframework.security:spring-security-core'
     implementation 'org.springframework.security:spring-security-crypto'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.19.2'
     implementation 'org.bouncycastle:bcprov-jdk18on:1.82'
     implementation 'org.springframework.boot:spring-boot'
     implementation 'io.jsonwebtoken:jjwt-api:0.13.0'

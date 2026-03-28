@@ -34,7 +34,10 @@ CREATE INDEX idx_parking_tickets_reservation_id ON parking_tickets(reservation_i
 CREATE INDEX idx_parking_tickets_user_id ON parking_tickets(user_id);
 CREATE INDEX idx_parking_tickets_rate_id ON parking_tickets(rate_id);
 
+CREATE UNIQUE INDEX IF NOT EXISTS ux_payments_one_completed_per_ticket ON payments(tenant_id, parking_ticket_id) 
+WHERE status = 'COMPLETED';
+
+
+
 -- payment indexes
-CREATE INDEX idx_payments_tenant_id ON payments(tenant_id);
-CREATE INDEX idx_payments_reservation_id ON payments(reservation_id);
-CREATE INDEX idx_payments_parking_ticket_id ON payments(parking_ticket_id);
+CREATE INDEX IF NOT EXISTS idx_payment_ticket ON payments(tenant_id, parking_ticket_id)

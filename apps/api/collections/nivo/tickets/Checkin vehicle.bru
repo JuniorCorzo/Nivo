@@ -1,0 +1,25 @@
+meta {
+  name: Checkin vehicle
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/tickets/check-in
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "slotId": "95aba6de-dfdb-4fce-8676-62394efffa67",
+    "rateId": "4014e6f0-eaf7-45bc-ba23-817bd22a6ad9",
+    "plate": "ABC-000",
+    "email": "josedanielmmf@gmail.com"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
