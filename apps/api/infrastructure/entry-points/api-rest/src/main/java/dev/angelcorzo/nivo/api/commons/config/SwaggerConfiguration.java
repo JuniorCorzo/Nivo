@@ -1,23 +1,23 @@
 package dev.angelcorzo.nivo.api.commons.config;
 
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.springframework.context.annotation.Bean;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class SwaggerConfiguration {
-  private SecurityScheme securityScheme() {
-    return new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT");
-  }
-
-  @Bean
-  public OpenAPI openAPI() {
-    return new OpenAPI()
-        .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
-        .components(
-            new Components().addSecuritySchemes("Bearer Authentication", this.securityScheme()));
-  }
-}
+@SecuritySchemes(
+    value = {
+      @SecurityScheme(
+          name = "refreshToken",
+          type = SecuritySchemeType.APIKEY,
+          in = SecuritySchemeIn.COOKIE,
+          paramName = "refreshToken"),
+      @SecurityScheme(
+          name = "Bearer Authentication",
+          type = SecuritySchemeType.HTTP,
+          scheme = "bearer",
+          bearerFormat = "JWT")
+    })
+public class SwaggerConfiguration {}
