@@ -1,6 +1,23 @@
-# NeoParking Design System
+# Nivo Design System
 
-Este es el design system oficial de NeoParking. Contiene todos los elementos de identidad visual y componentes UI reutilizables para construir interfaces consistentes en todas las aplicaciones de NeoParking.
+Este es el design system oficial de Nivo. Contiene los elementos de identidad visual y componentes UI reutilizables para construir interfaces consistentes en todas las aplicaciones de Nivo.
+
+## Publicacion en npm
+
+Publica siempre el paquete compilado de `dist`, no la raiz del repo.
+
+```bash
+# 1) Build
+npm run build
+
+# 2) Verificacion de archivos a publicar
+npm run pack:dist
+
+# 3) Publicar solo dist
+npm run publish:dist
+```
+
+Si ejecutas `npm publish` en la raiz, se intentaria publicar codigo fuente y docs. Este repo tiene una proteccion en `prepublishOnly` para bloquear ese error.
 
 ## Estructura
 
@@ -14,31 +31,76 @@ src/
 
 ## Uso
 
-Para usar el design system en cualquier aplicación o librería del monorepo:
+Para usar el design system en cualquier aplicación o librería:
 
 ```bash
-# Instalar dependencias del workspace (si es necesario)
-npm install
+# Instalar dependencias (si es necesario)
+bun install
 
-# El design system ya está disponible como dependencia de proyecto
-# En tu código:
-import { Button } from '@neoparking/design-system';
-import { colors } from '@neoparking/design-system/tokens';
+# Build de la librería
+bunx ng-packagr -p ng-package.json
+
+# Empaquetar (genera .tgz en dist/libs/design-system)
+cd ../../dist/libs/design-system
+bun pm pack
+
+# En otro proyecto: instalar el paquete local
+bun add /ruta/a/design-system-0.0.1.tgz
+```
+
+En tu código Angular standalone:
+
+```ts
+import { ButtonComponent } from "@nivo/design-system";
+```
+
+```ts
+@Component({
+  standalone: true,
+  imports: [ButtonComponent],
+  template: `<nv-button>Guardar</nv-button>`,
+})
+export class ExampleComponent {}
+```
+
+### Usar tokens.css desde npm
+
+El archivo `tokens.css` se empaqueta dentro del paquete en `styles/tokens.css`.
+Ademas, el paquete ahora exporta explicitamente `./styles/tokens.css` para que funcione con proyectos que respetan `exports` en `package.json`.
+
+En una app Angular, agregalo en `angular.json`:
+
+```json
+{
+  "styles": [
+    "src/styles.css",
+    "node_modules/@nivo-sass/design-system/styles/tokens.css"
+  ]
+}
+```
+
+Alternativa: importarlo en tu `styles.css` global:
+
+```css
+@import "@nivo-sass/design-system/styles/tokens.css";
 ```
 
 ## Desarrollo
 
 ### Construir el design system
+
 ```bash
 nx build design-system
 ```
 
 ### Ejecutar tests
+
 ```bash
 nx test design-system
 ```
 
 ### Lint
+
 ```bash
 nx lint design-system
 ```
