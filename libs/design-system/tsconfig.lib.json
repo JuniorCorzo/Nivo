@@ -5,8 +5,9 @@
     "declaration": true,
     "declarationMap": true,
     "inlineSources": true,
+    "resolveJsonModule": true,
     "types": []
   },
   "exclude": ["jest.config.ts", "**/*.spec.ts", "**/*.test.ts"],
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.json"]
 }

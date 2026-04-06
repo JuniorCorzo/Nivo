@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/browser",
+    "types": ["node"]
+  },
+  "files": [
+    "src/storybook-main.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}
