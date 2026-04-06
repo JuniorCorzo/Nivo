@@ -1,0 +1,25 @@
+{
+  "folders": [
+    {
+      "name": "Nivo Web",
+      "path": "apps/web",
+    },
+    {
+      "name": "Nivo Design System Library",
+      "path": "libs/design-system",
+    },
+    {
+      "name": "Root",
+      "path": ".",
+    },
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.git": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/.DS_Store": true,
+      "apps/api/**": true,
+    },
+  },
+}
