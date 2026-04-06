@@ -1,0 +1,101 @@
+/* ==========================================================
+ * tokens.css — AUTO-GENERADO
+ * No edites este archivo directamente.
+ * Fuente de verdad: src/lib/tokens/colors.json
+ * Regenerar: node scripts/generate-tokens.mjs
+ * ========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Mono:wght@700&display=swap');
+
+/* ----------------------------------------------------------
+ * Base — light theme como default en :root
+ * Requerido para que Tailwind @theme inline pueda resolver
+ * los var() en tiempo de build.
+ * ---------------------------------------------------------- */
+:root {
+  --radius: 0.5rem;
+
+  --background: #ffffff;
+  --foreground: #09090b;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --popover: #ffffff;
+  --popover-foreground: #09090b;
+  --primary: #18181b;
+  --primary-foreground: #fafafa;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #18181b;
+  --semantic-success: #16a34a;
+  --semantic-warning: #ca8a04;
+  --semantic-info: #2563eb;
+  --semantic-error: #ef4444;
+}
+
+/* ----------------------------------------------------------
+ * Light theme explícito
+ * ---------------------------------------------------------- */
+.light,
+[data-theme="light"] {
+  --background: #ffffff;
+  --foreground: #09090b;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --popover: #ffffff;
+  --popover-foreground: #09090b;
+  --primary: #18181b;
+  --primary-foreground: #fafafa;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #18181b;
+  --semantic-success: #16a34a;
+  --semantic-warning: #ca8a04;
+  --semantic-info: #2563eb;
+  --semantic-error: #ef4444;
+}
+
+/* ----------------------------------------------------------
+ * Dark theme
+ * ---------------------------------------------------------- */
+.dark,
+[data-theme="dark"] {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #09090b;
+  --card-foreground: #fafafa;
+  --popover: #09090b;
+  --popover-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #18181b;
+  --secondary: #27272a;
+  --secondary-foreground: #fafafa;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #d4d4d8;
+  --semantic-success: #22c55e;
+  --semantic-warning: #eab308;
+  --semantic-info: #3b82f6;
+  --semantic-error: #ef4444;
+}
