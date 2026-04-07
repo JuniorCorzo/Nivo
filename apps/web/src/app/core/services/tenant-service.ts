@@ -1,12 +1,11 @@
+import { HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { ResponseUserDto } from '@core/api/generated/models';
 import { TenantControllerService } from '@core/api/generated/services';
+import { AUTHORIZED } from '@core/http/context/auth.token';
 import { TenantMapper } from '@core/mappers/tenant.mapper';
 import { UserMapper } from '@core/mappers/user.mapper';
-import { ResponseErrorModel } from '@core/models/response.model';
 import { RegisterTenant } from '@core/models/tenants.model';
-import { UserModel } from '@core/models/user.model';
-import { catchError, map, ObservableInput, throwError } from 'rxjs';
+import { map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +19,7 @@ export class TenantService {
     const requestBody = this.tenantMapper.mapToRegisterTenantDto(registerTenant);
 
     return this.tenantController
-      .registerTenant({ body: requestBody })
+      .registerTenant({ body: requestBody }, new HttpContext().set(AUTHORIZED, false))
       .pipe(map(({ data }) => this.userMapper.mapToUserModel(data)));
   }
 }

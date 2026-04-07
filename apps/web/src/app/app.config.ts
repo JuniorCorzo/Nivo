@@ -19,6 +19,8 @@ import { addWithCredentialsInterceptor } from '@core/http/interceptors/add-with-
 import { provideHotToastConfig } from '@ngxpert/hot-toast';
 import { errorInterceptor } from './core/http/interceptors/error-interceptor';
 import { AuthService } from '@core/services/auth-service';
+import { authInterceptor } from '@core/http/interceptors/auth-interceptor';
+import { refreshTokenInterceptor } from '@core/http/interceptors/refresh-token-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -39,7 +41,12 @@ export const appConfig: ApplicationConfig = {
     }),
     provideHttpClient(
       withFetch(),
-      withInterceptors([addWithCredentialsInterceptor, errorInterceptor]),
+      withInterceptors([
+        addWithCredentialsInterceptor,
+        errorInterceptor,
+        authInterceptor,
+        refreshTokenInterceptor,
+      ]),
     ),
     provideNgIconLoader((name) => {
       const http = inject(HttpClient);
