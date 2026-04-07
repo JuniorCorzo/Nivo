@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import {
   CardComponent,
   CardHeaderComponent,
@@ -20,14 +20,16 @@ import {
   validateTree,
   FormField,
   submit,
+  FieldTree,
 } from '@angular/forms/signals';
 import { PhoneMask } from '@features/auth/register-page/directives/phone-mask';
 import { TenantService } from '@core/services/tenant-service';
 import { RegisterTenant } from '@core/models/tenants.model';
 import { lucideLoader } from '@ng-icons/lucide';
 import { isResponseError } from '@shared/utils/response-validate.utils';
-import { firstValueFrom } from 'rxjs';
+import { exhaustMap, firstValueFrom, from, Subject, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
+import { RegisterUserModel } from '@core/models/user.model';
 
 type RegisterSchema = {
   companyName: string;
@@ -36,6 +38,11 @@ type RegisterSchema = {
   contactInfo: string;
   password: string;
   confirmPassword: string;
+};
+
+type RegisterPayload = {
+  registerTenant: RegisterTenant;
+  schemaPath: FieldTree<RegisterSchema, string | number>;
 };
 
 @Component({
@@ -56,10 +63,12 @@ type RegisterSchema = {
   templateUrl: './register-page.html',
   providers: [provideIcons({ lucideLoader })],
 })
-export class RegisterPage {
+export class RegisterPage implements OnInit, OnDestroy {
   protected readonly texts = APP_TEXTS.auth.register;
   protected isLoading = signal(false);
 
+  private readonly submitter = new Subject<RegisterPayload>();
+  private readonly destroyer = new Subject<void>();
   private readonly tenantService = inject(TenantService);
   private readonly router = inject(Router);
   private registerModel = signal<RegisterSchema>({
@@ -101,44 +110,65 @@ export class RegisterPage {
     });
   });
 
+  ngOnInit(): void {
+    this.submitter
+      .pipe(
+        exhaustMap((payload) => from(this.sendRequest(payload))),
+        takeUntil(this.destroyer),
+      )
+      .subscribe();
+  }
+
+  ngOnDestroy(): void {
+    this.destroyer.next();
+    this.destroyer.complete();
+  }
+
   async onSubmit(event: Event) {
     event.preventDefault();
     await submit(this.registerForm, async (schemaPath) => {
       this.isLoading.set(true);
-      const registerTenant: RegisterTenant = {
-        companyName: this.registerModel().companyName,
-        user: {
-          fullName: this.registerModel().username,
-          email: this.registerModel().email,
-          contactInfo: this.registerModel().contactInfo,
-          password: this.registerModel().password,
-        },
-      };
-
-      try {
-        await firstValueFrom(this.tenantService.registerTenant(registerTenant));
-        this.router.navigate(['/auth/login']);
-        return [];
-      } catch (err) {
-        if (isResponseError(err)) {
-          return [
-            {
-              fieldTree: schemaPath.email,
-              kind: 'emailExists',
-              message: err.error,
-            },
-          ];
-        }
-        return [];
-      } finally {
-        this.isLoading.set(false);
-      }
+      const registerTenant: RegisterTenant = this.getRegisterModel();
+      this.submitter.next({ registerTenant, schemaPath });
     });
+  }
+
+  private getRegisterModel(): RegisterTenant {
+    return {
+      companyName: this.registerModel().companyName,
+      user: {
+        fullName: this.registerModel().username,
+        email: this.registerModel().email,
+        contactInfo: this.registerModel().contactInfo,
+        password: this.registerModel().password,
+      },
+    };
   }
 
   onError(key: keyof RegisterSchema) {
     const field = this.registerForm[key]();
 
     return field.touched() && field.invalid() ? field.errors() : [];
+  }
+
+  private async sendRequest({ registerTenant, schemaPath }: RegisterPayload) {
+    try {
+      await firstValueFrom(this.tenantService.registerTenant(registerTenant));
+      this.router.navigate(['/auth/login']);
+      return [];
+    } catch (err) {
+      if (isResponseError(err)) {
+        return [
+          {
+            fieldTree: schemaPath.email,
+            kind: 'emailExists',
+            message: err.error,
+          },
+        ];
+      }
+      return [];
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 }
