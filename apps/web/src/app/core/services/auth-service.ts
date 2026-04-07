@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { AuthenticationControllerService } from '@core/api/generated/services';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, EMPTY, map, Observable, of } from 'rxjs';
 import { AuthMapper } from '@core/mappers/auth.mapper';
 import { ADD_WITH_CREDENTIALS } from '@core/http/context/add-with-credentials.token';
 import { HttpContext } from '@angular/common/http';
@@ -27,6 +27,21 @@ export class AuthService {
           return !!accessToken;
         }),
         catchError(() => of(false)),
+      );
+  }
+
+  refreshSession() {
+    return this.authController
+      .refreshSession({}, new HttpContext().set(ADD_WITH_CREDENTIALS, true))
+      .pipe(
+        map(({ data }) => {
+          const { accessToken } = data;
+          this.accessToken.set(accessToken);
+        }),
+        catchError(() => {
+          this.router.navigate(['/auth/login']);
+          return EMPTY;
+        }),
       );
   }
 

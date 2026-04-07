@@ -1,6 +1,7 @@
 import {
   ApplicationConfig,
   inject,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
@@ -17,6 +18,7 @@ import { provideNgIconLoader, withCaching } from '@ng-icons/core';
 import { addWithCredentialsInterceptor } from '@core/http/interceptors/add-with-credentials.interceptor';
 import { provideHotToastConfig } from '@ngxpert/hot-toast';
 import { errorInterceptor } from './core/http/interceptors/error-interceptor';
+import { AuthService } from '@core/services/auth-service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -43,5 +45,6 @@ export const appConfig: ApplicationConfig = {
       const http = inject(HttpClient);
       return http.get(`assets/icons/${name}.svg`, { responseType: 'text' });
     }, withCaching()),
+    provideAppInitializer(() => inject(AuthService).refreshSession()),
   ],
 };
