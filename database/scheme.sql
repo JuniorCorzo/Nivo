@@ -1,3 +1,4 @@
+
 CREATE SCHEMA IF NOT EXISTS nivo;
 SET search_path TO nivo;
 
