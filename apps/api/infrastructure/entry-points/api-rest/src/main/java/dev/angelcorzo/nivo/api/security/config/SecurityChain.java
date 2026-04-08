@@ -1,13 +1,13 @@
 package dev.angelcorzo.nivo.api.security.config;
 
 import dev.angelcorzo.nivo.model.users.enums.Roles;
-import java.awt.*;
 import java.security.interfaces.RSAPublicKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -34,29 +34,35 @@ public class SecurityChain {
   private final RSAPublicKey rsaPublicKey;
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  @Order(1)
+  public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http) throws Exception {
+    return http.securityMatcher(
+            "/tenants/register",
+            "/users/accept-invitation/**",
+            "/actuator/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-resources/**",
+            "/swagger-resources",
+            "/webjars/**",
+            "/context-path/**",
+            "/auth/**")
+        .csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(
+            sessionManagement ->
+                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+        .build();
+  }
+
+  @Bean
+  @Order(2)
+  public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
     return http.csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(
             sessionManagement ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(
-            auth -> {
-              auth.requestMatchers(
-                      "/tenants/register",
-                      "/users/accept-invitation/**",
-                      "/actuator/**",
-                      "/swagger-ui/**",
-                      "/v3/api-docs/**",
-                      "/swagger-resources/**",
-                      "/swagger-resources",
-                      "/webjars/**",
-                      "/v3/api-docs/**",
-                      "/context-path/**",
-                      "/auth/**")
-                  .permitAll();
-
-              auth.anyRequest().authenticated();
-            })
+        .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
         .oauth2ResourceServer(
             oauth2 ->
                 oauth2.jwt(
