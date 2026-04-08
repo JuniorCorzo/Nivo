@@ -31,7 +31,7 @@
 - [*] 4.2 Crear `AuthInterceptor` (`HttpInterceptorFn`) para adjuntar el token en cada request
 - [*] 4.3 Implementar lógica de refresh en el interceptor: detectar 401, renovar token y reintentar el request original
 - [*] 4.4 Implementar cola de requests pendientes con RxJS (`Subject`) para evitar múltiples refresh simultáneos
-- [ ] 4.5 Manejar refresh token expirado: limpiar estado del `AuthService` y redirigir a `/login` con Angular Router
+- [*] 4.5 Manejar refresh token expirado: limpiar estado del `AuthService` y redirigir a `/login` con Angular Router
 - [*] 4.6 Implementar función `logout()` en `AuthService`: limpiar Signals, invalidar tokens, navegar a `/login`
 - [*] 4.7 Implementar restauración de sesión al iniciar la app (en `APP_INITIALIZER` o guard de root)
 
