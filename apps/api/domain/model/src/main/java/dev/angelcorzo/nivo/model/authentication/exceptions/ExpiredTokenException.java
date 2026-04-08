@@ -1,5 +1,6 @@
 package dev.angelcorzo.nivo.model.authentication.exceptions;
 
+import dev.angelcorzo.nivo.model.commons.exceptions.AppException;
 import dev.angelcorzo.nivo.model.commons.exceptions.TokenErrorMessages;
 
 /**
@@ -15,7 +16,9 @@ import dev.angelcorzo.nivo.model.commons.exceptions.TokenErrorMessages;
  * @see SecurityException
  * @see TokenErrorMessages
  */
-public class ExpiredTokenException extends SecurityException {
+public class ExpiredTokenException extends AppException {
+  private static final String CODE = "TOKEN_EXPIRED";
+  private static final int STATUS_CODE = 401;
 
   /**
    * Constructs a new {@code ExpiredTokenException} with a custom message.
@@ -26,7 +29,7 @@ public class ExpiredTokenException extends SecurityException {
    * @param message the detail message.
    */
   public ExpiredTokenException(String message) {
-    super(message);
+    super(message, STATUS_CODE, CODE);
   }
 
   /**
@@ -35,6 +38,6 @@ public class ExpiredTokenException extends SecurityException {
    * <p>The default message is retrieved from {@link TokenErrorMessages#EXPIRED_TOKEN}.
    */
   public ExpiredTokenException() {
-    super(TokenErrorMessages.EXPIRED_TOKEN.getMessage());
+    super(TokenErrorMessages.EXPIRED_TOKEN.getMessage(), STATUS_CODE, CODE);
   }
 }
