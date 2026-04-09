@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
+import { publicGuard } from '@core/guards/auth/public-guard';
 import { LayoutMinimal } from '@layouts/layout-minimal/layout-minimal';
 
 export const routes: Routes = [
   {
     path: 'auth',
     component: LayoutMinimal,
+    canActivate: [publicGuard],
     children: [
       {
         path: 'login',
