@@ -43,6 +43,7 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
         <div class="relative">
           <input
             [id]="id()"
+            [ariaDescribedByElements]="ariaDescribedBy()"
             [type]="actualType()"
             [placeholder]="placeholder()"
             [disabled]="disabled()"
@@ -66,9 +67,16 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
         </div>
       </div>
       @if (hasErrors()) {
-        <ul class="text-xs text-(--destructive) font-sans space-y-1 mt-1">
+        <ul
+          class="text-xs text-(--destructive) font-sans space-y-1 mt-1"
+          aria-live="polite"
+          role="alert"
+          [id]="ariaDescribedBy()"
+        >
           @for (err of error(); track $index) {
-            <li>{{ err.message }}</li>
+            <li>
+              {{ err.message }}
+            </li>
           }
         </ul>
       }
@@ -84,6 +92,7 @@ export class InputComponent implements ControlValueAccessor {
   readonly id = input<string>(
     `nv-input-${Math.random().toString(36).slice(2)}`,
   );
+  readonly ariaDescribedBy = computed(() => `${this.id()}-error`);
   readonly label = input<string>("");
   readonly type = input<string>("text");
   readonly placeholder = input<string>("");
