@@ -37,16 +37,16 @@
 
 ## 5. Redirección y protección de rutas
 
-- [ ] 5.1 Crear functional guard `authGuard` (`CanActivateFn`) que redirige a `/login` si no hay sesión activa
-- [ ] 5.2 Implementar deep link redirect: guardar la ruta solicitada con `ActivatedRouteSnapshot.url` y redirigir tras login
-- [ ] 5.3 Crear functional guard `publicGuard` que redirige al `/dashboard` si el usuario ya está autenticado
-- [ ] 5.4 Aplicar `authGuard` en las rutas del dashboard y `publicGuard` en `/login` y `/register`
+- [*] 5.1 Crear functional guard `authGuard` (`CanActivateFn`) que redirige a `/login` si no hay sesión activa
+- [*] 5.2 Implementar deep link redirect: guardar la ruta solicitada con `ActivatedRouteSnapshot.url` y redirigir tras login
+- [*] 5.3 Crear functional guard `publicGuard` que redirige al `/dashboard` si el usuario ya está autenticado
+- [*] 5.4 Aplicar `authGuard` en las rutas del dashboard y `publicGuard` en `/login` y `/register`
 
 ## 6. Panel de control inicial
 
-- [ ] 6.1 Crear componente `DashboardComponent` básico que muestra el nombre del parqueadero del usuario
-- [ ] 6.2 Implementar estado de carga con `@if (isLoading())` / skeleton mientras se obtienen los datos
-- [ ] 6.3 Agregar botón/opción de logout visible que llama a `AuthService.logout()`
+- [*] 6.1 Crear componente `DashboardComponent` básico que muestra el nombre del parqueadero del usuario
+- [*] 6.2 Implementar estado de carga con `@if (isLoading())` / skeleton mientras se obtienen los datos
+- [*] 6.3 Agregar botón/opción de logout visible que llama a `AuthService.logout()`
 
 ## 7. Accesibilidad y calidad
 
