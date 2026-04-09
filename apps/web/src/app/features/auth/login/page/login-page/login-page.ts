@@ -15,9 +15,10 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { UserCredentialsModel } from '@core/models/user.model';
 import { AuthService } from '@core/services/auth-service';
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { lucideLoader } from '@ng-icons/lucide';
 import { exhaustMap, Subject, takeUntil } from 'rxjs';
+import { RedirectService } from '@core/services/redirect/redirect-service';
 
 @Component({
   selector: 'app-login-page',
@@ -44,6 +45,8 @@ export class LoginPage implements OnInit, OnDestroy {
   protected isLoading = signal(false);
 
   private authService = inject(AuthService);
+  private redirectService = inject(RedirectService);
+  private router = inject(Router);
   private submit = new Subject<void>();
   private destroy = new Subject<void>();
   private loginModel = signal<UserCredentialsModel>({
@@ -66,14 +69,26 @@ export class LoginPage implements OnInit, OnDestroy {
         takeUntil(this.destroy),
       )
       .subscribe({
-        next: (isLogged) => {
-          this.invalidCredentials.set(!isLogged);
-          this.isLoading.set(false);
-        },
-        error: () => {
+        next: (isLogged) => this.onHandleSuccess(isLogged),
+        complete: () => {
           this.isLoading.set(false);
         },
       });
+  }
+
+  private onHandleSuccess(isLogged: boolean) {
+    this.invalidCredentials.set(!isLogged);
+    this.manageRedirect();
+  }
+
+  private manageRedirect() {
+    const hasRedirect = this.redirectService.hasRedirectUrl();
+    if (hasRedirect) {
+      this.router.navigate([this.redirectService.getRedirectUrl()]);
+      return;
+    }
+
+    this.router.navigate(['/dashboard']);
   }
 
   ngOnDestroy(): void {

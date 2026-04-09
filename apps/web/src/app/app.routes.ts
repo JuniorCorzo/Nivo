@@ -22,4 +22,9 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('@features/dashboard/page/dashboard-page').then((m) => m.DashboardPage),
+  },
 ];
