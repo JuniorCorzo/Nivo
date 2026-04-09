@@ -1,61 +1,23 @@
-# AGENTS.md — NeoParking
+<!-- nx configuration start-->
+<!-- Leave the start & end comments to automatically receive updates. -->
 
-NeoParking is an Nx monorepo. The main backend lives at `apps/api` (Java/Gradle). All commands below run from the **workspace root** unless noted.
+# General Guidelines for working with Nx
 
-## Monorepo Structure
+- For navigating/exploring the workspace, invoke the `nx-workspace` skill first - it has patterns for querying projects, targets, and dependencies
+- When running tasks (for example build, lint, test, e2e, etc.), always prefer running the task through `nx` (i.e. `nx run`, `nx run-many`, `nx affected`) instead of using the underlying tooling directly
+- Prefix nx commands with the workspace's package manager (e.g., `pnpm nx build`, `npm exec nx test`) - avoids using globally installed CLI
+- You have access to the Nx MCP server and its tools, use them to help the user
+- For Nx plugin best practices, check `node_modules/@nx/<plugin>/PLUGIN.md`. Not all plugins have this file - proceed without it if unavailable.
+- NEVER guess CLI flags - always check nx_docs or `--help` first when unsure
 
-```
-NeoParking/
-├── apps/
-│   └── api/          # Spring Boot backend (Java 25, Gradle)
-├── database/         # Shared DB migrations/scripts
-├── docs/             # Project documentation
-└── nx.json           # Nx workspace config (Gradle plugin)
-```
+## Scaffolding & Generators
 
-## Global Commands
+- For scaffolding tasks (creating apps, libs, project structure, setup), ALWAYS invoke the `nx-generate` skill FIRST before exploring or calling MCP tools
 
-```bash
-# Build all projects via Nx
-./nx build api
+## When to use nx_docs
 
-# Run all tests
-./nx test api
+- USE for: advanced config options, unfamiliar flags, migration guides, plugin configuration, edge cases
+- DON'T USE for: basic generator syntax (`nx g @nx/react:app`), standard commands, things you already know
+- The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
 
-# Run single test class (from apps/api/)
-./gradlew test --tests "dev.angelcorzo.neoparking.SomeTestClass"
-
-# Run single test method
-./gradlew test --tests "dev.angelcorzo.neoparking.SomeTestClass.someMethod"
-
-# Run tests in a specific Gradle module
-./gradlew :domain:usecase:test
-
-# Stop on first failure
-./gradlew test --fail-fast
-```
-
-## Agent Rules (Always Active)
-
-- NEVER add "Co-Authored-By" or AI attribution to commits.
-- Use Conventional Commits format: `feat:`, `fix:`, `refactor:`, `test:`, `chore:`.
-- Never build after making changes unless explicitly asked.
-- When a question requires verification, investigate before answering.
-- Never assume — stop and ask if context is missing.
-
-## Specialized Agents
-
-Load the agent file for domain-specific work:
-
-| Task | Agent |
-|------|-------|
-| Scaffold models/use-cases/adapters/entry-points | `apps/api/.github/agents/bancolombia-scaffold.agent.md` |
-| SOLID refactoring and design review | `apps/api/.github/agents/solid.agent.md` |
-
-## App-Specific Guidelines
-
-For `apps/api` code style, architecture rules, and Java conventions, see:
-
-```
-apps/api/.github/skills/neoparking-api.skill.md
-```
+<!-- nx configuration end-->

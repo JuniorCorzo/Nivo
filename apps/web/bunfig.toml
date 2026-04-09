@@ -1,0 +1,14 @@
+[install]
+production = false
+frozenLockfile = true
+minimumReleaseAge = 259200
+minimumReleaseAgeExcludes = ["@types/bun", "typescript", "@nivo-sass/design-system"]
+auto = "disable"
+exact = true
+saveTextLockfile = true
+
+[env]
+file = false
+
+[install.security]
+scanner = "@socketsecurity/bun-security-scanner"

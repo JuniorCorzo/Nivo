@@ -1,8 +1,65 @@
 {
-  "name": "neo-design-system",
-  "version": "0.0.1",
+  "name": "@nivo-sass/design-system",
+  "version": "0.0.17",
   "license": "MIT",
-  "peerDependencies": {},
-  "dependencies": {},
-  "description": "Nivo Design System - Visual identity and UI components"
+  "scripts": {
+    "generate:tokens": "node scripts/generate-tokens.mjs",
+    "build:css": "bunx @tailwindcss/cli -i src/lib/styles/components.css -o dist/libs/design-system/styles/components.css",
+    "build": "node scripts/generate-tokens.mjs && bunx ng-packagr -p ng-package.json && bun run build:css && node scripts/patch-dist-exports.mjs",
+    "release": "npm run build && npm run publish:dist",
+    "prepare:dist": "node scripts/patch-dist-exports.mjs",
+    "pack:dist": "npm run prepare:dist && npm pack --dry-run ./dist/libs/design-system",
+    "publish:dist": "npm run prepare:dist && npm publish ./dist/libs/design-system --access public",
+    "prepublishOnly": "echo 'ERROR: No publiques desde la raiz. Usa: npm run publish:dist' && exit 1",
+    "storybook": "ng run design-system:storybook",
+    "build-storybook": "ng run design-system:build-storybook"
+  },
+  "peerDependencies": {
+    "@angular/common": "21.2.6",
+    "@angular/core": "21.2.6",
+    "@angular/forms": "~21.2.6",
+    "@angular/platform-browser": "21.2.6",
+    "rxjs": "~7.8.0",
+    "@ng-icons/core": "33.2.0",
+    "@ng-icons/lucide": "33.2.0",
+    "@ngneat/overview": "8.0.1",
+    "@ngxpert/hot-toast": "^6.1.0"
+  },
+  "dependencies": {
+    "tslib": "^2.8.1"
+  },
+  "peerDependenciesMeta": {
+    "@ng-icons/core": {
+      "optional": false
+    },
+    "@ng-icons/lucide": {
+      "optional": false
+    },
+    "@ngneat/overview": {
+      "optional": false
+    },
+    "@ngxpert/hot-toast": {
+      "optional": false
+    }
+  },
+  "devDependencies": {
+    "@storybook/angular": "10.3.4",
+    "@angular-devkit/architect": "0.2102.6",
+    "@angular-devkit/build-angular": "21.2.6",
+    "@angular-devkit/core": "21.2.6",
+    "@angular/cli": "21.2.6",
+    "@angular/compiler": "21.2.6",
+    "@angular/compiler-cli": "21.2.6",
+    "@angular/forms": "21.2.6",
+    "@angular/platform-browser-dynamic": "21.2.6",
+    "@socketsecurity/bun-security-scanner": "1.1.2",
+    "@tailwindcss/postcss": "^4.2.2",
+    "ng-packagr": "^21.2.2",
+    "postcss": "^8.5.8",
+    "storybook": "10.3.4",
+    "tailwindcss": "^4",
+    "typescript": "~6.0.2"
+  },
+  "description": "Nivo Design System - Visual identity and UI components",
+  "author": "Angel Corzo"
 }

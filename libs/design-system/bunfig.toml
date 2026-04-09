@@ -1,0 +1,14 @@
+[install]
+production = false
+frozenLockfile = true
+minimumReleaseAge = 86400
+minimumReleaseAgeExcludes = ["@types/bun", "typescript"]
+auto = "disable"
+exact = true
+saveTextLockfile = true
+
+[env]
+file = false
+
+[install.security]
+scanner = "@socketsecurity/bun-security-scanner"

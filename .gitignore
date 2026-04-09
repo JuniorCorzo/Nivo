@@ -26,4 +26,12 @@ replay_pid*
 .nx/installation
 .nx/cache
 .nx/workspace-data
+node_modules
+.angular
+.nx/polygraph
+.claude/worktrees
+.claude/settings.local.json
 
+storybook-static
+generated
+dist

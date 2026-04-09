@@ -1,0 +1,83 @@
+@let isLoadingLocal = isLoading();
+
+<section class="flex-center min-h-screen">
+  <nv-card class="md:min-w-md flex-center flex-col gap-8 md:gap-10 p-6 md:p-12">
+    <nv-card-header class="flex-center gap-2 p-0!">
+      <ng-icon name="nivo-logo-horizontal" class="text-foreground text-center w-36! h-16!" />
+      <span class="flex-center flex-col gap-2">
+        <nv-card-title class="text-center text-2xl">{{ texts.title }}</nv-card-title>
+        <nv-card-description>{{ texts.description }}</nv-card-description>
+      </span>
+    </nv-card-header>
+    <nv-card-content class="w-full flex flex-col p-0!">
+      <form class="w-full flex-center flex-col gap-6" novalidate (submit)="onSubmit($event)">
+        <nv-input
+          class="w-full"
+          [label]="texts.form.companyName.label"
+          [placeholder]="texts.form.companyName.placeholder"
+          [formField]="registerForm.companyName"
+          [error]="onError('companyName')"
+        />
+        <nv-input
+          class="w-full"
+          [label]="texts.form.username.label"
+          [placeholder]="texts.form.username.placeholder"
+          [formField]="registerForm.username"
+          [error]="onError('username')"
+        />
+        <nv-input
+          class="w-full"
+          [label]="texts.form.email.label"
+          [placeholder]="texts.form.email.placeholder"
+          [formField]="registerForm.email"
+          [error]="onError('email')"
+        />
+        <nv-input
+          class="w-full"
+          appPhoneMask
+          [label]="texts.form.contactInfo.label"
+          [placeholder]="texts.form.contactInfo.placeholder"
+          [formField]="registerForm.contactInfo"
+          [error]="onError('contactInfo')"
+        />
+        <nv-input
+          class="w-full"
+          [label]="texts.form.password.label"
+          type="password"
+          [placeholder]="texts.form.password.placeholder"
+          [formField]="registerForm.password"
+          [error]="onError('password')"
+        />
+        <nv-input
+          class="w-full"
+          [label]="texts.form.confirmPassword.label"
+          type="password"
+          [placeholder]="texts.form.confirmPassword.placeholder"
+          [formField]="registerForm.confirmPassword"
+          [error]="onError('confirmPassword')"
+        />
+        <div class="flex-center flex-col w-full gap-5 text-xs">
+          <nv-button
+            class="w-full cursor-pointer"
+            type="submit"
+            size="md"
+            [disabled]="this.registerForm().invalid()"
+          >
+            {{ texts.actions.submit }}
+            @if (isLoadingLocal) {
+              <ng-icon name="lucideLoader" class="animate-spin duration-75" size="16"></ng-icon>
+            }
+          </nv-button>
+          <nv-muted
+            >{{ texts.actions.hasAccount }}
+            <a
+              class="text-foreground hover:underline underline-offset-2 cursor-ponter"
+              href="/auth/login"
+              >{{ texts.actions.login }}</a
+            ></nv-muted
+          >
+        </div>
+      </form>
+    </nv-card-content>
+  </nv-card>
+</section>

@@ -1,0 +1,34 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Nivo icon – isotipo compacto (curvas, sin dependencia tipográfica) -->
+  <defs>
+    <mask id="nivo-icon-mask">
+      <!-- Outer solid: todo negro -->
+      <rect width="64" height="64" fill="black"/>
+      <!-- Contenedor redondeado revelado en blanco -->
+      <rect x="4" y="4" width="56" height="56" rx="13" fill="white"/>
+      <!-- Corte esquina superior derecha -->
+      <polygon points="47,4 60,4 60,17" fill="black"/>
+      <!--
+        N en negativo — geometría corregida:
+        • Palo izquierdo: x 15→25 (10px)
+        • Palo derecho:  x 43→53 (10px)
+        • Diagonal:      ~12px perpendicular (compensación óptica +20%)
+        • Counters:      triángulos internos balanceados
+        • Espacio:        15→53 horizontal (38px), 15→49 vertical (34px)
+      -->
+      <polygon points="
+        15,49
+        15,15
+        25,15
+        44,41
+        44,15
+        53,15
+        53,49
+        43,49
+        24,23
+        24,49
+      " fill="black"/>
+    </mask>
+  </defs>
+  <rect width="64" height="64" fill="currentColor" mask="url(#nivo-icon-mask)"/>
+</svg>
