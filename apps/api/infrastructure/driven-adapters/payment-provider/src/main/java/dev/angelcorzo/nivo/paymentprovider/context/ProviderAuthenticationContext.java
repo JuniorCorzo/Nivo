@@ -6,6 +6,8 @@ import dev.angelcorzo.nivo.paymentprovider.exceptions.ProviderAuthenticationExce
 import jakarta.annotation.PostConstruct;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.concurrent.TimeUnit;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
@@ -78,7 +80,7 @@ public class ProviderAuthenticationContext {
     }
   }
 
-  @Scheduled(fixedDelayString = "${payment.provider.expiration-time}")
+  @Scheduled(timeUnit = TimeUnit.MINUTES, fixedDelayString = "${payment.provider.expiration-time}")
   private void authenticate() {
     log.info("Authenticating with payment provider...");
 
