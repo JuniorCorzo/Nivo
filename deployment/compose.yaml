@@ -1,0 +1,29 @@
+services:
+  api:
+    image: juniorcorzo/nivo-api
+    depends_on:
+      - database
+    environment:
+      - DB_URL=jdbc:postgresql://database:5432/nivo_db?currentSchema=nivo
+    ports:
+      - "8080:8080"
+    networks:
+      - nivo_net
+  database:
+    container_name: nivo_database
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=nivo_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - nivo_net
+
+volumes:
+  postgres_data:
+
+networks: 
+  nivo_net:
