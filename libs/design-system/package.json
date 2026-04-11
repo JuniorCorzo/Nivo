@@ -1,11 +1,11 @@
 {
   "name": "@nivo-sass/design-system",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "license": "MIT",
   "scripts": {
     "generate:tokens": "node scripts/generate-tokens.mjs",
     "build:css": "bunx @tailwindcss/cli -i src/lib/styles/components.css -o dist/libs/design-system/styles/components.css",
-    "build": "node scripts/generate-tokens.mjs && bunx ng-packagr -p ng-package.json && bun run build:css && node scripts/patch-dist-exports.mjs",
+    "build": "node scripts/generate-tokens.mjs && bunx ng-packagr --config=tsconfig.lib.json -p ng-package.json && bun run build:css && node scripts/patch-dist-exports.mjs",
     "release": "npm run build && npm run publish:dist",
     "prepare:dist": "node scripts/patch-dist-exports.mjs",
     "pack:dist": "npm run prepare:dist && npm pack --dry-run ./dist/libs/design-system",
