@@ -33,3 +33,13 @@ export { AlertComponent } from "./lib/components/alert/alert";
 // Toasts
 export { ToastService } from "./lib/components/toasts/toast.service";
 export { ToastsComponent } from "./lib/components/toasts/toast";
+
+// Table
+export {
+  TableComponent,
+  TableHeaderComponent,
+  TableBodyComponent,
+  TableRowComponent,
+  TableHeadComponent,
+  TableCellComponent,
+} from "./lib/components/table/index";
