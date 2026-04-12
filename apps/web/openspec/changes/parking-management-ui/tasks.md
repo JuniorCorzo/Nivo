@@ -1,8 +1,8 @@
 ## 1. Setup & Dependencies
 
-- [ ] 1.1 Instalar Leaflet y sus tipos: `bun add leaflet && bun add -d @types/leaflet`
-- [ ] 1.2 Configurar assets de Leaflet en `angular.json` (CSS global y marker icons)
-- [ ] 1.3 Agregar textos de parqueaderos a `APP_TEXTS` en `shared/constants/app-texts.constant.ts`
+- [x] 1.1 Instalar Leaflet y sus tipos: `bun add leaflet && bun add -d @types/leaflet`
+- [x] 1.2 Configurar assets de Leaflet en `angular.json` (CSS global y marker icons)
+- [x] 1.3 Agregar textos de parqueaderos a `APP_TEXTS` en `shared/constants/app-texts.constant.ts`
 
 ## 2. Domain Models & Mappers
 
