@@ -96,6 +96,152 @@ export const APP_TEXTS = {
       },
     },
   },
+  parking: {
+    list: {
+      title: 'Mis Parqueaderos',
+      subtitle: 'Gestiona y administra tus propiedades',
+      search: {
+        placeholder: 'Buscar parqueadero por nombre...',
+        noResults: 'No se encontraron parqueaderos',
+      },
+      table: {
+        columns: {
+          name: 'Nombre',
+          address: 'Dirección',
+          city: 'Ciudad',
+          timezone: 'Zona horaria',
+          currency: 'Moneda',
+          operatingHours: 'Horario',
+          actions: 'Acciones',
+        },
+      },
+      empty: {
+        title: 'No tienes parqueaderos registrados',
+        description:
+          'Comienza agregando tu primer parqueadero para gestionar tus propiedades.',
+      },
+    },
+    form: {
+      create: {
+        title: 'Nuevo Parqueadero',
+        description: 'Registra un nuevo parqueadero en tu cuenta',
+      },
+      edit: {
+        title: 'Editar Parqueadero',
+        description: 'Actualiza la información de tu parqueadero',
+      },
+      fields: {
+        name: {
+          label: 'Nombre del parqueadero',
+          placeholder: 'Parking Sol',
+          errors: {
+            required: 'El nombre del parqueadero es requerido',
+            minLength: 'El nombre debe tener al menos 3 caracteres',
+            maxLength: 'El nombre no puede exceder 100 caracteres',
+          },
+        },
+        address: {
+          title: 'Dirección',
+          street: {
+            label: 'Calle / Dirección',
+            placeholder: 'Carrera 7 # 11-10',
+            errors: {
+              required: 'La dirección es requerida',
+            },
+          },
+          city: {
+            label: 'Ciudad',
+            placeholder: 'Bogotá',
+            errors: {
+              required: 'La ciudad es requerida',
+            },
+          },
+          state: {
+            label: 'Departamento / Estado',
+            placeholder: 'Cundinamarca',
+            errors: {
+              required: 'El departamento es requerido',
+            },
+          },
+          country: {
+            label: 'País',
+            placeholder: 'Colombia',
+            errors: {
+              required: 'El país es requerido',
+            },
+          },
+          zipCode: {
+            label: 'Código postal',
+            placeholder: '110311',
+            errors: {
+              invalid: 'Ingresa un código postal válido',
+            },
+          },
+        },
+        timezone: {
+          label: 'Zona horaria',
+          placeholder: 'UTC-5',
+          errors: {
+            required: 'La zona horaria es requerida',
+            invalid: 'Formato de zona horaria inválido (ej: UTC-5)',
+          },
+        },
+        currency: {
+          label: 'Moneda',
+          placeholder: 'COP',
+          errors: {
+            required: 'La moneda es requerida',
+            invalid: 'Código de moneda inválido (ej: COP, USD)',
+          },
+        },
+        operatingHours: {
+          title: 'Horario de operación',
+          openTime: {
+            label: 'Hora de apertura',
+            placeholder: '08:00',
+            errors: {
+              required: 'La hora de apertura es requerida',
+            },
+          },
+          closeTime: {
+            label: 'Hora de cierre',
+            placeholder: '20:00',
+            errors: {
+              required: 'La hora de cierre es requerida',
+              invalidRange: 'La hora de cierre debe ser posterior a la de apertura',
+            },
+          },
+        },
+      },
+    },
+    actions: {
+      create: 'Crear parqueadero',
+      edit: 'Guardar cambios',
+      delete: 'Eliminar',
+      viewDetails: 'Ver detalle',
+      backToList: 'Volver a la lista',
+    },
+    messages: {
+      created: 'Parqueadero creado exitosamente',
+      updated: 'Parqueadero actualizado exitosamente',
+      deleted: 'Parqueadero eliminado exitosamente',
+      errors: {
+        unauthorized:
+          'No tienes permisos para realizar esta acción',
+        notFound: 'Parqueadero no encontrado',
+        duplicateName: 'Ya existe un parqueadero con ese nombre',
+      },
+    },
+    confirmations: {
+      delete: {
+        title: 'Eliminar parqueadero',
+        message:
+          '¿Estás seguro de que deseas eliminar este parqueadero? Esta acción no se puede deshacer.',
+        confirm: 'Sí, eliminar',
+        cancel: 'Cancelar',
+      },
+    },
+  },
   server: {
     errors: {
       500: 'Error interno del servidor. Por favor, inténtelo de nuevo más tarde o contacte a soporte.',
