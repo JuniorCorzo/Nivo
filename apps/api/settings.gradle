@@ -34,5 +34,5 @@ include ':websocket'
 project(':websocket').projectDir = file('./infrastructure/entry-points/websocket')
 include ':notifications'
 project(':notifications').projectDir = file('./infrastructure/driven-adapters/notifications')
-include ':commons'
-project(':commons').projectDir = file('./infrastructure/driven-adapters/commons')
+include ':event-bus'
+project(':event-bus').projectDir = file('./infrastructure/driven-adapters/commons')
