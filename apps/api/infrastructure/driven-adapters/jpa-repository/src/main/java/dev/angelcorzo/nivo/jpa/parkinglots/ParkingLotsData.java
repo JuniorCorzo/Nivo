@@ -26,7 +26,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @Table(name = "parking_lots")
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @SQLDelete(sql = "UPDATE parking_lots SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction(value = "deleted_at IS NULL")
 public class ParkingLotsData {
@@ -41,21 +40,16 @@ public class ParkingLotsData {
   @Column(name = "name", nullable = false)
   private String name;
 
-  @Column(name = "total_spots", nullable = false)
-  private Long totalSpots;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "owner_id", referencedColumnName = "id", nullable = false)
   @JsonBackReference("parking-lot-owner")
   @ToString.Exclude
-  @EqualsAndHashCode.Exclude
   private UsersData owner;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
   @JsonBackReference("parking-lot-tenant")
   @ToString.Exclude
-  @EqualsAndHashCode.Exclude
   private TenantsData tenant;
 
   @ColumnDefault("UTC-5")

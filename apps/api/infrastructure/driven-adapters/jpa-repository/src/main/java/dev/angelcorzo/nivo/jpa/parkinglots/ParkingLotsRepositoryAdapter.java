@@ -45,16 +45,6 @@ public class ParkingLotsRepositoryAdapter
   }
 
   @Override
-  public void incrementTotalSpots(UUID id) {
-    super.repository.incrementTotalSpots(id);
-  }
-
-  @Override
-  public void decrementTotalSpots(UUID id) {
-    super.repository.decrementTotalSpots(id);
-  }
-
-  @Override
   public void delete(ParkingLots parkingLots) {
     super.repository.delete(super.mapper.toData(parkingLots));
   }
