@@ -57,8 +57,7 @@ public class ParkingLotsController {
 
   @GetMapping("/{parkingId}/rates")
   @PreAuthorize("hasRole('OPERATOR')")
-  public Response<Iterable<RatesDTO>> showRatesByParkingId(
-      @PathVariable("parkingId") UUID parkingId) {
+  public Response<Iterable<RatesDTO>> showRatesByParkingId(@PathVariable UUID parkingId) {
     final List<RatesDTO> listRates =
         this.showRatesByParkingLotUseCase.execute(parkingId).stream()
             .map(this.ratesMapper::toDTO)
@@ -73,12 +72,9 @@ public class ParkingLotsController {
   public Response<ParkingLotsResponse> createParkingLots(
       @Valid @RequestBody UpsertParkingLotsRequest parkingLots) {
 
-    final UpsertParkingLotsDTO newParkingLots =
-        this.parkingLotsMapper.toModel(parkingLots).toBuilder()
-            .tenantId(this.getTenantId())
-            .build();
+    final UpsertParkingLotsDTO newParkingLots = this.parkingLotsMapper.toModel(parkingLots);
 
-    final ParkingLots parkingLotsCreated = this.createParkingUseCase.created(newParkingLots);
+    final ParkingLots parkingLotsCreated = this.createParkingUseCase.execute(newParkingLots);
 
     return Response.ok(
         this.parkingLotsMapper.toDTO(parkingLotsCreated),
@@ -103,10 +99,7 @@ public class ParkingLotsController {
   @Transactional
   public Response<ParkingLotsResponse> updateParkingLots(
       @Valid @RequestBody UpsertParkingLotsRequest parkingLots) {
-    final UpsertParkingLotsDTO updateParkingLots =
-        this.parkingLotsMapper.toModel(parkingLots).toBuilder()
-            .tenantId(this.getTenantId())
-            .build();
+    final UpsertParkingLotsDTO updateParkingLots = this.parkingLotsMapper.toModel(parkingLots);
 
     return Response.ok(
         this.parkingLotsMapper.toDTO(this.updateParkingLotsUseCase.update(updateParkingLots)),
