@@ -51,10 +51,6 @@ public interface ParkingLotsRepository {
    */
   ParkingLots save(ParkingLots parkingLots);
 
-  void incrementTotalSpots(UUID id);
-
-  void decrementTotalSpots(UUID id);
-
   /**
    * Deletes a parking lot entity. This could be soft or hardly deleted depending on the
    * implementation.
