@@ -28,7 +28,8 @@ public enum ErrorMessagesModel {
   SPECIAL_POLICY_NOT_FOUNT("La política especial con ID %s no está registrada"),
   PARKING_TICKET_NOT_FOUND("La reserva con ID %s no está registrada"),
   RATE_NOT_FOUND("La tarifa con ID %s no está registrada"),
-  PAYMENT_NOT_FOUND_BY_TRANSACTION_ID("El pago con ID de transacción %s no está registrado");
+  PAYMENT_NOT_FOUND_BY_TRANSACTION_ID("El pago con ID de transacción %s no está registrado"),
+  NO_OWNER_IN_TENANT("No se encontró un usuario con rol OWNER en el tenant %s");
 
   private final String template;
 
