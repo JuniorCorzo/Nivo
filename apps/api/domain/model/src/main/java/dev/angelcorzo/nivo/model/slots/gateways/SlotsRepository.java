@@ -17,5 +17,7 @@ public interface SlotsRepository {
 
   Slots save(Slots slot);
 
+  List<Slots> saveAllEntities(List<Slots> slots);
+
   void deleteById(UUID id);
 }
