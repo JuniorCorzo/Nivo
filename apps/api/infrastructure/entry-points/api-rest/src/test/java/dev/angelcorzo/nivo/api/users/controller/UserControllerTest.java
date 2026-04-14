@@ -19,6 +19,7 @@ import dev.angelcorzo.nivo.model.users.Users;
 import dev.angelcorzo.nivo.model.users.enums.Roles;
 import dev.angelcorzo.nivo.usecase.acceptinvitation.AcceptInvitationUseCase;
 import dev.angelcorzo.nivo.usecase.deactivateuser.DeactivateUserUseCase;
+import dev.angelcorzo.nivo.usecase.getcurrentuser.GetCurrentUserUseCase;
 import dev.angelcorzo.nivo.usecase.inviteuserwithrol.InviteUserWithRolUseCase;
 import dev.angelcorzo.nivo.usecase.modifyuserrole.ModifyUserRoleUseCase;
 import java.time.OffsetDateTime;
@@ -54,6 +55,7 @@ class UserControllerTest {
   @MockitoBean private AcceptInvitationUseCase acceptInvitationUseCase;
   @MockitoBean private ModifyUserRoleUseCase modifyUserRoleUseCase;
   @MockitoBean private DeactivateUserUseCase deactivateUserUseCase;
+  @MockitoBean private GetCurrentUserUseCase getCurrentUserUseCase;
 
   @Test
   @DisplayName("POST /users/invite-user - Should return 201 Created for valid invitation")
@@ -180,5 +182,58 @@ class UserControllerTest {
                 .content(objectMapper.writeValueAsString(requestDto)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value(UserMessages.USER_DEACTIVATED.toString()));
+  }
+
+  @Test
+  @DisplayName("GET /users/me - Should return 200 OK with current user profile")
+  void getCurrentUser_shouldReturn200() throws Exception {
+    // Arrange
+    UUID userId = UUID.randomUUID();
+    UUID tenantId = UUID.randomUUID();
+    OffsetDateTime now = OffsetDateTime.now();
+
+    Users currentUser =
+        Users.builder()
+            .id(userId)
+            .fullName("Test User")
+            .email("test@example.com")
+            .role(Roles.MANAGER)
+            .tenant(
+                dev.angelcorzo.nivo.model.tenants.valueobject.TenantReference.builder()
+                    .id(tenantId)
+                    .companyName("Test Corp")
+                    .build())
+            .contactInfo("+5491112345678")
+            .createdAt(now.minusDays(30))
+            .updatedAt(now)
+            .build();
+
+    when(getCurrentUserUseCase.execute()).thenReturn(currentUser);
+    when(userMapper.toDTO(any(Users.class)))
+        .thenReturn(
+            dev.angelcorzo.nivo.api.users.dto.UserDTO.builder()
+                .id(userId)
+                .fullName("Test User")
+                .email("test@example.com")
+                .role(Roles.MANAGER)
+                .tenant(
+                    dev.angelcorzo.nivo.api.tenants.dto.TenantInfo.builder()
+                        .id(tenantId)
+                        .companyName("Test Corp")
+                        .build())
+                .contactInfo("+5491112345678")
+                .createdAt(now.minusDays(30))
+                .updatedAt(now)
+                .build());
+
+    // Act & Assert
+    mockMvc
+        .perform(get("/users/me"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value(UserMessages.USER_PROFILE_RETRIEVED.toString()))
+        .andExpect(jsonPath("$.data.id").value(userId.toString()))
+        .andExpect(jsonPath("$.data.fullName").value("Test User"))
+        .andExpect(jsonPath("$.data.email").value("test@example.com"))
+        .andExpect(jsonPath("$.data.role").value("MANAGER"));
   }
 }
