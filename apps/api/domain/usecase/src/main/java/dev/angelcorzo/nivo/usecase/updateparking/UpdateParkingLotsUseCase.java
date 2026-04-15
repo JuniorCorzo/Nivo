@@ -19,6 +19,7 @@ public class UpdateParkingLotsUseCase {
         .operatingHours(parking.operatingHours())
         .currency(parking.currency())
         .address(parking.address())
+        .coordinates(parking.coordinates())
         .build();
   }
 }

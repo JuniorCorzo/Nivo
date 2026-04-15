@@ -33,6 +33,7 @@ public class CreateParkingUseCase {
     return ParkingLots.builder()
         .name(parking.name())
         .address(parking.address())
+        .coordinates(parking.coordinates())
         .owner(UserReference.of(userReferenceById))
         .tenant(TenantReference.of(currentTenant))
         .timezone(parking.timezone())
