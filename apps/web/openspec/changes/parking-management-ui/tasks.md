@@ -14,9 +14,9 @@
 
 ## 3. Parking Service
 
-- [ ] 3.1 Crear `ParkingService` en `core/services/parking-service.ts` con métodos CRUD
-- [ ] 3.2 Configurar HttpContext con `AUTHORIZED: true` en todas las peticiones
-- [ ] 3.3 Integrar `ParkingMapper` en las respuestas del servicio
+- [x] 3.1 Crear `ParkingService` en `core/services/parking-service.ts` con métodos CRUD
+- [x] 3.2 Configurar HttpContext con `AUTHORIZED: true` en todas las peticiones
+- [x] 3.3 Integrar `ParkingMapper` en las respuestas del servicio
 
 ## 4. Dashboard Layout & Routing
 
