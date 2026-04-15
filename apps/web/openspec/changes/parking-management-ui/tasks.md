@@ -20,19 +20,19 @@
 
 ## 4. Dashboard Layout & Routing
 
-- [ ] 4.1 Crear `LayoutDashboard` en `layouts/layout-dashboard/` con sidebar
-- [ ] 4.2 Crear componente de navegación del sidebar con link a "Parqueaderos"
-- [ ] 4.3 Refactorizar `app.routes.ts` para usar `LayoutDashboard` con `authGuard`
-- [ ] 4.4 Registrar rutas lazy-loaded de parking bajo `/dashboard/parking`
+- [x] 4.1 Crear `LayoutDashboard` en `layouts/layout-dashboard/` con sidebar
+- [x] 4.2 Crear componente de navegación del sidebar con link a "Parqueaderos"
+- [x] 4.3 Refactorizar `app.routes.ts` para usar `LayoutDashboard` con `authGuard`
+- [x] 4.4 Registrar rutas lazy-loaded de parking bajo `/dashboard/parking`
 
 ## 5. Interactive Map Component
 
-- [ ] 5.1 Crear `ParkingMapComponent` standalone en `features/parking/components/parking-map/`
-- [ ] 5.2 Implementar inicialización de mapa Leaflet con tiles OpenStreetMap
-- [ ] 5.3 Implementar click-to-place marker con emisión de coordenadas
-- [ ] 5.4 Implementar input signal `initialPosition` para modo edición
-- [ ] 5.5 Implementar input signal `readonly` para modo solo lectura
-- [ ] 5.6 Configurar tamaño responsivo del contenedor del mapa (min 300px height)
+- [x] 5.1 Crear `ParkingMapComponent` standalone en `features/parking/components/parking-map/`
+- [x] 5.2 Implementar inicialización de mapa Leaflet con tiles OpenStreetMap
+- [x] 5.3 Implementar click-to-place marker con emisión de coordenadas
+- [x] 5.4 Implementar input signal `initialPosition` para modo edición
+- [x] 5.5 Implementar input signal `readonly` para modo solo lectura
+- [x] 5.6 Configurar tamaño responsivo del contenedor del mapa (min 300px height)
 
 ## 6. Parking Form Component (Shared)
 
