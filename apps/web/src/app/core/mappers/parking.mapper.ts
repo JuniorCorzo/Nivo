@@ -8,10 +8,11 @@ export class ParkingMapper {
   mapToParkingLotsModel(response: ParkingLotsResponse): ParkingLotsModel {
     return {
       id: response.id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date(response.createdAt),
+      updatedAt: new Date(response.updatedAt),
       name: response.name,
       address: response.address,
+      coordinates: response.coordinates,
       currency: response.currency,
       timezone: response.timezone,
       operatingHours: response.operatingHours,
@@ -25,6 +26,7 @@ export class ParkingMapper {
       id: model.id,
       name: model.name,
       address: model.address,
+      coordinates: model.coordinates,
       currency: model.currency,
       timezone: model.timezone,
       operatingHours: model.operatingHours,

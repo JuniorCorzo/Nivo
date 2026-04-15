@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.parking-map {
+  width: 100%;
+  min-height: 300px;
+  height: 400px;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  z-index: 0;
+}
+
+.parking-map--readonly {
+  cursor: default;
+}

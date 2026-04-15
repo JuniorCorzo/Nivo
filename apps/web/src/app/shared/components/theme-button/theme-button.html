@@ -1,0 +1,7 @@
+<button
+  class="inline-flex px-3 h-9 w-full rounded-md gap-2 bg-transparent text-foreground hover:bg-muted items-center justify-start cursor-pointer transition-all"
+  (click)="onClick()"
+>
+  <ng-icon [name]="currentIcon()" size="18"></ng-icon>
+  <span>{{ themeLabel }}</span>
+</button>

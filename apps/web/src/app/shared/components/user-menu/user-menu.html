@@ -1,0 +1,18 @@
+@let name = user()?.fullName;
+@let email = user()?.email;
+
+<div class="flex flex-col justify-center gap-1 px-3 text-sm">
+  <div class="flex flex-col overflow-hidden">
+    <span class="inline-flex text-sm font-medium truncate gap-2 items-center">
+      <img [src]="userProfileImage()" alt="" class="size-8 rounded-full" />
+      <span class="flex flex-col">
+        <span>
+          {{ name || 'Invitado' }}
+        </span>
+        <span class="text-xs text-muted-foreground">
+          {{ email }}
+        </span>
+      </span>
+    </span>
+  </div>
+</div>

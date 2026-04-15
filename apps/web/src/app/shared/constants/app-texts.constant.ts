@@ -117,8 +117,7 @@ export const APP_TEXTS = {
       },
       empty: {
         title: 'No tienes parqueaderos registrados',
-        description:
-          'Comienza agregando tu primer parqueadero para gestionar tus propiedades.',
+        description: 'Comienza agregando tu primer parqueadero para gestionar tus propiedades.',
       },
     },
     form: {
@@ -226,8 +225,7 @@ export const APP_TEXTS = {
       updated: 'Parqueadero actualizado exitosamente',
       deleted: 'Parqueadero eliminado exitosamente',
       errors: {
-        unauthorized:
-          'No tienes permisos para realizar esta acción',
+        unauthorized: 'No tienes permisos para realizar esta acción',
         notFound: 'Parqueadero no encontrado',
         duplicateName: 'Ya existe un parqueadero con ese nombre',
       },
@@ -242,11 +240,31 @@ export const APP_TEXTS = {
       },
     },
   },
+  sidebar: {
+    logo: 'Nivo',
+    nav: [
+      {
+        label: 'Overview',
+        icon: 'lucideLayoutDashboard',
+        url: '',
+      },
+      {
+        label: 'Parqueaderos',
+        icon: 'lucideCar',
+        url: '/app/parking-lots',
+      },
+    ],
+    theme: {
+      label: 'Tema',
+    },
+    logout: 'Cerrar sesión',
+  },
   server: {
     errors: {
       500: 'Error interno del servidor. Por favor, inténtelo de nuevo más tarde o contacte a soporte.',
       404: 'Recurso no encontrado. La página o recurso que busca no existe.',
-      generic: 'Ha ocurrido un error inesperado. Por favor, recargue la página e inténtelo de nuevo.',
+      generic:
+        'Ha ocurrido un error inesperado. Por favor, recargue la página e inténtelo de nuevo.',
       network: 'Error de conexión. Verifique su conexión a internet.',
       timeout: 'La solicitud ha tardado demasiado tiempo. Por favor, inténtelo de nuevo.',
     },
