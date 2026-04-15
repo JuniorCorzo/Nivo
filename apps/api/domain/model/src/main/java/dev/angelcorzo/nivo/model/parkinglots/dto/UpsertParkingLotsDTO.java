@@ -1,6 +1,7 @@
 package dev.angelcorzo.nivo.model.parkinglots.dto;
 
 import dev.angelcorzo.nivo.model.parkinglots.Address;
+import dev.angelcorzo.nivo.model.parkinglots.Coordinates;
 import dev.angelcorzo.nivo.model.parkinglots.OperatingHours;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public record UpsertParkingLotsDTO(
     UUID id,
     String name,
     Address address,
+    Coordinates coordinates,
     String timezone,
     String currency,
     OperatingHours operatingHours,
