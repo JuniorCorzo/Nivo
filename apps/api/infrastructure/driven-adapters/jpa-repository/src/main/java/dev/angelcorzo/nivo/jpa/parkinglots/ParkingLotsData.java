@@ -11,6 +11,7 @@ import lombok.*;
 import org.hibernate.annotations.*;
 import org.hibernate.type.SqlTypes;
 import org.hibernate.proxy.HibernateProxy;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
@@ -36,6 +37,10 @@ public class ParkingLotsData {
 
   @JdbcTypeCode(SqlTypes.STRUCT)
   private AddressType address;
+
+  @Column(name = "coordinates", columnDefinition = "geography(POINT, 4326)")
+  @JdbcTypeCode(SqlTypes.GEOMETRY)
+  private Point coordinates;
 
   @Column(name = "name", nullable = false)
   private String name;

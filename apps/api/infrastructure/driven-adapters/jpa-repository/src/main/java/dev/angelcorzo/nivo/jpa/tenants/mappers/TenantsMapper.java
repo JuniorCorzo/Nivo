@@ -2,6 +2,7 @@ package dev.angelcorzo.nivo.jpa.tenants.mappers;
 
 import dev.angelcorzo.nivo.jpa.config.MapperStructConfig;
 import dev.angelcorzo.nivo.jpa.mappers.BaseMapper;
+import dev.angelcorzo.nivo.jpa.mappers.CoordinatesMapper;
 import dev.angelcorzo.nivo.jpa.tenants.TenantsData;
 import dev.angelcorzo.nivo.jpa.users.UsersData;
 import dev.angelcorzo.nivo.model.tenants.Tenants;
@@ -28,7 +29,7 @@ import org.mapstruct.Mapping;
  * @see BaseMapper
  * @see MapperStructConfig
  */
-@Mapper(config = MapperStructConfig.class)
+@Mapper(config = MapperStructConfig.class, uses = CoordinatesMapper.class)
 public interface TenantsMapper extends BaseMapper<Tenants, TenantsData> {
 
   @Override
