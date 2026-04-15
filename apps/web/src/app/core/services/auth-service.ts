@@ -6,6 +6,7 @@ import { ADD_WITH_CREDENTIALS } from '@core/http/context/add-with-credentials.to
 import { HttpContext } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AUTHORIZED } from '@core/http/context/auth.token';
+import { APP_ROUTES } from '@shared/constants/app-routes.constant';
 
 @Injectable({
   providedIn: 'root',
@@ -44,7 +45,7 @@ export class AuthService {
         this.accessToken.set(accessToken);
       }),
       catchError(() => {
-        this.router.navigate(['/auth/login']);
+        this.router.navigate([APP_ROUTES.auth.login]);
         this.logout();
         return EMPTY;
       }),
@@ -55,7 +56,7 @@ export class AuthService {
     this.authController.logout({}, new HttpContext().set(ADD_WITH_CREDENTIALS, true)).subscribe({
       next: () => {
         this.accessToken.set(null);
-        this.router.navigate(['/auth/login']);
+        this.router.navigate([APP_ROUTES.auth.login]);
       },
     });
   }

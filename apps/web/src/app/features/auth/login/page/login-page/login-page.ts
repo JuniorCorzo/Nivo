@@ -19,6 +19,7 @@ import { Router, RouterLink } from '@angular/router';
 import { lucideLoader } from '@ng-icons/lucide';
 import { exhaustMap, Subject, takeUntil } from 'rxjs';
 import { RedirectService } from '@core/services/redirect/redirect-service';
+import { APP_ROUTES } from '@shared/constants/app-routes.constant';
 
 @Component({
   selector: 'app-login-page',
@@ -88,7 +89,7 @@ export class LoginPage implements OnInit, OnDestroy {
       return;
     }
 
-    this.router.navigate(['/dashboard']);
+    this.router.navigate([APP_ROUTES.app.parkingLots]);
   }
 
   ngOnDestroy(): void {
