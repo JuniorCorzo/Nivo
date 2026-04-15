@@ -6,11 +6,11 @@
 
 ## 2. Domain Models & Mappers
 
-- [ ] 2.1 Crear tipos `ParkingStatus`, `Coordinates`, `OperatingHours` en `core/type/`
-- [ ] 2.2 Crear `ParkingModel` en `core/models/parking.model.ts` extendiendo `BaseModel`
-- [ ] 2.3 Crear `ParkingCreateModel` y `ParkingUpdateModel` en `core/models/`
-- [ ] 2.4 Crear `PaginatedResult<T>` en `core/models/paginated-result.model.ts`
-- [ ] 2.5 Crear `ParkingMapper` en `core/mappers/parking.mapper.ts` (DTO ↔ Domain)
+- [x] 2.1 Crear tipos `ParkingStatus`, `Coordinates`, `OperatingHours` en `core/type/`
+- [x] 2.2 Crear `ParkingModel` en `core/models/parking.model.ts` extendiendo `BaseModel`
+- [x] 2.3 Crear `ParkingCreateModel` y `ParkingUpdateModel` en `core/models/` → Usado `UpsertParkingLotsModel` existente
+- [x] 2.4 Crear `PaginatedResult<T>` en `core/models/paginated-result.model.ts` → No aplica, paginación no implementada
+- [x] 2.5 Crear `ParkingMapper` en `core/mappers/parking.mapper.ts` (DTO ↔ Domain)
 
 ## 3. Parking Service
 
