@@ -11,12 +11,15 @@ spring:
     add-properties: false
   datasource:
     driverClassName: org.postgresql.Driver
+  flyway:
+    enabled: false
   jpa:
     databasePlatform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
         physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         globally_quoted_identifiers: true
+        default_schema: nivo
   security:
     oauth2:
       resourceserver:
@@ -40,3 +43,7 @@ management:
         enabled: true
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080,http://localhost:63342"
+
+springdoc:
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
