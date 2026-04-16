@@ -5,7 +5,7 @@ services:
       database:
         condition: service_healthy
     environment:
-      - DB_URL=jdbc:postgresql://database:5432/nivo_db?currentSchema=nivo,public
+      - DB_URL=jdbc:postgresql://database:5432/nivo_db?currentSchema=nivo
     ports:
       - "8080:8080"
     healthcheck:
@@ -36,6 +36,7 @@ services:
       start_period: 10s
     volumes:
       - postgres_data:/var/lib/postgresql
+      - ./init.sh:/docker-entrypoint-initdb.d/init.sh:z
     networks:
       - nivo_net
 
