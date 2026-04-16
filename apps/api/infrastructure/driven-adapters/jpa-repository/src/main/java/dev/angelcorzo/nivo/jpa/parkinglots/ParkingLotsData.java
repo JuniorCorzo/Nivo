@@ -35,6 +35,7 @@ public class ParkingLotsData {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  @Column(name = "location_address")
   @JdbcTypeCode(SqlTypes.STRUCT)
   private AddressType address;
 
