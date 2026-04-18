@@ -56,12 +56,19 @@ public class JpaConfig {
      * @return A configured HikariCP {@link DataSource}.
      */
     @Bean
-    public DataSource datasource(DBSecret secret, @Value("${spring.datasource.driverClassName}") String driverClass) {
+    public DataSource datasource(
+            DBSecret secret,
+            @Value("${spring.datasource.driverClassName}") String driverClass,
+            @Value("${spring.jpa.properties.hibernate.default_schema}") String defaultSchema) {
         HikariConfig config = new HikariConfig();
+        String searchPath = defaultSchema + ",public";
         config.setJdbcUrl(secret.getUrl());
         config.setUsername(secret.getUsername());
         config.setPassword(secret.getPassword());
         config.setDriverClassName(driverClass);
+        config.setSchema(defaultSchema);
+        config.addDataSourceProperty("currentSchema", searchPath);
+        config.setConnectionInitSql("SET search_path TO " + searchPath);
         return new HikariDataSource(config);
     }
 
@@ -77,6 +84,9 @@ public class JpaConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(
             DataSource dataSource,
             @Value("${spring.jpa.databasePlatform}") String dialect,
+            @Value("${spring.jpa.properties.hibernate.default_schema}") String defaultSchema,
+            @Value("${spring.jpa.properties.hibernate.physical_naming_strategy}") String namingStrategy,
+            @Value("${spring.jpa.properties.hibernate.globally_quoted_identifiers}") String quotedIdentifiers,
             ConfigurableListableBeanFactory beanFactory) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
@@ -87,6 +97,9 @@ public class JpaConfig {
 
         Properties properties = new Properties();
         properties.setProperty("hibernate.dialect", dialect);
+        properties.setProperty("hibernate.default_schema", defaultSchema);
+        properties.setProperty("hibernate.physical_naming_strategy", namingStrategy);
+        properties.setProperty("hibernate.globally_quoted_identifiers", quotedIdentifiers);
 
         em.setJpaProperties(properties);
         em.getJpaPropertyMap().put("hibernate.resource.beans.container", new SpringBeanContainer(beanFactory));

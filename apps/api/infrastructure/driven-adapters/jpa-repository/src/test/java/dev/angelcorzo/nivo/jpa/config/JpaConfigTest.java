@@ -1,19 +1,22 @@
 package dev.angelcorzo.nivo.jpa.config;
 
-import org.springframework.core.env.Environment;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-
-import javax.sql.DataSource;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import javax.sql.DataSource;
+import java.util.concurrent.atomic.AtomicReference;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.core.env.Environment;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 class JpaConfigTest {
 
@@ -42,8 +45,7 @@ class JpaConfigTest {
     Environment env = Mockito.mock(Environment.class);
 
     when(env.getProperty("spring.datasource.url"))
-        .thenReturn(
-            "jdbc:postgresql://localhost:5432/nivo_db?currentSchema=test_scheme");
+        .thenReturn("jdbc:postgresql://localhost:5432/nivo_db?currentSchema=test_scheme");
     when(env.getProperty("spring.datasource.username")).thenReturn("postgres");
     when(env.getProperty("spring.datasource.password")).thenReturn("angel2003");
 
@@ -56,17 +58,48 @@ class JpaConfigTest {
 
   @Test
   void datasourceTest() {
-    final DataSource result = jpaConfigUnderTest.datasource(dbSecretUnderTest, "org.postgresql.Driver");
+    AtomicReference<HikariConfig> capturedConfig = new AtomicReference<>();
 
-    assertNotNull(result);
+    try (MockedConstruction<HikariDataSource> mockedConstruction =
+        Mockito.mockConstruction(
+            HikariDataSource.class,
+            (mock, context) -> capturedConfig.set((HikariConfig) context.arguments().getFirst()))) {
+      HikariDataSource result =
+          (HikariDataSource)
+              jpaConfigUnderTest.datasource(dbSecretUnderTest, "org.postgresql.Driver", "nivo");
+
+      assertNotNull(result);
+      assertEquals(1, mockedConstruction.constructed().size());
+
+      HikariConfig usedConfig = capturedConfig.get();
+
+      assertEquals(dbSecretUnderTest.getUrl(), usedConfig.getJdbcUrl());
+      assertEquals(dbSecretUnderTest.getUsername(), usedConfig.getUsername());
+      assertEquals(dbSecretUnderTest.getPassword(), usedConfig.getPassword());
+      assertEquals("org.postgresql.Driver", usedConfig.getDriverClassName());
+      assertEquals("nivo", usedConfig.getSchema());
+      assertEquals("nivo,public", usedConfig.getDataSourceProperties().getProperty("currentSchema"));
+      assertEquals("SET search_path TO nivo,public", usedConfig.getConnectionInitSql());
+    }
   }
 
   @Test
   void entityManagerFactoryTest() {
-
-    final LocalContainerEntityManagerFactoryBean result =
-        jpaConfigUnderTest.entityManagerFactory(dataSource, "dialect", beanFactory);
+    LocalContainerEntityManagerFactoryBean result =
+        jpaConfigUnderTest.entityManagerFactory(
+            dataSource,
+            "dialect",
+            "nivo",
+            "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy",
+            "true",
+            beanFactory);
 
     assertNotNull(result);
+    assertEquals("dialect", result.getJpaPropertyMap().get("hibernate.dialect"));
+    assertEquals("nivo", result.getJpaPropertyMap().get("hibernate.default_schema"));
+    assertEquals(
+        "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy",
+        result.getJpaPropertyMap().get("hibernate.physical_naming_strategy"));
+    assertEquals("true", result.getJpaPropertyMap().get("hibernate.globally_quoted_identifiers"));
   }
 }
