@@ -36,6 +36,7 @@ public class ParkingLotsData {
   private UUID id;
 
   @Column(name = "location_address")
+  @Embedded
   @JdbcTypeCode(SqlTypes.STRUCT)
   private AddressType address;
 

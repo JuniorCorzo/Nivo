@@ -1,6 +1,7 @@
 package dev.angelcorzo.nivo.api.parkinglots.controller;
 
 import dev.angelcorzo.nivo.api.commons.dto.Response;
+import dev.angelcorzo.nivo.api.parkinglots.dto.ParkingLotListItemResponse;
 import dev.angelcorzo.nivo.api.parkinglots.dto.ParkingLotsResponse;
 import dev.angelcorzo.nivo.api.parkinglots.dto.UpsertParkingLotsRequest;
 import dev.angelcorzo.nivo.api.parkinglots.enums.ParkingLotsMessages;
@@ -44,12 +45,12 @@ public class ParkingLotsController {
 
   @GetMapping("/list")
   @PreAuthorize("hasRole('MANAGER')")
-  public Response<List<ParkingLotsResponse>> listParkingLots() {
+  public Response<List<ParkingLotListItemResponse>> listParkingLots() {
     final UUID tenantId = this.getTenantId();
 
-    final List<ParkingLotsResponse> parkingLots =
+    final List<ParkingLotListItemResponse> parkingLots =
         this.listParkingLotsUseCase.listParkingLots(tenantId).stream()
-            .map(parkingLotsMapper::toDTO)
+            .map(parkingLotsMapper::toListItemResponse)
             .toList();
 
     return Response.ok(parkingLots, ParkingLotsMessages.PARKING_LOTS_LIST.format());
