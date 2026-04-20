@@ -37,7 +37,7 @@
     "@ng-icons/lucide": "^33.2.0",
     "@ngneat/overview": "7.0.0",
     "@ngxpert/hot-toast": "6.1.0",
-    "@nivo-sass/design-system": "^0.0.17",
+    "@nivo-sass/design-system": "workspace:*",
     "@tailwindcss/postcss": "^4.2.2",
     "leaflet": "1.9.4",
     "postcss": "^8.5.8",
@@ -59,6 +59,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.2.0",
     "ng-openapi-gen": "^1.0.5",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "typescript": "~6.0.2"
   }
 }
