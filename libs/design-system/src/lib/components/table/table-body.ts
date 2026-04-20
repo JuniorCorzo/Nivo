@@ -1,20 +1,18 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  input,
-  computed,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 @Component({
-  selector: "nv-table-body",
+  selector: 'tbody[nv-table-body]',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<tbody [class]="classes()"><ng-content /></tbody>`,
+  template: `<ng-content />`,
+  host: {
+    '[class]': 'classes()',
+  },
 })
 export class TableBodyComponent {
-  readonly class = input<string>("");
+  readonly class = input<string>('');
   readonly classes = computed(() => {
-    const base = "[&_tr:last-child]:border-0";
+    const base = '[&_tr:last-child]:border-0';
     return this.class() ? `${base} ${this.class()}` : base;
   });
 }
