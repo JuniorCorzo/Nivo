@@ -2,6 +2,14 @@
   "name": "@nivo-sass/design-system",
   "version": "0.0.18",
   "license": "MIT",
+  "type": "module",
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
+    "./styles/tokens.css": "./src/lib/styles/tokens.css",
+    "./styles/components.css": "./src/lib/styles/components.css"
+  },
   "scripts": {
     "generate:tokens": "node scripts/generate-tokens.mjs",
     "build:css": "bunx @tailwindcss/cli -i src/lib/styles/components.css -o dist/libs/design-system/styles/components.css",
@@ -15,14 +23,13 @@
     "build-storybook": "ng run design-system:build-storybook"
   },
   "peerDependencies": {
-    "@angular/common": "21.2.6",
-    "@angular/core": "21.2.6",
-    "@angular/forms": "~21.2.6",
-    "@angular/platform-browser": "21.2.6",
-    "rxjs": "~7.8.0",
-    "@ng-icons/core": "33.2.0",
-    "@ng-icons/lucide": "33.2.0",
-    "@ngneat/overview": "8.0.1",
+    "@angular/common": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "rxjs": "^7.8.0",
+    "@ng-icons/core": "^33.2.0",
+    "@ng-icons/lucide": "^33.2.0",
     "@ngxpert/hot-toast": "^6.1.0"
   },
   "dependencies": {
@@ -33,9 +40,6 @@
       "optional": false
     },
     "@ng-icons/lucide": {
-      "optional": false
-    },
-    "@ngneat/overview": {
       "optional": false
     },
     "@ngxpert/hot-toast": {
