@@ -33,20 +33,24 @@ export const routes: Routes = [
     component: LayoutComponent,
     children: [
       {
-        path: 'parking-lots',
+        path: '',
+        loadComponent: () =>
+          import('@features/dashboard/page/dashboard-page').then((m) => m.DashboardPage),
         children: [
           {
-            path: '',
+            path: 'parking-lots',
             loadComponent: () =>
-              import('@features/dashboard/page/dashboard-page').then((m) => m.DashboardPage),
-          },
-          {
-            path: '',
-            outlet: 'sidebar',
-            loadComponent: () =>
-              import('@shared/components/sidebar/sidebar/sidebar').then((c) => c.Sidebar),
+              import('@features/parking/components/parking-home/parking-home').then(
+                (c) => c.ParkingHome,
+              ),
           },
         ],
+      },
+      {
+        path: '',
+        outlet: 'sidebar',
+        loadComponent: () =>
+          import('@shared/components/sidebar/sidebar/sidebar').then((c) => c.Sidebar),
       },
     ],
   },
