@@ -1,14 +1,14 @@
 package dev.angelcorzo.nivo.api.parkinglots.dto;
 
-import dev.angelcorzo.nivo.model.parkinglots.dto.UpsertParkingLotsDTO;
+import java.util.List;
+import java.util.UUID;
+
 import dev.angelcorzo.nivo.model.slots.enums.SlotType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import java.util.List;
-import java.util.UUID;
 import lombok.Builder;
 
 @Builder(toBuilder = true)

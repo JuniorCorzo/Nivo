@@ -12,5 +12,7 @@ import lombok.Builder;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
-@Schema(description = "Slot count breakdown by vehicle type")
-public record SlotDistributionResponse(String type, Long count) {}
+@Schema(description = "Slot count breakdown by vehicle type", requiredProperties = { "prefix", "zone", "type",
+    "count" })
+public record SlotDistributionResponse(String prefix, String zone, String type, Long count) {
+}
