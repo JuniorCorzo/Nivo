@@ -1,0 +1,142 @@
+<nv-card class="parking-form-card">
+  <nv-card-header>
+    <nv-card-title>{{ title() }}</nv-card-title>
+    <nv-card-description>{{ description() }}</nv-card-description>
+  </nv-card-header>
+
+  <nv-card-content>
+    <form novalidate class="parking-form">
+      <!-- Name Field -->
+      <nv-input
+        id="name"
+        [label]="APP_TEXTS.parking.form.fields.name.label"
+        [placeholder]="APP_TEXTS.parking.form.fields.name.placeholder"
+        [formField]="form.name"
+        [error]="onError('name')"
+      >
+      </nv-input>
+
+      <!-- Address Section -->
+      <nv-h2>{{ APP_TEXTS.parking.form.fields.address.title }}</nv-h2>
+
+      <div class="form-row">
+        <nv-input
+          id="street"
+          class="full-width"
+          [label]="APP_TEXTS.parking.form.fields.address.street.label"
+          [placeholder]="APP_TEXTS.parking.form.fields.address.street.placeholder"
+          [formField]="form.address.street"
+          [error]="onError('address.street')"
+        >
+        </nv-input>
+      </div>
+
+      <div class="form-row">
+        <nv-input
+          id="city"
+          [label]="APP_TEXTS.parking.form.fields.address.city.label"
+          [placeholder]="APP_TEXTS.parking.form.fields.address.city.placeholder"
+          [formField]="form.address.city"
+          [error]="onError('address.city')"
+        >
+        </nv-input>
+
+        <nv-input
+          id="state"
+          [label]="APP_TEXTS.parking.form.fields.address.state.label"
+          [placeholder]="APP_TEXTS.parking.form.fields.address.state.placeholder"
+          [formField]="form.address.state"
+          [error]="onError('address.state')"
+        >
+        </nv-input>
+      </div>
+
+      <div class="form-row">
+        <nv-input
+          id="country"
+          [label]="APP_TEXTS.parking.form.fields.address.country.label"
+          [placeholder]="APP_TEXTS.parking.form.fields.address.country.placeholder"
+          [formField]="form.address.country"
+          [error]="onError('address.country')"
+        >
+        </nv-input>
+
+        <nv-input
+          id="zipCode"
+          [label]="APP_TEXTS.parking.form.fields.address.zipCode.label"
+          [placeholder]="APP_TEXTS.parking.form.fields.address.zipCode.placeholder"
+          [formField]="form.address.zipCode"
+          [error]="onError('address.zipCode')"
+        >
+        </nv-input>
+      </div>
+
+      <!-- Coordinates Map -->
+      <nv-h2>Ubicación</nv-h2>
+      <div class="map-container">
+        <app-parking-map
+          [initialPosition]="selectedCoordinates()"
+          [readonly]="false"
+          (positionChange)="onCoordinatesChange($event)"
+        ></app-parking-map>
+
+        <nv-alert *ngIf="!selectedCoordinates()" variant="info">
+          Selecciona una ubicación en el mapa haciendo clic en él
+        </nv-alert>
+      </div>
+
+      <!-- Timezone and Currency -->
+      <div class="form-row">
+        <nv-input
+          id="timezone"
+          [label]="APP_TEXTS.parking.form.fields.timezone.label"
+          [placeholder]="APP_TEXTS.parking.form.fields.timezone.placeholder"
+          [formField]="form.timezone"
+          [error]="onError('timezone')"
+        >
+        </nv-input>
+
+        <nv-input
+          id="currency"
+          [label]="APP_TEXTS.parking.form.fields.currency.label"
+          [placeholder]="APP_TEXTS.parking.form.fields.currency.placeholder"
+          [formField]="form.currency"
+          [error]="onError('currency')"
+        >
+        </nv-input>
+      </div>
+
+      <!-- Operating Hours -->
+      <nv-h2>{{ APP_TEXTS.parking.form.fields.operatingHours.title }}</nv-h2>
+      <div class="form-row">
+        <nv-input
+          id="openTime"
+          type="time"
+          [label]="APP_TEXTS.parking.form.fields.operatingHours.openTime.label"
+          [placeholder]="APP_TEXTS.parking.form.fields.operatingHours.openTime.placeholder"
+          [formField]="form.operatingHours.openTime"
+          [error]="onError('operatingHours.openTime')"
+        >
+        </nv-input>
+        <nv-input
+          id="closeTime"
+          type="time"
+          [label]="APP_TEXTS.parking.form.fields.operatingHours.closeTime.label"
+          [placeholder]="APP_TEXTS.parking.form.fields.operatingHours.closeTime.placeholder"
+          [formField]="form.operatingHours.closeTime"
+          [error]="onError('operatingHours.closeTime')"
+        >
+        </nv-input>
+      </div>
+    </form>
+  </nv-card-content>
+
+  <nv-card-footer>
+    <div class="form-actions">
+      <nv-button (click)="onSubmit()" [disabled]="isSubmitting() || form().invalid()" size="lg">
+        <span *ngIf="isSubmitting()">Enviando...</span>
+        <span *ngIf="!isSubmitting()">{{ submitButtonText() }}</span>
+      </nv-button>
+    </div>
+  </nv-card-footer>
+</nv-card>

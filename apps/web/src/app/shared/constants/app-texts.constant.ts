@@ -98,7 +98,7 @@ export const APP_TEXTS = {
   },
   parking: {
     list: {
-      title: 'Mis Parqueaderos',
+      title: 'Parqueaderos',
       subtitle: 'Gestiona y administra tus propiedades',
       search: {
         placeholder: 'Buscar parqueadero por nombre...',

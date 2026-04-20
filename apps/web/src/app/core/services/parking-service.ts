@@ -1,13 +1,18 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { ParkingLotsService } from '@core/api/generated/services/parking-lots.service';
 import {
-  ResponseListParkingLotsResponse,
+  ParkingLotListItemResponse,
+  ResponseListParkingLotListItemResponse,
   ResponseParkingLotsResponse,
 } from '@core/api/generated/models';
-import { ParkingLotsModel, UpsertParkingLotsModel } from '@core/models/parking.model';
+import {
+  ParkingLotListItemModel,
+  ParkingLotsModel,
+  UpsertParkingLotsModel,
+} from '@core/models/parking.model';
 import { ParkingMapper } from '@core/mappers/parking.mapper';
 import { HttpContext } from '@angular/common/http';
 import { AUTHORIZED } from '@core/http/context/auth.token';
@@ -16,6 +21,9 @@ import { AUTHORIZED } from '@core/http/context/auth.token';
   providedIn: 'root',
 })
 export class ParkingService {
+  private _parkingLots = signal<ParkingLotListItemModel[]>([]);
+  public parkingLots = this._parkingLots.asReadonly();
+
   private parkingLotsService = inject(ParkingLotsService);
   private parkingMapper = inject(ParkingMapper);
 
@@ -25,13 +33,21 @@ export class ParkingService {
     return context;
   };
 
+  constructor() {
+    this.updateState();
+  }
+
+  private updateState() {
+    this.getAll().subscribe((parkintLotsResponse) => this._parkingLots.set(parkintLotsResponse));
+  }
+
   /**
    * Get all parking lots
    */
-  getAll(): Observable<ParkingLotsModel[]> {
+  getAll(): Observable<ParkingLotListItemModel[]> {
     return this.parkingLotsService.listParkingLots({}, this.httpContext()).pipe(
-      map((response: ResponseListParkingLotsResponse) =>
-        response.data.map((item) => this.parkingMapper.mapToParkingLotsModel(item)),
+      map((response: ResponseListParkingLotListItemResponse) =>
+        response.data.map((item) => this.parkingMapper.mapToParkingLotListItemModel(item)),
       ),
       catchError((error) => {
         console.error('Error fetching parking lots:', error);
@@ -44,7 +60,7 @@ export class ParkingService {
    * Get a parking lot by ID
    * Note: API doesn't have a direct endpoint, so we filter from the list
    */
-  getById(id: string): Observable<ParkingLotsModel> {
+  getById(id: string): Observable<ParkingLotListItemModel> {
     return this.getAll().pipe(
       map((parkingLots) => {
         const parking = parkingLots.find((p) => p.id === id);

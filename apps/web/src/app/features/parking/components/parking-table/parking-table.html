@@ -1,0 +1,51 @@
+<div class="w-full max-w-full overflow-auto border border-border rounded-md">
+  <table nv-table class="min-w-max">
+    <colgroup>
+      @for (column of table.getAllLeafColumns(); track column.id) {
+        <col [style.width.px]="column.getSize()" />
+      }
+    </colgroup>
+
+    <thead nv-table-header>
+      @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
+        <tr nv-table-row>
+          @for (header of headerGroup.headers; track header.id) {
+            @if (shouldRenderHeader(header, headerGroup.depth)) {
+              <th [attr.colspan]="header.colSpan" nv-table-head>
+                <ng-container
+                  *flexRender="
+                    header.column.columnDef.header;
+                    props: header.getContext();
+                    let headerRender
+                  "
+                >
+                  <div [class]="contentClass(header.column.id)" [innerHTML]="headerRender"></div>
+                </ng-container>
+              </th>
+            }
+          }
+        </tr>
+      }
+    </thead>
+
+    <tbody nv-table-body>
+      @for (row of table.getRowModel().rows; track row.id) {
+        <tr nv-table-row>
+          @for (cell of row.getVisibleCells(); track cell.id) {
+            <td nv-table-cell>
+              <ng-container
+                *flexRender="cell.column.columnDef.cell; props: cell.getContext(); let cellRender"
+              >
+                <div
+                  [class]="contentClass(cell.column.id)"
+                  [title]="titleForCell(cell.column.id, row.original)"
+                  [innerHTML]="cellRender"
+                ></div>
+              </ng-container>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

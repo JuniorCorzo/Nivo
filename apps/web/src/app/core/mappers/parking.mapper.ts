@@ -1,7 +1,14 @@
 import { Injectable } from '@angular/core';
+import { CreatedSlots, SlotDistributionResponse } from '@core/api/generated/models';
+import { ParkingLotListItemResponse } from '@core/api/generated/models/parking-lot-list-item-response';
 import { ParkingLotsResponse } from '@core/api/generated/models/parking-lots-response';
 import { UpsertParkingLotsRequest } from '@core/api/generated/models/upsert-parking-lots-request';
-import { ParkingLotsModel, UpsertParkingLotsModel } from '@core/models/parking.model';
+import {
+  ParkingLotListItemModel,
+  ParkingLotsModel,
+  UpsertParkingLotsModel,
+} from '@core/models/parking.model';
+import { SlotDistribution, SlotType } from '@core/type/slot-distribution.type';
 
 @Injectable({ providedIn: 'root' })
 export class ParkingMapper {
@@ -21,6 +28,24 @@ export class ParkingMapper {
     };
   }
 
+  mapToParkingLotListItemModel(response: ParkingLotListItemResponse): ParkingLotListItemModel {
+    return {
+      address: response.address,
+      coordinates: response.coordinates,
+      createdAt: response.createdAt,
+      currency: response.currency,
+      id: response.id,
+      name: response.name,
+      occuppationRate: response.occuppationRate,
+      ownerName: response.ownerName,
+      slotDistribution: response.slotDistribution.map((slot) =>
+        this.mapToSlotDistributionModel(slot),
+      ),
+      totalCapacity: response.totalCapacity,
+      updatedAt: response.updatedAt,
+    };
+  }
+
   mapToUpsertParkingLotsRequest(model: UpsertParkingLotsModel): UpsertParkingLotsRequest {
     return {
       id: model.id,
@@ -30,7 +55,15 @@ export class ParkingMapper {
       currency: model.currency,
       timezone: model.timezone,
       operatingHours: model.operatingHours,
-      slots: model.slots,
+      slots: model.slots?.map((slot) => this.mapToCreatedSlot(slot)),
     };
+  }
+
+  private mapToSlotDistributionModel(response: SlotDistributionResponse): SlotDistribution {
+    return { ...response, type: response.type as SlotType };
+  }
+
+  private mapToCreatedSlot(model: SlotDistribution): CreatedSlots {
+    return { ...model, slotType: model.type };
   }
 }
