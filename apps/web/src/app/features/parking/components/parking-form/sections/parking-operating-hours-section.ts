@@ -4,17 +4,19 @@ import { ValidationError, FormField, FieldTree } from '@angular/forms/signals';
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
 import { OperatingHours } from '@core/type/operating-hours.type';
 import { InputComponent, TypographyH3 } from '@nivo-sass/design-system';
+import { TimeMask } from '@/app/features/auth/register-page/directives/time-mask';
 
 @Component({
   selector: 'app-parking-operating-hours-section',
   standalone: true,
-  imports: [InputComponent, TypographyH3, FormField],
+  imports: [InputComponent, TypographyH3, FormField, TimeMask],
   template: `
     <nv-h3 class="text-base">{{ APP_TEXTS.parking.form.fields.operatingHours.title }}</nv-h3>
     <div class="form-row">
       <nv-input
         id="openTime"
         type="text"
+        appTimeMask
         [label]="APP_TEXTS.parking.form.fields.operatingHours.openTime.label"
         placeholder="HH:mm (Ej. 08:00)"
         [formField]="operatingHours().openTime"
@@ -24,6 +26,7 @@ import { InputComponent, TypographyH3 } from '@nivo-sass/design-system';
       <nv-input
         id="closeTime"
         type="text"
+        appTimeMask
         [label]="APP_TEXTS.parking.form.fields.operatingHours.closeTime.label"
         placeholder="HH:mm (Ej. 20:00)"
         [formField]="operatingHours().closeTime"
