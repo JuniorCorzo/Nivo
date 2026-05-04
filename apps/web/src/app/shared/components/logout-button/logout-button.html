@@ -1,7 +1,13 @@
 <button
-  class="text-sm inline-flex items-center gap-2 px-3 hover:bg-muted rounded-md w-full h-9 cursor-pointer"
+  class="text-sm inline-flex items-center gap-2 hover:bg-muted rounded-md w-full h-9 cursor-pointer transition-all"
+  [class.px-3]="!collapsed()"
+  [class.justify-start]="!collapsed()"
+  [class.justify-center]="collapsed()"
+  [attr.title]="collapsed() ? logoutLabel : null"
   (click)="onClick()"
 >
-  <ng-icon name="lucideLogOut" size="18"></ng-icon>
-  <span>{{ logoutLabel }}</span>
+  <ng-icon name="lucideLogOut" size="18" class="shrink-0"></ng-icon>
+  @if (!collapsed()) {
+    <span>{{ logoutLabel }}</span>
+  }
 </button>

@@ -1,7 +1,6 @@
-import { Component, computed, signal, WritableSignal } from '@angular/core';
+import { Component, computed, input, signal, WritableSignal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMoon, lucideSun } from '@ng-icons/lucide';
-import { ButtonComponent } from '@nivo-sass/design-system';
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
 
 @Component({
@@ -12,6 +11,7 @@ import { APP_TEXTS } from '@shared/constants/app-texts.constant';
   styleUrl: './theme-button.css',
 })
 export class ThemeButton {
+  readonly collapsed = input(false);
   private currentTheme = signal<'light' | 'dark'>('dark');
   protected currentIcon = computed(() =>
     this.currentTheme() === 'dark' ? 'lucideMoon' : 'lucideSun',

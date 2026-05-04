@@ -1,5 +1,5 @@
 <footer class="flex flex-col gap-3">
-  <app-user-menu></app-user-menu>
-  <app-theme-button />
-  <app-logout-button />
+  <app-user-menu [collapsed]="collapsed()" />
+  <app-theme-button [collapsed]="collapsed()" />
+  <app-logout-button [collapsed]="collapsed()" />
 </footer>

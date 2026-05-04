@@ -1,7 +1,13 @@
 <button
-  class="inline-flex px-3 h-9 w-full rounded-md gap-2 bg-transparent text-foreground hover:bg-muted items-center justify-start cursor-pointer transition-all"
+  class="inline-flex h-9 w-full rounded-md gap-2 bg-transparent text-foreground hover:bg-muted items-center cursor-pointer transition-all"
+  [class.px-3]="!collapsed()"
+  [class.justify-start]="!collapsed()"
+  [class.justify-center]="collapsed()"
+  [attr.title]="collapsed() ? themeLabel : null"
   (click)="onClick()"
 >
-  <ng-icon [name]="currentIcon()" size="18"></ng-icon>
-  <span>{{ themeLabel }}</span>
+  <ng-icon [name]="currentIcon()" size="18" class="shrink-0" />
+  @if (!collapsed()) {
+    <span>{{ themeLabel }}</span>
+  }
 </button>
