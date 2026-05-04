@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 import { ParkingLotsService } from '@core/api/generated/services/parking-lots.service';
 import {
@@ -16,6 +16,7 @@ import {
 import { ParkingMapper } from '@core/mappers/parking.mapper';
 import { HttpContext } from '@angular/common/http';
 import { AUTHORIZED } from '@core/http/context/auth.token';
+import { SlotDistribution } from '@core/type/slot-distribution.type';
 
 @Injectable({
   providedIn: 'root',
@@ -49,10 +50,7 @@ export class ParkingService {
       map((response: ResponseListParkingLotListItemResponse) =>
         response.data.map((item) => this.parkingMapper.mapToParkingLotListItemModel(item)),
       ),
-      catchError((error) => {
-        console.error('Error fetching parking lots:', error);
-        return throwError(() => error);
-      }),
+      catchError((error) => throwError(() => error)),
     );
   }
 
@@ -69,10 +67,7 @@ export class ParkingService {
         }
         return parking;
       }),
-      catchError((error) => {
-        console.error(`Error fetching parking lot with ID ${id}:`, error);
-        return throwError(() => error);
-      }),
+      catchError((error) => throwError(() => error)),
     );
   }
 
@@ -86,10 +81,8 @@ export class ParkingService {
       map((response: ResponseParkingLotsResponse) =>
         this.parkingMapper.mapToParkingLotsModel(response.data),
       ),
-      catchError((error) => {
-        console.error('Error creating parking lot:', error);
-        return throwError(() => error);
-      }),
+      tap(() => this.updateState()),
+      catchError((error) => throwError(() => error)),
     );
   }
 
@@ -103,10 +96,21 @@ export class ParkingService {
       map((response: ResponseParkingLotsResponse) =>
         this.parkingMapper.mapToParkingLotsModel(response.data),
       ),
-      catchError((error) => {
-        console.error('Error updating parking lot:', error);
-        return throwError(() => error);
-      }),
+      tap(() => this.updateState()),
+      catchError((error) => throwError(() => error)),
+    );
+  }
+
+  deleteSlotGroup(parkingId: string, slot: SlotDistribution): Observable<void> {
+    return this.parkingLotsService.deleteSlotGroup(
+      { parkingId, slotType: slot.type, prefix: slot.prefix || undefined, zone: slot.zone || undefined },
+      this.httpContext(),
+    ).pipe(map(() => void 0));
+  }
+
+  getUpsertById(id: string): Observable<UpsertParkingLotsModel> {
+    return this.getById(id).pipe(
+      map((parking) => this.parkingMapper.mapListItemToUpsertParkingLotsModel(parking)),
     );
   }
 }

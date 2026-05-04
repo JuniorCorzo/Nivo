@@ -3,12 +3,6 @@
   margin: 0 auto;
 }
 
-.parking-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
 .form-row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -17,14 +11,6 @@
 
 .full-width {
   grid-column: span 2;
-}
-
-.map-container {
-  position: relative;
-  min-height: 400px;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  margin: 1rem 0;
 }
 
 .form-actions {

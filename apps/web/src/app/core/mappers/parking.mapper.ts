@@ -38,11 +38,36 @@ export class ParkingMapper {
       name: response.name,
       occuppationRate: response.occuppationRate,
       ownerName: response.ownerName,
+      operatingHours: response.operatingHours,
       slotDistribution: response.slotDistribution.map((slot) =>
         this.mapToSlotDistributionModel(slot),
       ),
       totalCapacity: response.totalCapacity,
       updatedAt: response.updatedAt,
+    };
+  }
+
+  mapListItemToUpsertParkingLotsModel(model: ParkingLotListItemModel): UpsertParkingLotsModel {
+    return {
+      id: model.id,
+      name: model.name,
+      address: {
+        ...model.address,
+        country: model.address.country || 'Colombia',
+      },
+      coordinates: model.coordinates,
+      currency: model.currency || 'COP',
+      timezone: 'UTC-05:00',
+      operatingHours: {
+        openTime: model.operatingHours?.openTime ?? '',
+        closeTime: model.operatingHours?.closeTime ?? '',
+      },
+      slots: model.slotDistribution.map((slot) => ({
+        prefix: slot.prefix ?? '',
+        zone: slot.zone ?? '',
+        type: slot.type,
+        count: slot.count ?? 0,
+      })),
     };
   }
 
@@ -64,6 +89,11 @@ export class ParkingMapper {
   }
 
   private mapToCreatedSlot(model: SlotDistribution): CreatedSlots {
-    return { ...model, slotType: model.type };
+    return {
+      prefix: model.prefix,
+      zone: model.zone,
+      numberSlots: model.count,
+      slotType: model.type,
+    };
   }
 }
