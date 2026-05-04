@@ -23,6 +23,7 @@
             ],
             "styles": [
               "@ngxpert/hot-toast/styles.css",
+              "node_modules/leaflet/dist/leaflet.css",
               "src/styles.css"
             ]
           },
@@ -75,10 +76,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "node_modules/@nivo-sass/design-system/styles/tokens.css",
-              "src/styles.css"
-            ]
+            "styles": ["@nivo-sass/design-system/styles/tokens.css", "src/styles.css"]
           }
         }
       }

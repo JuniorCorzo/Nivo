@@ -14,6 +14,7 @@ import dev.angelcorzo.nivo.model.userinvitations.UserInvitations;
 import dev.angelcorzo.nivo.model.users.Users;
 import dev.angelcorzo.nivo.usecase.acceptinvitation.AcceptInvitationUseCase;
 import dev.angelcorzo.nivo.usecase.deactivateuser.DeactivateUserUseCase;
+import dev.angelcorzo.nivo.usecase.getcurrentuser.GetCurrentUserUseCase;
 import dev.angelcorzo.nivo.usecase.inviteuserwithrol.InviteUserWithRolUseCase;
 import dev.angelcorzo.nivo.usecase.modifyuserrole.ModifyUserRoleUseCase;
 import java.util.UUID;
@@ -33,6 +34,7 @@ public class UserController {
   private final AcceptInvitationUseCase acceptInvitationUseCase;
   private final ModifyUserRoleUseCase modifyUserRoleUseCase;
   private final DeactivateUserUseCase deactivateUserUseCase;
+  private final GetCurrentUserUseCase getCurrentUserUseCase;
 
   @PostMapping("/invite-user")
   @PreAuthorize("hasRole('MANAGER')")
@@ -77,5 +79,12 @@ public class UserController {
   Response<Void> deactivateUser(@RequestBody DeactivateUserDTO deactivateUser) {
     this.deactivateUserUseCase.deactivate(this.userMapper.toModel(deactivateUser));
     return Response.ok(null, UserMessages.USER_DEACTIVATED.toString());
+  }
+
+  @GetMapping("/me")
+  Response<UserDTO> getCurrentUser() {
+    Users currentUser = this.getCurrentUserUseCase.execute();
+    return Response.ok(
+        this.userMapper.toDTO(currentUser), UserMessages.USER_PROFILE_RETRIEVED.toString());
   }
 }

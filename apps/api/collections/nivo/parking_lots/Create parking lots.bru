@@ -12,20 +12,38 @@ post {
 
 body:json {
   {
-    "name": "Angel Parking",
+    "name": "Parqueadero Ventura Plaza",
     "address": {
-      "street": "Calle 5 #6-21",
-      "city": "Cucuta",
-      "state": "Norte de santander",
+      "street": "Avenida 5 #12-34",
+      "city": "Cúcuta",
+      "state": "Norte de Santander",
       "country": "Colombia",
-      "zipCode": "530015"
+      "zipCode": "540001"
+    },
+    "coordinates": {
+      "latitude": 7.8939,
+      "longitude": -72.5078
     },
     "timezone": "UTC-5",
     "currency": "COP",
     "operatingHours": {
-      "openTime": "07:00:00-05:00",
-      "closeTime": "22:00:00-05:00"
-    }
+      "openTime": "08:00:00-05:00",
+      "closeTime": "18:00:00-05:00"
+    },
+    "slots": [
+      {
+        "prefix": "A",
+        "zone": "NORTE",
+        "slotType": "CAR",
+        "numberSlots": 100
+      },
+      {
+        "prefix": "M",
+        "zone": "NORTE",
+        "slotType": "MOTORCYCLE",
+        "numberSlots": 100
+      }
+    ]
   }
 }
 

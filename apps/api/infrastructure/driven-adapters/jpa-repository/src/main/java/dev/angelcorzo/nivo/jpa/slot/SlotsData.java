@@ -38,6 +38,12 @@ public class SlotsData {
   @Column(name = "slot_number", nullable = false)
   private String slotNumber;
 
+  @Column(name = "zone")
+  private String zone;
+
+  @Column(name = "prefix")
+  private String prefix;
+
   @ColumnDefault(value = "CAR")
   @Column(name = "type", nullable = false)
   @Enumerated(EnumType.STRING)

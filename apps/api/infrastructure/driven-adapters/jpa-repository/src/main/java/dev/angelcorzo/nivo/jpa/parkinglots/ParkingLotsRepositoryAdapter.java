@@ -1,7 +1,9 @@
 package dev.angelcorzo.nivo.jpa.parkinglots;
 
 import dev.angelcorzo.nivo.jpa.helper.AdapterOperations;
+import dev.angelcorzo.nivo.jpa.parkinglots.mappers.ParkingLotSummaryDataMapper;
 import dev.angelcorzo.nivo.jpa.parkinglots.mappers.ParkingLotsMapper;
+import dev.angelcorzo.nivo.model.parkinglots.ParkingLotListItem;
 import dev.angelcorzo.nivo.model.parkinglots.ParkingLots;
 import dev.angelcorzo.nivo.model.parkinglots.gateways.ParkingLotsRepository;
 import java.util.List;
@@ -13,20 +15,24 @@ public class ParkingLotsRepositoryAdapter
     extends AdapterOperations<ParkingLots, ParkingLotsData, UUID, ParkingLotsRepositoryData>
     implements ParkingLotsRepository {
 
-  /**
-   * Constructor for AdapterOperations.
-   *
-   * @param repository The JPA repository instance.
-   * @param mapper The mapper for converting between domain and data entities.
-   */
+  private final ParkingLotSummaryDataMapper parkingLotSummaryDataMapper;
+  private final ParkingLotsMapper parkingLotsMapper;
+
   protected ParkingLotsRepositoryAdapter(
-      ParkingLotsRepositoryData repository, ParkingLotsMapper mapper) {
+      ParkingLotsRepositoryData repository,
+      ParkingLotSummaryDataMapper parkingLotSummaryDataMapper,
+      ParkingLotsMapper mapper) {
     super(repository, mapper);
+    this.parkingLotSummaryDataMapper = parkingLotSummaryDataMapper;
+    this.parkingLotsMapper = mapper;
   }
 
   @Override
-  public List<ParkingLots> findByTenantId(UUID tenantId) {
-    return super.repository.findAllByTenantId(tenantId).stream().map(super::toEntity).toList();
+  public List<ParkingLotListItem> findByTenantId(UUID tenantId) {
+    return super.repository.findAllByTenantId(tenantId).stream()
+        .map(parkingLotSummaryDataMapper::toSummaryData)
+        .map(parkingLotsMapper::toListItem)
+        .toList();
   }
 
   @Override
@@ -42,16 +48,6 @@ public class ParkingLotsRepositoryAdapter
   @Override
   public Boolean existsById(UUID id) {
     return super.repository.existsById(id);
-  }
-
-  @Override
-  public void incrementTotalSpots(UUID id) {
-    super.repository.incrementTotalSpots(id);
-  }
-
-  @Override
-  public void decrementTotalSpots(UUID id) {
-    super.repository.decrementTotalSpots(id);
   }
 
   @Override

@@ -1,0 +1,24 @@
+<dialog
+  #dialog
+  class="delete-dialog"
+  role="alertdialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="titleId"
+  [attr.aria-describedby]="descriptionId"
+  (cancel)="onCancel($event)"
+  (click)="onBackdropClick($event)"
+>
+  <div class="delete-dialog__panel">
+    <h2 [id]="titleId" class="delete-dialog__title">{{ LABELS.title }}</h2>
+    <p [id]="descriptionId" class="delete-dialog__description">{{ LABELS.message }}</p>
+
+    <div class="delete-dialog__actions">
+      <nv-button variant="outline" type="button" (click)="cancel.emit()">
+        {{ LABELS.cancel }}
+      </nv-button>
+      <nv-button variant="destructive" type="button" autofocus (click)="confirm.emit()">
+        {{ LABELS.confirm }}
+      </nv-button>
+    </div>
+  </div>
+</dialog>

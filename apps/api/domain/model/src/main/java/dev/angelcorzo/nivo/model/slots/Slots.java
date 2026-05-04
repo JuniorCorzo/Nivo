@@ -18,6 +18,8 @@ public class Slots {
   private ParkingLotsReference parking;
   private TenantReference tenant;
   private String slotNumber;
+  private String zone;
+  private String prefix;
   private SlotType type;
   private SlotStatus status;
   private OffsetDateTime createdAt;

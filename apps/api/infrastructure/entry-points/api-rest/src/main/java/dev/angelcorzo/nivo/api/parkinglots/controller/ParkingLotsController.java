@@ -1,6 +1,7 @@
 package dev.angelcorzo.nivo.api.parkinglots.controller;
 
 import dev.angelcorzo.nivo.api.commons.dto.Response;
+import dev.angelcorzo.nivo.api.parkinglots.dto.ParkingLotListItemResponse;
 import dev.angelcorzo.nivo.api.parkinglots.dto.ParkingLotsResponse;
 import dev.angelcorzo.nivo.api.parkinglots.dto.UpsertParkingLotsRequest;
 import dev.angelcorzo.nivo.api.parkinglots.enums.ParkingLotsMessages;
@@ -13,11 +14,16 @@ import dev.angelcorzo.nivo.model.authentication.gateway.AuthenticationContextGat
 import dev.angelcorzo.nivo.model.parkinglots.ParkingLots;
 import dev.angelcorzo.nivo.model.parkinglots.dto.UpsertParkingLotsDTO;
 import dev.angelcorzo.nivo.model.rates.Rates;
+import dev.angelcorzo.nivo.model.slots.enums.SlotType;
 import dev.angelcorzo.nivo.usecase.createparking.CreateParkingUseCase;
 import dev.angelcorzo.nivo.usecase.listparkinglots.ListParkingLotsUseCase;
 import dev.angelcorzo.nivo.usecase.rateconfiguration.RateConfigurationUseCase;
 import dev.angelcorzo.nivo.usecase.showratesbyparkinglot.ShowRatesByParkingLotUseCase;
 import dev.angelcorzo.nivo.usecase.updateparking.UpdateParkingLotsUseCase;
+import dev.angelcorzo.nivo.usecase.deleteparkinglot.DeleteParkingLotUseCase;
+import dev.angelcorzo.nivo.usecase.deleteslotgroup.DeleteSlotGroupUseCase;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -41,28 +47,27 @@ public class ParkingLotsController {
   private final ListParkingLotsUseCase listParkingLotsUseCase;
   private final RateConfigurationUseCase rateConfigurationUseCase;
   private final ShowRatesByParkingLotUseCase showRatesByParkingLotUseCase;
+  private final DeleteSlotGroupUseCase deleteSlotGroupUseCase;
+  private final DeleteParkingLotUseCase deleteParkingLotUseCase;
 
   @GetMapping("/list")
   @PreAuthorize("hasRole('MANAGER')")
-  public Response<List<ParkingLotsResponse>> listParkingLots() {
+  public Response<List<ParkingLotListItemResponse>> listParkingLots() {
     final UUID tenantId = this.getTenantId();
 
-    final List<ParkingLotsResponse> parkingLots =
-        this.listParkingLotsUseCase.listParkingLots(tenantId).stream()
-            .map(parkingLotsMapper::toDTO)
-            .toList();
+    final List<ParkingLotListItemResponse> parkingLots = this.listParkingLotsUseCase.listParkingLots(tenantId).stream()
+        .map(parkingLotsMapper::toListItemResponse)
+        .toList();
 
     return Response.ok(parkingLots, ParkingLotsMessages.PARKING_LOTS_LIST.format());
   }
 
   @GetMapping("/{parkingId}/rates")
   @PreAuthorize("hasRole('OPERATOR')")
-  public Response<Iterable<RatesDTO>> showRatesByParkingId(
-      @PathVariable("parkingId") UUID parkingId) {
-    final List<RatesDTO> listRates =
-        this.showRatesByParkingLotUseCase.execute(parkingId).stream()
-            .map(this.ratesMapper::toDTO)
-            .toList();
+  public Response<Iterable<RatesDTO>> showRatesByParkingId(@PathVariable UUID parkingId) {
+    final List<RatesDTO> listRates = this.showRatesByParkingLotUseCase.execute(parkingId).stream()
+        .map(this.ratesMapper::toDTO)
+        .toList();
 
     return Response.ok(listRates, RateMessages.SHOW_RATES_BY_TENANT.format());
   }
@@ -73,12 +78,9 @@ public class ParkingLotsController {
   public Response<ParkingLotsResponse> createParkingLots(
       @Valid @RequestBody UpsertParkingLotsRequest parkingLots) {
 
-    final UpsertParkingLotsDTO newParkingLots =
-        this.parkingLotsMapper.toModel(parkingLots).toBuilder()
-            .tenantId(this.getTenantId())
-            .build();
+    final UpsertParkingLotsDTO newParkingLots = this.parkingLotsMapper.toModel(parkingLots);
 
-    final ParkingLots parkingLotsCreated = this.createParkingUseCase.created(newParkingLots);
+    final ParkingLots parkingLotsCreated = this.createParkingUseCase.execute(newParkingLots);
 
     return Response.ok(
         this.parkingLotsMapper.toDTO(parkingLotsCreated),
@@ -89,8 +91,8 @@ public class ParkingLotsController {
   @PreAuthorize("hasRole('OWNER')")
   @Transactional
   public Response<RatesDTO> createRateForParking(@Valid @RequestBody CreateRate rate) {
-    final RateConfigurationUseCase.CreateTariff rateModel =
-        this.ratesMapper.toModel(rate).toBuilder().tenantId(this.getTenantId()).build();
+    final RateConfigurationUseCase.CreateTariff rateModel = this.ratesMapper.toModel(rate).toBuilder()
+        .tenantId(this.getTenantId()).build();
 
     final Rates rateCreated = this.rateConfigurationUseCase.execute(rateModel);
 
@@ -103,14 +105,44 @@ public class ParkingLotsController {
   @Transactional
   public Response<ParkingLotsResponse> updateParkingLots(
       @Valid @RequestBody UpsertParkingLotsRequest parkingLots) {
-    final UpsertParkingLotsDTO updateParkingLots =
-        this.parkingLotsMapper.toModel(parkingLots).toBuilder()
-            .tenantId(this.getTenantId())
-            .build();
+    final UpsertParkingLotsDTO updateParkingLots = this.parkingLotsMapper.toModel(parkingLots);
 
     return Response.ok(
         this.parkingLotsMapper.toDTO(this.updateParkingLotsUseCase.update(updateParkingLots)),
         ParkingLotsMessages.PARKING_LOTS_UPDATED.format());
+  }
+
+  @DeleteMapping("/{parkingId}")
+  @PreAuthorize("hasRole('MANAGER')")
+  @Transactional
+  public Response<Void> deleteParkingLot(@PathVariable UUID parkingId) {
+    this.deleteParkingLotUseCase.execute(parkingId);
+    return Response.ok(null, ParkingLotsMessages.PARKING_LOT_DELETED.format());
+  }
+
+  @DeleteMapping("/{parkingId}/slots/groups")
+  @PreAuthorize("hasRole('MANAGER')")
+  @Transactional
+  @Parameters({
+      @Parameter(name = "parkingId", in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH, required = true),
+      @Parameter(name = "slotType", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = true),
+      @Parameter(name = "prefix", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = false),
+      @Parameter(name = "zone", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = false), })
+  public Response<Void> deleteSlotGroup(
+      @PathVariable UUID parkingId,
+      @Parameter(hidden = true) @RequestParam(value = "slotType") SlotType slotType,
+      @Parameter(hidden = true) @RequestParam(value = "prefix", required = false) String prefix,
+      @Parameter(hidden = true) @RequestParam(value = "zone", required = false) String zone) {
+
+    this.deleteSlotGroupUseCase.execute(
+        DeleteSlotGroupUseCase.DeleteSlotGroupCommand.builder()
+            .parkingId(parkingId)
+            .slotType(slotType)
+            .prefix(prefix)
+            .zone(zone)
+            .build());
+
+    return Response.ok(null, ParkingLotsMessages.SLOT_GROUP_DELETED.format());
   }
 
   private UUID getTenantId() {

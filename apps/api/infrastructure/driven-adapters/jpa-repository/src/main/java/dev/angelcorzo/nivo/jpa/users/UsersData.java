@@ -87,16 +87,16 @@ public class UsersData {
 
   /** Timestamp when the user record was created. */
   @CreationTimestamp
-  @Column(name = "created_at")
+  @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime createdAt;
 
   /** Timestamp when the user record was last updated. */
   @UpdateTimestamp
-  @Column(name = "updated_at")
+  @Column(name = "updated_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime updatedAt;
 
   /** Timestamp when the user record was soft deleted. */
-  @Column(name = "deleted_at")
+  @Column(name = "deleted_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime deletedAt;
 
   @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, targetEntity = ParkingLotsData.class)

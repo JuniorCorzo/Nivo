@@ -5,6 +5,7 @@ dependencies {
     implementation project(':notifications')
     implementation project(':websocket')
     implementation project(':commons')
+    implementation project(':event-bus')
     implementation project(':payment-provider')
     implementation project(':security-core')
     implementation project(':api-rest')

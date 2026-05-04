@@ -28,8 +28,9 @@ import { RegisterTenant } from '@core/models/tenants.model';
 import { lucideLoader } from '@ng-icons/lucide';
 import { isResponseError } from '@shared/utils/response-validate.utils';
 import { exhaustMap, firstValueFrom, from, Subject, takeUntil } from 'rxjs';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { RegisterUserModel } from '@core/models/user.model';
+import { APP_ROUTES } from '@shared/constants/app-routes.constant';
 
 type RegisterSchema = {
   companyName: string;
@@ -59,6 +60,7 @@ type RegisterPayload = {
     TypographyMuted,
     FormField,
     PhoneMask,
+    RouterLink,
   ],
   templateUrl: './register-page.html',
   providers: [provideIcons({ lucideLoader })],
@@ -154,7 +156,7 @@ export class RegisterPage implements OnInit, OnDestroy {
   private async sendRequest({ registerTenant, schemaPath }: RegisterPayload) {
     try {
       await firstValueFrom(this.tenantService.registerTenant(registerTenant));
-      this.router.navigate(['/auth/login']);
+      this.router.navigate([APP_ROUTES.auth.login]);
       return [];
     } catch (err) {
       if (isResponseError(err)) {

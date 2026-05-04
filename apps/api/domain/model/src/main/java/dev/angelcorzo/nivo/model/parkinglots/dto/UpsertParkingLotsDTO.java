@@ -1,8 +1,13 @@
 package dev.angelcorzo.nivo.model.parkinglots.dto;
 
 import dev.angelcorzo.nivo.model.parkinglots.Address;
+import dev.angelcorzo.nivo.model.parkinglots.Coordinates;
 import dev.angelcorzo.nivo.model.parkinglots.OperatingHours;
+
+import java.util.List;
 import java.util.UUID;
+
+import dev.angelcorzo.nivo.model.slots.valueobject.CreatedSlots;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
@@ -10,7 +15,9 @@ public record UpsertParkingLotsDTO(
     UUID id,
     String name,
     Address address,
-    UUID tenantId,
+    Coordinates coordinates,
     String timezone,
     String currency,
-    OperatingHours operatingHours) {}
+    OperatingHours operatingHours,
+    List<CreatedSlots> slots) {
+}

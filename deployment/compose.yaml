@@ -1,0 +1,47 @@
+services:
+  api:
+    image: juniorcorzo/nivo-api
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      - DB_URL=jdbc:postgresql://database:5432/nivo_db?currentSchema=nivo
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'wget -q -O- http://localhost:8080/actuator/health | grep -q ''"status":"UP"''',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - nivo_net
+  database:
+    container_name: nivo_database
+    image: postgis/postgis
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=nivo_db
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nivo_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./init.sh:/docker-entrypoint-initdb.d/init.sh:z
+    networks:
+      - nivo_net
+
+volumes:
+  postgres_data:
+
+networks:
+  nivo_net:

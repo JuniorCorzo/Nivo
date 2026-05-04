@@ -1,0 +1,42 @@
+<aside
+  class="sidebar flex flex-col gap-6 border-r border-border min-h-full py-6 transition-[width] duration-300 overflow-hidden"
+  [class.sidebar--collapsed]="collapsed()"
+  [class.px-4]="!collapsed()"
+  [class.px-2]="collapsed()"
+>
+  <div
+    class="flex items-center"
+    [class.justify-between]="!collapsed()"
+    [class.justify-center]="collapsed()"
+  >
+    @if (!collapsed()) {
+      <ng-icon name="nivo-logo-horizontal" class="w-28! h-fit!"></ng-icon>
+    }
+    <button
+      (click)="toggleCollapsed()"
+      class="flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors cursor-pointer shrink-0"
+      [attr.aria-label]="collapsed() ? 'Expandir sidebar' : 'Colapsar sidebar'"
+    >
+      <ng-icon [name]="collapsed() ? 'lucidePanelLeftOpen' : 'lucidePanelLeftClose'" size="18" />
+    </button>
+  </div>
+  <nav class="flex flex-1 flex-col gap-2">
+    @for (item of navItems(); track $index) {
+      <a
+        [routerLink]="item.url"
+        class="inline-flex items-center font-mono text-base h-9 rounded-md hover:bg-muted cursor-pointer transition-all"
+        [class.gap-2]="!collapsed()"
+        [class.px-3]="!collapsed()"
+        [class.justify-center]="collapsed()"
+        [class.bg-muted]="item.isActive"
+        [attr.title]="collapsed() ? item.label : null"
+      >
+        <ng-icon [name]="item.icon" size="20" class="shrink-0" />
+        @if (!collapsed()) {
+          <span>{{ item.label }}</span>
+        }
+      </a>
+    }
+  </nav>
+  <app-sidebar-footer [collapsed]="collapsed()" />
+</aside>

@@ -1,0 +1,107 @@
+# ============================================================
+# Nivo API - Example Configuration
+# ============================================================
+# Copy this file as application-dev.yaml (or your profile)
+# and replace placeholder values with real ones.
+# ============================================================
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: "Nivo"
+  devtools:
+    add-properties: false
+
+  # ── Spring Data / JPA ─────────────────────────────────────
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nivo_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+        globally_quoted_identifiers: true
+
+  # ── Security / OAuth2 Resource Server ─────────────────────
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:keys/public_key.pem
+          issuer-uri: "${jwt.issue}"
+
+  # ── Virtual Threads (Java 21+) ────────────────────────────
+  threads:
+    virtual:
+      enabled: true
+  task:
+    execution:
+      thread-name-prefix: virtual-async-
+
+# ── Actuator / Monitoring ───────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+# ── CORS ────────────────────────────────────────────────────
+cors:
+  allowed-origins: "http://localhost:4200,http://localhost:8080"
+
+# ── RSA Key Pair (for JWT signing) ─────────────────────────
+# Generate with: openssl genrsa -out private.pem 2048
+#                openssl rsa -in private.pem -pubout -out public.pem
+rsa:
+  public-key: classpath:keys/public_key.pem
+  private-key: classpath:keys/private_key.pem
+  key-id: "nivo-key-2025"
+
+# ── JWT Settings ────────────────────────────────────────────
+jwt:
+  issue: "https://api.nivo.dev"
+  access-token-expiration: 900       # 15 minutes (in seconds)
+  refresh-token-expiration: 604800   # 7 days (in seconds)
+  secret-key: "${JWT_SECRET:change-me-to-a-strong-secret}"
+
+# ── SendGrid (Email Notifications) ─────────────────────────
+sendgrid:
+  api-key: "${SENDGRID_API_KEY:SG.xxx-your-api-key-here}"
+  from-email: "noreply@nivo.dev"
+
+# ── Payment Provider ────────────────────────────────────────
+payment:
+  provider:
+    provider-name: "stripe"
+    url: "https://api.stripe.com/v1"
+    public-key: "${PAYMENT_PUBLIC_KEY:pk_test_xxx}"
+    private-key: "${PAYMENT_PRIVATE_KEY:sk_test_xxx}"
+    expiration-time: 3600            # Link expiration in seconds
+    confirmation-url: "https://api.nivo.dev/api/payments/confirm"
+    confirmation-method: "POST"
+
+# ── App Business Properties ─────────────────────────────────
+app:
+  currency: "USD"
+  cta-url: "https://nivo.dev/cta"
+  company-name: "Nivo"
+  support-url: "https://nivo.dev/support"
+  social-url: "https://nivo.dev/social"
+  unsubscribe-url: "https://nivo.dev/unsubscribe"
+  address-company: "123 Main St, City, Country"

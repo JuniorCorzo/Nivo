@@ -7,7 +7,6 @@ import { AuthenticationResponseDto } from '../api/generated/models';
 })
 export class AuthMapper {
   mapToLoginResponseModel(dto: AuthenticationResponseDto): LoginResponseModel {
-    console.log(dto);
     return {
       accessToken: dto.accessToken,
       refreshToken: dto.refreshToken,

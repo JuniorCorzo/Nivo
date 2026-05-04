@@ -10,6 +10,14 @@ export type UserModel = BaseModel & {
   email: string;
 };
 
+export type UserInfoModel = {
+  id: string;
+  fullName: string;
+  email: string;
+  role: Role;
+  contactInfo: string;
+};
+
 export type UserCredentialsModel = {
   email: string;
   password: string;

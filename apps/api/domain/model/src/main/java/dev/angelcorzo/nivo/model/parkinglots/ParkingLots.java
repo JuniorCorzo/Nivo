@@ -41,8 +41,8 @@ public class ParkingLots {
   /** A value object representing the physical address of the parking lot. */
   private Address address;
 
-  /** The total number of available parking spots. */
-  private Integer totalSpots;
+  /** A value object representing the geographic coordinates of the parking lot. */
+  private Coordinates coordinates;
 
   /** The ID of the primary owner user of the parking lot. */
   private UserReference owner;

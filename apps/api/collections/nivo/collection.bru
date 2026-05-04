@@ -20,7 +20,7 @@ script:pre-request {
   const email = bru.getEnvVar("EMAIL")
   const password = bru.getEnvVar("PASSWORD")
   
-  if (!refreshToken) {
+  
     await bru.sendRequest({
       method: "POST",
       url: `${baseUrl}/auth/login`,
@@ -34,25 +34,6 @@ script:pre-request {
          return
       }
       
-      const {accessToken, refreshToken} = res.data.data
-      bru.setEnvVar("ACCESS_TOKEN", accessToken)
-      bru.setEnvVar("REFRESH_TOKEN", refreshToken)
-    })
-    return;
-  } 
-  
-    await bru.sendRequest({
-      method: "POST",
-      url: `${baseUrl}/auth/refresh/${refreshToken}`,
-      data: {
-        email: email,
-        password: password
-      }
-    }, function (err, res) {
-      if (err) {
-        console.error(err)
-        return
-      }
       const {accessToken, refreshToken} = res.data.data
       bru.setEnvVar("ACCESS_TOKEN", accessToken)
       bru.setEnvVar("REFRESH_TOKEN", refreshToken)

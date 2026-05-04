@@ -2,7 +2,7 @@
 
 El proyecto Nivo es una plataforma multi-inquilino para gestión de parqueaderos. La historia de usuario ANC-13 (HU-01) establece el contrato de comportamiento para registro y login. Este change (ANC-14) implementa la capa visual/frontend de ese contrato.
 
-El frontend está en `apps/web/` dentro de un monorepo Nx. El stack es **Angular 21 + TypeScript**. No existe actualmente ningún flujo de autenticación implementado en el cliente.
+El frontend está en `apps/web/` dentro de un monorepo con Bun workspaces. El stack es **Angular 21 + TypeScript**. No existe actualmente ningún flujo de autenticación implementado en el cliente.
 
 **Restricciones:**
 

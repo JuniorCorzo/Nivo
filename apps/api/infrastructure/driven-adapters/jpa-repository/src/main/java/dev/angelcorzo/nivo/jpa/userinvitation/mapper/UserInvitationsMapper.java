@@ -2,6 +2,7 @@ package dev.angelcorzo.nivo.jpa.userinvitation.mapper;
 
 import dev.angelcorzo.nivo.jpa.config.MapperStructConfig;
 import dev.angelcorzo.nivo.jpa.mappers.BaseMapper;
+import dev.angelcorzo.nivo.jpa.mappers.CoordinatesMapper;
 import dev.angelcorzo.nivo.jpa.userinvitation.UserInvitationsData;
 import dev.angelcorzo.nivo.model.userinvitations.UserInvitations;
 import org.mapstruct.Mapper;
@@ -22,5 +23,5 @@ import org.mapstruct.Mapper;
  * @see BaseMapper
  * @see MapperStructConfig
  */
-@Mapper(config = MapperStructConfig.class)
+@Mapper(config = MapperStructConfig.class, uses = CoordinatesMapper.class)
 public interface UserInvitationsMapper extends BaseMapper<UserInvitations, UserInvitationsData> {}

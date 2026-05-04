@@ -11,6 +11,7 @@ import lombok.*;
 import org.hibernate.annotations.*;
 import org.hibernate.type.SqlTypes;
 import org.hibernate.proxy.HibernateProxy;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
@@ -26,7 +27,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @Table(name = "parking_lots")
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @SQLDelete(sql = "UPDATE parking_lots SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction(value = "deleted_at IS NULL")
 public class ParkingLotsData {
@@ -35,27 +35,28 @@ public class ParkingLotsData {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  @Column(name = "location_address")
+  @Embedded
   @JdbcTypeCode(SqlTypes.STRUCT)
   private AddressType address;
 
+  @Column(name = "coordinates", columnDefinition = "geography(POINT, 4326)")
+  @JdbcTypeCode(SqlTypes.GEOMETRY)
+  private Point coordinates;
+
   @Column(name = "name", nullable = false)
   private String name;
-
-  @Column(name = "total_spots", nullable = false)
-  private Long totalSpots;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "owner_id", referencedColumnName = "id", nullable = false)
   @JsonBackReference("parking-lot-owner")
   @ToString.Exclude
-  @EqualsAndHashCode.Exclude
   private UsersData owner;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
   @JsonBackReference("parking-lot-tenant")
   @ToString.Exclude
-  @EqualsAndHashCode.Exclude
   private TenantsData tenant;
 
   @ColumnDefault("UTC-5")

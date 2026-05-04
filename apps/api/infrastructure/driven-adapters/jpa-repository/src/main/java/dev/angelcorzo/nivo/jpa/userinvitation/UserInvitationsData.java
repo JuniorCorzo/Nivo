@@ -82,16 +82,16 @@ public class UserInvitationsData {
   private UsersData invitedBy;
 
   /** Timestamp when the invitation was created. */
-  @Column(name = "created_at")
+  @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ")
   @CreationTimestamp
   private OffsetDateTime createdAt;
 
   /** Timestamp when the invitation was accepted. */
-  @Column(name = "accepted_at")
+  @Column(name = "accepted_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime acceptedAt;
 
   /** Timestamp when the invitation expires. */
-  @Column(name = "expired_at")
+  @Column(name = "expired_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime expiredAt;
 
   @Override

@@ -80,10 +80,10 @@ public class NotificationLogsData {
   @Column(name = "error_message", columnDefinition = "text")
   private String errorMessage;
 
-  @Column(name = "sent_at")
+  @Column(name = "sent_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime sentAt;
 
-  @Column(name = "created_at", updatable = false)
+  @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMPTZ")
   @CreationTimestamp
   private OffsetDateTime createdAt;
 }

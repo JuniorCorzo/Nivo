@@ -10,6 +10,7 @@ public record ParkingLotsInfo(
     UUID id,
     String name,
     AddressDTO address,
+    CoordinatesDTO coordinates,
     String timezone,
     String currency,
     OperatingHoursDTO operatingHours) {}

@@ -11,8 +11,13 @@ import java.time.OffsetDateTime;
  * @author Angel Corzo
  * @since 1.0.0
  */
-public class InvitationAlreadyAcceptedException extends RuntimeException {
+import dev.angelcorzo.nivo.model.commons.exceptions.AppException;
+
+public class InvitationAlreadyAcceptedException extends AppException {
+  private static final int STATUS = 409;
+  private static final String CODE = "INVITATION_ALREADY_ACCEPTED";
+
   public InvitationAlreadyAcceptedException(OffsetDateTime acceptedAt) {
-    super(ErrorMessagesModel.INVITATION_ALREADY_ACCEPTED.format(acceptedAt));
+    super(ErrorMessagesModel.INVITATION_ALREADY_ACCEPTED.format(acceptedAt), STATUS, CODE);
   }
 }

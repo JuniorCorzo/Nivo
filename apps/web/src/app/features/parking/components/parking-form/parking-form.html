@@ -1,0 +1,74 @@
+<div class="flex flex-col w-full gap-6 px-12 py-8">
+  <div class="w-full inline-flex justify-between items-center">
+    <nv-h2>{{ facade.title() }}</nv-h2>
+    <a
+      routerLink="/app/parking-lots"
+      class="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer"
+    >
+      <ng-icon name="lucideArrowLeft" size="16"></ng-icon>
+      {{ APP_TEXTS.parking.actions.backToList }}
+    </a>
+  </div>
+  <nv-card class="w-full">
+    <nv-card-content class="p-0!">
+      <form novalidate class="flex flex-col gap-6 py-7 px-8">
+        <!-- Name Field -->
+        <nv-h3 class="text-lg">Datos del parqueadero</nv-h3>
+        <nv-input
+          id="name"
+          [label]="APP_TEXTS.parking.form.fields.name.label"
+          [placeholder]="APP_TEXTS.parking.form.fields.name.placeholder"
+          [formField]="facade.form.name"
+          [error]="facade.nameError()"
+        >
+        </nv-input>
+
+        <app-parking-address-section
+          [streetField]="facade.form.address.street"
+          [streetError]="facade.streetError()"
+          [stateField]="facade.form.address.state"
+          [stateError]="facade.stateError()"
+          [cityField]="facade.form.address.city"
+          [cityError]="facade.cityError()"
+          [zipCodeField]="facade.form.address.zipCode"
+          [zipCodeError]="facade.zipCodeError()"
+          [departments]="facade.departments()"
+          [cities]="facade.cities()"
+          (stateSelectionChange)="facade.onStateSelected($event)"
+        />
+
+        <app-parking-location-section
+          [initialPosition]="facade.selectedCoordinates()"
+          [coordinates]="facade.coordinates()"
+          [hasCoordinates]="facade.isSelectedCoordinates()"
+          [showPlaceholder]="facade.isMapPlaceholderVisible()"
+          [placeholderText]="APP_TEXTS.parking.actions.placeholderMap"
+          (positionChange)="facade.onCoordinatesChange($event)"
+          (mapInteracted)="facade.dismissMapPlaceholder()"
+        />
+
+        <app-parking-operating-hours-section [operatingHours]="facade.form.operatingHours" />
+
+        <app-parking-slot-groups-section
+          [slots]="facade.slots()"
+          [slotTypeOptions]="facade.slotTypeOptions"
+          (addSlot)="facade.addSlot()"
+          (removeSlot)="facade.removeSlot($event)"
+          (slotChange)="facade.updateSlot($event.index, $event.field, $any($event.value))"
+        />
+      </form>
+    </nv-card-content>
+
+    <nv-card-footer class="justify-end">
+      <div class="form-actions">
+        <nv-button variant="outline" (click)="onCancel()">Cancelar</nv-button>
+        <nv-button
+          (click)="onSubmit()"
+          [disabled]="facade.isSubmitting() || facade.form().invalid()"
+        >
+          {{ facade.submitButtonText() }}
+        </nv-button>
+      </div>
+    </nv-card-footer>
+  </nv-card>
+</div>

@@ -1,0 +1,18 @@
+{
+  "name": "nivo",
+  "private": true,
+  "packageManager": "bun@1.3.11",
+  "scripts": {
+    "dev:web": "bun --cwd apps/web run start",
+    "dev:design-system": "bun --cwd libs/design-system run storybook",
+    "dev:build": "bun --cwd libs/design-system run build",
+    "dev:tokens": "bun --cwd libs/design-system run generate:tokens"
+  },
+  "workspaces": [
+    "apps/web",
+    "libs/design-system"
+  ],
+  "devDependencies": {
+    "prettier": "^3.8.3"
+  }
+}

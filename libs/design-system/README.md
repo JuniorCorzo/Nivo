@@ -90,19 +90,19 @@ Alternativa: importarlo en tu `styles.css` global:
 ### Construir el design system
 
 ```bash
-nx build design-system
+bun run build
 ```
 
 ### Ejecutar tests
 
 ```bash
-nx test design-system
+bun run test
 ```
 
 ### Lint
 
 ```bash
-nx lint design-system
+bun run lint
 ```
 
 ## Guías de contribución

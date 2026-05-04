@@ -41,7 +41,17 @@ public class SlotsRepositoryAdapter
   }
 
   @Override
+  public List<Slots> saveAllEntities(List<Slots> slots) {
+    return super.saveAllEntities(slots);
+  }
+
+  @Override
   public void deleteById(UUID id) {
     super.repository.deleteById(id);
+  }
+
+  @Override
+  public int softDeleteByParkingLotsId(UUID parkingLotsId) {
+    return super.repository.softDeleteByParkingLotsId(parkingLotsId);
   }
 }

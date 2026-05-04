@@ -11,8 +11,13 @@ import java.util.UUID;
  * @author Angel Corzo
  * @since 1.0.0
  */
-public class UserAlreadyDeactivatedException extends RuntimeException {
+import dev.angelcorzo.nivo.model.commons.exceptions.AppException;
+
+public class UserAlreadyDeactivatedException extends AppException {
+  private static final int STATUS = 409;
+  private static final String CODE = "USER_ALREADY_DEACTIVATED";
+
   public UserAlreadyDeactivatedException(UUID id) {
-    super(ErrorMessagesModel.USER_ALREADY_DEACTIVATED.format(id));
+    super(ErrorMessagesModel.USER_ALREADY_DEACTIVATED.format(id), STATUS, CODE);
   }
 }

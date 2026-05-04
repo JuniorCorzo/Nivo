@@ -1,5 +1,6 @@
 package dev.angelcorzo.nivo.model.parkinglots.gateways;
 
+import dev.angelcorzo.nivo.model.parkinglots.ParkingLotListItem;
 import dev.angelcorzo.nivo.model.parkinglots.ParkingLots;
 import java.util.List;
 import java.util.Optional;
@@ -24,12 +25,13 @@ public interface ParkingLotsRepository {
   Optional<ParkingLots> findById(UUID id);
 
   /**
-   * Finds all parking lots associated with a specific tenant.
+   * Finds all parking lots associated with a specific tenant, enriched with slot distribution
+   * and owner information.
    *
    * @param tenantId The unique identifier of the tenant.
-   * @return A list of {@link ParkingLots} belonging to the tenant. Can be empty if none is found.
+   * @return A list of {@link ParkingLotListItem} enriched read models. Can be empty if none is found.
    */
-  List<ParkingLots> findByTenantId(UUID tenantId);
+  List<ParkingLotListItem> findByTenantId(UUID tenantId);
 
   /**
    * Finds all parking lots owned by a specific user.
@@ -50,10 +52,6 @@ public interface ParkingLotsRepository {
    * @return {@link ParkingLots}
    */
   ParkingLots save(ParkingLots parkingLots);
-
-  void incrementTotalSpots(UUID id);
-
-  void decrementTotalSpots(UUID id);
 
   /**
    * Deletes a parking lot entity. This could be soft or hardly deleted depending on the

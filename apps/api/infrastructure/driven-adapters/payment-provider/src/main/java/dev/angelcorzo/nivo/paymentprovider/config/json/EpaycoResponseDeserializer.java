@@ -3,6 +3,7 @@ package dev.angelcorzo.nivo.paymentprovider.config.json;
 import dev.angelcorzo.nivo.model.utils.StringUtils;
 import dev.angelcorzo.nivo.paymentprovider.dtos.response.EpaycoError;
 import dev.angelcorzo.nivo.paymentprovider.dtos.response.EpaycoResponse;
+import dev.angelcorzo.nivo.paymentprovider.exceptions.PaymentProviderDeserializationException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
@@ -69,7 +70,7 @@ public class EpaycoResponseDeserializer extends StdDeserializer<EpaycoResponse<?
             false, titleResponse, textResponse, lastResponse, error);
       }
     } catch (Exception e) {
-      throw new RuntimeException("Error deserializando EpaycoResponse", e);
+      throw new PaymentProviderDeserializationException("Error deserializando EpaycoResponse", e);
     }
   }
 

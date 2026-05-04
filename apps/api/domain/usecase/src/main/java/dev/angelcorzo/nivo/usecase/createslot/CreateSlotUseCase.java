@@ -34,11 +34,8 @@ public class CreateSlotUseCase {
             .type(command.type())
             .status(SlotStatus.AVAILABLE)
             .build();
-    final Slots savedSlot = this.slotsRepository.save(slot);
 
-    this.parkingLotsRepository.incrementTotalSpots(command.parkingLotId());
-
-    return savedSlot;
+	  return this.slotsRepository.save(slot);
   }
 
   private void validate(CreateSlotCommand command) {

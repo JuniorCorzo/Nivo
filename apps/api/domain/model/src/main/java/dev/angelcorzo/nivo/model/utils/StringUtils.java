@@ -13,4 +13,8 @@ public final class StringUtils {
 
     return value.replace("\"", "").trim();
   }
+
+  public static String normalize(String value) {
+    return (value == null || value.isBlank()) ? null : value;
+  }
 }

@@ -60,15 +60,15 @@ public class RateData {
   @Enumerated(EnumType.STRING)
   private VehicleType vehicleType;
 
-  @Column(name = "created_at")
+  @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ")
   @CreationTimestamp
   private OffsetDateTime createdAt;
 
-  @Column(name = "updated_at")
+  @Column(name = "updated_at", columnDefinition = "TIMESTAMPTZ")
   @UpdateTimestamp
   private OffsetDateTime updatedAt;
 
-  @Column(name = "deleted_at")
+  @Column(name = "deleted_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime deleted_at;
 
   @OneToMany(mappedBy = "rate", fetch = FetchType.LAZY)
