@@ -62,6 +62,13 @@ export const routes: Routes = [
               ),
           },
           {
+            path: APP_ROUTE_PATHS.app.parkingLotDetail,
+            loadComponent: () =>
+              import('@features/parking/components/parking-detail/parking-detail').then(
+                (c) => c.ParkingDetail,
+              ),
+          },
+          {
             path: APP_ROUTE_PATHS.app.editParkingLots,
             loadComponent: () =>
               import('@features/parking/components/parking-form/parking-form').then(

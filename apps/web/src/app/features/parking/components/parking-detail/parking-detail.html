@@ -1,0 +1,139 @@
+@if (parking(); as p) {
+  <div class="flex flex-col gap-4 p-4">
+    <!-- Header: back + title + actions -->
+    <div class="flex items-start justify-between">
+      <div class="flex flex-col gap-2">
+        <button
+          class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+          (click)="goBack()"
+        >
+          <ng-icon name="lucideArrowLeft" size="18"></ng-icon>
+          <span>{{ ACTIONS.backToList }}</span>
+        </button>
+        <h2 class="text-2xl font-semibold tracking-tight font-sans text-foreground">
+          {{ p.name }}
+        </h2>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <nv-button variant="outline" size="sm" (click)="onEdit()">
+          <ng-icon name="lucidePencil" size="16"></ng-icon>
+          <span>{{ LABELS.actions.edit }}</span>
+        </nv-button>
+        <nv-button
+          variant="outline"
+          size="sm"
+          class="text-destructive border-destructive hover:bg-destructive/10"
+        >
+          <ng-icon name="lucideTrash2" size="16"></ng-icon>
+          <span>{{ LABELS.actions.delete }}</span>
+        </nv-button>
+      </div>
+    </div>
+
+    <!-- Detail Card -->
+    <nv-card class="p-6 flex flex-col gap-4">
+      <!-- Badges row -->
+      <div class="flex gap-3">
+        <nv-badge variant="secondary">{{ p.ownerName }}</nv-badge>
+        <nv-badge variant="info">{{ p.currency }}</nv-badge>
+      </div>
+
+      <!-- Info Grid: 2 columns -->
+      <div class="grid grid-cols-2 gap-6">
+        <!-- Column 1 -->
+        <div class="flex flex-col gap-6">
+          <!-- Dirección -->
+          <div class="flex flex-col gap-1">
+            <nv-muted>{{ LABELS.fields.address }}</nv-muted>
+            <span class="text-sm font-medium text-foreground">{{ addressLine() }}</span>
+            <span class="text-muted-foreground text-sm">{{ addressSubline() }}</span>
+          </div>
+          <!-- Capacidad total -->
+          <div class="flex flex-col gap-1">
+            <nv-muted>{{ LABELS.fields.totalCapacity }}</nv-muted>
+            <span class="text-sm font-medium text-foreground">
+              {{ totalSlots() }} {{ LABELS.slotDistribution.slotsLabel(totalSlots()) }}
+            </span>
+          </div>
+          <!-- Coordenadas -->
+          <div class="flex flex-col gap-1">
+            <nv-muted>{{ LABELS.fields.coordinates }}</nv-muted>
+            <nv-mono>{{ formattedCoords() }}</nv-mono>
+          </div>
+        </div>
+
+        <!-- Column 2 -->
+        <div class="flex flex-col gap-6">
+          <!-- Creado -->
+          <div class="flex flex-col gap-1">
+            <nv-muted>{{ LABELS.fields.createdAt }}</nv-muted>
+            <span class="text-sm font-medium text-foreground">{{
+              formattedDate(p.createdAt)
+            }}</span>
+          </div>
+          <!-- Actualizado -->
+          <div class="flex flex-col gap-1">
+            <nv-muted>{{ LABELS.fields.updatedAt }}</nv-muted>
+            <span class="text-sm font-medium text-foreground">{{
+              formattedDate(p.updatedAt)
+            }}</span>
+          </div>
+          <!-- ID -->
+          <div class="flex flex-col gap-1">
+            <nv-muted>{{ LABELS.fields.parkingId }}</nv-muted>
+            <nv-mono class="text-xs!">{{ p.id }}</nv-mono>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <hr class="border-[var(--border)]" />
+
+      <!-- Slot Distribution -->
+      <h3 class="text-base font-semibold text-[var(--foreground)]">
+        {{ LABELS.slotDistribution.title }}
+      </h3>
+
+      @for (slot of p.slotDistribution; track slot.prefix + slot.type + slot.zone) {
+        <div
+          class="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--card)] px-3.5 py-3"
+        >
+          <div class="flex flex-col gap-0.5">
+            <span class="text-sm font-semibold text-[var(--foreground)]">{{
+              slotLabel(slot)
+            }}</span>
+            <span class="text-[var(--muted-foreground)] text-xs">
+              {{ LABELS.slotDistribution.prefix }} {{ slot.prefix }}
+            </span>
+          </div>
+          <span class="font-mono text-sm font-semibold text-[var(--foreground)]">{{
+            slot.count
+          }}</span>
+        </div>
+      }
+
+      <!-- Summary -->
+      <div class="flex items-center justify-between">
+        <span class="text-[var(--muted-foreground)] text-sm">
+          {{ LABELS.slotDistribution.summary(p.slotDistribution.length) }}
+        </span>
+        <span class="text-sm font-semibold text-[var(--foreground)]">
+          {{ LABELS.slotDistribution.totalSlots(totalSlots()) }}
+        </span>
+      </div>
+    </nv-card>
+
+    <!-- Map Card -->
+    <nv-card class="p-6 flex flex-col gap-3">
+      <h3 class="text-base font-semibold text-[var(--foreground)]">{{ LABELS.map.title }}</h3>
+      <div class="rounded-lg border border-[var(--border)] overflow-hidden h-[200px]">
+        <app-parking-map [initialPosition]="p.coordinates" [readonly]="true" />
+      </div>
+    </nv-card>
+  </div>
+} @else {
+  <div class="flex items-center justify-center h-full">
+    <span class="text-[var(--muted-foreground)]">{{ LABELS.loading }}</span>
+  </div>
+}

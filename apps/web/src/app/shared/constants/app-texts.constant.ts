@@ -122,6 +122,36 @@ export const APP_TEXTS = {
         description: 'Comienza agregando tu primer parqueadero para gestionar tus propiedades.',
       },
     },
+    detail: {
+      title: 'Detalle del parqueadero',
+      backToList: 'Volver a la lista',
+      fields: {
+        address: 'Dirección',
+        totalCapacity: 'Capacidad total',
+        coordinates: 'Coordenadas',
+        createdAt: 'Creado',
+        updatedAt: 'Actualizado',
+        parkingId: 'ID del parqueadero',
+      },
+      slotDistribution: {
+        title: 'Distribución de cupos',
+        summary: (count: number) =>
+          `${count} grupo${count !== 1 ? 's' : ''} de cupos`,
+        totalSlots: (total: number) => `${total} en total`,
+        slotsLabel: (count: number) => `${count} cupo${count !== 1 ? 's' : ''}`,
+        prefix: 'Prefijo',
+      },
+      map: {
+        title: 'Ubicación',
+        placeholder: 'Sin coordenadas registradas',
+      },
+      actions: {
+        edit: 'Editar',
+        delete: 'Eliminar',
+      },
+      empty: 'Parqueadero no encontrado',
+      loading: 'Cargando información...',
+    },
     form: {
       create: {
         title: 'Crear Parqueadero',

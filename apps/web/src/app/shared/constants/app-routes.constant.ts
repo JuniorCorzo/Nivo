@@ -7,6 +7,7 @@ export const APP_ROUTE_PATHS = {
   },
   app: {
     parkingLots: parkingLotsSegment,
+    parkingLotDetail: `${parkingLotsSegment}/:parkingId`,
     createParkingLots: `${parkingLotsSegment}/create`,
     editParkingLots: `${parkingLotsSegment}/:parkingId/edit`,
   },
@@ -20,6 +21,7 @@ export const APP_ROUTES = {
   },
   app: {
     parkingLots: parkingLotsRoute,
+    parkingLotDetail: (parkingId: string) => `${parkingLotsRoute}/${parkingId}`,
     createParkingLots: `${parkingLotsRoute}/create`,
     editParkingLots: (parkingId: string) => `${parkingLotsRoute}/${parkingId}/edit`,
   },

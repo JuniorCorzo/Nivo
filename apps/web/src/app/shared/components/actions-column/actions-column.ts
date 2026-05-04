@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideEye, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
 import { ButtonComponent } from '@nivo-sass/design-system';
@@ -16,8 +16,17 @@ export class ActionsColumn {
   private readonly router = inject(Router);
 
   readonly parkingId = input.required<string>();
+  readonly deleteClick = output<string>();
+
+  onViewDetails(): void {
+    this.router.navigate([APP_ROUTES.app.parkingLotDetail(this.parkingId())]);
+  }
 
   onEdit(): void {
     this.router.navigate([APP_ROUTES.app.editParkingLots(this.parkingId())]);
+  }
+
+  onDelete(): void {
+    this.deleteClick.emit(this.parkingId());
   }
 }
