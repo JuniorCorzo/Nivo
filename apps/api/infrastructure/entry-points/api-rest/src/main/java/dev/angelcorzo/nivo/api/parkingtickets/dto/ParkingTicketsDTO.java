@@ -6,7 +6,7 @@ import dev.angelcorzo.nivo.api.tenants.dto.TenantInfo;
 import dev.angelcorzo.nivo.api.users.dto.UserInfo;
 import dev.angelcorzo.nivo.model.parkingtickets.enums.ParkingTicketStatus;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 import lombok.Builder;
 
@@ -18,12 +18,12 @@ public record ParkingTicketsDTO(
     UserInfo user,
     RatesInfo rate,
     String licensePlate,
-    OffsetDateTime entryTime,
-    OffsetDateTime exitTime,
+    ZonedDateTime entryTime,
+    ZonedDateTime exitTime,
     BigDecimal totalToCharge,
     ParkingTicketStatus status,
     String paymentMethod,
     String transactionReference,
-    OffsetDateTime createdAt,
-    OffsetDateTime updatedAt,
-    OffsetDateTime deletedAt) {}
+    ZonedDateTime createdAt,
+    ZonedDateTime updatedAt,
+    ZonedDateTime deletedAt) {}
