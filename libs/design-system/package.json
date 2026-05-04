@@ -23,6 +23,8 @@
     "build-storybook": "ng run design-system:build-storybook"
   },
   "peerDependencies": {
+    "@angular/aria": "^21.2.0",
+    "@angular/cdk": "^21.2.0",
     "@angular/common": "^21.2.0",
     "@angular/core": "^21.2.0",
     "@angular/forms": "^21.2.0",
@@ -48,9 +50,11 @@
   },
   "devDependencies": {
     "@storybook/angular": "10.3.4",
+    "@angular/aria": "21.2.6",
     "@angular-devkit/architect": "0.2102.6",
     "@angular-devkit/build-angular": "21.2.6",
     "@angular-devkit/core": "21.2.6",
+    "@angular/cdk": "21.2.6",
     "@angular/cli": "21.2.6",
     "@angular/compiler": "21.2.6",
     "@angular/compiler-cli": "21.2.6",
