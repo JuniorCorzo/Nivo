@@ -70,7 +70,7 @@ public class SlotMapper {
         .mapToInt(CreatedSlots::currentNumberSlots)
         .max()
         .orElse(0);
-    return currentCount != 0 ? currentCount : 1;
+    return currentCount + 1;
   }
 
   private static Slots toSlot(

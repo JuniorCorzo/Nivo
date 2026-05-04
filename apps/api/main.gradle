@@ -22,6 +22,10 @@ subprojects {
         targetCompatibility = JavaVersion.VERSION_25
     }
 
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs << '-parameters'
+    }
+
     //build.dependsOn 'pitest'
 
     test {

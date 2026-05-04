@@ -14,14 +14,14 @@ import dev.angelcorzo.nivo.model.users.Users;
 import dev.angelcorzo.nivo.model.users.enums.Roles;
 import dev.angelcorzo.nivo.model.users.gateways.UsersRepository;
 import dev.angelcorzo.nivo.model.users.valueobject.UserReference;
-import dev.angelcorzo.nivo.usecase.batchcreateslots.BatchCreateSlotsUseCase;
+import dev.angelcorzo.nivo.usecase.batchpersistslots.BatchPersistSlotsUseCase;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class CreateParkingUseCase {
-  private final BatchCreateSlotsUseCase batchCreateSlotsUseCase;
+  private final BatchPersistSlotsUseCase batchCreateSlotsUseCase;
   private final ParkingLotsRepository parkingLotsRepository;
   private final UsersRepository usersRepository;
   private final AuthenticationContextGateway authenticationContext;

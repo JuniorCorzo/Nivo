@@ -3,6 +3,7 @@ package dev.angelcorzo.nivo.api.parkinglots.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
@@ -30,5 +31,6 @@ public record ParkingLotListItemResponse(
     OffsetDateTime updatedAt,
     List<SlotDistributionResponse> slotDistribution,
     String ownerName,
-    Long totalCapacity) {
+    Long totalCapacity,
+    OperatingHoursDTO operatingHours) {
 }
