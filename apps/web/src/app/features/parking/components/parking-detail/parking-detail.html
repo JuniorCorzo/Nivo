@@ -24,6 +24,7 @@
           variant="outline"
           size="sm"
           class="text-destructive border-destructive hover:bg-destructive/10"
+          (click)="onDeleteClick()"
         >
           <ng-icon name="lucideTrash2" size="16"></ng-icon>
           <span>{{ LABELS.actions.delete }}</span>
@@ -136,4 +137,11 @@
   <div class="flex items-center justify-center h-full">
     <span class="text-[var(--muted-foreground)]">{{ LABELS.loading }}</span>
   </div>
+}
+
+@if (isDeleteModalOpen()) {
+  <app-delete-parking-modal
+    (confirm)="onDeleteConfirm()"
+    (cancel)="onDeleteCancel()"
+  />
 }

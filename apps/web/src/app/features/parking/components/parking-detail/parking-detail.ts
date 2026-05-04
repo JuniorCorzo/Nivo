@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -10,6 +10,7 @@ import {
   BadgeComponent,
   ButtonComponent,
   CardComponent,
+  ToastService,
   TypographyMuted,
   TypographyMono,
 } from '@nivo-sass/design-system';
@@ -18,6 +19,9 @@ import { APP_ROUTES } from '@shared/constants/app-routes.constant';
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
 import { ParkingMapComponent } from '../parking-map/parking-map';
 import { SlotDistribution } from '@core/type/slot-distribution.type';
+import { DeleteParkingModal } from '@shared/components/delete-parking-modal/delete-parking-modal';
+import { exhaustMap } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-parking-detail',
@@ -30,6 +34,7 @@ import { SlotDistribution } from '@core/type/slot-distribution.type';
     TypographyMuted,
     TypographyMono,
     ParkingMapComponent,
+    DeleteParkingModal,
   ],
   providers: [
     provideIcons({ lucideArrowLeft, lucidePencil, lucideTrash2 }),
@@ -41,11 +46,39 @@ export class ParkingDetail {
   protected readonly LABELS = APP_TEXTS.parking.detail;
   protected readonly ACTIONS = APP_TEXTS.parking.actions;
 
+  protected readonly isDeleteModalOpen = signal(false);
+  protected readonly selectedParkingId = signal<string | null>(null);
+
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly parkingService = inject(ParkingService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly parkingId = this.route.snapshot.paramMap.get('parkingId');
+
+  constructor() {
+    this.parkingService.delete$
+      .pipe(
+        exhaustMap((id) => this.parkingService.delete(id)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            message: APP_TEXTS.parking.messages.deleted,
+            type: 'success',
+          });
+          this.goBack();
+        },
+        error: () => {
+          this.toastService.showToast({
+            message: APP_TEXTS.server.errors.generic,
+            type: 'error',
+          });
+        },
+      });
+  }
 
   protected readonly parking = computed(() => {
     const id = this.parkingId;
@@ -102,5 +135,29 @@ export class ParkingDetail {
     const p = this.parking();
     if (!p) return;
     this.router.navigate([APP_ROUTES.app.editParkingLots(p.id)]);
+  }
+
+  protected onDeleteClick(): void {
+    const p = this.parking();
+    if (!p) return;
+    this.selectedParkingId.set(p.id);
+    this.isDeleteModalOpen.set(true);
+  }
+
+  protected onDeleteConfirm(): void {
+    const id = this.selectedParkingId();
+    if (!id) return;
+
+    this.parkingService.requestDelete(id);
+    this.closeDeleteModal();
+  }
+
+  protected onDeleteCancel(): void {
+    this.closeDeleteModal();
+  }
+
+  private closeDeleteModal(): void {
+    this.isDeleteModalOpen.set(false);
+    this.selectedParkingId.set(null);
   }
 }
