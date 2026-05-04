@@ -12,7 +12,7 @@ import org.hibernate.annotations.Struct;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
-@Struct(name = "operating_hours_t")
+@Struct(name = "operating_hours_t", attributes = { "open_time", "close_time" })
 public class OperatingHoursType {
   @Column(name = "open_time")
   private OffsetTime openTime;

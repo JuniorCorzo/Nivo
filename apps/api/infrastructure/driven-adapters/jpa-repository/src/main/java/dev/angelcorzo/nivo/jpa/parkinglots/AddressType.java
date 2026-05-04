@@ -13,8 +13,7 @@ import org.hibernate.annotations.Struct;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
-@Struct(
-    name = "address_t")
+@Struct(name = "address_t", attributes = { "street", "city", "state", "country", "zip_code" })
 public class AddressType {
   private String street;
   private String city;

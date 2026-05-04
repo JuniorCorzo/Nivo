@@ -29,6 +29,17 @@
           [error]="onError('address.street')"
         >
         </nv-input>
+          <nv-combobox
+            id="city"
+            [label]="APP_TEXTS.parking.form.fields.address.city.label"
+            [placeholder]="APP_TEXTS.parking.form.fields.address.city.placeholder"
+            [formField]="form.address.city"
+            [items]="cities()"
+            [error]="cityError()"
+            [displayFn]="displayCityFn"
+            (selectionChange)="onCitySelected($event)"
+          >
+          </nv-combobox>
       </div>
 
       <div class="form-row">
