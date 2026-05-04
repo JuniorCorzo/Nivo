@@ -105,6 +105,7 @@ public class JpaConfig {
     Properties properties = new Properties();
     properties.setProperty("hibernate.dialect", dialect);
     properties.setProperty("hibernate.default_schema", defaultSchema);
+    properties.setProperty("hibernate.jdbc.time_zone", "UTC");
 
     em.setJpaProperties(properties);
     em.getJpaPropertyMap().put("hibernate.resource.beans.container", new SpringBeanContainer(beanFactory));

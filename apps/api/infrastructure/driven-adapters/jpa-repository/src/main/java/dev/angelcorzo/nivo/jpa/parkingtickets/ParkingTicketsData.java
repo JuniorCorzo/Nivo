@@ -51,10 +51,10 @@ public class ParkingTicketsData {
   @Column(name = "license_plate")
   private String licensePlate;
 
-  @Column(name = "entry_time", nullable = false)
+  @Column(name = "entry_time", nullable = false, columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime entryTime;
 
-  @Column(name = "exit_time")
+  @Column(name = "exit_time", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime exitTime;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -69,17 +69,17 @@ public class ParkingTicketsData {
   @Enumerated(EnumType.STRING)
   private ParkingTicketStatus status;
 
-  @Column(name = "closed_at")
+  @Column(name = "closed_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime closedAt;
 
-  @Column(name = "created_at")
+  @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ")
   @CreationTimestamp
   private OffsetDateTime createdAt;
 
-  @Column(name = "updated_at")
+  @Column(name = "updated_at", columnDefinition = "TIMESTAMPTZ")
   @UpdateTimestamp
   private OffsetDateTime updatedAt;
 
-  @Column(name = "deleted_at")
+  @Column(name = "deleted_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime deleted_at;
 }

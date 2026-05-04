@@ -45,7 +45,7 @@ public class PaymentsData {
   @Column(name = "amount", nullable = false)
   private BigDecimal amount;
 
-  @Column(name = "payment_date")
+  @Column(name = "payment_date", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime paymentDate;
 
   @Column(name = "payment_method", nullable = false)
@@ -69,18 +69,18 @@ public class PaymentsData {
   @Column(name = "checkout_url")
   private String checkoutUrl;
 
-  @Column(name = "checkout_expires_at")
+  @Column(name = "checkout_expires_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime checkoutExpiresAt;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "provider_create_response", columnDefinition = "jsonb")
   private JsonNode providerCreateResponse;
 
-  @Column(name = "created_at", nullable = false, updatable = false)
+  @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMPTZ")
   @CreationTimestamp
   private OffsetDateTime createdAt;
 
-  @Column(name = "updated_at", nullable = false)
+  @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMPTZ")
   @UpdateTimestamp
   private OffsetDateTime updatedAt;
 

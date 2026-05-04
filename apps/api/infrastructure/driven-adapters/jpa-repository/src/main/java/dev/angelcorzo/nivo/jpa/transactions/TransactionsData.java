@@ -48,7 +48,7 @@ public class TransactionsData {
   @Convert(converter = EncryptedResponseConverter.class)
   private String gatewayResponse;
 
-  @Column(name = "created_at")
+  @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ")
   @CreationTimestamp
   private OffsetDateTime createdAt;
 }

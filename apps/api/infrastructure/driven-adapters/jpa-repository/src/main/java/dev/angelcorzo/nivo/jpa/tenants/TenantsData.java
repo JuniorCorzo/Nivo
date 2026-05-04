@@ -54,17 +54,17 @@ public class TenantsData {
   private String companyName;
 
   /** Timestamp when the tenant record was created. */
-  @Column(name = "created_at")
+  @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ")
   @CreationTimestamp
   private OffsetDateTime createdAt;
 
   /** Timestamp when the tenant record was last updated. */
-  @Column(name = "updated_at")
+  @Column(name = "updated_at", columnDefinition = "TIMESTAMPTZ")
   @UpdateTimestamp
   private OffsetDateTime updatedAt;
 
   /** Timestamp when the tenant record was softly deleted. */
-  @Column(name = "deleted_at")
+  @Column(name = "deleted_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime deletedAt;
 
   /**
