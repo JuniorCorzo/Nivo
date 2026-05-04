@@ -33,6 +33,8 @@ import lombok.Builder;
  *   [14] slot_distribution → String (JSON)
  *   [15] owner_name        → String
  *   [16] total_capacity    → Long
+ *   [17] open_time        → String (text representation of timetz)
+ *   [18] close_time       → String (text representation of timetz)
  * </pre>
  *
  * <p>
@@ -56,5 +58,7 @@ public record ParkingLotSummaryData(
     Double longitude,
     String slotDistribution,
     String ownerName,
-    Long totalCapacity) {
+    Long totalCapacity,
+    String openTime,
+    String closeTime) {
 }

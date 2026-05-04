@@ -1,6 +1,7 @@
 package dev.angelcorzo.nivo.jpa.parkinglots.mappers;
 
 import dev.angelcorzo.nivo.jpa.parkinglots.ParkingLotSummaryData;
+import jakarta.persistence.Tuple;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -10,25 +11,27 @@ import org.springframework.stereotype.Component;
 @Component
 public class ParkingLotSummaryDataMapper {
 
-  public ParkingLotSummaryData toSummaryData(Object[] row) {
+  public ParkingLotSummaryData toSummaryData(Tuple row) {
     return ParkingLotSummaryData.builder()
-        .id((UUID) row[0])
-        .name((String) row[1])
-        .currency((String) row[2])
-        .occuppationRate(toDouble(row[3]))
-        .createdAt(toInstant(row[4]))
-        .updatedAt(toInstant(row[5]))
-        .deletedAt(toInstant(row[6]))
-        .street((String) row[7])
-        .city((String) row[8])
-        .state((String) row[9])
-        .country((String) row[10])
-        .zipCode((String) row[11])
-        .latitude(toDouble(row[12]))
-        .longitude(toDouble(row[13]))
-        .slotDistribution((String) row[14])
-        .ownerName((String) row[15])
-        .totalCapacity(toLong(row[16]))
+        .id(row.get("id", UUID.class))
+        .name(row.get("name", String.class))
+        .currency(row.get("currency", String.class))
+        .occuppationRate(toDouble(row.get("occuppation_rate")))
+        .createdAt(toInstant(row.get("created_at")))
+        .updatedAt(toInstant(row.get("updated_at")))
+        .deletedAt(toInstant(row.get("deleted_at")))
+        .street(row.get("street", String.class))
+        .city(row.get("city", String.class))
+        .state(row.get("state", String.class))
+        .country(row.get("country", String.class))
+        .zipCode(row.get("zip_code", String.class))
+        .latitude(toDouble(row.get("latitude")))
+        .longitude(toDouble(row.get("longitude")))
+        .slotDistribution(row.get("slot_distribution", String.class))
+        .ownerName(row.get("owner_name", String.class))
+        .totalCapacity(toLong(row.get("total_capacity")))
+        .openTime(row.get("open_time", String.class))
+        .closeTime(row.get("close_time", String.class))
         .build();
   }
 
