@@ -1,12 +1,14 @@
 package dev.angelcorzo.nivo.model.authentication.exceptions;
 
+import dev.angelcorzo.nivo.model.commons.exceptions.AppException;
+
 /**
  * Base class for all security-related exceptions in the domain layer.
  * <p>
  * This abstract class serves as the root for a hierarchy of exceptions that
- * represent authentication and authorization errors. By extending {@link RuntimeException},
- * these exceptions are unchecked, which is suitable for security violations that
- * often represent programming errors or unrecoverable client-side issues.
+ * represent authentication and authorization errors. By extending {@link AppException},
+ * these exceptions carry a standard HTTP status and error code for consistent
+ * API error handling.
  * </p>
  * <p>
  * Subclasses should provide specific contexts for security failures, such as
@@ -17,7 +19,9 @@ package dev.angelcorzo.nivo.model.authentication.exceptions;
  * @version 1.0
  * @since 2025-10-29
  */
-public abstract class SecurityException extends RuntimeException {
+public abstract class SecurityException extends AppException {
+  private static final int STATUS = 401;
+  private static final String CODE = "SECURITY_ERROR";
 
   /**
    * Constructs a new security exception with the specified detail message.
@@ -26,7 +30,7 @@ public abstract class SecurityException extends RuntimeException {
    *                later retrieval by the {@link #getMessage()} method.
    */
   protected SecurityException(String message) {
-    super(message);
+    super(message, STATUS, CODE);
   }
 
   /**
@@ -41,6 +45,6 @@ public abstract class SecurityException extends RuntimeException {
    *                permitted, and indicates that the cause is nonexistent or unknown.)
    */
   protected SecurityException(String message, Throwable cause) {
-    super(message, cause);
+    super(message, STATUS, CODE, cause);
   }
 }

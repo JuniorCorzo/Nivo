@@ -73,10 +73,10 @@ public class ProviderAuthenticationContext {
 
     } catch (WebClientResponseException e) {
       log.error("Error authenticating with payment provider: {}", e.getStatusCode());
-      throw new RuntimeException("Authentication failed", e);
+      throw new ProviderAuthenticationException("Authentication failed: " + e.getStatusCode(), e.getStatusCode().value(), e);
     } catch (ProviderAuthenticationException e) {
       log.error("Unexpected error during authentication: {}", e.getMessage());
-      throw new RuntimeException("Authentication failed", e);
+      throw e;
     }
   }
 

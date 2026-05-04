@@ -10,8 +10,13 @@ import dev.angelcorzo.nivo.model.commons.exceptions.ErrorMessagesModel;
  * @author Angel Corzo
  * @since 1.0.0
  */
-public class InvitationNotFoundException extends RuntimeException {
+import dev.angelcorzo.nivo.model.commons.exceptions.AppException;
+
+public class InvitationNotFoundException extends AppException {
+  private static final int STATUS = 404;
+  private static final String CODE = "INVITATION_NOT_FOUND";
+
   public InvitationNotFoundException() {
-    super(ErrorMessagesModel.INVITATION_NOT_FOUND.toString());
+    super(ErrorMessagesModel.INVITATION_NOT_FOUND.toString(), STATUS, CODE);
   }
 }

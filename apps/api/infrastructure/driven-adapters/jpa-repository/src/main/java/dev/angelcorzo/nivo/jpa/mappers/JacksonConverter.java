@@ -3,6 +3,7 @@ package dev.angelcorzo.nivo.jpa.mappers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.angelcorzo.nivo.jpa.exceptions.JsonConversionException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,7 @@ public class JacksonConverter {
     try {
       return objectMapper.treeToValue(jsonNode, Object.class);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+      throw new JsonConversionException("Error converting JsonNode to Object", e);
     }
   }
 
@@ -29,7 +30,7 @@ public class JacksonConverter {
     try {
       return this.objectMapper.readValue(str, Object.class);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+      throw new JsonConversionException("Error parsing JSON string to Object", e);
     }
   }
 
@@ -41,7 +42,7 @@ public class JacksonConverter {
 
       return this.objectMapper.writeValueAsString(object);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+      throw new JsonConversionException("Error converting Object to JSON string", e);
     }
   }
 
@@ -51,7 +52,7 @@ public class JacksonConverter {
     try {
       return objectMapper.treeToValue(jsonNode, clazz);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+      throw new JsonConversionException("Error converting JsonNode to typed Object", e);
     }
   }
 }

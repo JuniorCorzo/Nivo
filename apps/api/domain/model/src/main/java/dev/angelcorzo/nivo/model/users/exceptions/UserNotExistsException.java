@@ -11,12 +11,17 @@ import java.util.UUID;
  * @author Angel Corzo
  * @since 1.0.0
  */
-public class UserNotExistsException extends RuntimeException {
+import dev.angelcorzo.nivo.model.commons.exceptions.AppException;
+
+public class UserNotExistsException extends AppException {
+  private static final int STATUS = 404;
+  private static final String CODE = "USER_NOT_FOUND";
+
   public UserNotExistsException(UUID id) {
-    super(String.format("El usuario con ID %s no existe", id));
+    super(String.format("El usuario con ID %s no existe", id), STATUS, CODE);
   }
 
   public UserNotExistsException(String email) {
-    super(ErrorMessagesModel.USER_NOT_EXIST_EMAIL.format(email));
+    super(ErrorMessagesModel.USER_NOT_EXIST_EMAIL.format(email), STATUS, CODE);
   }
 }

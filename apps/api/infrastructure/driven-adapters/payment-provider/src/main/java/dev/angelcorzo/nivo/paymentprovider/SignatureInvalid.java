@@ -1,11 +1,16 @@
 package dev.angelcorzo.nivo.paymentprovider;
 
-public class SignatureInvalid extends RuntimeException {
+import dev.angelcorzo.nivo.model.commons.exceptions.AppException;
+
+public class SignatureInvalid extends AppException {
+  private static final int STATUS = 400;
+  private static final String CODE = "SIGNATURE_INVALID";
+
   public SignatureInvalid() {
-    super("");
+    super("Invalid signature", STATUS, CODE);
   }
 
   public SignatureInvalid(String message) {
-    super(message);
+    super(message, STATUS, CODE);
   }
 }

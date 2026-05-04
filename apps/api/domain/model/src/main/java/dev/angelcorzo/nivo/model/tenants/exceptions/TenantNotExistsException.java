@@ -11,8 +11,13 @@ import java.util.UUID;
  * @author Angel Corzo
  * @since 1.0.0
  */
-public class TenantNotExistsException extends IllegalArgumentException {
+import dev.angelcorzo.nivo.model.commons.exceptions.AppException;
+
+public class TenantNotExistsException extends AppException {
+  private static final int STATUS = 404;
+  private static final String CODE = "TENANT_NOT_FOUND";
+
   public TenantNotExistsException(UUID uuid) {
-    super(ErrorMessagesModel.TENANT_NOT_EXISTS.format(uuid));
+    super(ErrorMessagesModel.TENANT_NOT_EXISTS.format(uuid), STATUS, CODE);
   }
 }
