@@ -1,10 +1,9 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Observable, Subject, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { ParkingLotsService } from '@core/api/generated/services/parking-lots.service';
 import {
-  ParkingLotListItemResponse,
   ResponseListParkingLotListItemResponse,
   ResponseParkingLotsResponse,
 } from '@core/api/generated/models';
@@ -24,6 +23,9 @@ import { SlotDistribution } from '@core/type/slot-distribution.type';
 export class ParkingService {
   private _parkingLots = signal<ParkingLotListItemModel[]>([]);
   public parkingLots = this._parkingLots.asReadonly();
+
+  private readonly deleteSubject = new Subject<string>();
+  public readonly delete$ = this.deleteSubject.asObservable();
 
   private parkingLotsService = inject(ParkingLotsService);
   private parkingMapper = inject(ParkingMapper);
@@ -102,15 +104,38 @@ export class ParkingService {
   }
 
   deleteSlotGroup(parkingId: string, slot: SlotDistribution): Observable<void> {
-    return this.parkingLotsService.deleteSlotGroup(
-      { parkingId, slotType: slot.type, prefix: slot.prefix || undefined, zone: slot.zone || undefined },
-      this.httpContext(),
-    ).pipe(map(() => void 0));
+    return this.parkingLotsService
+      .deleteSlotGroup(
+        {
+          parkingId,
+          slotType: slot.type,
+          prefix: slot.prefix || undefined,
+          zone: slot.zone || undefined,
+        },
+        this.httpContext(),
+      )
+      .pipe(map(() => void 0));
   }
 
   getUpsertById(id: string): Observable<UpsertParkingLotsModel> {
     return this.getById(id).pipe(
       map((parking) => this.parkingMapper.mapListItemToUpsertParkingLotsModel(parking)),
+    );
+  }
+
+  /**
+   * Request deletion of a parking lot.
+   * Uses exhaustMap to ignore duplicate requests while one is in-flight.
+   */
+  requestDelete(id: string): void {
+    this.deleteSubject.next(id);
+  }
+
+  delete(id: string): Observable<void> {
+    return this.parkingLotsService.deleteParkingLot({ parkingId: id }, this.httpContext()).pipe(
+      map(() => void 0),
+      tap(() => this.updateState()),
+      catchError((error) => throwError(() => error)),
     );
   }
 }

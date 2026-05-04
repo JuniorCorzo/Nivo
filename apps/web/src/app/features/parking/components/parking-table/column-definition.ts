@@ -3,7 +3,7 @@ import { createColumnHelper, flexRenderComponent } from '@tanstack/angular-table
 import { OccuppationMeter } from '../occuppation-meter/occuppation-meter';
 import { ActionsColumn } from '@/app/shared/components/actions-column/actions-column';
 
-export const parkingLotsColumnDefinition = () => {
+export const parkingLotsColumnDefinition = (onDelete: (id: string) => void) => {
   const columnHelper = createColumnHelper<ParkingLotListItemModel>();
   const columns = [
     columnHelper.accessor('name', {
@@ -43,6 +43,9 @@ export const parkingLotsColumnDefinition = () => {
         flexRenderComponent(ActionsColumn, {
           inputs: {
             parkingId: ctx.row.original.id,
+          },
+          outputs: {
+            deleteClick: (id: string) => onDelete(id),
           },
         }),
     }),

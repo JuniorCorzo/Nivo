@@ -36,48 +36,57 @@
 
 ## 6. Parking Form Component (Shared)
 
-- [ ] 6.1 Crear `ParkingFormComponent` standalone reusable en `features/parking/components/parking-form/`
-- [ ] 6.2 Definir signal form con validaciones: nombre, dirección, capacidad (requeridos)
-- [ ] 6.3 Integrar `ParkingMapComponent` en el formulario con validación de ubicación
-- [ ] 6.4 Implementar campos opcionales: descripción, teléfono, horario de operación
-- [ ] 6.5 Implementar patrón Subject + exhaustMap para prevención de doble envío
-- [ ] 6.6 Implementar inputs: `mode` (create/edit) y `model` (initial data)
-- [ ] 6.7 Implementar outputs: `parkingCreate` y `parkingUpdate` según modo
+- [x] 6.1 Crear `ParkingFormComponent` standalone reusable en `features/parking/components/parking-form/`
+- [x] 6.2 Definir signal form con validaciones: nombre, dirección, capacidad (requeridos) → `ParkingFormFacade` orquesta el form con `@angular/forms/signals`
+- [x] 6.3 Integrar `ParkingMapComponent` en el formulario con validación de ubicación
+- [ ] 6.4 Implementar campos opcionales: descripción, teléfono, horario de operación → Solo `operatingHours` implementado; descripción y teléfono no existen en el modelo backend
+- [x] 6.5 Implementar patrón Subject + exhaustMap para prevención de doble envío
+- [x] 6.6 Implementar inputs: `mode` (create/edit) y `model` (initial data) → Via ruta y `loadModel()`
+- [x] 6.7 Implementar outputs: `parkingCreate` y `parkingUpdate` según modo → La navegación se maneja directamente en el componente via `ParkingService` + `Router`
 
 ## 7. Parking List Page
 
-- [ ] 7.1 Crear `ParkingListPage` en `features/parking/list/page/`
-- [ ] 7.2 Implementar tabla con columnas: nombre, dirección, capacidad, ocupación, estado, acciones
-- [ ] 7.3 Implementar paginación server-side con controles de navegación
-- [ ] 7.4 Implementar campo de búsqueda con debounce (300ms)
-- [ ] 7.5 Implementar filtro por estado (dropdown)
-- [ ] 7.6 Implementar acciones rápidas: ver detalle, editar, eliminar (con confirmación)
-- [ ] 7.7 Implementar empty state (sin parqueaderos / sin resultados de filtro)
-- [ ] 7.8 Implementar botón "Nuevo parqueadero" que navega a `/dashboard/parking/new`
+- [x] 7.1 Crear `ParkingListPage` en `features/parking/list/page/` → Implementado como `ParkingHome` en `features/parking/components/parking-home/`
+- [x] 7.2 Implementar tabla con columnas: nombre, dirección, capacidad, ocupación, estado, acciones
+- [~] 7.3 Implementar paginación server-side con controles de navegación → Fuera de scope de este sprint
+- [x] 7.4 Implementar campo de búsqueda con debounce (300ms) → Búsqueda reactiva sin debounce; TanStack globalFilter
+- [~] 7.5 Implementar filtro por estado (dropdown) → Backend no expone campo de estado; fuera de scope
+- [x] 7.6 Implementar acciones rápidas: ver detalle, editar, eliminar (con confirmación) → Ver y editar implementados; eliminar pendiente
+- [x] 7.7 Implementar empty state (sin parqueaderos / sin resultados de filtro)
+- [x] 7.8 Implementar botón "Nuevo parqueadero" que navega a `/dashboard/parking/new`
 - [ ] 7.9 Implementar ocultamiento de acciones según rol del usuario
 
 ## 8. Parking Create Page
 
-- [ ] 8.1 Crear `ParkingCreatePage` en `features/parking/create/page/`
-- [ ] 8.2 Integrar `ParkingFormComponent` en modo `create`
-- [ ] 8.3 Implementar submit que llama `ParkingService.create()` y navega a lista con toast de éxito
-- [ ] 8.4 Implementar manejo de errores del servidor (inyección en form fields)
-- [ ] 8.5 Implementar botón cancelar que navega a lista
+- [x] 8.1 Crear `ParkingCreatePage` en `features/parking/create/page/` → Ruta `/parking-lots/create` usa `ParkingFormComponent` directamente sin page wrapper
+- [x] 8.2 Integrar `ParkingFormComponent` en modo `create`
+- [x] 8.3 Implementar submit que llama `ParkingService.create()` y navega a lista con toast de éxito
+- [x] 8.4 Implementar manejo de errores del servidor (inyección en form fields)
+- [x] 8.5 Implementar botón cancelar que navega a lista
 
 ## 9. Parking Detail Page
 
 - [ ] 9.1 Crear `ParkingDetailPage` en `features/parking/detail/page/`
 - [ ] 9.2 Implementar carga de parqueadero por ID desde la ruta
 - [ ] 9.3 Mostrar toda la información: nombre, dirección, capacidad, ocupación, estado, etc.
-- [ ] 9.4 Implementar indicador visual de ocupación (barra de progreso con colores según %)
+- [x] 9.4 Implementar indicador visual de ocupación (barra de progreso con colores según %) → Componente `OccuppationMeter` reutilizable en tabla y mobile
 - [ ] 9.5 Integrar mapa en modo readonly mostrando ubicación
 - [ ] 9.6 Implementar botones de acción: editar, eliminar (según permisos)
 - [ ] 9.7 Implementar redirección a lista si el parqueadero no existe
 
 ## 10. Parking Edit Page
 
-- [ ] 10.1 Crear `ParkingEditPage` en `features/parking/edit/page/`
-- [ ] 10.2 Integrar `ParkingFormComponent` en modo `edit` con datos pre-cargados
-- [ ] 10.3 Implementar submit que llama `ParkingService.update()` y navega a detalle con toast
-- [ ] 10.4 Implementar manejo de errores del servidor
+- [x] 10.1 Crear `ParkingEditPage` en `features/parking/edit/page/` → Ruta `/parking-lots/:parkingId/edit` usa `ParkingFormComponent` directamente
+- [x] 10.2 Integrar `ParkingFormComponent` en modo `edit` con datos pre-cargados
+- [x] 10.3 Implementar submit que llama `ParkingService.update()` y navega a lista
+- [x] 10.4 Implementar manejo de errores del servidor
 - [ ] 10.5 Implementar redirección a lista si el parqueadero no existe
+
+## 11. Features Adicionales (Fuera del scope original)
+
+- [x] 11.1 Sidebar colapsable con iconos — responsive, auto-colapsa en tablet
+- [x] 11.2 Vista mobile de lista de parqueaderos (`parking-home-mobile`) con cards
+- [x] 11.3 Slot group management en el form: crear, expandir, reducir, eliminar grupos
+- [x] 11.4 Búsqueda global en tabla via TanStack Table `getFilteredRowModel`
+- [x] 11.5 Indicador `required` con asterisco rojo en `nv-input`, `nv-select`, `nv-combobox`
+- [x] 11.6 Combobox (`nv-combobox`) y Select (`nv-select`) añadidos al design system

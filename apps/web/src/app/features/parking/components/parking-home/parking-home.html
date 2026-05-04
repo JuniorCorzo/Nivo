@@ -16,5 +16,12 @@
       (input)="onSearchInput($event)"
     ></nv-input>
   </div>
-  <app-parking-table [searchQuery]="searchQuery()" />
+  <app-parking-table [searchQuery]="searchQuery()" (deleteClick)="onDeleteClick($event)" />
+
+  @if (isDeleteModalOpen()) {
+    <app-delete-parking-modal
+      (confirm)="onDeleteConfirm()"
+      (cancel)="onDeleteCancel()"
+    />
+  }
 </div>
