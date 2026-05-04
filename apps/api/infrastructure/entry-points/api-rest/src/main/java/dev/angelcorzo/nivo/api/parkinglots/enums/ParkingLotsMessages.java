@@ -5,6 +5,7 @@ public enum ParkingLotsMessages {
   PARKING_LOTS_UPDATED("Parqueadero actualizado con exito"),
   PARKING_LOTS_LIST("Lista de parqueaderos obtenida con exito"),
   SLOT_GROUP_DELETED("Grupo de slots eliminado con exito"),
+  PARKING_LOT_DELETED("Parqueadero eliminado con exito"),
   ;
 
   private final String template;

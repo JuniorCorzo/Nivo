@@ -49,4 +49,9 @@ public class SlotsRepositoryAdapter
   public void deleteById(UUID id) {
     super.repository.deleteById(id);
   }
+
+  @Override
+  public int softDeleteByParkingLotsId(UUID parkingLotsId) {
+    return super.repository.softDeleteByParkingLotsId(parkingLotsId);
+  }
 }

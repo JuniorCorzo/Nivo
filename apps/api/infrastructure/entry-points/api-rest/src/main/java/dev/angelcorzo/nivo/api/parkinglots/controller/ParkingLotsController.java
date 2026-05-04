@@ -20,6 +20,7 @@ import dev.angelcorzo.nivo.usecase.listparkinglots.ListParkingLotsUseCase;
 import dev.angelcorzo.nivo.usecase.rateconfiguration.RateConfigurationUseCase;
 import dev.angelcorzo.nivo.usecase.showratesbyparkinglot.ShowRatesByParkingLotUseCase;
 import dev.angelcorzo.nivo.usecase.updateparking.UpdateParkingLotsUseCase;
+import dev.angelcorzo.nivo.usecase.deleteparkinglot.DeleteParkingLotUseCase;
 import dev.angelcorzo.nivo.usecase.deleteslotgroup.DeleteSlotGroupUseCase;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -47,6 +48,7 @@ public class ParkingLotsController {
   private final RateConfigurationUseCase rateConfigurationUseCase;
   private final ShowRatesByParkingLotUseCase showRatesByParkingLotUseCase;
   private final DeleteSlotGroupUseCase deleteSlotGroupUseCase;
+  private final DeleteParkingLotUseCase deleteParkingLotUseCase;
 
   @GetMapping("/list")
   @PreAuthorize("hasRole('MANAGER')")
@@ -108,6 +110,14 @@ public class ParkingLotsController {
     return Response.ok(
         this.parkingLotsMapper.toDTO(this.updateParkingLotsUseCase.update(updateParkingLots)),
         ParkingLotsMessages.PARKING_LOTS_UPDATED.format());
+  }
+
+  @DeleteMapping("/{parkingId}")
+  @PreAuthorize("hasRole('MANAGER')")
+  @Transactional
+  public Response<Void> deleteParkingLot(@PathVariable UUID parkingId) {
+    this.deleteParkingLotUseCase.execute(parkingId);
+    return Response.ok(null, ParkingLotsMessages.PARKING_LOT_DELETED.format());
   }
 
   @DeleteMapping("/{parkingId}/slots/groups")

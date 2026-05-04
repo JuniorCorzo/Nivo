@@ -85,7 +85,7 @@ public interface ParkingLotsRepositoryData extends JpaRepository<ParkingLotsData
         LEFT JOIN slot_summary ON p.id = slot_summary.parking_lot_id
         LEFT JOIN slot_occuppation occuppation ON p.id = occuppation.parking_lot_id
       WHERE
-        p.tenant_id = :tenantId
+        p.tenant_id = :tenantId AND p.deleted_at IS NULL
       GROUP BY
         p.id,
         p.name,
