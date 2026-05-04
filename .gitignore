@@ -29,8 +29,10 @@ replay_pid*
 node_modules
 .angular
 .nx/polygraph
-.claude/worktrees
-.claude/settings.local.json
+.claude/
+.agents/
+.atl/
+.kiro/
 
 storybook-static
 generated
