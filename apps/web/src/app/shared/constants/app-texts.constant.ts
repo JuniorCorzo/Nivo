@@ -1,3 +1,5 @@
+import { APP_ROUTES } from './app-routes.constant';
+
 export const APP_TEXTS = {
   auth: {
     login: {
@@ -6,7 +8,7 @@ export const APP_TEXTS = {
       form: {
         email: {
           label: 'Correo',
-          placeholder: 'angel@nivo.com',
+          placeholder: 'tu@correo.com',
           errors: {
             required: 'El correo es requerido',
             invalid: 'Ingresa un correo válido (ej: angel@nivo.com)',
@@ -14,7 +16,7 @@ export const APP_TEXTS = {
         },
         password: {
           label: 'Contraseña',
-          placeholder: 'Password',
+          placeholder: 'Ingresa tu contraseña',
           errors: {
             required: 'La contraseña es requerida',
             invalid: 'Contraseña incorrecta',
@@ -38,7 +40,7 @@ export const APP_TEXTS = {
       form: {
         companyName: {
           label: 'Nombre de compañía',
-          placeholder: 'Nivo Solutions',
+          placeholder: 'Ej. Nivo Solutions SAS',
           errors: {
             required: 'El nombre de la compañía es requerido',
             minLength: 'El nombre debe tener al menos 3 caracteres',
@@ -47,7 +49,7 @@ export const APP_TEXTS = {
         },
         username: {
           label: 'Nombre de usuario',
-          placeholder: 'Angel Corzo',
+          placeholder: 'Ej. Ángel Corzo',
           errors: {
             required: 'El nombre de usuario es requerido',
             minLength: 'El nombre debe tener al menos 3 caracteres',
@@ -57,7 +59,7 @@ export const APP_TEXTS = {
         },
         email: {
           label: 'Correo',
-          placeholder: 'angel@nivo.com',
+          placeholder: 'tu@correo.com',
           errors: {
             required: 'El correo es requerido',
             invalid: 'Ingresa un correo válido (ej: angel@nivo.com)',
@@ -65,7 +67,7 @@ export const APP_TEXTS = {
         },
         contactInfo: {
           label: 'Número de contacto',
-          placeholder: '321-2321212',
+          placeholder: 'Ej. 300 123 4567',
           errors: {
             required: 'El número de contacto es requerido',
             invalid: 'Ingresa un número de contacto válido',
@@ -73,7 +75,7 @@ export const APP_TEXTS = {
         },
         password: {
           label: 'Contraseña',
-          placeholder: 'Password',
+          placeholder: 'Mínimo 8 caracteres',
           errors: {
             required: 'La contraseña es requerida',
             minLength: 'La contraseña debe tener al menos 8 caracteres',
@@ -82,7 +84,7 @@ export const APP_TEXTS = {
         },
         confirmPassword: {
           label: 'Confirmar Contraseña',
-          placeholder: 'Password',
+          placeholder: 'Repite tu contraseña',
           errors: {
             required: 'Confirma tu contraseña',
             mismatch: 'Las contraseñas no coinciden',
@@ -101,7 +103,7 @@ export const APP_TEXTS = {
       title: 'Parqueaderos',
       subtitle: 'Gestiona y administra tus propiedades',
       search: {
-        placeholder: 'Buscar parqueadero por nombre...',
+        placeholder: 'Busca por nombre del parqueadero',
         noResults: 'No se encontraron parqueaderos',
       },
       table: {
@@ -122,7 +124,7 @@ export const APP_TEXTS = {
     },
     form: {
       create: {
-        title: 'Nuevo Parqueadero',
+        title: 'Crear Parqueadero',
         description: 'Registra un nuevo parqueadero en tu cuenta',
       },
       edit: {
@@ -132,7 +134,7 @@ export const APP_TEXTS = {
       fields: {
         name: {
           label: 'Nombre del parqueadero',
-          placeholder: 'Parking Sol',
+          placeholder: 'Ej. Parqueadero Centro',
           errors: {
             required: 'El nombre del parqueadero es requerido',
             minLength: 'El nombre debe tener al menos 3 caracteres',
@@ -143,72 +145,77 @@ export const APP_TEXTS = {
           title: 'Dirección',
           street: {
             label: 'Calle / Dirección',
-            placeholder: 'Carrera 7 # 11-10',
+            placeholder: 'Ej. Carrera 7 #11-10',
             errors: {
               required: 'La dirección es requerida',
             },
           },
           city: {
             label: 'Ciudad',
-            placeholder: 'Bogotá',
+            placeholder: 'Selecciona o escribe una ciudad',
             errors: {
               required: 'La ciudad es requerida',
             },
           },
           state: {
-            label: 'Departamento / Estado',
-            placeholder: 'Cundinamarca',
+            label: 'Departamento',
+            placeholder: 'Selecciona un departamento',
             errors: {
               required: 'El departamento es requerido',
             },
           },
-          country: {
-            label: 'País',
-            placeholder: 'Colombia',
-            errors: {
-              required: 'El país es requerido',
-            },
-          },
           zipCode: {
             label: 'Código postal',
-            placeholder: '110311',
+            placeholder: 'Ej. 110111',
             errors: {
               invalid: 'Ingresa un código postal válido',
             },
-          },
-        },
-        timezone: {
-          label: 'Zona horaria',
-          placeholder: 'UTC-5',
-          errors: {
-            required: 'La zona horaria es requerida',
-            invalid: 'Formato de zona horaria inválido (ej: UTC-5)',
-          },
-        },
-        currency: {
-          label: 'Moneda',
-          placeholder: 'COP',
-          errors: {
-            required: 'La moneda es requerida',
-            invalid: 'Código de moneda inválido (ej: COP, USD)',
           },
         },
         operatingHours: {
           title: 'Horario de operación',
           openTime: {
             label: 'Hora de apertura',
-            placeholder: '08:00',
+            placeholder: 'Ej. 08:00',
             errors: {
               required: 'La hora de apertura es requerida',
+              invalidFormat: 'Formato inválido. Use HH:mm',
             },
           },
           closeTime: {
             label: 'Hora de cierre',
-            placeholder: '20:00',
+            placeholder: 'Ej. 20:00',
             errors: {
               required: 'La hora de cierre es requerida',
               invalidRange: 'La hora de cierre debe ser posterior a la de apertura',
+              invalidFormat: 'Formato inválido. Use HH:mm',
             },
+          },
+        },
+        slots: {
+          title: 'Grupos de cupos',
+          description:
+            'Cada grupo define un prefijo, una zona, un tipo de vehículo y una cantidad.',
+          itemLabel: 'Grupo',
+          prefix: {
+            label: 'Prefijo',
+            placeholder: 'Ej. A',
+          },
+          zone: {
+            label: 'Zona',
+            placeholder: 'Ej. Norte',
+          },
+          type: {
+            label: 'Tipo de vehículo',
+            placeholder: 'Selecciona un tipo de vehículo',
+          },
+          count: {
+            label: 'Cantidad',
+            placeholder: 'Ej. 100',
+          },
+          actions: {
+            add: 'Agregar grupo',
+            remove: 'Eliminar grupo',
           },
         },
       },
@@ -218,6 +225,7 @@ export const APP_TEXTS = {
       edit: 'Guardar cambios',
       delete: 'Eliminar',
       viewDetails: 'Ver detalle',
+      placeholderMap: 'Selecciona la ubicación en el mapa',
       backToList: 'Volver a la lista',
     },
     messages: {
@@ -251,7 +259,7 @@ export const APP_TEXTS = {
       {
         label: 'Parqueaderos',
         icon: 'lucideCar',
-        url: '/app/parking-lots',
+        url: APP_ROUTES.app.parkingLots,
       },
     ],
     theme: {

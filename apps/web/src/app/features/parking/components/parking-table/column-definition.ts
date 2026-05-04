@@ -32,14 +32,19 @@ export const parkingLotsColumnDefinition = () => {
       cell: (ctx) =>
         flexRenderComponent(OccuppationMeter, {
           inputs: {
-            max: String(ctx.row.original.totalCapacity),
+            max: '100',
             value: String(ctx.getValue()),
           },
         }),
     }),
     columnHelper.display({
       header: 'Acciones',
-      cell: () => flexRenderComponent(ActionsColumn),
+      cell: (ctx) =>
+        flexRenderComponent(ActionsColumn, {
+          inputs: {
+            parkingId: ctx.row.original.id,
+          },
+        }),
     }),
   ];
 

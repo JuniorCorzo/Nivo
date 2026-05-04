@@ -29,6 +29,7 @@ export type ParkingLotListItemModel = {
   slotDistribution: SlotDistribution[];
   totalCapacity: number;
   updatedAt: string;
+  operatingHours?: OperatingHours;
 };
 
 export type UpsertParkingLotsModel = {

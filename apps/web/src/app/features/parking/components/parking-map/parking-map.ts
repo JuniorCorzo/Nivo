@@ -28,7 +28,6 @@ L.Icon.Default.mergeOptions({
 
 @Component({
   selector: 'app-parking-map',
-  standalone: true,
   templateUrl: './parking-map.html',
   styleUrl: './parking-map.css',
 })
@@ -37,7 +36,7 @@ export class ParkingMapComponent implements OnDestroy {
 
   readonly initialPosition = input<Coordinates | undefined>(undefined);
   readonly readonly = input<boolean>(false);
-  readonly positionChange = output<{ latitude: number; longitude: number }>();
+  readonly positionChange = output<Coordinates>();
 
   private map: L.Map | null = null;
   private marker: L.Marker | null = null;
@@ -46,7 +45,7 @@ export class ParkingMapComponent implements OnDestroy {
     // Sync marker position when initialPosition changes after map is ready
     effect(() => {
       const position = this.initialPosition();
-      if (position && this.map) {
+      if (this.isValidCoordinates(position) && this.map) {
         this.setMarkerPosition(position.latitude, position.longitude);
       }
     });
@@ -62,7 +61,7 @@ export class ParkingMapComponent implements OnDestroy {
     if (!container || this.map) return;
 
     const initialPos = this.initialPosition();
-    const center: L.LatLngExpression = initialPos
+    const center: L.LatLngExpression = this.isValidCoordinates(initialPos)
       ? [initialPos.latitude, initialPos.longitude]
       : DEFAULT_CENTER;
 
@@ -78,7 +77,7 @@ export class ParkingMapComponent implements OnDestroy {
     }).addTo(this.map);
 
     // Show initial marker if position is provided
-    if (initialPos) {
+    if (this.isValidCoordinates(initialPos)) {
       this.setMarkerPosition(initialPos.latitude, initialPos.longitude);
     }
 
@@ -106,6 +105,12 @@ export class ParkingMapComponent implements OnDestroy {
 
     // Pan map to marker position
     this.map!.panTo(latlng);
+  }
+
+  private isValidCoordinates(
+    coordinates: Coordinates | undefined,
+  ): coordinates is Coordinates {
+    return !!coordinates && Number.isFinite(coordinates.latitude) && Number.isFinite(coordinates.longitude);
   }
 
   ngOnDestroy(): void {

@@ -48,6 +48,7 @@ body {
   min-height: 100dvh;
   background-color: var(--color-background);
   color: var(--color-foreground);
+  border-color: var(--color-border);
 }
 
 ::view-transition-new(root) {
