@@ -50,6 +50,8 @@ class ParkingLotsMapperTest {
             .slotDistribution("[{\"type\":\"CAR\",\"count\":12},{\"type\":\"MOTORCYCLE\",\"count\":4}]")
             .ownerName("Juan Pérez")
             .totalCapacity(16L)
+            .openTime("06:00:00-05:00")
+            .closeTime("22:00:00-05:00")
             .build();
 
     var result = parkingLotsMapper.toListItem(summaryData);
@@ -73,6 +75,9 @@ class ParkingLotsMapperTest {
     assertThat(result.slotDistribution().getFirst().count()).isEqualTo(12L);
     assertThat(result.slotDistribution().get(1).type()).isEqualTo(SlotType.MOTORCYCLE);
     assertThat(result.slotDistribution().get(1).count()).isEqualTo(4L);
+    assertThat(result.operatingHours()).isNotNull();
+    assertThat(result.operatingHours().getOpenTime().toString()).isEqualTo("06:00:00-05:00");
+    assertThat(result.operatingHours().getCloseTime().toString()).isEqualTo("22:00:00-05:00");
   }
 
   @Configuration

@@ -90,16 +90,11 @@ class JpaConfigTest {
             dataSource,
             "dialect",
             "nivo",
-            "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy",
-            "true",
             beanFactory);
 
     assertNotNull(result);
     assertEquals("dialect", result.getJpaPropertyMap().get("hibernate.dialect"));
     assertEquals("nivo", result.getJpaPropertyMap().get("hibernate.default_schema"));
-    assertEquals(
-        "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy",
-        result.getJpaPropertyMap().get("hibernate.physical_naming_strategy"));
-    assertEquals("true", result.getJpaPropertyMap().get("hibernate.globally_quoted_identifiers"));
+    assertEquals("UTC", result.getJpaPropertyMap().get("hibernate.jdbc.time_zone"));
   }
 }
