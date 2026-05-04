@@ -34,10 +34,10 @@ export class BadgeComponent {
       destructive:
         "border-transparent bg-[var(--destructive)] text-[var(--destructive-foreground)]",
       success:
-        "border-transparent bg-[var(--success)]/20 text-[var(--success)]",
+        "border-transparent bg-[var(--semantic-success)]/20 text-[var(--semantic-success)]",
       warning:
-        "border-transparent bg-[var(--warning)]/20 text-[var(--warning)]",
-      info: "border-transparent bg-[var(--info)]/20 text-[var(--info)]",
+        "border-transparent bg-[var(--semantic-warning)]/20 text-[var(--semantic-warning)]",
+      info: "border-transparent bg-[var(--semantic-info)]/20 text-[var(--semantic-info)]",
       outline: "border-[var(--border)] text-[var(--foreground)]",
     };
 
