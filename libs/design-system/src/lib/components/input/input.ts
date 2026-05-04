@@ -5,6 +5,7 @@ import {
   ChangeDetectionStrategy,
   forwardRef,
   signal,
+  effect,
 } from "@angular/core";
 
 import {
@@ -42,6 +43,9 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
           class="text-sm font-medium text-(--foreground) font-sans"
         >
           {{ label() }}
+          @if (required()) {
+            <span class="text-(--destructive) ml-0.5" aria-hidden="true">*</span>
+          }
         </label>
       }
       <div class="relative">
@@ -107,6 +111,7 @@ export class InputComponent implements ControlValueAccessor {
   );
   readonly ariaDescribedBy = computed(() => `${this.id()}-error`);
   readonly label = input<string>("");
+  readonly required = input<boolean>(false);
   readonly type = input<string>("text");
   readonly placeholder = input<string>("");
   readonly disabled = input<boolean>(false);
@@ -123,9 +128,19 @@ export class InputComponent implements ControlValueAccessor {
   );
 
   readonly value = signal("");
+  readonly initialValue = input<string>("", { alias: "value" });
 
   onChange: (value: string) => void = () => {};
   onTouched: () => void = () => {};
+
+  constructor() {
+    effect(() => {
+      const val = this.initialValue();
+      if (val) {
+        this.value.set(val);
+      }
+    });
+  }
 
   togglePasswordVisibility(): void {
     this.showPassword.update((v) => !v);
