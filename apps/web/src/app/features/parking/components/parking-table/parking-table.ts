@@ -1,6 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject, input } from '@angular/core';
 import { ParkingService } from '@core/services/parking-service';
-import { createAngularTable, FlexRender, getCoreRowModel } from '@tanstack/angular-table';
+import {
+  createAngularTable,
+  FlexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+} from '@tanstack/angular-table';
 import { parkingLotsColumnDefinition } from './column-definition';
 import {
   TableBodyComponent,
@@ -28,11 +33,18 @@ export class ParkingTable {
   private readonly rightAlignedColumnIds = new Set(['totalCapacity']);
   private readonly truncateColumnIds = new Set(['name', 'address', 'ownerName']);
 
+  readonly searchQuery = input<string>('');
+
   private parkingService = inject(ParkingService);
   protected table = createAngularTable(() => ({
     data: this.parkingService.parkingLots() ?? [],
     columns: parkingLotsColumnDefinition(),
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    globalFilterFn: 'includesString',
+    state: {
+      globalFilter: this.searchQuery(),
+    },
   }));
 
   protected shouldRenderHeader(

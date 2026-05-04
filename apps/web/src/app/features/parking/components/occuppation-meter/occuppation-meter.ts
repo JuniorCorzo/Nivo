@@ -16,7 +16,7 @@ export class OccuppationMeter {
   public high = input('90');
 
   protected ratio = computed(() => Math.round((Number(this.value()) * 100) / Number(this.max())));
-  private occuppationMeter = viewChild<ElementRef>('occuppation_meter');
+  private occuppationMeter = viewChild<ElementRef<HTMLDivElement>>('occuppation_meter');
 
   constructor() {
     effect(() => {
@@ -29,7 +29,6 @@ export class OccuppationMeter {
   }
   private getBarBackground() {
     const ratio = this.ratio();
-    console.log(ratio);
     switch (true) {
       case ratio > parseInt(this.optimum()) && ratio < parseInt(this.high()):
         return 'var(--color-warning)';

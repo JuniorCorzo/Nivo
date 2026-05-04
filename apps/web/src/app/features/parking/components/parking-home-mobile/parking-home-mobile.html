@@ -1,0 +1,83 @@
+<div class="flex flex-col min-h-dvh bg-background">
+  <!-- Content -->
+  <div class="flex flex-col gap-3 px-4 pt-4 pb-6 flex-1">
+    <!-- Page header -->
+    <div class="flex items-center justify-between">
+      <h1 class="text-xl font-semibold text-foreground font-sans">{{ LABELS.list.title }}</h1>
+      <button
+        (click)="onCreateParking()"
+        class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-foreground text-background text-sm font-medium font-sans cursor-pointer transition-opacity hover:opacity-80"
+      >
+        <ng-icon name="lucidePlus" size="14" />
+        <span>{{ LABELS.form.create.title }}</span>
+      </button>
+    </div>
+
+    <!-- Search -->
+    <div class="flex items-center gap-2 h-9 px-3 rounded-md border border-border bg-transparent">
+      <ng-icon name="lucideSearch" size="16" class="text-muted-foreground shrink-0" />
+      <input
+        type="text"
+        [placeholder]="LABELS.list.search.placeholder"
+        (input)="onSearchInput($event)"
+        class="flex-1 bg-transparent text-sm font-sans text-foreground placeholder:text-muted-foreground outline-none"
+      />
+    </div>
+
+    <!-- Cards -->
+    <div class="flex flex-col gap-3">
+      @for (lot of parkingLots(); track lot.id) {
+        <div class="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
+          <!-- Name + status -->
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-sm font-medium text-card-foreground font-sans truncate">
+              {{ lot.name }}
+            </span>
+          </div>
+
+          <!-- Address -->
+          <span class="text-[13px] text-muted-foreground font-sans">{{ getAddress(lot) }}</span>
+
+          <!-- Occupation bar -->
+          <app-occuppation-meter
+            [value]="toString(lot.occuppationRate)"
+            max="100"
+          ></app-occuppation-meter>
+          <!-- Capacity + actions -->
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-muted-foreground font-sans">
+              {{ lot.totalCapacity }} espacios
+            </span>
+            <div class="flex items-center gap-2">
+              <button
+                (click)="onViewParking(lot.id)"
+                class="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                aria-label="Ver detalle"
+              >
+                <ng-icon name="lucideEye" size="16" />
+              </button>
+              <button
+                (click)="onEditParking(lot.id)"
+                class="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                aria-label="Editar"
+              >
+                <ng-icon name="lucidePencil" size="16" />
+              </button>
+              <button
+                (click)="onEditParking(lot.id)"
+                class="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                aria-label="Editar"
+              >
+                <ng-icon name="lucideTrash2" size="16" />
+              </button>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="flex flex-col items-center justify-center gap-2 py-16 text-center">
+          <span class="text-sm text-muted-foreground font-sans">No hay parqueaderos</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-4">
     <div class="w-full inline-flex justify-between">
       <nv-h3>{{ LABELS.list.title }}</nv-h3>
-      <nv-button size="sm" [title]="LABELS.form.create.description">
+      <nv-button size="sm" [title]="LABELS.form.create.description" (click)="onCreateParking()">
         <ng-icon name="lucidePlus"></ng-icon>
         <span>
           {{ LABELS.form.create.title }}
@@ -13,7 +13,8 @@
       id="parking-search-input"
       startIcon="lucideSearch"
       [placeholder]="LABELS.list.search.placeholder"
+      (input)="onSearchInput($event)"
     ></nv-input>
   </div>
-  <app-parking-table></app-parking-table>
+  <app-parking-table [searchQuery]="searchQuery()" />
 </div>
