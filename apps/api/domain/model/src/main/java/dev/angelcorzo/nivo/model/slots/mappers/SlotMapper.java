@@ -22,13 +22,11 @@ public class SlotMapper {
 
   public static List<Slots> toEntities(
       List<CreatedSlots> creationRequests, Tenants tenant, ParkingLots parking) {
-    Map<GroupingKey, List<CreatedSlots>> slotsByPrefixAndZone =
-        groupByPrefixAndZone(creationRequests);
+    Map<GroupingKey, List<CreatedSlots>> slotsByPrefixAndZone = groupByPrefixAndZone(creationRequests);
 
-    List<CompletableFuture<List<Slots>>> groupFutures =
-        slotsByPrefixAndZone.values().stream()
-            .map(group -> processGroupAsync(group, tenant, parking))
-            .toList();
+    List<CompletableFuture<List<Slots>>> groupFutures = slotsByPrefixAndZone.values().stream()
+        .map(group -> processGroupAsync(group, tenant, parking))
+        .toList();
 
     return awaitAllAndFlatten(groupFutures);
   }
@@ -86,5 +84,6 @@ public class SlotMapper {
         .build();
   }
 
-  private record GroupingKey(String prefix, String zone) {}
+  private record GroupingKey(String prefix, String zone) {
+  }
 }
