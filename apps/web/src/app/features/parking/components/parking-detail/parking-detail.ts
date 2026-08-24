@@ -1,11 +1,7 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucideArrowLeft,
-  lucidePencil,
-  lucideTrash2,
-} from '@ng-icons/lucide';
+import { lucideArrowLeft, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
 import {
   BadgeComponent,
   ButtonComponent,
@@ -36,9 +32,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     ParkingMapComponent,
     DeleteParkingModal,
   ],
-  providers: [
-    provideIcons({ lucideArrowLeft, lucidePencil, lucideTrash2 }),
-  ],
+  providers: [provideIcons({ lucideArrowLeft, lucidePencil, lucideTrash2 })],
   templateUrl: './parking-detail.html',
   styleUrl: './parking-detail.css',
 })
@@ -58,7 +52,7 @@ export class ParkingDetail {
   protected readonly parkingId = this.route.snapshot.paramMap.get('parkingId');
 
   constructor() {
-    this.parkingService.delete$
+    /*this.parkingService.delete$
       .pipe(
         exhaustMap((id) => this.parkingService.delete(id)),
         takeUntilDestroyed(this.destroyRef),
@@ -77,7 +71,7 @@ export class ParkingDetail {
             type: 'error',
           });
         },
-      });
+      });*/
   }
 
   protected readonly parking = computed(() => {
@@ -137,6 +131,12 @@ export class ParkingDetail {
     this.router.navigate([APP_ROUTES.app.editParkingLots(p.id)]);
   }
 
+  protected onManageSlots(): void {
+    const p = this.parking();
+    if (!p) return;
+    this.router.navigate([APP_ROUTES.app.parkingLotSlots(p.id)]);
+  }
+
   protected onDeleteClick(): void {
     const p = this.parking();
     if (!p) return;
@@ -148,7 +148,6 @@ export class ParkingDetail {
     const id = this.selectedParkingId();
     if (!id) return;
 
-    this.parkingService.requestDelete(id);
     this.closeDeleteModal();
   }
 

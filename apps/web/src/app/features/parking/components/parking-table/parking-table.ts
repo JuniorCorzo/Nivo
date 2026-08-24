@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, output } from '@angular/core';
+import { Component, effect, inject, input } from '@angular/core';
 import { ParkingService } from '@core/services/parking-service';
 import {
   createAngularTable,
@@ -34,12 +34,11 @@ export class ParkingTable {
   private readonly truncateColumnIds = new Set(['name', 'address', 'ownerName']);
 
   readonly searchQuery = input<string>('');
-  readonly deleteClick = output<string>();
 
   private parkingService = inject(ParkingService);
   protected table = createAngularTable(() => ({
     data: this.parkingService.parkingLots() ?? [],
-    columns: parkingLotsColumnDefinition((id) => this.deleteClick.emit(id)),
+    columns: parkingLotsColumnDefinition(),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     globalFilterFn: 'includesString',
