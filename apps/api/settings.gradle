@@ -12,7 +12,7 @@ buildCache {
     }
 }
 
-rootProject.name = 'Nivo'
+rootProject.name = 'api'
 
 include ':app-service'
 include ':model'

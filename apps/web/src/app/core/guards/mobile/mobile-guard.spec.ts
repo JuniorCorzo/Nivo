@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { CanMatchFn } from '@angular/router';
 
-import { mobileGuardGuard } from './mobile-guard-guard';
+import { mobileGuard } from './mobile-guard';
 
 describe('mobileGuardGuard', () => {
   const executeGuard: CanMatchFn = (...guardParameters) =>
-    TestBed.runInInjectionContext(() => mobileGuardGuard(...guardParameters));
+    TestBed.runInInjectionContext(() => mobileGuard(...guardParameters));
 
   beforeEach(() => {
     TestBed.configureTestingModule({});

@@ -1,0 +1,42 @@
+<dialog
+  #dialog
+  class="slot-dialog"
+  role="alertdialog"
+  [attr.aria-labelledby]="titleId"
+  [attr.aria-describedby]="descriptionId"
+  (click)="onBackdropClick($event)"
+>
+  <div class="slot-dialog__panel">
+    <div class="flex justify-between items-center pb-3 border-b border-border">
+      <nv-h3 [id]="titleId">Eliminar plaza</nv-h3>
+      <button class="w-8 h-8 rounded-lg border border-border bg-transparent inline-grid place-items-center cursor-pointer" (click)="onCancel($event)">
+        <ng-icon name="lucideX" size="18"></ng-icon>
+      </button>
+    </div>
+
+    <p [id]="descriptionId" class="text-muted-foreground mt-3 text-sm">{{ copy() }}</p>
+
+    @if (requiresConfirm()) {
+      <div class="flex flex-col gap-3 mt-3">
+        <label class="flex gap-2 items-start text-sm cursor-pointer select-none">
+          <input
+            type="checkbox"
+            [checked]="confirmChecked()"
+            (change)="onConfirmCheckedChange($event)"
+          />
+          <span>Entiendo el riesgo y quiero continuar.</span>
+        </label>
+      </div>
+    }
+
+    <div class="flex justify-end gap-3 mt-4 pt-3 border-t border-border">
+      <nv-button variant="outline" (click)="onCancel($event)">Cancelar</nv-button>
+      <nv-button
+        variant="outline"
+        class="text-destructive border-[color-mix(in_srgb,var(--destructive)_25%,var(--border))]"
+        [disabled]="requiresConfirm() && !confirmChecked()"
+        (click)="confirm.emit()"
+      >Eliminar plaza</nv-button>
+    </div>
+  </div>
+</dialog>

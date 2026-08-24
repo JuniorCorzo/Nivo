@@ -33,6 +33,14 @@ node_modules
 .agents/
 .atl/
 .kiro/
+.codegraph/
+.cursor/
+.opencode/
+.windsurf/
+.clinerules/
+.commandcode/
+.pi/
+.engram/
 
 storybook-static
 generated

@@ -1,0 +1,24 @@
+  <div class="flex justify-between items-center gap-4 mt-4 text-muted-foreground text-sm max-[900px]:flex-col max-[900px]:items-stretch">
+    <span>Mostrando {{ currentItems() }} de {{ countItems() }} </span>
+    <div class="flex gap-2 items-center">
+      <button
+        class="min-w-8 h-8 rounded-lg border border-border bg-transparent inline-grid place-items-center"
+        [disabled]="getCanPreviousPage()"
+        (click)="previousPage()"
+      >
+        <ng-icon name="lucideChevronLeft" size="14"></ng-icon>
+      </button>
+      <span class="min-w-8 h-8 inline-grid place-items-center rounded-lg border border-border bg-background text-primary">
+        {{ currentPage() + 1 }}
+      </span>
+      <span>de {{ countPages() }}</span>
+      <button
+        class="min-w-8 h-8 rounded-lg border border-border bg-transparent inline-grid place-items-center"
+        [disabled]="getCanNextPage()"
+        (click)="nextPage()"
+      >
+        <ng-icon name="lucideChevronRight" size="14"></ng-icon>
+      </button>
+    </div>
+  </div>
+

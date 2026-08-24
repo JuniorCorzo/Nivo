@@ -1,0 +1,54 @@
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideArrowLeft, lucidePlus } from '@ng-icons/lucide';
+import {
+  ButtonComponent,
+  CardComponent,
+  InputComponent,
+  SelectComponent,
+  TypographyH2,
+  TypographyH3,
+  TypographyMuted,
+} from '@nivo-sass/design-system';
+
+import { APP_ROUTES } from '@shared/constants/app-routes.constant';
+import { APP_TEXTS } from '@shared/constants/app-texts.constant';
+import {
+  SLOT_STATUS_OPTIONS,
+  SLOT_TYPE_OPTIONS,
+  displayOptionFn,
+  valueOptionFn,
+} from '../../shared/parking-slot-presentations';
+import { ParkingSlotFormFacade } from './parking-slot-form.facade';
+
+@Component({
+  selector: 'app-parking-slot-form',
+  standalone: true,
+  imports: [
+    RouterLink,
+    NgIcon,
+    ButtonComponent,
+    CardComponent,
+    InputComponent,
+    SelectComponent,
+    TypographyH2,
+    TypographyH3,
+    TypographyMuted,
+  ],
+  providers: [provideIcons({ lucideArrowLeft, lucidePlus }), ParkingSlotFormFacade],
+  templateUrl: './parking-slot-form.html',
+  host: {
+    class: 'block',
+  },
+})
+export class ParkingSlotFormPage {
+  protected readonly APP_ROUTES = APP_ROUTES;
+  protected readonly facade = inject(ParkingSlotFormFacade);
+  protected readonly texts = APP_TEXTS.slots;
+
+  protected readonly slotTypeOptions = SLOT_TYPE_OPTIONS;
+  protected readonly statusOptions = SLOT_STATUS_OPTIONS;
+  protected readonly displayOptionFn = displayOptionFn;
+  protected readonly valueOptionFn = valueOptionFn;
+}

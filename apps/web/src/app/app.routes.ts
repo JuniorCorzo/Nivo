@@ -62,17 +62,45 @@ export const routes: Routes = [
               ),
           },
           {
-            path: APP_ROUTE_PATHS.app.parkingLotDetail,
-            loadComponent: () =>
-              import('@features/parking/components/parking-detail/parking-detail').then(
-                (c) => c.ParkingDetail,
-              ),
-          },
-          {
             path: APP_ROUTE_PATHS.app.editParkingLots,
             loadComponent: () =>
               import('@features/parking/components/parking-form/parking-form').then(
                 (c) => c.ParkingFormComponent,
+              ),
+          },
+          {
+            path: APP_ROUTE_PATHS.app.parkingLotSlots,
+            loadComponent: () =>
+              import('@features/slots/components/parking-slots-list/parking-slots-list').then(
+                (c) => c.ParkingSlotsListPage,
+              ),
+          },
+          {
+            path: APP_ROUTE_PATHS.app.createParkingLotSlot,
+            loadComponent: () =>
+              import('@features/slots/components/parking-slot-form/parking-slot-form').then(
+                (c) => c.ParkingSlotFormPage,
+              ),
+          },
+          {
+            path: APP_ROUTE_PATHS.app.editParkingLotSlot,
+            loadComponent: () =>
+              import('@features/slots/components/parking-slot-form/parking-slot-form').then(
+                (c) => c.ParkingSlotFormPage,
+              ),
+          },
+          {
+            path: APP_ROUTE_PATHS.app.parkingLotSlotDetail,
+            loadComponent: () =>
+              import('@features/slots/components/parking-slots-list/parking-slots-list').then(
+                (c) => c.ParkingSlotsListPage,
+              ),
+          },
+          {
+            path: APP_ROUTE_PATHS.app.parkingLotDetail,
+            loadComponent: () =>
+              import('@features/parking/components/parking-detail/parking-detail').then(
+                (c) => c.ParkingDetail,
               ),
           },
         ],

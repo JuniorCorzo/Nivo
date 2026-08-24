@@ -1,0 +1,165 @@
+@if (facade.parking(); as p) {
+  <div class="flex flex-col gap-4 p-4">
+    <div class="flex flex-col gap-3">
+      <div class="flex gap-2 text-muted-foreground text-[0.8rem]">
+        <a [routerLink]="APP_ROUTES.app.parkingLots">Parqueaderos</a>
+        <span>›</span>
+        <a [routerLink]="APP_ROUTES.app.parkingLotSlots(p.id)">{{ p.name }}</a>
+        <span>›</span>
+        <span>{{ facade.mode() === 'create' ? 'Crear plazas' : 'Editar plaza' }}</span>
+      </div>
+
+      <div
+        class="flex items-center justify-between gap-4 max-[900px]:flex-col max-[900px]:items-stretch"
+      >
+        <div>
+          <nv-h2>{{ facade.title() }}</nv-h2>
+          <nv-muted>{{ facade.description() }}</nv-muted>
+        </div>
+        <nv-button variant="outline" [routerLink]="APP_ROUTES.app.parkingLotSlots(p.id)">
+          <ng-icon name="lucideArrowLeft" size="16"></ng-icon>
+          Volver al listado
+        </nv-button>
+      </div>
+    </div>
+
+    <nv-card>
+      <div class="flex flex-col gap-4 p-4">
+        @if (facade.mode() === 'create') {
+          <div class="grid grid-cols-2 gap-4 max-[900px]:grid-cols-1">
+            <nv-input label="Parqueadero" [value]="p.name" [disabled]="true" />
+
+            <nv-input
+              label="Desde número"
+              type="number"
+              [required]="true"
+              [placeholder]="texts.create.fields.from.placeholder"
+              [value]="'' + facade.form.from()"
+              (input)="facade.form.from.set($any($event.target).valueAsNumber || 1)"
+            />
+            <nv-input
+              label="Hasta número"
+              type="number"
+              [required]="true"
+              [placeholder]="texts.create.fields.to.placeholder"
+              [value]="'' + facade.form.to()"
+              (input)="facade.form.to.set($any($event.target).valueAsNumber || 1)"
+            />
+            <nv-input
+              label="Prefijo"
+              [placeholder]="texts.create.fields.prefix.placeholder"
+              [value]="facade.form.prefix()"
+              (input)="facade.form.prefix.set($any($event.target).value)"
+            />
+            <nv-input
+              label="Zona"
+              [placeholder]="texts.create.fields.zone.placeholder"
+              [value]="facade.form.zone()"
+              (input)="facade.form.zone.set($any($event.target).value)"
+            />
+            <label class="flex flex-col gap-[0.35rem]"
+              ><span>Tipo</span>
+              <nv-select
+                class="w-full"
+                [required]="true"
+                [items]="slotTypeOptions"
+                [displayFn]="displayOptionFn"
+                [valueFn]="valueOptionFn"
+                [value]="facade.form.type()"
+                (valueChange)="facade.form.type.set($any($event))"
+              ></nv-select
+            ></label>
+            <label class="flex flex-col gap-[0.35rem]"
+              ><span>Estado</span>
+              <nv-select
+                class="w-full"
+                [items]="statusOptions"
+                [displayFn]="displayOptionFn"
+                [valueFn]="valueOptionFn"
+                [value]="facade.form.status()"
+                (valueChange)="facade.form.status.set($any($event))"
+              ></nv-select
+            ></label>
+          </div>
+
+          <div
+            class="flex flex-col gap-1 p-4 border border-border rounded-xl bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)]"
+          >
+            <div class="text-[2rem] font-bold">{{ facade.previewCount() }}</div>
+            <div class="text-muted-foreground">plazas a crear</div>
+            <div class="text-muted-foreground">{{ facade.previewRange() }}</div>
+            @if (facade.conflictMessage()) {
+              <div class="text-destructive">{{ facade.conflictMessage() }}</div>
+            }
+          </div>
+        } @else {
+          <nv-h3>Editar plaza</nv-h3>
+          <div class="grid grid-cols-2 gap-4 max-[900px]:grid-cols-1">
+            <nv-input
+              label="Número"
+              [placeholder]="texts.edit.fields.number.placeholder"
+              [value]="facade.form.number()"
+              [disabled]="facade.isNumberLocked()"
+              (input)="facade.form.number.set($any($event.target).value)"
+            />
+            <nv-input
+              label="Prefijo"
+              [placeholder]="texts.edit.fields.prefix.placeholder"
+              [value]="facade.form.prefix()"
+              (input)="facade.form.prefix.set($any($event.target).value)"
+            />
+            <nv-input
+              label="Zona"
+              [placeholder]="texts.edit.fields.zone.placeholder"
+              [value]="facade.form.zone()"
+              (input)="facade.form.zone.set($any($event.target).value)"
+            />
+            <label class="flex flex-col gap-[0.35rem]"
+              ><span>Tipo</span>
+              <nv-select
+                class="w-full"
+                [items]="slotTypeOptions"
+                [displayFn]="displayOptionFn"
+                [valueFn]="valueOptionFn"
+                [value]="facade.form.type()"
+                [disabled]="facade.isTypeLocked()"
+                (valueChange)="facade.form.type.set($any($event))"
+              ></nv-select
+            ></label>
+            <label class="flex flex-col gap-[0.35rem]"
+              ><span>Estado</span>
+              <nv-select
+                class="w-full"
+                [items]="statusOptions"
+                [displayFn]="displayOptionFn"
+                [valueFn]="valueOptionFn"
+                [value]="facade.form.status()"
+                (valueChange)="facade.form.status.set($any($event))"
+              ></nv-select
+            ></label>
+          </div>
+
+          @if (facade.editWarning()) {
+            <div class="text-destructive">{{ facade.editWarning() }}</div>
+          }
+        }
+      </div>
+
+      <div
+        class="flex items-center justify-between gap-4 p-4 border-t border-border max-[900px]:flex-col max-[900px]:items-stretch"
+      >
+        <nv-button
+          variant="outline"
+          [routerLink]="APP_ROUTES.app.parkingLotSlots(facade.parkingId()!)"
+          >Cancelar</nv-button
+        >
+        <nv-button [disabled]="facade.isBlocked()" (click)="facade.submit()">
+          @if (facade.mode() === 'create') {
+            <ng-icon name="lucidePlus" size="16"></ng-icon>
+          }
+          {{ facade.mode() === 'create' ? 'Crear plazas' : 'Guardar cambios' }}
+        </nv-button>
+      </div>
+    </nv-card>
+  </div>
+}

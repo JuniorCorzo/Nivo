@@ -1,0 +1,300 @@
+@if (facade.parking(); as p) {
+  <div class="flex flex-col gap-4 p-4">
+    <div class="flex flex-col gap-3">
+      <div class="flex gap-2 items-center text-muted-foreground text-[0.8rem]">
+        <a routerLink="/app/parking-lots">Parqueaderos</a>
+        <ng-icon name="lucideChevronRight" size="14"></ng-icon>
+        <a [routerLink]="APP_ROUTES.app.parkingLotDetail(p.id)">{{ p.name }}</a>
+        <ng-icon name="lucideChevronRight" size="14"></ng-icon>
+        <span>Plazas</span>
+      </div>
+
+      <div
+        class="flex justify-between items-center gap-4 max-[900px]:flex-col max-[900px]:items-stretch"
+      >
+        <div class="flex flex-col gap-1">
+          <nv-h3>{{ texts.list.title }} — {{ p.name }}</nv-h3>
+          <nv-muted>Listado y filtros sobre plazas del parqueadero</nv-muted>
+        </div>
+
+        <div class="flex gap-2 max-[900px]:flex-wrap">
+          <nv-button
+            variant="outline"
+            [routerLink]="APP_ROUTES.app.parkingLotDetail(p.id)"
+            size="sm"
+          >
+            <ng-icon name="lucideArrowLeft" size="10"></ng-icon>
+            Volver al parqueadero
+          </nv-button>
+          <nv-button (click)="facade.onCreate()" size="sm">
+            <ng-icon name="lucidePlus" size="16"></ng-icon>
+            Crear plazas
+          </nv-button>
+        </div>
+      </div>
+    </div>
+
+    <nv-card>
+      <div class="p-4">
+        <div class="flex flex-wrap gap-4 mb-4">
+          <nv-input
+            type="search"
+            class="flex-[2_1_18rem] w-full"
+            startIcon="lucideSearch"
+            [placeholder]="texts.list.search.placeholder"
+            [value]="facade.globalFilter()"
+            (input)="facade.onQueryInput($event)"
+          />
+          <nv-select
+            class="flex-[1_1_12rem]"
+            [items]="facade.typeOptions"
+            [displayFn]="facade.displayOptionFn"
+            [valueFn]="facade.valueOptionFn"
+            [value]="facade.columnFilterValue('type')"
+            (valueChange)="facade.setFilter('type', $event)"
+          ></nv-select>
+          <nv-select
+            class="flex-[1_1_12rem]"
+            [items]="facade.zoneOptions"
+            [displayFn]="facade.displayOptionFn"
+            [valueFn]="facade.valueOptionFn"
+            [value]="facade.columnFilterValue('zone')"
+            (valueChange)="facade.setFilter('zone', $event)"
+          ></nv-select>
+          <nv-select
+            class="flex-[1_1_12rem]"
+            [items]="facade.statusOptions"
+            [displayFn]="facade.displayOptionFn"
+            [valueFn]="facade.valueOptionFn"
+            [value]="facade.columnFilterValue('status')"
+            (valueChange)="facade.setFilter('status', $event)"
+          ></nv-select>
+        </div>
+
+        @if (facade.selectedCount() > 0) {
+          <div
+            class="flex justify-between items-center px-4 py-3 rounded-xl border border-muted text-foreground mb-4"
+          >
+            <span>{{ facade.selectedCount() }} plazas seleccionadas</span>
+            <div class="flex gap-2">
+              <nv-button
+                size="md"
+                variant="outline"
+                class="text-destructive border-[color-mix(in_srgb,var(--destructive)_25%,var(--border))]"
+                (click)="facade.openBatchDeleteModal()"
+              >
+                <ng-icon name="lucideTrash2" size="14"></ng-icon>
+                Eliminar
+              </nv-button>
+            </div>
+          </div>
+        }
+
+        @if (facade.filteredSlots().length === 0) {
+          <div
+            class="min-h-70 flex items-center justify-center flex-col gap-3 text-center p-8 text-muted-foreground"
+          >
+            @if (facade.slots().length === 0) {
+              <ng-icon name="lucideInbox" size="48"></ng-icon>
+              <nv-h3>No hay plazas configuradas</nv-h3>
+              <p>Este parqueadero aún no tiene plazas. Creá el primer lote para empezar.</p>
+              <nv-button (click)="facade.onCreate()">
+                <ng-icon name="lucidePlus" size="16"></ng-icon>
+                Crear primer lote
+              </nv-button>
+            } @else {
+              <ng-icon name="lucideFilterX" size="48"></ng-icon>
+              <nv-h3>Ninguna plaza coincide</nv-h3>
+              <p>Los filtros seleccionados no devuelven resultados.</p>
+              <nv-button variant="outline" (click)="facade.clearFilters()"
+                >Limpiar filtros</nv-button
+              >
+            }
+          </div>
+        } @else {
+          <div class="overflow-auto border border-border rounded-xl">
+            <table nv-table class="w-full min-w-190">
+              <colgroup>
+                @for (column of facade.table.getAllLeafColumns(); track column.id) {
+                  <col [style.width.px]="column.getSize()" />
+                }
+              </colgroup>
+
+              <thead nv-table-header>
+                @for (headerGroup of facade.table.getHeaderGroups(); track headerGroup.id) {
+                  <tr nv-table-row>
+                    @for (header of headerGroup.headers; track header.id) {
+                      <th
+                        nv-table-head
+                        class="px-3 py-3.5 text-xs uppercase text-muted-foreground tracking-wider"
+                        [class.text-right]="header.column.id === 'actions'"
+                      >
+                        @if (header.column.id === 'select') {
+                          <input
+                            type="checkbox"
+                            [checked]="facade.allSelected()"
+                            (change)="facade.toggleAll($event)"
+                          />
+                        } @else {
+                          <ng-container
+                            *flexRender="
+                              header.column.columnDef.header;
+                              props: header.getContext();
+                              let headerRender
+                            "
+                          >
+                            <div [innerHTML]="headerRender"></div>
+                          </ng-container>
+                        }
+                      </th>
+                    }
+                  </tr>
+                }
+              </thead>
+
+              <tbody nv-table-body>
+                @for (row of facade.table.getRowModel().rows; track row.id) {
+                  <tr nv-table-row>
+                    @for (cell of row.getVisibleCells(); track cell.id) {
+                      <td
+                        nv-table-cell
+                        class="px-3 py-3.5"
+                        [class.text-right]="cell.column.id === 'actions'"
+                      >
+                        @if (cell.column.id === 'select') {
+                          <input
+                            type="checkbox"
+                            [checked]="facade.selectedIds().has(row.original.id)"
+                            (change)="facade.toggleSelected(row.original.id, $event)"
+                          />
+                        } @else if (cell.column.id === 'slotNumber') {
+                          <span class="font-mono">{{ row.original.slotNumber }}</span>
+                        } @else if (cell.column.id === 'zone') {
+                          {{ row.original.zone || 'Sin zona' }}
+                        } @else if (cell.column.id === 'type') {
+                          {{ slotTypeLabel[row.original.type] }}
+                        } @else if (cell.column.id === 'status') {
+                          <span
+                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                            [class.bg-green-100]="row.original.status === 'AVAILABLE'"
+                            [class.text-green-800]="row.original.status === 'AVAILABLE'"
+                            [class.bg-red-100]="row.original.status === 'OCCUPIED'"
+                            [class.text-red-800]="row.original.status === 'OCCUPIED'"
+                            [class.bg-yellow-100]="row.original.status === 'MAINTENANCE'"
+                            [class.text-yellow-800]="row.original.status === 'MAINTENANCE'"
+                            [class.bg-gray-100]="row.original.status === 'RESERVED'"
+                            [class.text-gray-800]="row.original.status === 'RESERVED'"
+                          >
+                            {{
+                              row.original.status === 'AVAILABLE'
+                                ? 'Disponible'
+                                : row.original.status === 'OCCUPIED'
+                                  ? 'Ocupada'
+                                  : row.original.status === 'MAINTENANCE'
+                                    ? 'Mantenimiento'
+                                    : 'Reservada'
+                            }}
+                          </span>
+                        } @else if (cell.column.id === 'actions') {
+                          <div class="flex gap-2 justify-end">
+                            <button
+                              class="w-8 h-8 rounded-lg border border-border bg-transparent inline-grid place-items-center cursor-pointer"
+                              title="Ver detalle"
+                              (click)="facade.openDrawer(row.original.id)"
+                            >
+                              <ng-icon name="lucideEye" size="16"></ng-icon>
+                            </button>
+                            <button
+                              class="w-8 h-8 rounded-lg border border-border bg-transparent inline-grid place-items-center cursor-pointer"
+                              title="Editar"
+                              (click)="facade.onEdit(row.original.id)"
+                            >
+                              <ng-icon name="lucidePencil" size="16"></ng-icon>
+                            </button>
+                            <button
+                              class="w-8 h-8 rounded-lg border border-border bg-transparent inline-grid place-items-center cursor-pointer"
+                              title="Cambiar estado"
+                              (click)="facade.openStatusModal(row.original)"
+                            >
+                              <ng-icon name="lucideToggleLeft" size="16"></ng-icon>
+                            </button>
+                            <button
+                              class="w-8 h-8 rounded-lg border border-border bg-transparent inline-grid place-items-center cursor-pointer"
+                              title="Eliminar"
+                              (click)="facade.openDeleteModal(row.original)"
+                            >
+                              <ng-icon name="lucideTrash2" size="16"></ng-icon>
+                            </button>
+                          </div>
+                        } @else {
+                          <ng-container
+                            *flexRender="
+                              cell.column.columnDef.cell;
+                              props: cell.getContext();
+                              let cellRender
+                            "
+                          >
+                            <div [innerHTML]="cellRender"></div>
+                          </ng-container>
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <app-pagination-table
+            [currentItems]="facade.table.getRowModel().rows.length"
+            [countItems]="facade.slots().length"
+            [currentPage]="facade.table.getState().pagination.pageIndex"
+            [countPages]="facade.table.getPageCount()"
+            [getCanPreviousPage]="facade.table.getCanPreviousPage()"
+            [previousPage]="facade.table.previousPage"
+            [getCanNextPage]="facade.table.getCanNextPage()"
+            [nextPage]="facade.table.nextPage"
+          />
+        }
+      </div>
+    </nv-card>
+
+    @if (facade.drawerSlot(); as slot) {
+      <app-slot-detail-drawer
+        [slot]="slot"
+        [drawerTab]="facade.drawerTab()"
+        [slotTypeLabel]="slotTypeLabel"
+        (close)="facade.closeDrawer()"
+        (setTab)="facade.setDrawerTab($event)"
+      ></app-slot-detail-drawer>
+    }
+
+    @if (facade.statusModalOpen()) {
+      <app-slot-status-modal
+        [title]="facade.statusModalCopy().title"
+        [body]="facade.statusModalCopy().body"
+        [target]="facade.statusTarget()"
+        [nextStatus]="facade.statusNext()"
+        [transitionOptions]="facade.statusTransitionOptions()"
+        [requiresExtraConfirm]="facade.statusModalCopy().requiresExtraConfirm"
+        [confirmChecked]="facade.statusConfirmChecked()"
+        (cancel)="facade.closeStatusModal()"
+        (selectStatusNext)="facade.selectStatusNext($event)"
+        (confirmCheckedChange)="facade.statusConfirmChecked.set($event)"
+        (confirm)="facade.confirmStatusChange()"
+      ></app-slot-status-modal>
+    }
+
+    @if (facade.deleteModalOpen()) {
+      <app-slot-delete-modal
+        [copy]="facade.deleteModalCopy()"
+        [requiresConfirm]="facade.deleteRequiresConfirm()"
+        [confirmChecked]="facade.deleteConfirmChecked()"
+        (cancel)="facade.closeDeleteModal()"
+        (confirmCheckedChange)="facade.deleteConfirmChecked.set($event)"
+        (confirm)="facade.confirmDelete()"
+      ></app-slot-delete-modal>
+    }
+  </div>
+} @else {
+  <div class="p-4 text-muted-foreground">{{ texts.list.empty.parkingNotFound }}</div>
+}

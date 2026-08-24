@@ -1,0 +1,80 @@
+<div class="fixed inset-0 bg-black/35 z-40" (click)="close.emit()"></div>
+<aside class="fixed top-0 right-0 bottom-0 w-[min(440px,92vw)] border-l border-border bg-background z-50 flex flex-col">
+  <div class="flex justify-between items-center p-4 border-b border-border">
+    <div>
+      <nv-h3>{{ slot().slotNumber }}</nv-h3>
+      <nv-muted>Detalle de plaza</nv-muted>
+    </div>
+    <button class="w-8 h-8 rounded-lg border border-border bg-transparent inline-grid place-items-center cursor-pointer" (click)="close.emit()">
+      <ng-icon name="lucideX" size="18"></ng-icon>
+    </button>
+  </div>
+
+  <div class="flex border-b border-border">
+    <button
+      class="flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors cursor-pointer select-none"
+      [class.border-foreground]="drawerTab() === 'general'"
+      [class.text-foreground]="drawerTab() === 'general'"
+      [class.border-transparent]="drawerTab() !== 'general'"
+      [class.text-muted-foreground]="drawerTab() !== 'general'"
+      (click)="setTab.emit('general')"
+    >General</button>
+    <button
+      class="flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors cursor-pointer select-none"
+      [class.border-foreground]="drawerTab() === 'history'"
+      [class.text-foreground]="drawerTab() === 'history'"
+      [class.border-transparent]="drawerTab() !== 'history'"
+      [class.text-muted-foreground]="drawerTab() !== 'history'"
+      (click)="setTab.emit('history')"
+    >Historial</button>
+  </div>
+
+  @if (drawerTab() === 'general') {
+    <div class="flex flex-col gap-3 p-4 overflow-auto">
+      <div class="flex justify-between items-center gap-4 pb-3 border-b border-border">
+        <span>Parqueadero</span><strong>{{ slot().parkingName }}</strong>
+      </div>
+      <div class="flex justify-between items-center gap-4 pb-3 border-b border-border">
+        <span>Número</span><strong>{{ slot().slotNumber }}</strong>
+      </div>
+      <div class="flex justify-between items-center gap-4 pb-3 border-b border-border">
+        <span>Prefijo</span><strong>{{ slot().prefix }}</strong>
+      </div>
+      <div class="flex justify-between items-center gap-4 pb-3 border-b border-border">
+        <span>Zona</span><strong>{{ slot().zone || 'Sin zona' }}</strong>
+      </div>
+      <div class="flex justify-between items-center gap-4 pb-3 border-b border-border">
+        <span>Tipo</span><strong>{{ slotTypeLabel()[slot().type] }}</strong>
+      </div>
+      <div class="flex justify-between items-center gap-4 pb-3 border-b border-border">
+        <span>Estado</span>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+          [class.bg-green-100]="slot().status === 'AVAILABLE'"
+          [class.text-green-800]="slot().status === 'AVAILABLE'"
+          [class.bg-red-100]="slot().status === 'OCCUPIED'"
+          [class.text-red-800]="slot().status === 'OCCUPIED'"
+          [class.bg-yellow-100]="slot().status === 'MAINTENANCE'"
+          [class.text-yellow-800]="slot().status === 'MAINTENANCE'"
+          [class.bg-gray-100]="slot().status === 'RESERVED'"
+          [class.text-gray-800]="slot().status === 'RESERVED'"
+        >
+          {{ slot().status === 'AVAILABLE' ? 'Disponible' : slot().status === 'OCCUPIED' ? 'Ocupada' : slot().status === 'MAINTENANCE' ? 'Mantenimiento' : 'Reservada' }}
+        </span>
+      </div>
+    </div>
+  } @else {
+    <div class="flex flex-col gap-3 p-4 overflow-auto">
+      @if (getHistoryCopy(slot()).empty) {
+        <div class="min-h-[200px] flex items-center justify-center flex-col gap-2 text-center text-muted-foreground">
+          <ng-icon name="lucideInbox" size="32"></ng-icon>
+          <p>{{ getHistoryCopy(slot()).message }}</p>
+        </div>
+      } @else {
+        <div class="min-h-[200px] flex items-center justify-center flex-col gap-2 text-center text-muted-foreground">
+          <nv-h3 class="text-muted-foreground">{{ getHistoryCopy(slot()).title }}</nv-h3>
+          <p>{{ getHistoryCopy(slot()).message }}</p>
+        </div>
+      }
+    </div>
+  }
+</aside>

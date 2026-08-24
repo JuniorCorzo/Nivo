@@ -9,7 +9,6 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class BatchPersistSlotsUseCase {
-
   private final SlotsRepository slotsRepository;
 
   public List<Slots> execute(List<Slots> slots) {

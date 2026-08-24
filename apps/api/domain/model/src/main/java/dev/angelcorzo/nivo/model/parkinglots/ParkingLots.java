@@ -15,12 +15,18 @@ import lombok.Setter;
 /**
  * Represents a Parking Lot entity within the system.
  *
- * <p>This class is an aggregate root that contains all relevant information about a parking lot,
- * such as its identification, name, location, capacity, and operational settings.
+ * <p>
+ * This class is an aggregate root that contains all relevant information about
+ * a parking lot,
+ * such as its identification, name, location, capacity, and operational
+ * settings.
  *
- * <p><strong>Layer:</strong> Domain
+ * <p>
+ * <strong>Layer:</strong> Domain
  *
- * <p><strong>Responsibility:</strong> To hold the state and invariants of a parking lot.
+ * <p>
+ * <strong>Responsibility:</strong> To hold the state and invariants of a
+ * parking lot.
  *
  * @author Angel Corzo
  * @since 1.0.0
@@ -32,7 +38,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class ParkingLots {
-  /** The unique identifier for the parking lot. It is a UUID generated at the time of creation. */
+  /**
+   * The unique identifier for the parking lot. It is a UUID generated at the time
+   * of creation.
+   */
   private UUID id;
 
   /** The commercial name of the parking lot. Example: "Central Parking". */
@@ -41,7 +50,9 @@ public class ParkingLots {
   /** A value object representing the physical address of the parking lot. */
   private Address address;
 
-  /** A value object representing the geographic coordinates of the parking lot. */
+  /**
+   * A value object representing the geographic coordinates of the parking lot.
+   */
   private Coordinates coordinates;
 
   /** The ID of the primary owner user of the parking lot. */
@@ -50,10 +61,14 @@ public class ParkingLots {
   /** The ID of the tenant to which this parking lot belongs. */
   private TenantReference tenant;
 
-  /** The time zone in which the parking lot operates. Example: "America/Bogota". */
+  /**
+   * The time zone in which the parking lot operates. Example: "America/Bogota".
+   */
   private String timezone;
 
-  /** The currency used for transactions in the parking lot. Example: "COP", "USD". */
+  /**
+   * The currency used for transactions in the parking lot. Example: "COP", "USD".
+   */
   private String currency;
 
   /** A value object defining the operating hours of the parking lot. */

@@ -16,6 +16,9 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <nv-button variant="outline" size="sm" (click)="onManageSlots()">
+          <span>{{ LABELS.actions.manageSlots }}</span>
+        </nv-button>
         <nv-button variant="outline" size="sm" (click)="onEdit()">
           <ng-icon name="lucidePencil" size="16"></ng-icon>
           <span>{{ LABELS.actions.edit }}</span>
