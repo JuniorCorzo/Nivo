@@ -148,6 +148,7 @@ export const APP_TEXTS = {
       actions: {
         edit: 'Editar',
         delete: 'Eliminar',
+        manageSlots: 'Gestionar plazas',
       },
       empty: 'Parqueadero no encontrado',
       loading: 'Cargando información...',
@@ -275,6 +276,201 @@ export const APP_TEXTS = {
           '¿Estás seguro de que deseas eliminar este parqueadero? Esta acción no se puede deshacer.',
         confirm: 'Sí, eliminar',
         cancel: 'Cancelar',
+      },
+    },
+    slots: {
+      list: {
+        title: 'Plazas',
+        subtitle: 'Gestiona las plazas de este parqueadero',
+        search: {
+          placeholder: 'Busca por número, zona o prefijo',
+          noResults: 'No se encontraron plazas',
+        },
+        empty: {
+          title: 'No hay plazas configuradas',
+          description: 'Comienza creando un lote de plazas para este parqueadero.',
+          parkingNotFound: 'Parqueadero no encontrado',
+        },
+      },
+      create: {
+        title: 'Crear plazas',
+        subtitle: 'Genera un lote de plazas secuenciales',
+      },
+      edit: {
+        title: 'Editar plaza',
+        subtitle: 'Actualiza la información de la plaza',
+      },
+    },
+  },
+  slots: {
+    list: {
+      title: 'Plazas',
+      subtitle: 'Gestiona las plazas de este parqueadero',
+      search: {
+        placeholder: 'Busca por número, zona o prefijo',
+        noResults: 'No se encontraron plazas',
+      },
+      filters: {
+        type: 'Tipo',
+        status: 'Estado',
+        zone: 'Zona',
+        all: 'Todos',
+      },
+      table: {
+        columns: {
+          number: 'Número',
+          prefix: 'Prefijo',
+          zone: 'Zona',
+          type: 'Tipo',
+          status: 'Estado',
+          actions: 'Acciones',
+        },
+      },
+      empty: {
+        title: 'No hay plazas configuradas',
+        description: 'Comienza creando un lote de plazas para este parqueadero.',
+        createCta: 'Crear plazas',
+        parkingNotFound: 'Parqueadero no encontrado',
+      },
+      searchEmpty: {
+        title: 'Sin resultados',
+        description: 'Ninguna plaza coincide con tu búsqueda.',
+      },
+      filterEmpty: {
+        title: 'Sin coincidencias',
+        description: 'Ajusta los filtros para ver más resultados.',
+        clearFilters: 'Limpiar filtros',
+      },
+      batchBar: {
+        selected: (count: number) => `${count} plaza${count !== 1 ? 's' : ''} seleccionada${count !== 1 ? 's' : ''}`,
+        delete: 'Eliminar seleccionadas',
+        changeStatus: 'Cambiar estado',
+      },
+    },
+    create: {
+      title: 'Crear plazas',
+      subtitle: 'Genera un lote de plazas secuenciales',
+      fields: {
+        prefix: {
+          label: 'Prefijo',
+          placeholder: 'Ej. A',
+        },
+        from: {
+          label: 'Desde',
+          placeholder: 'Ej. 1',
+        },
+        to: {
+          label: 'Hasta',
+          placeholder: 'Ej. 50',
+        },
+        zone: {
+          label: 'Zona',
+          placeholder: 'Ej. Norte',
+        },
+        type: {
+          label: 'Tipo de vehículo',
+          placeholder: 'Selecciona un tipo',
+        },
+        status: {
+          label: 'Estado inicial',
+          placeholder: 'Selecciona un estado',
+        },
+      },
+      preview: {
+        title: 'Vista previa',
+        count: (count: number) => `Se crearán ${count} plaza${count !== 1 ? 's' : ''}`,
+        range: (from: number, to: number) => `Rango: ${from} - ${to}`,
+        conflictWarning: 'Algunas plazas del rango ya existen. Ajusta el rango para continuar.',
+      },
+      actions: {
+        create: 'Crear plazas',
+        cancel: 'Cancelar',
+      },
+    },
+    edit: {
+      title: 'Editar plaza',
+      subtitle: 'Actualiza la información de la plaza',
+      fields: {
+        number: {
+          label: 'Número',
+          placeholder: 'Ej. A-01',
+        },
+        type: {
+          label: 'Tipo de vehículo',
+          placeholder: 'Selecciona un tipo',
+        },
+        status: {
+          label: 'Estado',
+          placeholder: 'Selecciona un estado',
+        },
+        prefix: {
+          label: 'Prefijo',
+          placeholder: 'Ej. A',
+        },
+        zone: {
+          label: 'Zona',
+          placeholder: 'Ej. Norte',
+        },
+      },
+      restrictions: {
+        occupiedNumber: 'La plaza está ocupada. El número no se puede modificar.',
+        activeTicketType: 'Existe un ticket activo. El tipo no se puede modificar.',
+      },
+      actions: {
+        save: 'Guardar cambios',
+        cancel: 'Cancelar',
+      },
+    },
+    detail: {
+      title: 'Detalle de plaza',
+      tabs: {
+        general: 'General',
+        history: 'Historial',
+      },
+      fields: {
+        number: 'Número',
+        type: 'Tipo',
+        status: 'Estado',
+        zone: 'Zona',
+        createdAt: 'Creada',
+        updatedAt: 'Actualizada',
+      },
+      activeTicket: {
+        title: 'Ticket activo',
+        empty: 'No hay ticket activo',
+      },
+      history: {
+        title: 'Historial de tickets',
+        empty: 'Sin historial de tickets',
+      },
+    },
+    statusModal: {
+      title: 'Cambiar estado',
+      confirm: 'Confirmar',
+      cancel: 'Cancelar',
+      warningActiveTicket: 'Esta plaza tiene un ticket activo. ¿Estás seguro de cambiar el estado?',
+    },
+    deleteModal: {
+      title: 'Eliminar plaza',
+      message: '¿Estás seguro de que deseas eliminar esta plaza? Esta acción no se puede deshacer.',
+      confirm: 'Sí, eliminar',
+      cancel: 'Cancelar',
+      warningHistory: 'Esta plaza tiene historial de tickets. Debes confirmar para continuar.',
+    },
+    actions: {
+      create: 'Crear plazas',
+      edit: 'Editar',
+      delete: 'Eliminar',
+      viewDetails: 'Ver detalle',
+      backToList: 'Volver al listado',
+    },
+    messages: {
+      created: 'Plazas creadas exitosamente',
+      updated: 'Plaza actualizada exitosamente',
+      deleted: 'Plaza eliminada exitosamente',
+      errors: {
+        generic: 'Ha ocurrido un error inesperado.',
+        notFound: 'Plaza no encontrada',
       },
     },
   },
