@@ -3,10 +3,9 @@ package dev.angelcorzo.nivo.api.parkinglots.dto;
 import java.util.List;
 import java.util.UUID;
 
-import dev.angelcorzo.nivo.model.slots.enums.SlotType;
+import dev.angelcorzo.nivo.api.slot.dto.CreatedSlots;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
@@ -22,8 +21,4 @@ public record UpsertParkingLotsRequest(
     @NotBlank String currency,
     @Valid OperatingHoursDTO operatingHours,
     @Valid List<CreatedSlots> slots) {
-
-  @Schema(requiredProperties = "slotType")
-  public record CreatedSlots(String prefix, String zone, SlotType slotType, @Min(1) Integer numberSlots) {
-  }
 }
