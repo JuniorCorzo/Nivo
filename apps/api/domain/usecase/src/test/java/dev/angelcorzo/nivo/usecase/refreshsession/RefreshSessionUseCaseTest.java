@@ -52,7 +52,10 @@ class RefreshSessionUseCaseTest {
       Users mockUser =
           Users.builder()
               .id(userId)
-              .tenant(TenantReference.builder().id(UUID.randomUUID()).companyName("test company").build())
+              .email("user@example.com")
+              .fullName("Test User")
+              .role(dev.angelcorzo.nivo.model.users.enums.Roles.OWNER)
+              .tenant(TenantReference.builder().id(tenantId).companyName("test company").build())
               .build();
 
       doNothing().when(authenticationGateway).validateToken(validRefreshToken);

@@ -37,6 +37,7 @@ class AcceptInvitationUseCaseTest {
   @Mock private UserInvitationsRepository invitationsRepository;
   @Mock private UsersRepository usersRepository;
   @Mock private PasswordEncodeGateway passwordEncode;
+  @Mock private dev.angelcorzo.nivo.usecase.notifications.UserNotifier userNotifier;
 
   @InjectMocks private AcceptInvitationUseCase useCase;
 
@@ -76,7 +77,7 @@ class AcceptInvitationUseCaseTest {
 
     assertEquals(newUser.getFullName(), savedUser.getFullName());
     assertEquals(pendingInvitation.getInvitedEmail(), savedUser.getEmail());
-    assertEquals(pendingInvitation.getTenant(), savedUser.getTenant());
+    assertEquals(pendingInvitation.getTenant().getId(), savedUser.getTenant().id());
     assertEquals(pendingInvitation.getRole(), savedUser.getRole());
     assertNotNull(savedUser.getPassword());
 
@@ -131,7 +132,7 @@ class AcceptInvitationUseCaseTest {
     Users updatedUser = userCaptor.getValue();
 
     assertEquals(existingUser.getId(), updatedUser.getId());
-    assertEquals(pendingInvitation.getTenant(), updatedUser.getTenant());
+    assertEquals(pendingInvitation.getTenant().getId(), updatedUser.getTenant().id());
     assertEquals(pendingInvitation.getRole(), updatedUser.getRole());
     assertEquals(existingUser.getFullName(), updatedUser.getFullName()); // Name should not change
 

@@ -57,12 +57,13 @@ class LoginUseCaseTest {
               .id(UUID.randomUUID())
               .email("test@example.com")
               .password("encodedPassword")
+              .fullName("Test User")
               .tenant(TenantReference.builder().id(UUID.randomUUID()).companyName("Test Company").build())
               .role(Roles.OWNER)
               .build();
 
       when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-      when(passwordEncode.matches("encodedPassword", "password")).thenReturn(true);
+      when(passwordEncode.matches("password", "encodedPassword")).thenReturn(true);
       when(authenticationGateway.generateAccessToken(anyMap())).thenReturn("accessToken");
       when(authenticationGateway.generateRefreshToken(anyMap())).thenReturn("refreshToken");
 
@@ -107,7 +108,7 @@ class LoginUseCaseTest {
               .build();
 
       when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-      when(passwordEncode.matches("encodedPassword", "password")).thenReturn(false);
+      when(passwordEncode.matches("password", "encodedPassword")).thenReturn(false);
 
       // Act & Assert
       assertThatThrownBy(() -> loginUseCase.auth(credentials))

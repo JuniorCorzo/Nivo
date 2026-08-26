@@ -27,45 +27,45 @@ class EncryptedResponseConverterTest {
   }
 
   @Test
-  void convertToDatabaseColumn_ShouldDecrypt() {
+  void convertToDatabaseColumn_ShouldEncrypt() {
+    Object attribute = "plainData";
     String encrypted = "encryptedData";
-    Object decrypted = new Object();
-    when(encryptionGateway.decrypt(eq(encrypted), eq(Object.class)))
-        .thenReturn(Result.success(decrypted));
+    when(encryptionGateway.encrypt(attribute)).thenReturn(Result.success(encrypted));
 
-    Object result = converter.convertToDatabaseColumn(encrypted);
-
-    assertEquals(decrypted, result);
-    verify(encryptionGateway).decrypt(encrypted, Object.class);
-  }
-
-  @Test
-  void convertToDatabaseColumn_ShouldThrowException_WhenDecryptionFails() {
-    String encrypted = "encryptedData";
-    when(encryptionGateway.decrypt(eq(encrypted), eq(Object.class)))
-        .thenReturn(Result.failure(new EncryptionError.DecryptionFailed()));
-
-    assertThrows(EncryptionException.class, () -> converter.convertToDatabaseColumn(encrypted));
-  }
-
-  @Test
-  void convertToEntityAttribute_ShouldEncrypt() {
-    String attribute = "attributeData";
-    Object encrypted = "encryptedData";
-    when(encryptionGateway.decrypt(attribute, Object.class)).thenReturn(Result.success(encrypted));
-
-    Object result = converter.convertToEntityAttribute(attribute);
+    String result = converter.convertToDatabaseColumn(attribute);
 
     assertEquals(encrypted, result);
     verify(encryptionGateway).encrypt(attribute);
   }
 
   @Test
-  void convertToEntityAttribute_ShouldThrowException_WhenEncryptionFails() {
-    String attribute = "attributeData";
+  void convertToDatabaseColumn_ShouldThrowException_WhenEncryptionFails() {
+    Object attribute = "plainData";
     when(encryptionGateway.encrypt(attribute))
         .thenReturn(Result.failure(new EncryptionError.EncryptionFailed()));
 
-    assertThrows(EncryptionException.class, () -> converter.convertToEntityAttribute(attribute));
+    assertThrows(EncryptionException.class, () -> converter.convertToDatabaseColumn(attribute));
+  }
+
+  @Test
+  void convertToEntityAttribute_ShouldDecrypt() {
+    String dbData = "encryptedData";
+    Object decrypted = "decryptedData";
+    when(encryptionGateway.decrypt(eq(dbData), eq(Object.class)))
+        .thenReturn(Result.success(decrypted));
+
+    Object result = converter.convertToEntityAttribute(dbData);
+
+    assertEquals(decrypted, result);
+    verify(encryptionGateway).decrypt(dbData, Object.class);
+  }
+
+  @Test
+  void convertToEntityAttribute_ShouldThrowException_WhenDecryptionFails() {
+    String dbData = "encryptedData";
+    when(encryptionGateway.decrypt(eq(dbData), eq(Object.class)))
+        .thenReturn(Result.failure(new EncryptionError.DecryptionFailed()));
+
+    assertThrows(EncryptionException.class, () -> converter.convertToEntityAttribute(dbData));
   }
 }
