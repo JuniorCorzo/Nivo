@@ -40,14 +40,24 @@ public class SecurityChain {
             "/tenants/register",
             "/users/accept-invitation/**",
             "/actuator/**",
+            "/scalar",
+            "/scalar/**",
+            "/docs",
+            "/docs/**",
             "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs",
             "/v3/api-docs/**",
+            "/api-docs",
+            "/api-docs/**",
             "/swagger-resources/**",
             "/swagger-resources",
             "/webjars/**",
             "/context-path/**",
-            "/auth/**")
+            "/auth/**",
+            "/favicon.ico")
         .csrf(AbstractHttpConfigurer::disable)
+        .headers(AbstractHttpConfigurer::disable)
         .sessionManagement(
             sessionManagement ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

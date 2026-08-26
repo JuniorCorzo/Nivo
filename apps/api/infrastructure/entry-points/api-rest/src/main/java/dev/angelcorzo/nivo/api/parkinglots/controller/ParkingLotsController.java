@@ -22,8 +22,11 @@ import dev.angelcorzo.nivo.usecase.showratesbyparkinglot.ShowRatesByParkingLotUs
 import dev.angelcorzo.nivo.usecase.updateparking.UpdateParkingLotsUseCase;
 import dev.angelcorzo.nivo.usecase.deleteparkinglot.DeleteParkingLotUseCase;
 import dev.angelcorzo.nivo.usecase.deleteslotgroup.DeleteSlotGroupUseCase;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -35,7 +38,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/parking-lots")
-@Tag(name = "Parking Lots", description = "Parking Lots API")
+@Tag(name = "Parking Lots", description = "Parking lots configuration, rates and slot groups")
 @RequiredArgsConstructor
 public class ParkingLotsController {
   private final AuthenticationContextGateway authenticationContext;
@@ -50,6 +53,13 @@ public class ParkingLotsController {
   private final DeleteSlotGroupUseCase deleteSlotGroupUseCase;
   private final DeleteParkingLotUseCase deleteParkingLotUseCase;
 
+  @Operation(
+      summary = "List parking lots",
+      description = "Retrieves all parking lots belonging to the current tenant")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Parking lots list retrieved"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")
+  })
   @GetMapping("/list")
   @PreAuthorize("hasRole('MANAGER')")
   public Response<List<ParkingLotListItemResponse>> listParkingLots() {
@@ -62,9 +72,17 @@ public class ParkingLotsController {
     return Response.ok(parkingLots, ParkingLotsMessages.PARKING_LOTS_LIST.format());
   }
 
+  @Operation(
+      summary = "Show rates by parking lot",
+      description = "Retrieves all configured tariff rates for a given parking lot")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Rates retrieved successfully"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
+  })
   @GetMapping("/{parkingId}/rates")
   @PreAuthorize("hasRole('OPERATOR')")
-  public Response<Iterable<RatesDTO>> showRatesByParkingId(@PathVariable UUID parkingId) {
+  public Response<Iterable<RatesDTO>> showRatesByParkingId(
+      @Parameter(description = "Parking lot ID", required = true) @PathVariable UUID parkingId) {
     final List<RatesDTO> listRates = this.showRatesByParkingLotUseCase.execute(parkingId).stream()
         .map(this.ratesMapper::toDTO)
         .toList();
@@ -72,6 +90,14 @@ public class ParkingLotsController {
     return Response.ok(listRates, RateMessages.SHOW_RATES_BY_TENANT.format());
   }
 
+  @Operation(
+      summary = "Create parking lot",
+      description = "Creates a new parking lot with operating hours, slots, address, and coordinates")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Parking lot created successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")
+  })
   @PostMapping("/create")
   @PreAuthorize("hasRole('MANAGER')")
   @Transactional
@@ -87,6 +113,14 @@ public class ParkingLotsController {
         ParkingLotsMessages.PARKING_LOT_CREATED.format());
   }
 
+  @Operation(
+      summary = "Configure tariff rate for parking lot",
+      description = "Creates a new tariff rate associated with a parking lot")
+  @ApiResponses({
+    @ApiResponse(responseCode = "201", description = "Rate configured successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid rate payload"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Owner role required")
+  })
   @PostMapping("/create-rate")
   @PreAuthorize("hasRole('OWNER')")
   @Transactional
@@ -100,6 +134,14 @@ public class ParkingLotsController {
         this.ratesMapper.toDTO(rateCreated), RateMessages.RATE_CONFIGURATED_SUCCESSFULLY.format());
   }
 
+  @Operation(
+      summary = "Update parking lot",
+      description = "Updates an existing parking lot's details, hours, and configuration")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Parking lot updated successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")
+  })
   @PutMapping("/update")
   @PreAuthorize("hasRole('MANAGER')")
   @Transactional
@@ -112,27 +154,38 @@ public class ParkingLotsController {
         ParkingLotsMessages.PARKING_LOTS_UPDATED.format());
   }
 
+  @Operation(
+      summary = "Delete parking lot",
+      description = "Deletes a parking lot by its ID")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Parking lot deleted successfully"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required"),
+    @ApiResponse(responseCode = "404", description = "Parking lot not found")
+  })
   @DeleteMapping("/{parkingId}")
   @PreAuthorize("hasRole('MANAGER')")
   @Transactional
-  public Response<Void> deleteParkingLot(@PathVariable UUID parkingId) {
+  public Response<Void> deleteParkingLot(
+      @Parameter(description = "Parking lot ID", required = true) @PathVariable UUID parkingId) {
     this.deleteParkingLotUseCase.execute(parkingId);
     return Response.ok(null, ParkingLotsMessages.PARKING_LOT_DELETED.format());
   }
 
+  @Operation(
+      summary = "Delete slot group",
+      description = "Deletes a group of slots from a parking lot by slot type, prefix, and zone")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Slot group deleted successfully"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")
+  })
   @DeleteMapping("/{parkingId}/slots/groups")
   @PreAuthorize("hasRole('MANAGER')")
   @Transactional
-  @Parameters({
-      @Parameter(name = "parkingId", in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH, required = true),
-      @Parameter(name = "slotType", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = true),
-      @Parameter(name = "prefix", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = false),
-      @Parameter(name = "zone", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = false), })
   public Response<Void> deleteSlotGroup(
-      @PathVariable UUID parkingId,
-      @Parameter(hidden = true) @RequestParam(value = "slotType") SlotType slotType,
-      @Parameter(hidden = true) @RequestParam(value = "prefix", required = false) String prefix,
-      @Parameter(hidden = true) @RequestParam(value = "zone", required = false) String zone) {
+      @Parameter(description = "Parking lot ID", required = true) @PathVariable UUID parkingId,
+      @Parameter(description = "Slot type (e.g. STANDARD, COMPACT)", required = true) @RequestParam(value = "slotType") SlotType slotType,
+      @Parameter(description = "Prefix filter", required = false) @RequestParam(value = "prefix", required = false) String prefix,
+      @Parameter(description = "Zone filter", required = false) @RequestParam(value = "zone", required = false) String zone) {
 
     this.deleteSlotGroupUseCase.execute(
         DeleteSlotGroupUseCase.DeleteSlotGroupCommand.builder()

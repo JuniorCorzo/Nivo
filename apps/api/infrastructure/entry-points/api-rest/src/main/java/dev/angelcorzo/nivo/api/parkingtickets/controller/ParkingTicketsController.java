@@ -13,6 +13,11 @@ import dev.angelcorzo.nivo.model.payments.Payments;
 import dev.angelcorzo.nivo.model.payments.valueobject.check_out.CheckOut;
 import dev.angelcorzo.nivo.usecase.checkinvehiclewithoureservation.CheckInVehicleWithoutReservationUseCase;
 import dev.angelcorzo.nivo.usecase.checkoutvehicle.CheckOutVehicleUseCase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/tickets")
+@Tag(name = "Parking Tickets", description = "Vehicle check-in and check-out ticket management")
 @RequiredArgsConstructor
 public class ParkingTicketsController {
   private final CheckInVehicleWithoutReservationUseCase checkInVehicleWithoutReservationUseCase;
@@ -30,9 +36,18 @@ public class ParkingTicketsController {
   private final ParkingTicketMapper parkingTicketMapper;
   private final PaymentsMapper paymentsMapper;
 
+  @Operation(
+      summary = "Vehicle check-in",
+      description = "Registers vehicle entry without prior reservation and generates a parking ticket")
+  @ApiResponses({
+    @ApiResponse(responseCode = "201", description = "Ticket created successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid payload or slot unavailable"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
+  })
   @PostMapping("/check-in")
   @PreAuthorize("hasRole('OPERATOR')")
-  public Response<ParkingTicketsDTO> createTicket(@RequestBody CreateTicket createTicket) {
+  @ResponseStatus(HttpStatus.CREATED)
+  public Response<ParkingTicketsDTO> createTicket(@RequestBody @Valid CreateTicket createTicket) {
     final UUID tenantId = this.authenticationContext.getCurrentTenantId();
 
     final ParkingTickets ticket =
@@ -42,17 +57,25 @@ public class ParkingTicketsController {
                 .email(createTicket.email())
                 .build());
 
-    return Response.created(this.parkingTicketMapper.toDto(ticket), "");
+    return Response.created(this.parkingTicketMapper.toDto(ticket), "Ticket created successfully");
   }
 
+  @Operation(
+      summary = "Vehicle check-out",
+      description = "Calculates total charge, processes checkout, and creates a payment record")
+  @ApiResponses({
+    @ApiResponse(responseCode = "201", description = "Vehicle checked out and payment created"),
+    @ApiResponse(responseCode = "400", description = "Invalid checkout command"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
+  })
   @PostMapping("/check-out")
   @PreAuthorize("hasRole('OPERATOR')")
   @ResponseStatus(HttpStatus.CREATED)
-  public Response<PaymentsDTO> checkOutVehicle(@RequestBody CheckOutCommand checkOutCommand) {
+  public Response<PaymentsDTO> checkOutVehicle(@RequestBody @Valid CheckOutCommand checkOutCommand) {
     final CheckOut checkOut = this.paymentsMapper.toModel(checkOutCommand);
 
     Payments payment = this.checkOutVehicleUseCase.execute(checkOut);
 
-    return Response.created(this.paymentsMapper.toDto(payment), "Created");
+    return Response.created(this.paymentsMapper.toDto(payment), "Checkout processed successfully");
   }
 }

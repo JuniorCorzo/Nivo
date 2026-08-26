@@ -7,15 +7,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.angelcorzo.nivo.api.specialpolicies.mapper.SpecialPoliciesMapper;
 import dev.angelcorzo.nivo.api.tenants.dto.RegisterTenantDTO;
 import dev.angelcorzo.nivo.api.tenants.enums.TenantsMessages;
 import dev.angelcorzo.nivo.api.users.dto.CreatedUserDTO;
 import dev.angelcorzo.nivo.api.users.dto.UserDTO;
 import dev.angelcorzo.nivo.api.users.mappers.UserMapper;
+import dev.angelcorzo.nivo.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.model.tenants.Tenants;
 import dev.angelcorzo.nivo.model.users.Users;
 import dev.angelcorzo.nivo.model.users.enums.Roles;
+import dev.angelcorzo.nivo.usecase.createspecialpolicy.CreateSpecialPolicyUseCase;
 import dev.angelcorzo.nivo.usecase.registertenant.RegisterTenantUseCase;
+import dev.angelcorzo.nivo.usecase.showspecialpoliciesbytenant.ShowSpecialPoliciesByTenantUseCase;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -35,14 +39,18 @@ import org.springframework.test.web.servlet.MockMvc;
 @ActiveProfiles("test")
 @WebMvcTest(TenantController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@ExtendWith(MockitoExtension.class)
 @ContextConfiguration(classes = TenantController.class)
+@ExtendWith(MockitoExtension.class)
 class TenantControllerTest {
 
   @Autowired private MockMvc mockMvc;
-  @Autowired private ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
   @MockitoBean private RegisterTenantUseCase registerTenantUseCase;
   @MockitoBean private UserMapper userMapper;
+  @MockitoBean private SpecialPoliciesMapper specialPoliciesMapper;
+  @MockitoBean private AuthenticationContextGateway authenticationContext;
+  @MockitoBean private CreateSpecialPolicyUseCase createSpecialPolicyUseCase;
+  @MockitoBean private ShowSpecialPoliciesByTenantUseCase showSpecialPoliciesByTenantUseCase;
 
   @Test
   @DisplayName("POST /tenants/register - Should return 201 Created when request is valid")
