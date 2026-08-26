@@ -67,7 +67,7 @@ public class AESEncryption implements EncryptionGateway {
       System.arraycopy(combined, 0, iv, 0, IV_LENGTH);
       System.arraycopy(combined, IV_LENGTH, encrypted, 0, encrypted.length);
 
-      final GCMParameterSpec parameterSpec = new GCMParameterSpec(IV_LENGTH, iv);
+      final GCMParameterSpec parameterSpec = new GCMParameterSpec(TAG_LENGTH, iv);
       cipher.init(Cipher.DECRYPT_MODE, secretKey, parameterSpec);
 
       final byte[] decrypt = cipher.doFinal(encrypted);

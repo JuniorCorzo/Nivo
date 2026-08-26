@@ -158,7 +158,7 @@ public class JwtProvider implements AuthenticationGateway {
     } catch (MalformedJwtException e) {
       log.warn("Malformed token: {}", e.getMessage());
       throw new MalformedTokenException(e);
-    } catch (UnsupportedJwtException | SecurityException | IllegalArgumentException e) {
+    } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
       log.warn("Invalid token: {}", e.getMessage());
       throw new TokenInvalidException(TokenErrorMessages.INVALID_TOKEN.toString(), e);
     }
