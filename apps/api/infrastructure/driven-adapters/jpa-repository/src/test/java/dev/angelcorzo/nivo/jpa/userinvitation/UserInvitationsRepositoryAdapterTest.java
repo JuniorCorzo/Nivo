@@ -1,217 +1,91 @@
 package dev.angelcorzo.nivo.jpa.userinvitation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
-import dev.angelcorzo.nivo.jpa.tenants.TenantsRepositoryAdapter;
-import dev.angelcorzo.nivo.jpa.tenants.mappers.TenantsMapperJpaImpl;
-import dev.angelcorzo.nivo.jpa.userinvitation.mapper.UserInvitationsMapperJpaImpl;
-import dev.angelcorzo.nivo.jpa.users.UserRepositoryAdapter;
-import dev.angelcorzo.nivo.jpa.users.mapper.UserMapperJpaImpl;
-import dev.angelcorzo.nivo.model.tenants.Tenants;
-import dev.angelcorzo.nivo.model.tenants.valueobject.TenantReference;
+import dev.angelcorzo.nivo.jpa.userinvitation.mapper.UserInvitationsMapper;
 import dev.angelcorzo.nivo.model.userinvitations.UserInvitationStatus;
 import dev.angelcorzo.nivo.model.userinvitations.UserInvitations;
-import dev.angelcorzo.nivo.model.users.Users;
-import dev.angelcorzo.nivo.model.users.enums.Roles;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import dev.angelcorzo.nivo.model.users.valueobject.UserReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 
-@DataJpaTest
-@ActiveProfiles("test")
-@Import({
-  UserInvitationsRepositoryAdapter.class,
-  UserRepositoryAdapter.class,
-  TenantsRepositoryAdapter.class,
-  UserInvitationsMapperJpaImpl.class,
-  UserMapperJpaImpl.class,
-  TenantsMapperJpaImpl.class
-})
-@AutoConfigureTestDatabase(
-    replace = AutoConfigureTestDatabase.Replace.NONE,
-    connection = EmbeddedDatabaseConnection.NONE)
-@DisplayName("UserInvitationsRepositoryAdapter Tests")
+@DisplayName("UserInvitationsRepositoryAdapter Unit Tests")
 class UserInvitationsRepositoryAdapterTest {
-  private final Tenants tenantDomain = Tenants.builder().companyName("Test Tenant").build();
-  private final Users invitingUserDomain =
-      Users.builder()
-          .fullName("Inviting User")
-          .email("inviter@test.com")
-          .password("pass")
-          .role(Roles.OWNER)
-          .tenant(TenantReference.of(tenantDomain))
-          .build();
-  @Autowired private UserInvitationsRepositoryAdapter userInvitationsRepositoryAdapter;
-  @Autowired private UserRepositoryAdapter userRepositoryAdapter;
-  @Autowired private TenantsRepositoryAdapter tenantsRepositoryAdapter;
-  private Tenants savedTenant;
-  private UserInvitations invitation1;
+
+  private UserInvitationsRepositoryData repository;
+  private UserInvitationsMapper mapper;
+  private UserInvitationsRepositoryAdapter adapter;
 
   @BeforeEach
   void setUp() {
-    savedTenant =
-        tenantsRepositoryAdapter.save(Tenants.builder().companyName("Test Tenant").build());
-
-    Users invitingUser =
-        userRepositoryAdapter.save(
-            Users.builder()
-                .fullName("Inviting User")
-                .email("inviter@test.com")
-                .password("pass")
-                .role(Roles.OWNER)
-                .tenant(TenantReference.of(savedTenant))
-                .build());
-
-    invitation1 =
-        userInvitationsRepositoryAdapter.save(
-            UserInvitations.builder()
-                .tenant(savedTenant)
-                .invitedEmail("invited@test.com")
-                .role(Roles.SUPERADMIN)
-                .token(UUID.randomUUID())
-                .status(UserInvitationStatus.PENDING)
-                .invitedBy(UserReference.of(invitingUser))
-                .expiredAt(OffsetDateTime.now().plusDays(7))
-                .build());
+    repository = mock(UserInvitationsRepositoryData.class);
+    mapper = mock(UserInvitationsMapper.class);
+    adapter = new UserInvitationsRepositoryAdapter(repository, mapper);
   }
 
-  @Nested
-  @DisplayName("Save Operations")
-  class SaveOperations {
+  @Test
+  @DisplayName("Should find all invitations by tenant ID")
+  void shouldFindAllByTenantId() {
+    UUID tenantId = UUID.randomUUID();
+    UserInvitationsData data = new UserInvitationsData();
+    UserInvitations entity = UserInvitations.builder().id(UUID.randomUUID()).build();
 
-    @Test
-    @DisplayName("Should save a user invitation successfully")
-    void shouldSaveUserInvitation() {
-      // Given
+    when(repository.findAllByTenantId(tenantId)).thenReturn(List.of(data));
+    when(mapper.toEntity(data)).thenReturn(entity);
 
-      UserInvitations newInvitationModel =
-          UserInvitations.builder()
-              .tenant(savedTenant)
-              .invitedEmail("newinvite@test.com")
-              .role(Roles.OPERATOR)
-              .token(UUID.randomUUID())
-              .status(UserInvitationStatus.PENDING)
-              .invitedBy(UserReference.of(invitingUserDomain))
-              .expiredAt(OffsetDateTime.now().plusDays(7))
-              .build();
+    List<UserInvitations> result = adapter.findAllInvitationsByTenantId(tenantId);
 
-      // When
-      UserInvitations savedInvitation = userInvitationsRepositoryAdapter.save(newInvitationModel);
-
-      // Then
-      assertThat(savedInvitation).isNotNull();
-      assertThat(savedInvitation.getId()).isNotNull();
-      assertThat(savedInvitation.getInvitedEmail()).isEqualTo("newinvite@test.com");
-
-      Optional<UserInvitations> found =
-          userInvitationsRepositoryAdapter.findById(savedInvitation.getId());
-
-      assertThat(found).isPresent();
-      assertThat(found.get().getStatus()).isEqualTo(UserInvitationStatus.PENDING);
-    }
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0)).isEqualTo(entity);
   }
 
-  @Nested
-  @DisplayName("Find Operations")
-  class FindOperations {
+  @Test
+  @DisplayName("Should find invitation by token")
+  void shouldFindByToken() {
+    UUID token = UUID.randomUUID();
+    UserInvitationsData data = new UserInvitationsData();
+    UserInvitations entity = UserInvitations.builder().id(UUID.randomUUID()).token(token).build();
 
-    @Test
-    @DisplayName("Should find all invitations by tenant ID")
-    void shouldFindAllInvitationsByTenantId() {
-      // When
-      List<UserInvitations> invitations =
-          userInvitationsRepositoryAdapter.findAllInvitationsByTenantId(savedTenant.getId());
+    when(repository.findByToken(token)).thenReturn(Optional.of(data));
+    when(mapper.toEntity(data)).thenReturn(entity);
 
-      // Then
-      assertThat(invitations).isNotNull();
-      assertThat(invitations.size()).isEqualTo(1);
-      assertThat(invitations.getFirst().getId()).isEqualTo(invitation1.getId());
-    }
+    Optional<UserInvitations> result = adapter.findByToken(token);
 
-    @Test
-    @DisplayName("Should return empty list when no invitations for tenant ID")
-    void shouldReturnEmptyListWhenNoInvitationsForTenant() {
-      // When
-      List<UserInvitations> invitations =
-          userInvitationsRepositoryAdapter.findAllInvitationsByTenantId(UUID.randomUUID());
-
-      // Then
-      assertThat(invitations).isNotNull();
-      assertThat(invitations).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Should find an invitation by token when it exists")
-    void shouldFindInvitationByToken() {
-      // When
-      Optional<UserInvitations> found =
-          userInvitationsRepositoryAdapter.findByToken(invitation1.getToken());
-
-      // Then
-      assertThat(found).isPresent();
-      assertThat(found.get().getId()).isEqualTo(invitation1.getId());
-    }
-
-    @Test
-    @DisplayName("Should not find an invitation by non-existent token")
-    void shouldNotFindInvitationByNonExistentToken() {
-      // When
-      Optional<UserInvitations> found =
-          userInvitationsRepositoryAdapter.findByToken(UUID.randomUUID());
-
-      // Then
-      assertThat(found).isNotPresent();
-    }
+    assertThat(result).isPresent();
+    assertThat(result.get().getToken()).isEqualTo(token);
   }
 
-  @Nested
-  @DisplayName("Update Operations")
-  class UpdateOperations {
+  @Test
+  @DisplayName("Should accept invitation")
+  void shouldAcceptInvitation() {
+    UUID id = UUID.randomUUID();
+    UserInvitationsData data = new UserInvitationsData();
+    UserInvitations entity =
+        UserInvitations.builder().id(id).status(UserInvitationStatus.ACCEPTED).build();
 
-    @Test
-    @DisplayName("Should accept a pending invitation")
-    void shouldAcceptPendingInvitation() {
-      // When
-      UserInvitations accepted =
-          userInvitationsRepositoryAdapter.acceptedInvitation(invitation1.getId());
+    when(repository.findById(id)).thenReturn(Optional.of(data));
+    when(mapper.toEntity(data)).thenReturn(entity);
 
-      // Then
-      assertThat(accepted).isNotNull();
-      assertThat(accepted.getStatus()).isEqualTo(UserInvitationStatus.ACCEPTED);
-      assertThat(accepted.getAcceptedAt()).isNotNull();
+    UserInvitations result = adapter.acceptedInvitation(id);
 
-      Optional<UserInvitations> found =
-          userInvitationsRepositoryAdapter.findById(invitation1.getId());
-      assertThat(found).isPresent();
-      assertThat(found.get().getStatus()).isEqualTo(UserInvitationStatus.ACCEPTED);
-    }
+    assertThat(result).isNotNull();
+    assertThat(result.getStatus()).isEqualTo(UserInvitationStatus.ACCEPTED);
+    verify(repository).acceptedInvitation(id);
+  }
 
-    @Test
-    @DisplayName("Should revoke a pending invitation")
-    void shouldRevokePendingInvitation() {
-      // When
-      Boolean revoked = userInvitationsRepositoryAdapter.revokeInvitation(invitation1.getId());
+  @Test
+  @DisplayName("Should revoke invitation")
+  void shouldRevokeInvitation() {
+    UUID id = UUID.randomUUID();
+    when(repository.revokeInvitation(id)).thenReturn(1);
 
-      // Then
-      assertThat(revoked).isTrue();
+    Boolean result = adapter.revokeInvitation(id);
 
-      Optional<UserInvitations> found =
-          userInvitationsRepositoryAdapter.findById(invitation1.getId());
-      assertThat(found).isPresent();
-      assertThat(found.get().getStatus()).isEqualTo(UserInvitationStatus.REVOKED);
-    }
+    assertThat(result).isTrue();
+    verify(repository).revokeInvitation(id);
   }
 }

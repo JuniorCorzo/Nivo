@@ -36,7 +36,7 @@ class SendNotificationsUseCaseTest {
     NotificationsData content = mock(NotificationsData.class);
 
     useCase.send(
-        NotificationEvents.USER_INVITATION,
+        NotificationEvents.USER_INVITED,
         NotificationsChannel.EMAIL,
         "test@example.com",
         content,
@@ -53,13 +53,12 @@ class SendNotificationsUseCaseTest {
     UUID actorId = UUID.randomUUID();
     NotificationsData content = mock(NotificationsData.class);
 
-    // Mock preferences enabled
     when(notificationPreferencesRepository.isEnable(
             any(NotificationEvents.class), any(NotificationsChannel.class), anyString()))
         .thenReturn(true);
 
     useCase.send(
-        NotificationEvents.TICKET_CREATED,
+        NotificationEvents.TICKET_OPENED,
         NotificationsChannel.EMAIL,
         "user@example.com",
         content,

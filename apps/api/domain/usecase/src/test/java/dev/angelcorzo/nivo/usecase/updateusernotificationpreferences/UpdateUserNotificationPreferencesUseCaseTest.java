@@ -33,12 +33,12 @@ class UpdateUserNotificationPreferencesUseCaseTest {
 
     when(authenticationContextGateway.getCurrentUserId()).thenReturn(userId);
     when(notificationPreferencesRepository.toggleActiveStatus(
-            userId, NotificationEvents.TICKET_CREATED, NotificationsChannel.EMAIL))
+            userId, NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL))
         .thenReturn(true);
 
-    boolean result = useCase.toggleActiveStatus(NotificationEvents.TICKET_CREATED, NotificationsChannel.EMAIL);
+    boolean result = useCase.toggleActiveStatus(NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL);
 
     assertThat(result).isTrue();
-    verify(notificationPreferencesRepository).toggleActiveStatus(userId, NotificationEvents.TICKET_CREATED, NotificationsChannel.EMAIL);
+    verify(notificationPreferencesRepository).toggleActiveStatus(userId, NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL);
   }
 }
