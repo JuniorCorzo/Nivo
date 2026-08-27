@@ -121,6 +121,12 @@ export class ParkingDetail {
     this.router.navigate([APP_ROUTES.app.parkingLotRates(p.id)]);
   }
 
+  protected onManageOperations(): void {
+    const p = this.parking();
+    if (!p) return;
+    this.router.navigate([APP_ROUTES.app.parkingLotOperations(p.id)]);
+  }
+
   protected onDeleteClick(): void {
     const p = this.parking();
     if (!p) return;
