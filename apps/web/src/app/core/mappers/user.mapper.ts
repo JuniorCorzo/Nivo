@@ -6,9 +6,17 @@ import { Injectable } from '@angular/core';
 export class UserMapper {
   mapToUserModel(data: UserDto): UserModel {
     return {
-      ...data,
-      createdAt: new Date(data.createdAt),
-      updatedAt: new Date(data.updatedAt),
+      id: data.id ?? '',
+      fullName: data.fullName ?? '',
+      email: data.email ?? '',
+      contactInfo: data.contactInfo ?? '',
+      role: data.role ?? 'OPERATOR',
+      tenant: {
+        id: data.tenant?.id ?? '',
+        companyName: data.tenant?.companyName ?? '',
+      },
+      createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+      updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
     };
   }
 
