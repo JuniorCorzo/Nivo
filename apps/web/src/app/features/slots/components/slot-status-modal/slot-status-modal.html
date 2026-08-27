@@ -7,11 +7,11 @@
   (click)="onBackdropClick($event)"
 >
   <div class="slot-dialog__panel">
-    <div class="flex justify-between items-center pb-3.5 border-b border-neutral-100 dark:border-neutral-800">
-      <nv-h3 [id]="titleId" class="text-base font-bold text-neutral-900 dark:text-neutral-50">{{ title() }}</nv-h3>
+    <div class="flex justify-between items-center pb-3.5 border-b border-border">
+      <nv-h3 [id]="titleId" class="text-base font-bold text-foreground">{{ title() }}</nv-h3>
       <button
         type="button"
-        class="h-8 w-8 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 inline-grid place-items-center cursor-pointer transition-colors"
+        class="h-8 w-8 rounded-lg border border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-grid place-items-center cursor-pointer transition-colors"
         (click)="onCancel($event)"
         aria-label="Cerrar"
       >
@@ -20,31 +20,28 @@
     </div>
 
     <div class="flex flex-col gap-4 mt-4">
-      <p [id]="descriptionId" class="text-neutral-600 dark:text-neutral-300 text-xs leading-relaxed">{{ body() }}</p>
+      <p [id]="descriptionId" class="text-muted-foreground text-xs leading-relaxed">{{ body() }}</p>
 
       @if (target(); as currentTarget) {
-        <div class="flex flex-col gap-2.5 p-3.5 rounded-xl bg-neutral-50/70 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800">
+        <div class="flex flex-col gap-2.5 p-3.5 rounded-xl bg-muted/50 border border-border">
           <div class="flex items-center justify-between text-xs">
-            <span class="text-neutral-500 dark:text-neutral-400 font-medium">Estado actual:</span>
-            <span class="font-semibold text-neutral-900 dark:text-neutral-100">
+            <span class="text-muted-foreground font-medium">Estado actual:</span>
+            <span class="font-semibold text-foreground">
               {{ currentTarget.status === 'AVAILABLE' ? 'Disponible' : currentTarget.status === 'OCCUPIED' ? 'Ocupada' : currentTarget.status === 'MAINTENANCE' ? 'Mantenimiento' : 'Reservada' }}
             </span>
           </div>
 
-          <div class="flex flex-wrap gap-2 pt-2 border-t border-neutral-200/60 dark:border-neutral-700/60">
+          <div class="flex flex-wrap gap-2 pt-2 border-t border-border">
             @for (option of transitionOptions(); track option) {
               <button
                 type="button"
                 class="px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer select-none shadow-2xs"
-                [class.border-primary-600]="nextStatus() === option"
-                [class.bg-primary-600]="nextStatus() === option"
-                [class.text-white]="nextStatus() === option"
-                [class.border-neutral-300]="nextStatus() !== option"
-                [class.dark:border-neutral-700]="nextStatus() !== option"
-                [class.bg-white]="nextStatus() !== option"
-                [class.dark:bg-neutral-800]="nextStatus() !== option"
-                [class.text-neutral-700]="nextStatus() !== option"
-                [class.dark:text-neutral-200]="nextStatus() !== option"
+                [class.border-primary]="nextStatus() === option"
+                [class.bg-primary]="nextStatus() === option"
+                [class.text-primary-foreground]="nextStatus() === option"
+                [class.border-border]="nextStatus() !== option"
+                [class.bg-card]="nextStatus() !== option"
+                [class.text-foreground]="nextStatus() !== option"
                 (click)="selectStatusNext.emit(option)"
               >
                 {{ option === 'AVAILABLE' ? 'Disponible' : option === 'OCCUPIED' ? 'Ocupada' : option === 'MAINTENANCE' ? 'Mantenimiento' : 'Reservada' }}
@@ -55,19 +52,19 @@
       }
 
       @if (requiresExtraConfirm()) {
-        <label class="flex gap-2.5 items-start p-3 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 text-xs font-medium text-amber-900 dark:text-amber-200 cursor-pointer select-none">
+        <label class="flex gap-2.5 items-start p-3 rounded-xl border border-warning/20 bg-warning/10 text-xs font-medium text-warning cursor-pointer select-none">
           <input
             type="checkbox"
             [checked]="confirmChecked()"
             (change)="onConfirmCheckedChange($event)"
-            class="mt-0.5 rounded-sm accent-amber-600"
+            class="mt-0.5 rounded-sm accent-warning cursor-pointer"
           />
           <span>Entiendo el riesgo y quiero continuar con el cambio de estado.</span>
         </label>
       }
     </div>
 
-    <div class="flex justify-end gap-2.5 mt-5 pt-3.5 border-t border-neutral-100 dark:border-neutral-800">
+    <div class="flex justify-end gap-2.5 mt-5 pt-3.5 border-t border-border">
       <nv-button variant="outline" (click)="onCancel($event)">Cancelar</nv-button>
       <nv-button
         [disabled]="!nextStatus() || (requiresExtraConfirm() && !confirmChecked())"

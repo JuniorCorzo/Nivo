@@ -1,23 +1,23 @@
 @if (isOpen()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
     <div
-      class="relative w-full max-w-lg rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl dark:border-neutral-800 dark:bg-neutral-900 transition-all"
+      class="relative w-full max-w-lg rounded-2xl border border-border bg-card text-card-foreground p-6 shadow-2xl transition-all"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between pb-4 border-b border-neutral-100 dark:border-neutral-800">
+      <div class="flex items-center justify-between pb-4 border-b border-border">
         <div class="flex items-center gap-3">
-          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-950/40 dark:text-primary-400">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
             <ng-icon name="lucideLogIn" class="text-xl" />
           </div>
           <div>
-            <h2 class="text-lg font-bold text-neutral-900 dark:text-neutral-50">Registrar Ingreso de Vehículo</h2>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400">Asignar cupo y emitir ticket de parqueo</p>
+            <h2 class="text-lg font-bold text-foreground">Registrar Ingreso de Vehículo</h2>
+            <p class="text-xs text-muted-foreground">Asignar cupo y emitir ticket de parqueo</p>
           </div>
         </div>
         <button
           type="button"
           (click)="onClose()"
-          class="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 transition-colors"
+          class="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
         >
           <ng-icon name="lucideX" class="text-lg" />
         </button>
@@ -25,7 +25,7 @@
 
       <!-- Error Alert -->
       @if (facade.errorMessage()) {
-        <div class="mt-4 flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-800 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300">
+        <div class="mt-4 flex items-start gap-2.5 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
           <ng-icon name="lucideAlertCircle" class="text-base shrink-0 mt-0.5" />
           <span>{{ facade.errorMessage() }}</span>
         </div>
@@ -35,19 +35,17 @@
       <form class="mt-4 space-y-4" (submit)="onSubmit($event)">
         <!-- Vehicle Type Selector -->
         <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-1.5">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
             Tipo de Vehículo
           </label>
           <div class="grid grid-cols-3 gap-2">
             <button
               type="button"
               (click)="facade.setVehicleType('CAR')"
-              [class.border-primary-500]="facade.vehicleType() === 'CAR'"
-              [class.bg-primary-50]="facade.vehicleType() === 'CAR'"
-              [class.dark:bg-primary-950/40]="facade.vehicleType() === 'CAR'"
-              [class.text-primary-700]="facade.vehicleType() === 'CAR'"
-              [class.dark:text-primary-300]="facade.vehicleType() === 'CAR'"
-              class="flex flex-col items-center justify-center p-3 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-600 transition-colors font-medium text-xs gap-1"
+              [class.border-primary]="facade.vehicleType() === 'CAR'"
+              [class.bg-primary/10]="facade.vehicleType() === 'CAR'"
+              [class.text-primary]="facade.vehicleType() === 'CAR'"
+              class="flex flex-col items-center justify-center p-3 rounded-xl border border-border text-foreground hover:bg-accent hover:text-accent-foreground transition-colors font-medium text-xs gap-1 cursor-pointer"
             >
               <ng-icon name="lucideCar" class="text-lg" />
               <span>Automóvil</span>
@@ -56,12 +54,10 @@
             <button
               type="button"
               (click)="facade.setVehicleType('MOTORCYCLE')"
-              [class.border-primary-500]="facade.vehicleType() === 'MOTORCYCLE'"
-              [class.bg-primary-50]="facade.vehicleType() === 'MOTORCYCLE'"
-              [class.dark:bg-primary-950/40]="facade.vehicleType() === 'MOTORCYCLE'"
-              [class.text-primary-700]="facade.vehicleType() === 'MOTORCYCLE'"
-              [class.dark:text-primary-300]="facade.vehicleType() === 'MOTORCYCLE'"
-              class="flex flex-col items-center justify-center p-3 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-600 transition-colors font-medium text-xs gap-1"
+              [class.border-primary]="facade.vehicleType() === 'MOTORCYCLE'"
+              [class.bg-primary/10]="facade.vehicleType() === 'MOTORCYCLE'"
+              [class.text-primary]="facade.vehicleType() === 'MOTORCYCLE'"
+              class="flex flex-col items-center justify-center p-3 rounded-xl border border-border text-foreground hover:bg-accent hover:text-accent-foreground transition-colors font-medium text-xs gap-1 cursor-pointer"
             >
               <ng-icon name="lucideBike" class="text-lg" />
               <span>Motocicleta</span>
@@ -70,12 +66,10 @@
             <button
               type="button"
               (click)="facade.setVehicleType('BIKE')"
-              [class.border-primary-500]="facade.vehicleType() === 'BIKE'"
-              [class.bg-primary-50]="facade.vehicleType() === 'BIKE'"
-              [class.dark:bg-primary-950/40]="facade.vehicleType() === 'BIKE'"
-              [class.text-primary-700]="facade.vehicleType() === 'BIKE'"
-              [class.dark:text-primary-300]="facade.vehicleType() === 'BIKE'"
-              class="flex flex-col items-center justify-center p-3 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-600 transition-colors font-medium text-xs gap-1"
+              [class.border-primary]="facade.vehicleType() === 'BIKE'"
+              [class.bg-primary/10]="facade.vehicleType() === 'BIKE'"
+              [class.text-primary]="facade.vehicleType() === 'BIKE'"
+              class="flex flex-col items-center justify-center p-3 rounded-xl border border-border text-foreground hover:bg-accent hover:text-accent-foreground transition-colors font-medium text-xs gap-1 cursor-pointer"
             >
               <ng-icon name="lucideBike" class="text-lg" />
               <span>Bicicleta</span>
@@ -85,8 +79,8 @@
 
         <!-- License Plate Input -->
         <div>
-          <label for="plate-input" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-1.5">
-            Placa / Matrícula <span class="text-red-500">*</span>
+          <label for="plate-input" class="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            Placa / Matrícula <span class="text-destructive">*</span>
           </label>
           <div class="relative">
             <input
@@ -99,9 +93,9 @@
               placeholder="Ej: ABC123"
               maxlength="10"
               autocomplete="off"
-              class="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-800/60 px-4 py-3 text-lg font-bold font-mono uppercase tracking-widest text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 placeholder:font-normal placeholder:tracking-normal focus:border-primary-500 focus:bg-white dark:focus:bg-neutral-800 focus:outline-hidden transition-all"
+              class="w-full rounded-xl border border-input bg-background px-4 py-3 text-lg font-bold font-mono uppercase tracking-widest text-foreground placeholder:text-muted-foreground placeholder:font-normal placeholder:tracking-normal focus:border-ring focus:outline-hidden transition-all"
             />
-            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono text-neutral-400">
+            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono text-muted-foreground">
               ↵ Enter
             </div>
           </div>
@@ -109,7 +103,7 @@
 
         <!-- Capacity Warning if full -->
         @if (!facade.hasAvailableSlots()) {
-          <div class="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300">
+          <div class="flex items-center gap-2 rounded-lg border border-warning/20 bg-warning/10 p-3 text-xs text-warning">
             <ng-icon name="lucideAlertTriangle" class="text-base shrink-0" />
             <span>No hay cupos disponibles para esta categoría en este momento.</span>
           </div>
@@ -119,14 +113,14 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <!-- Slot Selection -->
           <div>
-            <label for="slot-select" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-1.5">
-              Cupo / Espacio <span class="text-red-500">*</span>
+            <label for="slot-select" class="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Cupo / Espacio <span class="text-destructive">*</span>
             </label>
             <select
               id="slot-select"
               [value]="facade.selectedSlotId() || ''"
               (change)="onSlotChange($event)"
-              class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs font-medium text-neutral-800 dark:text-neutral-200 focus:border-primary-500 focus:outline-hidden"
+              class="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:border-ring focus:outline-hidden cursor-pointer"
             >
               @if (facade.availableSlots().length === 0) {
                 <option value="" disabled>Sin cupos disponibles</option>
@@ -141,14 +135,14 @@
 
           <!-- Rate Selection -->
           <div>
-            <label for="rate-select" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-1.5">
-              Tarifa <span class="text-red-500">*</span>
+            <label for="rate-select" class="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Tarifa <span class="text-destructive">*</span>
             </label>
             <select
               id="rate-select"
               [value]="facade.selectedRateId() || ''"
               (change)="onRateChange($event)"
-              class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs font-medium text-neutral-800 dark:text-neutral-200 focus:border-primary-500 focus:outline-hidden"
+              class="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground focus:border-ring focus:outline-hidden cursor-pointer"
             >
               @if (facade.availableRates().length === 0) {
                 <option value="" disabled>Sin tarifas configuradas</option>
@@ -164,8 +158,8 @@
 
         <!-- Optional Email -->
         <div>
-          <label for="email-input" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-1.5">
-            Correo Electrónico <span class="text-neutral-400 font-normal normal-case">(Opcional para recibo digital)</span>
+          <label for="email-input" class="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            Correo Electrónico <span class="text-muted-foreground font-normal normal-case">(Opcional para recibo digital)</span>
           </label>
           <input
             id="email-input"
@@ -173,23 +167,23 @@
             [value]="facade.email()"
             (input)="onEmailInput($event)"
             placeholder="cliente@ejemplo.com"
-            class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 focus:border-primary-500 focus:outline-hidden"
+            class="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-hidden"
           />
         </div>
 
         <!-- Modal Actions -->
-        <div class="pt-3 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-end gap-2">
+        <div class="pt-3 border-t border-border flex items-center justify-end gap-2">
           <button
             type="button"
             (click)="onClose()"
-            class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-xs font-semibold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-750 transition-colors"
+            class="rounded-xl border border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground px-4 py-2.5 text-xs font-semibold cursor-pointer transition-colors"
           >
             Cancelar
           </button>
           <button
             type="submit"
             [disabled]="!facade.isValid() || facade.isSubmitting()"
-            class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
           >
             @if (facade.isSubmitting()) {
               <ng-icon name="lucideLoader2" class="animate-spin text-sm" />

@@ -13,46 +13,44 @@ import { lucideShieldCheck, lucidePercent } from '@ng-icons/lucide';
   ],
   providers: [provideIcons({ lucideShieldCheck, lucidePercent })],
   template: `
-    <div class="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 sm:p-6 shadow-xs flex flex-col gap-5">
-      <div class="flex items-center gap-3 border-b border-neutral-100 dark:border-neutral-800 pb-3">
-        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
+    <div class="rounded-2xl bg-card text-card-foreground border border-border p-5 sm:p-6 shadow-xs flex flex-col gap-5">
+      <div class="flex items-center gap-3 border-b border-border pb-3">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-warning/10 text-warning border border-warning/20">
           <ng-icon name="lucideShieldCheck" class="text-base" />
         </div>
         <div>
-          <h3 class="text-base font-bold text-neutral-900 dark:text-neutral-50">Políticas y zonas especiales</h3>
-          <p class="text-xs text-neutral-500 dark:text-neutral-400">Reglas de recargo o descuento para zonas o condiciones específicas del tenant</p>
+          <h3 class="text-base font-bold text-foreground">Políticas y zonas especiales</h3>
+          <p class="text-xs text-muted-foreground">Reglas de recargo o descuento para zonas o condiciones específicas del tenant</p>
         </div>
       </div>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         @for (policy of policies(); track policy.id) {
-          <div class="flex flex-col justify-between rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-850/60 p-5 transition-all hover:border-neutral-300 dark:hover:border-neutral-700">
+          <div class="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 transition-all hover:border-border">
             <div class="flex items-center justify-between gap-2">
-              <span class="text-sm font-bold text-neutral-900 dark:text-neutral-100">{{ policy.name }}</span>
+              <span class="text-sm font-bold text-foreground">{{ policy.name }}</span>
               <span
-                class="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold"
-                [class.bg-emerald-50]="policy.active"
-                [class.text-emerald-700]="policy.active"
-                [class.dark:bg-emerald-950/40]="policy.active"
-                [class.dark:text-emerald-300]="policy.active"
-                [class.bg-red-50]="!policy.active"
-                [class.text-red-700]="!policy.active"
-                [class.dark:bg-red-950/40]="!policy.active"
-                [class.dark:text-red-300]="!policy.active"
+                class="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold border"
+                [class.bg-success/10]="policy.active"
+                [class.text-success]="policy.active"
+                [class.border-success/20]="policy.active"
+                [class.bg-destructive/10]="!policy.active"
+                [class.text-destructive]="!policy.active"
+                [class.border-destructive/20]="!policy.active"
               >
                 {{ policy.active ? 'Activa' : 'Inactiva' }}
               </span>
             </div>
-            <div class="mt-4 flex items-center justify-between text-xs border-t border-neutral-100 dark:border-neutral-800 pt-3">
-              <span class="text-neutral-500 dark:text-neutral-400">Efecto aplicado:</span>
-              <span class="font-mono font-bold text-neutral-900 dark:text-neutral-50">
+            <div class="mt-4 flex items-center justify-between text-xs border-t border-border pt-3">
+              <span class="text-muted-foreground">Efecto aplicado:</span>
+              <span class="font-mono font-bold text-foreground">
                 {{ policy.operation === 'PERCENTAGE' ? policy.valueToModify + '%' : '$' + policy.valueToModify }}
-                <span class="text-xs font-normal text-neutral-500">({{ policy.modifies }})</span>
+                <span class="text-xs font-normal text-muted-foreground">({{ policy.modifies }})</span>
               </span>
             </div>
           </div>
         } @empty {
-          <div class="col-span-full rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 p-8 text-center text-xs text-neutral-400">
+          <div class="col-span-full rounded-2xl border border-dashed border-border p-8 text-center text-xs text-muted-foreground">
             No hay políticas especiales configuradas para el tenant.
           </div>
         }

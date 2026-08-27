@@ -14,14 +14,14 @@ import { lucideClock } from '@ng-icons/lucide';
   providers: [provideIcons({ lucideClock })],
   template: `
     <div class="flex items-center gap-2">
-      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
+      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-warning/10 text-warning border border-warning/20">
         <ng-icon name="lucideClock" class="text-base" />
       </div>
       <div>
-        <nv-h3 class="text-base font-bold text-neutral-900 dark:text-neutral-100">
+        <nv-h3 class="text-base font-bold text-foreground">
           {{ APP_TEXTS.parking.form.fields.operatingHours.title }}
         </nv-h3>
-        <nv-muted class="text-xs text-neutral-500 dark:text-neutral-400">
+        <nv-muted class="text-xs text-muted-foreground">
           Horarios de apertura y cierre para atención y cobro
         </nv-muted>
       </div>

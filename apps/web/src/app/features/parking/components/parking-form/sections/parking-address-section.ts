@@ -13,14 +13,14 @@ import { lucideMapPin } from '@ng-icons/lucide';
   providers: [provideIcons({ lucideMapPin })],
   template: `
     <div class="flex items-center gap-2">
-      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-success/10 text-success border border-success/20">
         <ng-icon name="lucideMapPin" class="text-base" />
       </div>
       <div>
-        <nv-h3 class="text-base font-bold text-neutral-900 dark:text-neutral-100">
+        <nv-h3 class="text-base font-bold text-foreground">
           {{ APP_TEXTS.parking.form.fields.address.title }}
         </nv-h3>
-        <nv-muted class="text-xs text-neutral-500 dark:text-neutral-400">
+        <nv-muted class="text-xs text-muted-foreground">
           Dirección física, departamento, ciudad y código postal
         </nv-muted>
       </div>

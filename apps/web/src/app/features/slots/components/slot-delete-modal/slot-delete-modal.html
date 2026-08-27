@@ -7,11 +7,11 @@
   (click)="onBackdropClick($event)"
 >
   <div class="slot-dialog__panel">
-    <div class="flex justify-between items-center pb-3.5 border-b border-neutral-100 dark:border-neutral-800">
-      <nv-h3 [id]="titleId" class="text-base font-bold text-neutral-900 dark:text-neutral-50">Eliminar plaza</nv-h3>
+    <div class="flex justify-between items-center pb-3.5 border-b border-border">
+      <nv-h3 [id]="titleId" class="text-base font-bold text-foreground">Eliminar plaza</nv-h3>
       <button
         type="button"
-        class="h-8 w-8 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 inline-grid place-items-center cursor-pointer transition-colors"
+        class="h-8 w-8 rounded-lg border border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-grid place-items-center cursor-pointer transition-colors"
         (click)="onCancel($event)"
         aria-label="Cerrar"
       >
@@ -19,27 +19,26 @@
       </button>
     </div>
 
-    <p [id]="descriptionId" class="text-neutral-600 dark:text-neutral-300 mt-4 text-xs leading-relaxed">{{ copy() }}</p>
+    <p [id]="descriptionId" class="text-muted-foreground mt-4 text-xs leading-relaxed">{{ copy() }}</p>
 
     @if (requiresConfirm()) {
       <div class="flex flex-col gap-3 mt-4">
-        <label class="flex gap-2.5 items-start p-3 rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30 text-xs font-medium text-red-900 dark:text-red-200 cursor-pointer select-none">
+        <label class="flex gap-2.5 items-start p-3 rounded-xl border border-destructive/20 bg-destructive/10 text-xs font-medium text-destructive cursor-pointer select-none">
           <input
             type="checkbox"
             [checked]="confirmChecked()"
             (change)="onConfirmCheckedChange($event)"
-            class="mt-0.5 rounded-sm accent-red-600"
+            class="mt-0.5 rounded-sm accent-destructive cursor-pointer"
           />
           <span>Entiendo el riesgo y quiero continuar.</span>
         </label>
       </div>
     }
 
-    <div class="flex justify-end gap-2.5 mt-5 pt-3.5 border-t border-neutral-100 dark:border-neutral-800">
+    <div class="flex justify-end gap-2.5 mt-5 pt-3.5 border-t border-border">
       <nv-button variant="outline" (click)="onCancel($event)">Cancelar</nv-button>
       <nv-button
-        variant="outline"
-        class="text-destructive border-[color-mix(in_srgb,var(--destructive)_25%,var(--border))]"
+        variant="destructive"
         [disabled]="requiresConfirm() && !confirmChecked()"
         (click)="confirm.emit()"
       >

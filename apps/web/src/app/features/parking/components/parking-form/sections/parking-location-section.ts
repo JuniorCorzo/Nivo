@@ -19,19 +19,19 @@ type CoordinateSummary = {
   providers: [provideIcons({ lucideMapPin })],
   template: `
     <div class="flex items-center gap-2">
-      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
+      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-info/10 text-info border border-info/20">
         <ng-icon name="lucideMapPin" class="text-base" />
       </div>
       <div>
-        <nv-h3 class="text-base font-bold text-neutral-900 dark:text-neutral-100">Ubicación en el mapa</nv-h3>
-        <nv-muted class="text-xs text-neutral-500 dark:text-neutral-400">
+        <nv-h3 class="text-base font-bold text-foreground">Ubicación en el mapa</nv-h3>
+        <nv-muted class="text-xs text-muted-foreground">
           Haz clic o arrastra en el mapa para fijar las coordenadas GPS
         </nv-muted>
       </div>
     </div>
 
     <div class="relative flex flex-col gap-3" (click)="mapInteracted.emit()">
-      <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 overflow-hidden shadow-inner">
+      <div class="rounded-xl border border-border overflow-hidden shadow-inner">
         <app-parking-map
           [initialPosition]="initialPosition()"
           [readonly]="false"
@@ -48,9 +48,9 @@ type CoordinateSummary = {
       @if (hasCoordinates()) {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
           @for (coordinate of coordinates(); track $index) {
-            <div class="flex items-center justify-between p-2 rounded-lg bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
-              <span class="text-neutral-500 dark:text-neutral-400">{{ coordinate.label }}:</span>
-              <span class="font-bold text-neutral-900 dark:text-neutral-100">{{ coordinate.coordinates }}</span>
+            <div class="flex items-center justify-between p-2 rounded-lg bg-muted border border-border">
+              <span class="text-muted-foreground">{{ coordinate.label }}:</span>
+              <span class="font-bold text-foreground">{{ coordinate.coordinates }}</span>
             </div>
           }
         </div>

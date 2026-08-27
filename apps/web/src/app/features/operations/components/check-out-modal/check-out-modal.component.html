@@ -1,23 +1,23 @@
 @if (isOpen()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
     <div
-      class="relative w-full max-w-lg rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl dark:border-neutral-800 dark:bg-neutral-900 transition-all"
+      class="relative w-full max-w-lg rounded-2xl border border-border bg-card text-card-foreground p-6 shadow-2xl transition-all"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between pb-4 border-b border-neutral-100 dark:border-neutral-800">
+      <div class="flex items-center justify-between pb-4 border-b border-border">
         <div class="flex items-center gap-3">
-          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-warning/10 text-warning border border-warning/20">
             <ng-icon name="lucideLogOut" class="text-xl" />
           </div>
           <div>
-            <h2 class="text-lg font-bold text-neutral-900 dark:text-neutral-50">Procesar Salida de Vehículo</h2>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400">Liquidación de tarifa y liberación de cupo</p>
+            <h2 class="text-lg font-bold text-foreground">Procesar Salida de Vehículo</h2>
+            <p class="text-xs text-muted-foreground">Liquidación de tarifa y liberación de cupo</p>
           </div>
         </div>
         <button
           type="button"
           (click)="onClose()"
-          class="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 transition-colors"
+          class="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
         >
           <ng-icon name="lucideX" class="text-lg" />
         </button>
@@ -25,7 +25,7 @@
 
       <!-- Error Alert -->
       @if (facade.errorMessage()) {
-        <div class="mt-4 flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-800 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300">
+        <div class="mt-4 flex items-start gap-2.5 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
           <ng-icon name="lucideAlertCircle" class="text-base shrink-0 mt-0.5" />
           <span>{{ facade.errorMessage() }}</span>
         </div>
@@ -35,29 +35,29 @@
       <div class="mt-4 space-y-4">
         @if (facade.selectedTicket()) {
           <!-- Ticket Header Card -->
-          <div class="flex items-center justify-between rounded-xl bg-neutral-50 dark:bg-neutral-800/60 p-3.5 border border-neutral-200/80 dark:border-neutral-700/80">
+          <div class="flex items-center justify-between rounded-xl bg-muted/60 p-3.5 border border-border">
             <div>
-              <span class="text-xs text-neutral-500 dark:text-neutral-400 block font-medium">Placa del Vehículo</span>
-              <span class="text-xl font-black font-mono tracking-wider text-neutral-900 dark:text-neutral-100">
+              <span class="text-xs text-muted-foreground block font-medium">Placa del Vehículo</span>
+              <span class="text-xl font-black font-mono tracking-wider text-foreground">
                 {{ facade.selectedTicket()?.licensePlate }}
               </span>
             </div>
             <div class="text-right">
-              <span class="text-xs text-neutral-500 dark:text-neutral-400 block">Cupo</span>
-              <span class="text-sm font-bold font-mono text-neutral-800 dark:text-neutral-200">
+              <span class="text-xs text-muted-foreground block">Cupo</span>
+              <span class="text-sm font-bold font-mono text-foreground">
                 {{ facade.selectedTicket()?.slotNumber || 'Asignado' }}
               </span>
             </div>
           </div>
 
           <!-- Live Price Breakdown -->
-          <div class="rounded-xl border border-neutral-200 dark:border-neutral-700/80 bg-white dark:bg-neutral-800/40 p-4 space-y-3">
-            <div class="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 pb-2">
-              <span class="text-xs font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
+          <div class="rounded-xl border border-border bg-card p-4 space-y-3">
+            <div class="flex items-center justify-between border-b border-border pb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Liquidación de Tarifa
               </span>
               @if (facade.isLoadingCalculation()) {
-                <div class="inline-flex items-center gap-1 text-xs text-neutral-400">
+                <div class="inline-flex items-center gap-1 text-xs text-muted-foreground">
                   <ng-icon name="lucideLoader2" class="animate-spin text-xs" />
                   <span>Calculando...</span>
                 </div>
@@ -67,18 +67,18 @@
             @if (facade.priceCalculation(); as calc) {
               <!-- Detailed Breakpoint Lines -->
               @if (calc.breakdown.length > 0) {
-                <div class="space-y-1.5 text-xs text-neutral-600 dark:text-neutral-300">
+                <div class="space-y-1.5 text-xs text-muted-foreground">
                   @for (line of calc.breakdown; track line.concept) {
                     <div class="flex justify-between">
-                      <span>{{ line.concept }}</span>
-                      <span class="font-mono">${{ line.amount | number:'1.0-0' }}</span>
+                      <span class="text-foreground">{{ line.concept }}</span>
+                      <span class="font-mono text-foreground">${{ line.amount | number:'1.0-0' }}</span>
                     </div>
                   }
                 </div>
               }
 
               <!-- Subtotal & Taxes -->
-              <div class="border-t border-neutral-100 dark:border-neutral-800 pt-2 space-y-1 text-xs text-neutral-500 dark:text-neutral-400">
+              <div class="border-t border-border pt-2 space-y-1 text-xs text-muted-foreground">
                 <div class="flex justify-between">
                   <span>Subtotal</span>
                   <span class="font-mono">${{ calc.subtotal | number:'1.0-0' }}</span>
@@ -92,22 +92,22 @@
               </div>
 
               <!-- Total or Zero-Payment Clearance Banner -->
-              <div class="border-t border-neutral-200 dark:border-neutral-700 pt-2.5 flex items-center justify-between">
+              <div class="border-t border-border pt-2.5 flex items-center justify-between">
                 <div>
-                  <span class="text-xs font-semibold text-neutral-600 dark:text-neutral-300 block">Total a Cobrar</span>
+                  <span class="text-xs font-semibold text-foreground block">Total a Cobrar</span>
                   @if (facade.isZeroPayment()) {
-                    <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-success">
                       <ng-icon name="lucideCheck" class="text-xs" />
                       Período de gracia / Sin cobro
                     </span>
                   }
                 </div>
-                <span class="text-2xl font-black font-mono text-neutral-900 dark:text-neutral-50">
-                  ${{ calc.total | number:'1.0-0' }} <span class="text-xs font-normal text-neutral-400">COP</span>
+                <span class="text-2xl font-black font-mono text-foreground">
+                  ${{ calc.total | number:'1.0-0' }} <span class="text-xs font-normal text-muted-foreground">COP</span>
                 </span>
               </div>
             } @else if (!facade.isLoadingCalculation()) {
-              <div class="text-center py-4 text-xs text-neutral-400">
+              <div class="text-center py-4 text-xs text-muted-foreground">
                 Tarifa calculada al confirmar salida.
               </div>
             }
@@ -116,19 +116,17 @@
           <!-- Payment Method (Only if total > 0) -->
           @if (!facade.isZeroPayment()) {
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-1.5">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                 Método de Pago
               </label>
               <div class="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   (click)="facade.setPaymentMethod('EFFECTIVE')"
-                  [class.border-primary-500]="facade.paymentMethod() === 'EFFECTIVE'"
-                  [class.bg-primary-50]="facade.paymentMethod() === 'EFFECTIVE'"
-                  [class.dark:bg-primary-950/40]="facade.paymentMethod() === 'EFFECTIVE'"
-                  [class.text-primary-700]="facade.paymentMethod() === 'EFFECTIVE'"
-                  [class.dark:text-primary-300]="facade.paymentMethod() === 'EFFECTIVE'"
-                  class="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 text-xs font-semibold text-neutral-700 dark:text-neutral-200 transition-colors"
+                  [class.border-primary]="facade.paymentMethod() === 'EFFECTIVE'"
+                  [class.bg-primary/10]="facade.paymentMethod() === 'EFFECTIVE'"
+                  [class.text-primary]="facade.paymentMethod() === 'EFFECTIVE'"
+                  class="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-border text-xs font-semibold text-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
                 >
                   <ng-icon name="lucideCoins" class="text-base" />
                   <span>Efectivo</span>
@@ -137,12 +135,10 @@
                 <button
                   type="button"
                   (click)="facade.setPaymentMethod('PAY_LINK')"
-                  [class.border-primary-500]="facade.paymentMethod() === 'PAY_LINK'"
-                  [class.bg-primary-50]="facade.paymentMethod() === 'PAY_LINK'"
-                  [class.dark:bg-primary-950/40]="facade.paymentMethod() === 'PAY_LINK'"
-                  [class.text-primary-700]="facade.paymentMethod() === 'PAY_LINK'"
-                  [class.dark:text-primary-300]="facade.paymentMethod() === 'PAY_LINK'"
-                  class="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 text-xs font-semibold text-neutral-700 dark:text-neutral-200 transition-colors"
+                  [class.border-primary]="facade.paymentMethod() === 'PAY_LINK'"
+                  [class.bg-primary/10]="facade.paymentMethod() === 'PAY_LINK'"
+                  [class.text-primary]="facade.paymentMethod() === 'PAY_LINK'"
+                  class="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-border text-xs font-semibold text-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
                 >
                   <ng-icon name="lucideCreditCard" class="text-base" />
                   <span>Link de Pago</span>
@@ -153,29 +149,25 @@
 
           <!-- Delivery Mode -->
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
               Envío de Comprobante
             </label>
             <div class="flex gap-2">
               <button
                 type="button"
                 (click)="facade.setSendVia('URL')"
-                [class.bg-neutral-900]="facade.sendVia() === 'URL'"
-                [class.text-white]="facade.sendVia() === 'URL'"
-                [class.dark:bg-neutral-100]="facade.sendVia() === 'URL'"
-                [class.dark:text-neutral-900]="facade.sendVia() === 'URL'"
-                class="flex-1 py-2 px-3 rounded-lg border border-neutral-200 dark:border-neutral-700 text-xs font-semibold text-neutral-600 dark:text-neutral-300 transition-colors"
+                [class.bg-primary]="facade.sendVia() === 'URL'"
+                [class.text-primary-foreground]="facade.sendVia() === 'URL'"
+                class="flex-1 py-2 px-3 rounded-lg border border-border bg-card text-xs font-semibold text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
               >
                 En Pantalla / Impreso
               </button>
               <button
                 type="button"
                 (click)="facade.setSendVia('EMAIL')"
-                [class.bg-neutral-900]="facade.sendVia() === 'EMAIL'"
-                [class.text-white]="facade.sendVia() === 'EMAIL'"
-                [class.dark:bg-neutral-100]="facade.sendVia() === 'EMAIL'"
-                [class.dark:text-neutral-900]="facade.sendVia() === 'EMAIL'"
-                class="flex-1 py-2 px-3 rounded-lg border border-neutral-200 dark:border-neutral-700 text-xs font-semibold text-neutral-600 dark:text-neutral-300 transition-colors"
+                [class.bg-primary]="facade.sendVia() === 'EMAIL'"
+                [class.text-primary-foreground]="facade.sendVia() === 'EMAIL'"
+                class="flex-1 py-2 px-3 rounded-lg border border-border bg-card text-xs font-semibold text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
               >
                 Por Correo
               </button>
@@ -187,7 +179,7 @@
                 [value]="facade.receiptEmail()"
                 (input)="onEmailInput($event)"
                 placeholder="correo@ejemplo.com"
-                class="mt-2 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-neutral-800 dark:text-neutral-200 focus:border-primary-500 focus:outline-hidden"
+                class="mt-2 w-full rounded-lg border border-input bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-hidden"
               />
             }
           </div>
@@ -195,11 +187,11 @@
       </div>
 
       <!-- Actions -->
-      <div class="mt-6 pt-3 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-end gap-2">
+      <div class="mt-6 pt-3 border-t border-border flex items-center justify-end gap-2">
         <button
           type="button"
           (click)="onClose()"
-          class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-xs font-semibold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-750 transition-colors"
+          class="rounded-xl border border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground px-4 py-2.5 text-xs font-semibold cursor-pointer transition-colors"
         >
           Cancelar
         </button>
@@ -208,7 +200,7 @@
           type="button"
           (click)="onConfirmCheckOut()"
           [disabled]="!facade.canCheckOut()"
-          class="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs"
+          class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
         >
           @if (facade.isSubmitting()) {
             <ng-icon name="lucideLoader2" class="animate-spin text-sm" />

@@ -14,16 +14,16 @@ type SlotTypeOption = { value: SlotType; label: string };
   imports: [SelectComponent, TypographyH3, TypographyMuted, NgIcon],
   providers: [provideIcons({ lucidePlus, lucideTrash2, lucideLayers })],
   template: `
-    <div class="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 pb-3">
+    <div class="flex items-center justify-between border-b border-border pb-3">
       <div class="flex items-center gap-2">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-info/10 text-info border border-info/20">
           <ng-icon name="lucideLayers" class="text-base" />
         </div>
         <div>
-          <nv-h3 class="text-base font-bold text-neutral-900 dark:text-neutral-100">
+          <nv-h3 class="text-base font-bold text-foreground">
             {{ APP_TEXTS.parking.form.fields.slots.title }}
           </nv-h3>
-          <nv-muted class="text-xs text-neutral-500 dark:text-neutral-400">
+          <nv-muted class="text-xs text-muted-foreground">
             {{ APP_TEXTS.parking.form.fields.slots.description }}
           </nv-muted>
         </div>
@@ -32,7 +32,7 @@ type SlotTypeOption = { value: SlotType; label: string };
       <button
         type="button"
         (click)="addSlot.emit()"
-        class="inline-flex items-center gap-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-750 transition-colors shadow-xs"
+        class="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-accent hover:text-accent-foreground transition-colors shadow-xs cursor-pointer"
       >
         <ng-icon name="lucidePlus" size="14" />
         <span>{{ APP_TEXTS.parking.form.fields.slots.actions.add }}</span>
@@ -41,15 +41,15 @@ type SlotTypeOption = { value: SlotType; label: string };
 
     <div class="flex flex-col gap-3.5 mt-1">
       @for (slot of slots(); track $index) {
-        <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-850 p-4 transition-all">
-          <div class="flex items-center justify-between gap-3 pb-3 border-b border-neutral-200/60 dark:border-neutral-800">
-            <span class="text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+        <div class="rounded-xl border border-border bg-muted/40 p-4 transition-all">
+          <div class="flex items-center justify-between gap-3 pb-3 border-b border-border">
+            <span class="text-xs font-bold uppercase tracking-wider text-foreground">
               {{ APP_TEXTS.parking.form.fields.slots.itemLabel }} {{ $index + 1 }}
             </span>
             <button
               type="button"
               (click)="removeSlot.emit($index)"
-              class="inline-flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 transition-colors"
+              class="inline-flex items-center gap-1 text-xs font-medium text-destructive hover:opacity-80 transition-colors cursor-pointer"
             >
               <ng-icon name="lucideTrash2" size="13" />
               <span>{{ APP_TEXTS.parking.form.fields.slots.actions.remove }}</span>
@@ -57,10 +57,10 @@ type SlotTypeOption = { value: SlotType; label: string };
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-3">
-            <label class="flex flex-col gap-1 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+            <label class="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
               <span>{{ APP_TEXTS.parking.form.fields.slots.prefix.label }}</span>
               <input
-                class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs font-medium text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:border-primary-500 focus:outline-hidden"
+                class="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-hidden"
                 type="text"
                 [value]="slot.prefix"
                 [placeholder]="APP_TEXTS.parking.form.fields.slots.prefix.placeholder"
@@ -68,10 +68,10 @@ type SlotTypeOption = { value: SlotType; label: string };
               />
             </label>
 
-            <label class="flex flex-col gap-1 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+            <label class="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
               <span>{{ APP_TEXTS.parking.form.fields.slots.zone.label }}</span>
               <input
-                class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs font-medium text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:border-primary-500 focus:outline-hidden"
+                class="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-hidden"
                 type="text"
                 [value]="slot.zone"
                 [placeholder]="APP_TEXTS.parking.form.fields.slots.zone.placeholder"
@@ -79,7 +79,7 @@ type SlotTypeOption = { value: SlotType; label: string };
               />
             </label>
 
-            <label class="flex flex-col gap-1 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+            <label class="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
               <span>{{ APP_TEXTS.parking.form.fields.slots.type.label }}</span>
               <nv-select
                 [items]="slotTypeOptions()"
@@ -91,10 +91,10 @@ type SlotTypeOption = { value: SlotType; label: string };
               />
             </label>
 
-            <label class="flex flex-col gap-1 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+            <label class="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
               <span>{{ APP_TEXTS.parking.form.fields.slots.count.label }}</span>
               <input
-                class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs font-mono font-medium text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:border-primary-500 focus:outline-hidden"
+                class="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs font-mono font-medium text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-hidden"
                 type="number"
                 min="0"
                 [value]="slot.count"

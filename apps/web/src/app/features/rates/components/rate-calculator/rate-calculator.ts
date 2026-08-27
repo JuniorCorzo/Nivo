@@ -29,14 +29,14 @@ import {
   providers: [provideIcons({ lucideCalculator })],
   template: `
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 items-start">
-      <div class="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 sm:p-6 shadow-xs flex flex-col gap-4">
-        <div class="flex items-center gap-3 border-b border-neutral-100 dark:border-neutral-800 pb-3">
-          <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-950/40 dark:text-primary-400">
+      <div class="rounded-2xl bg-card text-card-foreground border border-border p-5 sm:p-6 shadow-xs flex flex-col gap-4">
+        <div class="flex items-center gap-3 border-b border-border pb-3">
+          <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
             <ng-icon name="lucideCalculator" class="text-base" />
           </div>
           <div>
-            <h3 class="text-base font-bold text-neutral-900 dark:text-neutral-50">Calculadora interactiva de tarifas</h3>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400">Ingresá los parámetros de estancia para simular el cobro</p>
+            <h3 class="text-base font-bold text-foreground">Calculadora interactiva de tarifas</h3>
+            <p class="text-xs text-muted-foreground">Ingresá los parámetros de estancia para simular el cobro</p>
           </div>
         </div>
 
