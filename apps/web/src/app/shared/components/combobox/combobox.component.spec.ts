@@ -2,6 +2,7 @@ import {
   ComponentFixture,
   TestBed,
 } from '@angular/core/testing';
+import { OverlayContainer } from '@angular/cdk/overlay';
 
 import { ComboboxComponent } from '@nivo-sass/design-system';
 
@@ -19,15 +20,49 @@ const SAMPLE_ITEMS: TestItem[] = [
 
 describe('ComboboxComponent', () => {
   let fixture: ComponentFixture<ComboboxComponent>;
+  let overlayContainer: OverlayContainer;
+  let overlayContainerElement: HTMLElement;
+
+  function openDropdown() {
+    const inputEl: HTMLInputElement =
+      fixture.nativeElement.querySelector('input');
+    inputEl.dispatchEvent(new Event('focusin', { bubbles: true }));
+    const combobox = (fixture.componentInstance as any).combobox();
+    if (combobox) {
+      combobox._deferredContentAware?.contentVisible.set(true);
+      combobox.open();
+    }
+    fixture.detectChanges();
+  }
+
+  function getOptions(): NodeListOf<HTMLElement> {
+    return document.querySelectorAll('[role="option"]');
+  }
+
+  function getListbox(): HTMLElement | null {
+    return document.querySelector('[role="listbox"]');
+  }
+
+  function getPopupText(): string {
+    const listbox = document.querySelector('[role="listbox"]');
+    const overlay = document.querySelector('.cdk-overlay-container');
+    return (listbox?.textContent || overlay?.textContent || fixture.nativeElement.textContent || '');
+  }
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [ComboboxComponent],
     });
+    overlayContainer = TestBed.inject(OverlayContainer);
+    overlayContainerElement = overlayContainer.getContainerElement();
     fixture = TestBed.createComponent(ComboboxComponent);
     // Disable debounce so filtering is synchronous in tests
     fixture.componentRef.setInput('debounceMs', 0);
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    overlayContainer.ngOnDestroy();
   });
 
   it('should create the component', () => {
@@ -51,18 +86,17 @@ describe('ComboboxComponent', () => {
       fixture.componentRef.setInput('displayFn', (item: unknown) => (item as TestItem).name);
       fixture.detectChanges();
 
+      openDropdown();
+
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
-      inputEl.focus();
-      fixture.detectChanges();
-
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'ArrowDown' }),
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
       );
       fixture.detectChanges();
 
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'Enter' }),
+        new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }),
       );
       fixture.detectChanges();
 
@@ -114,44 +148,36 @@ describe('ComboboxComponent', () => {
     });
 
     it('should show all items when dropdown opens with empty search', () => {
-      const inputEl: HTMLInputElement =
-        fixture.nativeElement.querySelector('input');
-      inputEl.focus();
-      fixture.detectChanges();
+      openDropdown();
 
-      const options =
-        fixture.nativeElement.querySelectorAll('[role="option"]');
+      const options = getOptions();
       expect(options.length).toBe(4);
     });
 
     it('should filter items by display text', () => {
+      openDropdown();
+
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
-      inputEl.focus();
-      fixture.detectChanges();
-
       inputEl.value = 'Anti';
-      inputEl.dispatchEvent(new Event('input'));
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
       fixture.detectChanges();
 
-      const options =
-        fixture.nativeElement.querySelectorAll('[role="option"]');
+      const options = getOptions();
       expect(options.length).toBe(1);
       expect(options[0].textContent).toContain('Antioquia');
     });
 
     it('should filter case-insensitively', () => {
+      openDropdown();
+
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
-      inputEl.focus();
-      fixture.detectChanges();
-
       inputEl.value = 'antioquia';
-      inputEl.dispatchEvent(new Event('input'));
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
       fixture.detectChanges();
 
-      const options =
-        fixture.nativeElement.querySelectorAll('[role="option"]');
+      const options = getOptions();
       expect(options.length).toBe(1);
       expect(options[0].textContent).toContain('Antioquia');
     });
@@ -163,31 +189,28 @@ describe('ComboboxComponent', () => {
       );
       fixture.detectChanges();
 
+      openDropdown();
+
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
-      inputEl.focus();
-      fixture.detectChanges();
-
       inputEl.value = 'a';
-      inputEl.dispatchEvent(new Event('input'));
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
       fixture.detectChanges();
 
-      const options =
-        fixture.nativeElement.querySelectorAll('[role="option"]');
+      const options = getOptions();
       expect(options.length).toBe(2);
     });
 
     it('should show no results when search matches nothing', () => {
+      openDropdown();
+
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
-      inputEl.focus();
-      fixture.detectChanges();
-
       inputEl.value = 'XYZ';
-      inputEl.dispatchEvent(new Event('input'));
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.textContent).toContain(
+      expect(getPopupText()).toContain(
         'Sin resultados',
       );
     });
@@ -202,90 +225,85 @@ describe('ComboboxComponent', () => {
       );
       fixture.componentInstance.registerOnChange(() => {});
       fixture.detectChanges();
-
-      const inputEl: HTMLInputElement =
-        fixture.nativeElement.querySelector('input');
-      inputEl.focus();
-      fixture.detectChanges();
+      openDropdown();
     });
 
     it('should highlight the first item on ArrowDown', () => {
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'ArrowDown' }),
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
       );
       fixture.detectChanges();
 
-      const options =
-        fixture.nativeElement.querySelectorAll('[role="option"]');
-      expect(options[0].getAttribute('aria-selected')).toBe('true');
+      const options = getOptions();
+      expect(options[0].getAttribute('data-active')).toBe('true');
     });
 
     it('should highlight the next item on subsequent ArrowDown', () => {
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'ArrowDown' }),
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
       );
+      fixture.detectChanges();
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'ArrowDown' }),
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
       );
       fixture.detectChanges();
 
-      const options =
-        fixture.nativeElement.querySelectorAll('[role="option"]');
-      expect(options[0].getAttribute('aria-selected')).toBe('false');
-      expect(options[1].getAttribute('aria-selected')).toBe('true');
+      const options = getOptions();
+      expect(options[0].getAttribute('data-active')).toBe('false');
+      expect(options[1].getAttribute('data-active')).toBe('true');
     });
 
     it('should highlight previous item on ArrowUp', () => {
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'ArrowDown' }),
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
       );
+      fixture.detectChanges();
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'ArrowDown' }),
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
       );
+      fixture.detectChanges();
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'ArrowUp' }),
+        new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }),
       );
       fixture.detectChanges();
 
-      const options =
-        fixture.nativeElement.querySelectorAll('[role="option"]');
-      expect(options[0].getAttribute('aria-selected')).toBe('true');
-      expect(options[1].getAttribute('aria-selected')).toBe('false');
+      const options = getOptions();
+      expect(options[0].getAttribute('data-active')).toBe('true');
+      expect(options[1].getAttribute('data-active')).toBe('false');
     });
 
     it('should wrap to last item on ArrowUp when at first item', () => {
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'ArrowDown' }),
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
       );
+      fixture.detectChanges();
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'ArrowUp' }),
+        new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }),
       );
       fixture.detectChanges();
 
-      const options =
-        fixture.nativeElement.querySelectorAll('[role="option"]');
-      expect(options[0].getAttribute('aria-selected')).toBe('false');
-      expect(options[3].getAttribute('aria-selected')).toBe('true');
+      const options = getOptions();
+      expect(options[0].getAttribute('data-active')).toBe('false');
+      expect(options[3].getAttribute('data-active')).toBe('true');
     });
 
     it('should close dropdown on Escape', () => {
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'Escape' }),
+        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
       );
       fixture.detectChanges();
 
-      const listbox =
-        fixture.nativeElement.querySelector('[role="listbox"]');
+      const listbox = getListbox();
       expect(listbox).toBeNull();
     });
 
@@ -296,10 +314,11 @@ describe('ComboboxComponent', () => {
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'ArrowDown' }),
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
       );
+      fixture.detectChanges();
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'Enter' }),
+        new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }),
       );
       fixture.detectChanges();
 
@@ -314,10 +333,11 @@ describe('ComboboxComponent', () => {
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'ArrowDown' }),
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
       );
+      fixture.detectChanges();
       inputEl.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'Enter' }),
+        new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }),
       );
       fixture.detectChanges();
 
@@ -332,6 +352,7 @@ describe('ComboboxComponent', () => {
         'displayFn',
         (item: unknown) => (item as TestItem).name,
       );
+      openDropdown();
     });
 
     it('should select an item on mousedown and emit selectionChange', () => {
@@ -341,13 +362,7 @@ describe('ComboboxComponent', () => {
       fixture.componentInstance.registerOnChange(onChangeSpy);
       fixture.detectChanges();
 
-      const inputEl: HTMLInputElement =
-        fixture.nativeElement.querySelector('input');
-      inputEl.focus();
-      fixture.detectChanges();
-
-      const options =
-        fixture.nativeElement.querySelectorAll('[role="option"]');
+      const options = getOptions();
       (options[1] as HTMLElement).dispatchEvent(
         new MouseEvent('mousedown', { bubbles: true, cancelable: true }),
       );
@@ -363,26 +378,18 @@ describe('ComboboxComponent', () => {
       fixture.componentRef.setInput('loading', true);
       fixture.componentRef.setInput('items', []);
       fixture.detectChanges();
+      openDropdown();
 
-      const inputEl: HTMLInputElement =
-        fixture.nativeElement.querySelector('input');
-      inputEl.focus();
-      fixture.detectChanges();
-
-      expect(fixture.nativeElement.textContent).toContain('Cargando...');
+      expect(getPopupText()).toContain('Cargando...');
     });
 
     it('should show error message inside dropdown when error is set and dropdown is open', () => {
       fixture.componentRef.setInput('error', 'Error al cargar departamentos');
       fixture.componentRef.setInput('items', []);
       fixture.detectChanges();
+      openDropdown();
 
-      const inputEl: HTMLInputElement =
-        fixture.nativeElement.querySelector('input');
-      inputEl.focus();
-      fixture.detectChanges();
-
-      expect(fixture.nativeElement.textContent).toContain(
+      expect(getPopupText()).toContain(
         'Error al cargar departamentos',
       );
     });
@@ -405,17 +412,15 @@ describe('ComboboxComponent', () => {
         (item: unknown) => (item as TestItem).name,
       );
       fixture.detectChanges();
+      openDropdown();
 
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
-      inputEl.focus();
-      fixture.detectChanges();
-
       inputEl.value = 'XYZ';
-      inputEl.dispatchEvent(new Event('input'));
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.textContent).toContain(
+      expect(getPopupText()).toContain(
         'Sin resultados',
       );
     });
@@ -434,22 +439,21 @@ describe('ComboboxComponent', () => {
     });
 
     it('should have aria-expanded="true" when dropdown is open', () => {
+      openDropdown();
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector('input');
-      inputEl.focus();
-      fixture.detectChanges();
-
       expect(inputEl.getAttribute('aria-expanded')).toBe('true');
     });
 
     it('should have role="listbox" on the dropdown when open', () => {
-      const inputEl: HTMLInputElement =
-        fixture.nativeElement.querySelector('input');
-      inputEl.focus();
+      fixture.componentRef.setInput('items', SAMPLE_ITEMS);
+      fixture.componentRef.setInput(
+        'displayFn',
+        (item: unknown) => (item as TestItem).name,
+      );
       fixture.detectChanges();
-
-      const listbox =
-        fixture.nativeElement.querySelector('[role="listbox"]');
+      openDropdown();
+      const listbox = getListbox();
       expect(listbox).toBeTruthy();
     });
 
@@ -460,15 +464,12 @@ describe('ComboboxComponent', () => {
         (item: unknown) => (item as TestItem).name,
       );
       fixture.detectChanges();
+      openDropdown();
 
-      const inputEl: HTMLInputElement =
-        fixture.nativeElement.querySelector('input');
-      inputEl.focus();
-      fixture.detectChanges();
-
-      const options =
-        fixture.nativeElement.querySelectorAll('[role="option"]');
+      const options = getOptions();
       expect(options.length).toBe(4);
     });
   });
 });
+
+

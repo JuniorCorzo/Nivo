@@ -9,6 +9,7 @@ import {
   lucidePanelLeftClose,
   lucidePanelLeftOpen,
 } from '@ng-icons/lucide';
+import { APP_ROUTES } from '@shared/constants/app-routes.constant';
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
 import { filter, map } from 'rxjs';
 import { SidebarFooter } from '@shared/components/sidebar-footer/sidebar-footer';
@@ -23,6 +24,7 @@ import { SidebarFooter } from '@shared/components/sidebar-footer/sidebar-footer'
   styleUrl: './sidebar.css',
 })
 export class Sidebar implements OnInit {
+  protected readonly homeUrl = APP_ROUTES.app.parkingLots;
   protected navItems = signal(APP_TEXTS.sidebar.nav.map((item) => ({ ...item, isActive: false })));
   private route = inject(Router);
   private breakpointObserver = inject(BreakpointObserver);

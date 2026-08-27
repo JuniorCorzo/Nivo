@@ -13,6 +13,15 @@ describe('PaginationTable', () => {
 
     fixture = TestBed.createComponent(PaginationTable);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('currentItems', 10);
+    fixture.componentRef.setInput('countItems', 100);
+    fixture.componentRef.setInput('currentPage', 1);
+    fixture.componentRef.setInput('countPages', 10);
+    fixture.componentRef.setInput('getCanPreviousPage', false);
+    fixture.componentRef.setInput('previousPage', () => {});
+    fixture.componentRef.setInput('getCanNextPage', true);
+    fixture.componentRef.setInput('nextPage', () => {});
+    fixture.detectChanges();
     await fixture.whenStable();
   });
 
