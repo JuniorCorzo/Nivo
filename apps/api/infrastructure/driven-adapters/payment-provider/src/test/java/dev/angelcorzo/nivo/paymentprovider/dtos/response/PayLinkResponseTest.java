@@ -40,7 +40,8 @@ class PayLinkResponseTest {
     ProviderMetadata metadata = response.toProviderMetadata("epayco");
 
     assertNotNull(metadata);
-    assertEquals("invoice", metadata.externalPaymentId());
+    assertEquals("1", metadata.externalPaymentId());
+    assertEquals("invoice", metadata.checkoutSessionId());
     assertEquals("link", metadata.checkoutUrl());
 
     OffsetDateTime expected = OffsetDateTime.of(2026, 2, 26, 4, 45, 1, 0, ZoneOffset.UTC);
