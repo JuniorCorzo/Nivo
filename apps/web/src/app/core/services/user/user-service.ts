@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { UserControllerService } from '@core/api/generated/services';
+import { UsersService } from '@core/api/generated/services';
 import { UserMapper } from '@core/mappers/user.mapper';
 import { UserModel } from '@core/models/user.model';
 import { map } from 'rxjs';
@@ -11,7 +11,7 @@ export class UserService {
   private currentUserSignal = signal<UserModel | null>(null);
   public currentUser = this.currentUserSignal.asReadonly();
 
-  private userController = inject(UserControllerService);
+  private usersService = inject(UsersService);
   private userMapper = inject(UserMapper);
 
   constructor() {
@@ -19,9 +19,9 @@ export class UserService {
   }
 
   private getCurrentUser() {
-    this.userController
+    this.usersService
       .getCurrentUser()
-      .pipe(map((response) => this.userMapper.mapToUserModel(response.data)))
+      .pipe(map((response) => (response.data ? this.userMapper.mapToUserModel(response.data) : null)))
       .subscribe((user) => this.currentUserSignal.set(user));
   }
 }

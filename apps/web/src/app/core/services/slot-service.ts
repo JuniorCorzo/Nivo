@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Observable, Subject, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { SlotsControllerService } from '@core/api/generated/services/slots-controller.service';
+import { SlotsService } from '@core/api/generated/services';
 import {
   ResponseListSlotSummaryResponse,
   ResponseSlotResponse,
@@ -39,7 +39,7 @@ export class SlotService {
   private readonly slotSummaries = signal<Record<string, SlotSummary[]>>({});
   readonly summaries = this.slotSummaries.asReadonly();
 
-  private slotsControllerService = inject(SlotsControllerService);
+  private slotsService = inject(SlotsService);
 
   private httpContext = () => {
     const context = new HttpContext();
@@ -48,7 +48,7 @@ export class SlotService {
   };
 
   getAllSlotSummariesByParkingId(parkingId: string): Observable<SlotSummary[]> {
-    return this.slotsControllerService
+    return this.slotsService
       .listSlotSummaries({ parking: parkingId }, this.httpContext())
       .pipe(
         map((response: ResponseListSlotSummaryResponse) =>
@@ -69,7 +69,7 @@ export class SlotService {
   }
 
   createBatch(model: BatchCreateSlotModel): Observable<void> {
-    return this.slotsControllerService
+    return this.slotsService
       .createSlots(
         {
           body: {
@@ -92,7 +92,7 @@ export class SlotService {
   }
 
   update(model: UpsertSlotModel): Observable<SlotModel> {
-    return this.slotsControllerService
+    return this.slotsService
       .updateSlot(
         {
           body: {
@@ -105,14 +105,14 @@ export class SlotService {
         this.httpContext(),
       )
       .pipe(
-        map((response: ResponseSlotResponse) => this.mapToSlotModel(response.data)),
+        map((response: ResponseSlotResponse) => this.mapToSlotModel(response.data!)),
         tap(() => this.refreshState(model.parkingLotId)),
         catchError((error) => throwError(() => error)),
       );
   }
 
   delete(slotId: string, parkingId: string): Observable<void> {
-    return this.slotsControllerService.deleteSlot({ slotId }, this.httpContext()).pipe(
+    return this.slotsService.deleteSlot({ slotId }, this.httpContext()).pipe(
       map(() => void 0),
       tap(() => this.refreshState(parkingId)),
       catchError((error) => throwError(() => error)),
@@ -120,7 +120,7 @@ export class SlotService {
   }
 
   deleteBatch(slotIds: string[], parkingId: string): Observable<void> {
-    return this.slotsControllerService
+    return this.slotsService
       .batchDelete(
         {
           body: slotIds,

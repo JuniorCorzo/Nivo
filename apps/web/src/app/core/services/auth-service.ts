@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal, WritableSignal } from '@angular/core';
-import { AuthenticationControllerService } from '@core/api/generated/services';
+import { AuthenticationService } from '@core/api/generated/services';
 import { catchError, EMPTY, map, Observable, of } from 'rxjs';
 import { AuthMapper } from '@core/mappers/auth.mapper';
 import { ADD_WITH_CREDENTIALS } from '@core/http/context/add-with-credentials.token';
@@ -16,7 +16,7 @@ export class AuthService {
   public accessTokenSignal = this.accessToken.asReadonly();
   public isAuthenticate = computed(() => !!this.accessTokenSignal());
 
-  private authController = inject(AuthenticationControllerService);
+  private authController = inject(AuthenticationService);
   private authMapper = inject(AuthMapper);
   private router = inject(Router);
 
