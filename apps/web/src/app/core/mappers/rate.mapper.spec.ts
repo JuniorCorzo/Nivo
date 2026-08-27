@@ -1,4 +1,11 @@
-import { mapToCreateRateDto, mapToRateModel, mapToSpecialPolicyModel, mapToUpdateRateDto } from './rate.mapper';
+import {
+  mapFormToCreateRateModel,
+  mapFormToUpdateRateModel,
+  mapToCreateRateDto,
+  mapToRateModel,
+  mapToSpecialPolicyModel,
+  mapToUpdateRateDto,
+} from './rate.mapper';
 import { CreateRateModel, UpdateRateModel } from '@core/models/rate.model';
 import { RatesDto, SpecialPoliciesInfo } from '@core/api/generated/models';
 
@@ -125,4 +132,57 @@ describe('RateMapper', () => {
       expect(dto.minChargeTimeMinutes).toBe('10');
     });
   });
+
+  describe('mapFormToCreateRateModel', () => {
+    it('should map RateFormData to CreateRateModel', () => {
+      const form = {
+        name: ' Tarifa Carro ',
+        description: ' Cobro por hora ',
+        vehicleType: 'CAR' as const,
+        timeUnit: 'HOURS' as const,
+        pricePerUnit: 5000,
+        minChargeTimeMinutes: 15,
+        specialPolicyId: 'policy-1',
+      };
+
+      const model = mapFormToCreateRateModel(form, 'parking-1');
+
+      expect(model).toEqual({
+        parkingId: 'parking-1',
+        name: 'Tarifa Carro',
+        description: 'Cobro por hora',
+        vehicleType: 'CAR',
+        timeUnit: 'HOURS',
+        pricePerUnit: 5000,
+        minChargeTimeMinutes: 15,
+        specialPolicyId: 'policy-1',
+      });
+    });
+  });
+
+  describe('mapFormToUpdateRateModel', () => {
+    it('should map RateFormData to UpdateRateModel', () => {
+      const form = {
+        name: ' Tarifa Moto ',
+        description: ' Cobro moto ',
+        vehicleType: 'MOTORCYCLE' as const,
+        timeUnit: 'HOURS' as const,
+        pricePerUnit: 2500,
+        minChargeTimeMinutes: 10,
+      };
+
+      const model = mapFormToUpdateRateModel(form, 'rate-123');
+
+      expect(model).toEqual({
+        id: 'rate-123',
+        name: 'Tarifa Moto',
+        description: 'Cobro moto',
+        vehicleType: 'MOTORCYCLE',
+        timeUnit: 'HOURS',
+        pricePerUnit: 2500,
+        minChargeTimeMinutes: 10,
+      });
+    });
+  });
 });
+

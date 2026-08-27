@@ -53,3 +53,40 @@ export function mapToUpdateRateDto(model: UpdateRateModel): UpdateRate {
     minChargeTimeMinutes: (model.minChargeTimeMinutes ?? 0).toString(),
   };
 }
+
+
+export interface RateFormData {
+  name: string;
+  description: string;
+  vehicleType: RateModel['vehicleType'];
+  timeUnit: RateModel['timeUnit'];
+  pricePerUnit: number;
+  minChargeTimeMinutes: number;
+  specialPolicyId?: string | null;
+}
+
+export function mapFormToCreateRateModel(form: RateFormData, parkingId: string): CreateRateModel {
+  return {
+    parkingId,
+    name: form.name.trim(),
+    description: form.description.trim(),
+    vehicleType: form.vehicleType,
+    timeUnit: form.timeUnit,
+    pricePerUnit: form.pricePerUnit,
+    minChargeTimeMinutes: form.minChargeTimeMinutes,
+    specialPolicyId: form.specialPolicyId ?? undefined,
+  };
+}
+
+export function mapFormToUpdateRateModel(form: RateFormData, id: string): UpdateRateModel {
+  return {
+    id,
+    name: form.name.trim(),
+    description: form.description.trim(),
+    vehicleType: form.vehicleType,
+    timeUnit: form.timeUnit,
+    pricePerUnit: form.pricePerUnit,
+    minChargeTimeMinutes: form.minChargeTimeMinutes,
+  };
+}
+
