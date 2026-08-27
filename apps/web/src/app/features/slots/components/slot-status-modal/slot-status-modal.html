@@ -7,31 +7,44 @@
   (click)="onBackdropClick($event)"
 >
   <div class="slot-dialog__panel">
-    <div class="flex justify-between items-center pb-3 border-b border-border">
-      <nv-h3 [id]="titleId">{{ title() }}</nv-h3>
-      <button class="w-8 h-8 rounded-lg border border-border bg-transparent inline-grid place-items-center cursor-pointer" (click)="onCancel($event)">
-        <ng-icon name="lucideX" size="18"></ng-icon>
+    <div class="flex justify-between items-center pb-3.5 border-b border-neutral-100 dark:border-neutral-800">
+      <nv-h3 [id]="titleId" class="text-base font-bold text-neutral-900 dark:text-neutral-50">{{ title() }}</nv-h3>
+      <button
+        type="button"
+        class="h-8 w-8 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 inline-grid place-items-center cursor-pointer transition-colors"
+        (click)="onCancel($event)"
+        aria-label="Cerrar"
+      >
+        <ng-icon name="lucideX" size="16" />
       </button>
     </div>
 
-    <div class="flex flex-col gap-4 mt-3">
-      <p [id]="descriptionId" class="text-muted-foreground text-sm">{{ body() }}</p>
+    <div class="flex flex-col gap-4 mt-4">
+      <p [id]="descriptionId" class="text-neutral-600 dark:text-neutral-300 text-xs leading-relaxed">{{ body() }}</p>
 
       @if (target(); as currentTarget) {
-        <div class="flex flex-col gap-2">
-          <span class="text-sm font-medium">
-            Estado actual: 
-            {{ currentTarget.status === 'AVAILABLE' ? 'Disponible' : currentTarget.status === 'OCCUPIED' ? 'Ocupada' : currentTarget.status === 'MAINTENANCE' ? 'Mantenimiento' : 'Reservada' }}
-          </span>
-          <div class="flex flex-wrap gap-2">
+        <div class="flex flex-col gap-2.5 p-3.5 rounded-xl bg-neutral-50/70 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-neutral-500 dark:text-neutral-400 font-medium">Estado actual:</span>
+            <span class="font-semibold text-neutral-900 dark:text-neutral-100">
+              {{ currentTarget.status === 'AVAILABLE' ? 'Disponible' : currentTarget.status === 'OCCUPIED' ? 'Ocupada' : currentTarget.status === 'MAINTENANCE' ? 'Mantenimiento' : 'Reservada' }}
+            </span>
+          </div>
+
+          <div class="flex flex-wrap gap-2 pt-2 border-t border-neutral-200/60 dark:border-neutral-700/60">
             @for (option of transitionOptions(); track option) {
               <button
-                class="px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors cursor-pointer select-none"
-                [class.border-foreground]="nextStatus() === option"
-                [class.bg-foreground]="nextStatus() === option"
+                type="button"
+                class="px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer select-none shadow-2xs"
+                [class.border-primary-600]="nextStatus() === option"
+                [class.bg-primary-600]="nextStatus() === option"
                 [class.text-white]="nextStatus() === option"
-                [class.border-border]="nextStatus() !== option"
-                [class.bg-transparent]="nextStatus() !== option"
+                [class.border-neutral-300]="nextStatus() !== option"
+                [class.dark:border-neutral-700]="nextStatus() !== option"
+                [class.bg-white]="nextStatus() !== option"
+                [class.dark:bg-neutral-800]="nextStatus() !== option"
+                [class.text-neutral-700]="nextStatus() !== option"
+                [class.dark:text-neutral-200]="nextStatus() !== option"
                 (click)="selectStatusNext.emit(option)"
               >
                 {{ option === 'AVAILABLE' ? 'Disponible' : option === 'OCCUPIED' ? 'Ocupada' : option === 'MAINTENANCE' ? 'Mantenimiento' : 'Reservada' }}
@@ -42,23 +55,27 @@
       }
 
       @if (requiresExtraConfirm()) {
-        <label class="flex gap-2 items-start text-sm cursor-pointer select-none">
+        <label class="flex gap-2.5 items-start p-3 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 text-xs font-medium text-amber-900 dark:text-amber-200 cursor-pointer select-none">
           <input
             type="checkbox"
             [checked]="confirmChecked()"
             (change)="onConfirmCheckedChange($event)"
+            class="mt-0.5 rounded-sm accent-amber-600"
           />
           <span>Entiendo el riesgo y quiero continuar con el cambio de estado.</span>
         </label>
       }
     </div>
 
-    <div class="flex justify-end gap-3 mt-4 pt-3 border-t border-border">
+    <div class="flex justify-end gap-2.5 mt-5 pt-3.5 border-t border-neutral-100 dark:border-neutral-800">
       <nv-button variant="outline" (click)="onCancel($event)">Cancelar</nv-button>
       <nv-button
         [disabled]="!nextStatus() || (requiresExtraConfirm() && !confirmChecked())"
         (click)="confirm.emit()"
-      >Confirmar cambio</nv-button>
+      >
+        Confirmar cambio
+      </nv-button>
     </div>
   </div>
 </dialog>
+

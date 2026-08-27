@@ -1,7 +1,22 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
+import {
+  lucideArrowLeft,
+  lucidePencil,
+  lucideTrash2,
+  lucideLogIn,
+  lucideCoins,
+  lucideParkingSquare,
+  lucideMapPin,
+  lucideCalendar,
+  lucideClock,
+  lucideCar,
+  lucideBike,
+  lucideLayers,
+  lucideShieldCheck,
+  lucideSparkles,
+} from '@ng-icons/lucide';
 import {
   BadgeComponent,
   ButtonComponent,
@@ -23,14 +38,29 @@ import { DeleteParkingModal } from '@shared/components/delete-parking-modal/dele
   imports: [
     NgIcon,
     BadgeComponent,
-    ButtonComponent,
-    CardComponent,
     TypographyMuted,
     TypographyMono,
     ParkingMapComponent,
     DeleteParkingModal,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucidePencil, lucideTrash2 })],
+  providers: [
+    provideIcons({
+      lucideArrowLeft,
+      lucidePencil,
+      lucideTrash2,
+      lucideLogIn,
+      lucideCoins,
+      lucideParkingSquare,
+      lucideMapPin,
+      lucideCalendar,
+      lucideClock,
+      lucideCar,
+      lucideBike,
+      lucideLayers,
+      lucideShieldCheck,
+      lucideSparkles,
+    }),
+  ],
   templateUrl: './parking-detail.html',
   styleUrl: './parking-detail.css',
 })

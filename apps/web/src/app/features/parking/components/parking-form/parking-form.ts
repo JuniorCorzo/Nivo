@@ -5,11 +5,11 @@ import { FormField } from '@angular/forms/signals';
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
 import { UpsertParkingLotsModel } from '@core/models/parking.model';
 import { CardComponent, CardContentComponent, CardFooterComponent } from '@nivo-sass/design-system';
-import { TypographyH2 } from '@nivo-sass/design-system';
+import { TypographyH2, TypographyMuted } from '@nivo-sass/design-system';
 import { ButtonComponent } from '@nivo-sass/design-system';
 import { InputComponent, TypographyH3 } from '@nivo-sass/design-system';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideSave, lucideLoader2, lucideBuilding2, lucideMapPin } from '@ng-icons/lucide';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ParkingService } from '@core/services/parking-service';
 import { APP_ROUTES } from '@shared/constants/app-routes.constant';
@@ -23,12 +23,6 @@ import { ParkingFormFacade } from './parking-form.facade';
   selector: 'app-parking-form',
   standalone: true,
   imports: [
-    ButtonComponent,
-    CardComponent,
-    CardContentComponent,
-    CardFooterComponent,
-    TypographyH2,
-    TypographyH3,
     InputComponent,
     FormField,
     NgIcon,
@@ -38,7 +32,10 @@ import { ParkingFormFacade } from './parking-form.facade';
     ParkingOperatingHoursSectionComponent,
     ParkingSlotGroupsSectionComponent,
   ],
-  providers: [provideIcons({ lucideArrowLeft }), ParkingFormFacade],
+  providers: [
+    provideIcons({ lucideArrowLeft, lucideSave, lucideLoader2, lucideBuilding2, lucideMapPin }),
+    ParkingFormFacade,
+  ],
   templateUrl: './parking-form.html',
   styleUrl: './parking-form.css',
 })

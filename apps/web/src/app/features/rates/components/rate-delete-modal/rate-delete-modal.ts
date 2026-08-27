@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BadgeComponent, ButtonComponent, TypographyMono } from '@nivo-sass/design-system';
+import { ButtonComponent } from '@nivo-sass/design-system';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideTrash2, lucideX } from '@ng-icons/lucide';
 import { RateModel } from '@core/models/rate.model';
@@ -16,7 +16,7 @@ import { RateModel } from '@core/models/rate.model';
 @Component({
   selector: 'app-rate-delete-modal',
   standalone: true,
-  imports: [CommonModule, ButtonComponent, BadgeComponent, TypographyMono, NgIcon],
+  imports: [CommonModule, ButtonComponent, NgIcon],
   providers: [provideIcons({ lucideX, lucideTrash2 })],
   templateUrl: './rate-delete-modal.html',
   styleUrl: './rate-delete-modal.css',

@@ -1,15 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucidePlus } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucidePlus, lucideSave, lucideSparkles, lucideLayers, lucideAlertCircle } from '@ng-icons/lucide';
 import {
   ButtonComponent,
-  CardComponent,
   InputComponent,
   SelectComponent,
-  TypographyH2,
-  TypographyH3,
-  TypographyMuted,
 } from '@nivo-sass/design-system';
 
 import { APP_ROUTES } from '@shared/constants/app-routes.constant';
@@ -29,14 +25,13 @@ import { ParkingSlotFormFacade } from './parking-slot-form.facade';
     RouterLink,
     NgIcon,
     ButtonComponent,
-    CardComponent,
     InputComponent,
     SelectComponent,
-    TypographyH2,
-    TypographyH3,
-    TypographyMuted,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucidePlus }), ParkingSlotFormFacade],
+  providers: [
+    provideIcons({ lucideArrowLeft, lucidePlus, lucideSave, lucideSparkles, lucideLayers, lucideAlertCircle }),
+    ParkingSlotFormFacade,
+  ],
   templateUrl: './parking-slot-form.html',
   host: {
     class: 'block',

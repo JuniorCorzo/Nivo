@@ -2,15 +2,19 @@ import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideChevronRight, lucidePlus, lucideSave } from '@ng-icons/lucide';
+import {
+  lucideArrowLeft,
+  lucideChevronRight,
+  lucidePlus,
+  lucideSave,
+  lucideCoins,
+  lucideSliders,
+  lucideLoader2,
+} from '@ng-icons/lucide';
 import {
   ButtonComponent,
-  CardComponent,
   InputComponent,
   SelectComponent,
-  TypographyH2,
-  TypographyMono,
-  TypographyMuted,
 } from '@nivo-sass/design-system';
 
 import { RateFormFacade } from '../../facades/rate-form.facade';
@@ -33,17 +37,21 @@ import {
     RouterLink,
     NgIcon,
     ButtonComponent,
-    CardComponent,
     InputComponent,
     SelectComponent,
-    TypographyH2,
-    TypographyMuted,
-    TypographyMono,
     RatePreviewComponent,
   ],
   providers: [
     RateFormFacade,
-    provideIcons({ lucideArrowLeft, lucideChevronRight, lucidePlus, lucideSave }),
+    provideIcons({
+      lucideArrowLeft,
+      lucideChevronRight,
+      lucidePlus,
+      lucideSave,
+      lucideCoins,
+      lucideSliders,
+      lucideLoader2,
+    }),
   ],
   templateUrl: './rate-form.html',
 })

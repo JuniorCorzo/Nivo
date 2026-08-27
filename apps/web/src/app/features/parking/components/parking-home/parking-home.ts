@@ -1,16 +1,16 @@
 import { Component, inject, signal } from '@angular/core';
 import { ParkingTable } from '../parking-table/parking-table';
-import { ButtonComponent, InputComponent, TypographyH3 } from '@nivo-sass/design-system';
+import { ButtonComponent, InputComponent, TypographyH3, TypographyMuted } from '@nivo-sass/design-system';
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePlus, lucideSearch } from '@ng-icons/lucide';
+import { lucidePlus, lucideSearch, lucideParkingSquare, lucideMapPin } from '@ng-icons/lucide';
 import { Router } from '@angular/router';
 import { APP_ROUTES } from '@/app/shared/constants/app-routes.constant';
 
 @Component({
   selector: 'app-parking-home',
-  imports: [ParkingTable, TypographyH3, ButtonComponent, InputComponent, NgIcon],
-  providers: [provideIcons({ lucidePlus, lucideSearch })],
+  imports: [ParkingTable, TypographyH3, TypographyMuted, ButtonComponent, InputComponent, NgIcon],
+  providers: [provideIcons({ lucidePlus, lucideSearch, lucideParkingSquare, lucideMapPin })],
   templateUrl: './parking-home.html',
 })
 export class ParkingHome {

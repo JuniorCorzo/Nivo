@@ -1,15 +1,14 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  CardComponent,
   InputComponent,
   SelectComponent,
-  TypographyH3,
-  TypographyMuted,
 } from '@nivo-sass/design-system';
 import { RateService } from '@core/services/rate-service';
 import { RatePreviewComponent } from './rate-preview';
 import { TimeUnit, VehicleType } from '@core/models/rate.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideCalculator } from '@ng-icons/lucide';
 import {
   TIME_UNIT_OPTIONS,
   VEHICLE_TYPE_OPTIONS,
@@ -22,22 +21,26 @@ import {
   standalone: true,
   imports: [
     CommonModule,
-    CardComponent,
     InputComponent,
     SelectComponent,
-    TypographyH3,
-    TypographyMuted,
     RatePreviewComponent,
+    NgIcon,
   ],
+  providers: [provideIcons({ lucideCalculator })],
   template: `
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 items-start">
-      <nv-card class="p-4 sm:p-6 flex flex-col gap-4">
-        <div class="flex flex-col gap-1">
-          <nv-h3>Calculadora interactiva de tarifas</nv-h3>
-          <nv-muted>Ingresá los parámetros de estancia para simular el cobro</nv-muted>
+      <div class="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 sm:p-6 shadow-xs flex flex-col gap-4">
+        <div class="flex items-center gap-3 border-b border-neutral-100 dark:border-neutral-800 pb-3">
+          <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-950/40 dark:text-primary-400">
+            <ng-icon name="lucideCalculator" class="text-base" />
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-neutral-900 dark:text-neutral-50">Calculadora interactiva de tarifas</h3>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400">Ingresá los parámetros de estancia para simular el cobro</p>
+          </div>
         </div>
 
-        <div class="flex flex-col gap-4 mt-2">
+        <div class="flex flex-col gap-4 mt-1">
           <nv-select
             class="w-full"
             label="Tipo de vehículo"
@@ -74,7 +77,7 @@ import {
             (input)="onDurationInput($event)"
           />
         </div>
-      </nv-card>
+      </div>
 
       <div class="lg:sticky lg:top-4">
         <app-rate-preview [simulation]="simulation()" />

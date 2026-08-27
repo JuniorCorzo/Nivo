@@ -3,15 +3,31 @@ import { ValidationError, FormField, FieldTree } from '@angular/forms/signals';
 
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
 import { OperatingHours } from '@core/type/operating-hours.type';
-import { InputComponent, TypographyH3 } from '@nivo-sass/design-system';
+import { InputComponent, TypographyH3, TypographyMuted } from '@nivo-sass/design-system';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideClock } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-parking-operating-hours-section',
   standalone: true,
-  imports: [InputComponent, TypographyH3, FormField],
+  imports: [InputComponent, TypographyH3, TypographyMuted, FormField, NgIcon],
+  providers: [provideIcons({ lucideClock })],
   template: `
-    <nv-h3 class="text-base">{{ APP_TEXTS.parking.form.fields.operatingHours.title }}</nv-h3>
-    <div class="form-row">
+    <div class="flex items-center gap-2">
+      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
+        <ng-icon name="lucideClock" class="text-base" />
+      </div>
+      <div>
+        <nv-h3 class="text-base font-bold text-neutral-900 dark:text-neutral-100">
+          {{ APP_TEXTS.parking.form.fields.operatingHours.title }}
+        </nv-h3>
+        <nv-muted class="text-xs text-neutral-500 dark:text-neutral-400">
+          Horarios de apertura y cierre para atención y cobro
+        </nv-muted>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <nv-input
         id="openTime"
         type="text"
@@ -19,8 +35,7 @@ import { InputComponent, TypographyH3 } from '@nivo-sass/design-system';
         placeholder="HH:mm (Ej. 08:00)"
         [formField]="operatingHours().openTime"
         [error]="openTimeError()"
-      >
-      </nv-input>
+      />
       <nv-input
         id="closeTime"
         type="text"
@@ -28,27 +43,14 @@ import { InputComponent, TypographyH3 } from '@nivo-sass/design-system';
         placeholder="HH:mm (Ej. 20:00)"
         [formField]="operatingHours().closeTime"
         [error]="closeTimeError()"
-      >
-      </nv-input>
+      />
     </div>
   `,
   styles: `
     :host {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-    }
-
-    @media (max-width: 640px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
+      gap: 1.25rem;
     }
   `,
 })

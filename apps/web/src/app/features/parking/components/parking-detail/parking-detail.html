@@ -1,150 +1,270 @@
 @if (parking(); as p) {
-  <div class="flex flex-col gap-4 p-4">
-    <!-- Header: back + title + actions -->
-    <div class="flex items-start justify-between">
-      <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-6 p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
+    <!-- Top Bar / Hero Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div class="flex items-start sm:items-center gap-3.5">
         <button
-          class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+          type="button"
           (click)="goBack()"
+          class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-750 transition-colors shadow-xs"
+          [title]="ACTIONS.backToList"
         >
-          <ng-icon name="lucideArrowLeft" size="18"></ng-icon>
-          <span>{{ ACTIONS.backToList }}</span>
+          <ng-icon name="lucideArrowLeft" class="text-lg" />
         </button>
-        <h2 class="text-2xl font-semibold tracking-tight font-sans text-foreground">
-          {{ p.name }}
-        </h2>
+        <div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50">
+              {{ p.name }}
+            </h1>
+            <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
+              Activo
+            </span>
+            <span class="inline-flex items-center rounded-md bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+              {{ p.currency }}
+            </span>
+            @if (p.ownerName) {
+              <span class="inline-flex items-center rounded-md bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-950/50 dark:text-primary-300">
+                {{ p.ownerName }}
+              </span>
+            }
+          </div>
+          <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+            {{ addressLine() }}
+          </p>
+        </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <nv-button variant="default" size="sm" (click)="onManageOperations()">
-          <span>Operaciones (Ingreso / Salida)</span>
-        </nv-button>
-        <nv-button variant="outline" size="sm" (click)="onManageRates()">
-          <span>Configurar Tarifas</span>
-        </nv-button>
-        <nv-button variant="outline" size="sm" (click)="onManageSlots()">
-          <span>{{ LABELS.actions.manageSlots }}</span>
-        </nv-button>
-        <nv-button variant="outline" size="sm" (click)="onEdit()">
-          <ng-icon name="lucidePencil" size="16"></ng-icon>
-          <span>{{ LABELS.actions.edit }}</span>
-        </nv-button>
-        <nv-button
-          variant="outline"
-          size="sm"
-          class="text-destructive border-destructive hover:bg-destructive/10"
-          (click)="onDeleteClick()"
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          (click)="onManageOperations()"
+          class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-primary-700 active:scale-98 transition-all shadow-xs"
         >
-          <ng-icon name="lucideTrash2" size="16"></ng-icon>
+          <ng-icon name="lucideLogIn" class="text-base" />
+          <span>Operaciones en vivo</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="onManageRates()"
+          class="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3.5 py-2 text-xs sm:text-sm font-semibold text-neutral-800 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-750 active:scale-98 transition-all shadow-xs"
+        >
+          <ng-icon name="lucideCoins" class="text-base text-purple-600 dark:text-purple-400" />
+          <span>Tarifas</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="onManageSlots()"
+          class="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3.5 py-2 text-xs sm:text-sm font-semibold text-neutral-800 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-750 active:scale-98 transition-all shadow-xs"
+        >
+          <ng-icon name="lucideParkingSquare" class="text-base text-blue-600 dark:text-blue-400" />
+          <span>{{ LABELS.actions.manageSlots }}</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="onEdit()"
+          class="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs sm:text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-750 active:scale-98 transition-all"
+          [title]="LABELS.actions.edit"
+        >
+          <ng-icon name="lucidePencil" class="text-sm" />
+          <span>{{ LABELS.actions.edit }}</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="onDeleteClick()"
+          class="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/30 px-3 py-2 text-xs sm:text-sm font-medium text-red-700 dark:text-red-400 hover:bg-red-100/70 dark:hover:bg-red-950/50 active:scale-98 transition-all"
+          [title]="LABELS.actions.delete"
+        >
+          <ng-icon name="lucideTrash2" class="text-sm" />
           <span>{{ LABELS.actions.delete }}</span>
-        </nv-button>
+        </button>
       </div>
     </div>
 
-    <!-- Detail Card -->
-    <nv-card class="p-6 flex flex-col gap-4">
-      <!-- Badges row -->
-      <div class="flex gap-3">
-        <nv-badge variant="secondary">{{ p.ownerName }}</nv-badge>
-        <nv-badge variant="info">{{ p.currency }}</nv-badge>
+    <!-- Summary Metrics Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Total Capacity -->
+      <div class="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">{{ LABELS.fields.totalCapacity }}</span>
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+            <ng-icon name="lucideParkingSquare" class="text-lg" />
+          </div>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span class="text-3xl font-bold font-mono text-neutral-900 dark:text-neutral-50">{{ totalSlots() }}</span>
+          <span class="text-xs text-neutral-400 font-mono">{{ LABELS.slotDistribution.slotsLabel(totalSlots()) }}</span>
+        </div>
+      </div>
+
+      <!-- Occupancy Rate -->
+      <div class="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Tasa de Ocupación</span>
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
+            <ng-icon name="lucideCar" class="text-lg" />
+          </div>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span class="text-3xl font-bold font-mono text-neutral-900 dark:text-neutral-50">{{ p.occuppationRate || 0 }}%</span>
+          <span class="text-xs text-neutral-400">en tiempo real</span>
+        </div>
+      </div>
+
+      <!-- Currency & Billing -->
+      <div class="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Moneda Base</span>
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400">
+            <ng-icon name="lucideCoins" class="text-lg" />
+          </div>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span class="text-3xl font-bold font-mono text-neutral-900 dark:text-neutral-50">{{ p.currency }}</span>
+          <span class="text-xs text-neutral-400">facturación</span>
+        </div>
+      </div>
+
+      <!-- Coordenadas -->
+      <div class="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">{{ LABELS.fields.coordinates }}</span>
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
+            <ng-icon name="lucideMapPin" class="text-lg" />
+          </div>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span class="text-xs font-bold font-mono text-neutral-900 dark:text-neutral-50 truncate">{{ formattedCoords() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Detail & Slot Distribution Card -->
+    <div class="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-xs flex flex-col gap-6">
+      <div class="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 pb-4">
+        <div>
+          <h2 class="text-base font-bold text-neutral-900 dark:text-neutral-100">Información General</h2>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">Detalles de ubicación y registro del parqueadero</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <nv-badge variant="secondary">{{ p.ownerName }}</nv-badge>
+          <nv-badge variant="info">{{ p.currency }}</nv-badge>
+        </div>
       </div>
 
       <!-- Info Grid: 2 columns -->
-      <div class="grid grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Column 1 -->
-        <div class="flex flex-col gap-6">
-          <!-- Dirección -->
-          <div class="flex flex-col gap-1">
-            <nv-muted>{{ LABELS.fields.address }}</nv-muted>
-            <span class="text-sm font-medium text-foreground">{{ addressLine() }}</span>
-            <span class="text-muted-foreground text-sm">{{ addressSubline() }}</span>
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1 p-3.5 rounded-xl bg-neutral-50/70 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800">
+            <nv-muted class="text-xs font-semibold uppercase tracking-wider">{{ LABELS.fields.address }}</nv-muted>
+            <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{{ addressLine() }}</span>
+            <span class="text-xs text-neutral-500 dark:text-neutral-400">{{ addressSubline() }}</span>
           </div>
-          <!-- Capacidad total -->
-          <div class="flex flex-col gap-1">
-            <nv-muted>{{ LABELS.fields.totalCapacity }}</nv-muted>
-            <span class="text-sm font-medium text-foreground">
+
+          <div class="flex flex-col gap-1 p-3.5 rounded-xl bg-neutral-50/70 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800">
+            <nv-muted class="text-xs font-semibold uppercase tracking-wider">{{ LABELS.fields.totalCapacity }}</nv-muted>
+            <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
               {{ totalSlots() }} {{ LABELS.slotDistribution.slotsLabel(totalSlots()) }}
             </span>
           </div>
-          <!-- Coordenadas -->
-          <div class="flex flex-col gap-1">
-            <nv-muted>{{ LABELS.fields.coordinates }}</nv-muted>
-            <nv-mono>{{ formattedCoords() }}</nv-mono>
+
+          <div class="flex flex-col gap-1 p-3.5 rounded-xl bg-neutral-50/70 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800">
+            <nv-muted class="text-xs font-semibold uppercase tracking-wider">{{ LABELS.fields.coordinates }}</nv-muted>
+            <nv-mono class="text-xs font-bold text-neutral-900 dark:text-neutral-100">{{ formattedCoords() }}</nv-mono>
           </div>
         </div>
 
         <!-- Column 2 -->
-        <div class="flex flex-col gap-6">
-          <!-- Creado -->
-          <div class="flex flex-col gap-1">
-            <nv-muted>{{ LABELS.fields.createdAt }}</nv-muted>
-            <span class="text-sm font-medium text-foreground">{{
-              formattedDate(p.createdAt)
-            }}</span>
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1 p-3.5 rounded-xl bg-neutral-50/70 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800">
+            <nv-muted class="text-xs font-semibold uppercase tracking-wider">{{ LABELS.fields.createdAt }}</nv-muted>
+            <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{{ formattedDate(p.createdAt) }}</span>
           </div>
-          <!-- Actualizado -->
-          <div class="flex flex-col gap-1">
-            <nv-muted>{{ LABELS.fields.updatedAt }}</nv-muted>
-            <span class="text-sm font-medium text-foreground">{{
-              formattedDate(p.updatedAt)
-            }}</span>
+
+          <div class="flex flex-col gap-1 p-3.5 rounded-xl bg-neutral-50/70 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800">
+            <nv-muted class="text-xs font-semibold uppercase tracking-wider">{{ LABELS.fields.updatedAt }}</nv-muted>
+            <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{{ formattedDate(p.updatedAt) }}</span>
           </div>
-          <!-- ID -->
-          <div class="flex flex-col gap-1">
-            <nv-muted>{{ LABELS.fields.parkingId }}</nv-muted>
-            <nv-mono class="text-xs!">{{ p.id }}</nv-mono>
+
+          <div class="flex flex-col gap-1 p-3.5 rounded-xl bg-neutral-50/70 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800">
+            <nv-muted class="text-xs font-semibold uppercase tracking-wider">{{ LABELS.fields.parkingId }}</nv-muted>
+            <nv-mono class="text-xs font-bold text-neutral-900 dark:text-neutral-100">{{ p.id }}</nv-mono>
           </div>
         </div>
       </div>
 
-      <!-- Divider -->
-      <hr class="border-[var(--border)]" />
-
-      <!-- Slot Distribution -->
-      <h3 class="text-base font-semibold text-[var(--foreground)]">
-        {{ LABELS.slotDistribution.title }}
-      </h3>
-
-      @for (slot of p.slotDistribution; track slot.prefix + slot.type + slot.zone) {
-        <div
-          class="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--card)] px-3.5 py-3"
-        >
-          <div class="flex flex-col gap-0.5">
-            <span class="text-sm font-semibold text-[var(--foreground)]">{{
-              slotLabel(slot)
-            }}</span>
-            <span class="text-[var(--muted-foreground)] text-xs">
-              {{ LABELS.slotDistribution.prefix }} {{ slot.prefix }}
-            </span>
+      <!-- Slot Distribution Section -->
+      <div class="border-t border-neutral-100 dark:border-neutral-800 pt-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-base font-bold text-neutral-900 dark:text-neutral-100">
+              {{ LABELS.slotDistribution.title }}
+            </h3>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400">Distribución de plazas por tipo y zona</p>
           </div>
-          <span class="font-mono text-sm font-semibold text-[var(--foreground)]">{{
-            slot.count
-          }}</span>
+          <span class="text-xs font-mono font-semibold text-neutral-600 dark:text-neutral-300">
+            {{ LABELS.slotDistribution.summary(p.slotDistribution.length) }}
+          </span>
         </div>
-      }
 
-      <!-- Summary -->
-      <div class="flex items-center justify-between">
-        <span class="text-[var(--muted-foreground)] text-sm">
-          {{ LABELS.slotDistribution.summary(p.slotDistribution.length) }}
-        </span>
-        <span class="text-sm font-semibold text-[var(--foreground)]">
-          {{ LABELS.slotDistribution.totalSlots(totalSlots()) }}
-        </span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          @for (slot of p.slotDistribution; track slot.prefix + slot.type + slot.zone) {
+            <div class="flex items-center justify-between rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-850 p-4 transition-all hover:border-neutral-300 dark:hover:border-neutral-700">
+              <div class="flex items-center gap-3">
+                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200">
+                  @if (slot.type === 'CAR') {
+                    <ng-icon name="lucideCar" class="text-base" />
+                  } @else {
+                    <ng-icon name="lucideBike" class="text-base" />
+                  }
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-bold text-neutral-900 dark:text-neutral-100">
+                    {{ slotLabel(slot) }}
+                  </span>
+                  <span class="text-[11px] text-neutral-500 dark:text-neutral-400">
+                    {{ LABELS.slotDistribution.prefix }} {{ slot.prefix }}
+                  </span>
+                </div>
+              </div>
+              <span class="font-mono text-base font-bold text-neutral-900 dark:text-neutral-50">
+                {{ slot.count }}
+              </span>
+            </div>
+          }
+        </div>
+
+        <!-- Summary row -->
+        <div class="mt-4 flex items-center justify-between pt-3 border-t border-neutral-100 dark:border-neutral-800 text-xs">
+          <span class="text-neutral-500 dark:text-neutral-400">
+            {{ LABELS.slotDistribution.summary(p.slotDistribution.length) }}
+          </span>
+          <span class="font-bold text-neutral-900 dark:text-neutral-100">
+            {{ LABELS.slotDistribution.totalSlots(totalSlots()) }}
+          </span>
+        </div>
       </div>
-    </nv-card>
+    </div>
 
     <!-- Map Card -->
-    <nv-card class="p-6 flex flex-col gap-3">
-      <h3 class="text-base font-semibold text-[var(--foreground)]">{{ LABELS.map.title }}</h3>
-      <div class="rounded-lg border border-[var(--border)] overflow-hidden h-[200px]">
+    <div class="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-xs flex flex-col gap-4">
+      <div class="flex items-center gap-2">
+        <ng-icon name="lucideMapPin" class="text-base text-primary-600 dark:text-primary-400" />
+        <h3 class="text-base font-bold text-neutral-900 dark:text-neutral-100">{{ LABELS.map.title }}</h3>
+      </div>
+      <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 overflow-hidden h-[240px] shadow-inner">
         <app-parking-map [initialPosition]="p.coordinates" [readonly]="true" />
       </div>
-    </nv-card>
+    </div>
   </div>
 } @else {
-  <div class="flex items-center justify-center h-full">
-    <span class="text-[var(--muted-foreground)]">{{ LABELS.loading }}</span>
+  <div class="flex items-center justify-center h-64 text-neutral-400 text-sm">
+    <span>{{ LABELS.loading }}</span>
   </div>
 }
 
@@ -154,3 +274,4 @@
     (cancel)="onDeleteCancel()"
   />
 }
+
