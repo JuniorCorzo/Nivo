@@ -1,0 +1,59 @@
+<dialog
+  #dialog
+  class="delete-dialog"
+  role="alertdialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="titleId"
+  [attr.aria-describedby]="descriptionId"
+  (cancel)="onCancel($event)"
+  (click)="onBackdropClick($event)"
+>
+  <div class="delete-dialog__panel">
+    <div class="delete-dialog__header">
+      <h2 [id]="titleId" class="delete-dialog__title">¿Eliminar tarifa?</h2>
+      <button
+        type="button"
+        class="text-muted-foreground hover:text-foreground transition-colors p-1"
+        (click)="cancel.emit()"
+        aria-label="Cerrar"
+      >
+        <ng-icon name="lucideX" size="18"></ng-icon>
+      </button>
+    </div>
+
+    <p [id]="descriptionId" class="delete-dialog__description">
+      Esta acción eliminará permanentemente la configuración tarifaria seleccionada. Los cobros ya liquidados no se verán afectados.
+    </p>
+
+    @if (rate(); as r) {
+      <div class="delete-dialog__rate-info">
+        <div class="flex justify-between items-center text-sm font-semibold">
+          <span>{{ r.name }}</span>
+          <nv-badge variant="secondary">{{ r.vehicleType }}</nv-badge>
+        </div>
+        <div class="flex justify-between items-center text-xs text-muted-foreground">
+          <span>Unidad: {{ r.timeUnit }}</span>
+          <nv-mono class="font-bold text-foreground">
+            {{ r.pricePerUnit | currency:'COP':'symbol-narrow':'1.0-0' }}
+          </nv-mono>
+        </div>
+      </div>
+    }
+
+    <div class="delete-dialog__actions">
+      <nv-button variant="outline" type="button" (click)="cancel.emit()">
+        Cancelar
+      </nv-button>
+      <nv-button
+        variant="destructive"
+        type="button"
+        autofocus
+        [disabled]="isDeleting()"
+        (click)="confirm.emit()"
+      >
+        <ng-icon name="lucideTrash2" size="16"></ng-icon>
+        {{ isDeleting() ? 'Eliminando...' : 'Eliminar tarifa' }}
+      </nv-button>
+    </div>
+  </div>
+</dialog>

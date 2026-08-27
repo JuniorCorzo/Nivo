@@ -97,6 +97,27 @@ export const routes: Routes = [
               ),
           },
           {
+            path: APP_ROUTE_PATHS.app.parkingLotRates,
+            loadComponent: () =>
+              import('@features/rates/components/rates-list/rates-list').then(
+                (c) => c.RateListComponent,
+              ),
+          },
+          {
+            path: APP_ROUTE_PATHS.app.createParkingLotRate,
+            loadComponent: () =>
+              import('@features/rates/components/rate-form/rate-form').then(
+                (c) => c.RateFormComponent,
+              ),
+          },
+          {
+            path: APP_ROUTE_PATHS.app.editParkingLotRate,
+            loadComponent: () =>
+              import('@features/rates/components/rate-form/rate-form').then(
+                (c) => c.RateFormComponent,
+              ),
+          },
+          {
             path: APP_ROUTE_PATHS.app.parkingLotDetail,
             loadComponent: () =>
               import('@features/parking/components/parking-detail/parking-detail').then(

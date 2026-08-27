@@ -1,5 +1,6 @@
 const parkingLotsSegment = 'parking-lots';
 const slotsSegment = 'slots';
+const ratesSegment = 'rates';
 
 export const APP_ROUTE_PATHS = {
   auth: {
@@ -15,6 +16,9 @@ export const APP_ROUTE_PATHS = {
     parkingLotSlotDetail: `${parkingLotsSegment}/:parkingId/${slotsSegment}/:slotId`,
     createParkingLotSlot: `${parkingLotsSegment}/:parkingId/${slotsSegment}/new`,
     editParkingLotSlot: `${parkingLotsSegment}/:parkingId/${slotsSegment}/:slotId/edit`,
+    parkingLotRates: `${parkingLotsSegment}/:parkingId/${ratesSegment}`,
+    createParkingLotRate: `${parkingLotsSegment}/:parkingId/${ratesSegment}/new`,
+    editParkingLotRate: `${parkingLotsSegment}/:parkingId/${ratesSegment}/:rateId/edit`,
   },
 } as const;
 
@@ -36,5 +40,10 @@ export const APP_ROUTES = {
       `${parkingLotsRoute}/${parkingId}/${slotsSegment}/new`,
     editParkingLotSlot: (parkingId: string, slotId: string) =>
       `${parkingLotsRoute}/${parkingId}/${slotsSegment}/${slotId}/edit`,
+    parkingLotRates: (parkingId: string) => `${parkingLotsRoute}/${parkingId}/${ratesSegment}`,
+    createParkingLotRate: (parkingId: string) =>
+      `${parkingLotsRoute}/${parkingId}/${ratesSegment}/new`,
+    editParkingLotRate: (parkingId: string, rateId: string) =>
+      `${parkingLotsRoute}/${parkingId}/${ratesSegment}/${rateId}/edit`,
   },
 } as const;

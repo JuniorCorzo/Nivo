@@ -16,8 +16,6 @@ import { APP_TEXTS } from '@shared/constants/app-texts.constant';
 import { ParkingMapComponent } from '../parking-map/parking-map';
 import { SlotDistribution } from '@core/type/slot-distribution.type';
 import { DeleteParkingModal } from '@shared/components/delete-parking-modal/delete-parking-modal';
-import { exhaustMap } from 'rxjs/operators';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-parking-detail',
@@ -52,33 +50,13 @@ export class ParkingDetail {
   protected readonly parkingId = this.route.snapshot.paramMap.get('parkingId');
 
   constructor() {
-    /*this.parkingService.delete$
-      .pipe(
-        exhaustMap((id) => this.parkingService.delete(id)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: () => {
-          this.toastService.showToast({
-            message: APP_TEXTS.parking.messages.deleted,
-            type: 'success',
-          });
-          this.goBack();
-        },
-        error: () => {
-          this.toastService.showToast({
-            message: APP_TEXTS.server.errors.generic,
-            type: 'error',
-          });
-        },
-      });*/
+    this.parkingService.parkingLots();
   }
 
   protected readonly parking = computed(() => {
     const id = this.parkingId;
     if (!id) return null;
-    const list = this.parkingService.parkingLots();
-    return list.find((p) => p.id === id) ?? null;
+    return (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ?? null;
   });
 
   protected readonly totalSlots = computed(() => {
@@ -137,6 +115,12 @@ export class ParkingDetail {
     this.router.navigate([APP_ROUTES.app.parkingLotSlots(p.id)]);
   }
 
+  protected onManageRates(): void {
+    const p = this.parking();
+    if (!p) return;
+    this.router.navigate([APP_ROUTES.app.parkingLotRates(p.id)]);
+  }
+
   protected onDeleteClick(): void {
     const p = this.parking();
     if (!p) return;
@@ -147,7 +131,6 @@ export class ParkingDetail {
   protected onDeleteConfirm(): void {
     const id = this.selectedParkingId();
     if (!id) return;
-
     this.closeDeleteModal();
   }
 
