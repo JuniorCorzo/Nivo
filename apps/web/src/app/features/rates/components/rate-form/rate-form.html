@@ -1,0 +1,150 @@
+@if (facade.parking(); as p) {
+  <div class="flex flex-col gap-4 p-4 sm:p-6">
+    <!-- Breadcrumbs -->
+    <div class="flex flex-col gap-3">
+      <div class="flex flex-wrap items-center gap-2 text-muted-foreground text-[0.8rem]">
+        <a [routerLink]="APP_ROUTES.app.parkingLots">Parqueaderos</a>
+        <ng-icon name="lucideChevronRight" size="14"></ng-icon>
+        <a [routerLink]="APP_ROUTES.app.parkingLotDetail(p.id)">{{ p.name }}</a>
+        <ng-icon name="lucideChevronRight" size="14"></ng-icon>
+        <a [routerLink]="APP_ROUTES.app.parkingLotRates(p.id)">Tarifas</a>
+        <ng-icon name="lucideChevronRight" size="14"></ng-icon>
+        <span>{{ facade.mode() === 'create' ? 'Nueva tarifa' : 'Editar tarifa' }}</span>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex flex-col gap-1">
+          <nv-h2>{{ facade.mode() === 'create' ? 'Configurar nueva tarifa' : 'Editar tarifa' }}</nv-h2>
+          <nv-muted>{{ p.name }} — Definí el valor base y las condiciones de cobro</nv-muted>
+        </div>
+
+        <nv-button
+          variant="outline"
+          [routerLink]="APP_ROUTES.app.parkingLotRates(p.id)"
+          size="sm"
+          class="w-full sm:w-auto"
+        >
+          <ng-icon name="lucideArrowLeft" size="14"></ng-icon>
+          Volver a tarifas
+        </nv-button>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 items-start">
+      <!-- Form Column -->
+      <nv-card class="lg:col-span-2 p-4 sm:p-6 flex flex-col gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <nv-input
+            label="Nombre de la tarifa"
+            [required]="true"
+            placeholder="Ej. Tarifa Plena Carro"
+            [value]="facade.form.name()"
+            (input)="onNameInput($event)"
+          />
+
+          <nv-input
+            label="Descripción"
+            [required]="true"
+            placeholder="Ej. Cobro estándar por hora para automóviles"
+            [value]="facade.form.description()"
+            (input)="onDescInput($event)"
+          />
+
+          <nv-select
+            class="w-full"
+            label="Tipo de vehículo"
+            [required]="true"
+            [items]="vehicleTypeOptions"
+            [displayFn]="displayOptionFn"
+            [valueFn]="valueOptionFn"
+            [value]="facade.form.vehicleType()"
+            (valueChange)="onVehicleTypeChange($event)"
+          />
+
+          <nv-select
+            class="w-full"
+            label="Unidad de tiempo"
+            [required]="true"
+            [items]="timeUnitOptions"
+            [displayFn]="displayOptionFn"
+            [valueFn]="valueOptionFn"
+            [value]="facade.form.timeUnit()"
+            (valueChange)="onTimeUnitChange($event)"
+          />
+
+          <nv-input
+            label="Precio base por unidad ($)"
+            type="number"
+            [required]="true"
+            placeholder="0"
+            [value]="'' + facade.form.pricePerUnit()"
+            (input)="onPriceInput($event)"
+          />
+
+          <nv-input
+            label="Tiempo de gracia / mínimo (minutos)"
+            type="number"
+            [required]="true"
+            placeholder="0"
+            [value]="'' + facade.form.minChargeTimeMinutes()"
+            (input)="onMinTimeInput($event)"
+          />
+
+          @if (facade.mode() === 'create') {
+            <nv-select
+              class="col-span-1 sm:col-span-2 w-full"
+              label="Política especial / recargo (Opcional)"
+              [items]="policyOptions()"
+              [displayFn]="displayOptionFn"
+              [valueFn]="valueOptionFn"
+              [value]="facade.form.specialPolicyId() ?? ''"
+              (valueChange)="onPolicyChange($event)"
+            />
+          }
+        </div>
+
+        <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 border-t border-border pt-4 mt-2">
+          <nv-button
+            variant="outline"
+            [routerLink]="APP_ROUTES.app.parkingLotRates(p.id)"
+            class="w-full sm:w-auto"
+          >
+            Cancelar
+          </nv-button>
+          <nv-button
+            (click)="facade.submit()"
+            [disabled]="!facade.isValid() || facade.isSubmitting()"
+            class="w-full sm:w-auto"
+          >
+            <ng-icon name="lucideSave" size="16"></ng-icon>
+            {{ facade.isSubmitting() ? 'Guardando...' : (facade.mode() === 'create' ? 'Crear tarifa' : 'Guardar cambios') }}
+          </nv-button>
+        </div>
+      </nv-card>
+
+      <!-- Simulation Column -->
+      <div class="flex flex-col gap-4 lg:sticky lg:top-4">
+        <app-rate-preview [simulation]="facade.simulation()" />
+
+        <nv-card class="p-4 sm:p-5 flex flex-col gap-2">
+          <nv-muted class="text-xs font-semibold uppercase tracking-wider">Ajustar estancia de prueba</nv-muted>
+          <div class="flex items-center gap-3 mt-1">
+            <input
+              type="range"
+              [value]="facade.previewDurationMinutes()"
+              (input)="onDurationChange($event)"
+              min="15"
+              max="720"
+              step="15"
+              class="w-full accent-primary cursor-pointer"
+            />
+            <nv-mono class="text-xs font-semibold text-foreground whitespace-nowrap">
+              {{ facade.previewDurationMinutes() }} min
+            </nv-mono>
+          </div>
+        </nv-card>
+      </div>
+    </div>
+  </div>
+}
