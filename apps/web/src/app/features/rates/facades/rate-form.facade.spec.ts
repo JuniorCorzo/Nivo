@@ -89,4 +89,29 @@ describe('RateFormFacade', () => {
     const sim = facade.simulation();
     expect(sim.total).toBe(10000);
   });
+
+  it('should submit create rate using mapper payload', () => {
+    rateServiceSpy.createRate.and.returnValue(of({ id: 'new-rate' } as any));
+
+    facade.form.name.set('Tarifa Plena');
+    facade.form.description.set('Tarifa estándar');
+    facade.form.pricePerUnit.set(5000);
+    facade.form.minChargeTimeMinutes.set(15);
+
+    facade.submit();
+
+    expect(rateServiceSpy.createRate).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        parkingId: 'parking-1',
+        name: 'Tarifa Plena',
+        description: 'Tarifa estándar',
+        pricePerUnit: 5000,
+        minChargeTimeMinutes: 15,
+      }),
+    );
+    expect(toastSpy.showToast).toHaveBeenCalledWith(
+      jasmine.objectContaining({ type: 'success' }),
+    );
+  });
 });
+

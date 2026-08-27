@@ -6,6 +6,11 @@ import { ToastService } from '@nivo-sass/design-system';
 import { RateService } from '@core/services/rate-service';
 import { ParkingService } from '@core/services/parking-service';
 import { RateModel, SpecialPolicyModel, TimeUnit, VehicleType } from '@core/models/rate.model';
+import {
+  RateFormData,
+  mapFormToCreateRateModel,
+  mapFormToUpdateRateModel,
+} from '@core/mappers/rate.mapper';
 import { APP_ROUTES } from '@shared/constants/app-routes.constant';
 
 export type RateFormMode = 'create' | 'edit';
@@ -79,6 +84,11 @@ export class RateFormFacade {
   });
 
   constructor() {
+    this.listenRouteParams();
+    this.syncFormWithCurrentRate();
+  }
+
+  private listenRouteParams(): void {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const pId = params.get('parkingId');
       const rId = params.get('rateId');
@@ -87,11 +97,17 @@ export class RateFormFacade {
       this.mode.set(rId ? 'edit' : 'create');
 
       if (pId) {
-        this.rateService.getRatesByParkingId(pId).subscribe();
-        this.rateService.loadSpecialPolicies().subscribe();
+        this.loadRateData(pId);
       }
     });
+  }
 
+  private loadRateData(parkingId: string): void {
+    this.rateService.getRatesByParkingId(parkingId).subscribe();
+    this.rateService.loadSpecialPolicies().subscribe();
+  }
+
+  private syncFormWithCurrentRate(): void {
     effect(() => {
       const rate = this.currentRate();
       if (rate) {
@@ -110,60 +126,60 @@ export class RateFormFacade {
     const pId = this.parkingId();
     if (!pId || !this.isValid() || this.isSubmitting()) return;
 
-    this.isSubmitting.set(true);
-
     if (this.mode() === 'create') {
-      this.rateService
-        .createRate({
-          parkingId: pId,
-          name: this.form.name().trim(),
-          description: this.form.description().trim(),
-          vehicleType: this.form.vehicleType(),
-          timeUnit: this.form.timeUnit(),
-          pricePerUnit: this.form.pricePerUnit(),
-          minChargeTimeMinutes: this.form.minChargeTimeMinutes(),
-          specialPolicyId: this.form.specialPolicyId() ?? undefined,
-        })
-        .subscribe({
-          next: () => {
-            this.isSubmitting.set(false);
-            this.toast.showToast({ message: 'Tarifa creada con éxito', type: 'success' });
-            this.navigateBack();
-          },
-          error: () => {
-            this.isSubmitting.set(false);
-            this.toast.showToast({ message: 'Error al crear la tarifa', type: 'error' });
-          },
-        });
+      this.handleCreateRate(pId);
     } else {
       const rId = this.rateId();
-      if (!rId) return;
-
-      this.rateService
-        .updateRate(
-          {
-            id: rId,
-            name: this.form.name().trim(),
-            description: this.form.description().trim(),
-            vehicleType: this.form.vehicleType(),
-            timeUnit: this.form.timeUnit(),
-            pricePerUnit: this.form.pricePerUnit(),
-            minChargeTimeMinutes: this.form.minChargeTimeMinutes(),
-          },
-          pId,
-        )
-        .subscribe({
-          next: () => {
-            this.isSubmitting.set(false);
-            this.toast.showToast({ message: 'Tarifa actualizada', type: 'success' });
-            this.navigateBack();
-          },
-          error: () => {
-            this.isSubmitting.set(false);
-            this.toast.showToast({ message: 'Error al actualizar la tarifa', type: 'error' });
-          },
-        });
+      if (rId) {
+        this.handleUpdateRate(pId, rId);
+      }
     }
+  }
+
+  private getFormData(): RateFormData {
+    return {
+      name: this.form.name(),
+      description: this.form.description(),
+      vehicleType: this.form.vehicleType(),
+      timeUnit: this.form.timeUnit(),
+      pricePerUnit: this.form.pricePerUnit(),
+      minChargeTimeMinutes: this.form.minChargeTimeMinutes(),
+      specialPolicyId: this.form.specialPolicyId(),
+    };
+  }
+
+  private handleCreateRate(parkingId: string): void {
+    this.isSubmitting.set(true);
+    const payload = mapFormToCreateRateModel(this.getFormData(), parkingId);
+
+    this.rateService.createRate(payload).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.toast.showToast({ message: 'Tarifa creada con éxito', type: 'success' });
+        this.navigateBack();
+      },
+      error: () => {
+        this.isSubmitting.set(false);
+        this.toast.showToast({ message: 'Error al crear la tarifa', type: 'error' });
+      },
+    });
+  }
+
+  private handleUpdateRate(parkingId: string, rateId: string): void {
+    this.isSubmitting.set(true);
+    const payload = mapFormToUpdateRateModel(this.getFormData(), rateId);
+
+    this.rateService.updateRate(payload, parkingId).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.toast.showToast({ message: 'Tarifa actualizada', type: 'success' });
+        this.navigateBack();
+      },
+      error: () => {
+        this.isSubmitting.set(false);
+        this.toast.showToast({ message: 'Error al actualizar la tarifa', type: 'error' });
+      },
+    });
   }
 
   navigateBack(): void {
