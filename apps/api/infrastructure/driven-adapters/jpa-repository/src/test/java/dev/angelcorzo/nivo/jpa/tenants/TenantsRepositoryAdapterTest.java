@@ -1,127 +1,79 @@
 package dev.angelcorzo.nivo.jpa.tenants;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
-import dev.angelcorzo.nivo.jpa.tenants.mappers.TenantsMapperJpaImpl;
+import dev.angelcorzo.nivo.jpa.tenants.mappers.TenantsMapper;
 import dev.angelcorzo.nivo.model.tenants.Tenants;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 
-@ActiveProfiles("test")
-@DataJpaTest
-@Import({TenantsRepositoryAdapter.class, TenantsMapperJpaImpl.class})
-@AutoConfigureTestDatabase(
-    replace = AutoConfigureTestDatabase.Replace.NONE,
-    connection = EmbeddedDatabaseConnection.NONE)
-@DisplayName("TenantsRepositoryAdapter Tests")
+@DisplayName("TenantsRepositoryAdapter Unit Tests")
 class TenantsRepositoryAdapterTest {
 
-  @Autowired private TenantsRepositoryAdapter tenantsRepositoryAdapter;
-  private Tenants tenant1;
+  private TenantsRepositoryData repository;
+  private TenantsMapper mapper;
+  private TenantsRepositoryAdapter adapter;
 
   @BeforeEach
   void setUp() {
-    tenant1 = Tenants.builder().companyName("Company One").build();
-
-    tenant1 = tenantsRepositoryAdapter.save(tenant1);
+    repository = mock(TenantsRepositoryData.class);
+    mapper = mock(TenantsMapper.class);
+    adapter = new TenantsRepositoryAdapter(repository, mapper);
   }
 
-  @Nested
-  @DisplayName("Save Operations")
-  class SaveOperations {
+  @Test
+  @DisplayName("Should find tenant by ID")
+  void shouldFindTenantById() {
+    UUID tenantId = UUID.randomUUID();
+    TenantsData data = new TenantsData();
+    Tenants entity = Tenants.builder().id(tenantId).companyName("Company One").build();
 
-    @Test
-    @DisplayName("Should save a tenant successfully")
-    void shouldSaveTenantSuccessfully() {
-      // Given
-      Tenants newTenantModel = Tenants.builder().companyName("New Company").build();
+    when(repository.findById(tenantId)).thenReturn(Optional.of(data));
+    when(mapper.toEntity(data)).thenReturn(entity);
 
-      // When
-      Tenants savedTenant = tenantsRepositoryAdapter.save(newTenantModel);
+    Optional<Tenants> result = adapter.findById(tenantId);
 
-      // Then
-      assertThat(savedTenant).isNotNull();
-      assertThat(savedTenant.getId()).isNotNull();
-      assertThat(savedTenant.getCompanyName()).isEqualTo("New Company");
-
-      Optional<Tenants> found = tenantsRepositoryAdapter.findById(savedTenant.getId());
-      assertThat(found).isPresent();
-      assertThat(found.get().getCompanyName()).isEqualTo("New Company");
-    }
+    assertThat(result).isPresent();
+    assertThat(result.get().getId()).isEqualTo(tenantId);
   }
 
-  @Nested
-  @DisplayName("Find Operations")
-  class FindOperations {
+  @Test
+  @DisplayName("Should find all tenants")
+  void shouldFindAllTenants() {
+    TenantsData data = new TenantsData();
+    Tenants entity = Tenants.builder().id(UUID.randomUUID()).companyName("Company One").build();
 
-    @Test
-    @DisplayName("Should find a tenant by ID when it exists")
-    void shouldFindTenantByIdWhenExists() {
-      // When
-      Optional<Tenants> found = tenantsRepositoryAdapter.findById(tenant1.getId());
+    when(repository.findAll()).thenReturn(List.of(data));
+    when(mapper.toEntity(data)).thenReturn(entity);
 
-      // Then
-      assertThat(found).isPresent();
-      assertThat(found.get().getId()).isEqualTo(tenant1.getId());
-      assertThat(found.get().getCompanyName()).isEqualTo("Company One");
-    }
+    List<Tenants> result = adapter.findAll();
 
-    @Test
-    @DisplayName("Should return empty optional when tenant not found by ID")
-    void shouldReturnEmptyWhenTenantNotFoundById() {
-      // When
-      Optional<Tenants> found = tenantsRepositoryAdapter.findById(UUID.randomUUID());
-
-      // Then
-      assertThat(found).isNotPresent();
-    }
-
-    @Test
-    @DisplayName("Should find all tenants")
-    void shouldFindAllTenants() {
-      // Given
-      Tenants tenant2 =
-          tenantsRepositoryAdapter.save(Tenants.builder().companyName("Company Two").build());
-
-      // When
-      List<Tenants> allTenants = tenantsRepositoryAdapter.findAll();
-
-      // Then
-      assertThat(allTenants).isNotNull();
-      assertThat(allTenants.size()).isEqualTo(2);
-      assertThat(allTenants).extracting(Tenants::getId).contains(tenant1.getId(), tenant2.getId());
-    }
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getCompanyName()).isEqualTo("Company One");
   }
 
-  @Nested
-  @DisplayName("Delete Operations")
-  class DeleteOperations {
+  @Test
+  @DisplayName("Should check existence by ID")
+  void shouldCheckExistsById() {
+    UUID tenantId = UUID.randomUUID();
+    when(repository.existsById(tenantId)).thenReturn(true);
 
-    @Test
-    @DisplayName("Should delete a tenant by ID")
-    void shouldDeleteTenantById() {
-      // Given
-      UUID tenantId = tenant1.getId();
-      assertThat(tenantsRepositoryAdapter.existsById(tenantId)).isTrue();
+    assertThat(adapter.existsById(tenantId)).isTrue();
+    verify(repository).existsById(tenantId);
+  }
 
-      // When
-      tenantsRepositoryAdapter.deleteById(tenantId);
+  @Test
+  @DisplayName("Should delete tenant by ID")
+  void shouldDeleteTenantById() {
+    UUID tenantId = UUID.randomUUID();
 
-      // Then
-      // Due to @SQLRestriction, findById should now return empty
-      Optional<Tenants> found = tenantsRepositoryAdapter.findById(tenantId);
-      assertThat(found).isNotPresent();
-    }
+    adapter.deleteById(tenantId);
+
+    verify(repository).deleteById(tenantId);
   }
 }

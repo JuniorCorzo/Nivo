@@ -8,10 +8,14 @@ import dev.angelcorzo.nivo.model.authentication.AuthResponse;
 import dev.angelcorzo.nivo.usecase.login.LoginUseCase;
 import dev.angelcorzo.nivo.usecase.refreshsession.RefreshSessionUseCase;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseCookie;
 import java.time.Duration;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication", description = "Authentication and session management endpoints")
 public class AuthenticationController {
   private final int refreshTokenExpiration;
 
@@ -37,9 +42,18 @@ public class AuthenticationController {
     this.authenticationMapper = authenticationMapper;
   }
 
+  @Operation(
+      summary = "User login",
+      description = "Authenticates user credentials and returns JWT access token with refresh token cookie",
+      security = {})
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Login successful"),
+    @ApiResponse(responseCode = "400", description = "Invalid credentials or payload"),
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+  })
   @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
   Response<AuthenticationResponseDTO> login(
-      @RequestBody UserCredentialsDTO userCredentials, HttpServletResponse response) {
+      @RequestBody @Valid UserCredentialsDTO userCredentials, HttpServletResponse response) {
     AuthResponse authResponse =
         this.loginUseCase.auth(this.authenticationMapper.toModel(userCredentials));
 
@@ -50,7 +64,14 @@ public class AuthenticationController {
     return Response.ok(this.authenticationMapper.toDTO(authResponse), "Login successful");
   }
 
-  @Operation(security = {@SecurityRequirement(name = "refreshToken")})
+  @Operation(
+      summary = "Refresh session tokens",
+      description = "Generates new JWT access and refresh tokens using the refreshToken cookie",
+      security = {@SecurityRequirement(name = "refreshToken")})
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Session refreshed successfully"),
+    @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
+  })
   @PostMapping(value = "/refresh", produces = MediaType.APPLICATION_JSON_VALUE)
   Response<AuthenticationResponseDTO> refreshSession(
       @CookieValue("refreshToken") String refreshToken, HttpServletResponse response) {
@@ -63,6 +84,11 @@ public class AuthenticationController {
     return Response.ok(this.authenticationMapper.toDTO(newTokens), "Refresh successful");
   }
 
+  @Operation(
+      summary = "User logout",
+      description = "Clears the authentication session and refresh token cookie",
+      security = {})
+  @ApiResponse(responseCode = "200", description = "Logged out successfully")
   @PostMapping("/logout")
   @ResponseStatus(HttpStatus.OK)
   void logout(HttpServletResponse response) {

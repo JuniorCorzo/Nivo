@@ -27,9 +27,10 @@ public class PaymentSubscriptionEventListener {
       return;
     }
 
-    String paymentId = destination.split("/")[2];
-    this.subscriptions.putIfAbsent(
-        accessor.getSessionId(), Map.of(accessor.getSubscriptionId(), paymentId));
+    String paymentId = destination.substring("/topic/payment/".length());
+    this.subscriptions
+        .computeIfAbsent(accessor.getSessionId(), k -> new ConcurrentHashMap<>())
+        .put(accessor.getSubscriptionId(), paymentId);
   }
 
   @EventListener

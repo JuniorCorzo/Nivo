@@ -45,5 +45,19 @@ cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080,http://localhost:63342"
 
 springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+
+scalar:
+  enabled: true
+  url: /api/v3/api-docs
+  path: /scalar
+  theme: moon
+  layout: modern
+  show-sidebar: true
+  dark-mode: true
+
+

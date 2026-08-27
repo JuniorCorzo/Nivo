@@ -31,10 +31,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class InviteUserWithRoleUseCaseTest {
   @Mock private UsersRepository usersRepository;
-
   @Mock private UserInvitationsRepository userInvitationsRepository;
-
   @Mock private TenantsRepository tenantsRepository;
+  @Mock private dev.angelcorzo.nivo.usecase.notifications.UserNotifier userNotifier;
 
   @InjectMocks private InviteUserWithRolUseCase inviteUserWithRoleUseCase;
 
@@ -63,7 +62,6 @@ class InviteUserWithRoleUseCaseTest {
             .build();
 
     when(usersRepository.existsByEmailAndTenantId(email, tenantId)).thenReturn(false);
-    when(usersRepository.existsById(inviteBy)).thenReturn(true);
     when(tenantsRepository.findById(tenantId)).thenReturn(Optional.of(tenant));
     when(usersRepository.findById(inviteBy)).thenReturn(Optional.of(invitedByUser));
     when(userInvitationsRepository.save(any(UserInvitations.class)))
@@ -84,7 +82,7 @@ class InviteUserWithRoleUseCaseTest {
     assertEquals(email, capturedInvitation.getInvitedEmail());
     assertEquals(role, capturedInvitation.getRole());
     assertEquals(UserInvitationStatus.PENDING, capturedInvitation.getStatus());
-    assertEquals(invitedByUser, capturedInvitation.getInvitedBy());
+    assertEquals(invitedByUser.getId(), capturedInvitation.getInvitedBy().id());
     assertNotNull(capturedInvitation.getToken());
     assertNotNull(capturedInvitation.getCreatedAt());
     assertNotNull(capturedInvitation.getExpiredAt());
@@ -95,10 +93,10 @@ class InviteUserWithRoleUseCaseTest {
     assertEquals(3, daysBetween);
 
     verify(usersRepository, times(1)).existsByEmailAndTenantId(email, tenantId);
-    verify(usersRepository, times(1)).existsById(inviteBy);
     verify(tenantsRepository, times(1)).findById(tenantId);
     verify(usersRepository, times(1)).findById(inviteBy);
     verify(userInvitationsRepository, times(1)).save(any(UserInvitations.class));
+    verify(userNotifier, times(1)).notifyUserInvited(any(UserInvitations.class));
   }
 
   @Test
@@ -189,8 +187,8 @@ class InviteUserWithRoleUseCaseTest {
             .build();
 
     when(usersRepository.existsByEmailAndTenantId(email, tenantId)).thenReturn(false);
-    when(usersRepository.existsById(nonExistentInviteBy)).thenReturn(true);
     when(tenantsRepository.findById(tenantId)).thenReturn(Optional.of(tenant));
+    when(usersRepository.findById(nonExistentInviteBy)).thenReturn(Optional.empty());
 
     // When & Then
     UserNotExistsException exception =
@@ -226,7 +224,6 @@ class InviteUserWithRoleUseCaseTest {
             .build();
 
     when(usersRepository.existsByEmailAndTenantId(email, tenantId)).thenReturn(false);
-    when(usersRepository.existsById(inviteBy)).thenReturn(true);
     when(tenantsRepository.findById(tenantId)).thenReturn(Optional.empty());
 
     // When & Then

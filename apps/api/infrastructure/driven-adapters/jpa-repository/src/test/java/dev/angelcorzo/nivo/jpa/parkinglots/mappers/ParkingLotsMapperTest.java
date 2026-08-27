@@ -76,8 +76,8 @@ class ParkingLotsMapperTest {
     assertThat(result.slotDistribution().get(1).type()).isEqualTo(SlotType.MOTORCYCLE);
     assertThat(result.slotDistribution().get(1).count()).isEqualTo(4L);
     assertThat(result.operatingHours()).isNotNull();
-    assertThat(result.operatingHours().getOpenTime().toString()).isEqualTo("06:00:00-05:00");
-    assertThat(result.operatingHours().getCloseTime().toString()).isEqualTo("22:00:00-05:00");
+    assertThat(result.operatingHours().getOpenTime()).isEqualTo(java.time.OffsetTime.of(6, 0, 0, 0, ZoneOffset.ofHours(-5)));
+    assertThat(result.operatingHours().getCloseTime()).isEqualTo(java.time.OffsetTime.of(22, 0, 0, 0, ZoneOffset.ofHours(-5)));
   }
 
   @Configuration

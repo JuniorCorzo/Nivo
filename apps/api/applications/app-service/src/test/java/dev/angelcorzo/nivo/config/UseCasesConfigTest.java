@@ -1,44 +1,32 @@
 package dev.angelcorzo.nivo.config;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.interceptor.TransactionInterceptor;
+
+@DisplayName("UseCasesConfig Unit Tests")
 public class UseCasesConfigTest {
 
-    @Test
-    void testUseCaseBeansExist() {
-        try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfig.class)) {
-            String[] beanNames = context.getBeanDefinitionNames();
+  @Test
+  @DisplayName("Should create transaction manager, interceptor, and auto proxy beans")
+  void testUseCasesConfigBeans() {
+    UseCasesConfig config = new UseCasesConfig();
+    LocalContainerEntityManagerFactoryBean factoryBean =
+        mock(LocalContainerEntityManagerFactoryBean.class);
 
-            boolean useCaseBeanFound = false;
-            for (String beanName : beanNames) {
-                if (beanName.endsWith("UseCase")) {
-                    useCaseBeanFound = true;
-                    break;
-                }
-            }
+    PlatformTransactionManager txManager = config.transactionManager(factoryBean);
+    assertNotNull(txManager);
 
-            assertTrue(useCaseBeanFound, "No beans ending with 'Use Case' were found");
-        }
-    }
+    TransactionInterceptor interceptor = config.customTransactionInterceptor(txManager);
+    assertNotNull(interceptor);
 
-    @Configuration
-    @Import(UseCasesConfig.class)
-    static class TestConfig {
-
-        @Bean
-        public MyUseCase myUseCase() {
-            return new MyUseCase();
-        }
-    }
-
-    static class MyUseCase {
-        public String execute() {
-            return "MyUseCase Test";
-        }
-    }
+    BeanNameAutoProxyCreator autoProxy = config.transactionAutoProxy();
+    assertNotNull(autoProxy);
+  }
 }

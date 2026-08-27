@@ -16,6 +16,9 @@ import dev.angelcorzo.nivo.model.users.Users;
 import dev.angelcorzo.nivo.usecase.createspecialpolicy.CreateSpecialPolicyUseCase;
 import dev.angelcorzo.nivo.usecase.registertenant.RegisterTenantUseCase;
 import dev.angelcorzo.nivo.usecase.showspecialpoliciesbytenant.ShowSpecialPoliciesByTenantUseCase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -27,12 +30,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(
-    value = "/tenants",
-    produces = MediaType.APPLICATION_JSON_VALUE,
-    consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping("/tenants")
 @RequiredArgsConstructor
-@Tag(name = "Tenant Controller", description = "Operations pertaining to tenants")
+@Tag(name = "Tenants", description = "Tenant registration and special policies management")
 public class TenantController {
   private final UserMapper userMapper;
   private final SpecialPoliciesMapper specialPoliciesMapper;
@@ -42,8 +42,15 @@ public class TenantController {
   private final CreateSpecialPolicyUseCase createSpecialPolicyUseCase;
   private final ShowSpecialPoliciesByTenantUseCase showSpecialPoliciesByTenantUseCase;
 
+  @Operation(
+      summary = "List special policies for tenant",
+      description = "Retrieves all active special policies configured for the authenticated tenant")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Special policies retrieved successfully"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
+  })
   @GetMapping("/special-policies")
-  @PreAuthorize("hasRoles('OPERATOR')")
+  @PreAuthorize("hasRole('OPERATOR')")
   public Response<Iterable<SpecialPoliciesDTO>> showSpecialPoliciesByTenant() {
     final UUID tenantId = this.getTenantId();
 
@@ -56,6 +63,14 @@ public class TenantController {
         specialPolicies, SpecialPoliciesMessages.SHOW_SPECIAL_POLICIES_BY_TENANT.toString());
   }
 
+  @Operation(
+      summary = "Register new tenant and owner",
+      description = "Registers a new tenant organization along with its initial owner user account",
+      security = {})
+  @ApiResponses({
+    @ApiResponse(responseCode = "201", description = "Tenant registered successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid registration payload")
+  })
   @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   Response<UserDTO> registerTenant(@RequestBody @Valid RegisterTenantDTO registerTenant) {
@@ -68,6 +83,14 @@ public class TenantController {
         this.userMapper.toDTO(userCreated), TenantsMessages.TENANT_CREATED_SUCCESSFULLY.toString());
   }
 
+  @Operation(
+      summary = "Create special policy",
+      description = "Creates a new special policy (discount/surcharge) for the current tenant")
+  @ApiResponses({
+    @ApiResponse(responseCode = "201", description = "Special policy created successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid policy payload"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Owner role required")
+  })
   @PostMapping("/create/special-policy")
   @PreAuthorize("hasRole('OWNER')")
   public Response<SpecialPoliciesDTO> createAtSpecialPolicies(

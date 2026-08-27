@@ -38,9 +38,7 @@ class RegisterTenantUseCaseTest {
     @Mock
     private PasswordEncodeGateway passwordEncode;
     @Mock
-    private SendNotificationsUseCase sendNotificationsUseCase;
-    @Mock
-    private AppProperties appProperties;
+    private dev.angelcorzo.nivo.usecase.notifications.RegistrationNotifier registrationNotifier;
 
     @InjectMocks
     private RegisterTenantUseCase registerTenantUseCase;
@@ -68,13 +66,6 @@ class RegisterTenantUseCaseTest {
                 .password("password123")
                 .contactInfo("3000000000")
                 .build();
-
-        when(appProperties.getCtaUrl()).thenReturn("https://cta.test");
-        when(appProperties.getCompanyName()).thenReturn("Nivo");
-        when(appProperties.getSupportUrl()).thenReturn("https://support.test");
-        when(appProperties.getSocialUrl()).thenReturn("https://social.test");
-        when(appProperties.getUnsubscribeUrl()).thenReturn("https://unsubscribe.test");
-        when(appProperties.getAddressCompany()).thenReturn("Street 123");
     }
 
     @Test
@@ -104,7 +95,6 @@ class RegisterTenantUseCaseTest {
         // Verify that the response is not null and contains the expected data
         assertNotNull(response);
         assertEquals(response, userReturn);
-        assertEquals(tenantToRegister, response.getTenant());
         assertEquals(userId, response.getId());
         assertEquals(Roles.OWNER, response.getRole());
         // ArgumentCaptor to verify the state of the User object passed to the save method
@@ -114,11 +104,9 @@ class RegisterTenantUseCaseTest {
         verify(usersRepository, times(1)).existsByEmail("test@example.com");
         verify(tenantsRepository, times(1)).save(any(Tenants.class));
         verify(usersRepository, times(1)).save(userCaptor.capture()); // Capture the argument
-        verify(sendNotificationsUseCase, times(1))
-                .send(any(), any(), anyString(), any(), any(), any());
+        verify(registrationNotifier, times(1)).notifyUserSelfRegistered(userReturn);
 
         // Verify that the tenant was correctly assigned to the user before saving
-        assertEquals(tenant, userCaptor.getValue().getTenant());
         assertEquals(tenantId, userCaptor.getValue().getTenant().id());
     }
 

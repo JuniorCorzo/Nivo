@@ -116,7 +116,7 @@ public class RateWithSpecialPolicyDecorator implements RateComponent {
 
   private BigDecimal adjustPercentage(BigDecimal value, BigDecimal percentage) {
     final BigDecimal discount =
-        value.multiply(percentage.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP));
+        value.multiply(percentage.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
 
     return value.subtract(discount);
   }

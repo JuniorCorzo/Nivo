@@ -8,6 +8,10 @@ import dev.angelcorzo.nivo.model.commons.notifications.enums.NotificationEvents;
 import dev.angelcorzo.nivo.model.commons.notifications.enums.NotificationsChannel;
 import dev.angelcorzo.nivo.usecase.getnotificationpreferencesbyuser.GetNotificationPreferencesByUserUseCase;
 import dev.angelcorzo.nivo.usecase.updateusernotificationpreferences.UpdateUserNotificationPreferencesUseCase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,25 +22,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * REST controller for Notification Preferences endpoints.
- *
- * <p>Exposes two operations scoped to the authenticated user:
- *
- * <ul>
- *   <li>{@code GET /notification-preferences} — retrieves all preferences of the current user.
- *   <li>{@code PATCH /notification-preferences/toggle} — toggles the {@code isEnabled} flag for a
- *       specific event/channel combination, identified via query parameters.
- * </ul>
- *
- * <p><strong>Layer:</strong> Infrastructure (Entry Point - REST)
- *
- * @author Angel Corzo
- * @since 1.0.0
- */
 @RestController
 @RequestMapping("/notification-preferences")
-@Tag(name = "Notification Preferences", description = "Notification Preferences API")
+@Tag(name = "Notification Preferences", description = "User notification preferences and channel toggles")
 @RequiredArgsConstructor
 public class NotificationPreferencesController {
 
@@ -44,11 +32,13 @@ public class NotificationPreferencesController {
   private final GetNotificationPreferencesByUserUseCase getNotificationPreferencesByUserUseCase;
   private final UpdateUserNotificationPreferencesUseCase updateUserNotificationPreferencesUseCase;
 
-  /**
-   * Returns all notification preferences belonging to the authenticated user.
-   *
-   * @return A {@link Response} wrapping the list of {@link NotificationPreferencesDTO}.
-   */
+  @Operation(
+      summary = "Get user notification preferences",
+      description = "Returns all notification event and channel preferences for the authenticated user")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Preferences retrieved successfully"),
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+  })
   @GetMapping
   @PreAuthorize("isAuthenticated()")
   public Response<List<NotificationPreferencesDTO>> getNotificationPreferences() {
@@ -61,22 +51,19 @@ public class NotificationPreferencesController {
         preferences, NotificationPreferencesMessages.NOTIFICATION_PREFERENCES_LIST.format());
   }
 
-  /**
-   * Toggles the {@code isEnabled} status of a notification preference for the authenticated user.
-   *
-   * <p>The target preference is identified by the {@code event} and {@code channel} query
-   * parameters. The method returns the new boolean state after the toggle.
-   *
-   * @param event The {@link NotificationEvents} of the preference to toggle.
-   * @param channel The {@link NotificationsChannel} of the preference to toggle.
-   * @return A {@link Response} wrapping the new {@code isEnabled} value ({@code true}/{@code
-   *     false}).
-   */
+  @Operation(
+      summary = "Toggle notification preference",
+      description = "Toggles enabled status for a specific notification event and communication channel")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Preference toggled successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid event or channel parameter"),
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+  })
   @PatchMapping("/toggle")
   @PreAuthorize("isAuthenticated()")
   public Response<Boolean> toggleNotificationPreference(
-      @RequestParam("event") NotificationEvents event,
-      @RequestParam("channel") NotificationsChannel channel) {
+      @Parameter(description = "Notification event type", required = true) @RequestParam("event") NotificationEvents event,
+      @Parameter(description = "Notification delivery channel", required = true) @RequestParam("channel") NotificationsChannel channel) {
     final boolean newStatus =
         this.updateUserNotificationPreferencesUseCase.toggleActiveStatus(event, channel);
 

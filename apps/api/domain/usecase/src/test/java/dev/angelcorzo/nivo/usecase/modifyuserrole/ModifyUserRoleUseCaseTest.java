@@ -25,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ModifyUserRoleUseCaseTest {
   @Mock private UsersRepository usersRepository;
+  @Mock private dev.angelcorzo.nivo.usecase.notifications.UserNotifier userNotifier;
 
   @InjectMocks private ModifyUserRoleUseCase modifyUserRoleUseCase;
 
