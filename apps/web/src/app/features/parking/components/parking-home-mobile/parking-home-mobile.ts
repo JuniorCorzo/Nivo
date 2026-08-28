@@ -8,7 +8,6 @@ import {
   lucideSearch,
   lucideTrash2,
   lucideMapPin,
-  lucideCar,
   lucideParkingSquare,
 } from '@ng-icons/lucide';
 import { ParkingService } from '@core/services/parking-service';
@@ -28,7 +27,6 @@ import { OccuppationMeter } from '../occuppation-meter/occuppation-meter';
       lucidePencil,
       lucideTrash2,
       lucideMapPin,
-      lucideCar,
       lucideParkingSquare,
     }),
   ],

@@ -95,6 +95,14 @@ export class ParkingDetail {
     return p.slotDistribution.reduce((sum, s) => sum + s.count, 0);
   });
 
+  protected readonly occupiedSlots = computed(() => {
+    return Math.round((this.totalSlots() * (this.parking()?.occuppationRate || 0)) / 100);
+  });
+
+  protected readonly availableSlots = computed(() => {
+    return Math.max(0, this.totalSlots() - this.occupiedSlots());
+  });
+
   protected readonly addressLine = computed(() => {
     const p = this.parking();
     if (!p) return '';
@@ -105,8 +113,8 @@ export class ParkingDetail {
   protected readonly addressSubline = computed(() => {
     const p = this.parking();
     if (!p) return '';
-    const { city, country, zipCode } = p.address;
-    return [city, country, zipCode].filter(Boolean).join(' · ');
+    const { country, zipCode } = p.address;
+    return [country, zipCode].filter(Boolean).join(' · ');
   });
 
   protected readonly formattedCoords = computed(() => {

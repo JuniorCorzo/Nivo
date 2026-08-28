@@ -14,31 +14,41 @@ export const parkingLotsColumnDefinition = () => {
     }),
     columnHelper.accessor('address', {
       header: 'Dirección',
-      size: 340,
-      minSize: 280,
+      size: 300,
+      minSize: 220,
       cell: (info) => {
-        const { street, city, state } = info.getValue();
-        return `${street}, ${city}, ${state}`;
+        const address = info.getValue();
+        if (!address) return '—';
+        const { street, city } = address;
+        return [street, city].filter(Boolean).join(', ') || '—';
       },
     }),
-    columnHelper.accessor('totalCapacity', {
-      header: 'Capacidad',
-      size: 120,
-      minSize: 110,
-      cell: (info) => info.getValue(),
-    }),
     columnHelper.accessor('occuppationRate', {
-      header: 'Ocupación',
-      cell: (ctx) =>
-        flexRenderComponent(OccuppationMeter, {
+      id: 'occupancy',
+      header: 'Ocupación y Plazas',
+      size: 250,
+      minSize: 200,
+      cell: (ctx) => {
+        const total = ctx.row.original.totalCapacity ?? 0;
+        const rate = ctx.row.original.occuppationRate ?? 0;
+        const occupied = Math.round((total * rate) / 100);
+
+        return flexRenderComponent(OccuppationMeter, {
           inputs: {
             max: '100',
-            value: String(ctx.getValue()),
+            value: String(rate),
+            totalCapacity: total,
+            occupiedSlots: occupied,
+            showDetails: true,
           },
-        }),
+        });
+      },
     }),
     columnHelper.display({
+      id: 'actions',
       header: 'Acciones',
+      size: 110,
+      minSize: 90,
       cell: (ctx) =>
         flexRenderComponent(ActionsColumn, {
           inputs: {
@@ -50,3 +60,4 @@ export const parkingLotsColumnDefinition = () => {
 
   return columns;
 };
+
