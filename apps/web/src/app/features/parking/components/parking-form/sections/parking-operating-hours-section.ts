@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { ValidationError, FormField, FieldTree } from '@angular/forms/signals';
 
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
@@ -12,6 +12,7 @@ import { lucideClock } from '@ng-icons/lucide';
   standalone: true,
   imports: [InputComponent, TypographyH3, TypographyMuted, FormField, NgIcon],
   providers: [provideIcons({ lucideClock })],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex items-center gap-2">
       <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-warning/10 text-warning border border-warning/20">

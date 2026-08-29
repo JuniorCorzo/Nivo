@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { UserMenu } from '../user-menu/user-menu';
 import { ThemeButton } from '../theme-button/theme-button';
 import { LogoutButton } from '../logout-button/logout-button';
@@ -8,6 +8,7 @@ import { LogoutButton } from '../logout-button/logout-button';
   imports: [UserMenu, ThemeButton, LogoutButton],
   templateUrl: './sidebar-footer.html',
   styleUrl: './sidebar-footer.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarFooter {
   readonly collapsed = input(false);

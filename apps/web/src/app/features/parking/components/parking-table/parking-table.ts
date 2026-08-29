@@ -1,4 +1,4 @@
-import { Component, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
 import { ParkingService } from '@core/services/parking-service';
 import {
   createAngularTable,
@@ -28,6 +28,7 @@ import {
     FlexRender,
   ],
   templateUrl: './parking-table.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ParkingTable {
   private readonly rightAlignedColumnIds = new Set<string>();

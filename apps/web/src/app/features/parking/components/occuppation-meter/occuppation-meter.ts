@@ -1,10 +1,11 @@
-import { Component, computed, effect, ElementRef, input, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, input, viewChild } from '@angular/core';
 
 @Component({
   selector: 'app-occuppation-meter',
   imports: [],
   templateUrl: './occuppation-meter.html',
   styleUrl: './occuppation-meter.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OccuppationMeter {
   public id = input('occuppation-meter');

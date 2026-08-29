@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
 import { SlotDistribution, SlotType } from '@core/type/slot-distribution.type';
@@ -13,6 +13,7 @@ type SlotTypeOption = { value: SlotType; label: string };
   standalone: true,
   imports: [SelectComponent, TypographyH3, TypographyMuted, NgIcon],
   providers: [provideIcons({ lucidePlus, lucideTrash2, lucideLayers })],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex items-center justify-between border-b border-border pb-3">
       <div class="flex items-center gap-2">

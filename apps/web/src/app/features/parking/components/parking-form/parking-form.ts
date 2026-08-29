@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy } from '@angular/core';
 import { Subject, exhaustMap, firstValueFrom, takeUntil } from 'rxjs';
 import { FormField } from '@angular/forms/signals';
 
@@ -38,6 +38,7 @@ import { ParkingFormFacade } from './parking-form.facade';
   ],
   templateUrl: './parking-form.html',
   styleUrl: './parking-form.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ParkingFormComponent implements OnDestroy {
   private readonly destroy$ = new Subject<void>();

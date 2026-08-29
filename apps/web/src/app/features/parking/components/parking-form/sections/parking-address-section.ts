@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { ValidationError, FormField, FieldTree } from '@angular/forms/signals';
 
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
@@ -11,6 +11,7 @@ import { lucideMapPin } from '@ng-icons/lucide';
   standalone: true,
   imports: [InputComponent, ComboboxComponent, TypographyH3, TypographyMuted, FormField, NgIcon],
   providers: [provideIcons({ lucideMapPin })],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex items-center gap-2">
       <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-success/10 text-success border border-success/20">

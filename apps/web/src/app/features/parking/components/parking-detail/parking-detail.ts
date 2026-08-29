@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -63,6 +63,7 @@ import { DeleteParkingModal } from '@shared/components/delete-parking-modal/dele
   ],
   templateUrl: './parking-detail.html',
   styleUrl: './parking-detail.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ParkingDetail {
   protected readonly LABELS = APP_TEXTS.parking.detail;

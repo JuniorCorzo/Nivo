@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -9,6 +9,7 @@ import {
   lucideTrash2,
   lucideMapPin,
   lucideParkingSquare,
+  lucideLogIn,
 } from '@ng-icons/lucide';
 import { ParkingService } from '@core/services/parking-service';
 import { ParkingLotListItemModel } from '@core/models/parking.model';
@@ -28,9 +29,11 @@ import { OccuppationMeter } from '../occuppation-meter/occuppation-meter';
       lucideTrash2,
       lucideMapPin,
       lucideParkingSquare,
+      lucideLogIn,
     }),
   ],
   templateUrl: './parking-home-mobile.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ParkingHomeMobile {
   private readonly parkingService = inject(ParkingService);
@@ -60,6 +63,10 @@ export class ParkingHomeMobile {
 
   protected onViewParking(id: string): void {
     this.router.navigate([APP_ROUTES.app.parkingLots, id]);
+  }
+
+  protected onManageOperations(id: string): void {
+    this.router.navigate([APP_ROUTES.app.parkingLotOperations(id)]);
   }
 
   protected getAddress(lot: ParkingLotListItemModel): string {

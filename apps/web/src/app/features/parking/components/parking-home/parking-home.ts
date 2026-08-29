@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ParkingTable } from '../parking-table/parking-table';
 import { ButtonComponent, InputComponent, TypographyH3, TypographyMuted } from '@nivo-sass/design-system';
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
@@ -12,6 +12,7 @@ import { APP_ROUTES } from '@/app/shared/constants/app-routes.constant';
   imports: [ParkingTable, TypographyH3, TypographyMuted, ButtonComponent, InputComponent, NgIcon],
   providers: [provideIcons({ lucidePlus, lucideSearch, lucideParkingSquare, lucideMapPin })],
   templateUrl: './parking-home.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ParkingHome {
   protected LABELS = APP_TEXTS.parking;

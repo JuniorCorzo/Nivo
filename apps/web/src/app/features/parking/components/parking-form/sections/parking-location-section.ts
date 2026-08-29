@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
 import { Coordinates } from '@core/type/coordinates.type';
@@ -17,6 +17,7 @@ type CoordinateSummary = {
   standalone: true,
   imports: [ParkingMapComponent, TypographyH3, TypographyMuted, NgIcon],
   providers: [provideIcons({ lucideMapPin })],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex items-center gap-2">
       <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-info/10 text-info border border-info/20">
