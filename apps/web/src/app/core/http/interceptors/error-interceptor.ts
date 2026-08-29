@@ -13,9 +13,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error) => {
+      const response = error.error;
       if (error.status === 401) return throwError(() => responseMapper.mapResponseError(response));
 
-      const response = error.error;
       let errorMessage: string = messages.generic;
 
       switch (error.status) {

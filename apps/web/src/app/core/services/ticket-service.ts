@@ -54,6 +54,18 @@ export class TicketService {
   }
 
   /**
+   * Get the active ticket associated with a specific slot
+   */
+  getActiveTicketBySlot(slotId: string): Observable<TicketSummary> {
+    return this.parkingTicketsService
+      .getActiveTicket({ slot: slotId }, this.httpContext())
+      .pipe(
+        map((response) => mapToTicketSummary(response.data!)),
+        catchError((error) => throwError(() => error)),
+      );
+  }
+
+  /**
    * Calculate live price breakdown for a ticket before exit
    */
   calculatePrice(ticketId: string): Observable<PriceDetailedModel> {

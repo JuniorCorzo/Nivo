@@ -21,6 +21,7 @@ describe('TicketService', () => {
   beforeEach(() => {
     parkingTicketsSpy = jasmine.createSpyObj('ParkingTicketsService', [
       'createTicket',
+      'getActiveTicket',
       'checkOutVehicle',
     ]);
     ratesSpy = jasmine.createSpyObj('RatesService', ['calculatePrice']);
@@ -120,6 +121,46 @@ describe('TicketService', () => {
     service.checkOutVehicle(payload).subscribe((result) => {
       expect(result.id).toBe('payment-1');
       expect(result.amount).toBe(5950);
+      done();
+    });
+  });
+
+  it('should call ParkingTicketsService.getActiveTicket and return mapped TicketSummary', (done) => {
+    const mockResponse: ResponseParkingTicketsDto = {
+      message: 'Found',
+      status: '200',
+      timestamp: '2026-08-27T10:00:00Z',
+      data: {
+        id: 'ticket-real-123',
+        licensePlate: 'XYZ789',
+        status: 'OPEN',
+        entryTime: '2026-08-27T10:00:00Z',
+        user: {
+          id: 'u-1',
+          fullName: 'Operator',
+          email: 'op@test.com',
+          contactInfo: '123',
+          role: 'OPERATOR',
+        },
+        slot: {
+          id: 'slot-1',
+          slotNumber: '101',
+          type: 'CAR',
+          status: 'OCCUPIED',
+        },
+      },
+    };
+
+    parkingTicketsSpy.getActiveTicket.and.returnValue(of(mockResponse));
+
+    service.getActiveTicketBySlot('slot-1').subscribe((result) => {
+      expect(parkingTicketsSpy.getActiveTicket).toHaveBeenCalledWith(
+        { slot: 'slot-1' },
+        jasmine.any(Object),
+      );
+      expect(result.id).toBe('ticket-real-123');
+      expect(result.licensePlate).toBe('XYZ789');
+      expect(result.slotId).toBe('slot-1');
       done();
     });
   });
