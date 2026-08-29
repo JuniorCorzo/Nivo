@@ -16,6 +16,10 @@ public class DefaultTicketNotifier implements TicketNotifier {
 
   @Override
   public void notifyTicketOpened(ParkingTickets ticket) {
+    if (ticket == null || ticket.getUser() == null) {
+      return;
+    }
+
     final TicketOpenedData content =
         TicketOpenedData.builder()
             .userName(ticket.getUser().fullName())
@@ -42,6 +46,10 @@ public class DefaultTicketNotifier implements TicketNotifier {
 
   @Override
   public void notifyTicketClosed(ParkingTickets ticket) {
+    if (ticket == null || ticket.getUser() == null) {
+      return;
+    }
+
     final TicketClosedData content =
         TicketClosedData.builder()
             .userName(ticket.getUser().fullName())

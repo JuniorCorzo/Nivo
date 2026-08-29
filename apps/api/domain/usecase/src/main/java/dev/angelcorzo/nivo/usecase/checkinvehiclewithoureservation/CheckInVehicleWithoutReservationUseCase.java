@@ -1,10 +1,13 @@
 package dev.angelcorzo.nivo.usecase.checkinvehiclewithoureservation;
 
 import dev.angelcorzo.nivo.model.parkingtickets.ParkingTickets;
+import dev.angelcorzo.nivo.model.parkingtickets.enums.ParkingTicketStatus;
 import dev.angelcorzo.nivo.model.parkingtickets.gateways.ParkingTicketsRepository;
 import dev.angelcorzo.nivo.model.rates.exceptions.RateNotFoundException;
 import dev.angelcorzo.nivo.model.rates.gateways.RatesRepository;
 import dev.angelcorzo.nivo.model.rates.valueobject.RateReference;
+import dev.angelcorzo.nivo.model.slots.Slots;
+import dev.angelcorzo.nivo.model.slots.enums.SlotStatus;
 import dev.angelcorzo.nivo.model.slots.excetions.SlotNotFoundException;
 import dev.angelcorzo.nivo.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.model.slots.valueobject.SlotsReference;
@@ -30,18 +33,27 @@ public class CheckInVehicleWithoutReservationUseCase {
   private final TicketNotifier ticketNotifier;
 
   public ParkingTickets execute(CreatedParkingTicket command) {
+    final Slots slot =
+        this.slotsRepository
+            .findById(command.slotId())
+            .orElseThrow(() -> new SlotNotFoundException(command.slotId()));
+
     this.validate(command);
+
+    slot.setStatus(SlotStatus.OCCUPIED);
+    final Slots savedSlot = this.slotsRepository.save(slot);
 
     final Users user = this.getUser(command.email());
 
     final ParkingTickets parkingTicket =
         ParkingTickets.builder()
-            .slot(SlotsReference.of(this.slotsRepository.getReferenceById(command.slotId())))
+            .slot(SlotsReference.of(savedSlot))
             .tenant(TenantReference.of(this.tenantsRepository.getReferenceById(command.tenantId())))
             .user(UserReference.of(user))
             .rate(RateReference.of(this.ratesRepository.getReferenceById(command.rateId())))
             .entryTime(OffsetDateTime.now())
             .licensePlate(command.plate())
+            .status(ParkingTicketStatus.OPEN)
             .build();
 
     final ParkingTickets ticket = this.parkingTicketsRepository.save(parkingTicket);
@@ -52,12 +64,9 @@ public class CheckInVehicleWithoutReservationUseCase {
   }
 
   private void validate(CreatedParkingTicket ticket) {
-    if (!this.slotsRepository.existsById(ticket.slotId()))
-      throw new SlotNotFoundException(ticket.slotId());
-
     if (!this.tenantsRepository.existsById(ticket.tenantId()))
       throw new TenantNotExistsException(ticket.tenantId());
-    if (!ratesRepository.existsById(ticket.rateId()))
+    if (!this.ratesRepository.existsById(ticket.rateId()))
       throw new RateNotFoundException(ticket.rateId());
   }
 

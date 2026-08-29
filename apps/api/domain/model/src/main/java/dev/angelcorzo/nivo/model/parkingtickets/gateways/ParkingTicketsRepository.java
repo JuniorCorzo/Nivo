@@ -3,6 +3,7 @@ package dev.angelcorzo.nivo.model.parkingtickets.gateways;
 import dev.angelcorzo.nivo.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.model.parkingtickets.enums.ParkingTicketStatus;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,4 +23,8 @@ public interface ParkingTicketsRepository {
   ParkingTickets changeStatus(UUID ticketId, ParkingTicketStatus status);
 
   ParkingTickets closeTicket(UUID ticketId);
+
+  List<ParkingTickets> findAllByParkingLotId(UUID parkingLotId);
+
+  Optional<ParkingTickets> findActiveBySlotId(UUID slotId);
 }

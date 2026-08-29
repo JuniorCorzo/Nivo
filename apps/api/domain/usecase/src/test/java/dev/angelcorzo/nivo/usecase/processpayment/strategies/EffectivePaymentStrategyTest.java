@@ -105,11 +105,15 @@ class EffectivePaymentStrategyTest {
           .prepareCheckout(eq(ticketId), argThat(a -> a.compareTo(amount) == 0));
       verify(parkingTicketsRepository).closeTicket(ticketId);
       verify(transactionsRepository)
-          .save(argThat(t ->
-              t.getPayment().equals(savedPayment)
-                  && t.getAmount().compareTo(amount) == 0
-                  && t.getStatus() == TransactionStatus.APPROVED
-                  && "COP".equals(t.getCurrency())));
+          .save(
+              argThat(
+                  t ->
+                      t.getPayment().equals(savedPayment)
+                          && t.getAmount().compareTo(amount) == 0
+                          && t.getStatus() == TransactionStatus.APPROVED
+                          && "COP".equals(t.getCurrency())
+                          && PaymentsMethods.EFFECTIVE.name().equals(t.getPaymentProvider())
+                          && ("EFF-" + savedPayment.getId()).equals(t.getSupplierRef())));
       verify(ticketNotifier).notifyTicketClosed(ticket);
       verify(paymentNotifier).notifyPaymentCompleted(savedPayment);
     }
