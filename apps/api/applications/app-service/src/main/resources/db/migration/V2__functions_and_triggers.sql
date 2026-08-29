@@ -1,18 +1,9 @@
--- Migration: V20
+-- Migration: V2
 -- Creates a PostgreSQL trigger that automatically generates default notification preferences
--- for every user inserted into the `users` table (all event types × all channels).
--- Valid values are read dynamically from the CHECK constraints of `notification_preferences`,
--- so adding a new event_type or channel to those constraints is enough for the trigger to pick
--- it up automatically.
--- Also backfills preferences for users already seeded (V15.2).
+-- for every user inserted into the `users` table (all event types x all channels).
+-- Valid values are read dynamically from the CHECK constraints of `notification_preferences`.
 
--- ──────────────────────────────────────────────────────────────────────────────
 -- Helper: extract allowed values from a column-level CHECK constraint
---
--- Reads pg_constraint for the given table/column and splits the IN(...) list.
--- Example: get_check_constraint_values('notification_preferences', 'channel')
---          → { 'EMAIL', 'WHATSAPP' }
--- ──────────────────────────────────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION get_check_constraint_values(p_table TEXT, p_column TEXT)
     RETURNS TABLE
             (
@@ -35,6 +26,7 @@ WHERE c.contype = 'c'
 ORDER BY 1;
 $$;
 
+-- Trigger Function: generate default notification preferences for newly created users
 CREATE OR REPLACE FUNCTION create_default_notification_preferences()
     RETURNS TRIGGER
     LANGUAGE plpgsql
@@ -72,7 +64,7 @@ CREATE TRIGGER trg_user_default_notification_preferences
     FOR EACH ROW
 EXECUTE FUNCTION create_default_notification_preferences();
 
--- Backfill existing users with tenant context.
+-- Backfill existing users with tenant context (if any)
 INSERT INTO notification_preferences (id, user_id, tenant_id, event_type, channel, is_enabled, created_at, updated_at)
 SELECT gen_random_uuid(),
        u.id,

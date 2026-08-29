@@ -1,2 +1,0 @@
-ALTER TABLE slots
-    ADD COLUMN prefix VARCHAR(20);
