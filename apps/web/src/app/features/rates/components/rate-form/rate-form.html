@@ -1,39 +1,53 @@
 @if (facade.parking(); as p) {
-  <div class="flex flex-col gap-4 p-4 sm:p-6">
-    <!-- Breadcrumbs -->
+  <div class="flex flex-col gap-6 p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
+    <!-- Breadcrumbs & Top Bar -->
     <div class="flex flex-col gap-3">
-      <div class="flex flex-wrap items-center gap-2 text-muted-foreground text-[0.8rem]">
-        <a [routerLink]="APP_ROUTES.app.parkingLots">Parqueaderos</a>
-        <ng-icon name="lucideChevronRight" size="14"></ng-icon>
-        <a [routerLink]="APP_ROUTES.app.parkingLotDetail(p.id)">{{ p.name }}</a>
-        <ng-icon name="lucideChevronRight" size="14"></ng-icon>
-        <a [routerLink]="APP_ROUTES.app.parkingLotRates(p.id)">Tarifas</a>
-        <ng-icon name="lucideChevronRight" size="14"></ng-icon>
-        <span>{{ facade.mode() === 'create' ? 'Nueva tarifa' : 'Editar tarifa' }}</span>
+      <div class="flex flex-wrap items-center gap-2 text-muted-foreground text-xs">
+        <a [routerLink]="APP_ROUTES.app.parkingLots" class="hover:text-foreground transition-colors">Parqueaderos</a>
+        <ng-icon name="lucideChevronRight" size="14" />
+        <a [routerLink]="APP_ROUTES.app.parkingLotDetail(p.id)" class="hover:text-foreground transition-colors">{{ p.name }}</a>
+        <ng-icon name="lucideChevronRight" size="14" />
+        <a [routerLink]="APP_ROUTES.app.parkingLotRates(p.id)" class="hover:text-foreground transition-colors">Tarifas</a>
+        <ng-icon name="lucideChevronRight" size="14" />
+        <span class="text-foreground font-semibold">{{ facade.mode() === 'create' ? 'Nueva tarifa' : 'Editar tarifa' }}</span>
       </div>
 
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="flex flex-col gap-1">
-          <nv-h2>{{ facade.mode() === 'create' ? 'Configurar nueva tarifa' : 'Editar tarifa' }}</nv-h2>
-          <nv-muted>{{ p.name }} — Definí el valor base y las condiciones de cobro</nv-muted>
+        <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+            <ng-icon name="lucideCoins" class="text-xl" />
+          </div>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-foreground">
+              {{ facade.mode() === 'create' ? 'Configurar nueva tarifa' : 'Editar tarifa' }}
+            </h1>
+            <p class="text-xs sm:text-sm text-muted-foreground">
+              {{ p.name }} — Definí el valor base y las condiciones de cobro
+            </p>
+          </div>
         </div>
 
         <nv-button
           variant="outline"
           [routerLink]="APP_ROUTES.app.parkingLotRates(p.id)"
           size="sm"
-          class="w-full sm:w-auto"
+          class="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card text-xs font-semibold text-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
         >
-          <ng-icon name="lucideArrowLeft" size="14"></ng-icon>
-          Volver a tarifas
+          <ng-icon name="lucideArrowLeft" size="14" />
+          <span>Volver a tarifas</span>
         </nv-button>
       </div>
     </div>
 
     <!-- Main Grid -->
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 items-start">
-      <!-- Form Column -->
-      <nv-card class="lg:col-span-2 p-4 sm:p-6 flex flex-col gap-5">
+      <!-- Form Column (2 cols) -->
+      <div class="lg:col-span-2 rounded-2xl bg-card text-card-foreground border border-border p-6 sm:p-8 shadow-xs flex flex-col gap-6">
+        <div class="border-b border-border pb-3">
+          <h2 class="text-base font-bold text-foreground">Parámetros de la tarifa</h2>
+          <p class="text-xs text-muted-foreground">Configuración de precio, tipo de vehículo y tiempo</p>
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <nv-input
             label="Nombre de la tarifa"
@@ -104,47 +118,61 @@
           }
         </div>
 
-        <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 border-t border-border pt-4 mt-2">
+        <div class="flex items-center justify-end gap-3 border-t border-border pt-4 mt-2">
           <nv-button
             variant="outline"
             [routerLink]="APP_ROUTES.app.parkingLotRates(p.id)"
-            class="w-full sm:w-auto"
+            class="rounded-xl cursor-pointer"
           >
             Cancelar
           </nv-button>
           <nv-button
             (click)="facade.submit()"
             [disabled]="!facade.isValid() || facade.isSubmitting()"
-            class="w-full sm:w-auto"
+            class="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 text-xs sm:text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
           >
-            <ng-icon name="lucideSave" size="16"></ng-icon>
-            {{ facade.isSubmitting() ? 'Guardando...' : (facade.mode() === 'create' ? 'Crear tarifa' : 'Guardar cambios') }}
+            @if (facade.isSubmitting()) {
+              <ng-icon name="lucideLoader2" class="animate-spin text-base" />
+              <span>Guardando...</span>
+            } @else {
+              <ng-icon name="lucideSave" size="16" />
+              <span>{{ facade.mode() === 'create' ? 'Crear tarifa' : 'Guardar cambios' }}</span>
+            }
           </nv-button>
         </div>
-      </nv-card>
+      </div>
 
-      <!-- Simulation Column -->
+      <!-- Simulation Column (1 col) -->
       <div class="flex flex-col gap-4 lg:sticky lg:top-4">
         <app-rate-preview [simulation]="facade.simulation()" />
 
-        <nv-card class="p-4 sm:p-5 flex flex-col gap-2">
-          <nv-muted class="text-xs font-semibold uppercase tracking-wider">Ajustar estancia de prueba</nv-muted>
-          <div class="flex items-center gap-3 mt-1">
-            <input
-              type="range"
-              [value]="facade.previewDurationMinutes()"
-              (input)="onDurationChange($event)"
-              min="15"
-              max="720"
-              step="15"
-              class="w-full accent-primary cursor-pointer"
-            />
-            <nv-mono class="text-xs font-semibold text-foreground whitespace-nowrap">
+        <div class="rounded-2xl bg-card text-card-foreground border border-border p-5 shadow-xs flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-foreground">
+              Ajustar estancia de prueba
+            </span>
+            <span class="font-mono text-xs font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-md">
               {{ facade.previewDurationMinutes() }} min
-            </nv-mono>
+            </span>
           </div>
-        </nv-card>
+          <input
+            type="range"
+            [value]="facade.previewDurationMinutes()"
+            (input)="onDurationChange($event)"
+            min="15"
+            max="720"
+            step="15"
+            class="w-full cursor-pointer"
+          />
+          <div class="flex justify-between text-[10px] text-muted-foreground font-mono">
+            <span>15m</span>
+            <span>2h</span>
+            <span>6h</span>
+            <span>12h</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 }
+

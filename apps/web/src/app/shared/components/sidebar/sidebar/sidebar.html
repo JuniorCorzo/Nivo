@@ -5,13 +5,22 @@
   [class.px-2]="collapsed()"
 >
   <div
-    class="flex items-center"
+    class="flex w-full items-center"
     [class.justify-between]="!collapsed()"
-    [class.justify-center]="collapsed()"
+    [class.flex-col]="collapsed()"
+    [class.gap-3]="collapsed()"
   >
-    @if (!collapsed()) {
-      <ng-icon name="nivo-logo-horizontal" class="w-28! h-fit!"></ng-icon>
-    }
+    <a
+      [routerLink]="homeUrl"
+      aria-label="Nivo"
+      class="flex items-center justify-center focus:outline-none rounded transition-opacity hover:opacity-90 shrink-0"
+    >
+      @if (!collapsed()) {
+        <ng-icon name="nivo-logo-horizontal" class="w-28! h-fit! text-foreground"></ng-icon>
+      } @else {
+        <ng-icon name="nivo-logo-icon" class="w-8! h-8! text-foreground"></ng-icon>
+      }
+    </a>
     <button
       (click)="toggleCollapsed()"
       class="flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors cursor-pointer shrink-0"

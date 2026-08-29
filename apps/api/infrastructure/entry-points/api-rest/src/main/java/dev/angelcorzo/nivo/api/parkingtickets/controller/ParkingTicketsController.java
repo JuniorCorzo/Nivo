@@ -13,11 +13,15 @@ import dev.angelcorzo.nivo.model.payments.Payments;
 import dev.angelcorzo.nivo.model.payments.valueobject.check_out.CheckOut;
 import dev.angelcorzo.nivo.usecase.checkinvehiclewithoureservation.CheckInVehicleWithoutReservationUseCase;
 import dev.angelcorzo.nivo.usecase.checkoutvehicle.CheckOutVehicleUseCase;
+import dev.angelcorzo.nivo.usecase.getactiveparkingticketbyslot.GetActiveParkingTicketBySlotUseCase;
+import dev.angelcorzo.nivo.usecase.listparkingticketsbyparkinglot.ListParkingTicketsByParkingLotUseCase;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,10 +35,50 @@ import org.springframework.web.bind.annotation.*;
 public class ParkingTicketsController {
   private final CheckInVehicleWithoutReservationUseCase checkInVehicleWithoutReservationUseCase;
   private final CheckOutVehicleUseCase checkOutVehicleUseCase;
+  private final ListParkingTicketsByParkingLotUseCase listParkingTicketsByParkingLotUseCase;
+  private final GetActiveParkingTicketBySlotUseCase getActiveParkingTicketBySlotUseCase;
 
   private final AuthenticationContextGateway authenticationContext;
   private final ParkingTicketMapper parkingTicketMapper;
   private final PaymentsMapper paymentsMapper;
+
+  @Operation(
+      summary = "List parking tickets by parking lot",
+      description = "Retrieves all parking tickets belonging to a specific parking lot")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Tickets retrieved successfully"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
+  })
+  @GetMapping("/list")
+  @PreAuthorize("hasRole('OPERATOR')")
+  public Response<List<ParkingTicketsDTO>> listTickets(
+      @Parameter(description = "Parking lot ID", required = true) @RequestParam("parking") UUID parkingLotId) {
+    final List<ParkingTicketsDTO> tickets =
+        this.listParkingTicketsByParkingLotUseCase.execute(parkingLotId).stream()
+            .map(this.parkingTicketMapper::toDto)
+            .toList();
+
+    return Response.ok(tickets, "Tickets retrieved successfully");
+  }
+
+  @Operation(
+      summary = "Get active parking ticket by slot",
+      description = "Retrieves the active OPEN ticket for a specific slot, if any")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Active ticket retrieved successfully"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
+  })
+  @GetMapping("/active")
+  @PreAuthorize("hasRole('OPERATOR')")
+  public Response<ParkingTicketsDTO> getActiveTicket(
+      @Parameter(description = "Slot ID", required = true) @RequestParam("slot") UUID slotId) {
+    final ParkingTicketsDTO ticket =
+        this.getActiveParkingTicketBySlotUseCase.execute(slotId)
+            .map(this.parkingTicketMapper::toDto)
+            .orElse(null);
+
+    return Response.ok(ticket, "Active ticket retrieved successfully");
+  }
 
   @Operation(
       summary = "Vehicle check-in",

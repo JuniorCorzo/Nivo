@@ -4,9 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import dev.angelcorzo.nivo.jpa.parkingtickets.mappers.ParkingTicketMapper;
+import dev.angelcorzo.nivo.jpa.slot.SlotsData;
 import dev.angelcorzo.nivo.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.model.parkingtickets.enums.ParkingTicketStatus;
+import dev.angelcorzo.nivo.model.slots.enums.SlotStatus;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -82,14 +85,68 @@ class ParkingTicketsAdapterTest {
   void shouldCloseTicket() {
     UUID ticketId = UUID.randomUUID();
     ParkingTicketsData data = new ParkingTicketsData();
+    SlotsData slotData = new SlotsData();
+    slotData.setStatus(SlotStatus.OCCUPIED);
+    data.setSlot(slotData);
+
     ParkingTickets entity = ParkingTickets.builder().id(ticketId).status(ParkingTicketStatus.CLOSED).build();
 
     when(repository.findById(ticketId)).thenReturn(Optional.of(data));
+    when(repository.save(data)).thenReturn(data);
     when(mapper.toEntity(data)).thenReturn(entity);
 
     ParkingTickets result = adapter.closeTicket(ticketId);
 
     assertThat(result).isNotNull();
-    verify(repository).closeTicket(ticketId);
+    assertThat(data.getStatus()).isEqualTo(ParkingTicketStatus.CLOSED);
+    assertThat(data.getClosedAt()).isNotNull();
+    assertThat(slotData.getStatus()).isEqualTo(SlotStatus.AVAILABLE);
+    verify(repository).save(data);
+  }
+
+  @Test
+  @DisplayName("Should return null when closing non-existing ticket")
+  void shouldReturnNullWhenClosingNonExistingTicket() {
+    UUID ticketId = UUID.randomUUID();
+
+    when(repository.findById(ticketId)).thenReturn(Optional.empty());
+
+    ParkingTickets result = adapter.closeTicket(ticketId);
+
+    assertThat(result).isNull();
+    verify(repository, never()).save(any());
+  }
+
+  @Test
+  @DisplayName("Should find all tickets by parking lot ID")
+  void shouldFindAllByParkingLotId() {
+    UUID parkingLotId = UUID.randomUUID();
+    ParkingTicketsData data = new ParkingTicketsData();
+    ParkingTickets entity = ParkingTickets.builder().id(UUID.randomUUID()).build();
+
+    when(repository.findAllBySlot_Parking_Id(parkingLotId)).thenReturn(List.of(data));
+    when(mapper.toEntity(data)).thenReturn(entity);
+
+    List<ParkingTickets> result = adapter.findAllByParkingLotId(parkingLotId);
+
+    assertThat(result).hasSize(1).containsExactly(entity);
+    verify(repository).findAllBySlot_Parking_Id(parkingLotId);
+  }
+
+  @Test
+  @DisplayName("Should find active ticket by slot ID")
+  void shouldFindActiveBySlotId() {
+    UUID slotId = UUID.randomUUID();
+    ParkingTicketsData data = new ParkingTicketsData();
+    ParkingTickets entity = ParkingTickets.builder().id(UUID.randomUUID()).status(ParkingTicketStatus.OPEN).build();
+
+    when(repository.findActiveBySlotId(slotId)).thenReturn(Optional.of(data));
+    when(mapper.toEntity(data)).thenReturn(entity);
+
+    Optional<ParkingTickets> result = adapter.findActiveBySlotId(slotId);
+
+    assertThat(result).isPresent();
+    assertThat(result.get().getId()).isEqualTo(entity.getId());
+    verify(repository).findActiveBySlotId(slotId);
   }
 }

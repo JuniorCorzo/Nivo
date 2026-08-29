@@ -1,28 +1,53 @@
-<div class="flex flex-col w-full gap-6 px-12 py-8">
-  <div class="w-full inline-flex justify-between items-center">
-    <nv-h2>{{ facade.title() }}</nv-h2>
-    <a
-      routerLink="/app/parking-lots"
-      class="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer"
-    >
-      <ng-icon name="lucideArrowLeft" size="16"></ng-icon>
-      {{ APP_TEXTS.parking.actions.backToList }}
-    </a>
+<div class="flex flex-col gap-6 p-4 sm:p-6 md:p-8 max-w-5xl mx-auto">
+  <!-- Top Bar: Back & Title -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <a
+        routerLink="/app/parking-lots"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground transition-colors shadow-xs cursor-pointer"
+        [title]="APP_TEXTS.parking.actions.backToList"
+      >
+        <ng-icon name="lucideArrowLeft" class="text-base" />
+      </a>
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold text-foreground">
+          {{ facade.title() }}
+        </h1>
+        <p class="text-xs sm:text-sm text-muted-foreground">
+          Configurá los datos de sede, ubicación geográfica, horarios y capacidad
+        </p>
+      </div>
+    </div>
   </div>
-  <nv-card class="w-full">
-    <nv-card-content class="p-0!">
-      <form novalidate class="flex flex-col gap-6 py-7 px-8">
-        <!-- Name Field -->
-        <nv-h3 class="text-lg">Datos del parqueadero</nv-h3>
-        <nv-input
-          id="name"
-          [label]="APP_TEXTS.parking.form.fields.name.label"
-          [placeholder]="APP_TEXTS.parking.form.fields.name.placeholder"
-          [formField]="facade.form.name"
-          [error]="facade.nameError()"
-        >
-        </nv-input>
 
+  <!-- Form Card -->
+  <div class="rounded-2xl bg-card text-card-foreground border border-border shadow-xs overflow-hidden">
+    <form novalidate class="flex flex-col gap-6 sm:gap-8 p-4 sm:p-8">
+      <!-- Section 1: Basic Information -->
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-2 border-b border-border pb-3">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20">
+            <ng-icon name="lucideBuilding2" class="text-base" />
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-foreground">Datos del parqueadero</h2>
+            <p class="text-xs text-muted-foreground">Nombre comercial y datos generales de la sede</p>
+          </div>
+        </div>
+
+        <div class="w-full">
+          <nv-input
+            id="name"
+            [label]="APP_TEXTS.parking.form.fields.name.label"
+            [placeholder]="APP_TEXTS.parking.form.fields.name.placeholder"
+            [formField]="facade.form.name"
+            [error]="facade.nameError()"
+          />
+        </div>
+      </div>
+
+      <!-- Section 2: Address -->
+      <div class="border-t border-border pt-6">
         <app-parking-address-section
           [streetField]="facade.form.address.street"
           [streetError]="facade.streetError()"
@@ -36,7 +61,10 @@
           [cities]="facade.cities()"
           (stateSelectionChange)="facade.onStateSelected($event)"
         />
+      </div>
 
+      <!-- Section 3: Map Location -->
+      <div class="border-t border-border pt-6">
         <app-parking-location-section
           [initialPosition]="facade.selectedCoordinates()"
           [coordinates]="facade.coordinates()"
@@ -46,9 +74,15 @@
           (positionChange)="facade.onCoordinatesChange($event)"
           (mapInteracted)="facade.dismissMapPlaceholder()"
         />
+      </div>
 
+      <!-- Section 4: Operating Hours -->
+      <div class="border-t border-border pt-6">
         <app-parking-operating-hours-section [operatingHours]="facade.form.operatingHours" />
+      </div>
 
+      <!-- Section 5: Slots Distribution -->
+      <div class="border-t border-border pt-6">
         <app-parking-slot-groups-section
           [slots]="facade.slots()"
           [slotTypeOptions]="facade.slotTypeOptions"
@@ -56,19 +90,34 @@
           (removeSlot)="facade.removeSlot($event)"
           (slotChange)="facade.updateSlot($event.index, $event.field, $any($event.value))"
         />
-      </form>
-    </nv-card-content>
-
-    <nv-card-footer class="justify-end">
-      <div class="form-actions">
-        <nv-button variant="outline" (click)="onCancel()">Cancelar</nv-button>
-        <nv-button
-          (click)="onSubmit()"
-          [disabled]="facade.isSubmitting() || facade.form().invalid()"
-        >
-          {{ facade.submitButtonText() }}
-        </nv-button>
       </div>
-    </nv-card-footer>
-  </nv-card>
+    </form>
+
+    <!-- Footer Actions -->
+    <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 sm:gap-3 p-4 sm:p-6 bg-muted/50 border-t border-border">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-border bg-card px-4 py-2.5 text-xs sm:text-sm font-semibold text-foreground hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        (click)="onSubmit()"
+        [disabled]="facade.isSubmitting() || facade.form().invalid()"
+        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 text-xs sm:text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
+      >
+        @if (facade.isSubmitting()) {
+          <ng-icon name="lucideLoader2" class="animate-spin text-base" />
+          <span>Guardando...</span>
+        } @else {
+          <ng-icon name="lucideSave" class="text-base" />
+          <span>{{ facade.submitButtonText() }}</span>
+        }
+      </button>
+    </div>
+  </div>
 </div>
+

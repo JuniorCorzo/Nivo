@@ -124,6 +124,13 @@ export const routes: Routes = [
                 (c) => c.ParkingDetail,
               ),
           },
+          {
+            path: APP_ROUTE_PATHS.app.parkingLotOperations,
+            loadComponent: () =>
+              import('@features/operations/page/operations-page').then(
+                (c) => c.OperationsPageComponent,
+              ),
+          },
         ],
       },
       {

@@ -20,11 +20,17 @@ public class EncryptedResponseConverter implements AttributeConverter<Object, St
 
   @Override
   public String convertToDatabaseColumn(Object attribute) {
+    if (attribute == null) {
+      return null;
+    }
     return this.encryptionGateway.encrypt(attribute).orElseThrow(EncryptionException::new);
   }
 
   @Override
   public Object convertToEntityAttribute(String dbData) {
+    if (dbData == null) {
+      return null;
+    }
     return this.encryptionGateway
         .decrypt(dbData, Object.class)
         .orElseThrow(EncryptionException::new);

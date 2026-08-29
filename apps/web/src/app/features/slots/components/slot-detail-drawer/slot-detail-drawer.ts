@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { TypographyH3, TypographyMuted } from '@nivo-sass/design-system';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideX, lucideInbox } from '@ng-icons/lucide';
+import { lucideX, lucideInbox, lucideCar, lucideBike, lucideMapPin, lucideLayers } from '@ng-icons/lucide';
 import { SlotSummary } from '@core/models/slot.model';
 import { DrawerTab, getHistoryCopy } from '../parking-slots-list/parking-slots-list.facade';
 
@@ -9,7 +9,7 @@ import { DrawerTab, getHistoryCopy } from '../parking-slots-list/parking-slots-l
   selector: 'app-slot-detail-drawer',
   standalone: true,
   imports: [TypographyH3, TypographyMuted, NgIcon],
-  providers: [provideIcons({ lucideX, lucideInbox })],
+  providers: [provideIcons({ lucideX, lucideInbox, lucideCar, lucideBike, lucideMapPin, lucideLayers })],
   templateUrl: './slot-detail-drawer.html',
   styleUrl: './slot-detail-drawer.css',
 })
@@ -23,3 +23,4 @@ export class SlotDetailDrawer {
 
   protected readonly getHistoryCopy = getHistoryCopy;
 }
+

@@ -68,4 +68,14 @@ class EncryptedResponseConverterTest {
 
     assertThrows(EncryptionException.class, () -> converter.convertToEntityAttribute(dbData));
   }
+
+  @Test
+  void convertToDatabaseColumn_ShouldReturnNull_WhenAttributeIsNull() {
+    assertNull(converter.convertToDatabaseColumn(null));
+  }
+
+  @Test
+  void convertToEntityAttribute_ShouldReturnNull_WhenDbDataIsNull() {
+    assertNull(converter.convertToEntityAttribute(null));
+  }
 }

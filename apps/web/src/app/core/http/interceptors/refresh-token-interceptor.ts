@@ -12,6 +12,11 @@ import { AuthService } from '@core/services/auth-service';
 let isRefresh = false;
 const newToken$ = new BehaviorSubject<string | null>(null);
 
+export const _resetRefreshTokenState = () => {
+  isRefresh = false;
+  newToken$.next(null);
+};
+
 export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
   if (!req.context.get(AUTHORIZED)) return next(req);
   const authService = inject(AuthService);
@@ -46,15 +51,15 @@ const refreshToken = (req: HttpRequest<unknown>, next: HttpHandlerFn, authServic
   newToken$.next(null);
 
   return authService.refreshSession().pipe(
-    switchMap(() => {
+    switchMap((token) => {
       isRefresh = false;
-      const token = authService.accessTokenSignal()!;
       newToken$.next(token);
 
       return next(withToken(req, token));
     }),
     catchError((err) => {
       isRefresh = false;
+      newToken$.next(null);
       authService.logout();
 
       return throwError(() => err);
@@ -65,7 +70,8 @@ const refreshToken = (req: HttpRequest<unknown>, next: HttpHandlerFn, authServic
 const withToken = (req: HttpRequest<unknown>, token: string) => {
   return req.clone({
     setHeaders: {
-      Authorization: token,
+      Authorization: `Bearer ${token}`,
     },
   });
 };
+

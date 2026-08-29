@@ -3,6 +3,7 @@ package dev.angelcorzo.nivo.usecase.processpayment.strategies;
 import dev.angelcorzo.nivo.model.commons.result.Result;
 import dev.angelcorzo.nivo.model.parkingtickets.gateways.ParkingTicketsRepository;
 import dev.angelcorzo.nivo.model.payments.Payments;
+import dev.angelcorzo.nivo.model.payments.enums.PaymentsMethods;
 import dev.angelcorzo.nivo.model.payments.exceptions.PaymentError;
 import dev.angelcorzo.nivo.model.payments.factories.PaymentFactory;
 import dev.angelcorzo.nivo.model.payments.gateways.PaymentsRepository;
@@ -59,6 +60,11 @@ public class EffectivePaymentStrategy implements PaymentStrategy {
             .payment(payment)
             .amount(payment.getAmount())
             .currency("COP")
+            .paymentProvider(
+                payment.getPaymentMethod() != null
+                    ? payment.getPaymentMethod().name()
+                    : PaymentsMethods.EFFECTIVE.name())
+            .supplierRef("EFF-" + payment.getId())
             .status(TransactionStatus.APPROVED)
             .build();
 

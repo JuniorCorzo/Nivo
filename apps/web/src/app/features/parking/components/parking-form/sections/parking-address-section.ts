@@ -1,29 +1,44 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { ValidationError, FormField, FieldTree } from '@angular/forms/signals';
 
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
-import { ComboboxComponent, InputComponent, TypographyH3 } from '@nivo-sass/design-system';
+import { ComboboxComponent, InputComponent, TypographyH3, TypographyMuted } from '@nivo-sass/design-system';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideMapPin } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-parking-address-section',
   standalone: true,
-  imports: [InputComponent, ComboboxComponent, TypographyH3, FormField],
+  imports: [InputComponent, ComboboxComponent, TypographyH3, TypographyMuted, FormField, NgIcon],
+  providers: [provideIcons({ lucideMapPin })],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <nv-h3 class="text-base">{{ APP_TEXTS.parking.form.fields.address.title }}</nv-h3>
+    <div class="flex items-center gap-2">
+      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-success/10 text-success border border-success/20">
+        <ng-icon name="lucideMapPin" class="text-base" />
+      </div>
+      <div>
+        <nv-h3 class="text-base font-bold text-foreground">
+          {{ APP_TEXTS.parking.form.fields.address.title }}
+        </nv-h3>
+        <nv-muted class="text-xs text-muted-foreground">
+          Dirección física, departamento, ciudad y código postal
+        </nv-muted>
+      </div>
+    </div>
 
-    <div class="form-row">
+    <div class="grid grid-cols-1 gap-4">
       <nv-input
         id="street"
-        class="full-width"
+        class="w-full"
         [label]="APP_TEXTS.parking.form.fields.address.street.label"
         [placeholder]="APP_TEXTS.parking.form.fields.address.street.placeholder"
         [formField]="streetField()"
         [error]="streetError()"
-      >
-      </nv-input>
+      />
     </div>
 
-    <div class="form-row">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <nv-combobox
         id="state"
         [label]="APP_TEXTS.parking.form.fields.address.state.label"
@@ -32,8 +47,7 @@ import { ComboboxComponent, InputComponent, TypographyH3 } from '@nivo-sass/desi
         [items]="departments()"
         [error]="stateError()"
         (selectionChange)="stateSelectionChange.emit($event)"
-      >
-      </nv-combobox>
+      />
       <nv-combobox
         id="city"
         [label]="APP_TEXTS.parking.form.fields.address.city.label"
@@ -42,44 +56,24 @@ import { ComboboxComponent, InputComponent, TypographyH3 } from '@nivo-sass/desi
         [items]="cities()"
         [error]="cityError()"
         (selectionChange)="citySelectionChange.emit($event)"
-      >
-      </nv-combobox>
+      />
     </div>
 
-    <nv-input
-      id="zipCode"
-      [label]="APP_TEXTS.parking.form.fields.address.zipCode.label"
-      [placeholder]="APP_TEXTS.parking.form.fields.address.zipCode.placeholder"
-      [formField]="zipCodeField()"
-      [error]="zipCodeError()"
-    >
-    </nv-input>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <nv-input
+        id="zipCode"
+        [label]="APP_TEXTS.parking.form.fields.address.zipCode.label"
+        [placeholder]="APP_TEXTS.parking.form.fields.address.zipCode.placeholder"
+        [formField]="zipCodeField()"
+        [error]="zipCodeError()"
+      />
+    </div>
   `,
   styles: `
     :host {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-    }
-
-    .full-width {
-      grid-column: span 2;
-    }
-
-    @media (max-width: 640px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-
-      .full-width {
-        grid-column: span 1;
-      }
+      gap: 1.25rem;
     }
   `,
 })

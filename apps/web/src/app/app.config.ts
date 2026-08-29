@@ -8,7 +8,6 @@ import {
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import {
-  HTTP_INTERCEPTORS,
   HttpClient,
   provideHttpClient,
   withFetch,
@@ -21,6 +20,7 @@ import { errorInterceptor } from './core/http/interceptors/error-interceptor';
 import { AuthService } from '@core/services/auth-service';
 import { authInterceptor } from '@core/http/interceptors/auth-interceptor';
 import { refreshTokenInterceptor } from '@core/http/interceptors/refresh-token-interceptor';
+import { catchError, of } from 'rxjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -52,6 +52,10 @@ export const appConfig: ApplicationConfig = {
       const http = inject(HttpClient);
       return http.get(`assets/icons/${name}.svg`, { responseType: 'text' });
     }, withCaching()),
-    provideAppInitializer(() => inject(AuthService).refreshSession()),
+    provideAppInitializer(() =>
+      inject(AuthService)
+        .refreshSession()
+        .pipe(catchError(() => of(null))),
+    ),
   ],
 };

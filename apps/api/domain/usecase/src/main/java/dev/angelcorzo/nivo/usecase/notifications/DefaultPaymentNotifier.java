@@ -19,6 +19,9 @@ public class DefaultPaymentNotifier implements PaymentNotifier {
   @Override
   public void notifyPaymentCheckout(
       Payments payment, PriceDetailed priceDetailed, String description) {
+    if (payment == null || payment.getUser() == null) {
+      return;
+    }
 
     final List<PaymentCheckoutData.Item> items =
         priceDetailed.getBreakpoint().stream()
@@ -60,6 +63,10 @@ public class DefaultPaymentNotifier implements PaymentNotifier {
 
   @Override
   public void notifyPaymentCompleted(Payments payment) {
+    if (payment == null || payment.getUser() == null) {
+      return;
+    }
+
     final PaymentCompletedData content =
         PaymentCompletedData.builder()
             .userName(payment.getUser().fullName())

@@ -64,10 +64,10 @@ public class ParkingTicketsData {
   @Column(name = "total_to_charge")
   private BigDecimal totalToCharge;
 
-  @Column(name = "status")
   @ColumnDefault(value = "OPEN")
+  @Column(name = "status", nullable = false)
   @Enumerated(EnumType.STRING)
-  private ParkingTicketStatus status;
+  private ParkingTicketStatus status = ParkingTicketStatus.OPEN;
 
   @Column(name = "closed_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime closedAt;

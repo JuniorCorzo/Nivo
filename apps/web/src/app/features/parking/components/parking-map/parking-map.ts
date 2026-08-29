@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   input,
@@ -30,6 +31,7 @@ L.Icon.Default.mergeOptions({
   selector: 'app-parking-map',
   templateUrl: './parking-map.html',
   styleUrl: './parking-map.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ParkingMapComponent implements OnDestroy {
   private readonly mapContainer = viewChild<ElementRef<HTMLDivElement>>('mapContainer');

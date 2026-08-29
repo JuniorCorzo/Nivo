@@ -29,7 +29,8 @@ public class ParkingTickets {
   private OffsetDateTime entryTime;
   private OffsetDateTime exitTime;
   private BigDecimal totalToCharge;
-  private ParkingTicketStatus status;
+  @Builder.Default
+  private ParkingTicketStatus status = ParkingTicketStatus.OPEN;
   private OffsetDateTime closedAt;
   private OffsetDateTime createdAt;
   private OffsetDateTime updatedAt;

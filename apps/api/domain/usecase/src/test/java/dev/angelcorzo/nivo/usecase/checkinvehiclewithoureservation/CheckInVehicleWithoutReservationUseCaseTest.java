@@ -11,6 +11,7 @@ import dev.angelcorzo.nivo.model.rates.Rates;
 import dev.angelcorzo.nivo.model.rates.exceptions.RateNotFoundException;
 import dev.angelcorzo.nivo.model.rates.gateways.RatesRepository;
 import dev.angelcorzo.nivo.model.slots.Slots;
+import dev.angelcorzo.nivo.model.slots.enums.SlotStatus;
 import dev.angelcorzo.nivo.model.slots.excetions.SlotNotFoundException;
 import dev.angelcorzo.nivo.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.model.tenants.Tenants;
@@ -61,7 +62,7 @@ class CheckInVehicleWithoutReservationUseCaseTest {
   class HappyPath {
 
     @Test
-    @DisplayName("Should check-in vehicle with registered user and notify")
+    @DisplayName("Should check-in vehicle with registered user, set slot OCCUPIED and notify")
     void shouldCheckInWithRegisteredUser() {
       // Arrange
       UUID slotId = UUID.randomUUID();
@@ -74,16 +75,18 @@ class CheckInVehicleWithoutReservationUseCaseTest {
           new CheckInVehicleWithoutReservationUseCase.CreatedParkingTicket(
               slotId, tenantId, email, rateId, plate);
 
-      Slots mockSlot = Slots.builder().id(slotId).slotNumber("A-1").build();
+      Slots mockSlot =
+          Slots.builder().id(slotId).slotNumber("A-1").status(SlotStatus.AVAILABLE).build();
       Tenants mockTenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
       Rates mockRate = Rates.builder().id(rateId).name("Standard").build();
       Users mockUser = Users.builder().id(UUID.randomUUID()).email(email).build();
 
-      when(slotsRepository.existsById(slotId)).thenReturn(true);
+      when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
       when(tenantsRepository.existsById(tenantId)).thenReturn(true);
       when(ratesRepository.existsById(rateId)).thenReturn(true);
 
-      when(slotsRepository.getReferenceById(slotId)).thenReturn(mockSlot);
+      when(slotsRepository.save(any(Slots.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
       when(tenantsRepository.getReferenceById(tenantId)).thenReturn(mockTenant);
       when(ratesRepository.getReferenceById(rateId)).thenReturn(mockRate);
       when(usersRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
@@ -98,12 +101,16 @@ class CheckInVehicleWithoutReservationUseCaseTest {
       assertThat(ticket).isNotNull();
       assertThat(ticket.getLicensePlate()).isEqualTo(plate);
       assertThat(ticket.getEntryTime()).isNotNull();
+      assertThat(mockSlot.getStatus()).isEqualTo(SlotStatus.OCCUPIED);
+      assertThat(ticket.getSlot().status()).isEqualTo(SlotStatus.OCCUPIED);
+      verify(slotsRepository).findById(slotId);
+      verify(slotsRepository).save(mockSlot);
       verify(ticketNotifier).notifyTicketOpened(ticket);
       verify(parkingTicketsRepository).save(any(ParkingTickets.class));
     }
 
     @Test
-    @DisplayName("Should check-in anonymous vehicle without notification")
+    @DisplayName("Should check-in anonymous vehicle, set slot OCCUPIED without notification")
     void shouldCheckInAnonymousVehicle() {
       // Arrange
       UUID slotId = UUID.randomUUID();
@@ -115,15 +122,17 @@ class CheckInVehicleWithoutReservationUseCaseTest {
           new CheckInVehicleWithoutReservationUseCase.CreatedParkingTicket(
               slotId, tenantId, null, rateId, plate);
 
-      Slots mockSlot = Slots.builder().id(slotId).slotNumber("B-2").build();
+      Slots mockSlot =
+          Slots.builder().id(slotId).slotNumber("B-2").status(SlotStatus.AVAILABLE).build();
       Tenants mockTenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
       Rates mockRate = Rates.builder().id(rateId).name("Standard").build();
 
-      when(slotsRepository.existsById(slotId)).thenReturn(true);
+      when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
       when(tenantsRepository.existsById(tenantId)).thenReturn(true);
       when(ratesRepository.existsById(rateId)).thenReturn(true);
 
-      when(slotsRepository.getReferenceById(slotId)).thenReturn(mockSlot);
+      when(slotsRepository.save(any(Slots.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
       when(tenantsRepository.getReferenceById(tenantId)).thenReturn(mockTenant);
       when(ratesRepository.getReferenceById(rateId)).thenReturn(mockRate);
 
@@ -135,6 +144,10 @@ class CheckInVehicleWithoutReservationUseCaseTest {
 
       // Assert
       assertThat(ticket).isNotNull();
+      assertThat(mockSlot.getStatus()).isEqualTo(SlotStatus.OCCUPIED);
+      assertThat(ticket.getSlot().status()).isEqualTo(SlotStatus.OCCUPIED);
+      verify(slotsRepository).findById(slotId);
+      verify(slotsRepository).save(mockSlot);
       verify(ticketNotifier, never()).notifyTicketOpened(any());
       verify(parkingTicketsRepository).save(any(ParkingTickets.class));
     }
@@ -152,10 +165,11 @@ class CheckInVehicleWithoutReservationUseCaseTest {
           new CheckInVehicleWithoutReservationUseCase.CreatedParkingTicket(
               slotId, UUID.randomUUID(), null, UUID.randomUUID(), "ABC-123");
 
-      when(slotsRepository.existsById(slotId)).thenReturn(false);
+      when(slotsRepository.findById(slotId)).thenReturn(Optional.empty());
 
       assertThatThrownBy(() -> useCase.execute(command))
           .isInstanceOf(SlotNotFoundException.class);
+      verify(slotsRepository, never()).save(any());
     }
 
     @Test
@@ -167,11 +181,13 @@ class CheckInVehicleWithoutReservationUseCaseTest {
           new CheckInVehicleWithoutReservationUseCase.CreatedParkingTicket(
               slotId, tenantId, null, UUID.randomUUID(), "ABC-123");
 
-      when(slotsRepository.existsById(slotId)).thenReturn(true);
+      Slots mockSlot = Slots.builder().id(slotId).slotNumber("A-1").build();
+      when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
       when(tenantsRepository.existsById(tenantId)).thenReturn(false);
 
       assertThatThrownBy(() -> useCase.execute(command))
           .isInstanceOf(TenantNotExistsException.class);
+      verify(slotsRepository, never()).save(any());
     }
 
     @Test
@@ -184,12 +200,14 @@ class CheckInVehicleWithoutReservationUseCaseTest {
           new CheckInVehicleWithoutReservationUseCase.CreatedParkingTicket(
               slotId, tenantId, null, rateId, "ABC-123");
 
-      when(slotsRepository.existsById(slotId)).thenReturn(true);
+      Slots mockSlot = Slots.builder().id(slotId).slotNumber("A-1").build();
+      when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
       when(tenantsRepository.existsById(tenantId)).thenReturn(true);
       when(ratesRepository.existsById(rateId)).thenReturn(false);
 
       assertThatThrownBy(() -> useCase.execute(command))
           .isInstanceOf(RateNotFoundException.class);
+      verify(slotsRepository, never()).save(any());
     }
   }
 }

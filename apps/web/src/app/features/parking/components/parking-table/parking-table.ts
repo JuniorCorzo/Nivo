@@ -1,4 +1,4 @@
-import { Component, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
 import { ParkingService } from '@core/services/parking-service';
 import {
   createAngularTable,
@@ -28,9 +28,10 @@ import {
     FlexRender,
   ],
   templateUrl: './parking-table.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ParkingTable {
-  private readonly rightAlignedColumnIds = new Set(['totalCapacity']);
+  private readonly rightAlignedColumnIds = new Set<string>();
   private readonly truncateColumnIds = new Set(['name', 'address', 'ownerName']);
 
   readonly searchQuery = input<string>('');
@@ -128,7 +129,7 @@ export class ParkingTable {
           return null;
         }
 
-        return [address.street, address.city, address.state].filter(Boolean).join(', ');
+        return [address.street, address.city].filter(Boolean).join(', ');
       }
       case 'slotDistribution': {
         const distribution = parkingLot['slotDistribution'] as
@@ -137,8 +138,13 @@ export class ParkingTable {
 
         return distribution?.map((slot) => `${slot.type}: ${slot.count}`).join(' | ') ?? null;
       }
-      case 'totalCapacity':
-        return String(parkingLot['totalCapacity'] ?? '');
+      case 'occupancy':
+      case 'occuppationRate': {
+        const capacity = Number(parkingLot['totalCapacity'] ?? 0);
+        const rate = Number(parkingLot['occuppationRate'] ?? 0);
+        const occupied = Math.round((capacity * rate) / 100);
+        return `${occupied} / ${capacity} ocupados (${rate}%)`;
+      }
       default:
         return null;
     }

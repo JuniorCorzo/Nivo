@@ -85,6 +85,10 @@ sendgrid:
   api-key: "${SENDGRID_API_KEY:SG.xxx-your-api-key-here}"
   from-email: "noreply@nivo.dev"
 
+security:
+  aes:
+    secret-key: "${AES_SECRET_KEY:Sxur6LQBE3ttQG/DzimOK4t+9eGADTCsxHqipLpbGYU=}"
+
 # ── Payment Provider ────────────────────────────────────────
 payment:
   provider:
