@@ -18,8 +18,8 @@ COPY libs/design-system ./libs/design-system
 COPY apps/web ./apps/web
 
 # Build design system library and web application
-RUN bun --cwd libs/design-system run build && \
-    bun --cwd apps/web run build
+RUN bun run --cwd libs/design-system build && \
+    bun run --cwd apps/web build
 
 # ── Stage 2: Runtime ─────────────────────────────────────────────────────────
 FROM nginx:alpine AS runtime
