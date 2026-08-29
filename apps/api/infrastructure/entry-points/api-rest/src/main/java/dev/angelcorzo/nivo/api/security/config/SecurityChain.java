@@ -39,7 +39,10 @@ public class SecurityChain {
     return http.securityMatcher(
             "/tenants/register",
             "/users/accept-invitation/**",
+            "/actuator",
             "/actuator/**",
+            "/health",
+            "/health/**",
             "/scalar",
             "/scalar/**",
             "/docs",
