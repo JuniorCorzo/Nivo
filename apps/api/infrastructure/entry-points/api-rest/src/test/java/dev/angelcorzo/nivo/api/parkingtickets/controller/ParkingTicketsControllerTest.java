@@ -2,6 +2,7 @@ package dev.angelcorzo.nivo.api.parkingtickets.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -22,6 +23,10 @@ import dev.angelcorzo.nivo.model.payments.valueobject.check_out.CheckOut;
 import dev.angelcorzo.nivo.model.payments.valueobject.check_out.EmailCheckOut;
 import dev.angelcorzo.nivo.usecase.checkinvehiclewithoureservation.CheckInVehicleWithoutReservationUseCase;
 import dev.angelcorzo.nivo.usecase.checkoutvehicle.CheckOutVehicleUseCase;
+import dev.angelcorzo.nivo.usecase.getactiveparkingticketbyslot.GetActiveParkingTicketBySlotUseCase;
+import dev.angelcorzo.nivo.usecase.listparkingticketsbyparkinglot.ListParkingTicketsByParkingLotUseCase;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,9 +55,69 @@ class ParkingTicketsControllerTest {
 
   @MockitoBean private CheckInVehicleWithoutReservationUseCase checkInVehicleWithoutReservationUseCase;
   @MockitoBean private CheckOutVehicleUseCase checkOutVehicleUseCase;
+  @MockitoBean private ListParkingTicketsByParkingLotUseCase listParkingTicketsByParkingLotUseCase;
+  @MockitoBean private GetActiveParkingTicketBySlotUseCase getActiveParkingTicketBySlotUseCase;
   @MockitoBean private AuthenticationContextGateway authenticationContext;
   @MockitoBean private ParkingTicketMapper parkingTicketMapper;
   @MockitoBean private PaymentsMapper paymentsMapper;
+
+  @Test
+  @DisplayName("GET /tickets/list - Should list tickets by parking lot successfully")
+  void shouldListTicketsByParkingLot() throws Exception {
+    UUID parkingLotId = UUID.randomUUID();
+    ParkingTickets ticket = ParkingTickets.builder().id(UUID.randomUUID()).build();
+    ParkingTicketsDTO dto = ParkingTicketsDTO.builder().id(ticket.getId()).build();
+
+    when(listParkingTicketsByParkingLotUseCase.execute(parkingLotId)).thenReturn(List.of(ticket));
+    when(parkingTicketMapper.toDto(ticket)).thenReturn(dto);
+
+    mockMvc
+        .perform(
+            get("/tickets/list")
+                .param("parking", parkingLotId.toString())
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data").isArray())
+        .andExpect(jsonPath("$.data.length()").value(1))
+        .andExpect(jsonPath("$.message").value("Tickets retrieved successfully"));
+  }
+
+  @Test
+  @DisplayName("GET /tickets/active - Should get active ticket for slot successfully")
+  void shouldGetActiveTicketBySlot() throws Exception {
+    UUID slotId = UUID.randomUUID();
+    ParkingTickets ticket = ParkingTickets.builder().id(UUID.randomUUID()).build();
+    ParkingTicketsDTO dto = ParkingTicketsDTO.builder().id(ticket.getId()).build();
+
+    when(getActiveParkingTicketBySlotUseCase.execute(slotId)).thenReturn(Optional.of(ticket));
+    when(parkingTicketMapper.toDto(ticket)).thenReturn(dto);
+
+    mockMvc
+        .perform(
+            get("/tickets/active")
+                .param("slot", slotId.toString())
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.id").value(ticket.getId().toString()))
+        .andExpect(jsonPath("$.message").value("Active ticket retrieved successfully"));
+  }
+
+  @Test
+  @DisplayName("GET /tickets/active - Should return null data when slot has no active ticket")
+  void shouldReturnNullWhenNoActiveTicket() throws Exception {
+    UUID slotId = UUID.randomUUID();
+
+    when(getActiveParkingTicketBySlotUseCase.execute(slotId)).thenReturn(Optional.empty());
+
+    mockMvc
+        .perform(
+            get("/tickets/active")
+                .param("slot", slotId.toString())
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data").doesNotExist())
+        .andExpect(jsonPath("$.message").value("Active ticket retrieved successfully"));
+  }
 
   @Test
   @DisplayName("POST /tickets/check-in - Should create ticket successfully")
