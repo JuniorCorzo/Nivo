@@ -6,7 +6,9 @@
     "dev:web": "bun --cwd apps/web run start",
     "dev:design-system": "bun --cwd libs/design-system run storybook",
     "dev:build": "bun --cwd libs/design-system run build",
-    "dev:tokens": "bun --cwd libs/design-system run generate:tokens"
+    "dev:tokens": "bun --cwd libs/design-system run generate:tokens",
+    "docker:build": "docker compose -f deployment/compose.yaml build",
+    "docker:up": "docker compose -f deployment/compose.yaml up -d"
   },
   "workspaces": [
     "apps/web",
