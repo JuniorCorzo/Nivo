@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ToastService } from '@nivo-sass/design-system';
 
 import { OperationsPageComponent } from './operations-page';
@@ -70,6 +70,7 @@ describe('OperationsPageComponent', () => {
 
     ticketServiceSpy = jasmine.createSpyObj('TicketService', [
       'createTicket',
+      'getActiveTicketBySlot',
       'calculatePrice',
       'checkOutVehicle',
     ]);
@@ -133,5 +134,81 @@ describe('OperationsPageComponent', () => {
     component.setStatusFilter('AVAILABLE');
     expect(component.filteredSlots().length).toBe(1);
     expect(component.filteredSlots()[0].id).toBe('s-1');
+  });
+
+  it('should fetch active ticket for occupied slot and open checkout modal on checkOutSpecificSlot', () => {
+    const mockSlot = {
+      id: 's-2',
+      parkingName: 'Central',
+      slotNumber: '102',
+      prefix: 'A',
+      zone: 'Z1',
+      type: 'CAR' as const,
+      status: 'OCCUPIED' as const,
+    };
+    const mockTicket = {
+      id: 'ticket-999',
+      licensePlate: 'ABC123',
+      slotId: 's-2',
+      slotNumber: '102',
+      entryTime: '2026-08-28T12:00:00Z',
+      status: 'OPEN' as const,
+    };
+
+    ticketServiceSpy.getActiveTicketBySlot.and.returnValue(of(mockTicket));
+
+    component.checkOutSpecificSlot(mockSlot);
+
+    expect(ticketServiceSpy.getActiveTicketBySlot).toHaveBeenCalledWith('s-2');
+    expect(component.selectedCheckoutTicket()).toEqual(mockTicket);
+    expect(component.isCheckOutModalOpen()).toBe(true);
+  });
+
+  it('should show error toast when active ticket lookup fails on checkOutSpecificSlot', () => {
+    const mockSlot = {
+      id: 's-2',
+      parkingName: 'Central',
+      slotNumber: '102',
+      prefix: 'A',
+      zone: 'Z1',
+      type: 'CAR' as const,
+      status: 'OCCUPIED' as const,
+    };
+
+    ticketServiceSpy.getActiveTicketBySlot.and.returnValue(
+      throwError(() => ({ error: { message: 'Ticket no encontrado' } })),
+    );
+
+    component.checkOutSpecificSlot(mockSlot);
+
+    expect(ticketServiceSpy.getActiveTicketBySlot).toHaveBeenCalledWith('s-2');
+    expect(toastSpy.showToast).toHaveBeenCalledWith({
+      message: 'Ticket no encontrado',
+      type: 'error',
+    });
+    expect(component.isCheckOutModalOpen()).toBe(false);
+  });
+
+  it('should fallback to default error message if error payload has no message', () => {
+    const mockSlot = {
+      id: 's-2',
+      parkingName: 'Central',
+      slotNumber: '102',
+      prefix: 'A',
+      zone: 'Z1',
+      type: 'CAR' as const,
+      status: 'OCCUPIED' as const,
+    };
+
+    ticketServiceSpy.getActiveTicketBySlot.and.returnValue(
+      throwError(() => new Error('Unknown')),
+    );
+
+    component.checkOutSpecificSlot(mockSlot);
+
+    expect(toastSpy.showToast).toHaveBeenCalledWith({
+      message: 'No se encontró un ticket activo para este cupo.',
+      type: 'error',
+    });
   });
 });

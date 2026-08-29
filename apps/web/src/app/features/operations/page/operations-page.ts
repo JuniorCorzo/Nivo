@@ -26,6 +26,7 @@ import { TicketService } from '@core/services/ticket-service';
 import { SlotSummary } from '@core/models/slot.model';
 import { TicketSummary } from '@core/models/ticket.model';
 import { APP_ROUTES } from '@shared/constants/app-routes.constant';
+import { ButtonComponent, ToastService } from '@nivo-sass/design-system';
 
 import { CheckInModalComponent } from '../components/check-in-modal/check-in-modal.component';
 import { CheckOutModalComponent } from '../components/check-out-modal/check-out-modal.component';
@@ -37,6 +38,7 @@ import { CheckOutModalComponent } from '../components/check-out-modal/check-out-
     CommonModule,
     RouterLink,
     NgIcon,
+    ButtonComponent,
     CheckInModalComponent,
     CheckOutModalComponent,
   ],
@@ -61,6 +63,7 @@ export class OperationsPageComponent {
   private readonly slotService = inject(SlotService);
   private readonly rateService = inject(RateService);
   private readonly ticketService = inject(TicketService);
+  private readonly toast = inject(ToastService);
 
   readonly APP_ROUTES = APP_ROUTES;
   readonly parkingId = signal<string | null>(null);
@@ -161,17 +164,16 @@ export class OperationsPageComponent {
   }
 
   checkOutSpecificSlot(slot: SlotSummary): void {
-    // Construct ticket preview from slot for checkout
-    const ticket: TicketSummary = {
-      id: slot.id,
-      licensePlate: slot.slotNumber,
-      slotId: slot.id,
-      slotNumber: slot.slotNumber,
-      entryTime: new Date().toISOString(),
-      status: 'OPEN',
-    };
-    this.selectedCheckoutTicket.set(ticket);
-    this.isCheckOutModalOpen.set(true);
+    this.ticketService.getActiveTicketBySlot(slot.id).subscribe({
+      next: (ticket) => {
+        this.selectedCheckoutTicket.set(ticket);
+        this.isCheckOutModalOpen.set(true);
+      },
+      error: (err) => {
+        const msg = err?.error?.message || 'No se encontró un ticket activo para este cupo.';
+        this.toast.showToast({ message: msg, type: 'error' });
+      },
+    });
   }
 
   closeCheckOutModal(): void {
