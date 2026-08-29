@@ -27,6 +27,8 @@ public class JacksonConverter {
   }
 
   public Object toObject(String str) {
+    if (str == null || str.isBlank()) return null;
+
     try {
       return this.objectMapper.readValue(str, Object.class);
     } catch (JsonProcessingException e) {

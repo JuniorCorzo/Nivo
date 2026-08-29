@@ -6,10 +6,14 @@ import dev.angelcorzo.nivo.model.parkingtickets.ParkingTicketNotFound;
 import dev.angelcorzo.nivo.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.model.parkingtickets.enums.ParkingTicketStatus;
 import dev.angelcorzo.nivo.model.parkingtickets.gateways.ParkingTicketsRepository;
+import dev.angelcorzo.nivo.model.slots.enums.SlotStatus;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class ParkingTicketsAdapter
@@ -58,10 +62,33 @@ public class ParkingTicketsAdapter
     return super.repository.findById(ticketId).map(super::toEntity).orElse(null);
   }
 
+  @Transactional
   @Override
   public ParkingTickets closeTicket(UUID ticketId) {
-    super.repository.closeTicket(ticketId);
+    ParkingTicketsData ticket = super.repository.findById(ticketId).orElse(null);
+    if (ticket == null) {
+      return null;
+    }
 
-    return super.repository.findById(ticketId).map(super::toEntity).orElse(null);
+    ticket.setStatus(ParkingTicketStatus.CLOSED);
+    ticket.setClosedAt(OffsetDateTime.now());
+
+    if (ticket.getSlot() != null) {
+      ticket.getSlot().setStatus(SlotStatus.AVAILABLE);
+    }
+
+    return super.mapper.toEntity(super.repository.save(ticket));
+  }
+
+  @Override
+  public List<ParkingTickets> findAllByParkingLotId(UUID parkingLotId) {
+    return super.repository.findAllBySlot_Parking_Id(parkingLotId).stream()
+        .map(super::toEntity)
+        .toList();
+  }
+
+  @Override
+  public Optional<ParkingTickets> findActiveBySlotId(UUID slotId) {
+    return super.repository.findActiveBySlotId(slotId).map(super::toEntity);
   }
 }

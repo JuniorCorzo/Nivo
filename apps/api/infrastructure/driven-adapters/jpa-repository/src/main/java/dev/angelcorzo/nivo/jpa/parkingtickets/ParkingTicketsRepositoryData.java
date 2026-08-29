@@ -2,6 +2,7 @@ package dev.angelcorzo.nivo.jpa.parkingtickets;
 
 import dev.angelcorzo.nivo.model.parkingtickets.enums.ParkingTicketStatus;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,4 +29,9 @@ public interface ParkingTicketsRepositoryData extends JpaRepository<ParkingTicke
           "UPDATE ParkingTicketsData p SET p.status = 'CLOSED', p.closedAt = CURRENT_TIMESTAMP"
               + " WHERE p.id = ?1")
   void closeTicket(UUID ticketId);
+
+  List<ParkingTicketsData> findAllBySlot_Parking_Id(UUID parkingLotId);
+
+  @Query("SELECT p FROM ParkingTicketsData p WHERE p.slot.id = ?1 AND p.status = 'OPEN'")
+  Optional<ParkingTicketsData> findActiveBySlotId(UUID slotId);
 }
