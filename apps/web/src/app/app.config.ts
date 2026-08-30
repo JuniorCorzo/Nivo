@@ -1,6 +1,7 @@
 import {
   ApplicationConfig,
   inject,
+  isDevMode,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
@@ -21,9 +22,11 @@ import { AuthService } from '@core/services/auth-service';
 import { authInterceptor } from '@core/http/interceptors/auth-interceptor';
 import { refreshTokenInterceptor } from '@core/http/interceptors/refresh-token-interceptor';
 import { catchError, of } from 'rxjs';
+import { provideApiConfiguration } from './core/api/generated/api-configuration';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideApiConfiguration(isDevMode() ? 'http://localhost:8080/api' : '/api'),
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),

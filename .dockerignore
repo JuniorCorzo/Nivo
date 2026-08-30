@@ -1,0 +1,12 @@
+.git
+.idea
+.vscode
+*.md
+.env
+node_modules
+**/build/
+**/.gradle/
+dist
+.angular
+.atl
+.codegraph

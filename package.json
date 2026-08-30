@@ -3,10 +3,12 @@
   "private": true,
   "packageManager": "bun@1.3.11",
   "scripts": {
-    "dev:web": "bun --cwd apps/web run start",
-    "dev:design-system": "bun --cwd libs/design-system run storybook",
-    "dev:build": "bun --cwd libs/design-system run build",
-    "dev:tokens": "bun --cwd libs/design-system run generate:tokens"
+    "dev:web": "bun run --cwd apps/web start",
+    "dev:design-system": "bun run --cwd libs/design-system storybook",
+    "dev:build": "bun run --cwd libs/design-system build",
+    "dev:tokens": "bun run --cwd libs/design-system generate:tokens",
+    "docker:build": "docker compose -f deployment/compose.yaml build",
+    "docker:up": "docker compose -f deployment/compose.yaml up -d"
   },
   "workspaces": [
     "apps/web",

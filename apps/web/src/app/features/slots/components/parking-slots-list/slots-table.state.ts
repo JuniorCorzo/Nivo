@@ -1,5 +1,14 @@
 import { Injectable, signal } from '@angular/core';
-import { ColumnFiltersState, PaginationState, createAngularTable, getCoreRowModel, getFilteredRowModel, getPaginationRowModel } from '@tanstack/angular-table';
+import {
+  ColumnFilter,
+  ColumnFiltersState,
+  PaginationState,
+  Updater,
+  createAngularTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+} from '@tanstack/angular-table';
 import { SlotSummary } from '@core/models/slot.model';
 import { parkingSlotColumnDefinition } from './parking-slot-column-definition';
 
@@ -22,25 +31,27 @@ export class SlotsTableState {
         columnFilters: this.columnFilters(),
         pagination: this.pagination(),
       },
-      onGlobalFilterChange: (updater) => {
+      onGlobalFilterChange: (updater: Updater<string>) => {
         this.globalFilter.set(this.resolveUpdater(updater, this.globalFilter()));
       },
-      onColumnFiltersChange: (updater) => {
+      onColumnFiltersChange: (updater: Updater<ColumnFiltersState>) => {
         this.columnFilters.set(this.resolveUpdater(updater, this.columnFilters()));
       },
-      onPaginationChange: (updater) => {
+      onPaginationChange: (updater: Updater<PaginationState>) => {
         this.pagination.set(this.resolveUpdater(updater, this.pagination()));
       },
     }));
   }
 
   columnFilterValue(key: string): string {
-    return String(this.columnFilters().find((filter) => filter.id === key)?.value ?? '');
+    return String(
+      this.columnFilters().find((filter: ColumnFilter) => filter.id === key)?.value ?? '',
+    );
   }
 
   setFilter(key: string, value: string): void {
     this.columnFilters.update((current) => {
-      const next = current.filter((filter) => filter.id !== key);
+      const next = current.filter((filter: ColumnFilter) => filter.id !== key);
       if (value) {
         next.push({ id: key, value });
       }

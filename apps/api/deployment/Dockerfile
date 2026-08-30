@@ -3,17 +3,17 @@ FROM eclipse-temurin:25-jdk-alpine AS builder
 
 WORKDIR /workspace
 
-COPY gradle             gradle
-COPY gradlew            gradlew
-COPY gradle.properties  gradle.properties
-COPY settings.gradle    settings.gradle
-COPY build.gradle       build.gradle
-COPY main.gradle        main.gradle
-COPY lombok.config      lombok.config
+COPY apps/api/gradle             gradle
+COPY apps/api/gradlew            gradlew
+COPY apps/api/gradle.properties  gradle.properties
+COPY apps/api/settings.gradle    settings.gradle
+COPY apps/api/build.gradle       build.gradle
+COPY apps/api/main.gradle        main.gradle
+COPY apps/api/lombok.config      lombok.config
 
-COPY applications       applications
-COPY domain             domain
-COPY infrastructure     infrastructure
+COPY apps/api/applications       applications
+COPY apps/api/domain             domain
+COPY apps/api/infrastructure     infrastructure
 
 RUN chmod +x gradlew && \
     ./gradlew :app-service:bootJar -x test --no-daemon

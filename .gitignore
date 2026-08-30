@@ -43,5 +43,4 @@ node_modules
 .engram/
 
 storybook-static
-generated
 dist
