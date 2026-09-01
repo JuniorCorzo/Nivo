@@ -10,15 +10,15 @@ The deployment operates as a secured 2-tier reverse proxy architecture:
 
 ```mermaid
 flowchart TD
-    Internet([Public Internet / Clients]) -->|Port 80/443 HTTPS| Traefik[Dokploy Traefik Edge Ingress\nLet's Encrypt TLS Termination]
+    Internet(["Public Internet / Clients"]) -->|Port 80/443 HTTPS| Traefik["Dokploy Traefik Edge Ingress<br/>Let's Encrypt TLS Termination"]
     
-    subgraph dokploy-network [dokploy-network (Bridge)]
-        Traefik -->|HTTP :80| Web[Nivo Web\nAngular SPA + Nginx Gateway]
+    subgraph dokploy_network ["dokploy-network (Bridge)"]
+        Traefik -->|HTTP :80| Web["Nivo Web<br/>Angular SPA + Nginx Gateway"]
     end
     
-    subgraph nivo_net [nivo_net (Isolated Internal Bridge)]
-        Web -->|Reverse Proxy /api :8080| API[Nivo API\nSpring Boot 4 / Java 25 Virtual Threads]
-        API -->|Port 5432| DB[(PostGIS 16 / PostgreSQL\nnivo schema)]
+    subgraph nivo_network ["nivo_net (Isolated Internal Bridge)"]
+        Web -->|Reverse Proxy /api :8080| API["Nivo API<br/>Spring Boot 4 / Java 25 Virtual Threads"]
+        API -->|Port 5432| DB[("PostGIS 16 / PostgreSQL<br/>nivo schema")]
     end
 ```
 
