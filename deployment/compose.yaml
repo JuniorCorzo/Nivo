@@ -1,7 +1,5 @@
 x-common-service: &common-service
   restart: unless-stopped
-  networks:
-    - nivo_net
 
 x-platform-env: &platform-env
   APP_VERSION: ${APP_VERSION:-1.0.0}
@@ -91,6 +89,8 @@ services:
   api:
     <<: *common-service
     image: ${API_IMAGE:-ghcr.io/juniorcorzo/nivo-api:latest}
+    networks:
+      - nivo_net
     depends_on:
       database:
         condition: service_healthy
@@ -111,6 +111,8 @@ services:
     <<: *common-service
     container_name: nivo_database
     image: postgis/postgis:16-3.4
+    networks:
+      - nivo_net
     environment:
       <<: [*platform-env, *database-env]
     deploy:
