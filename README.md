@@ -2,13 +2,34 @@
 
 ## 1. Executive Summary
 
-Nivo is a proposed **multi-tenant SaaS web platform** designed for the comprehensive management of parking lots. Each parking lot owner (tenant) can manage their facilities independently, with their data securely isolated from other tenants.
+Nivo is a **multi-tenant SaaS web platform** designed for the comprehensive management of parking lots. Each parking lot owner (tenant) can manage their facilities independently, with their data securely isolated from other tenants.
 
 The system provides a complete solution covering the entire parking lifecycle: from the initial registration and configuration of parking lots and individual spaces to real-time control of vehicle entry and exit using QR codes or physical tickets. It supports advance reservations, on-site payment processing, and the generation of digital receipts. Additionally, the platform features a powerful dashboard and reporting tools to monitor key metrics like occupancy and revenue.
 
-Built on a scalable, cloud-based architecture, Nivo is designed for reliability and performance, offering responsive web interfaces and public APIs for third-party integrations (e.g., availability checking).
+Built on a scalable, cloud-based and self-hostable architecture, Nivo is designed for high reliability and performance, offering responsive web interfaces and public APIs for third-party integrations.
 
-## 2. Key Features
+---
+
+## 2. Technology Stack
+
+- **Frontend**: Modern **Angular 20+** Standalone Components, Signal-based reactivity, OnPush change detection, SCSS design tokens, and Storybook design system.
+- **Backend**: **Java 25 / Spring Boot 4** with Virtual Threads enabled, Clean Architecture layer separation (Domain, Use Cases, Driven Adapters, Entry Points), Log4j2, and Flyway database migrations.
+- **Database**: **PostgreSQL 16 with PostGIS** spatial extension for geographic slot and parking lot boundaries.
+- **Documentation**: OpenAPI 3 with interactive **Scalar** UI.
+- **Deployment**: Docker & Docker Compose with multi-stage production builds and health checks.
+
+---
+
+## 3. Documentation & Guides
+
+- 🛠️ [Local Development Setup Guide](docs/development-setup.md): Complete steps for running PostGIS, Spring Boot API, and Angular Web UI locally.
+- 🚀 [Homelab & Production Deployment Guide](docs/deployment-homelab.md): Comprehensive guide for containerized deployment, SSL reverse proxies, backups, and health monitoring.
+- 📋 [Requirements Specification](docs/requirements.md): In-depth functional and non-functional requirements.
+- 📖 [Use Cases](docs/nivo_use_cases.md): Detailed use case specifications and user flows.
+
+---
+
+## 4. Key Features
 
 - **Multi-Tenant Architecture:** Secure data isolation ensures that each tenant (parking owner) can only access their own information.
 - **Parking Lot Management:** Create and configure multiple parking lots, including their layout, zones, and operating hours.
@@ -21,51 +42,19 @@ Built on a scalable, cloud-based architecture, Nivo is designed for reliability 
 - **Public API:** Expose a public endpoint for querying parking space availability, allowing for integration with third-party applications.
 - **Hardware Integration:** Designed to be compatible with standard industry hardware, including QR code scanners, automatic barriers, occupancy sensors, and payment terminals.
 
-## 3. Roles and Actors
+---
 
-The system defines several user roles to ensure proper access control (RBAC):
+## 5. Quick Start
 
-- **Superadministrator:** Manages tenants, global settings, and system-wide data.
-- **Parking Owner:** Manages their own parking lots, configures rates, and oversees their staff (Managers, Operators).
-- **Manager:** Assists the Owner with daily operations and report visualization.
-- **On-site Operator:** Handles vehicle check-in/check-out and payment processing at the physical location.
-- **Driver (Customer):** The end-user who searches for parking, makes reservations, and pays for services.
-- **Auditor:** A read-only role for reviewing transactions and operational logs.
-- **Hardware Integrator:** A technical role responsible for setting up and connecting physical devices to the system.
-- **Payment Provider:** An external payment gateway service (e.g., Stripe, PayPal) integrated via API.
+```bash
+# 1. Start local PostGIS database
+bun run dev:db
 
-## 4. Architecture and Tech Stack
+# 2. Run Backend API (in apps/api)
+./apps/api/gradlew -p apps/api :app-service:bootRun
 
-### Architecture
+# 3. Run Frontend Web UI
+bun run dev:web
+```
 
-Nivo is built on a **multi-tenant SaaS model**, where a single application instance serves multiple tenants. Data isolation is achieved at the logical level using a shared database schema with a `tenant_id` discriminator in relevant tables. This approach ensures confidentiality while simplifying deployment and maintenance.
-
-### Technology Stack
-
-- **Backend:** Java with the Spring Boot framework.
-- **Frontend:** To be defined.
-- **Database:** PostgreSQL.
-- **Deployment:** Cloud-based infrastructure for scalability and high availability.
-
-## 5. Project Scope (MVP)
-
-### In Scope:
-
-- Multi-tenant user registration and login.
-- Full management of parking lots and spaces.
-- Rate configuration.
-- Check-in/check-out via QR code or digital ticket.
-- Advance reservations.
-- Basic payment processing and transaction logging.
-- Operational dashboard and key reports.
-- Public API for availability.
-- Integration with standard hardware.
-
-### Out of Scope:
-
-- Recurring subscription/payment modules.
-- Loyalty programs or CRM features.
-- Advanced fiscal invoicing.
-- Predictive analytics.
-
-This README provides a high-level overview of the Nivo project. For more detailed functional and non-functional requirements, please refer to the `requirements.md` document.
+For detailed instructions, refer to the [Development Setup Guide](docs/development-setup.md).
