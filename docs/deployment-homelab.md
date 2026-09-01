@@ -182,9 +182,13 @@ x-traefik-web-labels: &traefik-web-labels
 
 ### Zero Host Port Conflicts
 
-Because Traefik communicates directly with the container over `dokploy-network`:
-- You do **not** need to publish or expose host ports `80` or `443` in the Compose project.
-- The default `ports: ["${WEB_PORT:-80}:80"]` can be safely parameterized or overridden in `.env` if host port 80 is bound by Dokploy's Traefik ingress.
+In Dokploy and production Traefik homelab setups, host ports `80` and `443` are already bound and managed by Traefik. Attempting to bind `0.0.0.0:80` on individual service containers causes Docker to fail with `"port is already allocated"`.
+
+To guarantee zero host port collisions:
+- In `deployment/compose.yaml`, **no host ports (`ports:`) are published** for `web`, `api`, or `database`.
+- **Traefik Ingress**: Traefik discovers the `web` container via Docker labels and routes external HTTP/HTTPS traffic directly to the container's internal port `80` (`traefik.http.services.nivo-web.loadbalancer.server.port=80`) across the shared `dokploy-network`.
+- **Internal Service Isolation**: The `web` container proxies `/api/*` requests internally to `http://api:8080` over the private `nivo_net` bridge network, and `api` communicates with `database:5432` without exposing PostgreSQL ports to the host network.
+- **Local Development**: If you need host port mappings for local development, use `deployment/compose.dev.yaml` or an override file.
 
 ---
 
@@ -309,17 +313,19 @@ When using the external volume mount (`${RSA_KEYS_DIR:-./keys}:/app/keys:ro`), R
 4. **Verify Startup**:
    ```bash
    docker compose -f deployment/compose.yaml logs --tail=50 api
-   curl -s http://localhost:8080/api/actuator/health
+   docker compose -f deployment/compose.yaml exec api wget -q -O- http://localhost:8080/api/actuator/health
+   # Or from external domain:
+   curl -s https://nivo.yourdomain.com/api/actuator/health
    ```
 
 ---
 
 ## 10. Health Checks & Monitoring
 
-- **API Actuator Health Probe**: `http://localhost:8080/api/actuator/health`
-- **Web Client Health Probe**: `http://localhost:80/health`
-- **Prometheus Metrics**: `http://localhost:8080/api/actuator/prometheus`
 - **Container Status**: `docker compose -f deployment/compose.yaml ps`
+- **API Actuator Health Probe**: `docker compose -f deployment/compose.yaml exec api wget -q -O- http://localhost:8080/api/actuator/health` (or `https://nivo.yourdomain.com/api/actuator/health`)
+- **Web Client Health Probe**: `https://nivo.yourdomain.com/health`
+- **Prometheus Metrics**: `docker compose -f deployment/compose.yaml exec api wget -q -O- http://localhost:8080/api/actuator/prometheus`
 
 ---
 

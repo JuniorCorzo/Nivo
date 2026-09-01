@@ -81,8 +81,6 @@ services:
     networks:
       - nivo_net
       - dokploy-network
-    ports:
-      - "${WEB_PORT:-80}:80"
     depends_on:
       api:
         condition: service_healthy
@@ -97,8 +95,6 @@ services:
         condition: service_healthy
     environment:
       <<: [*platform-env, *api-runtime-env, *api-datasource-env, *api-security-env, *api-integrations-env]
-    ports:
-      - "${API_PORT:-8080}:8080"
     deploy:
       <<: *resources-api
     healthcheck:
@@ -116,8 +112,6 @@ services:
     image: postgis/postgis:16-3.4
     environment:
       <<: [*platform-env, *database-env]
-    ports:
-      - "${DB_PORT:-5432}:5432"
     deploy:
       <<: *resources-db
     healthcheck:
