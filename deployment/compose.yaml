@@ -10,6 +10,7 @@ x-platform-env: &platform-env
 
 x-traefik-web-labels: &traefik-web-labels
   - "traefik.enable=${TRAEFIK_ENABLED:-true}"
+  - "traefik.docker.network=${DOKPLOY_NETWORK:-dokploy-network}"
   - "traefik.http.routers.nivo-web.rule=Host(`${DOMAIN_NAME:-localhost}`)"
   - "traefik.http.routers.nivo-web.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}"
   - "traefik.http.routers.nivo-web.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
