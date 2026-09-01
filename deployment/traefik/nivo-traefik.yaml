@@ -5,14 +5,13 @@
 
 http:
   routers:
-    # ── Router HTTPS (Port 443 with Let's Encrypt TLS) ─────────
+    # ── Router HTTPS (Port 443) ─────────────────────────────────
     nivo-router-https:
       rule: "Host(`nivo.angelcorzo.dev`)"
       entryPoints:
         - "websecure"
       service: "nivo-service"
-      tls:
-        certResolver: "letsencrypt"
+      tls: {}
 
     # ── Router HTTP (Port 80 for Cloudflare Tunnel / Local LAN) ─
     nivo-router-http:
