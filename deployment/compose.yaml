@@ -74,7 +74,7 @@ x-resources-db: &resources-db
 services:
   web:
     <<: *common-service
-    image: juniorcorzo/nivo-web
+    image: ${WEB_IMAGE:-ghcr.io/juniorcorzo/nivo-web:latest}
     build:
       context: ..
       dockerfile: apps/web/deployment/Dockerfile
@@ -94,7 +94,7 @@ services:
 
   api:
     <<: *common-service
-    image: juniorcorzo/nivo-api
+    image: ${API_IMAGE:-ghcr.io/juniorcorzo/nivo-api:latest}
     build:
       context: ..
       dockerfile: apps/api/deployment/Dockerfile

@@ -42,6 +42,17 @@ flowchart TD
 - **Dokploy** installed and running on your host (or Docker Engine v26.0+ & Docker Compose v2.24+).
 - **OpenSSL CLI** (for RSA and AES key generation).
 - **Domain Name** with DNS `A`/`AAAA` or `CNAME` records pointing to your server's public IP address.
+- **GitHub Container Registry (GHCR)**: Pre-built images are hosted at:
+  - `ghcr.io/juniorcorzo/nivo-web:latest`
+  - `ghcr.io/juniorcorzo/nivo-api:latest`
+
+> [!TIP]
+> **Authenticating Dokploy / Docker to GHCR**:
+> If the GitHub packages/images are private, authenticate your Docker daemon before pulling:
+> ```bash
+> docker login ghcr.io -u <username> -p <github_pat>
+> ```
+> In Dokploy, you can also configure private registry credentials under **Settings** > **Registries** with Registry URL `ghcr.io`, your GitHub username, and a GitHub Personal Access Token (PAT) having `read:packages` scope.
 
 ---
 
@@ -98,6 +109,10 @@ chmod 600 deployment/.env
 Review and customize the environment variables:
 
 ```dotenv
+# --- Container Images (GHCR) ---
+WEB_IMAGE=ghcr.io/juniorcorzo/nivo-web:latest
+API_IMAGE=ghcr.io/juniorcorzo/nivo-api:latest
+
 # --- Dokploy & Traefik Integration ---
 DOKPLOY_NETWORK=dokploy-network
 TRAEFIK_ENABLED=true
