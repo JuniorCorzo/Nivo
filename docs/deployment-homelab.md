@@ -69,6 +69,7 @@ We recommend using external volume-mounted keys (`${RSA_KEYS_DIR:-./keys}:/app/k
 
 ```bash
 mkdir -p deployment/keys
+chmod 755 deployment/keys
 
 # Generate RSA 2048-bit private key
 openssl genrsa -out deployment/keys/private.pem 2048
@@ -76,10 +77,13 @@ openssl genrsa -out deployment/keys/private.pem 2048
 # Extract corresponding public key
 openssl rsa -in deployment/keys/private.pem -pubout -out deployment/keys/public.pem
 
-# Set strict permissions
-chmod 600 deployment/keys/private.pem
+# Set permissions (chmod 644 so non-root container user can read keys mounted read-only)
+chmod 644 deployment/keys/private.pem
 chmod 644 deployment/keys/public.pem
 ```
+
+> [!NOTE]
+> Because the container runs as a non-root user (`USER nivo`), `chmod 600` owned by root on the host prevents the container from reading `private.pem`. With `chmod 644` on the keys and `chmod 755` on the keys directory, plus the container volume mounted as read-only (`:ro`), `USER nivo` can safely read the keys.
 
 Configure `RSA_` variables in your `.env` file:
 ```dotenv
@@ -284,9 +288,11 @@ When using the external volume mount (`${RSA_KEYS_DIR:-./keys}:/app/keys:ro`), R
 
 1. **Generate New Key Pair**:
    ```bash
+   mkdir -p deployment/keys
+   chmod 755 deployment/keys
    openssl genrsa -out deployment/keys/private.pem 2048
    openssl rsa -in deployment/keys/private.pem -pubout -out deployment/keys/public.pem
-   chmod 600 deployment/keys/private.pem
+   chmod 644 deployment/keys/private.pem
    chmod 644 deployment/keys/public.pem
    ```
 
