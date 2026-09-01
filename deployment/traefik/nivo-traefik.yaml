@@ -1,0 +1,29 @@
+# =============================================================================
+# Traefik Dynamic Configuration File Provider for Nivo (Dokploy / Homelab)
+# Target on Host: /etc/dokploy/traefik/dynamic/nivo.yaml
+# =============================================================================
+
+http:
+  routers:
+    # ── Router HTTPS (Port 443 with Let's Encrypt TLS) ─────────
+    nivo-router-https:
+      rule: "Host(`nivo.angelcorzo.dev`)"
+      entryPoints:
+        - "websecure"
+      service: "nivo-service"
+      tls:
+        certResolver: "letsencrypt"
+
+    # ── Router HTTP (Port 80 for Cloudflare Tunnel / Local LAN) ─
+    nivo-router-http:
+      rule: "Host(`nivo.angelcorzo.dev`)"
+      entryPoints:
+        - "web"
+      service: "nivo-service"
+
+  services:
+    # ── Upstream Web Service (Angular SPA + Nginx Gateway) ──────
+    nivo-service:
+      loadBalancer:
+        servers:
+          - url: "http://nivo-lccmyt-web-1:80"
