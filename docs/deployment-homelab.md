@@ -46,6 +46,9 @@ flowchart TD
   - `ghcr.io/juniorcorzo/nivo-web:latest`
   - `ghcr.io/juniorcorzo/nivo-api:latest`
 
+  > [!NOTE]
+  > In Dokploy and production deployments, Docker Compose directly pulls these pre-built GHCR images rather than compiling from source, significantly saving CPU and RAM overhead on the homelab host. For local development or custom builds, an override file (`deployment/compose.build.yaml`) is provided.
+
 > [!TIP]
 > **Authenticating Dokploy / Docker to GHCR**:
 > If the GitHub packages/images are private, authenticate your Docker daemon before pulling:
@@ -205,7 +208,7 @@ Because Traefik communicates directly with the container over `dokploy-network`:
 
 #### Step 4: Deploy & Verify
 1. Click **Deploy** in the Dokploy dashboard.
-2. Dokploy will build the images, launch containers, and connect the `web` service to `dokploy-network`.
+2. Dokploy will pull the pre-built GHCR images directly (saving host CPU/RAM), launch containers, and connect the `web` service to `dokploy-network`.
 3. Traefik will automatically obtain Let's Encrypt SSL certificates for your `DOMAIN_NAME`.
 4. Access `https://nivo.yourdomain.com` in your browser.
 
@@ -219,11 +222,18 @@ If you are running on a standalone Docker host without Dokploy:
    ```bash
    docker network create dokploy-network || true
    ```
-2. Start the stack:
+2. Pull the latest pre-built images and start the stack:
    ```bash
-   docker compose --env-file deployment/.env -f deployment/compose.yaml up -d --build
+   docker compose --env-file deployment/.env -f deployment/compose.yaml pull
+   docker compose --env-file deployment/.env -f deployment/compose.yaml up -d
    ```
-3. Check container status:
+3. *(Optional)* If you need to build container images locally instead of pulling from GHCR:
+   ```bash
+   bun run docker:build
+   # Or directly with Docker Compose:
+   docker compose -f deployment/compose.yaml -f deployment/compose.build.yaml build
+   ```
+4. Check container status:
    ```bash
    docker compose -f deployment/compose.yaml ps
    ```

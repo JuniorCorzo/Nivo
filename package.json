@@ -10,7 +10,7 @@
     "dev:design-system": "bun run --cwd libs/design-system storybook",
     "dev:build": "bun run --cwd libs/design-system build",
     "dev:tokens": "bun run --cwd libs/design-system generate:tokens",
-    "docker:build": "docker compose -f deployment/compose.yaml build",
+    "docker:build": "docker compose -f deployment/compose.yaml -f deployment/compose.build.yaml build",
     "docker:up": "docker compose -f deployment/compose.yaml up -d"
   },
   "workspaces": [

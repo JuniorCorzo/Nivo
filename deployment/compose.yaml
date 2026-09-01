@@ -75,9 +75,6 @@ services:
   web:
     <<: *common-service
     image: ${WEB_IMAGE:-ghcr.io/juniorcorzo/nivo-web:latest}
-    build:
-      context: ..
-      dockerfile: apps/web/deployment/Dockerfile
     environment:
       <<: *platform-env
     labels: *traefik-web-labels
@@ -95,9 +92,6 @@ services:
   api:
     <<: *common-service
     image: ${API_IMAGE:-ghcr.io/juniorcorzo/nivo-api:latest}
-    build:
-      context: ..
-      dockerfile: apps/api/deployment/Dockerfile
     depends_on:
       database:
         condition: service_healthy
