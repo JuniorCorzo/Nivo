@@ -78,7 +78,6 @@ jwt:
   issue: "https://api.nivo.dev"
   access-token-expiration: 900       # 15 minutes (in seconds)
   refresh-token-expiration: 604800   # 7 days (in seconds)
-  secret-key: "${JWT_SECRET:change-me-to-a-strong-secret}"
 
 # ── SendGrid (Email Notifications) ─────────────────────────
 sendgrid:

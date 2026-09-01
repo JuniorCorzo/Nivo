@@ -46,12 +46,4 @@ public class JwtProperties {
    */
   private long refreshTokenExpiration;
 
-  /**
-   * The secret key used for signing JWTs.
-   * <p>
-   * This key should be kept confidential and is used in HMAC-based signature
-   * algorithms. For RSA, this field may not be used directly.
-   * </p>
-   */
-  private String secretKey;
 }

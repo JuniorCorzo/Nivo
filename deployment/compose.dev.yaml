@@ -1,0 +1,28 @@
+services:
+  database:
+    container_name: nivo_dev_database
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=nivo_db
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nivo_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - nivo_dev_postgres_data:/var/lib/postgresql/data
+      - ./init.sh:/docker-entrypoint-initdb.d/init.sh:z
+    networks:
+      - nivo_dev_net
+
+volumes:
+  nivo_dev_postgres_data:
+
+networks:
+  nivo_dev_net:
