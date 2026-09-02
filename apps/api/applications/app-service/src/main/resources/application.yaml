@@ -12,7 +12,10 @@ spring:
   datasource:
     driverClassName: org.postgresql.Driver
   flyway:
-    enabled: false
+    enabled: ${SPRING_FLYWAY_ENABLED:true}
+    schemas: nivo
+    default-schema: nivo
+    locations: classpath:db/migration
   jpa:
     databasePlatform: org.hibernate.dialect.PostgreSQLDialect
     properties:

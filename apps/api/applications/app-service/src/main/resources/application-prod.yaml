@@ -3,10 +3,10 @@
 # ============================================================
 spring:
   flyway:
-    url: ${DB_URL}
-    user: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    enabled: true
     schemas: nivo
+    default-schema: nivo
+    locations: classpath:db/migration
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}

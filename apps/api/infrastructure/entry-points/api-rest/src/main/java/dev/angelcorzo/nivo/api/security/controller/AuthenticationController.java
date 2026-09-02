@@ -104,7 +104,6 @@ public class AuthenticationController {
         .path("/api")
         .sameSite("Lax")
         .maxAge(Duration.ofSeconds(maxAgeSeconds))
-        .domain("localhost")
         .build();
   }
 }
