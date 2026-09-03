@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-6 p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
   <!-- Header Bar -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
     <div class="flex items-center gap-3">
       <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
         <ng-icon name="lucideParkingSquare" class="text-xl" />
@@ -15,15 +15,34 @@
       </div>
     </div>
 
-    <!-- Quick Action CTA -->
-    <nv-button
-      size="sm"
-      [title]="LABELS.form.create.description"
-      (click)="onCreateParking()"
-    >
-      <ng-icon name="lucidePlus" class="text-base" />
-      <span>{{ LABELS.form.create.title }}</span>
-    </nv-button>
+    <!-- Actions & Active Selector -->
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="w-full sm:w-64">
+        <app-parking-lot-selector size="default" />
+      </div>
+
+      @if (activeParkingLot(); as activeLot) {
+        <nv-button
+          size="sm"
+          variant="outline"
+          (click)="onManageActiveOperations()"
+          title="Operar sede activa"
+        >
+          <ng-icon name="lucideLogIn" class="text-base" />
+          <span>Operar {{ activeLot.name }}</span>
+        </nv-button>
+      }
+
+      <!-- Quick Action CTA -->
+      <nv-button
+        size="sm"
+        [title]="LABELS.form.create.description"
+        (click)="onCreateParking()"
+      >
+        <ng-icon name="lucidePlus" class="text-base" />
+        <span>{{ LABELS.form.create.title }}</span>
+      </nv-button>
+    </div>
   </div>
 
   <!-- Search & Content Card -->
@@ -40,4 +59,3 @@
     <app-parking-table [searchQuery]="searchQuery()" />
   </div>
 </div>
-

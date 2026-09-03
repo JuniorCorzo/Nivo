@@ -1,17 +1,25 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
+  lucideCheck,
   lucideEye,
+  lucideLogIn,
+  lucideMapPin,
+  lucideParkingSquare,
   lucidePencil,
   lucidePlus,
   lucideSearch,
   lucideTrash2,
-  lucideMapPin,
-  lucideParkingSquare,
-  lucideLogIn,
 } from '@ng-icons/lucide';
 import { ParkingService } from '@core/services/parking-service';
+import { ActiveParkingService } from '@core/services/active-parking.service';
 import { ParkingLotListItemModel } from '@core/models/parking.model';
 import { APP_TEXTS } from '@shared/constants/app-texts.constant';
 import { APP_ROUTES } from '@shared/constants/app-routes.constant';
@@ -19,6 +27,7 @@ import { OccuppationMeter } from '../occuppation-meter/occuppation-meter';
 
 @Component({
   selector: 'app-parking-home-mobile',
+  standalone: true,
   imports: [NgIcon, OccuppationMeter],
   providers: [
     provideIcons({
@@ -30,6 +39,7 @@ import { OccuppationMeter } from '../occuppation-meter/occuppation-meter';
       lucideMapPin,
       lucideParkingSquare,
       lucideLogIn,
+      lucideCheck,
     }),
   ],
   templateUrl: './parking-home-mobile.html',
@@ -37,10 +47,15 @@ import { OccuppationMeter } from '../occuppation-meter/occuppation-meter';
 })
 export class ParkingHomeMobile {
   private readonly parkingService = inject(ParkingService);
+  private readonly activeParkingService = inject(ActiveParkingService);
   private readonly router = inject(Router);
 
   protected readonly LABELS = APP_TEXTS.parking;
   protected readonly searchQuery = signal('');
+
+  public readonly activeParkingLot = computed<ParkingLotListItemModel | null>(() => {
+    return this.activeParkingService.activeParkingLot();
+  });
 
   protected readonly parkingLots = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
@@ -66,11 +81,20 @@ export class ParkingHomeMobile {
   }
 
   protected onManageOperations(id: string): void {
+    this.activeParkingService.setActiveParkingId(id);
     this.router.navigate([APP_ROUTES.app.parkingLotOperations(id)]);
   }
 
+  protected onSelectActive(lot: ParkingLotListItemModel): void {
+    this.activeParkingService.setActiveParking(lot);
+  }
+
+  protected isActive(lot: ParkingLotListItemModel): boolean {
+    return this.activeParkingLot()?.id === lot.id;
+  }
+
   protected getAddress(lot: ParkingLotListItemModel): string {
-    const { street, city } = lot.address;
+    const { street, city } = lot.address ?? {};
     return [street, city].filter(Boolean).join(', ');
   }
 

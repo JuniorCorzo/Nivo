@@ -1,0 +1,113 @@
+<div #origin class="relative inline-block w-full max-w-xs">
+  <button
+    type="button"
+    [disabled]="disabled()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="listbox"
+    (click)="toggleOpen()"
+    class="flex w-full items-center justify-between gap-2.5 rounded-xl border border-input bg-card px-3 py-2 text-left text-xs sm:text-sm font-sans text-foreground shadow-2xs transition-all hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+    [class.h-8]="size() === 'sm'"
+    [class.py-1]="size() === 'sm'"
+    [class.px-2.5]="size() === 'sm'"
+    [class.text-xs]="size() === 'sm'"
+    [class.h-10]="size() === 'default'"
+    [class.h-12]="size() === 'lg'"
+    [class.text-base]="size() === 'lg'"
+  >
+    <div class="flex items-center gap-2 min-w-0 flex-1">
+      <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+        <ng-icon name="lucideParkingSquare" size="14" />
+      </div>
+      @if (activeLot(); as lot) {
+        <span class="truncate font-semibold text-foreground">
+          {{ lot.name }}
+        </span>
+      } @else {
+        <span class="truncate text-muted-foreground">
+          {{ placeholder() }}
+        </span>
+      }
+    </div>
+
+    <ng-icon
+      name="lucideChevronDown"
+      size="15"
+      class="text-muted-foreground shrink-0 transition-transform duration-200"
+      [class.rotate-180]="isOpen()"
+    />
+  </button>
+
+  @if (isOpen()) {
+    <ng-template
+      cdkConnectedOverlay
+      [cdkConnectedOverlayOrigin]="origin"
+      [cdkConnectedOverlayOpen]="true"
+      [cdkConnectedOverlayPositions]="overlayPositions"
+      (overlayOutsideClick)="close()"
+      (detach)="close()"
+    >
+      <div
+        [style.minWidth.px]="overlayWidth()"
+        class="z-50 overflow-hidden rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95"
+        role="listbox"
+      >
+        <div class="px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+          Sedes disponibles
+        </div>
+
+        <div class="max-h-60 overflow-y-auto space-y-0.5">
+          @for (lot of parkingLots(); track lot.id) {
+            <button
+              type="button"
+              role="option"
+              [attr.aria-selected]="isSelected(lot)"
+              (click)="selectParkingLot(lot)"
+              class="flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left text-xs font-sans transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer"
+              [class.bg-accent]="isSelected(lot)"
+              [class.text-accent-foreground]="isSelected(lot)"
+            >
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                <div
+                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border"
+                  [class.bg-primary]="isSelected(lot)"
+                  [class.text-primary-foreground]="isSelected(lot)"
+                  [class.border-primary]="isSelected(lot)"
+                  [class.bg-muted]="!isSelected(lot)"
+                  [class.text-muted-foreground]="!isSelected(lot)"
+                  [class.border-border]="!isSelected(lot)"
+                >
+                  <ng-icon name="lucideBuilding2" size="14" />
+                </div>
+                <div class="flex flex-col min-w-0">
+                  <span class="truncate font-semibold text-foreground">
+                    {{ lot.name }}
+                  </span>
+                  @if (getFormattedAddress(lot); as address) {
+                    <span class="truncate text-[11px] text-muted-foreground">
+                      {{ address }}
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 shrink-0">
+                @if (showCapacity()) {
+                  <span class="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground border border-border">
+                    {{ lot.occuppationRate }}%
+                  </span>
+                }
+                @if (isSelected(lot)) {
+                  <ng-icon name="lucideCheck" size="15" class="text-primary" />
+                }
+              </div>
+            </button>
+          } @empty {
+            <div class="px-3 py-4 text-center text-xs text-muted-foreground">
+              No hay sedes registradas
+            </div>
+          }
+        </div>
+      </div>
+    </ng-template>
+  }
+</div>
