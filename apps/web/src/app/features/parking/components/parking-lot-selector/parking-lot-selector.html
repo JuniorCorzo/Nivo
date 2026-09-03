@@ -25,9 +25,9 @@
           {{ lot.name }}
         </span>
       } @else {
-        <span class="truncate text-muted-foreground">
+        <nv-muted class="truncate block">
           {{ placeholder() }}
-        </span>
+        </nv-muted>
       }
     </div>
 
@@ -53,11 +53,11 @@
         class="z-50 overflow-hidden rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95"
         role="listbox"
       >
-        <div
-          class="px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider"
+        <nv-muted
+          class="block px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider"
         >
           Sedes disponibles
-        </div>
+        </nv-muted>
 
         <div class="max-h-60 overflow-y-auto space-y-0.5">
           @for (lot of parkingLots(); track lot.id) {
@@ -87,20 +87,18 @@
                     {{ lot.name }}
                   </span>
                   @if (getFormattedAddress(lot); as address) {
-                    <span class="truncate text-[11px] text-muted-foreground">
+                    <nv-muted class="truncate text-[11px] block">
                       {{ address }}
-                    </span>
+                    </nv-muted>
                   }
                 </div>
               </div>
 
               <div class="flex items-center gap-2 shrink-0">
                 @if (showCapacity()) {
-                  <span
-                    class="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground border border-border"
-                  >
+                  <nv-badge variant="outline" class="font-mono text-[10px] px-1.5 py-0.5">
                     {{ lot.occuppationRate }}%
-                  </span>
+                  </nv-badge>
                 }
                 @if (isSelected(lot)) {
                   <ng-icon name="lucideCheck" size="15" class="text-primary" />
@@ -108,21 +106,22 @@
               </div>
             </button>
           } @empty {
-            <div class="px-3 py-4 text-center text-xs text-muted-foreground">
+            <nv-muted class="block px-3 py-4 text-center text-xs">
               No hay sedes registradas
-            </div>
+            </nv-muted>
           }
         </div>
 
         <div class="border-t border-border mt-1 pt-1">
-          <button
-            type="button"
+          <nv-button
+            variant="ghost"
+            size="sm"
             (click)="onCreateParking()"
-            class="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+            class="w-full justify-start text-xs font-semibold text-primary"
           >
             <ng-icon name="lucidePlus" size="14" />
             <span>+ Nueva sede</span>
-          </button>
+          </nv-button>
         </div>
       </div>
     </ng-template>

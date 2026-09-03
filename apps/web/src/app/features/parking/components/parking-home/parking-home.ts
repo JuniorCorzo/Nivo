@@ -22,9 +22,14 @@ import {
 import {
   BadgeComponent,
   ButtonComponent,
+  CardComponent,
   ToastService,
+  TypographyH1,
+  TypographyH2,
+  TypographyH3,
   TypographyMono,
   TypographyMuted,
+  TypographyP,
 } from '@nivo-sass/design-system';
 import { ParkingLotListItemModel } from '@core/models/parking.model';
 import { SlotDistribution } from '@core/type/slot-distribution.type';
@@ -42,8 +47,14 @@ import { ParkingMapComponent } from '../parking-map/parking-map';
   imports: [
     NgIcon,
     BadgeComponent,
-    TypographyMuted,
+    ButtonComponent,
+    CardComponent,
+    TypographyH1,
+    TypographyH2,
+    TypographyH3,
     TypographyMono,
+    TypographyMuted,
+    TypographyP,
     ParkingMapComponent,
     ParkingLotSelector,
     DeleteParkingModal,

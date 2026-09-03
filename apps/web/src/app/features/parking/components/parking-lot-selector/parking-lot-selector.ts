@@ -20,6 +20,12 @@ import {
   lucideParkingSquare,
   lucidePlus,
 } from '@ng-icons/lucide';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  TypographyMono,
+  TypographyMuted,
+} from '@nivo-sass/design-system';
 import { ParkingLotListItemModel } from '@core/models/parking.model';
 import { ParkingService } from '@core/services/parking-service';
 import { ActiveParkingService } from '@core/services/active-parking.service';
@@ -28,7 +34,14 @@ import { APP_ROUTES } from '@shared/constants/app-routes.constant';
 @Component({
   selector: 'app-parking-lot-selector',
   standalone: true,
-  imports: [OverlayModule, NgIcon],
+  imports: [
+    OverlayModule,
+    NgIcon,
+    BadgeComponent,
+    ButtonComponent,
+    TypographyMuted,
+    TypographyMono,
+  ],
   providers: [
     provideIcons({
       lucideParkingSquare,

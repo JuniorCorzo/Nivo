@@ -19,7 +19,16 @@ import {
   lucideSparkles,
   lucideTrash2,
 } from '@ng-icons/lucide';
-import { ToastService } from '@nivo-sass/design-system';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  CardComponent,
+  ToastService,
+  TypographyH2,
+  TypographyMono,
+  TypographyMuted,
+  TypographyP,
+} from '@nivo-sass/design-system';
 import { ParkingLotListItemModel } from '@core/models/parking.model';
 import { SlotDistribution } from '@core/type/slot-distribution.type';
 import { ActiveParkingService } from '@core/services/active-parking.service';
@@ -33,7 +42,19 @@ import { ParkingMapComponent } from '../parking-map/parking-map';
 @Component({
   selector: 'app-parking-home-mobile',
   standalone: true,
-  imports: [NgIcon, ParkingLotSelector, ParkingMapComponent, DeleteParkingModal],
+  imports: [
+    NgIcon,
+    BadgeComponent,
+    ButtonComponent,
+    CardComponent,
+    TypographyH2,
+    TypographyMono,
+    TypographyMuted,
+    TypographyP,
+    ParkingLotSelector,
+    ParkingMapComponent,
+    DeleteParkingModal,
+  ],
   providers: [
     provideIcons({
       lucideArrowLeft,
