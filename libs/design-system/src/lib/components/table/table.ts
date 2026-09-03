@@ -1,18 +1,23 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 
 @Component({
-  selector: 'table[nv-table]',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<ng-content />`,
   host: {
-    '[class]': 'classes()',
+    "[class]": "classes()",
   },
+  selector: "table[nv-table]",
+  standalone: true,
+  template: `<ng-content />`,
 })
 export class TableComponent {
-  readonly class = input<string>('');
+  readonly class = input<string>("");
   readonly classes = computed(() => {
-    const base = 'w-full caption-bottom text-sm text-[var(--foreground)]';
+    const base = "w-full caption-bottom text-sm text-[var(--foreground)]";
     return this.class() ? `${base} ${this.class()}` : base;
   });
 }

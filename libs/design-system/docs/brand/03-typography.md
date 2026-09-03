@@ -7,13 +7,14 @@
 **Licencia**: SIL Open Font License
 
 **Uso:**
+
 - Títulos (H1-H6).
 - Cuerpo de texto.
 - UI: botones, labels e inputs.
 - Navegación.
 
-**Justificación:**
-Inter es la fuente estándar de interfaces modernas y del ecosistema shadcn/ui:
+**Justificación:** Inter es la fuente estándar de interfaces modernas y del ecosistema shadcn/ui:
+
 - Diseñada específicamente para pantallas, con legibilidad óptima en todos los tamaños.
 - Amplia variedad de pesos para una jerarquía tipográfica rica.
 - Métricas optimizadas para UI.
@@ -26,11 +27,13 @@ Inter es la fuente estándar de interfaces modernas y del ecosistema shadcn/ui:
 **Licencia**: SIL Open Font License
 
 **Uso:**
+
 - Datos numéricos en dashboards.
 - Placas vehiculares y códigos.
 - Código y datos técnicos.
 
 **Justificación:**
+
 - Ofrece excelente legibilidad entre caracteres similares (`0/O`, `1/l/I`).
 - Genera un contraste visual claro frente a Inter para diferenciar datos y texto corrido.
 
@@ -56,4 +59,4 @@ Space Mono Bold se reserva exclusivamente para el logotipo y la marca tipográfi
 | **Button Text** | Inter | 14px / 0.875rem | Medium (500) | 20px | 0 |
 | **Code / Data** | JetBrains Mono | 13px / 0.8125rem | Regular (400) | 20px | 0 |
 
-*(Code / Data incluye Font-feature-settings: `"tnum"` para tabular numbers)*
+_(Code / Data incluye Font-feature-settings: `"tnum"` para tabular numbers)_

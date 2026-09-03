@@ -4,8 +4,6 @@
     "outDir": "./out-tsc/browser",
     "types": ["node"]
   },
-  "files": [
-    "src/storybook-main.ts"
-  ],
+  "files": ["src/storybook-main.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,18 +1,4 @@
 import {
-  afterRenderEffect,
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  forwardRef,
-  input,
-  OnDestroy,
-  output,
-  signal,
-  viewChild,
-  viewChildren,
-} from "@angular/core";
-import {
   Combobox as AriaCombobox,
   ComboboxInput,
   ComboboxPopupContainer,
@@ -22,13 +8,25 @@ import {
   Option as AriaOption,
 } from "@angular/aria/listbox";
 import { OverlayModule } from "@angular/cdk/overlay";
-
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
-import { ValidationError } from "@angular/forms/signals";
+import {
+  afterRenderEffect,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  forwardRef,
+  input,
+  output,
+  signal,
+  viewChild,
+  viewChildren,
+} from "@angular/core";
+import type { OnDestroy } from "@angular/core";
+import { NG_VALUE_ACCESSOR } from "@angular/forms";
+import type { ControlValueAccessor } from "@angular/forms";
+import type { ValidationError } from "@angular/forms/signals";
 
 @Component({
-  selector: "nv-combobox",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AriaCombobox,
@@ -40,11 +38,13 @@ import { ValidationError } from "@angular/forms/signals";
   ],
   providers: [
     {
+      multi: true,
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => ComboboxComponent),
-      multi: true,
     },
   ],
+  selector: "nv-combobox",
+  standalone: true,
   styles: `
     input::placeholder {
       color: var(--muted-foreground);
@@ -56,11 +56,13 @@ import { ValidationError } from "@angular/forms/signals";
       @if (label()) {
         <label
           [for]="id()"
-          class="text-sm font-medium text-(--foreground) font-sans"
+          class="font-sans text-sm font-medium text-(--foreground)"
         >
           {{ label() }}
           @if (required()) {
-            <span class="text-(--destructive) ml-0.5" aria-hidden="true">*</span>
+            <span class="ml-0.5 text-(--destructive)" aria-hidden="true"
+              >*</span
+            >
           }
         </label>
       }
@@ -118,7 +120,7 @@ import { ValidationError } from "@angular/forms/signals";
                         ngOption
                         [value]="item"
                         [label]="displayFn()(item)"
-                        class="cursor-pointer px-3 py-2 text-sm font-sans transition-colors hover:bg-accent hover:text-accent-foreground data-[active=true]:bg-accent data-[active=true]:text-accent-foreground aria-selected:bg-accent aria-selected:text-accent-foreground"
+                        class="hover:bg-accent hover:text-accent-foreground data-[active=true]:bg-accent data-[active=true]:text-accent-foreground aria-selected:bg-accent aria-selected:text-accent-foreground cursor-pointer px-3 py-2 font-sans text-sm transition-colors"
                         (mousedown)="onOptionMouseDown($event, item)"
                       >
                         {{ displayFn()(item) }}
@@ -133,7 +135,7 @@ import { ValidationError } from "@angular/forms/signals";
       </div>
       @if (hasErrors() && !isOpen()) {
         <ul
-          class="text-xs text-(--destructive) font-sans space-y-1 mt-1"
+          class="mt-1 space-y-1 font-sans text-xs text-(--destructive)"
           aria-live="polite"
           role="alert"
         >
@@ -147,25 +149,25 @@ import { ValidationError } from "@angular/forms/signals";
     </div>
   `,
 })
-export class ComboboxComponent implements ControlValueAccessor, OnDestroy {
+export class ComboboxComponent<T = unknown>
+  implements ControlValueAccessor, OnDestroy
+{
   // --- Public inputs ---
   readonly id = input<string>(
-    `nv-combobox-${Math.random().toString(36).slice(2)}`,
+    `nv-combobox-${Math.random().toString(36).slice(2)}`
   );
   readonly label = input<string>("");
   readonly required = input<boolean>(false);
   readonly placeholder = input<string>("");
-  readonly items = input<unknown[]>([]);
-  readonly displayFn = input<(item: unknown) => string>((item: unknown) =>
-    String(item),
-  );
+  readonly items = input<T[]>([]);
+  readonly displayFn = input<(item: T) => string>(String);
   readonly filterFn = input<
-    ((item: unknown, query: string) => boolean) | undefined
-  >(undefined);
+    ((item: T, query: string) => boolean) | undefined
+  >();
   readonly loading = input<boolean>(false);
-  readonly error = input<string | ValidationError.WithFieldTree[] | undefined>(
-    undefined,
-  );
+  readonly error = input<
+    string | ValidationError.WithFieldTree[] | undefined
+  >();
   readonly disabled = input<boolean>(false);
   readonly debounceMs = input<number>(300);
 
@@ -176,40 +178,41 @@ export class ComboboxComponent implements ControlValueAccessor, OnDestroy {
       return [];
     }
 
-    if (typeof error === "string") {
-      return [error];
+    if (Array.isArray(error)) {
+      return error.map((item) => item.message);
     }
 
-    return error.map((item) => item.message);
+    return [error];
   });
 
   readonly hasErrors = computed(() => this.errorMessages().length > 0);
 
   // --- Output ---
-  readonly selectionChange = output<unknown>();
+  readonly selectionChange = output<T>();
 
   // --- Internal state ---
   readonly searchText = signal("");
-  private formDisabled = signal(false);
+  private readonly formDisabled = signal(false);
   private debounceTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly debouncedSearchText = signal("");
-  private readonly combobox = viewChild<AriaCombobox<unknown>>(AriaCombobox);
-  private readonly listbox = viewChild<AriaListbox<unknown>>(AriaListbox);
-  private readonly options = viewChildren<AriaOption<unknown>>(AriaOption);
+  private readonly combobox = viewChild<AriaCombobox<T>>(AriaCombobox);
+  private readonly listbox = viewChild<AriaListbox<T>>(AriaListbox);
+  private readonly options = viewChildren<AriaOption<T>>(AriaOption);
 
-  // --- CVA callbacks ---
-  onChange: (value: string) => void = () => {};
-  onTouched: () => void = () => {};
+  private onModelChange?: (value: string) => void;
+  private onModelTouched?: () => void;
 
   // --- Computed ---
   readonly isDisabled = computed(() => this.disabled() || this.formDisabled());
 
   readonly isOpen = computed(() => this.combobox()?.expanded() ?? false);
 
-  readonly filteredItems = computed(() => {
+  readonly filteredItems = computed<T[]>(() => {
     const query = this.debouncedSearchText();
     const items = this.items();
-    if (!query) return items;
+    if (!query) {
+      return items;
+    }
     const customFilter = this.filterFn();
     if (customFilter) {
       return items.filter((item) => customFilter(item, query));
@@ -224,9 +227,9 @@ export class ComboboxComponent implements ControlValueAccessor, OnDestroy {
     const base =
       "flex h-10 w-full rounded-md border bg-transparent px-3 py-2 text-sm font-sans transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50";
     const border =
-      this.hasErrors() && !this.isOpen()
-        ? "border-[var(--destructive)]"
-        : "border-[var(--input)]";
+      !this.hasErrors() || this.isOpen()
+        ? "border-[var(--input)]"
+        : "border-[var(--destructive)]";
     return `${base} ${border} text-[var(--foreground)]`;
   });
 
@@ -241,7 +244,7 @@ export class ComboboxComponent implements ControlValueAccessor, OnDestroy {
       const activeOption = this.options().find((option) => option.active());
       setTimeout(
         () => activeOption?.element.scrollIntoView({ block: "nearest" }),
-        50,
+        50
       );
     });
 
@@ -259,9 +262,11 @@ export class ComboboxComponent implements ControlValueAccessor, OnDestroy {
     }
 
     this.searchText.set(value);
-    this.onChange(value);
+    this.onModelChange?.(value);
 
-    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
     const ms = this.debounceMs();
 
     if (ms <= 0) {
@@ -274,7 +279,7 @@ export class ComboboxComponent implements ControlValueAccessor, OnDestroy {
   }
 
   onBlur(): void {
-    this.onTouched();
+    this.onModelTouched?.();
   }
 
   onKeydown(event: KeyboardEvent): void {
@@ -291,7 +296,7 @@ export class ComboboxComponent implements ControlValueAccessor, OnDestroy {
     this.selectItem(item);
   }
 
-  onOptionMouseDown(event: MouseEvent, item: unknown): void {
+  onOptionMouseDown(event: MouseEvent, item: T): void {
     if (this.isDisabled()) {
       return;
     }
@@ -300,7 +305,7 @@ export class ComboboxComponent implements ControlValueAccessor, OnDestroy {
     this.selectItem(item);
   }
 
-  selectItem(item: unknown): void {
+  selectItem(item: T): void {
     if (this.isDisabled()) {
       return;
     }
@@ -308,17 +313,17 @@ export class ComboboxComponent implements ControlValueAccessor, OnDestroy {
     const displayText = this.displayFn()(item);
     this.searchText.set(displayText);
     this.debouncedSearchText.set(displayText);
-    this.onChange(displayText);
+    this.onModelChange?.(displayText);
     this.selectionChange.emit(item);
     this.combobox()?.close();
   }
 
-  private getActiveOrSelectedItem(): unknown | undefined {
+  private getActiveOrSelectedItem(): T | undefined {
     const index = this.options().findIndex(
-      (option) => option.active() || option.selected(),
+      (option) => option.active() || option.selected()
     );
 
-    return index >= 0 ? this.filteredItems()[index] : undefined;
+    return index === -1 ? undefined : this.filteredItems()[index];
   }
 
   // --- CVA ---
@@ -328,11 +333,11 @@ export class ComboboxComponent implements ControlValueAccessor, OnDestroy {
   }
 
   registerOnChange(fn: (value: string) => void): void {
-    this.onChange = fn;
+    this.onModelChange = fn;
   }
 
   registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
+    this.onModelTouched = fn;
   }
 
   setDisabledState(isDisabled: boolean): void {
@@ -340,6 +345,8 @@ export class ComboboxComponent implements ControlValueAccessor, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
   }
 }

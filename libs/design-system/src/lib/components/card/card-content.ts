@@ -1,11 +1,14 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
-
-import { input, computed } from "@angular/core";
+import {
+  Component,
+  ChangeDetectionStrategy,
+  input,
+  computed,
+} from "@angular/core";
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "nv-card-content",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<div [class]="classes()"><ng-content /></div>`,
 })
 export class CardContentComponent {

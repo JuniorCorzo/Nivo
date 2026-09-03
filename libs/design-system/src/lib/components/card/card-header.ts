@@ -6,9 +6,9 @@ import {
 } from "@angular/core";
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "nv-card-header",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<div [class]="classes()"><ng-content /></div>`,
 })
 export class CardHeaderComponent {

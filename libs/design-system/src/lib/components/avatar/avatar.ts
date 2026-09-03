@@ -1,9 +1,14 @@
-import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  input,
+  computed,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 
 @Component({
-  selector: 'nv-avatar',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "nv-avatar",
+  standalone: true,
   template: `
     <div [class]="wrapperClasses()">
       @if (src()) {
@@ -12,11 +17,11 @@ import { Component, input, computed, ChangeDetectionStrategy } from '@angular/co
           [alt]="alt() || ''"
           loading="lazy"
           decoding="async"
-          class="w-full h-full rounded-full object-cover border border-[var(--border)] bg-[var(--muted)]"
+          class="h-full w-full rounded-full border border-[var(--border)] bg-[var(--muted)] object-cover"
         />
       } @else {
         <div
-          class="w-full h-full rounded-full flex items-center justify-center bg-[var(--muted)] text-[var(--muted-foreground)] font-semibold font-sans select-none"
+          class="flex h-full w-full items-center justify-center rounded-full bg-[var(--muted)] font-sans font-semibold text-[var(--muted-foreground)] select-none"
         >
           {{ initials() }}
         </div>
@@ -25,29 +30,32 @@ import { Component, input, computed, ChangeDetectionStrategy } from '@angular/co
   `,
 })
 export class AvatarComponent {
-  readonly src = input<string | undefined>(undefined);
-  readonly alt = input<string | undefined>(undefined);
-  readonly size = input<'sm' | 'md' | 'lg'>('md');
-  readonly name = input<string | undefined>(undefined);
+  readonly src = input<string | undefined>();
+  readonly alt = input<string | undefined>();
+  readonly size = input<"sm" | "md" | "lg">("md");
+  readonly name = input<string | undefined>();
 
   readonly initials = computed(() => {
     const n = this.name();
-    if (!n) return '•';
-    const words = n.trim().split(/\s+/);
+    if (!n) {
+      return "•";
+    }
+    const words = n.trim().split(/\s+/u);
     return words
       .slice(0, 2)
-      .map((w) => w[0]?.toUpperCase() ?? '')
-      .join('');
+      .map((w) => w[0]?.toUpperCase() ?? "")
+      .join("");
   });
 
   readonly wrapperClasses = computed(() => {
-    const base = 'inline-flex shrink-0 overflow-hidden rounded-full border border-[var(--border)]';
+    const base =
+      "inline-flex shrink-0 overflow-hidden rounded-full border border-[var(--border)]";
 
-    const sizes: Record<string, string> = {
-      sm: 'h-8 w-8 text-xs',
-      md: 'h-10 w-10 text-sm',
-      lg: 'h-12 w-12 text-base',
-    };
+    const sizes = {
+      lg: "h-12 w-12 text-base",
+      md: "h-10 w-10 text-sm",
+      sm: "h-8 w-8 text-xs",
+    } as const;
 
     return `${base} ${sizes[this.size()]}`;
   });

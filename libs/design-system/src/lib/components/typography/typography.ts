@@ -6,9 +6,9 @@ import {
 } from "@angular/core";
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "nv-h1",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<h1 [class]="classes()"><ng-content /></h1>`,
 })
 export class TypographyH1 {
@@ -22,9 +22,9 @@ export class TypographyH1 {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "nv-h2",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<h2 [class]="classes()"><ng-content /></h2>`,
 })
 export class TypographyH2 {
@@ -38,9 +38,9 @@ export class TypographyH2 {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "nv-h3",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<h3 [class]="classes()"><ng-content /></h3>`,
 })
 export class TypographyH3 {
@@ -53,9 +53,9 @@ export class TypographyH3 {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "nv-h4",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<h4 [class]="classes()"><ng-content /></h4>`,
 })
 export class TypographyH4 {
@@ -68,9 +68,9 @@ export class TypographyH4 {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "nv-p",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<p [class]="classes()"><ng-content /></p>`,
 })
 export class TypographyP {
@@ -83,9 +83,9 @@ export class TypographyP {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "nv-span",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<span [class]="classes()"><ng-content /></span>`,
 })
 export class TypographySpan {
@@ -98,9 +98,9 @@ export class TypographySpan {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "nv-muted",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<span [class]="classes()"><ng-content /></span>`,
 })
 export class TypographyMuted {
@@ -113,9 +113,9 @@ export class TypographyMuted {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "nv-mono",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<code [class]="classes()"><ng-content /></code>`,
 })
 export class TypographyMono {

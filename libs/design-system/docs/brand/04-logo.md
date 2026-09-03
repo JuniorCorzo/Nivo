@@ -28,21 +28,25 @@
 ## Variantes requeridas
 
 **1. Versión horizontal (principal)**
+
 - Isotipo a la izquierda + logotipo completo.
 - Uso: Headers, documentos y presentaciones.
 - Tamaño mínimo: 120px de ancho.
 
 **2. Versión vertical (apilada)**
+
 - Isotipo arriba + logotipo abajo.
 - Uso: Espacios cuadrados y perfiles de redes sociales.
 - Tamaño mínimo: 80px de ancho.
 
 **3. Solo isotipo**
+
 - Marca simplificada.
 - Uso: Favicon, app icon y avatares pequeños.
 - Tamaño mínimo: 24px x 24px.
 
 **4. Versiones por tema**
+
 - **Dark**: Foreground (`#fafafa`) sobre background oscuro.
 - **Light**: Foreground (`#09090b`) sobre background claro.
 - **Monocromo oscuro**: `#09090b` sobre cualquier fondo claro.
@@ -53,10 +57,12 @@
 ## Directrices de uso
 
 **Área de seguridad:**
+
 - Espacio mínimo alrededor del logo: equivalente a la altura de la letra "N".
 - No colocar otros elementos dentro de esta área.
 
 **Usos prohibidos (LO QUE NO SE DEBE HACER):**
+
 - Deformar, estirar o comprimir el logo.
 - Usar colores fuera de los tokens del sistema.
 - Añadir sombras, gradientes o efectos.

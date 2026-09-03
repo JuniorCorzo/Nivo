@@ -6,4 +6,4 @@ export {
   TypographyP,
   TypographyMuted,
   TypographyMono,
-} from './typography';
+} from "./typography";

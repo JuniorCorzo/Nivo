@@ -6,9 +6,9 @@ import {
 } from "@angular/core";
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "nv-badge",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<span [class]="classes()"><ng-content /></span>`,
 })
 export class BadgeComponent {
@@ -26,20 +26,20 @@ export class BadgeComponent {
     const base =
       "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors font-sans";
 
-    const variants: Record<string, string> = {
+    const variants = {
       default:
         "border-transparent bg-[var(--primary)] text-[var(--primary-foreground)]",
-      secondary:
-        "border-transparent bg-[var(--secondary)] text-[var(--secondary-foreground)]",
       destructive:
         "border-transparent bg-[var(--destructive)] text-[var(--destructive-foreground)]",
+      info: "border-transparent bg-[var(--semantic-info)]/20 text-[var(--semantic-info)]",
+      outline: "border-[var(--border)] text-[var(--foreground)]",
+      secondary:
+        "border-transparent bg-[var(--secondary)] text-[var(--secondary-foreground)]",
       success:
         "border-transparent bg-[var(--semantic-success)]/20 text-[var(--semantic-success)]",
       warning:
         "border-transparent bg-[var(--semantic-warning)]/20 text-[var(--semantic-warning)]",
-      info: "border-transparent bg-[var(--semantic-info)]/20 text-[var(--semantic-info)]",
-      outline: "border-[var(--border)] text-[var(--foreground)]",
-    };
+    } as const;
 
     return `${base} ${variants[this.variant()]}`;
   });
