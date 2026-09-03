@@ -1,13 +1,22 @@
-import {
+import type {
   HttpErrorResponse,
   HttpHandlerFn,
   HttpInterceptorFn,
   HttpRequest,
-} from '@angular/common/http';
-import { BehaviorSubject, catchError, filter, mergeMap, switchMap, take, throwError } from 'rxjs';
-import { AUTHORIZED } from '../context/auth.token';
-import { inject } from '@angular/core';
-import { AuthService } from '@core/services/auth-service';
+} from "@angular/common/http";
+import { inject } from "@angular/core";
+import { AuthService } from "@core/services/auth-service";
+import {
+  BehaviorSubject,
+  catchError,
+  filter,
+  mergeMap,
+  switchMap,
+  take,
+  throwError,
+} from "rxjs";
+
+import { AUTHORIZED } from "../context/auth.token";
 
 let isRefresh = false;
 const newToken$ = new BehaviorSubject<string | null>(null);
@@ -17,36 +26,18 @@ export const _resetRefreshTokenState = () => {
   newToken$.next(null);
 };
 
-export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.context.get(AUTHORIZED)) return next(req);
-  const authService = inject(AuthService);
-  return next(req).pipe(
-    catchError((err: HttpErrorResponse) => {
-      const status = err.status;
-      if (status !== 401) return throwError(() => err);
+const withToken = (req: HttpRequest<unknown>, token: string) =>
+  req.clone({
+    setHeaders: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-      return handleUnauthorized(req, next, authService);
-    }),
-  );
-};
-
-const handleUnauthorized = (
+const refreshToken = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
-  authService: AuthService,
+  authService: AuthService
 ) => {
-  if (!isRefresh) {
-    return refreshToken(req, next, authService);
-  }
-
-  return newToken$.pipe(
-    filter((token): token is string => token !== null),
-    take(1),
-    mergeMap((token) => next(withToken(req, token))),
-  );
-};
-
-const refreshToken = (req: HttpRequest<unknown>, next: HttpHandlerFn, authService: AuthService) => {
   isRefresh = true;
   newToken$.next(null);
 
@@ -57,21 +48,45 @@ const refreshToken = (req: HttpRequest<unknown>, next: HttpHandlerFn, authServic
 
       return next(withToken(req, token));
     }),
-    catchError((err) => {
+    catchError((failure) => {
       isRefresh = false;
       newToken$.next(null);
       authService.logout();
 
-      return throwError(() => err);
-    }),
+      return throwError(() => failure);
+    })
   );
 };
 
-const withToken = (req: HttpRequest<unknown>, token: string) => {
-  return req.clone({
-    setHeaders: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const handleUnauthorized = (
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+  authService: AuthService
+) => {
+  if (!isRefresh) {
+    return refreshToken(req, next, authService);
+  }
+
+  return newToken$.pipe(
+    filter((token): token is string => token !== null),
+    take(1),
+    mergeMap((token) => next(withToken(req, token)))
+  );
 };
 
+export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
+  if (!req.context.get(AUTHORIZED)) {
+    return next(req);
+  }
+  const authService = inject(AuthService);
+  return next(req).pipe(
+    catchError((httpError: HttpErrorResponse) => {
+      const { status } = httpError;
+      if (status !== 401) {
+        return throwError(() => httpError);
+      }
+
+      return handleUnauthorized(req, next, authService);
+    })
+  );
+};

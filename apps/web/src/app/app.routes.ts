@@ -1,144 +1,166 @@
-import { Routes } from '@angular/router';
-import { publicGuard } from '@core/guards/auth/public-guard';
-import { LayoutMinimal } from '@layouts/layout-minimal/layout-minimal';
-import { LayoutComponent } from '@layouts/layout/layout-component/layout-component';
-import { mobileGuard } from './core/guards/mobile/mobile-guard';
-import { APP_ROUTE_PATHS } from './shared/constants/app-routes.constant';
+import type { Routes } from "@angular/router";
+import { publicGuard } from "@core/guards/auth/public-guard";
+import { LayoutMinimal } from "@layouts/layout-minimal/layout-minimal";
+import { LayoutComponent } from "@layouts/layout/layout-component/layout-component";
+
+import { mobileGuard } from "./core/guards/mobile/mobile-guard";
+import { APP_ROUTE_PATHS } from "./shared/constants/app-routes.constant";
 
 export const routes: Routes = [
   {
-    path: '',
-    redirectTo: 'app/parking-lots',
-    pathMatch: 'full',
+    path: "",
+    pathMatch: "full",
+    redirectTo: "app/parking-lots",
   },
   {
-    path: 'auth',
-    component: LayoutMinimal,
     canActivate: [publicGuard],
     children: [
       {
+        loadComponent: async () => {
+          const m =
+            await import("@features/auth/login/page/login-page/login-page");
+          return m.LoginPage;
+        },
         path: APP_ROUTE_PATHS.auth.login,
-        loadComponent: () =>
-          import('@features/auth/login/page/login-page/login-page').then((m) => m.LoginPage),
       },
       {
+        loadComponent: async () => {
+          const m =
+            await import("@features/auth/register/page/register-page/register-page");
+          return m.RegisterPage;
+        },
         path: APP_ROUTE_PATHS.auth.register,
-        loadComponent: () =>
-          import('@features/auth/register/page/register-page/register-page').then(
-            (m) => m.RegisterPage,
-          ),
       },
     ],
+    component: LayoutMinimal,
+    path: "auth",
   },
   {
-    path: 'app',
-    component: LayoutComponent,
     children: [
       {
-        path: '',
-        loadComponent: () =>
-          import('@features/dashboard/page/dashboard-page').then((m) => m.DashboardPage),
         children: [
           {
-            path: APP_ROUTE_PATHS.app.parkingLots,
             canMatch: [mobileGuard],
-            loadComponent: () =>
-              import('@features/parking/components/parking-home-mobile/parking-home-mobile').then(
-                (c) => c.ParkingHomeMobile,
-              ),
-          },
-          {
+            loadComponent: async () => {
+              const c =
+                await import("@features/parking/components/parking-home-mobile/parking-home-mobile");
+              return c.ParkingHomeMobile;
+            },
             path: APP_ROUTE_PATHS.app.parkingLots,
-            loadComponent: () =>
-              import('@features/parking/components/parking-home/parking-home').then(
-                (c) => c.ParkingHome,
-              ),
           },
           {
+            loadComponent: async () => {
+              const c =
+                await import("@features/parking/components/parking-home/parking-home");
+              return c.ParkingHome;
+            },
+            path: APP_ROUTE_PATHS.app.parkingLots,
+          },
+          {
+            loadComponent: async () => {
+              const c =
+                await import("@features/parking/components/parking-form/parking-form");
+              return c.ParkingFormComponent;
+            },
             path: APP_ROUTE_PATHS.app.createParkingLots,
-            loadComponent: () =>
-              import('@features/parking/components/parking-form/parking-form').then(
-                (c) => c.ParkingFormComponent,
-              ),
           },
           {
+            loadComponent: async () => {
+              const c =
+                await import("@features/parking/components/parking-form/parking-form");
+              return c.ParkingFormComponent;
+            },
             path: APP_ROUTE_PATHS.app.editParkingLots,
-            loadComponent: () =>
-              import('@features/parking/components/parking-form/parking-form').then(
-                (c) => c.ParkingFormComponent,
-              ),
           },
           {
+            loadComponent: async () => {
+              const c =
+                await import("@features/slots/components/parking-slots-list/parking-slots-list");
+              return c.ParkingSlotsListPage;
+            },
             path: APP_ROUTE_PATHS.app.parkingLotSlots,
-            loadComponent: () =>
-              import('@features/slots/components/parking-slots-list/parking-slots-list').then(
-                (c) => c.ParkingSlotsListPage,
-              ),
           },
           {
+            loadComponent: async () => {
+              const c =
+                await import("@features/slots/components/parking-slot-form/parking-slot-form");
+              return c.ParkingSlotFormPage;
+            },
             path: APP_ROUTE_PATHS.app.createParkingLotSlot,
-            loadComponent: () =>
-              import('@features/slots/components/parking-slot-form/parking-slot-form').then(
-                (c) => c.ParkingSlotFormPage,
-              ),
           },
           {
+            loadComponent: async () => {
+              const c =
+                await import("@features/slots/components/parking-slot-form/parking-slot-form");
+              return c.ParkingSlotFormPage;
+            },
             path: APP_ROUTE_PATHS.app.editParkingLotSlot,
-            loadComponent: () =>
-              import('@features/slots/components/parking-slot-form/parking-slot-form').then(
-                (c) => c.ParkingSlotFormPage,
-              ),
           },
           {
+            loadComponent: async () => {
+              const c =
+                await import("@features/slots/components/parking-slots-list/parking-slots-list");
+              return c.ParkingSlotsListPage;
+            },
             path: APP_ROUTE_PATHS.app.parkingLotSlotDetail,
-            loadComponent: () =>
-              import('@features/slots/components/parking-slots-list/parking-slots-list').then(
-                (c) => c.ParkingSlotsListPage,
-              ),
           },
           {
+            loadComponent: async () => {
+              const c =
+                await import("@features/rates/components/rates-list/rates-list");
+              return c.RateListComponent;
+            },
             path: APP_ROUTE_PATHS.app.parkingLotRates,
-            loadComponent: () =>
-              import('@features/rates/components/rates-list/rates-list').then(
-                (c) => c.RateListComponent,
-              ),
           },
           {
+            loadComponent: async () => {
+              const c =
+                await import("@features/rates/components/rate-form/rate-form");
+              return c.RateFormComponent;
+            },
             path: APP_ROUTE_PATHS.app.createParkingLotRate,
-            loadComponent: () =>
-              import('@features/rates/components/rate-form/rate-form').then(
-                (c) => c.RateFormComponent,
-              ),
           },
           {
+            loadComponent: async () => {
+              const c =
+                await import("@features/rates/components/rate-form/rate-form");
+              return c.RateFormComponent;
+            },
             path: APP_ROUTE_PATHS.app.editParkingLotRate,
-            loadComponent: () =>
-              import('@features/rates/components/rate-form/rate-form').then(
-                (c) => c.RateFormComponent,
-              ),
           },
           {
+            loadComponent: async () => {
+              const c =
+                await import("@features/parking/components/parking-detail/parking-detail");
+              return c.ParkingDetail;
+            },
             path: APP_ROUTE_PATHS.app.parkingLotDetail,
-            loadComponent: () =>
-              import('@features/parking/components/parking-detail/parking-detail').then(
-                (c) => c.ParkingDetail,
-              ),
           },
           {
+            loadComponent: async () => {
+              const c =
+                await import("@features/operations/page/operations-page");
+              return c.OperationsPageComponent;
+            },
             path: APP_ROUTE_PATHS.app.parkingLotOperations,
-            loadComponent: () =>
-              import('@features/operations/page/operations-page').then(
-                (c) => c.OperationsPageComponent,
-              ),
           },
         ],
+        loadComponent: async () => {
+          const m = await import("@features/dashboard/page/dashboard-page");
+          return m.DashboardPage;
+        },
+        path: "",
       },
       {
-        path: '',
-        outlet: 'sidebar',
-        loadComponent: () =>
-          import('@shared/components/sidebar/sidebar/sidebar').then((c) => c.Sidebar),
+        loadComponent: async () => {
+          const c = await import("@shared/components/sidebar/sidebar/sidebar");
+          return c.Sidebar;
+        },
+        outlet: "sidebar",
+        path: "",
       },
     ],
+    component: LayoutComponent,
+    path: "app",
   },
 ];

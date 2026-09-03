@@ -1,33 +1,36 @@
-import { ParkingLotListItemModel } from '@core/models/parking.model';
-import { createColumnHelper, flexRenderComponent } from '@tanstack/angular-table';
-import { OccuppationMeter } from '../occuppation-meter/occuppation-meter';
-import { ActionsColumn } from '@/app/shared/components/actions-column/actions-column';
+import type { ParkingLotListItemModel } from "@core/models/parking.model";
+import {
+  createColumnHelper,
+  flexRenderComponent,
+} from "@tanstack/angular-table";
+
+import { ActionsColumn } from "@/app/shared/components/actions-column/actions-column";
+
+import { OccuppationMeter } from "../occuppation-meter/occuppation-meter";
 
 export const parkingLotsColumnDefinition = () => {
   const columnHelper = createColumnHelper<ParkingLotListItemModel>();
   const columns = [
-    columnHelper.accessor('name', {
-      header: 'Parqueadero',
-      size: 220,
-      minSize: 180,
+    columnHelper.accessor("name", {
       cell: (info) => info.getValue(),
+      header: "Parqueadero",
+      minSize: 180,
+      size: 220,
     }),
-    columnHelper.accessor('address', {
-      header: 'Dirección',
-      size: 300,
-      minSize: 220,
+    columnHelper.accessor("address", {
       cell: (info) => {
         const address = info.getValue();
-        if (!address) return '—';
+        if (!address) {
+          return "—";
+        }
         const { street, city } = address;
-        return [street, city].filter(Boolean).join(', ') || '—';
+        return [street, city].filter(Boolean).join(", ") || "—";
       },
+      header: "Dirección",
+      minSize: 220,
+      size: 300,
     }),
-    columnHelper.accessor('occuppationRate', {
-      id: 'occupancy',
-      header: 'Ocupación y Plazas',
-      size: 250,
-      minSize: 200,
+    columnHelper.accessor("occuppationRate", {
       cell: (ctx) => {
         const total = ctx.row.original.totalCapacity ?? 0;
         const rate = ctx.row.original.occuppationRate ?? 0;
@@ -35,29 +38,32 @@ export const parkingLotsColumnDefinition = () => {
 
         return flexRenderComponent(OccuppationMeter, {
           inputs: {
-            max: '100',
-            value: String(rate),
-            totalCapacity: total,
+            max: "100",
             occupiedSlots: occupied,
             showDetails: true,
+            totalCapacity: total,
+            value: String(rate),
           },
         });
       },
+      header: "Ocupación y Plazas",
+      id: "occupancy",
+      minSize: 200,
+      size: 250,
     }),
     columnHelper.display({
-      id: 'actions',
-      header: 'Acciones',
-      size: 110,
-      minSize: 90,
       cell: (ctx) =>
         flexRenderComponent(ActionsColumn, {
           inputs: {
             parkingId: ctx.row.original.id,
           },
         }),
+      header: "Acciones",
+      id: "actions",
+      minSize: 90,
+      size: 110,
     }),
   ];
 
   return columns;
 };
-

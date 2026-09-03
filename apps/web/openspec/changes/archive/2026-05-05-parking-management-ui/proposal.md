@@ -19,6 +19,7 @@ El sistema actualmente solo cuenta con autenticación y un dashboard placeholder
 ## Capabilities
 
 ### New Capabilities
+
 - `parking-models`: Modelos de dominio, tipos y mapper para la entidad parqueadero (ParkingModel, ParkingCreateModel, ParkingUpdateModel, coordenadas, etc.)
 - `parking-service`: Servicio de comunicación con API REST para operaciones CRUD de parqueaderos, con manejo de errores y contexto HTTP
 - `parking-list`: Página de listado de parqueaderos con tabla paginada, filtros por estado/nombre, búsqueda y acciones rápidas (editar, ver detalle)
@@ -28,6 +29,7 @@ El sistema actualmente solo cuenta con autenticación y un dashboard placeholder
 - `parking-routes`: Configuración de rutas lazy-loaded para el módulo de parqueaderos, protegidas con authGuard
 
 ### Modified Capabilities
+
 <!-- No hay specs existentes que modificar -->
 
 ## Impact

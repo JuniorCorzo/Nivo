@@ -1,54 +1,56 @@
-const parkingLotsSegment = 'parking-lots';
-const slotsSegment = 'slots';
-const ratesSegment = 'rates';
-const operationsSegment = 'operations';
+const parkingLotsSegment = "parking-lots";
+const slotsSegment = "slots";
+const ratesSegment = "rates";
+const operationsSegment = "operations";
 
 export const APP_ROUTE_PATHS = {
-  auth: {
-    login: 'login',
-    register: 'register',
-  },
   app: {
-    parkingLots: parkingLotsSegment,
-    parkingLotDetail: `${parkingLotsSegment}/:parkingId`,
-    createParkingLots: `${parkingLotsSegment}/create`,
-    editParkingLots: `${parkingLotsSegment}/:parkingId/edit`,
-    parkingLotSlots: `${parkingLotsSegment}/:parkingId/${slotsSegment}`,
-    parkingLotSlotDetail: `${parkingLotsSegment}/:parkingId/${slotsSegment}/:slotId`,
-    createParkingLotSlot: `${parkingLotsSegment}/:parkingId/${slotsSegment}/new`,
-    editParkingLotSlot: `${parkingLotsSegment}/:parkingId/${slotsSegment}/:slotId/edit`,
-    parkingLotRates: `${parkingLotsSegment}/:parkingId/${ratesSegment}`,
     createParkingLotRate: `${parkingLotsSegment}/:parkingId/${ratesSegment}/new`,
+    createParkingLotSlot: `${parkingLotsSegment}/:parkingId/${slotsSegment}/new`,
+    createParkingLots: `${parkingLotsSegment}/create`,
     editParkingLotRate: `${parkingLotsSegment}/:parkingId/${ratesSegment}/:rateId/edit`,
+    editParkingLotSlot: `${parkingLotsSegment}/:parkingId/${slotsSegment}/:slotId/edit`,
+    editParkingLots: `${parkingLotsSegment}/:parkingId/edit`,
+    parkingLotDetail: `${parkingLotsSegment}/:parkingId`,
     parkingLotOperations: `${parkingLotsSegment}/:parkingId/${operationsSegment}`,
+    parkingLotRates: `${parkingLotsSegment}/:parkingId/${ratesSegment}`,
+    parkingLotSlotDetail: `${parkingLotsSegment}/:parkingId/${slotsSegment}/:slotId`,
+    parkingLotSlots: `${parkingLotsSegment}/:parkingId/${slotsSegment}`,
+    parkingLots: parkingLotsSegment,
+  },
+  auth: {
+    login: "login",
+    register: "register",
   },
 } as const;
 
 const parkingLotsRoute = `/app/${parkingLotsSegment}`;
 export const APP_ROUTES = {
-  auth: {
-    login: '/auth/login',
-    register: '/auth/register',
-  },
   app: {
-    parkingLots: parkingLotsRoute,
-    parkingLotDetail: (parkingId: string) => `${parkingLotsRoute}/${parkingId}`,
-    createParkingLots: `${parkingLotsRoute}/create`,
-    editParkingLots: (parkingId: string) => `${parkingLotsRoute}/${parkingId}/edit`,
-    parkingLotSlots: (parkingId: string) => `${parkingLotsRoute}/${parkingId}/${slotsSegment}`,
-    parkingLotSlotDetail: (parkingId: string, slotId: string) =>
-      `${parkingLotsRoute}/${parkingId}/${slotsSegment}/${slotId}`,
-    createParkingLotSlot: (parkingId: string) =>
-      `${parkingLotsRoute}/${parkingId}/${slotsSegment}/new`,
-    editParkingLotSlot: (parkingId: string, slotId: string) =>
-      `${parkingLotsRoute}/${parkingId}/${slotsSegment}/${slotId}/edit`,
-    parkingLotRates: (parkingId: string) => `${parkingLotsRoute}/${parkingId}/${ratesSegment}`,
     createParkingLotRate: (parkingId: string) =>
       `${parkingLotsRoute}/${parkingId}/${ratesSegment}/new`,
+    createParkingLotSlot: (parkingId: string) =>
+      `${parkingLotsRoute}/${parkingId}/${slotsSegment}/new`,
+    createParkingLots: `${parkingLotsRoute}/create`,
     editParkingLotRate: (parkingId: string, rateId: string) =>
       `${parkingLotsRoute}/${parkingId}/${ratesSegment}/${rateId}/edit`,
+    editParkingLotSlot: (parkingId: string, slotId: string) =>
+      `${parkingLotsRoute}/${parkingId}/${slotsSegment}/${slotId}/edit`,
+    editParkingLots: (parkingId: string) =>
+      `${parkingLotsRoute}/${parkingId}/edit`,
+    parkingLotDetail: (parkingId: string) => `${parkingLotsRoute}/${parkingId}`,
     parkingLotOperations: (parkingId: string) =>
       `${parkingLotsRoute}/${parkingId}/${operationsSegment}`,
+    parkingLotRates: (parkingId: string) =>
+      `${parkingLotsRoute}/${parkingId}/${ratesSegment}`,
+    parkingLotSlotDetail: (parkingId: string, slotId: string) =>
+      `${parkingLotsRoute}/${parkingId}/${slotsSegment}/${slotId}`,
+    parkingLotSlots: (parkingId: string) =>
+      `${parkingLotsRoute}/${parkingId}/${slotsSegment}`,
+    parkingLots: parkingLotsRoute,
+  },
+  auth: {
+    login: "/auth/login",
+    register: "/auth/register",
   },
 } as const;
-

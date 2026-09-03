@@ -1,6 +1,6 @@
-export type TicketStatus = 'OPEN' | 'CLOSED' | 'LOST' | 'ANNULLED';
-export type TicketPaymentMethod = 'EFFECTIVE' | 'PAY_LINK';
-export type TicketSendVia = 'URL' | 'EMAIL' | 'SMS';
+export type TicketStatus = "OPEN" | "CLOSED" | "LOST" | "ANNULLED";
+export type TicketPaymentMethod = "EFFECTIVE" | "PAY_LINK";
+export type TicketSendVia = "URL" | "EMAIL" | "SMS";
 
 export interface PriceLineModel {
   concept: string;

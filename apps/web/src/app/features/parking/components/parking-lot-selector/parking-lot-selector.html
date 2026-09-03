@@ -1,11 +1,69 @@
-<div #origin class="relative inline-block w-full max-w-xs">
+<div
+  #origin
+  class="relative inline-block"
+  [class.w-full]="variant() === 'default'"
+  [class.max-w-xs]="variant() === 'default'"
+>
+  @if (variant() === 'title') { @if (hasMultipleLots()) {
   <button
     type="button"
     [disabled]="disabled()"
     [attr.aria-expanded]="isOpen()"
     aria-haspopup="listbox"
     (click)="toggleOpen()"
-    class="flex w-full items-center justify-between gap-2.5 rounded-xl border border-input bg-card px-3 py-2 text-left text-xs sm:text-sm font-sans text-foreground shadow-2xs transition-all hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+    class="group focus-visible:ring-ring -m-1 flex cursor-pointer flex-col rounded-lg p-1 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    <div class="flex min-w-0 items-center gap-1.5">
+      @if (activeLot(); as lot) {
+      <span
+        class="text-foreground group-hover:text-primary truncate text-lg font-bold tracking-tight transition-colors sm:text-xl"
+      >
+        {{ lot.name }}
+      </span>
+      } @else {
+      <span
+        class="text-muted-foreground truncate text-lg font-bold tracking-tight sm:text-xl"
+      >
+        {{ placeholder() }}
+      </span>
+      }
+      <ng-icon
+        name="lucideChevronDown"
+        size="18"
+        class="text-muted-foreground group-hover:text-foreground shrink-0 transition-transform duration-200"
+        [class.rotate-180]="isOpen()"
+      />
+    </div>
+    @if (activeAddress(); as address) {
+    <nv-muted class="block truncate text-xs"> {{ address }} </nv-muted>
+    }
+  </button>
+  } @else {
+  <div class="flex min-w-0 flex-col text-left">
+    @if (activeLot(); as lot) {
+    <span
+      class="text-foreground truncate text-lg font-bold tracking-tight sm:text-xl"
+    >
+      {{ lot.name }}
+    </span>
+    @if (activeAddress(); as address) {
+    <nv-muted class="block truncate text-xs"> {{ address }} </nv-muted>
+    } } @else {
+    <span
+      class="text-muted-foreground truncate text-lg font-bold tracking-tight sm:text-xl"
+    >
+      {{ placeholder() }}
+    </span>
+    }
+  </div>
+  } } @else {
+  <button
+    type="button"
+    [disabled]="disabled()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="listbox"
+    (click)="toggleOpen()"
+    class="border-input bg-card text-foreground hover:bg-accent/50 focus-visible:ring-ring flex w-full items-center justify-between gap-2.5 rounded-xl border px-3 py-2 text-left font-sans text-xs shadow-2xs transition-all focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
     [class.h-8]="size() === 'sm'"
     [class.py-1]="size() === 'sm'"
     [class.px-2.5]="size() === 'sm'"
@@ -14,20 +72,18 @@
     [class.h-12]="size() === 'lg'"
     [class.text-base]="size() === 'lg'"
   >
-    <div class="flex items-center gap-2 min-w-0 flex-1">
+    <div class="flex min-w-0 flex-1 items-center gap-2">
       <div
-        class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary"
+        class="bg-primary/10 text-primary flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
       >
         <ng-icon name="lucideParkingSquare" size="14" />
       </div>
       @if (activeLot(); as lot) {
-        <span class="truncate font-semibold text-foreground">
-          {{ lot.name }}
-        </span>
+      <span class="text-foreground truncate font-semibold">
+        {{ lot.name }}
+      </span>
       } @else {
-        <nv-muted class="truncate block">
-          {{ placeholder() }}
-        </nv-muted>
+      <nv-muted class="block truncate"> {{ placeholder() }} </nv-muted>
       }
     </div>
 
@@ -38,92 +94,93 @@
       [class.rotate-180]="isOpen()"
     />
   </button>
-
-  @if (isOpen()) {
-    <ng-template
-      cdkConnectedOverlay
-      [cdkConnectedOverlayOrigin]="origin"
-      [cdkConnectedOverlayOpen]="true"
-      [cdkConnectedOverlayPositions]="overlayPositions"
-      (overlayOutsideClick)="close()"
-      (detach)="close()"
+  } @if (isOpen()) {
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="origin"
+    [cdkConnectedOverlayOpen]="true"
+    [cdkConnectedOverlayPositions]="overlayPositions"
+    (overlayOutsideClick)="close()"
+    (detach)="close()"
+  >
+    <div
+      [style.minWidth.px]="overlayWidth()"
+      class="border-border bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 z-50 overflow-hidden rounded-xl border p-1 shadow-lg"
+      role="listbox"
     >
-      <div
-        [style.minWidth.px]="overlayWidth()"
-        class="z-50 overflow-hidden rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95"
-        role="listbox"
+      <nv-muted
+        class="block px-2.5 py-1.5 text-[11px] font-semibold tracking-wider uppercase"
       >
-        <nv-muted
-          class="block px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider"
+        Sedes disponibles
+      </nv-muted>
+
+      <div class="max-h-60 space-y-0.5 overflow-y-auto">
+        @for (lot of parkingLots(); track lot.id) {
+        <button
+          type="button"
+          role="option"
+          [attr.aria-selected]="isSelected(lot)"
+          (click)="selectParkingLot(lot)"
+          class="hover:bg-accent hover:text-accent-foreground flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left font-sans text-xs transition-colors"
+          [class.bg-accent]="isSelected(lot)"
+          [class.text-accent-foreground]="isSelected(lot)"
         >
-          Sedes disponibles
-        </nv-muted>
-
-        <div class="max-h-60 overflow-y-auto space-y-0.5">
-          @for (lot of parkingLots(); track lot.id) {
-            <button
-              type="button"
-              role="option"
-              [attr.aria-selected]="isSelected(lot)"
-              (click)="selectParkingLot(lot)"
-              class="flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left text-xs font-sans transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer"
-              [class.bg-accent]="isSelected(lot)"
-              [class.text-accent-foreground]="isSelected(lot)"
+          <div class="flex min-w-0 flex-1 items-center gap-2.5">
+            <div
+              class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border"
+              [class.bg-primary]="isSelected(lot)"
+              [class.text-primary-foreground]="isSelected(lot)"
+              [class.border-primary]="isSelected(lot)"
+              [class.bg-muted]="!isSelected(lot)"
+              [class.text-muted-foreground]="!isSelected(lot)"
+              [class.border-border]="!isSelected(lot)"
             >
-              <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                <div
-                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border"
-                  [class.bg-primary]="isSelected(lot)"
-                  [class.text-primary-foreground]="isSelected(lot)"
-                  [class.border-primary]="isSelected(lot)"
-                  [class.bg-muted]="!isSelected(lot)"
-                  [class.text-muted-foreground]="!isSelected(lot)"
-                  [class.border-border]="!isSelected(lot)"
-                >
-                  <ng-icon name="lucideBuilding2" size="14" />
-                </div>
-                <div class="flex flex-col min-w-0">
-                  <span class="truncate font-semibold text-foreground">
-                    {{ lot.name }}
-                  </span>
-                  @if (getFormattedAddress(lot); as address) {
-                    <nv-muted class="truncate text-[11px] block">
-                      {{ address }}
-                    </nv-muted>
-                  }
-                </div>
-              </div>
+              <ng-icon name="lucideBuilding2" size="14" />
+            </div>
+            <div class="flex min-w-0 flex-col">
+              <span class="text-foreground truncate font-semibold">
+                {{ lot.name }}
+              </span>
+              @if (getFormattedAddress(lot); as address) {
+              <nv-muted class="block truncate text-[11px]">
+                {{ address }}
+              </nv-muted>
+              }
+            </div>
+          </div>
 
-              <div class="flex items-center gap-2 shrink-0">
-                @if (showCapacity()) {
-                  <nv-badge variant="outline" class="font-mono text-[10px] px-1.5 py-0.5">
-                    {{ lot.occuppationRate }}%
-                  </nv-badge>
-                }
-                @if (isSelected(lot)) {
-                  <ng-icon name="lucideCheck" size="15" class="text-primary" />
-                }
-              </div>
-            </button>
-          } @empty {
-            <nv-muted class="block px-3 py-4 text-center text-xs">
-              No hay sedes registradas
-            </nv-muted>
-          }
-        </div>
-
-        <div class="border-t border-border mt-1 pt-1">
-          <nv-button
-            variant="ghost"
-            size="sm"
-            (click)="onCreateParking()"
-            class="w-full justify-start text-xs font-semibold text-primary"
-          >
-            <ng-icon name="lucidePlus" size="14" />
-            <span>+ Nueva sede</span>
-          </nv-button>
-        </div>
+          <div class="flex shrink-0 items-center gap-2">
+            @if (showCapacity()) {
+            <nv-badge
+              variant="outline"
+              class="px-1.5 py-0.5 font-mono text-[10px]"
+            >
+              {{ lot.occuppationRate }}%
+            </nv-badge>
+            } @if (isSelected(lot)) {
+            <ng-icon name="lucideCheck" size="15" class="text-primary" />
+            }
+          </div>
+        </button>
+        } @empty {
+        <nv-muted class="block px-3 py-4 text-center text-xs">
+          No hay sedes registradas
+        </nv-muted>
+        }
       </div>
-    </ng-template>
+
+      <div class="border-border mt-1 border-t pt-1">
+        <nv-button
+          variant="ghost"
+          size="sm"
+          (click)="onCreateParking()"
+          class="text-primary w-full justify-start text-xs font-semibold whitespace-nowrap"
+        >
+          <ng-icon name="lucidePlus" size="14" />
+          <span class="whitespace-nowrap">+ Nueva sede</span>
+        </nv-button>
+      </div>
+    </div>
+  </ng-template>
   }
 </div>

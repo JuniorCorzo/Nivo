@@ -1,83 +1,119 @@
 @if (isOpen()) {
-  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-200">
+  <div
+    class="animate-in fade-in fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-xs duration-200 sm:items-center sm:p-4"
+  >
     <div
-      class="printable-receipt relative w-full max-w-sm rounded-t-2xl sm:rounded-2xl border border-border bg-card text-card-foreground p-5 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto transition-all"
+      class="printable-receipt border-border bg-card text-card-foreground relative max-h-[90vh] w-full max-w-sm overflow-y-auto rounded-t-2xl border p-5 shadow-2xl transition-all sm:rounded-2xl sm:p-6"
     >
       <!-- Header -->
-      <div class="text-center pb-4 border-b border-dashed border-border">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-success/10 text-success border border-success/20 mb-2">
+      <div class="border-border border-b border-dashed pb-4 text-center">
+        <div
+          class="bg-success/10 text-success border-success/20 mb-2 inline-flex h-12 w-12 items-center justify-center rounded-full border"
+        >
           <ng-icon name="lucideCheckCircle2" class="text-2xl" />
         </div>
-        <h3 class="text-base sm:text-lg font-bold text-foreground">{{ title() }}</h3>
-        <p class="text-xs text-muted-foreground mt-0.5">{{ subtitle() }}</p>
+        <h3 class="text-foreground text-base font-bold sm:text-lg">
+          {{ title() }}
+        </h3>
+        <p class="text-muted-foreground mt-0.5 text-xs">{{ subtitle() }}</p>
       </div>
 
       <!-- Ticket Body -->
-      <div class="py-4 space-y-3.5 text-sm">
+      <div class="space-y-3.5 py-4 text-sm">
         @if (ticket()) {
           <!-- License Plate Big Display -->
-          <div class="rounded-lg bg-muted text-foreground p-3 text-center border border-border">
-            <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-0.5">Placa del Vehículo</span>
-            <span class="text-xl sm:text-2xl font-black tracking-widest text-foreground font-mono">{{ ticket()?.licensePlate }}</span>
+          <div
+            class="bg-muted text-foreground border-border rounded-lg border p-3 text-center"
+          >
+            <span
+              class="text-muted-foreground mb-0.5 block text-xs font-semibold tracking-wider uppercase"
+              >Placa del Vehículo</span
+            >
+            <span
+              class="text-foreground font-mono text-xl font-black tracking-widest sm:text-2xl"
+              >{{ ticket()?.licensePlate }}</span
+            >
           </div>
 
           <!-- Metadata Rows -->
           <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="rounded-md bg-muted/50 p-2.5">
-              <span class="text-muted-foreground block text-[10px] sm:text-xs">Espacio / Cupo</span>
-              <span class="font-bold text-foreground font-mono text-xs sm:text-sm">
-                {{ ticket()?.slotNumber || 'Asignado' }}
+            <div class="bg-muted/50 rounded-md p-2.5">
+              <span class="text-muted-foreground block text-[10px] sm:text-xs"
+                >Espacio / Cupo</span
+              >
+              <span
+                class="text-foreground font-mono text-xs font-bold sm:text-sm"
+              >
+                {{ ticket()?.slotNumber || "Asignado" }}
               </span>
             </div>
-            <div class="rounded-md bg-muted/50 p-2.5">
-              <span class="text-muted-foreground block text-[10px] sm:text-xs">Tarifa Aplicada</span>
-              <span class="font-bold text-foreground truncate block text-xs sm:text-sm">
-                {{ ticket()?.rateName || 'Estándar' }}
+            <div class="bg-muted/50 rounded-md p-2.5">
+              <span class="text-muted-foreground block text-[10px] sm:text-xs"
+                >Tarifa Aplicada</span
+              >
+              <span
+                class="text-foreground block truncate text-xs font-bold sm:text-sm"
+              >
+                {{ ticket()?.rateName || "Estándar" }}
               </span>
             </div>
           </div>
 
-          <div class="space-y-1.5 pt-1 text-xs text-muted-foreground">
-            <div class="flex justify-between py-1 border-b border-border">
+          <div class="text-muted-foreground space-y-1.5 pt-1 text-xs">
+            <div class="border-border flex justify-between border-b py-1">
               <span class="text-muted-foreground">Hora de Ingreso:</span>
-              <span class="font-mono font-medium text-foreground">{{ formatDate(ticket()?.entryTime) }}</span>
+              <span class="text-foreground font-mono font-medium">{{
+                formatDate(ticket()?.entryTime)
+              }}</span>
             </div>
 
             @if (ticket()?.exitTime) {
-              <div class="flex justify-between py-1 border-b border-border">
+              <div class="border-border flex justify-between border-b py-1">
                 <span class="text-muted-foreground">Hora de Salida:</span>
-                <span class="font-mono font-medium text-foreground">{{ formatDate(ticket()?.exitTime) }}</span>
+                <span class="text-foreground font-mono font-medium">{{
+                  formatDate(ticket()?.exitTime)
+                }}</span>
               </div>
             }
 
             @if (payment()) {
-              <div class="flex justify-between py-1 border-b border-border">
+              <div class="border-border flex justify-between border-b py-1">
                 <span class="text-muted-foreground">Método de Pago:</span>
-                <span class="font-medium uppercase text-foreground">{{ payment()?.paymentMethod }}</span>
+                <span class="text-foreground font-medium uppercase">{{
+                  payment()?.paymentMethod
+                }}</span>
               </div>
-              <div class="flex justify-between py-1 border-b border-border font-bold text-foreground">
+              <div
+                class="border-border text-foreground flex justify-between border-b py-1 font-bold"
+              >
                 <span>Total Pagado:</span>
-                <span class="font-mono text-sm">${{ payment()?.amount | number:'1.0-0' }} COP</span>
+                <span class="font-mono text-sm"
+                  >${{ payment()?.amount | number: "1.0-0" }} COP</span
+                >
               </div>
             }
           </div>
 
           <!-- Barcode Visual -->
           <div class="pt-2 text-center">
-            <div class="font-mono text-xs tracking-widest text-muted-foreground select-all py-1 bg-muted rounded border border-border">
+            <div
+              class="text-muted-foreground bg-muted border-border rounded border py-1 font-mono text-xs tracking-widest select-all"
+            >
               ||| | |||| | || ||| || |||| ||
             </div>
-            <span class="text-[10px] text-muted-foreground font-mono mt-1 block">ID: {{ ticket()?.id }}</span>
+            <span class="text-muted-foreground mt-1 block font-mono text-[10px]"
+              >ID: {{ ticket()?.id }}</span
+            >
           </div>
         }
       </div>
 
       <!-- Action Buttons (No Print) -->
-      <div class="no-print pt-4 border-t border-border flex gap-2">
+      <div class="no-print border-border flex gap-2 border-t pt-4">
         <button
           type="button"
           (click)="onPrint()"
-          class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-2.5 text-xs font-semibold cursor-pointer transition-colors shadow-xs"
+          class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-semibold shadow-xs transition-colors"
         >
           <ng-icon name="lucidePrinter" class="text-sm" />
           Imprimir
@@ -85,7 +121,7 @@
         <button
           type="button"
           (click)="onClose()"
-          class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground px-3 py-2.5 text-xs font-semibold cursor-pointer transition-colors"
+          class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-semibold transition-colors"
         >
           <ng-icon name="lucideX" class="text-sm" />
           Cerrar

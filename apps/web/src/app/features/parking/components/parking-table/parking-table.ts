@@ -1,12 +1,11 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
-import { ParkingService } from '@core/services/parking-service';
 import {
-  createAngularTable,
-  FlexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-} from '@tanstack/angular-table';
-import { parkingLotsColumnDefinition } from './column-definition';
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+} from "@angular/core";
+import type { ParkingLotListItemModel } from "@core/models/parking.model";
+import { ParkingService } from "@core/services/parking-service";
 import {
   TableBodyComponent,
   TableCellComponent,
@@ -14,10 +13,18 @@ import {
   TableHeadComponent,
   TableHeaderComponent,
   TableRowComponent,
-} from '@nivo-sass/design-system';
+} from "@nivo-sass/design-system";
+import {
+  createAngularTable,
+  FlexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+} from "@tanstack/angular-table";
+
+import { parkingLotsColumnDefinition } from "./column-definition";
 
 @Component({
-  selector: 'app-parking-table',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     TableComponent,
     TableBodyComponent,
@@ -27,30 +34,34 @@ import {
     TableHeadComponent,
     FlexRender,
   ],
-  templateUrl: './parking-table.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-parking-table",
+  templateUrl: "./parking-table.html",
 })
 export class ParkingTable {
   private readonly rightAlignedColumnIds = new Set<string>();
-  private readonly truncateColumnIds = new Set(['name', 'address', 'ownerName']);
+  private readonly truncateColumnIds = new Set([
+    "name",
+    "address",
+    "ownerName",
+  ]);
 
-  readonly searchQuery = input<string>('');
+  readonly searchQuery = input<string>("");
 
   private parkingService = inject(ParkingService);
   protected table = createAngularTable(() => ({
-    data: this.parkingService.parkingLots() ?? [],
     columns: parkingLotsColumnDefinition(),
+    data: this.parkingService.parkingLots() ?? [],
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    globalFilterFn: 'includesString',
+    globalFilterFn: "includesString",
     state: {
       globalFilter: this.searchQuery(),
     },
   }));
 
-  protected shouldRenderHeader(
+  protected static shouldRenderHeader(
     header: { isPlaceholder: boolean; column: { parent?: unknown } },
-    headerGroupDepth: number,
+    headerGroupDepth: number
   ): boolean {
     if (headerGroupDepth === 0) {
       return true;
@@ -59,7 +70,12 @@ export class ParkingTable {
     return Boolean(header.column.parent) && !header.isPlaceholder;
   }
 
-  protected rowSpanForHeader(header: { subHeaders: unknown[] }, headerGroupDepth: number): number {
+  protected readonly shouldRenderHeader = ParkingTable.shouldRenderHeader;
+
+  protected rowSpanForHeader(
+    header: { subHeaders: unknown[] },
+    headerGroupDepth: number
+  ): number {
     if (header.subHeaders.length > 1) {
       return 1;
     }
@@ -68,85 +84,94 @@ export class ParkingTable {
   }
 
   protected headerRowClass(headerGroupDepth: number): string {
-    const isLastHeaderRow = headerGroupDepth === this.table.getHeaderGroups().length - 1;
+    const isLastHeaderRow =
+      headerGroupDepth === this.table.getHeaderGroups().length - 1;
 
-    return [!isLastHeaderRow ? '!border-b-0' : '', 'hover:!bg-transparent']
+    return [isLastHeaderRow ? "" : "!border-b-0", "hover:!bg-transparent"]
       .filter(Boolean)
-      .join(' ');
+      .join(" ");
   }
 
-  protected headerCellClass(
+  protected static headerCellClass(
     header: { column: { id: string }; subHeaders: unknown[] },
-    headerGroupDepth: number,
+    _headerGroupDepth: number
   ): string {
-    const classes = ['!align-bottom'];
+    const classes = ["!align-bottom"];
 
-    classes.push('pb-3');
+    classes.push("pb-3");
 
     if (header.subHeaders.length > 1) {
-      classes.push('flex justify-center align-bottom!');
+      classes.push("flex justify-center align-bottom!");
     }
 
-    return classes.join(' ');
+    return classes.join(" ");
   }
+
+  protected readonly headerCellClass = ParkingTable.headerCellClass;
 
   protected contentClass(columnId: string): string {
     const classes: string[] = [];
 
     if (this.truncateColumnIds.has(columnId)) {
-      classes.push('block', 'max-w-full', 'truncate');
+      classes.push("block", "max-w-full", "truncate");
     }
 
     if (this.rightAlignedColumnIds.has(columnId)) {
-      classes.push('text-right', 'tabular-nums');
+      classes.push("text-right", "tabular-nums");
     }
 
-    if (columnId === 'name') {
-      classes.push('font-medium');
+    if (columnId === "name") {
+      classes.push("font-medium");
     }
 
-    if (columnId === 'currency') {
-      classes.push('font-mono', 'uppercase');
+    if (columnId === "currency") {
+      classes.push("font-mono", "uppercase");
     }
 
-    return classes.join(' ');
+    return classes.join(" ");
   }
 
-  protected titleForCell(columnId: string, row: unknown): string | null {
-    const parkingLot = row as Record<string, unknown>;
-
+  protected static titleForCell(
+    columnId: string,
+    parkingLot: ParkingLotListItemModel
+  ): string | null {
     switch (columnId) {
-      case 'name':
-      case 'ownerName':
-      case 'currency':
-        return String(parkingLot[columnId] ?? '');
-      case 'address': {
-        const address = parkingLot['address'] as
-          | { street?: string; city?: string; state?: string }
-          | undefined;
-
+      case "name":
+      case "ownerName":
+      case "currency": {
+        /* SAFETY: Accessing known string property by columnId */
+        return String(
+          parkingLot[columnId as keyof ParkingLotListItemModel] ?? ""
+        );
+      }
+      case "address": {
+        const { address } = parkingLot;
         if (!address) {
           return null;
         }
 
-        return [address.street, address.city].filter(Boolean).join(', ');
+        return [address.street, address.city].filter(Boolean).join(", ");
       }
-      case 'slotDistribution': {
-        const distribution = parkingLot['slotDistribution'] as
-          | Array<{ type: string; count: number }>
-          | undefined;
-
-        return distribution?.map((slot) => `${slot.type}: ${slot.count}`).join(' | ') ?? null;
+      case "slotDistribution": {
+        const distribution = parkingLot.slotDistribution;
+        return (
+          distribution
+            ?.map((slot) => `${slot.type}: ${slot.count}`)
+            .join(" | ") ?? null
+        );
       }
-      case 'occupancy':
-      case 'occuppationRate': {
-        const capacity = Number(parkingLot['totalCapacity'] ?? 0);
-        const rate = Number(parkingLot['occuppationRate'] ?? 0);
+      case "occupancy":
+      case "occuppationRate": {
+        const capacity = Number(parkingLot.totalCapacity ?? 0);
+        const rate = Number(parkingLot.occuppationRate ?? 0);
         const occupied = Math.round((capacity * rate) / 100);
         return `${occupied} / ${capacity} ocupados (${rate}%)`;
       }
-      default:
+      default: {
         return null;
+      }
     }
   }
+
+  protected readonly titleForCell = ParkingTable.titleForCell;
 }

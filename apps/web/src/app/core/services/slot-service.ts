@@ -1,37 +1,40 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { Observable, Subject, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-
-import { SlotsService } from '@core/api/generated/services';
-import {
+import { HttpContext } from "@angular/common/http";
+import { inject, Injectable, signal } from "@angular/core";
+import type {
   ResponseListSlotSummaryResponse,
   ResponseSlotResponse,
   SlotResponse,
   SlotSummaryResponse,
-} from '@core/api/generated/models';
-import { SlotModel, SlotSummary, UpsertSlotModel, BatchCreateSlotModel } from '@core/models/slot.model';
-import { HttpContext } from '@angular/common/http';
-import { AUTHORIZED } from '@core/http/context/auth.token';
+} from "@core/api/generated/models";
+import { SlotsService } from "@core/api/generated/services";
+import { AUTHORIZED } from "@core/http/context/auth.token";
+import type {
+  SlotModel,
+  SlotSummary,
+  UpsertSlotModel,
+  BatchCreateSlotModel,
+} from "@core/models/slot.model";
+import type { Observable } from "rxjs";
+import { Subject } from "rxjs";
+import { map, tap } from "rxjs/operators";
 
 /**
  * Pure function: maps API SlotSummaryResponse to web SlotSummary model.
  */
-export function mapToSlotSummary(data: SlotSummaryResponse): SlotSummary {
-  return {
-    id: data.id ?? '',
-    parkingName: data.parkingName ?? '',
-    slotNumber: data.numberSlot ?? '',
-    prefix: data.prefix ?? '',
-    zone: data.zone ?? '',
-    type: data.type ?? 'CAR',
-    status: data.status ?? 'AVAILABLE',
-    hasTicket: data.hasTicket ?? false,
-    hasHistory: data.hasHistory ?? false,
-  };
-}
+export const mapToSlotSummary = (data: SlotSummaryResponse): SlotSummary => ({
+  hasHistory: data.hasHistory ?? false,
+  hasTicket: data.hasTicket ?? false,
+  id: data.id ?? "",
+  parkingName: data.parkingName ?? "",
+  prefix: data.prefix ?? "",
+  slotNumber: data.numberSlot ?? "",
+  status: data.status ?? "AVAILABLE",
+  type: data.type ?? "CAR",
+  zone: data.zone ?? "",
+});
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class SlotService {
   private readonly deleteSubject = new Subject<string>();
@@ -41,26 +44,25 @@ export class SlotService {
 
   private slotsService = inject(SlotsService);
 
-  private httpContext = () => {
+  private static httpContext() {
     const context = new HttpContext();
     context.set(AUTHORIZED, true);
     return context;
-  };
+  }
 
   getAllSlotSummariesByParkingId(parkingId: string): Observable<SlotSummary[]> {
     return this.slotsService
-      .listSlotSummaries({ parking: parkingId }, this.httpContext())
+      .listSlotSummaries({ parking: parkingId }, SlotService.httpContext())
       .pipe(
         map((response: ResponseListSlotSummaryResponse) =>
-          (response.data ?? []).map((item) => mapToSlotSummary(item)),
+          (response.data ?? []).map((item) => mapToSlotSummary(item))
         ),
         tap((slots) =>
           this.slotSummaries.update((state) => ({
             ...state,
             [parkingId]: slots,
-          })),
-        ),
-        catchError((error) => throwError(() => error)),
+          }))
+        )
       );
   }
 
@@ -75,19 +77,20 @@ export class SlotService {
           body: {
             parkingLotId: model.parkingLotId,
             slots: model.slots.map((s) => ({
-              prefix: s.prefix,
-              zone: s.zone,
-              slotType: s.slotType,
               numberSlots: s.numberSlots,
+              prefix: s.prefix,
+              slotType: s.slotType,
+              zone: s.zone,
             })),
           },
         },
-        this.httpContext(),
+        SlotService.httpContext()
       )
       .pipe(
-        map(() => void 0),
-        tap(() => this.refreshState(model.parkingLotId)),
-        catchError((error) => throwError(() => error)),
+        map(() => {
+          // void return
+        }),
+        tap(() => this.refreshState(model.parkingLotId))
       );
   }
 
@@ -96,27 +99,33 @@ export class SlotService {
       .updateSlot(
         {
           body: {
-            id: model.id!,
+            id: model.id ?? "",
             slotNumber: model.slotNumber,
             status: model.status,
             type: model.type,
           },
         },
-        this.httpContext(),
+        SlotService.httpContext()
       )
       .pipe(
-        map((response: ResponseSlotResponse) => this.mapToSlotModel(response.data!)),
-        tap(() => this.refreshState(model.parkingLotId)),
-        catchError((error) => throwError(() => error)),
+        map((response: ResponseSlotResponse) => {
+          /* SAFETY: Response data for updateSlot is defined */
+          const data = response.data as SlotResponse;
+          return SlotService.mapToSlotModel(data);
+        }),
+        tap(() => this.refreshState(model.parkingLotId))
       );
   }
 
   delete(slotId: string, parkingId: string): Observable<void> {
-    return this.slotsService.deleteSlot({ slotId }, this.httpContext()).pipe(
-      map(() => void 0),
-      tap(() => this.refreshState(parkingId)),
-      catchError((error) => throwError(() => error)),
-    );
+    return this.slotsService
+      .deleteSlot({ slotId }, SlotService.httpContext())
+      .pipe(
+        map(() => {
+          // void return
+        }),
+        tap(() => this.refreshState(parkingId))
+      );
   }
 
   deleteBatch(slotIds: string[], parkingId: string): Observable<void> {
@@ -125,12 +134,13 @@ export class SlotService {
         {
           body: slotIds,
         },
-        this.httpContext(),
+        SlotService.httpContext()
       )
       .pipe(
-        map(() => void 0),
-        tap(() => this.refreshState(parkingId)),
-        catchError((error) => throwError(() => error)),
+        map(() => {
+          // void return
+        }),
+        tap(() => this.refreshState(parkingId))
       );
   }
 
@@ -142,15 +152,15 @@ export class SlotService {
     this.getAllSlotSummariesByParkingId(parkingId).subscribe();
   }
 
-  private mapToSlotModel(data: SlotResponse): SlotModel {
+  private static mapToSlotModel(data: SlotResponse): SlotModel {
     return {
-      id: data.id ?? '',
-      slotNumber: data.slotNumber ?? '',
-      status: data.status ?? 'AVAILABLE',
-      type: data.type ?? 'CAR',
-      parkingId: data.parking?.id ?? '',
-      createdAt: data.createdAt ?? '',
-      updatedAt: data.updatedAt ?? '',
+      createdAt: data.createdAt ?? "",
+      id: data.id ?? "",
+      parkingId: data.parking?.id ?? "",
+      slotNumber: data.slotNumber ?? "",
+      status: data.status ?? "AVAILABLE",
+      type: data.type ?? "CAR",
+      updatedAt: data.updatedAt ?? "",
     };
   }
 }

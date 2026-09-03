@@ -76,7 +76,10 @@
                 "input": "public"
               }
             ],
-            "styles": ["@nivo-sass/design-system/styles/tokens.css", "src/styles.css"]
+            "styles": [
+              "@nivo-sass/design-system/styles/tokens.css",
+              "src/styles.css"
+            ]
           }
         }
       }

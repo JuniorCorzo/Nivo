@@ -14,6 +14,7 @@ Implementation of ANC-26 (`[Frontend] Implementar interfaces de configuración d
 ## Capabilities
 
 ### New Capabilities
+
 - `rates`: Complete rates management, forms, dynamic types, special zones, and live calculator.
 
 ## Impact

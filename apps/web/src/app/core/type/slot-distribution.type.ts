@@ -1,8 +1,13 @@
-export type SlotType = 'CAR' | 'MOTORCYCLE' | 'BIKE' | 'ELECTRIC_VEHICLE' | 'DISABLED';
+export type SlotType =
+  | "CAR"
+  | "MOTORCYCLE"
+  | "BIKE"
+  | "ELECTRIC_VEHICLE"
+  | "DISABLED";
 
-export type SlotDistribution = {
+export interface SlotDistribution {
   prefix: string;
   zone: string;
   type: SlotType;
   count: number;
-};
+}

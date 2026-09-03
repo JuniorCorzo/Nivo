@@ -1,8 +1,12 @@
-import { SlotType } from './slot-distribution.type';
+import type { SlotType } from "./slot-distribution.type";
 
-export type ParkingSlotStatus = 'AVAILABLE' | 'OCCUPIED' | 'MAINTENANCE' | 'RESERVED';
+export type ParkingSlotStatus =
+  | "AVAILABLE"
+  | "OCCUPIED"
+  | "MAINTENANCE"
+  | "RESERVED";
 
-export type ParkingSlot = {
+export interface ParkingSlot {
   id: string;
   parkingId: string;
   number: string;
@@ -15,13 +19,13 @@ export type ParkingSlot = {
   plate?: string;
   createdAt: string;
   updatedAt: string;
-};
+}
 
-export type ParkingSlotBatch = {
+export interface ParkingSlotBatch {
   prefix: string;
   from: number;
   to: number;
   zone: string;
   type: SlotType;
   status: ParkingSlotStatus;
-};
+}

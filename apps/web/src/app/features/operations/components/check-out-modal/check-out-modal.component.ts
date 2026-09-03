@@ -1,3 +1,4 @@
+import { CommonModule, DecimalPipe } from "@angular/common";
 import {
   Component,
   ChangeDetectionStrategy,
@@ -5,9 +6,9 @@ import {
   inject,
   input,
   output,
-} from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+} from "@angular/core";
+import type { TicketSummary } from "@core/models/ticket.model";
+import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideAlertCircle,
   lucideCheck,
@@ -15,30 +16,29 @@ import {
   lucideLoader2,
   lucideLogOut,
   lucideX,
-} from '@ng-icons/lucide';
+} from "@ng-icons/lucide";
 
-import { CheckOutFacade } from '../../facades/check-out.facade';
-import { TicketReceiptComponent } from '../ticket-receipt/ticket-receipt.component';
-import { TicketSummary } from '@core/models/ticket.model';
+import { CheckOutFacade } from "../../facades/check-out.facade";
+import { TicketReceiptComponent } from "../ticket-receipt/ticket-receipt.component";
 
 @Component({
-  selector: 'app-check-out-modal',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, DecimalPipe, NgIcon, TicketReceiptComponent],
   providers: [
     CheckOutFacade,
     provideIcons({
+      lucideAlertCircle,
+      lucideCheck,
+      lucideCoins,
+      lucideLoader2,
       lucideLogOut,
       lucideX,
-      lucideCoins,
-      lucideCheck,
-      lucideLoader2,
-      lucideAlertCircle,
     }),
   ],
-  templateUrl: './check-out-modal.component.html',
-  styleUrl: './check-out-modal.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-check-out-modal",
+  standalone: true,
+  styleUrl: "./check-out-modal.component.css",
+  templateUrl: "./check-out-modal.component.html",
 })
 export class CheckOutModalComponent {
   readonly facade = inject(CheckOutFacade);
@@ -47,7 +47,7 @@ export class CheckOutModalComponent {
   readonly parkingId = input<string | null>(null);
   readonly ticket = input<TicketSummary | null>(null);
 
-  readonly closed = output<void>();
+  readonly closed = output();
 
   constructor() {
     effect(() => {
@@ -66,6 +66,7 @@ export class CheckOutModalComponent {
   }
 
   onEmailInput(event: Event): void {
+    /* SAFETY: Target of email input event is HTMLInputElement */
     const target = event.target as HTMLInputElement;
     this.facade.setReceiptEmail(target.value);
   }

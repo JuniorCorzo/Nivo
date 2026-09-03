@@ -1,27 +1,53 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { ValidationError, FormField, FieldTree } from '@angular/forms/signals';
-
-import { APP_TEXTS } from '@shared/constants/app-texts.constant';
-import { ComboboxComponent, InputComponent, TypographyH3, TypographyMuted } from '@nivo-sass/design-system';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideMapPin } from '@ng-icons/lucide';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
+import type { ValidationError, FieldTree } from "@angular/forms/signals";
+import { FormField } from "@angular/forms/signals";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucideMapPin } from "@ng-icons/lucide";
+import {
+  ComboboxComponent,
+  InputComponent,
+  TypographyH3,
+  TypographyMuted,
+} from "@nivo-sass/design-system";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({
-  selector: 'app-parking-address-section',
-  standalone: true,
-  imports: [InputComponent, ComboboxComponent, TypographyH3, TypographyMuted, FormField, NgIcon],
-  providers: [provideIcons({ lucideMapPin })],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    InputComponent,
+    ComboboxComponent,
+    TypographyH3,
+    TypographyMuted,
+    FormField,
+    NgIcon,
+  ],
+  providers: [provideIcons({ lucideMapPin })],
+  selector: "app-parking-address-section",
+  standalone: true,
+  styles: `
+    :host {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+  `,
   template: `
     <div class="flex items-center gap-2">
-      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-success/10 text-success border border-success/20">
+      <div
+        class="bg-success/10 text-success border-success/20 flex h-8 w-8 items-center justify-center rounded-lg border"
+      >
         <ng-icon name="lucideMapPin" class="text-base" />
       </div>
       <div>
-        <nv-h3 class="text-base font-bold text-foreground">
+        <nv-h3 class="text-foreground text-base font-bold">
           {{ APP_TEXTS.parking.form.fields.address.title }}
         </nv-h3>
-        <nv-muted class="text-xs text-muted-foreground">
+        <nv-muted class="text-muted-foreground text-xs">
           Dirección física, departamento, ciudad y código postal
         </nv-muted>
       </div>
@@ -38,7 +64,7 @@ import { lucideMapPin } from '@ng-icons/lucide';
       />
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <nv-combobox
         id="state"
         [label]="APP_TEXTS.parking.form.fields.address.state.label"
@@ -59,38 +85,33 @@ import { lucideMapPin } from '@ng-icons/lucide';
       />
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <nv-input
         id="zipCode"
         [label]="APP_TEXTS.parking.form.fields.address.zipCode.label"
-        [placeholder]="APP_TEXTS.parking.form.fields.address.zipCode.placeholder"
+        [placeholder]="
+          APP_TEXTS.parking.form.fields.address.zipCode.placeholder
+        "
         [formField]="zipCodeField()"
         [error]="zipCodeError()"
       />
     </div>
-  `,
-  styles: `
-    :host {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
   `,
 })
 export class ParkingAddressSectionComponent {
   protected readonly APP_TEXTS = APP_TEXTS;
 
   readonly streetField = input.required<FieldTree<string, string>>();
-  readonly streetError = input<ValidationError.WithFieldTree[] | undefined>(undefined);
+  readonly streetError = input<ValidationError.WithFieldTree[] | undefined>();
   readonly stateField = input.required<FieldTree<string, string>>();
-  readonly stateError = input<ValidationError.WithFieldTree[] | undefined>(undefined);
+  readonly stateError = input<ValidationError.WithFieldTree[] | undefined>();
   readonly cityField = input.required<FieldTree<string, string>>();
-  readonly cityError = input<ValidationError.WithFieldTree[] | undefined>(undefined);
+  readonly cityError = input<ValidationError.WithFieldTree[] | undefined>();
   readonly zipCodeField = input.required<FieldTree<string, string>>();
-  readonly zipCodeError = input<ValidationError.WithFieldTree[] | undefined>(undefined);
+  readonly zipCodeError = input<ValidationError.WithFieldTree[] | undefined>();
   readonly departments = input<string[]>([]);
   readonly cities = input<string[]>([]);
 
-  readonly stateSelectionChange = output<unknown>();
-  readonly citySelectionChange = output<unknown>();
+  readonly stateSelectionChange = output<string>();
+  readonly citySelectionChange = output<string>();
 }

@@ -13,7 +13,7 @@ La interfaz de gestión de parqueaderos es la **primera feature operativa** del 
 ### Alcance
 
 | Dentro del alcance | Fuera del alcance |
-|---|---|
+| --- | --- |
 | CRUD completo de parqueaderos | Backend API (se asumen endpoints existentes) |
 | Mapa interactivo para selección de ubicación (Leaflet + OpenStreetMap) | Sistema de permisos nuevo (roles existentes) |
 | Tabla paginada con filtros y búsqueda server-side | i18n real (se mantiene patrón `APP_TEXTS`) |
@@ -48,7 +48,7 @@ La interfaz de gestión de parqueaderos es la **primera feature operativa** del 
 ### Descripción funcional por vista
 
 | Vista | Ruta | Propósito | Permisos |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **ParkingListPage** | `/dashboard/parking` | Listado tabular de parqueaderos con búsqueda, filtros por estado, paginación y acciones rápidas | Todos — acciones CRUD solo para OWNER/MANAGER/SUPERADMIN |
 | **ParkingCreatePage** | `/dashboard/parking/new` | Formulario de creación de nuevo parqueadero con mapa interactivo para ubicación | OWNER, MANAGER, SUPERADMIN |
 | **ParkingDetailPage** | `/dashboard/parking/:id` | Vista de solo lectura con toda la información del parqueadero, barra de ocupación, mapa readonly | Todos — editar/eliminar solo para OWNER/MANAGER/SUPERADMIN |
@@ -83,7 +83,7 @@ La interfaz de gestión de parqueaderos es la **primera feature operativa** del 
 ### Distribución detallada
 
 | Zona | Ancho | Comportamiento | Contenido |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **Sidebar** | `w-64` (256px) fijo | Colapsable en mobile (drawer), visible en `md+` | Logo, links de navegación con indicador activo, logout |
 | **Main Content** | `flex-1` (resto) | Scroll independiente, `min-h-screen` | Header de página + `<router-outlet />` |
 | **Header** (inside Main) | Full width del main | Fijo o sticky-top, height auto | Título de la sección actual, breadcrumbs opcional |
@@ -106,6 +106,7 @@ LayoutDashboard (componente standalone)
 ### Indicador de ruta activa
 
 El link activo en el sidebar se distingue visualmente con:
+
 - `routerLinkActive="active"` + `class.bg-accent`
 - Texto en `text-foreground` (vs `text-muted-foreground` para inactivos)
 - Opcional: borde izquierdo `border-l-2 border-primary`
@@ -113,6 +114,7 @@ El link activo en el sidebar se distingue visualmente con:
 ### Responsive — Mobile
 
 En pantallas `< md`:
+
 - Sidebar se convierte en **drawer/overlay** activado por hamburger button
 - Main content ocupa `w-full`
 - El hamburger button se ubica en un mini-header sticky superior
@@ -190,11 +192,11 @@ ParkingListPage
 
 #### Badge de estado
 
-| ParkingStatus | nv-badge variant | Label visible |
-|---|---|---|
-| `ACTIVE` | `success` | Activo |
-| `INACTIVE` | `secondary` | Inactivo |
-| `MAINTENANCE` | `warning` | En mantenimiento |
+| ParkingStatus | nv-badge variant | Label visible    |
+| ------------- | ---------------- | ---------------- |
+| `ACTIVE`      | `success`        | Activo           |
+| `INACTIVE`    | `secondary`      | Inactivo         |
+| `MAINTENANCE` | `warning`        | En mantenimiento |
 
 ---
 
@@ -395,11 +397,11 @@ ParkingDetailPage
 
 #### Barra de ocupación — semáforo de colores
 
-| Condición | Color (CSS variable) | Clase Tailwind |
-|---|---|---|
-| Ocupación < 80% | `--semantic-success` (#16a34a) | `bg-success` |
-| Ocupación ≥ 80% y < 100% | `--semantic-warning` (#ca8a04) | `bg-warning` |
-| Ocupación = 100% | `--semantic-error` (#ef4444) | `bg-error` |
+| Condición                | Color (CSS variable)           | Clase Tailwind |
+| ------------------------ | ------------------------------ | -------------- |
+| Ocupación < 80%          | `--semantic-success` (#16a34a) | `bg-success`   |
+| Ocupación ≥ 80% y < 100% | `--semantic-warning` (#ca8a04) | `bg-warning`   |
+| Ocupación = 100%         | `--semantic-error` (#ef4444)   | `bg-error`     |
 
 ---
 
@@ -425,7 +427,7 @@ ParkingDetailPage
 #### Modos de uso
 
 | Contexto | `initialPosition` | `readonly` | Comportamiento |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **Crear** | `undefined` | `false` | Centra en ubicación por defecto, click coloca/mueve marker, emite coordenadas |
 | **Editar** | `{ lat, lng }` existentes | `false` | Centra en ubicación guardada, click permite mover marker, emite coordenadas nuevas |
 | **Detalle** | `{ lat, lng }` existentes | `true` | Centra en ubicación guardada, ignora clicks, marker fijo |
@@ -443,7 +445,7 @@ ParkingDetailPage
 > El design system actual (`@nivo-sass/design-system`) NO incluye estos componentes primitivos. Necesitan implementarse como parte de esta feature o como contribución al design system.
 
 | Componente | Descripción | Donde se usa |
-|---|---|---|
+| --- | --- | --- |
 | **`<select>` nativo estilizado** | Dropdown de filtro por estado. Se usa `<select>` de HTML con clases Tailwind mientras no exista `nv-select` | FiltersBar (ParkingListPage) |
 | **Tabla HTML estilizada** | `<table>` con clases Tailwind: `w-full`, bordes, hover states, striped. No existe `nv-table` | ParkingListPage |
 | **Barra de progreso** | `<div>` con `bg-secondary` como track y `<div>` hijo con `bg-{color}` como fill + `transition-all` | ParkingDetailPage (ocupación) |
@@ -494,6 +496,7 @@ ParkingDetailPage
 ### 5.2 Flujo CRUD detallado
 
 #### Crear parqueadero
+
 1. `ParkingListPage` → click "Nuevo parqueadero"
 2. Navega a `ParkingCreatePage` (`/dashboard/parking/new`)
 3. Usuario completa formulario (incluye click en mapa)
@@ -501,12 +504,14 @@ ParkingDetailPage
 5. **Cancelar** → navega directamente a `ParkingListPage` sin guardar
 
 #### Ver detalle
+
 1. `ParkingListPage` → click ícono "Ver" en fila o click en nombre
 2. Navega a `ParkingDetailPage` (`/dashboard/parking/:id`)
 3. Muestra toda la info + mapa readonly + barra ocupación
 4. **Volver** → navega a `ParkingListPage`
 
 #### Editar parqueadero
+
 1. Desde `ParkingListPage` → click "Editar" en fila
 2. O desde `ParkingDetailPage` → click botón "Editar"
 3. Navega a `ParkingEditPage` (`/dashboard/parking/:id/edit`)
@@ -515,6 +520,7 @@ ParkingDetailPage
 6. **Cancelar** → navega a `ParkingDetailPage`
 
 #### Eliminar parqueadero
+
 1. Desde `ParkingListPage` → click ícono "Eliminar"
 2. O desde `ParkingDetailPage` → click botón "Eliminar"
 3. Se muestra **diálogo de confirmación** ("¿Estás seguro? Esta acción no se puede deshacer.")
@@ -523,14 +529,14 @@ ParkingDetailPage
 
 ### 5.3 Navegación por permisos
 
-| Rol | Ver lista | Ver detalle | Crear | Editar | Eliminar |
-|---|---|---|---|---|---|
-| SUPERADMIN | ✅ | ✅ | ✅ | ✅ | ✅ |
-| OWNER | ✅ | ✅ | ✅ | ✅ | ✅ |
-| MANAGER | ✅ | ✅ | ✅ | ✅ | ✅ |
-| OPERATOR | ✅ | ✅ | ❌ | ❌ | ❌ |
-| DRIVER | ✅ | ✅ | ❌ | ❌ | ❌ |
-| AUDITOR | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Rol        | Ver lista | Ver detalle | Crear | Editar | Eliminar |
+| ---------- | --------- | ----------- | ----- | ------ | -------- |
+| SUPERADMIN | ✅        | ✅          | ✅    | ✅     | ✅       |
+| OWNER      | ✅        | ✅          | ✅    | ✅     | ✅       |
+| MANAGER    | ✅        | ✅          | ✅    | ✅     | ✅       |
+| OPERATOR   | ✅        | ✅          | ❌    | ❌     | ❌       |
+| DRIVER     | ✅        | ✅          | ❌    | ❌     | ❌       |
+| AUDITOR    | ✅        | ✅          | ❌    | ❌     | ❌       |
 
 ---
 
@@ -805,7 +811,7 @@ ParkingDetailPage
 ### 6.4 ParkingMapComponent — Estados
 
 | Estado | Visual | Comportamiento |
-|---|---|---|
+| --- | --- | --- |
 | **Inicializando** | Contenedor gris con skeleton/pulse | Tiles cargando, `animate-pulse` en el fondo |
 | **Sin marker** | Mapa centrado en ubicación por defecto, sin pin | Click coloca marker |
 | **Con marker** | Pin visible en posición seleccionada | Click nuevo mueve marker |
@@ -869,7 +875,7 @@ parking: {
 ## 8. Resumen de Componentes por Archivo
 
 | Archivo/Componente | Tipo | Reutilizable | Design System |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `LayoutDashboard` | Layout | ✅ (toda la app) | — |
 | `SidebarComponent` | Componente | ✅ (dentro de LayoutDashboard) | nv-button, nv-muted |
 | `ParkingListPage` | Page | ❌ | nv-button, nv-badge, nv-input, nv-muted |
@@ -885,7 +891,7 @@ parking: {
 ## 9. Decisiones de Diseño UI
 
 | # | Decisión | Rationale |
-|---|---|---|
+| --- | --- | --- |
 | 1 | **Card-based layout** para formularios y detalle | Consistencia con el patrón existente (LoginPage usa nv-card). Delimitación visual clara de secciones |
 | 2 | **Tabla HTML nativa** estilizada con Tailwind | No existe `nv-table` en el design system. Evita dependencias extras. Se puede extraer a `nv-table` en el futuro |
 | 3 | **Diálogo de confirmación** custom (no native `<dialog>`) | Mayor control visual, consistencia con el design system, animaciones de entrada/salida |

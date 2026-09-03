@@ -1,15 +1,16 @@
-import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { ColombiaUbicationsModel } from '../models/colombia-ubications.model';
+import { HttpClient } from "@angular/common/http";
+import { computed, inject, Injectable, signal } from "@angular/core";
+
+import type { ColombiaUbicationsModel } from "../models/colombia-ubications.model";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class ColombiaService {
   private httpClient = inject(HttpClient);
   private colombiaUbication = signal<ColombiaUbicationsModel[]>([]);
   public departaments = computed(() =>
-    this.colombiaUbication().map(({ department }) => department),
+    this.colombiaUbication().map(({ department }) => department)
   );
 
   constructor() {
@@ -18,7 +19,7 @@ export class ColombiaService {
 
   private initColombiaUbication() {
     this.httpClient
-      .get<ColombiaUbicationsModel[]>('/assets/data/colombia.json')
+      .get<ColombiaUbicationsModel[]>("/assets/data/colombia.json")
       .subscribe((colombiaUbications) => {
         this.colombiaUbication.set(colombiaUbications);
       });
@@ -26,7 +27,9 @@ export class ColombiaService {
 
   public getCitiesByDepartmentName(departmentName: string): string[] {
     return (
-      this.colombiaUbication().find(({ department }) => department === departmentName)?.cities ?? []
+      this.colombiaUbication().find(
+        ({ department }) => department === departmentName
+      )?.cities ?? []
     );
   }
 }

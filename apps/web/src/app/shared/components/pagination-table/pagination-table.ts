@@ -1,11 +1,11 @@
-import { Component, input } from '@angular/core';
-import { NgIcon } from '@ng-icons/core';
+import { Component, input } from "@angular/core";
+import { NgIcon } from "@ng-icons/core";
 
 @Component({
-  selector: 'app-pagination-table',
   imports: [NgIcon],
-  templateUrl: './pagination-table.html',
-  styleUrl: './pagination-table.css',
+  selector: "app-pagination-table",
+  styleUrl: "./pagination-table.css",
+  templateUrl: "./pagination-table.html",
 })
 export class PaginationTable {
   currentItems = input.required<number>();

@@ -10,10 +10,12 @@
 >
   <div class="delete-dialog__panel">
     <div class="delete-dialog__header">
-      <h2 [id]="titleId" class="delete-dialog__title font-bold text-foreground">¿Eliminar tarifa?</h2>
+      <h2 [id]="titleId" class="delete-dialog__title text-foreground font-bold">
+        ¿Eliminar tarifa?
+      </h2>
       <button
         type="button"
-        class="h-8 w-8 rounded-lg border border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-grid place-items-center cursor-pointer transition-colors"
+        class="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border transition-colors"
         (click)="cancel.emit()"
         aria-label="Cerrar"
       >
@@ -21,28 +23,40 @@
       </button>
     </div>
 
-    <p [id]="descriptionId" class="delete-dialog__description text-muted-foreground text-xs leading-relaxed mt-3">
-      Esta acción eliminará permanentemente la configuración tarifaria seleccionada. Los cobros ya liquidados no se verán afectados.
+    <p
+      [id]="descriptionId"
+      class="delete-dialog__description text-muted-foreground mt-3 text-xs leading-relaxed"
+    >
+      Esta acción eliminará permanentemente la configuración tarifaria
+      seleccionada. Los cobros ya liquidados no se verán afectados.
     </p>
 
     @if (rate(); as r) {
-      <div class="delete-dialog__rate-info p-3.5 rounded-xl bg-muted/50 border border-border mt-3 flex flex-col gap-2">
-        <div class="flex justify-between items-center text-xs font-semibold">
-          <span class="text-foreground">{{ r.name }}</span>
-          <span class="inline-flex items-center rounded-md bg-muted text-muted-foreground border border-border px-2 py-0.5 text-[10px] font-bold">
-            {{ r.vehicleType }}
-          </span>
-        </div>
-        <div class="flex justify-between items-center text-xs text-muted-foreground border-t border-border pt-2">
-          <span>Unidad: {{ r.timeUnit }}</span>
-          <span class="font-mono font-bold text-foreground">
-            {{ r.pricePerUnit | currency:'COP':'symbol-narrow':'1.0-0' }}
-          </span>
-        </div>
+    <div
+      class="delete-dialog__rate-info bg-muted/50 border-border mt-3 flex flex-col gap-2 rounded-xl border p-3.5"
+    >
+      <div class="flex items-center justify-between text-xs font-semibold">
+        <span class="text-foreground">{{ r.name }}</span>
+        <span
+          class="bg-muted text-muted-foreground border-border inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold"
+        >
+          {{ r.vehicleType }}
+        </span>
       </div>
+      <div
+        class="text-muted-foreground border-border flex items-center justify-between border-t pt-2 text-xs"
+      >
+        <span>Unidad: {{ r.timeUnit }}</span>
+        <span class="text-foreground font-mono font-bold">
+          {{ r.pricePerUnit | currency:'COP':'symbol-narrow':'1.0-0' }}
+        </span>
+      </div>
+    </div>
     }
 
-    <div class="delete-dialog__actions flex justify-end gap-2.5 mt-5 pt-3.5 border-t border-border">
+    <div
+      class="delete-dialog__actions border-border mt-5 flex justify-end gap-2.5 border-t pt-3.5"
+    >
       <nv-button variant="outline" type="button" (click)="cancel.emit()">
         Cancelar
       </nv-button>
@@ -59,4 +73,3 @@
     </div>
   </div>
 </dialog>
-

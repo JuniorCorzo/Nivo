@@ -1,4 +1,4 @@
-export type OperatingHours = {
+export interface OperatingHours {
   openTime: string;
   closeTime: string;
-};
+}

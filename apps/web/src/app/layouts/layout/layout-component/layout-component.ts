@@ -1,11 +1,13 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { RouterOutlet } from "@angular/router";
 
 @Component({
-  selector: 'app-layout-component',
-  imports: [RouterOutlet],
-  templateUrl: './layout-component.html',
-  styleUrl: './layout-component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterOutlet],
+  selector: "app-layout-component",
+  styleUrl: "./layout-component.css",
+  templateUrl: "./layout-component.html",
 })
-export class LayoutComponent {}
+export class LayoutComponent {
+  protected readonly isReady = true;
+}

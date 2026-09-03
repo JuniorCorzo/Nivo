@@ -1,16 +1,14 @@
-import { TestBed } from '@angular/core/testing';
+import { mapToLoginResponseModel } from "./auth.mapper";
 
-import { AuthMapper } from './auth.mapper';
-
-describe('AuthMapper', () => {
-  let service: AuthMapper;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(AuthMapper);
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+describe("AuthMapper", () => {
+  it("should map AuthenticationResponseDto to LoginResponseModel", () => {
+    const res = mapToLoginResponseModel({
+      accessToken: "token1",
+      refreshToken: "token2",
+    });
+    expect(res).toEqual({
+      accessToken: "token1",
+      refreshToken: "token2",
+    });
   });
 });

@@ -1,37 +1,46 @@
-<div class="flex flex-col gap-6 p-4 sm:p-6 md:p-8 max-w-5xl mx-auto">
+<div class="mx-auto flex max-w-5xl flex-col gap-6 p-4 sm:p-6 md:p-8">
   <!-- Top Bar: Back & Title -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
     <div class="flex items-center gap-3">
       <a
         routerLink="/app/parking-lots"
-        class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground transition-colors shadow-xs cursor-pointer"
+        class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border shadow-xs transition-colors"
         [title]="APP_TEXTS.parking.actions.backToList"
       >
         <ng-icon name="lucideArrowLeft" class="text-base" />
       </a>
       <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-foreground">
+        <h1 class="text-foreground text-xl font-bold sm:text-2xl">
           {{ facade.title() }}
         </h1>
-        <p class="text-xs sm:text-sm text-muted-foreground">
-          Configurá los datos de sede, ubicación geográfica, horarios y capacidad
+        <p class="text-muted-foreground text-xs sm:text-sm">
+          Configurá los datos de sede, ubicación geográfica, horarios y
+          capacidad
         </p>
       </div>
     </div>
   </div>
 
   <!-- Form Card -->
-  <div class="rounded-2xl bg-card text-card-foreground border border-border shadow-xs overflow-hidden">
-    <form novalidate class="flex flex-col gap-6 sm:gap-8 p-4 sm:p-8">
+  <div
+    class="bg-card text-card-foreground border-border overflow-hidden rounded-2xl border shadow-xs"
+  >
+    <form novalidate class="flex flex-col gap-6 p-4 sm:gap-8 sm:p-8">
       <!-- Section 1: Basic Information -->
       <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-2 border-b border-border pb-3">
-          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20">
+        <div class="border-border flex items-center gap-2 border-b pb-3">
+          <div
+            class="bg-primary/10 text-primary border-primary/20 flex h-8 w-8 items-center justify-center rounded-lg border"
+          >
             <ng-icon name="lucideBuilding2" class="text-base" />
           </div>
           <div>
-            <h2 class="text-base font-bold text-foreground">Datos del parqueadero</h2>
-            <p class="text-xs text-muted-foreground">Nombre comercial y datos generales de la sede</p>
+            <h2 class="text-foreground text-base font-bold">
+              Datos del parqueadero
+            </h2>
+            <p class="text-muted-foreground text-xs">
+              Nombre comercial y datos generales de la sede
+            </p>
           </div>
         </div>
 
@@ -47,7 +56,7 @@
       </div>
 
       <!-- Section 2: Address -->
-      <div class="border-t border-border pt-6">
+      <div class="border-border border-t pt-6">
         <app-parking-address-section
           [streetField]="facade.form.address.street"
           [streetError]="facade.streetError()"
@@ -64,7 +73,7 @@
       </div>
 
       <!-- Section 3: Map Location -->
-      <div class="border-t border-border pt-6">
+      <div class="border-border border-t pt-6">
         <app-parking-location-section
           [initialPosition]="facade.selectedCoordinates()"
           [coordinates]="facade.coordinates()"
@@ -77,12 +86,14 @@
       </div>
 
       <!-- Section 4: Operating Hours -->
-      <div class="border-t border-border pt-6">
-        <app-parking-operating-hours-section [operatingHours]="facade.form.operatingHours" />
+      <div class="border-border border-t pt-6">
+        <app-parking-operating-hours-section
+          [operatingHours]="facade.form.operatingHours"
+        />
       </div>
 
       <!-- Section 5: Slots Distribution -->
-      <div class="border-t border-border pt-6">
+      <div class="border-border border-t pt-6">
         <app-parking-slot-groups-section
           [slots]="facade.slots()"
           [slotTypeOptions]="facade.slotTypeOptions"
@@ -94,11 +105,13 @@
     </form>
 
     <!-- Footer Actions -->
-    <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 sm:gap-3 p-4 sm:p-6 bg-muted/50 border-t border-border">
+    <div
+      class="bg-muted/50 border-border flex flex-col-reverse gap-2 border-t p-4 sm:flex-row sm:items-center sm:justify-end sm:gap-3 sm:p-6"
+    >
       <button
         type="button"
         (click)="onCancel()"
-        class="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-border bg-card px-4 py-2.5 text-xs sm:text-sm font-semibold text-foreground hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+        class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-flex w-full cursor-pointer items-center justify-center rounded-xl border px-4 py-2.5 text-xs font-semibold transition-colors sm:w-auto sm:text-sm"
       >
         Cancelar
       </button>
@@ -107,17 +120,16 @@
         type="button"
         (click)="onSubmit()"
         [disabled]="facade.isSubmitting() || facade.form().invalid()"
-        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 text-xs sm:text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
+        class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-semibold shadow-xs transition-all disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:text-sm"
       >
         @if (facade.isSubmitting()) {
-          <ng-icon name="lucideLoader2" class="animate-spin text-base" />
-          <span>Guardando...</span>
+        <ng-icon name="lucideLoader2" class="animate-spin text-base" />
+        <span>Guardando...</span>
         } @else {
-          <ng-icon name="lucideSave" class="text-base" />
-          <span>{{ facade.submitButtonText() }}</span>
+        <ng-icon name="lucideSave" class="text-base" />
+        <span>{{ facade.submitButtonText() }}</span>
         }
       </button>
     </div>
   </div>
 </div>
-

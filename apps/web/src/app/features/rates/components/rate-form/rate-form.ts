@@ -1,7 +1,8 @@
-import { Component, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { CommonModule } from "@angular/common";
+import { Component, computed, inject } from "@angular/core";
+import { RouterLink } from "@angular/router";
+import type { TimeUnit, VehicleType } from "@core/models/rate.model";
+import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideArrowLeft,
   lucideChevronRight,
@@ -10,28 +11,25 @@ import {
   lucideCoins,
   lucideSliders,
   lucideLoader2,
-} from '@ng-icons/lucide';
+} from "@ng-icons/lucide";
 import {
   ButtonComponent,
   InputComponent,
   SelectComponent,
-} from '@nivo-sass/design-system';
+} from "@nivo-sass/design-system";
+import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
-import { RateFormFacade } from '../../facades/rate-form.facade';
-import { RatePreviewComponent } from '../rate-calculator/rate-preview';
-import { TimeUnit, VehicleType } from '@core/models/rate.model';
-import { APP_ROUTES } from '@shared/constants/app-routes.constant';
+import { RateFormFacade } from "../../facades/rate-form.facade";
+import type { Option } from "../../shared/rate-presentations";
 import {
-  Option,
   TIME_UNIT_OPTIONS,
   VEHICLE_TYPE_OPTIONS,
   displayOptionFn,
   valueOptionFn,
-} from '../../shared/rate-presentations';
+} from "../../shared/rate-presentations";
+import { RatePreviewComponent } from "../rate-calculator/rate-preview";
 
 @Component({
-  selector: 'app-rate-form',
-  standalone: true,
   imports: [
     CommonModule,
     RouterLink,
@@ -46,14 +44,16 @@ import {
     provideIcons({
       lucideArrowLeft,
       lucideChevronRight,
+      lucideCoins,
+      lucideLoader2,
       lucidePlus,
       lucideSave,
-      lucideCoins,
       lucideSliders,
-      lucideLoader2,
     }),
   ],
-  templateUrl: './rate-form.html',
+  selector: "app-rate-form",
+  standalone: true,
+  templateUrl: "./rate-form.html",
 })
 export class RateFormComponent {
   protected readonly facade = inject(RateFormFacade);
@@ -65,47 +65,58 @@ export class RateFormComponent {
   readonly valueOptionFn = valueOptionFn;
 
   readonly policyOptions = computed<Option[]>(() => {
-    const defaultOption: Option = { label: 'Ninguna', value: '' };
+    const defaultOption: Option = { label: "Ninguna", value: "" };
     const items: Option[] = this.facade.specialPolicies().map((p) => ({
       label: `${p.name} (${p.valueToModify}% ${p.modifies})`,
-      value: p.id ?? '',
+      value: p.id ?? "",
     }));
     return [defaultOption, ...items];
   });
 
   onNameInput(event: Event): void {
+    /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
     this.facade.form.name.set(target.value);
   }
 
   onDescInput(event: Event): void {
+    /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
     this.facade.form.description.set(target.value);
   }
 
   onPriceInput(event: Event): void {
+    /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
     this.facade.form.pricePerUnit.set(target.valueAsNumber || 0);
   }
 
   onMinTimeInput(event: Event): void {
+    /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
     this.facade.form.minChargeTimeMinutes.set(target.valueAsNumber || 0);
   }
 
-  onVehicleTypeChange(val: any): void {
-    if (val) this.facade.form.vehicleType.set(val as VehicleType);
+  onVehicleTypeChange(val: string | null | undefined): void {
+    if (val) {
+      /* SAFETY: Value matches VehicleType union */
+      this.facade.form.vehicleType.set(val as VehicleType);
+    }
   }
 
-  onTimeUnitChange(val: any): void {
-    if (val) this.facade.form.timeUnit.set(val as TimeUnit);
+  onTimeUnitChange(val: string | null | undefined): void {
+    if (val) {
+      /* SAFETY: Value matches TimeUnit union */
+      this.facade.form.timeUnit.set(val as TimeUnit);
+    }
   }
 
-  onPolicyChange(val: any): void {
+  onPolicyChange(val: string | null | undefined): void {
     this.facade.form.specialPolicyId.set(val ? String(val) : null);
   }
 
   onDurationChange(event: Event): void {
+    /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
     this.facade.previewDurationMinutes.set(target.valueAsNumber || 0);
   }

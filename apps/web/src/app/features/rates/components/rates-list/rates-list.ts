@@ -1,8 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { CommonModule } from "@angular/common";
+import { Component, computed, inject, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import type { RateModel } from "@core/models/rate.model";
+import { ParkingService } from "@core/services/parking-service";
+import { RateService } from "@core/services/rate-service";
+import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideArrowLeft,
   lucideChevronRight,
@@ -18,30 +21,25 @@ import {
   lucideCalculator,
   lucideShieldCheck,
   lucideLayers,
-} from '@ng-icons/lucide';
+} from "@ng-icons/lucide";
 import {
   ButtonComponent,
   InputComponent,
   SelectComponent,
   ToastService,
-} from '@nivo-sass/design-system';
+} from "@nivo-sass/design-system";
+import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
-import { RateService } from '@core/services/rate-service';
-import { ParkingService } from '@core/services/parking-service';
-import { RateCalculatorComponent } from '../rate-calculator/rate-calculator';
-import { SpecialPoliciesConfigComponent } from '../special-policies-config/special-policies-config';
-import { RateDeleteModal } from '../rate-delete-modal/rate-delete-modal';
-import { RateModel } from '@core/models/rate.model';
-import { APP_ROUTES } from '@shared/constants/app-routes.constant';
 import {
   VEHICLE_FILTER_OPTIONS,
   displayOptionFn,
   valueOptionFn,
-} from '../../shared/rate-presentations';
+} from "../../shared/rate-presentations";
+import { RateCalculatorComponent } from "../rate-calculator/rate-calculator";
+import { RateDeleteModal } from "../rate-delete-modal/rate-delete-modal";
+import { SpecialPoliciesConfigComponent } from "../special-policies-config/special-policies-config";
 
 @Component({
-  selector: 'app-rates-list',
-  standalone: true,
   imports: [
     CommonModule,
     RouterLink,
@@ -56,22 +54,24 @@ import {
   providers: [
     provideIcons({
       lucideArrowLeft,
+      lucideBike,
+      lucideCalculator,
+      lucideCar,
       lucideChevronRight,
-      lucidePlus,
-      lucidePencil,
-      lucideTrash2,
+      lucideClock,
       lucideCoins,
       lucideInbox,
-      lucideSearch,
-      lucideCar,
-      lucideBike,
-      lucideClock,
-      lucideCalculator,
-      lucideShieldCheck,
       lucideLayers,
+      lucidePencil,
+      lucidePlus,
+      lucideSearch,
+      lucideShieldCheck,
+      lucideTrash2,
     }),
   ],
-  templateUrl: './rates-list.html',
+  selector: "app-rates-list",
+  standalone: true,
+  templateUrl: "./rates-list.html",
 })
 export class RateListComponent {
   private readonly route = inject(ActivatedRoute);
@@ -82,9 +82,9 @@ export class RateListComponent {
 
   protected readonly APP_ROUTES = APP_ROUTES;
   readonly parkingId = signal<string | null>(null);
-  readonly activeTab = signal<'rates' | 'calculator' | 'policies'>('rates');
-  readonly searchQuery = signal('');
-  readonly vehicleFilter = signal<string>('ALL');
+  readonly activeTab = signal<"rates" | "calculator" | "policies">("rates");
+  readonly searchQuery = signal("");
+  readonly vehicleFilter = signal<string>("ALL");
 
   readonly rateToDelete = signal<RateModel | null>(null);
   readonly isDeletingRate = signal<boolean>(false);
@@ -95,13 +95,20 @@ export class RateListComponent {
 
   readonly parking = computed(() => {
     const id = this.parkingId();
-    if (!id) return null;
-    return (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ?? null;
+    if (!id) {
+      return null;
+    }
+    return (
+      (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ??
+      null
+    );
   });
 
   readonly allRates = computed(() => {
     const id = this.parkingId();
-    if (!id) return [];
+    if (!id) {
+      return [];
+    }
     return this.rateService.ratesByParking()[id] ?? [];
   });
 
@@ -115,11 +122,11 @@ export class RateListComponent {
         (r) =>
           r.name.toLowerCase().includes(query) ||
           r.description.toLowerCase().includes(query) ||
-          r.vehicleType.toLowerCase().includes(query),
+          r.vehicleType.toLowerCase().includes(query)
       );
     }
 
-    if (vType !== 'ALL') {
+    if (vType !== "ALL") {
       list = list.filter((r) => r.vehicleType === vType);
     }
 
@@ -128,7 +135,7 @@ export class RateListComponent {
 
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const id = params.get('parkingId');
+      const id = params.get("parkingId");
       this.parkingId.set(id);
       if (id) {
         this.rateService.getRatesByParkingId(id).subscribe();
@@ -138,12 +145,13 @@ export class RateListComponent {
   }
 
   onSearchInput(event: Event): void {
+    /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
     this.searchQuery.set(target.value);
   }
 
-  onFilterChange(val: any): void {
-    this.vehicleFilter.set(val ? String(val) : 'ALL');
+  onFilterChange(val: string | null | undefined): void {
+    this.vehicleFilter.set(val ? String(val) : "ALL");
   }
 
   createRate(): void {
@@ -171,18 +179,26 @@ export class RateListComponent {
   confirmDelete(): void {
     const rate = this.rateToDelete();
     const pId = this.parkingId();
-    if (!rate || !pId) return;
+    if (!rate || !pId) {
+      return;
+    }
 
     this.isDeletingRate.set(true);
     this.rateService.deleteRate(rate.id, pId).subscribe({
+      error: () => {
+        this.isDeletingRate.set(false);
+        this.toast.showToast({
+          message: "Error al eliminar la tarifa",
+          type: "error",
+        });
+      },
       next: () => {
         this.isDeletingRate.set(false);
         this.closeDeleteModal();
-        this.toast.showToast({ message: 'Tarifa eliminada con éxito', type: 'success' });
-      },
-      error: () => {
-        this.isDeletingRate.set(false);
-        this.toast.showToast({ message: 'Error al eliminar la tarifa', type: 'error' });
+        this.toast.showToast({
+          message: "Tarifa eliminada con éxito",
+          type: "success",
+        });
       },
     });
   }

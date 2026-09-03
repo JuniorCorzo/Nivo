@@ -1,63 +1,28 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
+import type { Coordinates } from "@core/type/coordinates.type";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucideMapPin } from "@ng-icons/lucide";
+import { TypographyH3, TypographyMuted } from "@nivo-sass/design-system";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
-import { APP_TEXTS } from '@shared/constants/app-texts.constant';
-import { Coordinates } from '@core/type/coordinates.type';
-import { ParkingMapComponent } from '../../parking-map/parking-map';
-import { TypographyH3, TypographyMuted } from '@nivo-sass/design-system';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideMapPin } from '@ng-icons/lucide';
+import { ParkingMapComponent } from "../../parking-map/parking-map";
 
-type CoordinateSummary = {
+export interface CoordinateSummary {
   label: string;
   coordinates: string | undefined;
-};
+}
 
 @Component({
-  selector: 'app-parking-location-section',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ParkingMapComponent, TypographyH3, TypographyMuted, NgIcon],
   providers: [provideIcons({ lucideMapPin })],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="flex items-center gap-2">
-      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-info/10 text-info border border-info/20">
-        <ng-icon name="lucideMapPin" class="text-base" />
-      </div>
-      <div>
-        <nv-h3 class="text-base font-bold text-foreground">Ubicación en el mapa</nv-h3>
-        <nv-muted class="text-xs text-muted-foreground">
-          Haz clic o arrastra en el mapa para fijar las coordenadas GPS
-        </nv-muted>
-      </div>
-    </div>
-
-    <div class="relative flex flex-col gap-3" (click)="mapInteracted.emit()">
-      <div class="rounded-xl border border-border overflow-hidden shadow-inner">
-        <app-parking-map
-          [initialPosition]="initialPosition()"
-          [readonly]="false"
-          (positionChange)="positionChange.emit($event)"
-        />
-      </div>
-
-      @if (showPlaceholder()) {
-        <div class="location-placeholder">
-          {{ placeholderText() }}
-        </div>
-      }
-
-      @if (hasCoordinates()) {
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
-          @for (coordinate of coordinates(); track $index) {
-            <div class="flex items-center justify-between p-2 rounded-lg bg-muted border border-border">
-              <span class="text-muted-foreground">{{ coordinate.label }}:</span>
-              <span class="font-bold text-foreground">{{ coordinate.coordinates }}</span>
-            </div>
-          }
-        </div>
-      }
-    </div>
-  `,
+  selector: "app-parking-location-section",
+  standalone: true,
   styles: `
     :host {
       display: flex;
@@ -81,14 +46,64 @@ type CoordinateSummary = {
       font-weight: 500;
     }
   `,
+  template: `
+    <div class="flex items-center gap-2">
+      <div
+        class="bg-info/10 text-info border-info/20 flex h-8 w-8 items-center justify-center rounded-lg border"
+      >
+        <ng-icon name="lucideMapPin" class="text-base" />
+      </div>
+      <div>
+        <nv-h3 class="text-foreground text-base font-bold"
+          >Ubicación en el mapa</nv-h3
+        >
+        <nv-muted class="text-muted-foreground text-xs">
+          Haz clic o arrastra en el mapa para fijar las coordenadas GPS
+        </nv-muted>
+      </div>
+    </div>
+
+    <div class="relative flex flex-col gap-3" (click)="mapInteracted.emit()">
+      <div class="border-border overflow-hidden rounded-xl border shadow-inner">
+        <app-parking-map
+          [initialPosition]="initialPosition()"
+          [readonly]="false"
+          (positionChange)="positionChange.emit($event)"
+        />
+      </div>
+
+      @if (showPlaceholder()) {
+        <div class="location-placeholder">
+          {{ placeholderText() }}
+        </div>
+      }
+
+      @if (hasCoordinates()) {
+        <div class="grid grid-cols-1 gap-2 font-mono text-xs sm:grid-cols-2">
+          @for (coordinate of coordinates(); track $index) {
+            <div
+              class="bg-muted border-border flex items-center justify-between rounded-lg border p-2"
+            >
+              <span class="text-muted-foreground">{{ coordinate.label }}:</span>
+              <span class="text-foreground font-bold">{{
+                coordinate.coordinates
+              }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  `,
 })
 export class ParkingLocationSectionComponent {
-  readonly initialPosition = input<Coordinates | undefined>(undefined);
+  readonly initialPosition = input<Coordinates | null | undefined>(null);
   readonly coordinates = input<CoordinateSummary[]>([]);
   readonly hasCoordinates = input<boolean>(false);
   readonly showPlaceholder = input<boolean>(true);
-  readonly placeholderText = input<string>(APP_TEXTS.parking.actions.placeholderMap);
+  readonly placeholderText = input<string>(
+    APP_TEXTS.parking.actions.placeholderMap
+  );
 
   readonly positionChange = output<Coordinates>();
-  readonly mapInteracted = output<void>();
+  readonly mapInteracted = output();
 }

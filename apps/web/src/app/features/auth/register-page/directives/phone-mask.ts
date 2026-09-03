@@ -1,30 +1,31 @@
-import { Directive, input } from '@angular/core';
+import { Directive } from "@angular/core";
 
 @Directive({
-  selector: '[appPhoneMask]',
   host: {
-    '(input)': 'onInput($event)',
+    "(input)": "onInput($event)",
   },
+  selector: "[appPhoneMask]",
 })
 export class PhoneMask {
-  constructor() {}
-
-  onInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    let value = input.value.replace(/\D/g, '');
+  static onInput(event: Event) {
+    /* SAFETY: Event target of onInput on masked input is HTMLInputElement */
+    const target = event.target as HTMLInputElement;
+    let value = target.value.replaceAll(/\D/gu, "");
 
     if (value.length > 10) {
-      value = value.substring(0, 10);
+      value = value.slice(0, 10);
     }
 
-    if (value.charAt(0) !== '3') {
-      input.value = '';
+    if (value.charAt(0) !== "3") {
+      target.value = "";
       return;
     }
 
-    const start = value.substring(0, 3);
-    const end = value.substring(3, 10);
+    const start = value.slice(0, 3);
+    const end = value.slice(3, 10);
 
-    input.value = end ? `${start}-${end}` : start;
+    target.value = end ? `${start}-${end}` : start;
   }
+
+  readonly onInput = PhoneMask.onInput;
 }

@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { RouterOutlet } from "@angular/router";
 
 @Component({
-  selector: 'app-layout-minimal',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet],
+  selector: "app-layout-minimal",
   template: `
     <div class="flex">
       <main class="flex-1">
@@ -12,4 +13,6 @@ import { RouterOutlet } from '@angular/router';
     </div>
   `,
 })
-export class LayoutMinimal {}
+export class LayoutMinimal {
+  protected readonly isReady = true;
+}

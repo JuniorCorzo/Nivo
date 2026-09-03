@@ -1,3 +1,6 @@
+import type { RatesDto, SpecialPoliciesInfo } from "@core/api/generated/models";
+import type { CreateRateModel, UpdateRateModel } from "@core/models/rate.model";
+
 import {
   mapFormToCreateRateModel,
   mapFormToUpdateRateModel,
@@ -5,184 +8,181 @@ import {
   mapToRateModel,
   mapToSpecialPolicyModel,
   mapToUpdateRateDto,
-} from './rate.mapper';
-import { CreateRateModel, UpdateRateModel } from '@core/models/rate.model';
-import { RatesDto, SpecialPoliciesInfo } from '@core/api/generated/models';
+} from "./rate.mapper";
 
-describe('RateMapper', () => {
-  describe('mapToSpecialPolicyModel', () => {
-    it('should return undefined when input is null or undefined', () => {
+describe("RateMapper", () => {
+  describe("mapToSpecialPolicyModel", () => {
+    it("should return undefined when input is null or undefined", () => {
       expect(mapToSpecialPolicyModel(null)).toBeUndefined();
-      expect(mapToSpecialPolicyModel(undefined)).toBeUndefined();
+      expect(mapToSpecialPolicyModel()).toBeUndefined();
     });
 
-    it('should map SpecialPoliciesInfo to SpecialPolicyModel', () => {
+    it("should map SpecialPoliciesInfo to SpecialPolicyModel", () => {
       const dto: SpecialPoliciesInfo = {
-        id: 'policy-1',
-        name: 'VIP Surcharge',
         active: true,
-        modifies: 'SURCHARGE',
-        operation: 'PERCENTAGE',
+        id: "policy-1",
+        modifies: "SURCHARGE",
+        name: "VIP Surcharge",
+        operation: "PERCENTAGE",
         valueToModify: 20,
       };
 
       const result = mapToSpecialPolicyModel(dto);
 
       expect(result).toEqual({
-        id: 'policy-1',
-        name: 'VIP Surcharge',
         active: true,
-        modifies: 'SURCHARGE',
-        operation: 'PERCENTAGE',
+        id: "policy-1",
+        modifies: "SURCHARGE",
+        name: "VIP Surcharge",
+        operation: "PERCENTAGE",
         valueToModify: 20,
       });
     });
   });
 
-  describe('mapToRateModel', () => {
-    it('should map RatesDto to RateModel with nested special policy', () => {
+  describe("mapToRateModel", () => {
+    it("should map RatesDto to RateModel with nested special policy", () => {
       const dto: RatesDto = {
-        id: 'rate-1',
-        name: 'Car Hourly',
-        description: 'Standard car rate',
-        vehicleType: 'CAR',
-        timeUnit: 'HOURS',
+        createdAt: "2026-01-01T00:00:00Z",
+        description: "Standard car rate",
+        id: "rate-1",
+        minChargeTimeMinutes: "15",
+        name: "Car Hourly",
+        parking: { id: "parking-1" },
         pricePerUnit: 5000,
-        minChargeTimeMinutes: '15',
-        parking: { id: 'parking-1' },
         specialPolicy: {
-          id: 'sp-1',
-          name: 'Night Discount',
           active: true,
-          modifies: 'DISCOUNT',
-          operation: 'PERCENTAGE',
+          id: "sp-1",
+          modifies: "DISCOUNT",
+          name: "Night Discount",
+          operation: "PERCENTAGE",
           valueToModify: 10,
         },
-        createdAt: '2026-01-01T00:00:00Z',
-        updatedAt: '2026-01-02T00:00:00Z',
+        timeUnit: "HOURS",
+        updatedAt: "2026-01-02T00:00:00Z",
+        vehicleType: "CAR",
       };
 
       const result = mapToRateModel(dto);
 
-      expect(result.id).toBe('rate-1');
-      expect(result.name).toBe('Car Hourly');
-      expect(result.vehicleType).toBe('CAR');
-      expect(result.timeUnit).toBe('HOURS');
+      expect(result.id).toBe("rate-1");
+      expect(result.name).toBe("Car Hourly");
+      expect(result.vehicleType).toBe("CAR");
+      expect(result.timeUnit).toBe("HOURS");
       expect(result.pricePerUnit).toBe(5000);
       expect(result.minChargeTimeMinutes).toBe(15);
-      expect(result.parkingId).toBe('parking-1');
-      expect(result.specialPolicy?.name).toBe('Night Discount');
+      expect(result.parkingId).toBe("parking-1");
+      expect(result.specialPolicy?.name).toBe("Night Discount");
     });
 
-    it('should fallback defaults when optional fields are missing', () => {
+    it("should fallback defaults when optional fields are missing", () => {
       const dto: RatesDto = {};
       const result = mapToRateModel(dto);
 
-      expect(result.id).toBe('');
-      expect(result.vehicleType).toBe('CAR');
-      expect(result.timeUnit).toBe('HOURS');
+      expect(result.id).toBe("");
+      expect(result.vehicleType).toBe("CAR");
+      expect(result.timeUnit).toBe("HOURS");
       expect(result.pricePerUnit).toBe(0);
       expect(result.minChargeTimeMinutes).toBe(0);
       expect(result.specialPolicy).toBeUndefined();
     });
   });
 
-  describe('mapToCreateRateDto', () => {
-    it('should map CreateRateModel to CreateRate DTO', () => {
+  describe("mapToCreateRateDto", () => {
+    it("should map CreateRateModel to CreateRate DTO", () => {
       const model: CreateRateModel = {
-        parkingId: 'parking-123',
-        name: 'Bike Minute',
-        description: 'Per minute charge',
-        vehicleType: 'BIKE',
-        timeUnit: 'MINUTES',
-        pricePerUnit: 100,
+        description: "Per minute charge",
         minChargeTimeMinutes: 5,
-        specialPolicyId: 'sp-99',
+        name: "Bike Minute",
+        parkingId: "parking-123",
+        pricePerUnit: 100,
+        specialPolicyId: "sp-99",
+        timeUnit: "MINUTES",
+        vehicleType: "BIKE",
       };
 
       const dto = mapToCreateRateDto(model);
 
-      expect(dto.parkingLotId).toBe('parking-123');
-      expect(dto.name).toBe('Bike Minute');
-      expect(dto.vehicleType).toBe('BIKE');
-      expect(dto.timeUnit).toBe('MINUTES');
+      expect(dto.parkingLotId).toBe("parking-123");
+      expect(dto.name).toBe("Bike Minute");
+      expect(dto.vehicleType).toBe("BIKE");
+      expect(dto.timeUnit).toBe("MINUTES");
       expect(dto.pricePerUnit).toBe(100);
-      expect(dto.minChargeTimeMinutes).toBe('5');
-      expect(dto.specialPolicyId).toBe('sp-99');
+      expect(dto.minChargeTimeMinutes).toBe("5");
+      expect(dto.specialPolicyId).toBe("sp-99");
     });
   });
 
-  describe('mapToUpdateRateDto', () => {
-    it('should map UpdateRateModel to UpdateRate DTO', () => {
+  describe("mapToUpdateRateDto", () => {
+    it("should map UpdateRateModel to UpdateRate DTO", () => {
       const model: UpdateRateModel = {
-        id: 'rate-1',
-        name: 'Updated Rate',
-        vehicleType: 'MOTORCYCLE',
-        timeUnit: 'HOURS',
-        pricePerUnit: 2500,
+        id: "rate-1",
         minChargeTimeMinutes: 10,
+        name: "Updated Rate",
+        pricePerUnit: 2500,
+        timeUnit: "HOURS",
+        vehicleType: "MOTORCYCLE",
       };
 
       const dto = mapToUpdateRateDto(model);
 
-      expect(dto.id).toBe('rate-1');
-      expect(dto.name).toBe('Updated Rate');
-      expect(dto.vehicleType).toBe('MOTORCYCLE');
+      expect(dto.id).toBe("rate-1");
+      expect(dto.name).toBe("Updated Rate");
+      expect(dto.vehicleType).toBe("MOTORCYCLE");
       expect(dto.pricePerUnit).toBe(2500);
-      expect(dto.minChargeTimeMinutes).toBe('10');
+      expect(dto.minChargeTimeMinutes).toBe("10");
     });
   });
 
-  describe('mapFormToCreateRateModel', () => {
-    it('should map RateFormData to CreateRateModel', () => {
+  describe("mapFormToCreateRateModel", () => {
+    it("should map RateFormData to CreateRateModel", () => {
       const form = {
-        name: ' Tarifa Carro ',
-        description: ' Cobro por hora ',
-        vehicleType: 'CAR' as const,
-        timeUnit: 'HOURS' as const,
-        pricePerUnit: 5000,
+        description: " Cobro por hora ",
         minChargeTimeMinutes: 15,
-        specialPolicyId: 'policy-1',
+        name: " Tarifa Carro ",
+        pricePerUnit: 5000,
+        specialPolicyId: "policy-1",
+        timeUnit: "HOURS" as const,
+        vehicleType: "CAR" as const,
       };
 
-      const model = mapFormToCreateRateModel(form, 'parking-1');
+      const model = mapFormToCreateRateModel(form, "parking-1");
 
       expect(model).toEqual({
-        parkingId: 'parking-1',
-        name: 'Tarifa Carro',
-        description: 'Cobro por hora',
-        vehicleType: 'CAR',
-        timeUnit: 'HOURS',
-        pricePerUnit: 5000,
+        description: "Cobro por hora",
         minChargeTimeMinutes: 15,
-        specialPolicyId: 'policy-1',
+        name: "Tarifa Carro",
+        parkingId: "parking-1",
+        pricePerUnit: 5000,
+        specialPolicyId: "policy-1",
+        timeUnit: "HOURS",
+        vehicleType: "CAR",
       });
     });
   });
 
-  describe('mapFormToUpdateRateModel', () => {
-    it('should map RateFormData to UpdateRateModel', () => {
+  describe("mapFormToUpdateRateModel", () => {
+    it("should map RateFormData to UpdateRateModel", () => {
       const form = {
-        name: ' Tarifa Moto ',
-        description: ' Cobro moto ',
-        vehicleType: 'MOTORCYCLE' as const,
-        timeUnit: 'HOURS' as const,
-        pricePerUnit: 2500,
+        description: " Cobro moto ",
         minChargeTimeMinutes: 10,
+        name: " Tarifa Moto ",
+        pricePerUnit: 2500,
+        timeUnit: "HOURS" as const,
+        vehicleType: "MOTORCYCLE" as const,
       };
 
-      const model = mapFormToUpdateRateModel(form, 'rate-123');
+      const model = mapFormToUpdateRateModel(form, "rate-123");
 
       expect(model).toEqual({
-        id: 'rate-123',
-        name: 'Tarifa Moto',
-        description: 'Cobro moto',
-        vehicleType: 'MOTORCYCLE',
-        timeUnit: 'HOURS',
-        pricePerUnit: 2500,
+        description: "Cobro moto",
+        id: "rate-123",
         minChargeTimeMinutes: 10,
+        name: "Tarifa Moto",
+        pricePerUnit: 2500,
+        timeUnit: "HOURS",
+        vehicleType: "MOTORCYCLE",
       });
     });
   });
 });
-

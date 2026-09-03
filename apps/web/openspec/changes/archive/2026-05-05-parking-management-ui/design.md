@@ -5,6 +5,7 @@ El proyecto Nivo Web es una aplicación Angular 21 zoneless con signal-based for
 El backend ya expone (o expondrá) endpoints REST para gestión de parqueaderos. El frontend necesita consumir estos endpoints con la misma arquitectura que ya usa auth: Services → Mappers → Domain Models → Signal Forms → Components.
 
 **Stack actual:**
+
 - Angular 21 (zoneless, standalone components, signal forms experimentales)
 - Tailwind CSS v4 + custom design system (`nv-*` components)
 - `ng-openapi-gen` para generación de API services
@@ -15,6 +16,7 @@ El backend ya expone (o expondrá) endpoints REST para gestión de parqueaderos.
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Implementar flujo completo CRUD de parqueaderos siguiendo las convenciones existentes
 - Componente de mapa interactivo para selección de ubicación
 - Tabla paginada con filtros y búsqueda
@@ -23,6 +25,7 @@ El backend ya expone (o expondrá) endpoints REST para gestión de parqueaderos.
 - Integración limpia con el sistema de auth e interceptores existentes
 
 **Non-Goals:**
+
 - No implementar backend API (asumimos endpoints existentes)
 - No implementar sistema de permisos nuevo (usamos roles existentes)
 - No implementar i18n real (se mantiene el patrón APP_TEXTS)
@@ -36,13 +39,15 @@ El backend ya expone (o expondrá) endpoints REST para gestión de parqueaderos.
 
 **Decisión**: Usar Leaflet directamente con un service wrapper Angular, NO angular-leaflet ni ngx-leaflet.
 
-**Rationale**: 
+**Rationale**:
+
 - Leaflet es la librería de mapas más liviana (~40KB gzipped)
 - Los wrappers Angular existentes (ngx-leaflet) tienen poca mantención y no soportan Angular 21
 - Un wrapper custom nos da control total y sigue el patrón del proyecto (injection, signals)
 - Leaflet tiene excelente soporte para OpenStreetMap tiles (sin necesidad de API key)
 
 **Alternativas consideradas**:
+
 - `@asymmetrik/ngx-leaflet`: Última actualización hace 2+ años, dudoso soporte Angular 21
 - Google Maps API: Requiere API key, más pesado, overkill para selección de ubicación simple
 - Mapbox GL JS: Más features pero más complejo, requiere token
@@ -67,7 +72,8 @@ El backend ya expone (o expondrá) endpoints REST para gestión de parqueaderos.
 
 **Decisión**: Usar `WritableSignal` en cada componente página, NO crear un store global. El `ParkingService` expone métodos que retornan observables (desde HttpClient), cada página maneja su propio state.
 
-**Rationale**: 
+**Rationale**:
+
 - Sigue el patrón existente (AuthService usa signals para auth state, pero los datos de cada feature page son locales)
 - No hay necesidad de compartir estado de parqueaderos entre páginas remotas
 - Mantiene la simplicidad y evita over-engineering
@@ -82,7 +88,8 @@ El backend ya expone (o expondrá) endpoints REST para gestión de parqueaderos.
 
 **Decisión**: Toda la paginación, filtrado y búsqueda se maneja server-side via query params.
 
-**Rationale**: 
+**Rationale**:
+
 - Escalabilidad: un tenant puede tener cientos de parqueaderos
 - El backend ya expone (o debería exponer) estos parámetros
 - Sigue el patrón REST estándar

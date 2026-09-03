@@ -1,38 +1,44 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
-import { ToastService } from '@nivo-sass/design-system';
-import { SlotStatus, SlotSummary } from '@core/models/slot.model';
-import { SlotService } from '@core/services/slot-service';
+import { Injectable, signal, computed, inject } from "@angular/core";
+import type { SlotStatus, SlotSummary } from "@core/models/slot.model";
+import { SlotService } from "@core/services/slot-service";
+import { ToastService } from "@nivo-sass/design-system";
 
-export const VALID_STATUS_TRANSITIONS: Record<SlotStatus, SlotStatus[]> = {
-  AVAILABLE: ['OCCUPIED', 'MAINTENANCE', 'RESERVED'],
-  OCCUPIED: ['AVAILABLE', 'MAINTENANCE'],
-  MAINTENANCE: ['AVAILABLE'],
-  RESERVED: ['AVAILABLE', 'OCCUPIED'],
-};
+export const VALID_STATUS_TRANSITIONS = {
+  AVAILABLE: ["OCCUPIED", "MAINTENANCE", "RESERVED"],
+  MAINTENANCE: ["AVAILABLE"],
+  OCCUPIED: ["AVAILABLE", "MAINTENANCE"],
+  RESERVED: ["AVAILABLE", "OCCUPIED"],
+} satisfies Record<SlotStatus, SlotStatus[]>;
 
-export function getStatusTransitionOptions(currentStatus: SlotStatus): SlotStatus[] {
-  return VALID_STATUS_TRANSITIONS[currentStatus] ?? [];
+export interface StatusModalCopy {
+  body: string;
+  requiresExtraConfirm: boolean;
+  title: string;
 }
 
-export function getStatusModalCopy(
+export const getStatusTransitionOptions = (
+  currentStatus: SlotStatus
+): SlotStatus[] => VALID_STATUS_TRANSITIONS[currentStatus] ?? [];
+
+export const getStatusModalCopy = (
   currentStatus: SlotStatus,
   nextStatus: SlotStatus,
-  hasTicket: boolean,
-): { title: string; body: string; requiresExtraConfirm: boolean } {
-  const title = 'Cambiar estado';
-  if (currentStatus === 'OCCUPIED' && nextStatus === 'AVAILABLE' && hasTicket) {
+  hasTicket: boolean
+): StatusModalCopy => {
+  const title = "Cambiar estado";
+  if (currentStatus === "OCCUPIED" && nextStatus === "AVAILABLE" && hasTicket) {
     return {
-      title,
-      body: 'La plaza tiene un ticket activo. Cambiar a disponible liberará el ticket actual. Esta acción puede generar inconsistencias.',
+      body: "La plaza tiene un ticket activo. Cambiar a disponible liberará el ticket actual. Esta acción puede generar inconsistencias.",
       requiresExtraConfirm: true,
+      title,
     };
   }
   return {
-    title,
     body: `¿Confirmar cambio de estado de ${currentStatus} a ${nextStatus}?`,
     requiresExtraConfirm: false,
+    title,
   };
-}
+};
 
 @Injectable()
 export class SlotStatusState {
@@ -46,14 +52,18 @@ export class SlotStatusState {
 
   readonly statusTransitionOptions = computed(() => {
     const slot = this.statusTarget();
-    if (!slot) return [];
+    if (!slot) {
+      return [];
+    }
     return getStatusTransitionOptions(slot.status);
   });
 
   readonly statusModalCopy = computed(() => {
     const slot = this.statusTarget();
     const next = this.statusNext();
-    if (!slot || !next) return { title: 'Cambiar estado', body: '', requiresExtraConfirm: false };
+    if (!slot || !next) {
+      return { body: "", requiresExtraConfirm: false, title: "Cambiar estado" };
+    }
     return getStatusModalCopy(slot.status, next, slot.hasTicket ?? false);
   });
 
@@ -79,22 +89,32 @@ export class SlotStatusState {
   confirmStatusChange(parkingId: string): void {
     const slot = this.statusTarget();
     const next = this.statusNext();
-    if (!slot || !next) return;
+    if (!slot || !next) {
+      return;
+    }
 
-    this.slotsService.update({
-      id: slot.id,
-      parkingLotId: parkingId,
-      slotNumber: slot.slotNumber,
-      status: next,
-      type: slot.type,
-    }).subscribe({
-      next: () => {
-        this.toast.showToast({ message: 'Estado actualizado', type: 'success' });
-        this.closeStatusModal();
-      },
-      error: () => {
-        this.toast.showToast({ message: 'Error al actualizar estado', type: 'error' });
-      },
-    });
+    this.slotsService
+      .update({
+        id: slot.id,
+        parkingLotId: parkingId,
+        slotNumber: slot.slotNumber,
+        status: next,
+        type: slot.type,
+      })
+      .subscribe({
+        error: () => {
+          this.toast.showToast({
+            message: "Error al actualizar estado",
+            type: "error",
+          });
+        },
+        next: () => {
+          this.toast.showToast({
+            message: "Estado actualizado",
+            type: "success",
+          });
+          this.closeStatusModal();
+        },
+      });
   }
 }

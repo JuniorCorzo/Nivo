@@ -1,8 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 
-import { ActionsColumn } from './actions-column';
+import { ActionsColumn } from "./actions-column";
 
-describe('ActionsColumn', () => {
+describe("ActionsColumn", () => {
   let component: ActionsColumn;
   let fixture: ComponentFixture<ActionsColumn>;
 
@@ -16,7 +17,7 @@ describe('ActionsColumn', () => {
     await fixture.whenStable();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

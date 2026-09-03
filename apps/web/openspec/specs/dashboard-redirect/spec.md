@@ -1,8 +1,11 @@
 # dashboard-redirect Specification
 
 ## Purpose
+
 TBD - created by archiving change auth-ui-flow. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Redirección automática post-autenticación
 
 El sistema SHALL redirigir automáticamente al usuario al panel de control correspondiente inmediatamente después de una autenticación exitosa (login o registro), sin requerir acción adicional del usuario.
@@ -49,4 +52,3 @@ El sistema SHALL presentar una pantalla de bienvenida básica al panel de contro
 
 - **WHEN** el usuario llega al panel pero los datos del parqueadero no han cargado aún
 - **THEN** el sistema SHALL mostrar un estado de carga (skeleton o spinner) mientras los datos se obtienen
-

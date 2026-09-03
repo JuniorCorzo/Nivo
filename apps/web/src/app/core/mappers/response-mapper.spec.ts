@@ -1,16 +1,12 @@
-import { TestBed } from '@angular/core/testing';
+import { mapResponseError } from "./response.mapper";
 
-import { ResponseMapper } from './response.mapper';
-
-describe('ResponseMapper', () => {
-  let service: ResponseMapper;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(ResponseMapper);
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+describe("ResponseMapper", () => {
+  it("should map response error when valid", () => {
+    const res = mapResponseError({
+      code: "400",
+      error: "Bad Request",
+      status: "400",
+    });
+    expect(res).toBeTruthy();
   });
 });

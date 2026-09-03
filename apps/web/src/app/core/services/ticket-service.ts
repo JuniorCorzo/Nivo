@@ -1,27 +1,29 @@
-import { HttpContext } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-
-import { ParkingTicketsService, RatesService } from '@core/api/generated/services';
-import { AUTHORIZED } from '@core/http/context/auth.token';
+import { HttpContext } from "@angular/common/http";
+import { inject, Injectable, signal } from "@angular/core";
 import {
-  CheckOutPayload,
-  CreateTicketPayload,
-  PaymentRecord,
-  PriceDetailedModel,
-  TicketSummary,
-} from '@core/models/ticket.model';
+  ParkingTicketsService,
+  RatesService,
+} from "@core/api/generated/services";
+import { AUTHORIZED } from "@core/http/context/auth.token";
 import {
   mapToCheckOutCommand,
   mapToCreateTicketDto,
   mapToPaymentRecord,
   mapToPriceDetailedModel,
   mapToTicketSummary,
-} from '@core/mappers/ticket.mapper';
+} from "@core/mappers/ticket.mapper";
+import type {
+  CheckOutPayload,
+  CreateTicketPayload,
+  PaymentRecord,
+  PriceDetailedModel,
+  TicketSummary,
+} from "@core/models/ticket.model";
+import type { Observable } from "rxjs";
+import { map, tap } from "rxjs/operators";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class TicketService {
   private readonly parkingTicketsService = inject(ParkingTicketsService);
@@ -30,11 +32,11 @@ export class TicketService {
   private readonly _activeTickets = signal<TicketSummary[]>([]);
   readonly activeTickets = this._activeTickets.asReadonly();
 
-  private httpContext = () => {
+  private static httpContext() {
     const context = new HttpContext();
     context.set(AUTHORIZED, true);
     return context;
-  };
+  }
 
   /**
    * Register a new vehicle entry and issue a ticket
@@ -43,13 +45,18 @@ export class TicketService {
     const dto = mapToCreateTicketDto(payload);
 
     return this.parkingTicketsService
-      .createTicket({ body: dto }, this.httpContext())
+      .createTicket({ body: dto }, TicketService.httpContext())
       .pipe(
-        map((response) => mapToTicketSummary(response.data!)),
+        map((response) => {
+          /* SAFETY: Created ticket response data is defined */
+          const data = response.data as Parameters<
+            typeof mapToTicketSummary
+          >[0];
+          return mapToTicketSummary(data);
+        }),
         tap((newTicket) => {
           this._activeTickets.update((tickets) => [newTicket, ...tickets]);
-        }),
-        catchError((error) => throwError(() => error)),
+        })
       );
   }
 
@@ -58,10 +65,15 @@ export class TicketService {
    */
   getActiveTicketBySlot(slotId: string): Observable<TicketSummary> {
     return this.parkingTicketsService
-      .getActiveTicket({ slot: slotId }, this.httpContext())
+      .getActiveTicket({ slot: slotId }, TicketService.httpContext())
       .pipe(
-        map((response) => mapToTicketSummary(response.data!)),
-        catchError((error) => throwError(() => error)),
+        map((response) => {
+          /* SAFETY: Active ticket response data is defined */
+          const data = response.data as Parameters<
+            typeof mapToTicketSummary
+          >[0];
+          return mapToTicketSummary(data);
+        })
       );
   }
 
@@ -70,10 +82,15 @@ export class TicketService {
    */
   calculatePrice(ticketId: string): Observable<PriceDetailedModel> {
     return this.ratesService
-      .calculatePrice({ ticketId }, this.httpContext())
+      .calculatePrice({ ticketId }, TicketService.httpContext())
       .pipe(
-        map((response) => mapToPriceDetailedModel(response.data!)),
-        catchError((error) => throwError(() => error)),
+        map((response) => {
+          /* SAFETY: Calculate price response data is defined */
+          const data = response.data as Parameters<
+            typeof mapToPriceDetailedModel
+          >[0];
+          return mapToPriceDetailedModel(data);
+        })
       );
   }
 
@@ -84,15 +101,20 @@ export class TicketService {
     const command = mapToCheckOutCommand(payload);
 
     return this.parkingTicketsService
-      .checkOutVehicle({ body: command }, this.httpContext())
+      .checkOutVehicle({ body: command }, TicketService.httpContext())
       .pipe(
-        map((response) => mapToPaymentRecord(response.data!)),
-        tap((payment) => {
-          this._activeTickets.update((tickets) =>
-            tickets.filter((t) => t.id !== payload.ticketId),
-          );
+        map((response) => {
+          /* SAFETY: Check-out response data is defined */
+          const data = response.data as Parameters<
+            typeof mapToPaymentRecord
+          >[0];
+          return mapToPaymentRecord(data);
         }),
-        catchError((error) => throwError(() => error)),
+        tap(() => {
+          this._activeTickets.update((tickets) =>
+            tickets.filter((t) => t.id !== payload.ticketId)
+          );
+        })
       );
   }
 
@@ -107,6 +129,8 @@ export class TicketService {
    * Helper to remove closed ticket from local active list
    */
   removeActiveTicket(ticketId: string): void {
-    this._activeTickets.update((tickets) => tickets.filter((t) => t.id !== ticketId));
+    this._activeTickets.update((tickets) =>
+      tickets.filter((t) => t.id !== ticketId)
+    );
   }
 }

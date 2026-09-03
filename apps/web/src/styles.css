@@ -1,6 +1,6 @@
-@import '@nivo-sass/design-system/styles/tokens.css';
-@import '@nivo-sass/design-system/styles/components.css';
-@import 'tailwindcss';
+@import "@nivo-sass/design-system/styles/tokens.css";
+@import "@nivo-sass/design-system/styles/components.css";
+@import "tailwindcss";
 
 @theme inline {
   --color-background: var(--background);
@@ -36,11 +36,11 @@
   }
 
   .font-sans {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: "Inter", system-ui, sans-serif;
   }
 
   .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: "JetBrains Mono", monospace;
   }
 }
 

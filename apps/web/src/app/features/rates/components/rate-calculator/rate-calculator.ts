@@ -1,24 +1,20 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {
-  InputComponent,
-  SelectComponent,
-} from '@nivo-sass/design-system';
-import { RateService } from '@core/services/rate-service';
-import { RatePreviewComponent } from './rate-preview';
-import { TimeUnit, VehicleType } from '@core/models/rate.model';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCalculator } from '@ng-icons/lucide';
+import { CommonModule } from "@angular/common";
+import { Component, computed, inject, signal } from "@angular/core";
+import type { TimeUnit, VehicleType } from "@core/models/rate.model";
+import { RateService } from "@core/services/rate-service";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucideCalculator } from "@ng-icons/lucide";
+import { InputComponent, SelectComponent } from "@nivo-sass/design-system";
+
 import {
   TIME_UNIT_OPTIONS,
   VEHICLE_TYPE_OPTIONS,
   displayOptionFn,
   valueOptionFn,
-} from '../../shared/rate-presentations';
+} from "../../shared/rate-presentations";
+import { RatePreviewComponent } from "./rate-preview";
 
 @Component({
-  selector: 'app-rate-calculator',
-  standalone: true,
   imports: [
     CommonModule,
     InputComponent,
@@ -27,20 +23,30 @@ import {
     NgIcon,
   ],
   providers: [provideIcons({ lucideCalculator })],
+  selector: "app-rate-calculator",
+  standalone: true,
   template: `
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 items-start">
-      <div class="rounded-2xl bg-card text-card-foreground border border-border p-5 sm:p-6 shadow-xs flex flex-col gap-4">
-        <div class="flex items-center gap-3 border-b border-border pb-3">
-          <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+    <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+      <div
+        class="bg-card text-card-foreground border-border flex flex-col gap-4 rounded-2xl border p-5 shadow-xs sm:p-6"
+      >
+        <div class="border-border flex items-center gap-3 border-b pb-3">
+          <div
+            class="bg-primary/10 text-primary border-primary/20 flex h-9 w-9 items-center justify-center rounded-xl border"
+          >
             <ng-icon name="lucideCalculator" class="text-base" />
           </div>
           <div>
-            <h3 class="text-base font-bold text-foreground">Calculadora interactiva de tarifas</h3>
-            <p class="text-xs text-muted-foreground">Ingresá los parámetros de estancia para simular el cobro</p>
+            <h3 class="text-foreground text-base font-bold">
+              Calculadora interactiva de tarifas
+            </h3>
+            <p class="text-muted-foreground text-xs">
+              Ingresá los parámetros de estancia para simular el cobro
+            </p>
           </div>
         </div>
 
-        <div class="flex flex-col gap-4 mt-1">
+        <div class="mt-1 flex flex-col gap-4">
           <nv-select
             class="w-full"
             label="Tipo de vehículo"
@@ -88,8 +94,8 @@ import {
 export class RateCalculatorComponent {
   private readonly rateService = inject(RateService);
 
-  readonly vehicleType = signal<VehicleType>('CAR');
-  readonly timeUnit = signal<TimeUnit>('HOURS');
+  readonly vehicleType = signal<VehicleType>("CAR");
+  readonly timeUnit = signal<TimeUnit>("HOURS");
   readonly basePrice = signal(5000);
   readonly durationMinutes = signal(90);
 
@@ -99,27 +105,35 @@ export class RateCalculatorComponent {
   readonly valueOptionFn = valueOptionFn;
 
   readonly simulation = computed(() =>
-    this.rateService.simulateCalculation({
+    RateService.simulateCalculation({
       basePrice: this.basePrice(),
-      timeUnit: this.timeUnit(),
       durationInMinutes: this.durationMinutes(),
-    }),
+      timeUnit: this.timeUnit(),
+    })
   );
 
-  onVehicleTypeChange(val: any): void {
-    if (val) this.vehicleType.set(val as VehicleType);
+  onVehicleTypeChange(val: string | null | undefined): void {
+    if (val) {
+      /* SAFETY: Value matches VehicleType union */
+      this.vehicleType.set(val as VehicleType);
+    }
   }
 
-  onTimeUnitChange(val: any): void {
-    if (val) this.timeUnit.set(val as TimeUnit);
+  onTimeUnitChange(val: string | null | undefined): void {
+    if (val) {
+      /* SAFETY: Value matches TimeUnit union */
+      this.timeUnit.set(val as TimeUnit);
+    }
   }
 
   onBasePriceInput(event: Event): void {
+    /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
     this.basePrice.set(target.valueAsNumber || 0);
   }
 
   onDurationInput(event: Event): void {
+    /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
     this.durationMinutes.set(target.valueAsNumber || 0);
   }

@@ -1,13 +1,15 @@
-import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
-import { ToastService } from '@nivo-sass/design-system';
+import { TestBed } from "@angular/core/testing";
+import { ActivatedRoute, Router, convertToParamMap } from "@angular/router";
+import type { ParkingLotListItemModel } from "@core/models/parking.model";
+import type { RateModel } from "@core/models/rate.model";
+import { ParkingService } from "@core/services/parking-service";
+import { RateService } from "@core/services/rate-service";
+import { ToastService } from "@nivo-sass/design-system";
+import { of } from "rxjs";
 
-import { RateFormFacade } from './rate-form.facade';
-import { RateService } from '@core/services/rate-service';
-import { ParkingService } from '@core/services/parking-service';
+import { RateFormFacade } from "./rate-form.facade";
 
-describe('RateFormFacade', () => {
+describe("RateFormFacade", () => {
   let facade: RateFormFacade;
   let rateServiceSpy: jasmine.SpyObj<RateService>;
   let parkingServiceSpy: jasmine.SpyObj<ParkingService>;
@@ -15,36 +17,45 @@ describe('RateFormFacade', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
-    rateServiceSpy = jasmine.createSpyObj('RateService', [
-      'getRatesByParkingId',
-      'loadSpecialPolicies',
-      'createRate',
-      'updateRate',
-      'deleteRate',
-      'simulateCalculation',
-    ], {
-      ratesByParking: () => ({ 'parking-1': [] }),
-      specialPolicies: () => [],
+    rateServiceSpy = jasmine.createSpyObj(
+      "RateService",
+      [
+        "createRate",
+        "updateRate",
+        "getRateById",
+        "getRatesByParkingId",
+        "loadSpecialPolicies",
+        "specialPolicies",
+      ],
+      {
+        specialPolicies: () => [],
+      }
+    );
+    const mockLot: ParkingLotListItemModel = {
+      address: {
+        city: "Bogota",
+        country: "Colombia",
+        state: "Cundinamarca",
+        street: "Calle 1",
+        zipCode: "110111",
+      },
+      coordinates: { latitude: 4.6, longitude: -74 },
+      createdAt: "",
+      currency: "COP",
+      id: "parking-1",
+      name: "Centro",
+      occuppationRate: 0,
+      ownerName: "Admin",
+      slotDistribution: [],
+      totalCapacity: 100,
+      updatedAt: "",
+    };
+    parkingServiceSpy = jasmine.createSpyObj("ParkingService", [], {
+      parkingLots: () => [mockLot],
     });
 
-    rateServiceSpy.getRatesByParkingId.and.returnValue(of([]));
-    rateServiceSpy.loadSpecialPolicies.and.returnValue(of([]));
-    rateServiceSpy.simulateCalculation.and.returnValue({
-      basePrice: 5000,
-      timeUnit: 'HOURS',
-      durationInMinutes: 120,
-      unitsCalculated: 2,
-      subtotal: 10000,
-      discountOrSurcharge: 0,
-      total: 10000,
-    });
-
-    parkingServiceSpy = jasmine.createSpyObj('ParkingService', [], {
-      parkingLots: () => [{ id: 'parking-1', name: 'Centro' } as any],
-    });
-
-    toastSpy = jasmine.createSpyObj('ToastService', ['showToast']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    toastSpy = jasmine.createSpyObj("ToastService", ["showToast"]);
+    routerSpy = jasmine.createSpyObj("Router", ["navigate"]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -52,7 +63,7 @@ describe('RateFormFacade', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            paramMap: of(convertToParamMap({ parkingId: 'parking-1' })),
+            paramMap: of(convertToParamMap({ parkingId: "parking-1" })),
           },
         },
         { provide: RateService, useValue: rateServiceSpy },
@@ -65,36 +76,48 @@ describe('RateFormFacade', () => {
     facade = TestBed.inject(RateFormFacade);
   });
 
-  it('should initialize in create mode', () => {
-    expect(facade.mode()).toBe('create');
-    expect(facade.parkingId()).toBe('parking-1');
+  it("should initialize in create mode", () => {
+    expect(facade.mode()).toBe("create");
+    expect(facade.parkingId()).toBe("parking-1");
   });
 
-  it('should validate form correctly', () => {
-    facade.form.name.set('Tarifa Carro');
-    facade.form.description.set('Tarifa por hora');
+  it("should validate form correctly", () => {
+    facade.form.name.set("Tarifa Carro");
+    facade.form.description.set("Tarifa por hora");
     facade.form.pricePerUnit.set(3000);
     facade.form.minChargeTimeMinutes.set(10);
     expect(facade.isValid()).toBe(true);
 
-    facade.form.description.set('');
+    facade.form.description.set("");
     expect(facade.isValid()).toBe(false);
 
-    facade.form.description.set('Tarifa por hora');
+    facade.form.description.set("Tarifa por hora");
     facade.form.pricePerUnit.set(0);
     expect(facade.isValid()).toBe(false);
   });
 
-  it('should calculate live simulation correctly via computed signal', () => {
+  it("should calculate live simulation correctly via computed signal", () => {
     const sim = facade.simulation();
-    expect(sim.total).toBe(10000);
+    expect(sim.total).toBe(10_000);
   });
 
-  it('should submit create rate using mapper payload', () => {
-    rateServiceSpy.createRate.and.returnValue(of({ id: 'new-rate' } as any));
+  it("should submit create rate using mapper payload", () => {
+    const mockCreatedRate: RateModel = {
+      createdAt: "",
+      description: "",
+      id: "new-rate",
+      minChargeTimeMinutes: 15,
+      name: "Tarifa Plena",
+      parkingId: "parking-1",
+      pricePerUnit: 5000,
+      timeUnit: "HOURS",
+      updatedAt: "",
+      vehicleType: "CAR",
+    };
+    rateServiceSpy.createRate.and.returnValue(of(mockCreatedRate));
 
-    facade.form.name.set('Tarifa Plena');
-    facade.form.description.set('Tarifa estándar');
+    facade.form.name.set("Tarifa Plena");
+    facade.form.description.set("Tarifa estándar");
     facade.form.pricePerUnit.set(5000);
     facade.form.minChargeTimeMinutes.set(15);
 
@@ -102,16 +125,15 @@ describe('RateFormFacade', () => {
 
     expect(rateServiceSpy.createRate).toHaveBeenCalledWith(
       jasmine.objectContaining({
-        parkingId: 'parking-1',
-        name: 'Tarifa Plena',
-        description: 'Tarifa estándar',
-        pricePerUnit: 5000,
+        description: "Tarifa estándar",
         minChargeTimeMinutes: 15,
-      }),
+        name: "Tarifa Plena",
+        parkingId: "parking-1",
+        pricePerUnit: 5000,
+      })
     );
     expect(toastSpy.showToast).toHaveBeenCalledWith(
-      jasmine.objectContaining({ type: 'success' }),
+      jasmine.objectContaining({ type: "success" })
     );
   });
 });
-

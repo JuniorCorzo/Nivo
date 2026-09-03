@@ -1,29 +1,36 @@
-import { afterNextRender, Component, ElementRef, input, OnDestroy, output, viewChild } from '@angular/core';
-import { ButtonComponent, TypographyH3 } from '@nivo-sass/design-system';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideX } from '@ng-icons/lucide';
+import type { ElementRef, OnDestroy } from "@angular/core";
+import {
+  afterNextRender,
+  Component,
+  input,
+  output,
+  viewChild,
+} from "@angular/core";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucideX } from "@ng-icons/lucide";
+import { ButtonComponent, TypographyH3 } from "@nivo-sass/design-system";
 
 @Component({
-  selector: 'app-slot-delete-modal',
-  standalone: true,
   imports: [ButtonComponent, TypographyH3, NgIcon],
   providers: [provideIcons({ lucideX })],
-  templateUrl: './slot-delete-modal.html',
-  styleUrl: './slot-delete-modal.css',
+  selector: "app-slot-delete-modal",
+  standalone: true,
+  styleUrl: "./slot-delete-modal.css",
+  templateUrl: "./slot-delete-modal.html",
 })
 export class SlotDeleteModal implements OnDestroy {
   readonly copy = input.required<string>();
   readonly requiresConfirm = input.required<boolean>();
   readonly confirmChecked = input.required<boolean>();
 
-  readonly confirm = output<void>();
-  readonly cancel = output<void>();
+  readonly confirm = output();
+  readonly cancel = output();
   readonly confirmCheckedChange = output<boolean>();
 
-  protected readonly titleId = 'delete-slot-title';
-  protected readonly descriptionId = 'delete-slot-description';
+  protected readonly titleId = "delete-slot-title";
+  protected readonly descriptionId = "delete-slot-description";
 
-  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
+  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>("dialog");
 
   constructor() {
     afterNextRender(() => {
@@ -37,7 +44,8 @@ export class SlotDeleteModal implements OnDestroy {
   }
 
   protected onConfirmCheckedChange(event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
+    /* SAFETY: Event target of checkbox input change is HTMLInputElement */
+    const { checked } = event.target as HTMLInputElement;
     this.confirmCheckedChange.emit(checked);
   }
 

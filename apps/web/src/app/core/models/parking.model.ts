@@ -1,10 +1,11 @@
-import { BaseModel } from '@core/models/base.model';
-import { Address } from '@core/type/address.type';
-import { OperatingHours } from '@core/type/operating-hours.type';
-import { UserInfoModel } from './user.model';
-import { TenantInfoModel } from './tenants.model';
-import { Coordinates } from '@core/type/coordinates.type';
-import { SlotDistribution } from '@core/type/slot-distribution.type';
+import type { BaseModel } from "@core/models/base.model";
+import type { Address } from "@core/type/address.type";
+import type { Coordinates } from "@core/type/coordinates.type";
+import type { OperatingHours } from "@core/type/operating-hours.type";
+import type { SlotDistribution } from "@core/type/slot-distribution.type";
+
+import type { TenantInfoModel } from "./tenants.model";
+import type { UserInfoModel } from "./user.model";
 
 export type ParkingLotsModel = BaseModel & {
   name: string;
@@ -17,7 +18,7 @@ export type ParkingLotsModel = BaseModel & {
   tenant: TenantInfoModel;
 };
 
-export type ParkingLotListItemModel = {
+export interface ParkingLotListItemModel {
   address: Address;
   coordinates: Coordinates;
   createdAt: string;
@@ -30,9 +31,9 @@ export type ParkingLotListItemModel = {
   totalCapacity: number;
   updatedAt: string;
   operatingHours?: OperatingHours;
-};
+}
 
-export type UpsertParkingLotsModel = {
+export interface UpsertParkingLotsModel {
   id?: string;
   name: string;
   coordinates: Coordinates;
@@ -41,4 +42,4 @@ export type UpsertParkingLotsModel = {
   timezone: string;
   operatingHours: OperatingHours;
   slots?: SlotDistribution[];
-};
+}

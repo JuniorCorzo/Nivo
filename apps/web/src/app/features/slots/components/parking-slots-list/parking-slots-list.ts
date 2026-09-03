@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { Component, inject } from "@angular/core";
+import { RouterLink } from "@angular/router";
+import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideArrowLeft,
   lucideChevronLeft,
@@ -18,7 +18,7 @@ import {
   lucideBike,
   lucideParkingSquare,
   lucideAlertTriangle,
-} from '@ng-icons/lucide';
+} from "@ng-icons/lucide";
 import {
   ButtonComponent,
   SelectComponent,
@@ -29,25 +29,30 @@ import {
   TableHeaderComponent,
   TableRowComponent,
   InputComponent,
-} from '@nivo-sass/design-system';
-import { FlexRender } from '@tanstack/angular-table';
+} from "@nivo-sass/design-system";
+import { APP_ROUTES } from "@shared/constants/app-routes.constant";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
+import { FlexRender } from "@tanstack/angular-table";
 
-import { APP_ROUTES } from '@shared/constants/app-routes.constant';
-import { APP_TEXTS } from '@shared/constants/app-texts.constant';
-import { SLOT_TYPE_LABELS } from '../../shared/parking-slot-presentations';
-import { ParkingSlotsListFacade, getHistoryCopy } from './parking-slots-list.facade';
-import { SlotsTableState } from './slots-table.state';
-import { SlotsSelectionState } from './slots-selection.state';
-import { SlotDeleteState } from '../slot-delete-modal/slots-delete.state';
-import { SlotStatusState } from '../slot-status-modal/slot-status.state';
-import { SlotDeleteModal } from '../slot-delete-modal/slot-delete-modal';
-import { SlotStatusModal } from '../slot-status-modal/slot-status-modal';
-import { SlotDetailDrawer } from '../slot-detail-drawer/slot-detail-drawer';
-import { PaginationTable } from '@/app/shared/components/pagination-table/pagination-table';
+import { PaginationTable } from "@/app/shared/components/pagination-table/pagination-table";
+
+import { SLOT_TYPE_LABELS } from "../../shared/parking-slot-presentations";
+import { SlotDeleteModal } from "../slot-delete-modal/slot-delete-modal";
+import { SlotDeleteState } from "../slot-delete-modal/slots-delete.state";
+import { SlotDetailDrawer } from "../slot-detail-drawer/slot-detail-drawer";
+import { SlotStatusModal } from "../slot-status-modal/slot-status-modal";
+import { SlotStatusState } from "../slot-status-modal/slot-status.state";
+import {
+  ParkingSlotsListFacade,
+  getHistoryCopy,
+} from "./parking-slots-list.facade";
+import { SlotsSelectionState } from "./slots-selection.state";
+import { SlotsTableState } from "./slots-table.state";
 
 @Component({
-  selector: 'app-parking-slots-list',
-  standalone: true,
+  host: {
+    class: "block w-full",
+  },
   imports: [
     RouterLink,
     NgIcon,
@@ -73,28 +78,27 @@ import { PaginationTable } from '@/app/shared/components/pagination-table/pagina
     SlotStatusState,
     ParkingSlotsListFacade,
     provideIcons({
+      lucideAlertTriangle,
       lucideArrowLeft,
+      lucideBike,
+      lucideCar,
       lucideChevronLeft,
       lucideChevronRight,
       lucideEye,
       lucideFilterX,
       lucideInbox,
+      lucideParkingSquare,
       lucidePencil,
       lucidePlus,
       lucideSearch,
       lucideToggleLeft,
       lucideTrash2,
       lucideX,
-      lucideCar,
-      lucideBike,
-      lucideParkingSquare,
-      lucideAlertTriangle,
     }),
   ],
-  templateUrl: './parking-slots-list.html',
-  host: {
-    class: 'block w-full',
-  },
+  selector: "app-parking-slots-list",
+  standalone: true,
+  templateUrl: "./parking-slots-list.html",
 })
 export class ParkingSlotsListPage {
   protected readonly facade = inject(ParkingSlotsListFacade);

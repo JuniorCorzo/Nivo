@@ -1,82 +1,68 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideArrowLeft,
-  lucideBike,
-  lucideBuilding2,
-  lucideCalendar,
-  lucideCar,
-  lucideClock,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from "@angular/core";
+import { Router } from "@angular/router";
+import type { ParkingLotListItemModel } from "@core/models/parking.model";
+import { ActiveParkingService } from "@core/services/active-parking.service";
+import { ParkingService } from "@core/services/parking-service";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import {
   lucideCoins,
-  lucideLayers,
   lucideLogIn,
   lucideMapPin,
   lucideParkingSquare,
   lucidePencil,
   lucidePlus,
-  lucideShieldCheck,
-  lucideSparkles,
   lucideTrash2,
-} from '@ng-icons/lucide';
+} from "@ng-icons/lucide";
 import {
-  BadgeComponent,
   ButtonComponent,
   CardComponent,
   ToastService,
-  TypographyH2,
-  TypographyMono,
-  TypographyMuted,
-  TypographyP,
-} from '@nivo-sass/design-system';
-import { ParkingLotListItemModel } from '@core/models/parking.model';
-import { SlotDistribution } from '@core/type/slot-distribution.type';
-import { ActiveParkingService } from '@core/services/active-parking.service';
-import { ParkingService } from '@core/services/parking-service';
-import { APP_ROUTES } from '@shared/constants/app-routes.constant';
-import { APP_TEXTS } from '@shared/constants/app-texts.constant';
-import { DeleteParkingModal } from '@shared/components/delete-parking-modal/delete-parking-modal';
-import { ParkingLotSelector } from '../parking-lot-selector/parking-lot-selector';
-import { ParkingMapComponent } from '../parking-map/parking-map';
+} from "@nivo-sass/design-system";
+import { DeleteParkingModal } from "@shared/components/delete-parking-modal/delete-parking-modal";
+import { APP_ROUTES } from "@shared/constants/app-routes.constant";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
+
+import { ParkingEmptyState } from "../parking-empty-state/parking-empty-state";
+import { ParkingGeneralInfo } from "../parking-general-info/parking-general-info";
+import { ParkingLotSelector } from "../parking-lot-selector/parking-lot-selector";
+import { ParkingMapComponent } from "../parking-map/parking-map";
+import { ParkingSlotDistribution } from "../parking-slot-distribution/parking-slot-distribution";
+import { ParkingStatsGrid } from "../parking-stats-grid/parking-stats-grid";
 
 @Component({
-  selector: 'app-parking-home-mobile',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     NgIcon,
-    BadgeComponent,
     ButtonComponent,
     CardComponent,
-    TypographyH2,
-    TypographyMono,
-    TypographyMuted,
-    TypographyP,
     ParkingLotSelector,
     ParkingMapComponent,
     DeleteParkingModal,
+    ParkingStatsGrid,
+    ParkingGeneralInfo,
+    ParkingSlotDistribution,
+    ParkingEmptyState,
   ],
   providers: [
     provideIcons({
-      lucideArrowLeft,
-      lucidePencil,
-      lucideTrash2,
-      lucideLogIn,
       lucideCoins,
-      lucideParkingSquare,
+      lucideLogIn,
       lucideMapPin,
-      lucideCalendar,
-      lucideClock,
-      lucideCar,
-      lucideBike,
-      lucideLayers,
-      lucideShieldCheck,
-      lucideSparkles,
+      lucideParkingSquare,
+      lucidePencil,
       lucidePlus,
-      lucideBuilding2,
+      lucideTrash2,
     }),
   ],
-  templateUrl: './parking-home-mobile.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-parking-home-mobile",
+  standalone: true,
+  templateUrl: "./parking-home-mobile.html",
 })
 export class ParkingHomeMobile {
   protected readonly LABELS = APP_TEXTS.parking;
@@ -91,47 +77,28 @@ export class ParkingHomeMobile {
   private readonly activeParkingService = inject(ActiveParkingService);
   private readonly toastService = inject(ToastService, { optional: true });
 
-  public readonly activeParkingLot = computed<ParkingLotListItemModel | null>(() => {
-    return this.activeParkingService.activeParkingLot();
-  });
+  public readonly activeParkingLot = computed<ParkingLotListItemModel | null>(
+    () => this.activeParkingService.activeParkingLot()
+  );
 
   public readonly totalSlots = computed(() => {
     const p = this.activeParkingLot();
-    if (!p) return 0;
+    if (!p) {
+      return 0;
+    }
     return (p.slotDistribution ?? []).reduce((sum, s) => sum + s.count, 0);
   });
 
-  public readonly occupiedSlots = computed(() => {
-    return Math.round((this.totalSlots() * (this.activeParkingLot()?.occuppationRate || 0)) / 100);
-  });
+  public readonly occupiedSlots = computed(() =>
+    Math.round(
+      (this.totalSlots() * (this.activeParkingLot()?.occuppationRate || 0)) /
+        100
+    )
+  );
 
-  public readonly availableSlots = computed(() => {
-    return Math.max(0, this.totalSlots() - this.occupiedSlots());
-  });
-
-  public readonly addressLine = computed(() => {
-    const p = this.activeParkingLot();
-    if (!p || !p.address) return '';
-    const { street, city, state } = p.address;
-    return [street, city, state].filter(Boolean).join(', ');
-  });
-
-  public readonly addressSubline = computed(() => {
-    const p = this.activeParkingLot();
-    if (!p || !p.address) return '';
-    const { country, zipCode } = p.address;
-    return [country, zipCode].filter(Boolean).join(' · ');
-  });
-
-  public readonly formattedCoords = computed(() => {
-    const p = this.activeParkingLot();
-    if (!p || !p.coordinates) return '';
-    return `${p.coordinates.latitude}, ${p.coordinates.longitude}`;
-  });
-
-  public readonly slotLabel = (slot: SlotDistribution): string => {
-    return [slot.zone, slot.type].filter(Boolean).join(' · ').toUpperCase();
-  };
+  public readonly availableSlots = computed(() =>
+    Math.max(0, this.totalSlots() - this.occupiedSlots())
+  );
 
   public onCreateParking(): void {
     this.router.navigate([APP_ROUTES.app.createParkingLots]);
@@ -139,50 +106,62 @@ export class ParkingHomeMobile {
 
   public onEdit(): void {
     const p = this.activeParkingLot();
-    if (!p) return;
+    if (!p) {
+      return;
+    }
     this.router.navigate([APP_ROUTES.app.editParkingLots(p.id)]);
   }
 
   public onManageSlots(): void {
     const p = this.activeParkingLot();
-    if (!p) return;
+    if (!p) {
+      return;
+    }
     this.router.navigate([APP_ROUTES.app.parkingLotSlots(p.id)]);
   }
 
   public onManageRates(): void {
     const p = this.activeParkingLot();
-    if (!p) return;
+    if (!p) {
+      return;
+    }
     this.router.navigate([APP_ROUTES.app.parkingLotRates(p.id)]);
   }
 
   public onManageOperations(): void {
     const p = this.activeParkingLot();
-    if (!p) return;
+    if (!p) {
+      return;
+    }
     this.router.navigate([APP_ROUTES.app.parkingLotOperations(p.id)]);
   }
 
   public onDeleteClick(): void {
     const p = this.activeParkingLot();
-    if (!p) return;
+    if (!p) {
+      return;
+    }
     this.selectedParkingId.set(p.id);
     this.isDeleteModalOpen.set(true);
   }
 
   public onDeleteConfirm(): void {
     const id = this.selectedParkingId();
-    if (!id) return;
+    if (!id) {
+      return;
+    }
     this.parkingService.delete(id).subscribe({
-      next: () => {
+      error: () => {
         this.toastService?.showToast({
-          type: 'success',
-          message: APP_TEXTS.parking.messages.deleted,
+          message: APP_TEXTS.parking.messages.errors.notFound,
+          type: "error",
         });
         this.closeDeleteModal();
       },
-      error: () => {
+      next: () => {
         this.toastService?.showToast({
-          type: 'error',
-          message: APP_TEXTS.parking.messages.errors.notFound,
+          message: APP_TEXTS.parking.messages.deleted,
+          type: "success",
         });
         this.closeDeleteModal();
       },

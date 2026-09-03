@@ -1,16 +1,14 @@
-import { TestBed } from '@angular/core/testing';
+import { mapToTenantInfoModel } from "./tenant.mapper";
 
-import { TenantMapper } from './tenant.mapper';
-
-describe('TenantMapper', () => {
-  let service: TenantMapper;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(TenantMapper);
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+describe("TenantMapper", () => {
+  it("should map TenantInfoModel", () => {
+    const res = mapToTenantInfoModel({
+      companyName: "ACME",
+      id: "tenant-1",
+    });
+    expect(res).toEqual({
+      companyName: "ACME",
+      id: "tenant-1",
+    });
   });
 });

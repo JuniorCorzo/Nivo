@@ -1,62 +1,63 @@
-import { mapToSlotSummary } from './slot-service';
-import { SlotSummaryResponse } from '@core/api/generated/models';
+import type { SlotSummaryResponse } from "@core/api/generated/models";
 
-describe('mapToSlotSummary', () => {
-  it('should map hasTicket and hasHistory when true', () => {
+import { mapToSlotSummary } from "./slot-service";
+
+describe("mapToSlotSummary", () => {
+  it("should map hasTicket and hasHistory when true", () => {
     const api: SlotSummaryResponse = {
-      id: 'abc',
-      parkingName: 'Test',
-      numberSlot: '001',
-      prefix: 'P',
-      zone: 'A',
-      type: 'CAR',
-      status: 'OCCUPIED',
-      hasTicket: true,
       hasHistory: true,
+      hasTicket: true,
+      id: "abc",
+      numberSlot: "001",
+      parkingName: "Test",
+      prefix: "P",
+      status: "OCCUPIED",
+      type: "CAR",
+      zone: "A",
     };
 
     const result = mapToSlotSummary(api);
 
     expect(result.hasTicket).toBe(true);
     expect(result.hasHistory).toBe(true);
-    expect(result.status).toBe('OCCUPIED');
+    expect(result.status).toBe("OCCUPIED");
   });
 
-  it('should map hasTicket and hasHistory when false', () => {
+  it("should map hasTicket and hasHistory when false", () => {
     const api: SlotSummaryResponse = {
-      id: 'abc',
-      parkingName: 'Test',
-      numberSlot: '002',
-      prefix: 'Q',
-      zone: 'B',
-      type: 'MOTORCYCLE',
-      status: 'AVAILABLE',
-      hasTicket: false,
       hasHistory: false,
+      hasTicket: false,
+      id: "abc",
+      numberSlot: "002",
+      parkingName: "Test",
+      prefix: "Q",
+      status: "AVAILABLE",
+      type: "MOTORCYCLE",
+      zone: "B",
     };
 
     const result = mapToSlotSummary(api);
 
     expect(result.hasTicket).toBe(false);
     expect(result.hasHistory).toBe(false);
-    expect(result.status).toBe('AVAILABLE');
+    expect(result.status).toBe("AVAILABLE");
   });
 
-  it('should default hasTicket/hasHistory to false when undefined', () => {
+  it("should default hasTicket/hasHistory to false when undefined", () => {
     const api: SlotSummaryResponse = {
-      id: 'abc',
-      parkingName: 'Test',
-      numberSlot: '003',
-      prefix: 'R',
-      zone: 'C',
-      type: 'BIKE',
-      status: 'MAINTENANCE',
+      id: "abc",
+      numberSlot: "003",
+      parkingName: "Test",
+      prefix: "R",
+      status: "MAINTENANCE",
+      type: "BIKE",
+      zone: "C",
     };
 
     const result = mapToSlotSummary(api);
 
     expect(result.hasTicket).toBe(false);
     expect(result.hasHistory).toBe(false);
-    expect(result.status).toBe('MAINTENANCE');
+    expect(result.status).toBe("MAINTENANCE");
   });
 });

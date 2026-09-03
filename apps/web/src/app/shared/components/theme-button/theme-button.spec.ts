@@ -1,23 +1,23 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 
-import { ThemeButton } from './theme-button';
+import { ThemeButton } from "./theme-button";
 
-describe('ThemeButton', () => {
+describe("ThemeButton", () => {
   let component: ThemeButton;
   let fixture: ComponentFixture<ThemeButton>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ThemeButton]
-    })
-    .compileComponents();
+      imports: [ThemeButton],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ThemeButton);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

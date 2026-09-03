@@ -1,35 +1,41 @@
-<div class="flex flex-col gap-4 sm:gap-6 p-3.5 sm:p-6 md:p-8 max-w-7xl mx-auto">
+<div class="mx-auto flex max-w-7xl flex-col gap-4 p-3.5 sm:gap-6 sm:p-6 md:p-8">
   <!-- Top Bar: Navigation, Parking Name & Quick Actions -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+  <div
+    class="flex flex-col justify-between gap-3 sm:flex-row sm:items-center sm:gap-4"
+  >
     <div class="flex items-center gap-3">
       <a
         [routerLink]="APP_ROUTES.app.parkingLotDetail(parkingId() || '')"
-        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
+        class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border transition-colors"
       >
         <ng-icon name="lucideArrowLeft" size="18" class="shrink-0" />
       </a>
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2">
-          <h1 class="text-lg sm:text-2xl font-bold text-foreground truncate">
+          <h1 class="text-foreground truncate text-lg font-bold sm:text-2xl">
             Operaciones de Parqueo
           </h1>
-          <span class="inline-flex shrink-0 items-center rounded-md bg-info/10 text-info border border-info/20 px-2 py-0.5 text-[10px] sm:text-xs font-semibold">
+          <span
+            class="bg-info/10 text-info border-info/20 inline-flex shrink-0 items-center rounded-md border px-2 py-0.5 text-[10px] font-semibold sm:text-xs"
+          >
             En vivo
           </span>
         </div>
-        <p class="text-xs sm:text-sm text-muted-foreground truncate">
+        <p class="text-muted-foreground truncate text-xs sm:text-sm">
           {{ parking()?.name || 'Cargando parqueadero...' }} · Control vehicular
         </p>
       </div>
     </div>
 
     <!-- Quick Action Buttons -->
-    <div class="grid grid-cols-2 sm:flex sm:items-center w-full sm:w-auto gap-2">
+    <div
+      class="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center"
+    >
       <nv-button
         type="button"
         size="sm"
         (click)="openCheckInModal()"
-        class="w-full sm:w-auto text-nowrap justify-center"
+        class="w-full justify-center text-nowrap sm:w-auto"
       >
         <ng-icon name="lucideLogIn" size="16" class="shrink-0" />
         <span>Registrar Ingreso</span>
@@ -40,7 +46,7 @@
         variant="secondary"
         size="sm"
         (click)="openDirectCheckOutModal()"
-        class="w-full sm:w-auto text-nowrap justify-center"
+        class="w-full justify-center text-nowrap sm:w-auto"
       >
         <ng-icon name="lucideLogOut" size="16" class="shrink-0" />
         <span>Procesar Salida</span>
@@ -49,84 +55,140 @@
   </div>
 
   <!-- Summary Cards Grid -->
-  <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+  <div class="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
     <!-- Available Slots -->
-    <div class="rounded-2xl bg-card text-card-foreground border border-border p-3.5 sm:p-5 shadow-xs">
+    <div
+      class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
+    >
       <div class="flex items-center justify-between">
-        <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cupos Disponibles</span>
-        <div class="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-success/10 text-success border border-success/20 shrink-0">
+        <span
+          class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
+          >Cupos Disponibles</span
+        >
+        <div
+          class="bg-success/10 text-success border-success/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
+        >
           <ng-icon name="lucideParkingSquare" size="18" class="shrink-0" />
         </div>
       </div>
-      <div class="mt-2.5 sm:mt-3 flex items-baseline gap-1.5 sm:gap-2">
-        <span class="text-2xl sm:text-3xl font-bold font-mono text-foreground">{{ availableSlotsCount() }}</span>
-        <span class="text-[10px] sm:text-xs text-muted-foreground font-mono">/ {{ totalSlotsCount() }}</span>
+      <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
+        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
+          >{{ availableSlotsCount() }}</span
+        >
+        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
+          >/ {{ totalSlotsCount() }}</span
+        >
       </div>
     </div>
 
     <!-- Occupied Slots -->
-    <div class="rounded-2xl bg-card text-card-foreground border border-border p-3.5 sm:p-5 shadow-xs">
+    <div
+      class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
+    >
       <div class="flex items-center justify-between">
-        <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground">Vehículos Dentro</span>
-        <div class="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-info/10 text-info border border-info/20 shrink-0">
+        <span
+          class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
+          >Vehículos Dentro</span
+        >
+        <div
+          class="bg-info/10 text-info border-info/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
+        >
           <ng-icon name="lucideCar" size="18" class="shrink-0" />
         </div>
       </div>
-      <div class="mt-2.5 sm:mt-3 flex items-baseline gap-1.5 sm:gap-2">
-        <span class="text-2xl sm:text-3xl font-bold font-mono text-foreground">{{ occupiedSlotsCount() }}</span>
-        <span class="text-[10px] sm:text-xs text-muted-foreground font-mono">activos</span>
+      <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
+        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
+          >{{ occupiedSlotsCount() }}</span
+        >
+        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
+          >activos</span
+        >
       </div>
     </div>
 
     <!-- Active Rates -->
-    <div class="rounded-2xl bg-card text-card-foreground border border-border p-3.5 sm:p-5 shadow-xs">
+    <div
+      class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
+    >
       <div class="flex items-center justify-between">
-        <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tarifas Activas</span>
-        <div class="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
+        <span
+          class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
+          >Tarifas Activas</span
+        >
+        <div
+          class="bg-primary/10 text-primary border-primary/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
+        >
           <ng-icon name="lucideCoins" size="18" class="shrink-0" />
         </div>
       </div>
-      <div class="mt-2.5 sm:mt-3 flex items-baseline gap-1.5 sm:gap-2">
-        <span class="text-2xl sm:text-3xl font-bold font-mono text-foreground">{{ ratesCount() }}</span>
-        <span class="text-[10px] sm:text-xs text-muted-foreground">activas</span>
+      <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
+        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
+          >{{ ratesCount() }}</span
+        >
+        <span class="text-muted-foreground text-[10px] sm:text-xs"
+          >activas</span
+        >
       </div>
     </div>
 
     <!-- Occupation Percentage -->
-    <div class="rounded-2xl bg-card text-card-foreground border border-border p-3.5 sm:p-5 shadow-xs">
+    <div
+      class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
+    >
       <div class="flex items-center justify-between">
-        <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ocupación</span>
-        <div class="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-warning/10 text-warning border border-warning/20 shrink-0">
+        <span
+          class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
+          >Ocupación</span
+        >
+        <div
+          class="bg-warning/10 text-warning border-warning/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
+        >
           <ng-icon name="lucideGauge" size="18" class="shrink-0" />
         </div>
       </div>
-      <div class="mt-2.5 sm:mt-3 flex items-baseline gap-1.5 sm:gap-2">
-        <span class="text-2xl sm:text-3xl font-bold font-mono text-foreground">{{ occupationPercentage() }}%</span>
-        <span class="text-[10px] sm:text-xs text-muted-foreground">capacidad</span>
+      <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
+        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
+          >{{ occupationPercentage() }}%</span
+        >
+        <span class="text-muted-foreground text-[10px] sm:text-xs"
+          >capacidad</span
+        >
       </div>
     </div>
   </div>
 
   <!-- Active Operations / Live Slots & Search Section -->
-  <div class="rounded-2xl bg-card text-card-foreground border border-border shadow-xs overflow-hidden">
+  <div
+    class="bg-card text-card-foreground border-border overflow-hidden rounded-2xl border shadow-xs"
+  >
     <!-- Section Header & Filters -->
-    <div class="p-3.5 sm:p-5 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div
+      class="border-border flex flex-col justify-between gap-3 border-b p-3.5 sm:flex-row sm:items-center sm:p-5"
+    >
       <div class="flex items-center gap-2">
-        <h2 class="text-sm sm:text-base font-bold text-foreground">Estado de Cupos y Ocupación</h2>
-        <span class="text-xs text-muted-foreground font-mono">({{ filteredSlots().length }})</span>
+        <h2 class="text-foreground text-sm font-bold sm:text-base">
+          Estado de Cupos y Ocupación
+        </h2>
+        <span class="text-muted-foreground font-mono text-xs"
+          >({{ filteredSlots().length }})</span
+        >
       </div>
 
       <!-- Search & Filters -->
-      <div class="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+      <div
+        class="flex w-full items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:pb-0"
+      >
         <!-- Filter by Type -->
-        <div class="flex shrink-0 rounded-lg border border-border bg-muted p-0.5 text-xs">
+        <div
+          class="border-border bg-muted flex shrink-0 rounded-lg border p-0.5 text-xs"
+        >
           <button
             type="button"
             (click)="setVehicleFilter('ALL')"
             [class.bg-card]="vehicleFilter() === 'ALL'"
             [class.text-foreground]="vehicleFilter() === 'ALL'"
             [class.shadow-xs]="vehicleFilter() === 'ALL'"
-            class="px-2.5 py-1 rounded-md font-medium text-muted-foreground transition-all cursor-pointer"
+            class="text-muted-foreground cursor-pointer rounded-md px-2.5 py-1 font-medium transition-all"
           >
             Todos
           </button>
@@ -136,7 +198,7 @@
             [class.bg-card]="vehicleFilter() === 'CAR'"
             [class.text-foreground]="vehicleFilter() === 'CAR'"
             [class.shadow-xs]="vehicleFilter() === 'CAR'"
-            class="px-2.5 py-1 rounded-md font-medium text-muted-foreground transition-all cursor-pointer"
+            class="text-muted-foreground cursor-pointer rounded-md px-2.5 py-1 font-medium transition-all"
           >
             Carros
           </button>
@@ -146,21 +208,23 @@
             [class.bg-card]="vehicleFilter() === 'MOTORCYCLE'"
             [class.text-foreground]="vehicleFilter() === 'MOTORCYCLE'"
             [class.shadow-xs]="vehicleFilter() === 'MOTORCYCLE'"
-            class="px-2.5 py-1 rounded-md font-medium text-muted-foreground transition-all cursor-pointer"
+            class="text-muted-foreground cursor-pointer rounded-md px-2.5 py-1 font-medium transition-all"
           >
             Motos
           </button>
         </div>
 
         <!-- Filter by Status -->
-        <div class="flex shrink-0 rounded-lg border border-border bg-muted p-0.5 text-xs">
+        <div
+          class="border-border bg-muted flex shrink-0 rounded-lg border p-0.5 text-xs"
+        >
           <button
             type="button"
             (click)="setStatusFilter('ALL')"
             [class.bg-card]="statusFilter() === 'ALL'"
             [class.text-foreground]="statusFilter() === 'ALL'"
             [class.shadow-xs]="statusFilter() === 'ALL'"
-            class="px-2.5 py-1 rounded-md font-medium text-muted-foreground transition-all cursor-pointer"
+            class="text-muted-foreground cursor-pointer rounded-md px-2.5 py-1 font-medium transition-all"
           >
             Todos
           </button>
@@ -170,7 +234,7 @@
             [class.bg-card]="statusFilter() === 'AVAILABLE'"
             [class.text-success]="statusFilter() === 'AVAILABLE'"
             [class.shadow-xs]="statusFilter() === 'AVAILABLE'"
-            class="px-2.5 py-1 rounded-md font-medium text-muted-foreground transition-all cursor-pointer"
+            class="text-muted-foreground cursor-pointer rounded-md px-2.5 py-1 font-medium transition-all"
           >
             Libres
           </button>
@@ -180,7 +244,7 @@
             [class.bg-card]="statusFilter() === 'OCCUPIED'"
             [class.text-info]="statusFilter() === 'OCCUPIED'"
             [class.shadow-xs]="statusFilter() === 'OCCUPIED'"
-            class="px-2.5 py-1 rounded-md font-medium text-muted-foreground transition-all cursor-pointer"
+            class="text-muted-foreground cursor-pointer rounded-md px-2.5 py-1 font-medium transition-all"
           >
             Ocupados
           </button>
@@ -191,69 +255,79 @@
     <!-- Slots Grid Visualizer -->
     <div class="p-3.5 sm:p-5">
       @if (filteredSlots().length === 0) {
-        <div class="text-center py-12 text-muted-foreground text-xs">
-          No se encontraron cupos con los filtros seleccionados.
-        </div>
+      <div class="text-muted-foreground py-12 text-center text-xs">
+        No se encontraron cupos con los filtros seleccionados.
+      </div>
       } @else {
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
-          @for (slot of filteredSlots(); track slot.id) {
-            <div
-              class="relative flex flex-col justify-between rounded-xl border p-2.5 sm:p-3 transition-all"
-              [class.border-success/30]="slot.status === 'AVAILABLE'"
-              [class.bg-success/10]="slot.status === 'AVAILABLE'"
-              [class.border-info/30]="slot.status === 'OCCUPIED'"
-              [class.bg-info/10]="slot.status === 'OCCUPIED'"
-              [class.border-border]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
-              [class.bg-muted/40]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+      <div
+        class="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-6"
+      >
+        @for (slot of filteredSlots(); track slot.id) {
+        <div
+          class="relative flex flex-col justify-between rounded-xl border p-2.5 transition-all sm:p-3"
+          [class.border-success/30]="slot.status === 'AVAILABLE'"
+          [class.bg-success/10]="slot.status === 'AVAILABLE'"
+          [class.border-info/30]="slot.status === 'OCCUPIED'"
+          [class.bg-info/10]="slot.status === 'OCCUPIED'"
+          [class.border-border]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+          [class.bg-muted/40]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+        >
+          <div class="flex items-center justify-between">
+            <span
+              class="text-muted-foreground text-[10px] font-bold tracking-wider uppercase"
             >
-              <div class="flex items-center justify-between">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                  {{ slot.zone ? slot.zone : 'P' }}
-                </span>
-                <span
-                  class="inline-block h-2 w-2 rounded-full"
-                  [class.bg-success]="slot.status === 'AVAILABLE'"
-                  [class.bg-info]="slot.status === 'OCCUPIED'"
-                  [class.bg-muted-foreground]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
-                ></span>
-              </div>
+              {{ slot.zone ? slot.zone : 'P' }}
+            </span>
+            <span
+              class="inline-block h-2 w-2 rounded-full"
+              [class.bg-success]="slot.status === 'AVAILABLE'"
+              [class.bg-info]="slot.status === 'OCCUPIED'"
+              [class.bg-muted-foreground]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+            ></span>
+          </div>
 
-              <div class="my-2">
-                <div class="text-base sm:text-lg font-bold font-mono text-foreground truncate">
-                  {{ slot.prefix ? slot.prefix + '-' : '' }}{{ slot.slotNumber }}
-                </div>
-                <span class="text-[10px] text-muted-foreground uppercase font-medium">
-                  {{ slot.type }}
-                </span>
-              </div>
-
-              <!-- Quick Slot Action -->
-              <div>
-                @if (slot.status === 'AVAILABLE') {
-                  <button
-                    type="button"
-                    (click)="checkInSpecificSlot(slot)"
-                    class="w-full rounded-lg bg-success text-primary-foreground hover:bg-success/90 py-1.5 px-2 text-[11px] font-bold transition-colors cursor-pointer"
-                  >
-                    + Ingresar
-                  </button>
-                } @else if (slot.status === 'OCCUPIED') {
-                  <button
-                    type="button"
-                    (click)="checkOutSpecificSlot(slot)"
-                    class="w-full rounded-lg bg-info text-primary-foreground hover:bg-info/90 py-1.5 px-2 text-[11px] font-bold transition-colors cursor-pointer"
-                  >
-                    Salida
-                  </button>
-                } @else {
-                  <span class="block text-center text-[10px] font-medium text-muted-foreground py-1.5">
-                    {{ slot.status }}
-                  </span>
-                }
-              </div>
+          <div class="my-2">
+            <div
+              class="text-foreground truncate font-mono text-base font-bold sm:text-lg"
+            >
+              {{ slot.prefix ? slot.prefix + '-' : '' }}{{ slot.slotNumber }}
             </div>
-          }
+            <span
+              class="text-muted-foreground text-[10px] font-medium uppercase"
+            >
+              {{ slot.type }}
+            </span>
+          </div>
+
+          <!-- Quick Slot Action -->
+          <div>
+            @if (slot.status === 'AVAILABLE') {
+            <button
+              type="button"
+              (click)="checkInSpecificSlot(slot)"
+              class="bg-success text-primary-foreground hover:bg-success/90 w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors"
+            >
+              + Ingresar
+            </button>
+            } @else if (slot.status === 'OCCUPIED') {
+            <button
+              type="button"
+              (click)="checkOutSpecificSlot(slot)"
+              class="bg-info text-primary-foreground hover:bg-info/90 w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors"
+            >
+              Salida
+            </button>
+            } @else {
+            <span
+              class="text-muted-foreground block py-1.5 text-center text-[10px] font-medium"
+            >
+              {{ slot.status }}
+            </span>
+            }
+          </div>
         </div>
+        }
+      </div>
       }
     </div>
   </div>

@@ -1,4 +1,4 @@
-import {
+import type {
   CreateTicket,
   EmailCheckOutCommand,
   NoSendCheckOutCommand,
@@ -6,91 +6,85 @@ import {
   PaymentsDto,
   PriceDetailed,
   PriceLine,
-} from '@core/api/generated/models';
-import {
+} from "@core/api/generated/models";
+import type {
   CheckOutPayload,
   CreateTicketPayload,
   PaymentRecord,
   PriceDetailedModel,
   PriceLineModel,
   TicketSummary,
-} from '@core/models/ticket.model';
+} from "@core/models/ticket.model";
 
-export function mapToTicketSummary(dto: ParkingTicketsDto): TicketSummary {
-  return {
-    id: dto.id ?? '',
-    licensePlate: dto.licensePlate ?? '',
-    slotId: dto.slot?.id,
-    slotNumber: dto.slot?.slotNumber,
-    slotType: dto.slot?.type,
-    rateId: dto.rate?.id,
-    rateName: dto.rate?.name,
-    entryTime: dto.entryTime ?? dto.createdAt ?? '',
-    exitTime: dto.exitTime,
-    totalToCharge: dto.totalToCharge,
-    status: dto.status ?? 'OPEN',
-    barcode: dto.id ?? '',
-    paymentMethod: dto.paymentMethod,
-    transactionReference: dto.transactionReference,
-    createdAt: dto.createdAt,
-    updatedAt: dto.updatedAt,
-  };
-}
+export const mapToTicketSummary = (dto: ParkingTicketsDto): TicketSummary => ({
+  barcode: dto.id ?? "",
+  createdAt: dto.createdAt,
+  entryTime: dto.entryTime ?? dto.createdAt ?? "",
+  exitTime: dto.exitTime,
+  id: dto.id ?? "",
+  licensePlate: dto.licensePlate ?? "",
+  paymentMethod: dto.paymentMethod,
+  rateId: dto.rate?.id,
+  rateName: dto.rate?.name,
+  slotId: dto.slot?.id,
+  slotNumber: dto.slot?.slotNumber,
+  slotType: dto.slot?.type,
+  status: dto.status ?? "OPEN",
+  totalToCharge: dto.totalToCharge,
+  transactionReference: dto.transactionReference,
+  updatedAt: dto.updatedAt,
+});
 
-export function mapToCreateTicketDto(payload: CreateTicketPayload): CreateTicket {
-  return {
-    slotId: payload.slotId,
-    rateId: payload.rateId,
-    plate: payload.plate.trim().toUpperCase(),
-    email: payload.email?.trim() || undefined,
-  };
-}
+export const mapToCreateTicketDto = (
+  payload: CreateTicketPayload
+): CreateTicket => ({
+  email: payload.email?.trim() || undefined,
+  plate: payload.plate.trim().toUpperCase(),
+  rateId: payload.rateId,
+  slotId: payload.slotId,
+});
 
-export function mapToCheckOutCommand(
-  payload: CheckOutPayload,
-): NoSendCheckOutCommand | EmailCheckOutCommand {
-  const paymentMethod = payload.paymentMethod ?? 'EFFECTIVE';
-  if (payload.sendVia === 'EMAIL' && payload.email) {
+export const mapToCheckOutCommand = (
+  payload: CheckOutPayload
+): NoSendCheckOutCommand | EmailCheckOutCommand => {
+  const paymentMethod = payload.paymentMethod ?? "EFFECTIVE";
+  if (payload.sendVia === "EMAIL" && payload.email) {
     return {
-      sendVia: 'EMAIL',
-      ticketId: payload.ticketId,
-      paymentMethod,
       email: payload.email.trim(),
+      paymentMethod,
+      sendVia: "EMAIL",
+      ticketId: payload.ticketId,
     };
   }
 
   return {
-    sendVia: 'URL',
-    ticketId: payload.ticketId,
     paymentMethod,
+    sendVia: "URL",
+    ticketId: payload.ticketId,
   };
-}
+};
 
-export function mapPriceLine(dto: PriceLine): PriceLineModel {
-  return {
-    concept: dto.concept ?? '',
-    amount: dto.amount ?? 0,
-  };
-}
+export const mapPriceLine = (dto: PriceLine): PriceLineModel => ({
+  amount: dto.amount ?? 0,
+  concept: dto.concept ?? "",
+});
 
-export function mapToPriceDetailedModel(dto: PriceDetailed): PriceDetailedModel {
-  return {
-    name: dto.name ?? '',
-    subtotal: dto.subtotal ?? 0,
-    ivaRate: dto.ivaRate ?? 0,
-    ivaAmount: dto.ivaAmount ?? 0,
-    total: dto.total ?? 0,
-    breakdown: (dto.breakpoint ?? []).map((line) => mapPriceLine(line)),
-  };
-}
+export const mapToPriceDetailedModel = (
+  dto: PriceDetailed
+): PriceDetailedModel => ({
+  breakdown: (dto.breakpoint ?? []).map((line) => mapPriceLine(line)),
+  ivaAmount: dto.ivaAmount ?? 0,
+  ivaRate: dto.ivaRate ?? 0,
+  name: dto.name ?? "",
+  subtotal: dto.subtotal ?? 0,
+  total: dto.total ?? 0,
+});
 
-export function mapToPaymentRecord(dto: PaymentsDto): PaymentRecord {
-  return {
-    id: dto.id ?? '',
-    amount: dto.amount ?? 0,
-    paymentMethod: dto.paymentMethod ?? 'EFFECTIVE',
-    paymentUrl: dto.checkoutUrl,
-    status: dto.status ?? 'PAID',
-    createdAt: dto.createdAt,
-  };
-}
+export const mapToPaymentRecord = (dto: PaymentsDto): PaymentRecord => ({
+  amount: dto.amount ?? 0,
+  createdAt: dto.createdAt,
+  id: dto.id ?? "",
+  paymentMethod: dto.paymentMethod ?? "EFFECTIVE",
+  paymentUrl: dto.checkoutUrl,
+  status: dto.status ?? "PAID",
+});

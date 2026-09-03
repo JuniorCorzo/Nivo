@@ -1,11 +1,12 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { signal } from '@angular/core';
-import { UserService } from '@core/services/user/user-service';
+import { signal } from "@angular/core";
+import type { ComponentFixture } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
+import { provideRouter } from "@angular/router";
+import { UserService } from "@core/services/user/user-service";
 
-import { SidebarFooter } from './sidebar-footer';
+import { SidebarFooter } from "./sidebar-footer";
 
-describe('SidebarFooter', () => {
+describe("SidebarFooter", () => {
   let component: SidebarFooter;
   let fixture: ComponentFixture<SidebarFooter>;
 
@@ -19,15 +20,14 @@ describe('SidebarFooter', () => {
           useValue: { currentUser: signal(null) },
         },
       ],
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SidebarFooter);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

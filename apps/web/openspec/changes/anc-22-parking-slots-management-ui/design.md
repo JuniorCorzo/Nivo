@@ -5,12 +5,14 @@ El artefacto de Open Design `nivo-gestion-plazas-v3.html` define la UI de gesti�
 ## Goals / Non-Goals
 
 **Goals**
+
 - Implementar gestión de plazas consistente con el diseño visual aprobado
 - Mantener creación/edición como páginas completas, no modales
 - Permitir consulta rápida de detalle sin abandonar el listado
 - Soportar acciones masivas y estados vacíos bien definidos
 
 **Non-Goals**
+
 - No rediseñar la navegación global de la app
 - No cambiar el backend ni inventar nuevas capacidades de dominio
 - No introducir edición inline en la tabla
