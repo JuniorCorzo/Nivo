@@ -10,6 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
+import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideBuilding2,
@@ -17,10 +18,12 @@ import {
   lucideChevronDown,
   lucideMapPin,
   lucideParkingSquare,
+  lucidePlus,
 } from '@ng-icons/lucide';
 import { ParkingLotListItemModel } from '@core/models/parking.model';
 import { ParkingService } from '@core/services/parking-service';
 import { ActiveParkingService } from '@core/services/active-parking.service';
+import { APP_ROUTES } from '@shared/constants/app-routes.constant';
 
 @Component({
   selector: 'app-parking-lot-selector',
@@ -33,6 +36,7 @@ import { ActiveParkingService } from '@core/services/active-parking.service';
       lucideChevronDown,
       lucideCheck,
       lucideMapPin,
+      lucidePlus,
     }),
   ],
   templateUrl: './parking-lot-selector.html',
@@ -41,6 +45,7 @@ import { ActiveParkingService } from '@core/services/active-parking.service';
 export class ParkingLotSelector {
   public readonly activeParkingService = inject(ActiveParkingService);
   public readonly parkingService = inject(ParkingService);
+  private readonly router = inject(Router, { optional: true });
 
   public readonly placeholder = input<string>('Seleccionar sede');
   public readonly disabled = input<boolean>(false);
@@ -99,6 +104,11 @@ export class ParkingLotSelector {
 
   public isSelected(lot: ParkingLotListItemModel): boolean {
     return this.activeLot()?.id === lot.id;
+  }
+
+  public onCreateParking(): void {
+    this.close();
+    this.router?.navigate([APP_ROUTES.app.createParkingLots]);
   }
 
   public getFormattedAddress(lot: ParkingLotListItemModel): string {

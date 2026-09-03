@@ -1,168 +1,246 @@
-<div class="flex flex-col min-h-dvh bg-background">
-  <!-- Content -->
-  <div class="flex flex-col gap-4 px-4 pt-4 pb-8 flex-1">
-    <!-- Page header -->
-    <div class="flex items-center justify-between gap-3">
-      <div>
-        <h1 class="text-xl font-bold text-foreground font-sans tracking-tight">
-          {{ LABELS.list.title }}
-        </h1>
-        <p class="text-xs text-muted-foreground">
-          Sedes registradas
-        </p>
-      </div>
-      <button
-        (click)="onCreateParking()"
-        class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold font-sans cursor-pointer transition-all hover:bg-primary/90 active:scale-98 shadow-xs"
-      >
-        <ng-icon name="lucidePlus" size="14" />
-        <span>{{ LABELS.form.create.title }}</span>
-      </button>
-    </div>
-
-    <!-- Active Sede Quick Banner if selected -->
-    @if (activeParkingLot(); as activeLot) {
-      <div class="flex items-center justify-between gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/20">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <ng-icon name="lucideParkingSquare" size="16" />
-          </div>
-          <div class="flex flex-col min-w-0">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Sede Activa</span>
-            <span class="text-xs font-semibold text-foreground truncate">{{ activeLot.name }}</span>
-          </div>
+@if (activeParkingLot(); as p) {
+  <div class="flex flex-col min-h-dvh bg-background">
+    <div class="flex flex-col gap-4 px-4 pt-4 pb-8 flex-1">
+      <!-- Top header bar: active lot selector & create button -->
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex-1 min-w-0">
+          <app-parking-lot-selector size="default" />
         </div>
-
         <button
           type="button"
-          (click)="onManageOperations(activeLot.id)"
-          class="inline-flex items-center gap-1 h-7 px-2.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold font-sans hover:bg-primary/90 transition-all cursor-pointer shrink-0 shadow-xs"
+          (click)="onCreateParking()"
+          class="inline-flex items-center justify-center gap-1.5 h-10 px-3 rounded-xl bg-primary text-primary-foreground text-xs font-semibold font-sans cursor-pointer transition-all hover:bg-primary/90 active:scale-98 shadow-xs shrink-0"
+          title="Nueva sede"
         >
-          <ng-icon name="lucideLogIn" size="13" />
-          <span>Operar</span>
+          <ng-icon name="lucidePlus" size="14" />
+          <span class="hidden xs:inline">Nueva sede</span>
         </button>
       </div>
-    }
 
-    <!-- Search input -->
-    <div class="flex items-center gap-2.5 h-10 px-3.5 rounded-xl border border-input bg-card text-foreground focus-within:border-ring transition-all">
-      <ng-icon name="lucideSearch" size="16" class="text-muted-foreground shrink-0" />
-      <input
-        type="text"
-        aria-label="Buscar parqueaderos"
-        [placeholder]="LABELS.list.search.placeholder"
-        (input)="onSearchInput($event)"
-        class="flex-1 bg-transparent text-xs font-sans text-foreground placeholder:text-muted-foreground outline-none"
-      />
-    </div>
-
-    <!-- Cards List -->
-    <div class="flex flex-col gap-3.5">
-      @for (lot of parkingLots(); track lot.id) {
-        <div
-          class="flex flex-col gap-3 rounded-2xl bg-card text-card-foreground border p-3.5 sm:p-4 shadow-xs transition-all"
-          [class.border-primary]="isActive(lot)"
-          [class.ring-1]="isActive(lot)"
-          [class.ring-primary]="isActive(lot)"
-          [class.border-border]="!isActive(lot)"
-        >
-          <!-- Name + status badge + active badge -->
-          <div class="flex items-start justify-between gap-2">
-            <div class="flex items-center gap-2 min-w-0">
-              <div
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
-                [class.bg-primary]="isActive(lot)"
-                [class.text-primary-foreground]="isActive(lot)"
-                [class.border-primary]="isActive(lot)"
-                [class.bg-primary/10]="!isActive(lot)"
-                [class.text-primary]="!isActive(lot)"
-                [class.border-primary/20]="!isActive(lot)"
-              >
-                <ng-icon name="lucideParkingSquare" size="16" class="shrink-0" />
-              </div>
-              <div class="flex flex-col min-w-0">
-                <span class="text-sm font-bold text-foreground font-sans truncate">
-                  {{ lot.name }}
-                </span>
-                @if (isActive(lot)) {
-                  <span class="text-[10px] font-semibold text-primary">Activo para operaciones</span>
-                }
-              </div>
-            </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <span class="inline-flex items-center rounded-md bg-muted text-muted-foreground border border-border px-2 py-0.5 text-[10px] font-semibold font-mono shrink-0">
-                {{ lot.currency || 'COP' }}
-              </span>
-            </div>
+      <!-- Active Lot Header -->
+      <div
+        class="flex items-start justify-between gap-3 p-3.5 rounded-2xl bg-card border border-border shadow-xs"
+      >
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground"
+          >
+            <ng-icon name="lucideParkingSquare" size="20" />
           </div>
-
-          <!-- Address -->
-          <div class="flex items-center gap-1.5 text-xs text-muted-foreground font-sans min-w-0">
-            <ng-icon name="lucideMapPin" size="13" class="shrink-0 text-muted-foreground" />
-            <span class="truncate">{{ getAddress(lot) || 'Sin dirección registrada' }}</span>
-          </div>
-
-          <!-- Occupation & Capacity -->
-          <app-occuppation-meter
-            [value]="toString(lot.occuppationRate)"
-            [totalCapacity]="lot.totalCapacity"
-            [showDetails]="true"
-            max="100"
-          />
-
-          <!-- Actions -->
-          <div class="flex items-center justify-between gap-2 pt-2.5 border-t border-border">
-            <div class="flex items-center gap-2">
-              <button
-                type="button"
-                (click)="onManageOperations(lot.id)"
-                class="inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-xl bg-primary text-primary-foreground text-xs font-semibold font-sans hover:bg-primary/90 active:scale-98 transition-all shadow-xs cursor-pointer"
-                aria-label="Operaciones"
-              >
-                <ng-icon name="lucideLogIn" size="15" class="shrink-0" />
-                <span>Operar</span>
-              </button>
-
-              @if (!isActive(lot)) {
-                <button
-                  type="button"
-                  (click)="onSelectActive(lot)"
-                  class="inline-flex items-center justify-center h-8 px-2.5 rounded-xl border border-border bg-card text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
-                  title="Fijar como sede activa"
-                >
-                  Fijar activa
-                </button>
-              }
-            </div>
-
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button
-                type="button"
-                (click)="onViewParking(lot.id)"
-                class="flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
-                aria-label="Ver detalle"
-                title="Ver detalle"
-              >
-                <ng-icon name="lucideEye" size="15" class="shrink-0" />
-              </button>
-              <button
-                type="button"
-                (click)="onEditParking(lot.id)"
-                class="flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
-                aria-label="Editar"
-                title="Editar"
-              >
-                <ng-icon name="lucidePencil" size="15" class="shrink-0" />
-              </button>
-            </div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-sm font-bold text-foreground truncate">{{ p.name }}</span>
+            <span class="text-xs text-muted-foreground truncate">{{
+              addressLine() || 'Sin dirección registrada'
+            }}</span>
           </div>
         </div>
-      } @empty {
-        <div class="flex flex-col items-center justify-center gap-2 py-16 text-center text-muted-foreground">
-          <ng-icon name="lucideParkingSquare" size="36" class="text-muted-foreground" />
-          <span class="text-xs font-medium font-sans">No hay parqueaderos registrados</span>
+        <span
+          class="inline-flex items-center rounded-md bg-muted text-muted-foreground border border-border px-2 py-0.5 text-[10px] font-semibold font-mono shrink-0"
+        >
+          {{ p.currency || 'COP' }}
+        </span>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex flex-col gap-2">
+        <button
+          type="button"
+          (click)="onManageOperations()"
+          class="w-full inline-flex items-center justify-center gap-2 h-10 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-semibold font-sans hover:bg-primary/90 active:scale-98 transition-all shadow-xs cursor-pointer"
+        >
+          <ng-icon name="lucideLogIn" size="16" />
+          <span>Operaciones en vivo</span>
+        </button>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            (click)="onManageRates()"
+            class="inline-flex items-center justify-center gap-2 h-9 px-3 rounded-xl bg-secondary text-secondary-foreground border border-border text-xs font-semibold font-sans hover:bg-secondary/80 active:scale-98 transition-all cursor-pointer"
+          >
+            <ng-icon name="lucideCoins" size="15" class="text-primary" />
+            <span>Tarifas</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="onManageSlots()"
+            class="inline-flex items-center justify-center gap-2 h-9 px-3 rounded-xl bg-secondary text-secondary-foreground border border-border text-xs font-semibold font-sans hover:bg-secondary/80 active:scale-98 transition-all cursor-pointer"
+          >
+            <ng-icon name="lucideParkingSquare" size="15" class="text-primary" />
+            <span>Espacios / Slots</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="onEdit()"
+            class="inline-flex items-center justify-center gap-2 h-9 px-3 rounded-xl bg-secondary text-secondary-foreground border border-border text-xs font-semibold font-sans hover:bg-secondary/80 active:scale-98 transition-all cursor-pointer"
+          >
+            <ng-icon name="lucidePencil" size="15" />
+            <span>Editar</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="onDeleteClick()"
+            class="inline-flex items-center justify-center gap-2 h-9 px-3 rounded-xl bg-destructive text-destructive-foreground text-xs font-semibold font-sans hover:bg-destructive/90 active:scale-98 transition-all cursor-pointer"
+          >
+            <ng-icon name="lucideTrash2" size="15" />
+            <span>Eliminar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Metrics Grid -->
+      <div class="grid grid-cols-2 gap-2.5">
+        <!-- Ocupadas -->
+        <div class="rounded-xl bg-card border border-border p-3 shadow-xs">
+          <div class="flex items-center justify-between">
+            <span
+              class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground truncate"
+              >Plazas Ocupadas</span
+            >
+            <ng-icon name="lucideParkingSquare" size="14" class="text-primary" />
+          </div>
+          <div class="mt-1 text-lg font-bold font-mono text-foreground">
+            {{ occupiedSlots() }} / {{ totalSlots() }}
+          </div>
+          <p class="text-[10px] text-muted-foreground font-mono">{{ availableSlots() }} disp.</p>
+        </div>
+
+        <!-- Ocupación % -->
+        <div
+          class="rounded-xl bg-card border border-border p-3 shadow-xs flex flex-col justify-between"
+        >
+          <div>
+            <div class="flex items-center justify-between">
+              <span
+                class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground truncate"
+                >Ocupación</span
+              >
+              <ng-icon name="lucideCar" size="14" class="text-info" />
+            </div>
+            <div class="mt-1 text-lg font-bold font-mono text-foreground">
+              {{ p.occuppationRate || 0 }}%
+            </div>
+          </div>
+          <div class="mt-2 w-full bg-muted rounded-full h-1.5 overflow-hidden">
+            <div
+              class="h-full rounded-full transition-all duration-300"
+              [class.bg-emerald-500]="(p.occuppationRate || 0) < 70"
+              [class.bg-amber-500]="(p.occuppationRate || 0) >= 70 && (p.occuppationRate || 0) < 90"
+              [class.bg-rose-500]="(p.occuppationRate || 0) >= 90"
+              [style.width.%]="p.occuppationRate || 0"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- General Info Card -->
+      <div class="rounded-2xl bg-card border border-border p-3.5 shadow-xs flex flex-col gap-3">
+        <div class="flex items-center justify-between border-b border-border pb-2.5">
+          <span class="text-xs font-bold text-foreground">Información General</span>
+          <span class="text-[11px] text-muted-foreground">{{ p.ownerName }}</span>
+        </div>
+
+        <div class="flex flex-col gap-2 text-xs">
+          <div class="flex flex-col gap-0.5">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+              >Dirección</span
+            >
+            <span class="font-medium text-foreground">{{ addressLine() || 'Sin dirección' }}</span>
+            @if (addressSubline()) {
+              <span class="text-[11px] text-muted-foreground">{{ addressSubline() }}</span>
+            }
+          </div>
+
+          <div class="flex flex-col gap-0.5">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+              >Coordenadas</span
+            >
+            <span class="font-mono text-xs text-foreground">{{ formattedCoords() }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slot Distribution Section -->
+      @if (p.slotDistribution && p.slotDistribution.length > 0) {
+        <div class="rounded-2xl bg-card border border-border p-3.5 shadow-xs flex flex-col gap-3">
+          <div class="flex items-center justify-between border-b border-border pb-2.5">
+            <span class="text-xs font-bold text-foreground">Distribución de Plazas</span>
+            <span class="text-[10px] font-mono text-muted-foreground"
+              >{{ p.slotDistribution.length }} grupos</span
+            >
+          </div>
+
+          <div class="grid grid-cols-1 gap-2">
+            @for (slot of p.slotDistribution; track slot.prefix + slot.type + slot.zone) {
+              <div
+                class="flex items-center justify-between rounded-xl bg-muted/40 border border-border p-2.5"
+              >
+                <div class="flex items-center gap-2 min-w-0">
+                  <div
+                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-card border border-border text-foreground"
+                  >
+                    @if (slot.type === 'CAR') {
+                      <ng-icon name="lucideCar" size="13" />
+                    } @else {
+                      <ng-icon name="lucideBike" size="13" />
+                    }
+                  </div>
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-xs font-bold text-foreground truncate">{{
+                      slotLabel(slot)
+                    }}</span>
+                    <span class="text-[10px] text-muted-foreground"
+                      >Prefijo: {{ slot.prefix }}</span
+                    >
+                  </div>
+                </div>
+                <span class="font-mono text-xs font-bold text-foreground">{{ slot.count }}</span>
+              </div>
+            }
+          </div>
         </div>
       }
+
+      <!-- Map Card -->
+      <div class="rounded-2xl bg-card border border-border p-3.5 shadow-xs flex flex-col gap-2.5">
+        <div class="flex items-center gap-1.5">
+          <ng-icon name="lucideMapPin" size="15" class="text-primary" />
+          <span class="text-xs font-bold text-foreground">Ubicación</span>
+        </div>
+        <div class="rounded-xl border border-border overflow-hidden h-[180px] shadow-inner">
+          <app-parking-map [initialPosition]="p.coordinates" [readonly]="true" />
+        </div>
+      </div>
     </div>
   </div>
-</div>
+} @else {
+  <!-- Empty State (No Parking Lots) -->
+  <div class="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
+    <div
+      class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 mb-3 shadow-xs"
+    >
+      <ng-icon name="lucideParkingSquare" size="28" />
+    </div>
+    <h2 class="text-base font-bold text-foreground mb-1">
+      {{ LABELS.list.empty.title }}
+    </h2>
+    <p class="text-xs text-muted-foreground mb-5">
+      {{ LABELS.list.empty.description }}
+    </p>
+    <button
+      type="button"
+      (click)="onCreateParking()"
+      class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 text-xs font-semibold active:scale-98 transition-all shadow-xs cursor-pointer"
+    >
+      <ng-icon name="lucidePlus" size="14" />
+      <span>{{ LABELS.form.create.title }}</span>
+    </button>
+  </div>
+}
+
+@if (isDeleteModalOpen()) {
+  <app-delete-parking-modal (confirm)="onDeleteConfirm()" (cancel)="onDeleteCancel()" />
+}

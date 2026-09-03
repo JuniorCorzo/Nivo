@@ -1,61 +1,385 @@
-<div class="flex flex-col gap-6 p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
-  <!-- Header Bar -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-    <div class="flex items-center gap-3">
-      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
-        <ng-icon name="lucideParkingSquare" class="text-xl" />
-      </div>
-      <div>
-        <div class="flex items-center gap-2">
-          <nv-h3 class="text-xl sm:text-2xl font-bold text-foreground">{{ LABELS.list.title }}</nv-h3>
-        </div>
-        <nv-muted class="text-xs sm:text-sm text-muted-foreground">
-          Gestión centralizada de sedes, capacidad y ocupación en tiempo real
-        </nv-muted>
-      </div>
-    </div>
-
-    <!-- Actions & Active Selector -->
-    <div class="flex flex-wrap items-center gap-3">
-      <div class="w-full sm:w-64">
-        <app-parking-lot-selector size="default" />
-      </div>
-
-      @if (activeParkingLot(); as activeLot) {
-        <nv-button
-          size="sm"
-          variant="outline"
-          (click)="onManageActiveOperations()"
-          title="Operar sede activa"
+@if (activeParkingLot(); as p) {
+  <div class="flex flex-col gap-5 sm:gap-6 p-3.5 sm:p-6 md:p-8 max-w-7xl mx-auto">
+    <!-- Top Bar / Hero Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-3">
+        <div
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-xs"
         >
-          <ng-icon name="lucideLogIn" class="text-base" />
-          <span>Operar {{ activeLot.name }}</span>
-        </nv-button>
-      }
+          <ng-icon name="lucideParkingSquare" size="22" class="shrink-0" />
+        </div>
+        <div class="min-w-0 mr-2">
+          <h1 class="text-xl sm:text-2xl font-bold text-foreground truncate">
+            {{ p.name }}
+          </h1>
+          @if (addressLine()) {
+            <p class="text-xs text-muted-foreground truncate">{{ addressLine() }}</p>
+          }
+        </div>
 
-      <!-- Quick Action CTA -->
-      <nv-button
-        size="sm"
-        [title]="LABELS.form.create.description"
-        (click)="onCreateParking()"
+        <!-- Prominent Parking Lot Selector -->
+        <div class="w-full sm:w-64">
+          <app-parking-lot-selector size="default" />
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+        <!-- Prominent Live Operations Button -->
+        <button
+          type="button"
+          (click)="onManageOperations()"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2.5 sm:py-2 text-xs sm:text-sm font-semibold active:scale-98 transition-all shadow-xs cursor-pointer"
+        >
+          <ng-icon name="lucideLogIn" size="16" class="shrink-0" />
+          <span>Operaciones en vivo</span>
+        </button>
+
+        <!-- Secondary Actions 2x2 grid on mobile (<sm), flex on sm+ -->
+        <div class="grid grid-cols-2 sm:flex sm:items-center gap-2">
+          <button
+            type="button"
+            (click)="onManageRates()"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border px-3 py-2 text-xs sm:text-sm font-semibold active:scale-98 transition-all shadow-xs cursor-pointer"
+          >
+            <ng-icon name="lucideCoins" size="16" class="shrink-0 text-primary" />
+            <span>Tarifas</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="onManageSlots()"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border px-3 py-2 text-xs sm:text-sm font-semibold active:scale-98 transition-all shadow-xs cursor-pointer"
+          >
+            <ng-icon name="lucideParkingSquare" size="16" class="shrink-0 text-primary" />
+            <span>Espacios / Slots</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="onEdit()"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border px-3 py-2 text-xs sm:text-sm font-semibold active:scale-98 transition-all shadow-xs cursor-pointer"
+            [title]="LABELS_DETAIL.actions.edit"
+          >
+            <ng-icon name="lucidePencil" size="16" class="shrink-0" />
+            <span>{{ LABELS_DETAIL.actions.edit }}</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="onDeleteClick()"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 px-3 py-2 text-xs sm:text-sm font-medium active:scale-98 transition-all cursor-pointer"
+            [title]="LABELS_DETAIL.actions.delete"
+          >
+            <ng-icon name="lucideTrash2" size="16" class="shrink-0" />
+            <span>{{ LABELS_DETAIL.actions.delete }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Metrics Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <!-- Total Capacity & Plazas Ocupadas -->
+      <div
+        class="rounded-2xl bg-card text-card-foreground border border-border p-3.5 sm:p-5 shadow-xs"
       >
-        <ng-icon name="lucidePlus" class="text-base" />
-        <span>{{ LABELS.form.create.title }}</span>
-      </nv-button>
+        <div class="flex items-center justify-between gap-1">
+          <span
+            class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate"
+            >Plazas Ocupadas</span
+          >
+          <div
+            class="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20"
+          >
+            <ng-icon name="lucideParkingSquare" size="18" class="shrink-0" />
+          </div>
+        </div>
+        <div class="mt-2 sm:mt-3 flex items-baseline gap-2">
+          <span class="text-2xl sm:text-3xl font-bold font-mono text-foreground"
+            >{{ occupiedSlots() }} / {{ totalSlots() }}</span
+          >
+        </div>
+        <p class="mt-1 text-[11px] sm:text-xs text-muted-foreground font-mono truncate">
+          {{ availableSlots() }} disponibles
+        </p>
+      </div>
+
+      <!-- Occupancy Rate -->
+      <div
+        class="rounded-2xl bg-card text-card-foreground border border-border p-3.5 sm:p-5 shadow-xs flex flex-col justify-between"
+      >
+        <div>
+          <div class="flex items-center justify-between gap-1">
+            <span
+              class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate"
+              >Ocupación</span
+            >
+            <div
+              class="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-info/10 text-info border border-info/20"
+            >
+              <ng-icon name="lucideCar" size="18" class="shrink-0" />
+            </div>
+          </div>
+          <div class="mt-2 sm:mt-3 flex items-baseline justify-between gap-2">
+            <span class="text-2xl sm:text-3xl font-bold font-mono text-foreground"
+              >{{ p.occuppationRate || 0 }}%</span
+            >
+            <span class="text-[11px] sm:text-xs text-muted-foreground hidden xs:inline"
+              >en vivo</span
+            >
+          </div>
+        </div>
+        <!-- Progress Bar Indicator -->
+        <div class="mt-2 sm:mt-3 w-full bg-muted rounded-full h-2 overflow-hidden">
+          <div
+            class="h-full rounded-full transition-all duration-300"
+            [class.bg-emerald-500]="(p.occuppationRate || 0) < 70"
+            [class.bg-amber-500]="(p.occuppationRate || 0) >= 70 && (p.occuppationRate || 0) < 90"
+            [class.bg-rose-500]="(p.occuppationRate || 0) >= 90"
+            [style.width.%]="p.occuppationRate || 0"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Currency & Billing -->
+      <div
+        class="rounded-2xl bg-card text-card-foreground border border-border p-3.5 sm:p-5 shadow-xs"
+      >
+        <div class="flex items-center justify-between gap-1">
+          <span
+            class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate"
+            >Moneda Base</span
+          >
+          <div
+            class="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20"
+          >
+            <ng-icon name="lucideCoins" size="18" class="shrink-0" />
+          </div>
+        </div>
+        <div class="mt-2 sm:mt-3 flex items-baseline gap-2">
+          <span class="text-2xl sm:text-3xl font-bold font-mono text-foreground">{{
+            p.currency
+          }}</span>
+          <span class="text-[11px] sm:text-xs text-muted-foreground hidden xs:inline"
+            >facturación</span
+          >
+        </div>
+      </div>
+
+      <!-- Coordenadas -->
+      <div
+        class="rounded-2xl bg-card text-card-foreground border border-border p-3.5 sm:p-5 shadow-xs"
+      >
+        <div class="flex items-center justify-between gap-1">
+          <span
+            class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate"
+            >{{ LABELS_DETAIL.fields.coordinates }}</span
+          >
+          <div
+            class="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-warning/10 text-warning border border-warning/20"
+          >
+            <ng-icon name="lucideMapPin" size="18" class="shrink-0" />
+          </div>
+        </div>
+        <div class="mt-2 sm:mt-3 flex items-baseline gap-2">
+          <span class="text-xs font-bold font-mono text-foreground truncate">{{
+            formattedCoords()
+          }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Detail & Slot Distribution Card -->
+    <div
+      class="rounded-2xl bg-card text-card-foreground border border-border p-4 sm:p-6 shadow-xs flex flex-col gap-5 sm:gap-6"
+    >
+      <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-4"
+      >
+        <div>
+          <h2 class="text-base font-bold text-foreground">Información General</h2>
+          <p class="text-xs text-muted-foreground">
+            Detalles de ubicación y registro del parqueadero
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <nv-badge variant="secondary">{{ p.ownerName }}</nv-badge>
+          <nv-badge variant="info">{{ p.currency }}</nv-badge>
+        </div>
+      </div>
+
+      <!-- Info Grid: 2 columns -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+        <!-- Column 1 -->
+        <div class="flex flex-col gap-3 sm:gap-4">
+          <div class="flex flex-col gap-1 p-3 sm:p-3.5 rounded-xl bg-muted/50 border border-border">
+            <nv-muted class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider">{{
+              LABELS_DETAIL.fields.address
+            }}</nv-muted>
+            <span class="text-xs sm:text-sm font-semibold text-foreground break-words">{{
+              addressLine()
+            }}</span>
+            <span class="text-[11px] sm:text-xs text-muted-foreground break-words">{{
+              addressSubline()
+            }}</span>
+          </div>
+
+          <div class="flex flex-col gap-1 p-3 sm:p-3.5 rounded-xl bg-muted/50 border border-border">
+            <nv-muted class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider">{{
+              LABELS_DETAIL.fields.coordinates
+            }}</nv-muted>
+            <nv-mono class="text-xs font-bold text-foreground break-all">{{
+              formattedCoords()
+            }}</nv-mono>
+          </div>
+        </div>
+
+        <!-- Column 2 -->
+        <div class="flex flex-col gap-3 sm:gap-4">
+          <div class="flex flex-col gap-1 p-3 sm:p-3.5 rounded-xl bg-muted/50 border border-border">
+            <nv-muted class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider">{{
+              LABELS_DETAIL.fields.createdAt
+            }}</nv-muted>
+            <span class="text-xs sm:text-sm font-semibold text-foreground">{{
+              formattedDate(p.createdAt)
+            }}</span>
+          </div>
+
+          <div class="flex flex-col gap-1 p-3 sm:p-3.5 rounded-xl bg-muted/50 border border-border">
+            <nv-muted class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider">{{
+              LABELS_DETAIL.fields.updatedAt
+            }}</nv-muted>
+            <span class="text-xs sm:text-sm font-semibold text-foreground">{{
+              formattedDate(p.updatedAt)
+            }}</span>
+          </div>
+
+          <div class="flex flex-col gap-1 p-3 sm:p-3.5 rounded-xl bg-muted/50 border border-border">
+            <nv-muted class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider">{{
+              LABELS_DETAIL.fields.parkingId
+            }}</nv-muted>
+            <nv-mono class="text-xs font-bold text-foreground break-all">{{ p.id }}</nv-mono>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slot Distribution Section -->
+      @if (p.slotDistribution && p.slotDistribution.length > 0) {
+        <div class="border-t border-border pt-5 sm:pt-6">
+          <div
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 mb-4"
+          >
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-foreground">
+                {{ LABELS_DETAIL.slotDistribution.title }}
+              </h3>
+              <p class="text-xs text-muted-foreground">Distribución de plazas por tipo y zona</p>
+            </div>
+            <span class="text-xs font-mono font-semibold text-muted-foreground">
+              {{ LABELS_DETAIL.slotDistribution.summary(p.slotDistribution.length) }}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
+            @for (slot of p.slotDistribution; track slot.prefix + slot.type + slot.zone) {
+              <div
+                class="flex items-center justify-between rounded-xl border border-border bg-muted/40 p-3 sm:p-4 transition-all hover:border-border"
+              >
+                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div
+                    class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg bg-card border border-border text-foreground"
+                  >
+                    @if (slot.type === 'CAR') {
+                      <ng-icon name="lucideCar" size="16" class="shrink-0" />
+                    } @else {
+                      <ng-icon name="lucideBike" size="16" class="shrink-0" />
+                    }
+                  </div>
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-xs font-bold text-foreground truncate">
+                      {{ slotLabel(slot) }}
+                    </span>
+                    <span class="text-[11px] text-muted-foreground truncate">
+                      {{ LABELS_DETAIL.slotDistribution.prefix }} {{ slot.prefix }}
+                    </span>
+                  </div>
+                </div>
+                <span
+                  class="font-mono text-sm sm:text-base font-bold text-foreground shrink-0 pl-2"
+                >
+                  {{ slot.count }}
+                </span>
+              </div>
+            }
+          </div>
+
+          <!-- Summary row with distribution -->
+          <div
+            class="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-3 border-t border-border text-xs"
+          >
+            <div class="flex items-center gap-2 sm:gap-3 text-muted-foreground">
+              <span>
+                Ocupadas: <strong class="text-foreground font-mono">{{ occupiedSlots() }}</strong>
+              </span>
+              <span>·</span>
+              <span>
+                Disponibles:
+                <strong class="text-foreground font-mono">{{ availableSlots() }}</strong>
+              </span>
+            </div>
+            <span class="font-bold text-foreground font-mono">
+              {{ LABELS_DETAIL.slotDistribution.totalSlots(totalSlots()) }}
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Map Card -->
+    <div
+      class="rounded-2xl bg-card text-card-foreground border border-border p-4 sm:p-6 shadow-xs flex flex-col gap-3 sm:gap-4"
+    >
+      <div class="flex items-center gap-2">
+        <ng-icon name="lucideMapPin" size="18" class="shrink-0 text-primary" />
+        <h3 class="text-sm sm:text-base font-bold text-foreground">
+          {{ LABELS_DETAIL.map.title }}
+        </h3>
+      </div>
+      <div
+        class="rounded-xl border border-border overflow-hidden h-[200px] sm:h-[240px] shadow-inner"
+      >
+        <app-parking-map [initialPosition]="p.coordinates" [readonly]="true" />
+      </div>
     </div>
   </div>
-
-  <!-- Search & Content Card -->
-  <div class="rounded-2xl bg-card text-card-foreground border border-border shadow-xs p-4 sm:p-6 flex flex-col gap-4">
-    <div class="w-full sm:max-w-md">
-      <nv-input
-        id="parking-search-input"
-        startIcon="lucideSearch"
-        [placeholder]="LABELS.list.search.placeholder"
-        (input)="onSearchInput($event)"
-      />
+} @else {
+  <!-- Empty State (No Parking Lots) -->
+  <div
+    class="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center max-w-md mx-auto"
+  >
+    <div
+      class="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 mb-4 shadow-xs"
+    >
+      <ng-icon name="lucideParkingSquare" size="32" />
     </div>
-
-    <app-parking-table [searchQuery]="searchQuery()" />
+    <h2 class="text-xl font-bold text-foreground mb-2">
+      {{ LABELS.list.empty.title }}
+    </h2>
+    <p class="text-sm text-muted-foreground mb-6">
+      {{ LABELS.list.empty.description }}
+    </p>
+    <button
+      type="button"
+      (click)="onCreateParking()"
+      class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 text-sm font-semibold active:scale-98 transition-all shadow-xs cursor-pointer"
+    >
+      <ng-icon name="lucidePlus" size="16" />
+      <span>{{ LABELS.form.create.title }}</span>
+    </button>
   </div>
-</div>
+}
+
+@if (isDeleteModalOpen()) {
+  <app-delete-parking-modal (confirm)="onDeleteConfirm()" (cancel)="onDeleteCancel()" />
+}

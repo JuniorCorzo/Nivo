@@ -102,10 +102,28 @@ export class ParkingService {
   }
 
   deleteSlotGroup(parkingId: string, slot: SlotDistribution): Observable<void> {
-    return this.parkingLotsService.deleteSlotGroup(
-      { parkingId, slotType: slot.type, prefix: slot.prefix || undefined, zone: slot.zone || undefined },
-      this.httpContext(),
-    ).pipe(map(() => void 0));
+    return this.parkingLotsService
+      .deleteSlotGroup(
+        {
+          parkingId,
+          slotType: slot.type,
+          prefix: slot.prefix || undefined,
+          zone: slot.zone || undefined,
+        },
+        this.httpContext(),
+      )
+      .pipe(map(() => void 0));
+  }
+
+  /**
+   * Delete a parking lot by ID
+   */
+  delete(id: string): Observable<void> {
+    return this.parkingLotsService.deleteParkingLot({ parkingId: id }, this.httpContext()).pipe(
+      tap(() => this.updateState()),
+      map(() => void 0),
+      catchError((error) => throwError(() => error)),
+    );
   }
 
   getUpsertById(id: string): Observable<UpsertParkingLotsModel> {

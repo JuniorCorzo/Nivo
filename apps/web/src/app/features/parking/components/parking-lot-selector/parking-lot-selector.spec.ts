@@ -1,9 +1,11 @@
 import '@angular/compiler';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { ParkingLotListItemModel } from '@core/models/parking.model';
 import { ParkingService } from '@core/services/parking-service';
 import { ActiveParkingService } from '@core/services/active-parking.service';
+import { APP_ROUTES } from '@shared/constants/app-routes.constant';
 import { ParkingLotSelector } from './parking-lot-selector';
 
 describe('ParkingLotSelector', () => {
@@ -12,6 +14,7 @@ describe('ParkingLotSelector', () => {
   let mockParkingLotsSignal: ReturnType<typeof signal<ParkingLotListItemModel[]>>;
   let mockActiveParkingLotSignal: ReturnType<typeof signal<ParkingLotListItemModel | null>>;
   let setActiveParkingSpy: jasmine.Spy;
+  let mockRouter: { navigate: jasmine.Spy };
 
   const mockLots: ParkingLotListItemModel[] = [
     {
@@ -58,6 +61,7 @@ describe('ParkingLotSelector', () => {
     mockParkingLotsSignal = signal<ParkingLotListItemModel[]>(mockLots);
     mockActiveParkingLotSignal = signal<ParkingLotListItemModel | null>(mockLots[0]);
     setActiveParkingSpy = jasmine.createSpy('setActiveParking');
+    mockRouter = { navigate: jasmine.createSpy('navigate') };
 
     await TestBed.configureTestingModule({
       imports: [ParkingLotSelector],
@@ -72,6 +76,10 @@ describe('ParkingLotSelector', () => {
             activeParkingLot: mockActiveParkingLotSignal,
             setActiveParking: setActiveParkingSpy,
           },
+        },
+        {
+          provide: Router,
+          useValue: mockRouter,
         },
       ],
     }).compileComponents();
@@ -138,5 +146,13 @@ describe('ParkingLotSelector', () => {
 
   it('should format address properly', () => {
     expect(component.getFormattedAddress(mockLots[0])).toBe('Calle 100 # 15-20, Bogotá');
+  });
+
+  it('should navigate to create parking page and close dropdown on onCreateParking()', () => {
+    component.isOpen.set(true);
+    component.onCreateParking();
+
+    expect(component.isOpen()).toBeFalse();
+    expect(mockRouter.navigate).toHaveBeenCalledWith([APP_ROUTES.app.createParkingLots]);
   });
 });
