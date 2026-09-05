@@ -1,5 +1,5 @@
 # ── Stage 1: Build ──────────────────────────────────────────────────────────
-FROM oven/bun:1.3.11-alpine AS builder
+FROM oven/bun:1.3.13-alpine AS builder
 
 RUN apk add --no-cache nodejs
 
@@ -11,7 +11,7 @@ COPY libs/design-system/package.json ./libs/design-system/
 COPY apps/web/package.json ./apps/web/
 
 # Install workspace dependencies
-RUN bun install --frozen-lockfile
+RUN bun install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY libs/design-system ./libs/design-system
