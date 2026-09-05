@@ -55,7 +55,7 @@ describe("ParkingGeneralInfo", () => {
     expect(textContent).toContain("COP");
     expect(textContent).toContain("Calle 100 # 15-20, Bogotá, Cundinamarca");
     expect(textContent).toContain("Colombia · 110111");
-    expect(textContent).toContain("4.6097, -74.0817");
+    expect(textContent).toContain("4,6097, -74,0817");
     expect(textContent).toContain("lot-123");
   });
 

@@ -60,7 +60,7 @@ describe("ParkingStatsGrid", () => {
     expect(textContent).toContain("COP");
 
     expect(textContent).toContain("Coordenadas");
-    expect(textContent).toContain("4.6097, -74.0817");
+    expect(textContent).toContain("4,6097, -74,0817");
   });
 
   it("should update display when inputs change", () => {
@@ -77,7 +77,7 @@ describe("ParkingStatsGrid", () => {
     expect(textContent).toContain("40 disponibles");
     expect(textContent).toContain("80%");
     expect(textContent).toContain("USD");
-    expect(textContent).toContain("40.7128, -74.006");
+    expect(textContent).toContain("40,7128, -74,0060");
   });
 
   it("should compute formattedCoords properly when initialized directly", () => {
@@ -94,6 +94,6 @@ describe("ParkingStatsGrid", () => {
     gridFixture.detectChanges();
 
     const grid = gridFixture.componentInstance;
-    expect(grid.formattedCoords()).toBe("10.5, -66.9");
+    expect(grid.formattedCoords()).toBe("10,5000, -66,9000");
   });
 });

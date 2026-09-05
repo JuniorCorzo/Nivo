@@ -13,6 +13,7 @@ import {
   TypographyMuted,
 } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
+import { formatCoordinates } from "@shared/utils/coordinates.utils";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,7 +56,7 @@ export class ParkingGeneralInfo {
     if (!p || !p.coordinates) {
       return "";
     }
-    return `${p.coordinates.latitude}, ${p.coordinates.longitude}`;
+    return formatCoordinates(p.coordinates);
   });
 
   public static formattedDate(dateStr: string): string {

@@ -1,4 +1,4 @@
-@if (activeParkingLot(); as p) {
+@if (facade.activeParkingLot(); as p) {
 <div class="bg-background flex min-h-dvh flex-col">
   <div class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-8">
     <!-- Top header bar: unified selector & create button -->
@@ -16,7 +16,7 @@
       <nv-button
         variant="default"
         size="sm"
-        (click)="onCreateParking()"
+        (click)="facade.onCreateParking()"
         class="shrink-0 whitespace-nowrap"
         title="Nueva sede"
       >
@@ -30,7 +30,7 @@
       <nv-button
         variant="default"
         size="md"
-        (click)="onManageOperations()"
+        (click)="facade.onManageOperations()"
         class="w-full whitespace-nowrap"
       >
         <ng-icon name="lucideLogIn" size="16" />
@@ -41,7 +41,7 @@
         <nv-button
           variant="secondary"
           size="sm"
-          (click)="onManageRates()"
+          (click)="facade.onManageRates()"
           class="whitespace-nowrap"
         >
           <ng-icon name="lucideCoins" size="15" class="text-primary" />
@@ -51,7 +51,7 @@
         <nv-button
           variant="secondary"
           size="sm"
-          (click)="onManageSlots()"
+          (click)="facade.onManageSlots()"
           class="whitespace-nowrap"
         >
           <ng-icon name="lucideParkingSquare" size="15" class="text-primary" />
@@ -61,7 +61,7 @@
         <nv-button
           variant="secondary"
           size="sm"
-          (click)="onEdit()"
+          (click)="facade.onEdit()"
           class="whitespace-nowrap"
         >
           <ng-icon name="lucidePencil" size="15" />
@@ -71,7 +71,7 @@
         <nv-button
           variant="destructive"
           size="sm"
-          (click)="onDeleteClick()"
+          (click)="facade.onDeleteClick()"
           class="whitespace-nowrap"
         >
           <ng-icon name="lucideTrash2" size="15" />
@@ -82,9 +82,9 @@
 
     <!-- Metrics Grid Sub-component -->
     <app-parking-stats-grid
-      [totalSlots]="totalSlots()"
-      [occupiedSlots]="occupiedSlots()"
-      [availableSlots]="availableSlots()"
+      [totalSlots]="facade.totalSlots()"
+      [occupiedSlots]="facade.occupiedSlots()"
+      [availableSlots]="facade.availableSlots()"
       [occupationRate]="p.occuppationRate || 0"
       [currency]="p.currency"
       [coordinates]="p.coordinates"
@@ -97,9 +97,9 @@
     @if (p.slotDistribution && p.slotDistribution.length > 0) {
     <app-parking-slot-distribution
       [slotDistribution]="p.slotDistribution"
-      [occupiedSlots]="occupiedSlots()"
-      [availableSlots]="availableSlots()"
-      [totalSlots]="totalSlots()"
+      [occupiedSlots]="facade.occupiedSlots()"
+      [availableSlots]="facade.availableSlots()"
+      [totalSlots]="facade.totalSlots()"
     />
     }
 
@@ -119,10 +119,10 @@
 </div>
 } @else {
 <!-- Empty State Sub-component -->
-<app-parking-empty-state (create)="onCreateParking()" />
-} @if (isDeleteModalOpen()) {
+<app-parking-empty-state (create)="facade.onCreateParking()" />
+} @if (facade.isDeleteModalOpen()) {
 <app-delete-parking-modal
-  (confirm)="onDeleteConfirm()"
-  (cancel)="onDeleteCancel()"
+  (confirm)="facade.onDeleteConfirm()"
+  (cancel)="facade.onDeleteCancel()"
 />
 }

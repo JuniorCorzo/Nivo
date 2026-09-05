@@ -7,26 +7,38 @@ import { ParkingService } from "@core/services/parking-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideArrowLeft,
-  lucideSave,
-  lucideLoader2,
   lucideBuilding2,
+  lucideLoader2,
   lucideMapPin,
+  lucideSave,
 } from "@ng-icons/lucide";
-import { InputComponent } from "@nivo-sass/design-system";
+import {
+  ButtonComponent,
+  CardComponent,
+  InputComponent,
+  TypographyH1,
+  TypographyH2,
+  TypographyMuted,
+} from "@nivo-sass/design-system";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { Subject, exhaustMap, firstValueFrom, takeUntil } from "rxjs";
 
-import { ParkingFormFacade } from "./parking-form.facade";
-import { ParkingAddressSectionComponent } from "./sections/parking-address-section";
-import { ParkingLocationSectionComponent } from "./sections/parking-location-section";
-import { ParkingOperatingHoursSectionComponent } from "./sections/parking-operating-hours-section";
-import { ParkingSlotGroupsSectionComponent } from "./sections/parking-slot-groups-section";
+import { ParkingAddressSectionComponent } from "../../components/parking-form/sections/parking-address-section";
+import { ParkingLocationSectionComponent } from "../../components/parking-form/sections/parking-location-section";
+import { ParkingOperatingHoursSectionComponent } from "../../components/parking-form/sections/parking-operating-hours-section";
+import { ParkingSlotGroupsSectionComponent } from "../../components/parking-form/sections/parking-slot-groups-section";
+import { ParkingFormFacade } from "../../facades/parking-form.facade";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    ButtonComponent,
+    CardComponent,
     InputComponent,
+    TypographyH1,
+    TypographyH2,
+    TypographyMuted,
     FormField,
     NgIcon,
     RouterLink,
@@ -60,7 +72,6 @@ export class ParkingFormComponent implements OnDestroy {
   protected readonly facade = inject(ParkingFormFacade);
   protected readonly parkingId = this.route.snapshot.paramMap.get("parkingId");
 
-  // Subject for double-submission prevention
   private readonly submit$ = new Subject<UpsertParkingLotsModel>();
 
   constructor() {
@@ -105,6 +116,7 @@ export class ParkingFormComponent implements OnDestroy {
   onSubmit(): void {
     this.submit$.next(this.facade.buildSubmitModel());
   }
+
   onCancel(): void {
     this.router.navigate([APP_ROUTES.app.parkingLots]);
   }

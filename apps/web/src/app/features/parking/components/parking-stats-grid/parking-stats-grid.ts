@@ -17,6 +17,7 @@ import {
   TypographyMono,
   TypographyMuted,
 } from "@nivo-sass/design-system";
+import { formatCoordinates } from "@shared/utils/coordinates.utils";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,6 +47,6 @@ export class ParkingStatsGrid {
     if (!coords) {
       return "";
     }
-    return `${coords.latitude}, ${coords.longitude}`;
+    return formatCoordinates(coords);
   });
 }
