@@ -1,37 +1,36 @@
+import { CommonModule } from "@angular/common";
+import type { ElementRef, OnDestroy } from "@angular/core";
 import {
   afterNextRender,
   Component,
-  ElementRef,
   input,
-  OnDestroy,
   output,
   viewChild,
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ButtonComponent } from '@nivo-sass/design-system';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideTrash2, lucideX } from '@ng-icons/lucide';
-import { RateModel } from '@core/models/rate.model';
+} from "@angular/core";
+import type { RateModel } from "@core/models/rate.model";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucideTrash2, lucideX } from "@ng-icons/lucide";
+import { ButtonComponent } from "@nivo-sass/design-system";
 
 @Component({
-  selector: 'app-rate-delete-modal',
-  standalone: true,
   imports: [CommonModule, ButtonComponent, NgIcon],
-  providers: [provideIcons({ lucideX, lucideTrash2 })],
-  templateUrl: './rate-delete-modal.html',
-  styleUrl: './rate-delete-modal.css',
+  providers: [provideIcons({ lucideTrash2, lucideX })],
+  selector: "app-rate-delete-modal",
+  standalone: true,
+  styleUrl: "./rate-delete-modal.css",
+  templateUrl: "./rate-delete-modal.html",
 })
 export class RateDeleteModal implements OnDestroy {
   readonly rate = input<RateModel | null>(null);
   readonly isDeleting = input<boolean>(false);
 
-  readonly confirm = output<void>();
-  readonly cancel = output<void>();
+  readonly confirm = output();
+  readonly cancel = output();
 
-  protected readonly titleId = 'delete-rate-title';
-  protected readonly descriptionId = 'delete-rate-description';
+  protected readonly titleId = "delete-rate-title";
+  protected readonly descriptionId = "delete-rate-description";
 
-  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
+  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>("dialog");
 
   constructor() {
     afterNextRender(() => {

@@ -7,43 +7,44 @@ import {
   lucideLoader,
   lucideXCircle,
 } from "@ng-icons/lucide";
-import { TypographyP } from "../typography";
 import { HotToastRef, HotToastService } from "@ngxpert/hot-toast";
+
+import { TypographyP } from "../typography";
 import { TypographySpan } from "../typography/typography";
 
-export type ToastData = {
+export interface ToastData {
   title?: string;
   message: string;
   type: ToastType;
-};
+}
 
-export type ToastObservableData = {
+export interface ToastObservableData {
   loading: ToastData;
   success: ToastData;
   error: ToastData;
-};
+}
 
 type ToastType = "success" | "error" | "info" | "warning" | "loading";
 
 @Component({
-  selector: "nv-toast-icon",
   imports: [NgIcon],
   providers: [
     provideIcons({
-      lucideCheckCircle2,
       lucideAlertCircle,
+      lucideCheckCircle2,
       lucideInfo,
-      lucideXCircle,
       lucideLoader,
+      lucideXCircle,
     }),
   ],
+  selector: "nv-toast-icon",
+  styleUrl: "./toast.css",
   template: `<ng-icon
     [name]="icon()"
     [color]="color()"
     [class.animate-spin]="icon() === 'lucideLoader'"
     size="24"
   />`,
-  styleUrl: "./toast.css",
 })
 export class ToastIconComponent {
   icon = input<string>();
@@ -51,13 +52,14 @@ export class ToastIconComponent {
 }
 
 @Component({
-  selector: "nv-toast",
   imports: [TypographyP, TypographySpan, ToastIconComponent],
+  selector: "nv-toast",
+  styleUrl: "./toast.css",
   template: `
-    <div class="bg-(--background) flex flex-col gap-2">
+    <div class="flex flex-col gap-2 bg-(--background)">
       @if (toastRef.data.title) {
         <span
-          class="flex items-center gap-2 w-full py-1 border-0 border-b border-(--border)"
+          class="flex w-full items-center gap-2 border-0 border-b border-(--border) py-1"
         >
           <nv-toast-icon
             class=""
@@ -68,7 +70,7 @@ export class ToastIconComponent {
         </span>
         <nv-p>{{ toastRef.data.message }}</nv-p>
       } @else {
-        <span class="flex items-center gap-2 w-full ">
+        <span class="flex w-full items-center gap-2">
           <nv-toast-icon
             style="max-height: 24px;"
             [icon]="this.iconMap[this.toastRef.data.type]['icon']"
@@ -79,32 +81,31 @@ export class ToastIconComponent {
       }
     </div>
   `,
-  styleUrl: "./toast.css",
 })
 export class ToastsComponent {
   protected toastService = inject(HotToastService);
   toastRef = inject<HotToastRef<ToastData>>(HotToastRef<ToastData>);
 
   protected iconMap = {
-    info: {
-      icon: "lucideInfo",
-      color: "var(--semantic-info)",
-    },
-    success: {
-      icon: "lucideCheckCircle2",
-      color: "var(--semantic-success)",
-    },
     error: {
-      icon: "lucideXCircle",
       color: "var(--semantic-error)",
+      icon: "lucideXCircle",
     },
-    warning: {
-      icon: "lucideAlertCircle",
-      color: "var(--semantic-warning)",
+    info: {
+      color: "var(--semantic-info)",
+      icon: "lucideInfo",
     },
     loading: {
-      icon: "lucideLoader",
       color: "var(--foreground)",
+      icon: "lucideLoader",
+    },
+    success: {
+      color: "var(--semantic-success)",
+      icon: "lucideCheckCircle2",
+    },
+    warning: {
+      color: "var(--semantic-warning)",
+      icon: "lucideAlertCircle",
     },
   };
 }

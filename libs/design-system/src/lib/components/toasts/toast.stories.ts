@@ -1,19 +1,16 @@
-import {
-  applicationConfig,
-  Meta,
-  moduleMetadata,
-  StoryObj,
-} from "@storybook/angular";
-import { ToastData, ToastsComponent } from "./toast";
-import { HotToastService, provideHotToastConfig } from "@ngxpert/hot-toast";
 import { Component, inject, signal } from "@angular/core";
-import { ButtonComponent } from "../button/button";
-import { ToastService } from "./toast.service";
+import { provideHotToastConfig } from "@ngxpert/hot-toast";
+import type { Meta, StoryObj } from "@storybook/angular";
+import { applicationConfig, moduleMetadata } from "@storybook/angular";
 import { Observable } from "rxjs";
 
+import { ButtonComponent } from "../button/button";
+import type { ToastData, ToastsComponent } from "./toast";
+import { ToastService } from "./toast.service";
+
 @Component({
-  selector: "toast-story",
   imports: [ButtonComponent],
+  selector: "toast-story",
   template: `
     <div class="inline-flex gap-2">
       <nv-button (click)="this.showToast()">Show Toast</nv-button>
@@ -26,8 +23,8 @@ import { Observable } from "rxjs";
 class ToastStoryComponent {
   tostService = inject(ToastService);
   toastData = signal<ToastData>({
-    type: "success",
     message: "This is the content of the toast message.",
+    type: "success",
   });
 
   showToast() {
@@ -43,24 +40,23 @@ class ToastStoryComponent {
     });
 
     this.tostService.showObservableToast(observable$, {
+      error: {
+        message: "Failed to load data.",
+        type: "error",
+      },
       loading: {
-        type: "loading",
         message: "Loading data...",
+        type: "loading",
       },
       success: {
-        type: "success",
         message: "Data loaded successfully!",
-      },
-      error: {
-        type: "error",
-        message: "Failed to load data.",
+        type: "success",
       },
     });
   }
 }
 
 const meta: Meta<ToastsComponent> = {
-  title: "Components/Toasts",
   component: ToastStoryComponent,
   decorators: [
     applicationConfig({
@@ -68,9 +64,9 @@ const meta: Meta<ToastsComponent> = {
         provideHotToastConfig({
           position: "top-right",
           style: {
-            padding: "0px",
             background: "var(--background)",
             border: "1px solid var(--border)",
+            padding: "0px",
           },
         }),
       ],
@@ -79,6 +75,7 @@ const meta: Meta<ToastsComponent> = {
       providers: [],
     }),
   ],
+  title: "Components/Toasts",
 };
 
 export default meta;

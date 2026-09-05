@@ -1,8 +1,11 @@
 # login-form Specification
 
 ## Purpose
+
 TBD - created by archiving change auth-ui-flow. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Formulario de login
 
 El sistema SHALL presentar una pantalla de login con campos de email y contraseña que permita al usuario autenticarse en el sistema.
@@ -63,4 +66,3 @@ El sistema SHALL mostrar un enlace hacia la pantalla de registro para usuarios q
 
 - **WHEN** el usuario hace clic en el enlace "Registrarse" en la pantalla de login
 - **THEN** el sistema SHALL navegar a la pantalla de registro sin perder el email ingresado si ya había uno
-

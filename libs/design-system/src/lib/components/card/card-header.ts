@@ -1,20 +1,12 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  input,
-  computed,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "flex flex-col space-y-1.5 p-6",
+  },
   selector: "nv-card-header",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<div [class]="classes()"><ng-content /></div>`,
+  template: `<ng-content />`,
 })
-export class CardHeaderComponent {
-  readonly class = input<string>("");
-  readonly classes = computed(() => {
-    const base = "flex flex-col space-y-1.5 p-6";
-    return this.class() ? `${base} ${this.class()}` : base;
-  });
-}
+export class CardHeaderComponent {}

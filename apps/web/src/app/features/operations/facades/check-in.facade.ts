@@ -1,13 +1,21 @@
-import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
-import { ToastService } from '@nivo-sass/design-system';
-
-import { ParkingService } from '@core/services/parking-service';
-import { SlotService } from '@core/services/slot-service';
-import { RateService } from '@core/services/rate-service';
-import { TicketService } from '@core/services/ticket-service';
-import { CreateTicketPayload, TicketSummary } from '@core/models/ticket.model';
-import { SlotSummary, SlotType } from '@core/models/slot.model';
-import { RateModel, VehicleType } from '@core/models/rate.model';
+import {
+  DestroyRef,
+  Injectable,
+  computed,
+  inject,
+  signal,
+} from "@angular/core";
+import type { RateModel, VehicleType } from "@core/models/rate.model";
+import type { SlotSummary } from "@core/models/slot.model";
+import type {
+  CreateTicketPayload,
+  TicketSummary,
+} from "@core/models/ticket.model";
+import { ParkingService } from "@core/services/parking-service";
+import { RateService } from "@core/services/rate-service";
+import { SlotService } from "@core/services/slot-service";
+import { TicketService } from "@core/services/ticket-service";
+import { ToastService } from "@nivo-sass/design-system";
 
 @Injectable()
 export class CheckInFacade {
@@ -19,9 +27,9 @@ export class CheckInFacade {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly parkingId = signal<string | null>(null);
-  readonly plate = signal<string>('');
-  readonly email = signal<string>('');
-  readonly vehicleType = signal<VehicleType>('CAR');
+  readonly plate = signal<string>("");
+  readonly email = signal<string>("");
+  readonly vehicleType = signal<VehicleType>("CAR");
   readonly selectedSlotId = signal<string | null>(null);
   readonly selectedRateId = signal<string | null>(null);
 
@@ -32,26 +40,35 @@ export class CheckInFacade {
 
   readonly parking = computed(() => {
     const id = this.parkingId();
-    if (!id) return null;
-    return (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ?? null;
+    if (!id) {
+      return null;
+    }
+    return (
+      (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ??
+      null
+    );
   });
 
   readonly allSlots = computed<SlotSummary[]>(() => {
     const id = this.parkingId();
-    if (!id) return [];
+    if (!id) {
+      return [];
+    }
     return this.slotService.summaries()[id] ?? [];
   });
 
   readonly availableSlots = computed<SlotSummary[]>(() => {
     const type = this.vehicleType();
     return this.allSlots().filter(
-      (slot) => slot.status === 'AVAILABLE' && slot.type === type,
+      (slot) => slot.status === "AVAILABLE" && slot.type === type
     );
   });
 
   readonly allRates = computed<RateModel[]>(() => {
     const id = this.parkingId();
-    if (!id) return [];
+    if (!id) {
+      return [];
+    }
     return this.rateService.ratesByParking()[id] ?? [];
   });
 
@@ -60,9 +77,9 @@ export class CheckInFacade {
     return this.allRates().filter((rate) => rate.vehicleType === type);
   });
 
-  readonly hasAvailableSlots = computed<boolean>(() => {
-    return this.availableSlots().length > 0;
-  });
+  readonly hasAvailableSlots = computed<boolean>(
+    () => this.availableSlots().length > 0
+  );
 
   readonly isValid = computed<boolean>(() => {
     const normalizedPlate = this.plate().trim();
@@ -98,7 +115,7 @@ export class CheckInFacade {
 
     // Auto-select first available slot for this vehicle type
     const slots = this.allSlots().filter(
-      (s) => s.status === 'AVAILABLE' && s.type === type,
+      (s) => s.status === "AVAILABLE" && s.type === type
     );
     this.selectedSlotId.set(slots.length > 0 ? slots[0].id : null);
 
@@ -129,34 +146,37 @@ export class CheckInFacade {
     this.errorMessage.set(null);
 
     const payload: CreateTicketPayload = {
-      slotId,
-      rateId,
-      plate,
       email: this.email().trim() || undefined,
+      plate,
+      rateId,
+      slotId,
     };
 
     this.ticketService.createTicket(payload).subscribe({
-      next: (ticket) => {
-        this.isSubmitting.set(false);
-        this.lastIssuedTicket.set(ticket);
-        this.isReceiptOpen.set(true);
-        this.toast.showToast({ message: 'Ingreso registrado con éxito', type: 'success' });
-
-        // Refresh slots state
-        this.slotService.getAllSlotSummariesByParkingId(pId).subscribe();
-
-        // Reset plate & email for next rapid check-in
-        this.plate.set('');
-        this.email.set('');
-      },
       error: (err) => {
         this.isSubmitting.set(false);
         const errorMsg =
           err?.error?.message ||
           err?.message ||
-          'Error al registrar el ingreso. Verifique la placa y disponibilidad de cupo.';
+          "Error al registrar el ingreso. Verifique la placa y disponibilidad de cupo.";
         this.errorMessage.set(errorMsg);
-        this.toast.showToast({ message: errorMsg, type: 'error' });
+        this.toast.showToast({ message: errorMsg, type: "error" });
+      },
+      next: (ticket) => {
+        this.isSubmitting.set(false);
+        this.lastIssuedTicket.set(ticket);
+        this.isReceiptOpen.set(true);
+        this.toast.showToast({
+          message: "Ingreso registrado con éxito",
+          type: "success",
+        });
+
+        // Refresh slots state
+        this.slotService.getAllSlotSummariesByParkingId(pId).subscribe();
+
+        // Reset plate & email for next rapid check-in
+        this.plate.set("");
+        this.email.set("");
       },
     });
   }
@@ -166,8 +186,8 @@ export class CheckInFacade {
   }
 
   reset(): void {
-    this.plate.set('');
-    this.email.set('');
+    this.plate.set("");
+    this.email.set("");
     this.errorMessage.set(null);
     this.selectedSlotId.set(null);
     this.selectedRateId.set(null);

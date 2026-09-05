@@ -7,16 +7,14 @@
  * Uso: node scripts/generate-tokens.mjs
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = resolve(__dirname, '..');
+const root = path.resolve(import.meta.dirname, "..");
 
 // --- Leer colors.json ---
 const colors = JSON.parse(
-  readFileSync(resolve(root, 'src/lib/tokens/colors.json'), 'utf8'),
+  readFileSync(path.resolve(root, "src/lib/tokens/colors.json"), "utf-8")
 );
 
 // --- Helpers ---
@@ -26,27 +24,40 @@ const colors = JSON.parse(
  * Un token de tema tiene las mismas keys en light y dark.
  */
 const THEME_KEYS = new Set([
-  'background', 'foreground',
-  'card', 'card-foreground',
-  'popover', 'popover-foreground',
-  'primary', 'primary-foreground',
-  'secondary', 'secondary-foreground',
-  'muted', 'muted-foreground',
-  'accent', 'accent-foreground',
-  'destructive', 'destructive-foreground',
-  'border', 'input', 'ring',
-  'semantic-success', 'semantic-warning', 'semantic-info', 'semantic-error',
+  "background",
+  "foreground",
+  "card",
+  "card-foreground",
+  "popover",
+  "popover-foreground",
+  "primary",
+  "primary-foreground",
+  "secondary",
+  "secondary-foreground",
+  "muted",
+  "muted-foreground",
+  "accent",
+  "accent-foreground",
+  "destructive",
+  "destructive-foreground",
+  "border",
+  "input",
+  "ring",
+  "semantic-success",
+  "semantic-warning",
+  "semantic-info",
+  "semantic-error",
 ]);
 
 /**
  * Convierte un objeto de tokens en bloque de CSS custom properties.
  * Filtra solo las keys que pertenecen al tema.
  */
-const toVars = (obj, indent = '  ') =>
+const toVars = (obj, indent = "  ") =>
   Object.entries(obj)
     .filter(([key]) => THEME_KEYS.has(key))
     .map(([key, value]) => `${indent}--${key}: ${value};`)
-    .join('\n');
+    .join("\n");
 
 // --- Generar CSS ---
 const css = `/* ==========================================================
@@ -87,8 +98,8 @@ ${toVars(colors.dark)}
 `;
 
 // --- Escribir archivo ---
-const outputPath = resolve(root, 'src/lib/styles/tokens.css');
-writeFileSync(outputPath, css, 'utf8');
+const outputPath = path.resolve(root, "src/lib/styles/tokens.css");
+writeFileSync(outputPath, css, "utf-8");
 
-console.log('✅ tokens.css generado desde colors.json');
+console.log("✅ tokens.css generado desde colors.json");
 console.log(`   → ${outputPath}`);

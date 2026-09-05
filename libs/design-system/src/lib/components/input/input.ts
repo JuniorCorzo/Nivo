@@ -7,28 +7,25 @@ import {
   signal,
   effect,
 } from "@angular/core";
-
-import {
-  ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-} from "@angular/forms";
-import { ValidationError } from "@angular/forms/signals";
+import type { ControlValueAccessor } from "@angular/forms";
+import { NG_VALUE_ACCESSOR } from "@angular/forms";
+import type { ValidationError } from "@angular/forms/signals";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
 
 @Component({
-  selector: "nv-input",
-  standalone: true,
-  imports: [NgIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [NgIcon],
   providers: [
     provideIcons({ lucideEye, lucideEyeClosed }),
     {
+      multi: true,
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => InputComponent),
-      multi: true,
     },
   ],
+  selector: "nv-input",
+  standalone: true,
   styles: `
     input::placeholder {
       color: var(--muted-foreground);
@@ -40,11 +37,13 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
       @if (label()) {
         <label
           [for]="id()"
-          class="text-sm font-medium text-(--foreground) font-sans"
+          class="font-sans text-sm font-medium text-(--foreground)"
         >
           {{ label() }}
           @if (required()) {
-            <span class="text-(--destructive) ml-0.5" aria-hidden="true">*</span>
+            <span class="ml-0.5 text-(--destructive)" aria-hidden="true"
+              >*</span
+            >
           }
         </label>
       }
@@ -54,7 +53,7 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
             <ng-icon
               [name]="startIcon()!"
               size="16"
-              class="absolute left-3 top-1/2 -translate-y-1/2 text-(--muted-foreground) pointer-events-none"
+              class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-(--muted-foreground)"
               aria-hidden="true"
             />
           }
@@ -66,13 +65,13 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
             [disabled]="disabled()"
             [value]="value()"
             (input)="onInput($event)"
-            (blur)="onTouched()"
+            (blur)="onBlur()"
             [class]="classes()"
           />
           @if (type() === "password") {
             <button
               type="button"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-(--muted-foreground) hover:text-(--foreground) transition-colors"
+              class="absolute top-1/2 right-3 -translate-y-1/2 text-(--muted-foreground) transition-colors hover:text-(--foreground)"
               (click)="togglePasswordVisibility()"
             >
               <ng-icon
@@ -85,7 +84,7 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
       </div>
       @if (hasErrors()) {
         <ul
-          class="text-xs text-(--destructive) font-sans space-y-1 mt-1"
+          class="mt-1 space-y-1 font-sans text-xs text-(--destructive)"
           aria-live="polite"
           role="alert"
           [id]="ariaDescribedBy()"
@@ -98,7 +97,7 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
         </ul>
       }
       @if (hint() && !hasErrors()) {
-        <p class="text-xs text-(--muted-foreground) font-sans">
+        <p class="font-sans text-xs text-(--muted-foreground)">
           {{ hint() }}
         </p>
       }
@@ -107,7 +106,7 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
 })
 export class InputComponent implements ControlValueAccessor {
   readonly id = input<string>(
-    `nv-input-${Math.random().toString(36).slice(2)}`,
+    `nv-input-${Math.random().toString(36).slice(2)}`
   );
   readonly ariaDescribedBy = computed(() => `${this.id()}-error`);
   readonly label = input<string>("");
@@ -115,23 +114,21 @@ export class InputComponent implements ControlValueAccessor {
   readonly type = input<string>("text");
   readonly placeholder = input<string>("");
   readonly disabled = input<boolean>(false);
-  readonly startIcon = input<string | undefined>(undefined);
-  readonly error = input<ValidationError.WithFieldTree[] | undefined>(
-    undefined,
-  );
+  readonly startIcon = input<string | undefined>();
+  readonly error = input<ValidationError.WithFieldTree[] | undefined>();
   readonly hint = input<string>("");
   readonly hasErrors = computed(() => (this.error()?.length ?? 0) > 0);
 
   readonly showPassword = signal(false);
   readonly actualType = computed(() =>
-    this.type() === "password" && this.showPassword() ? "text" : this.type(),
+    this.type() === "password" && this.showPassword() ? "text" : this.type()
   );
 
   readonly value = signal("");
   readonly initialValue = input<string>("", { alias: "value" });
 
-  onChange: (value: string) => void = () => {};
-  onTouched: () => void = () => {};
+  private onModelChange?: (value: string) => void;
+  private onModelTouched?: () => void;
 
   constructor() {
     effect(() => {
@@ -146,9 +143,15 @@ export class InputComponent implements ControlValueAccessor {
     this.showPassword.update((v) => !v);
   }
 
+  onBlur(): void {
+    this.onModelTouched?.();
+  }
+
   onInput(event: Event): void {
-    this.value.set((event.target as HTMLInputElement).value);
-    this.onChange(this.value());
+    /* SAFETY: event.target is guaranteed to be an HTMLInputElement for this input element */
+    const target = event.target as HTMLInputElement;
+    this.value.set(target.value);
+    this.onModelChange?.(this.value());
   }
 
   readonly classes = computed(() => {
@@ -168,10 +171,10 @@ export class InputComponent implements ControlValueAccessor {
   }
 
   registerOnChange(fn: (value: string) => void): void {
-    this.onChange = fn;
+    this.onModelChange = fn;
   }
 
   registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
+    this.onModelTouched = fn;
   }
 }

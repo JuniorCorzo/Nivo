@@ -1,10 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/angular";
+
 import { BadgeComponent } from "./badge";
 
 const meta: Meta<BadgeComponent> = {
-  title: "Components/Badge",
-  component: BadgeComponent,
-  tags: ["autodocs"],
   argTypes: {
     variant: {
       control: "select",
@@ -19,10 +17,13 @@ const meta: Meta<BadgeComponent> = {
       ],
     },
   },
+  component: BadgeComponent,
   render: (args) => ({
     props: args,
     template: `<nv-badge [variant]="variant">Badge</nv-badge>`,
   }),
+  tags: ["autodocs"],
+  title: "Components/Badge",
 };
 
 export default meta;
@@ -38,6 +39,7 @@ export const Outline: Story = { args: { variant: "outline" } };
 
 export const AllVariants: StoryObj = {
   render: () => ({
+    moduleMetadata: { imports: [BadgeComponent] },
     template: `
       <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
         <nv-badge variant="default">Default</nv-badge>
@@ -49,6 +51,5 @@ export const AllVariants: StoryObj = {
         <nv-badge variant="outline">Outline</nv-badge>
       </div>
     `,
-    moduleMetadata: { imports: [BadgeComponent] },
   }),
 };

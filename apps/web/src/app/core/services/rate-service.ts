@@ -1,27 +1,30 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient, HttpContext } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-
-import { ParkingLotsService, RatesService, TenantsService } from '@core/api/generated/services';
-import { RatesDto, SpecialPoliciesDto } from '@core/api/generated/models';
-import { AUTHORIZED } from '@core/http/context/auth.token';
+import { HttpContext } from "@angular/common/http";
+import { inject, Injectable, signal } from "@angular/core";
+import type { RatesDto, SpecialPoliciesDto } from "@core/api/generated/models";
 import {
-  CreateRateModel,
-  RateCalculationSimulation,
-  RateModel,
-  SpecialPolicyModel,
-  UpdateRateModel,
-} from '@core/models/rate.model';
+  ParkingLotsService,
+  RatesService,
+  TenantsService,
+} from "@core/api/generated/services";
+import { AUTHORIZED } from "@core/http/context/auth.token";
 import {
   mapToCreateRateDto,
   mapToRateModel,
   mapToSpecialPolicyModel,
   mapToUpdateRateDto,
-} from '@core/mappers/rate.mapper';
+} from "@core/mappers/rate.mapper";
+import type {
+  CreateRateModel,
+  RateCalculationSimulation,
+  RateModel,
+  SpecialPolicyModel,
+  UpdateRateModel,
+} from "@core/models/rate.model";
+import type { Observable } from "rxjs";
+import { map, tap } from "rxjs/operators";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class RateService {
   private parkingLotsService = inject(ParkingLotsService);
@@ -34,33 +37,40 @@ export class RateService {
   private readonly specialPoliciesState = signal<SpecialPolicyModel[]>([]);
   readonly specialPolicies = this.specialPoliciesState.asReadonly();
 
-  private httpContext = () => {
+  private static httpContext() {
     const context = new HttpContext();
     context.set(AUTHORIZED, true);
     return context;
-  };
+  }
 
   getRatesByParkingId(parkingId: string): Observable<RateModel[]> {
     return this.parkingLotsService
-      .showRatesByParkingId({ parkingId }, this.httpContext())
+      .showRatesByParkingId({ parkingId }, RateService.httpContext())
       .pipe(
-        map((response) => ((response.data ?? []) as RatesDto[]).map((item: RatesDto) => mapToRateModel(item))),
+        map((response) => {
+          /* SAFETY: Response data represents RatesDto array from API */
+          const items = (response.data ?? []) as RatesDto[];
+          return items.map((item: RatesDto) => mapToRateModel(item));
+        }),
         tap((rates) =>
           this.ratesState.update((state) => ({
             ...state,
             [parkingId]: rates,
-          })),
-        ),
-        catchError((error) => throwError(() => error)),
+          }))
+        )
       );
   }
 
   createRate(model: CreateRateModel): Observable<RateModel> {
     const dto = mapToCreateRateDto(model);
     return this.parkingLotsService
-      .createRateForParking({ body: dto }, this.httpContext())
+      .createRateForParking({ body: dto }, RateService.httpContext())
       .pipe(
-        map((response) => mapToRateModel(response.data!)),
+        map((response) => {
+          /* SAFETY: Created rate response data is defined */
+          const data = response.data as RatesDto;
+          return mapToRateModel(data);
+        }),
         tap((createdRate) => {
           this.ratesState.update((state) => {
             const current = state[model.parkingId] ?? [];
@@ -69,35 +79,41 @@ export class RateService {
               [model.parkingId]: [...current, createdRate],
             };
           });
-        }),
-        catchError((error) => throwError(() => error)),
+        })
       );
   }
 
   updateRate(model: UpdateRateModel, parkingId: string): Observable<RateModel> {
     const dto = mapToUpdateRateDto(model);
     return this.ratesService
-      .updateRate({ body: dto }, this.httpContext())
+      .updateRate({ body: dto }, RateService.httpContext())
       .pipe(
-        map((response) => mapToRateModel(response.data!)),
+        map((response) => {
+          /* SAFETY: Updated rate response data is defined */
+          const data = response.data as RatesDto;
+          return mapToRateModel(data);
+        }),
         tap((updatedRate) => {
           this.ratesState.update((state) => {
             const current = state[parkingId] ?? [];
             return {
               ...state,
-              [parkingId]: current.map((r) => (r.id === updatedRate.id ? updatedRate : r)),
+              [parkingId]: current.map((r) =>
+                r.id === updatedRate.id ? updatedRate : r
+              ),
             };
           });
-        }),
-        catchError((error) => throwError(() => error)),
+        })
       );
   }
 
   deleteRate(rateId: string, parkingId: string): Observable<void> {
     return this.ratesService
-      .deleteRate({ id: rateId }, this.httpContext())
+      .deleteRate({ id: rateId }, RateService.httpContext())
       .pipe(
-        map(() => void 0),
+        map(() => {
+          // void return
+        }),
         tap(() => {
           this.ratesState.update((state) => {
             const current = state[parkingId] ?? [];
@@ -106,39 +122,39 @@ export class RateService {
               [parkingId]: current.filter((r) => r.id !== rateId),
             };
           });
-        }),
-        catchError((error) => throwError(() => error)),
+        })
       );
   }
 
   loadSpecialPolicies(): Observable<SpecialPolicyModel[]> {
     return this.tenantsService
-      .showSpecialPoliciesByTenant(undefined, this.httpContext())
+      .showSpecialPoliciesByTenant(undefined, RateService.httpContext())
       .pipe(
-        map((response) =>
-          ((response.data ?? []) as SpecialPoliciesDto[])
+        map((response) => {
+          /* SAFETY: Special policies response data is an array of SpecialPoliciesDto */
+          const items = (response.data ?? []) as SpecialPoliciesDto[];
+          return items
             .map((item) => mapToSpecialPolicyModel(item))
-            .filter((p): p is SpecialPolicyModel => !!p),
-        ),
-        tap((policies) => this.specialPoliciesState.set(policies)),
-        catchError((error) => throwError(() => error)),
+            .filter((p): p is SpecialPolicyModel => !!p);
+        }),
+        tap((policies) => this.specialPoliciesState.set(policies))
       );
   }
 
-  simulateCalculation(params: {
+  static simulateCalculation(params: {
     basePrice: number;
-    timeUnit: 'MINUTES' | 'HOURS' | 'DAYS';
     durationInMinutes: number;
     specialPolicy?: SpecialPolicyModel;
+    timeUnit: "DAYS" | "HOURS" | "MINUTES";
   }): RateCalculationSimulation {
-    const { basePrice, timeUnit, durationInMinutes, specialPolicy } = params;
+    const { basePrice, durationInMinutes, specialPolicy, timeUnit } = params;
 
     let units = 0;
-    if (timeUnit === 'MINUTES') {
+    if (timeUnit === "MINUTES") {
       units = Math.max(1, durationInMinutes);
-    } else if (timeUnit === 'HOURS') {
+    } else if (timeUnit === "HOURS") {
       units = Math.max(1, Math.ceil(durationInMinutes / 60));
-    } else if (timeUnit === 'DAYS') {
+    } else if (timeUnit === "DAYS") {
       units = Math.max(1, Math.ceil(durationInMinutes / (60 * 24)));
     }
 
@@ -146,14 +162,13 @@ export class RateService {
     let discountOrSurcharge = 0;
 
     if (specialPolicy) {
-      if (specialPolicy.operation === 'PERCENTAGE') {
+      if (specialPolicy.operation === "PERCENTAGE") {
         const factor = specialPolicy.valueToModify / 100;
-        if (specialPolicy.modifies === 'DISCOUNT') {
-          discountOrSurcharge = -(subtotal * factor);
-        } else {
-          discountOrSurcharge = subtotal * factor;
-        }
-      } else if (specialPolicy.operation === 'SUBTRACT') {
+        discountOrSurcharge =
+          specialPolicy.modifies === "DISCOUNT"
+            ? -(subtotal * factor)
+            : subtotal * factor;
+      } else if (specialPolicy.operation === "SUBTRACT") {
         discountOrSurcharge = -specialPolicy.valueToModify;
       } else {
         discountOrSurcharge = specialPolicy.valueToModify;
@@ -164,12 +179,12 @@ export class RateService {
 
     return {
       basePrice,
-      timeUnit,
-      unitsCalculated: units,
+      discountOrSurcharge,
       durationInMinutes,
       subtotal,
-      discountOrSurcharge,
+      timeUnit,
       total,
+      unitsCalculated: units,
     };
   }
 }

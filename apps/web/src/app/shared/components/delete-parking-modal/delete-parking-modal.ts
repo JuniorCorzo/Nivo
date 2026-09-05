@@ -1,23 +1,24 @@
-import { afterNextRender, Component, ElementRef, OnDestroy, output, viewChild } from '@angular/core';
-import { ButtonComponent } from '@nivo-sass/design-system';
-import { APP_TEXTS } from '@shared/constants/app-texts.constant';
+import type { ElementRef, OnDestroy } from "@angular/core";
+import { afterNextRender, Component, output, viewChild } from "@angular/core";
+import { ButtonComponent } from "@nivo-sass/design-system";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({
-  selector: 'app-delete-parking-modal',
-  standalone: true,
   imports: [ButtonComponent],
-  templateUrl: './delete-parking-modal.html',
-  styleUrl: './delete-parking-modal.css',
+  selector: "app-delete-parking-modal",
+  standalone: true,
+  styleUrl: "./delete-parking-modal.css",
+  templateUrl: "./delete-parking-modal.html",
 })
 export class DeleteParkingModal implements OnDestroy {
   protected readonly LABELS = APP_TEXTS.parking.confirmations.delete;
-  protected readonly titleId = 'delete-parking-title';
-  protected readonly descriptionId = 'delete-parking-description';
+  protected readonly titleId = "delete-parking-title";
+  protected readonly descriptionId = "delete-parking-description";
 
-  readonly confirm = output<void>();
-  readonly cancel = output<void>();
+  readonly confirm = output();
+  readonly cancel = output();
 
-  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
+  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>("dialog");
 
   constructor() {
     afterNextRender(() => {

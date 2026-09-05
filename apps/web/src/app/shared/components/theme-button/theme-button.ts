@@ -1,31 +1,36 @@
-import { Component, computed, input, signal, WritableSignal } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideMoon, lucideSun } from '@ng-icons/lucide';
-import { APP_TEXTS } from '@shared/constants/app-texts.constant';
+import type { WritableSignal } from "@angular/core";
+import { Component, computed, input, signal } from "@angular/core";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucideMoon, lucideSun } from "@ng-icons/lucide";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({
-  selector: 'app-theme-button',
   imports: [NgIcon],
-  providers: [provideIcons({ lucideSun, lucideMoon })],
-  templateUrl: './theme-button.html',
-  styleUrl: './theme-button.css',
+  providers: [provideIcons({ lucideMoon, lucideSun })],
+  selector: "app-theme-button",
+  styleUrl: "./theme-button.css",
+  templateUrl: "./theme-button.html",
 })
 export class ThemeButton {
   readonly collapsed = input(false);
-  private currentTheme = signal<'light' | 'dark'>('dark');
+  private currentTheme = signal<"light" | "dark">("dark");
   protected currentIcon = computed(() =>
-    this.currentTheme() === 'dark' ? 'lucideMoon' : 'lucideSun',
+    this.currentTheme() === "dark" ? "lucideMoon" : "lucideSun"
   );
   protected themeLabel = APP_TEXTS.sidebar.theme.label;
 
   protected onClick() {
-    if (!document.startViewTransition) this.toggleTheme(this.currentTheme);
-    document.startViewTransition(this.toggleTheme.bind(this, this.currentTheme));
+    if (!document.startViewTransition) {
+      this.toggleTheme(this.currentTheme);
+    }
+    document.startViewTransition(
+      this.toggleTheme.bind(this, this.currentTheme)
+    );
   }
 
-  protected toggleTheme(currentTheme: WritableSignal<'light' | 'dark'>) {
+  protected toggleTheme(currentTheme: WritableSignal<"light" | "dark">) {
     const prevTheme = currentTheme();
-    this.currentTheme.set(prevTheme === 'dark' ? 'light' : 'dark');
+    this.currentTheme.set(prevTheme === "dark" ? "light" : "dark");
     document.documentElement.classList.remove(prevTheme);
     document.documentElement.classList.add(currentTheme());
   }

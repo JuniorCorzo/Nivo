@@ -2,10 +2,7 @@
   {
     "id": 0,
     "department": "Amazonas",
-    "cities": [
-      "Leticia",
-      "Puerto Nariño"
-    ]
+    "cities": ["Leticia", "Puerto Nariño"]
   },
   {
     "id": 1,
@@ -561,9 +558,7 @@
   {
     "id": 12,
     "department": "Bogotá D.C.",
-    "cities": [
-      "Bogotá"
-    ]
+    "cities": ["Bogotá"]
   },
   {
     "id": 13,
@@ -726,20 +721,12 @@
   {
     "id": 15,
     "department": "Guainía",
-    "cities": [
-      "Barrancominas",
-      "Inírida"
-    ]
+    "cities": ["Barrancominas", "Inírida"]
   },
   {
     "id": 16,
     "department": "Guaviare",
-    "cities": [
-      "Calamar",
-      "El Retorno",
-      "Miraflores",
-      "San José del Guaviare"
-    ]
+    "cities": ["Calamar", "El Retorno", "Miraflores", "San José del Guaviare"]
   },
   {
     "id": 17,
@@ -1052,10 +1039,7 @@
   {
     "id": 26,
     "department": "San Andrés y Providencia",
-    "cities": [
-      "Providencia y Santa Catalina Islas",
-      "San Andrés"
-    ]
+    "cities": ["Providencia y Santa Catalina Islas", "San Andrés"]
   },
   {
     "id": 27,
@@ -1286,20 +1270,11 @@
   {
     "id": 31,
     "department": "Vaupés",
-    "cities": [
-      "Carurú",
-      "Mitú",
-      "Taraira"
-    ]
+    "cities": ["Carurú", "Mitú", "Taraira"]
   },
   {
     "id": 32,
     "department": "Vichada",
-    "cities": [
-      "Cumaribo",
-      "La Primavera",
-      "Puerto Carreño",
-      "Santa Rosalía"
-    ]
+    "cities": ["Cumaribo", "La Primavera", "Puerto Carreño", "Santa Rosalía"]
   }
 ]

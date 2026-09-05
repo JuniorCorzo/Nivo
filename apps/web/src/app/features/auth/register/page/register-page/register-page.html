@@ -1,16 +1,25 @@
 @let isLoadingLocal = isLoading();
 
 <section class="flex-center min-h-screen">
-  <nv-card class="md:min-w-md flex-center flex-col gap-8 md:gap-10 p-6 md:p-12">
+  <nv-card class="flex-center flex-col gap-8 p-6 md:min-w-md md:gap-10 md:p-12">
     <nv-card-header class="flex-center gap-2 p-0!">
-      <ng-icon name="nivo-logo-horizontal" class="text-foreground text-center w-36! h-16!" />
+      <ng-icon
+        name="nivo-logo-horizontal"
+        class="text-foreground h-16! w-36! text-center"
+      />
       <span class="flex-center flex-col gap-2">
-        <nv-card-title class="text-center text-2xl">{{ texts.title }}</nv-card-title>
+        <nv-card-title class="text-center text-2xl"
+          >{{ texts.title }}</nv-card-title
+        >
         <nv-card-description>{{ texts.description }}</nv-card-description>
       </span>
     </nv-card-header>
-    <nv-card-content class="w-full flex flex-col p-0!">
-      <form class="w-full flex-center flex-col gap-6" novalidate (submit)="onSubmit($event)">
+    <nv-card-content class="flex w-full flex-col p-0!">
+      <form
+        class="flex-center w-full flex-col gap-6"
+        novalidate
+        (submit)="onSubmit($event)"
+      >
         <nv-input
           class="w-full"
           [label]="texts.form.companyName.label"
@@ -56,22 +65,25 @@
           [formField]="registerForm.confirmPassword"
           [error]="onError('confirmPassword')"
         />
-        <div class="flex-center flex-col w-full gap-5 text-xs">
+        <div class="flex-center w-full flex-col gap-5 text-xs">
           <nv-button
             class="w-full cursor-pointer"
             type="submit"
             size="md"
             [disabled]="this.registerForm().invalid()"
           >
-            {{ texts.actions.submit }}
-            @if (isLoadingLocal) {
-              <ng-icon name="lucideLoader" class="animate-spin duration-75" size="16"></ng-icon>
+            {{ texts.actions.submit }} @if (isLoadingLocal) {
+            <ng-icon
+              name="lucideLoader"
+              class="animate-spin duration-75"
+              size="16"
+            ></ng-icon>
             }
           </nv-button>
           <nv-muted
             >{{ texts.actions.hasAccount }}
             <a
-              class="text-foreground hover:underline underline-offset-2 cursor-ponter"
+              class="text-foreground cursor-ponter underline-offset-2 hover:underline"
               routerLink="/auth/login"
               >{{ texts.actions.login }}</a
             ></nv-muted

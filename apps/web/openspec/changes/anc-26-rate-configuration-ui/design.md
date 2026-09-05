@@ -5,6 +5,7 @@
 Implement the rates management module under `apps/web/src/app/features/rates/` mirroring the decoupled architecture of `slots` and `parking`. Uses Angular Standalone Components, Angular Signals, pure mapper functions, facade pattern for reactive form state, and integration with generated OpenAPI endpoints (`ParkingLotsService`, `RateControllerService`, `TenantControllerService`).
 
 All implementations MUST comply with project conventions defined in `AGENTS.md` and `ARCHITECTURE.md`:
+
 - **Commit Scopes**: Use `feat(web/rates): ...` or `feat(web/ui): ...` with Conventional Commits.
 - **Design System & Tokens**: Adhere to `nivo-brand-design` standards (`libs/design-system`), using atomic components, design tokens (colors, typography, spacing), and Tailwind CSS.
 - **Architecture**: Clean layer separation (Domain Models $\rightarrow$ Pure Mappers $\rightarrow$ Core Services $\rightarrow$ Feature Facades $\rightarrow$ Standalone UI Components).
@@ -12,7 +13,7 @@ All implementations MUST comply with project conventions defined in `AGENTS.md` 
 ## Architecture Decisions
 
 | Decision | Option A | Option B | Chosen & Rationale |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **State Management** | Global NgRx Store | Angular Signals + Facade Pattern | **Signals + Facade**: Matches existing `slots-table.state.ts` and `parking-form.facade.ts` architecture without introducing unnecessary store boilerplate. |
 | **Form Implementation** | ReactiveForms `FormGroup` | Signal Forms (`@angular/forms/signals`) | **ReactiveForms with Signal interop**: Mature validation ecosystem with `toSignal()` bridges for real-time calculation feeds. |
 | **Routing Hierarchy** | Flat `/app/rates` | Nested `/app/parking-lots/:parkingId/rates` | **Nested**: Rates strictly belong to parking lots; aligns with `APP_ROUTE_PATHS` conventions. |
@@ -33,7 +34,7 @@ All implementations MUST comply with project conventions defined in `AGENTS.md` 
 ## File Changes
 
 | File | Action | Description |
-|---|---|---|
+| --- | --- | --- |
 | `apps/web/src/app/core/models/rate.model.ts` | Create | Domain models for `Rate`, `RateType`, `CreateRateModel`, `UpdateRateModel`, `SpecialPolicy`. |
 | `apps/web/src/app/core/mappers/rate.mapper.ts` | Create | Pure mapper functions translating DTOs $\leftrightarrow$ domain rate models. |
 | `apps/web/src/app/core/services/rate-service.ts` | Create | Injectable rate service wrapping OpenAPI endpoints with HTTP context. |
@@ -47,8 +48,8 @@ All implementations MUST comply with project conventions defined in `AGENTS.md` 
 ## Interfaces / Contracts
 
 ```typescript
-export type TimeUnit = 'MINUTES' | 'HOURS' | 'DAYS';
-export type VehicleType = 'CAR' | 'MOTORCYCLE' | 'BIKE';
+export type TimeUnit = "MINUTES" | "HOURS" | "DAYS";
+export type VehicleType = "CAR" | "MOTORCYCLE" | "BIKE";
 
 export interface RateModel {
   id: string;
@@ -68,8 +69,8 @@ export interface SpecialPolicyModel {
   id: string;
   name: string;
   active: boolean;
-  modifies: 'PRICE' | 'TIME' | 'DISCOUNT' | 'SURCHARGE';
-  operation: 'SUBTRACT' | 'PERCENTAGE' | 'SET';
+  modifies: "PRICE" | "TIME" | "DISCOUNT" | "SURCHARGE";
+  operation: "SUBTRACT" | "PERCENTAGE" | "SET";
   valueToModify: number;
 }
 ```
@@ -77,7 +78,7 @@ export interface SpecialPolicyModel {
 ## Testing Strategy
 
 | Layer | What to Test | Approach |
-|---|---|---|
+| --- | --- | --- |
 | Unit | `rate.mapper.ts` & `rate-service.ts` | Vitest specs with mocked OpenAPI DTOs. |
 | Unit | `RateFormFacade` calculation logic | Assert signal emissions on price changes and grace period rules. |
 | Component | `RateFormComponent` & `RateCalculatorComponent` | Test dynamic inputs rendering and real-time preview reactivity. |

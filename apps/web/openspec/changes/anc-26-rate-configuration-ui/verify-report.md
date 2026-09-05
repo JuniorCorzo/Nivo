@@ -9,14 +9,14 @@
 ## Test and Build Evidence
 
 | Command | Exit Code | Result |
-|---|---|---|
+| --- | --- | --- |
 | `bun run ng build --no-progress` | `0` | **PASS** (Bundle generation complete) |
 | `CHROME_BIN=/usr/bin/chromium-browser bun run test --include="**/rate*spec.ts"` | `0` | **PASS** (14/14 specs passed) |
 
 ## Spec Compliance Matrix
 
 | Requirement | Scenario | Status | Evidence |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **Rate Overview and Listing** | View configured rates for parking lot | `COMPLIANT` | `RateListComponent` loads rates via `RateService.getRatesByParkingId()` |
 | **Rate Overview and Listing** | Empty rates state | `COMPLIANT` | `RateListComponent` displays empty state when no rates exist |
 | **Dynamic Rate Creation and Editing** | Create hourly rate with grace period | `COMPLIANT` | `RateFormFacade` & `rate.mapper.spec.ts` unit tests |

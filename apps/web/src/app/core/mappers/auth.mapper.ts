@@ -1,15 +1,9 @@
-import { Injectable } from '@angular/core';
-import { LoginResponseModel } from '../models/auth.model';
-import { AuthenticationResponseDto } from '../api/generated/models';
+import type { AuthenticationResponseDto } from "../api/generated/models";
+import type { LoginResponseModel } from "../models/auth.model";
 
-@Injectable({
-  providedIn: 'root',
-})
-export class AuthMapper {
-  mapToLoginResponseModel(dto: AuthenticationResponseDto): LoginResponseModel {
-    return {
-      accessToken: dto.accessToken,
-      refreshToken: dto.refreshToken,
-    };
-  }
-}
+export const mapToLoginResponseModel = (
+  dto: AuthenticationResponseDto
+): LoginResponseModel => ({
+  accessToken: dto.accessToken,
+  refreshToken: dto.refreshToken,
+});

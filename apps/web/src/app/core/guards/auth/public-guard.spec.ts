@@ -1,17 +1,17 @@
-import { TestBed } from '@angular/core/testing';
-import { CanActivateFn } from '@angular/router';
+import { TestBed } from "@angular/core/testing";
+import type { CanActivateFn } from "@angular/router";
 
-import { publicGuard } from './public-guard';
+import { publicGuard } from "./public-guard";
 
-describe('publicGuard', () => {
-  const executeGuard: CanActivateFn = (...guardParameters) => 
-      TestBed.runInInjectionContext(() => publicGuard(...guardParameters));
+const executeGuard: CanActivateFn = (...guardParameters) =>
+  TestBed.runInInjectionContext(() => publicGuard(...guardParameters));
 
+describe("publicGuard", () => {
   beforeEach(() => {
     TestBed.configureTestingModule({});
   });
 
-  it('should be created', () => {
+  it("should be created", () => {
     expect(executeGuard).toBeTruthy();
   });
 });

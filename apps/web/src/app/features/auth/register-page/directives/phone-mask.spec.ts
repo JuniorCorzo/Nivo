@@ -1,7 +1,7 @@
-import { PhoneMask } from './phone-mask';
+import { PhoneMask } from "./phone-mask";
 
-describe('PhoneMask', () => {
-  it('should create an instance', () => {
+describe("PhoneMask", () => {
+  it("should create an instance", () => {
     const directive = new PhoneMask();
     expect(directive).toBeTruthy();
   });

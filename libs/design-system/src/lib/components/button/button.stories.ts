@@ -1,56 +1,58 @@
 import type { Meta, StoryObj } from "@storybook/angular";
+
 import { ButtonComponent } from "./button";
 
 const meta: Meta<ButtonComponent> = {
-  title: "Components/Button",
-  component: ButtonComponent,
-  tags: ["autodocs"],
   argTypes: {
-    variant: {
-      control: "select",
-      options: ["default", "secondary", "destructive", "ghost", "outline"],
-    },
+    disabled: { control: "boolean" },
     size: {
       control: "select",
       options: ["sm", "md", "lg", "icon"],
     },
-    disabled: { control: "boolean" },
+    variant: {
+      control: "select",
+      options: ["default", "secondary", "destructive", "ghost", "outline"],
+    },
   },
+  component: ButtonComponent,
   render: (args) => ({
     props: args,
     template: `<nv-button [variant]="variant" [size]="size" [disabled]="disabled">Button</nv-button>`,
   }),
+  tags: ["autodocs"],
+  title: "Components/Button",
 };
 
 export default meta;
 type Story = StoryObj<ButtonComponent>;
 
 export const Default: Story = {
-  args: { variant: "default", size: "md", disabled: false },
+  args: { disabled: false, size: "md", variant: "default" },
 };
 
 export const Secondary: Story = {
-  args: { variant: "secondary", size: "md", disabled: false },
+  args: { disabled: false, size: "md", variant: "secondary" },
 };
 
 export const Destructive: Story = {
-  args: { variant: "destructive", size: "md", disabled: false },
+  args: { disabled: false, size: "md", variant: "destructive" },
 };
 
 export const Outline: Story = {
-  args: { variant: "outline", size: "md", disabled: false },
+  args: { disabled: false, size: "md", variant: "outline" },
 };
 
 export const Ghost: Story = {
-  args: { variant: "ghost", size: "md", disabled: false },
+  args: { disabled: false, size: "md", variant: "ghost" },
 };
 
 export const Disabled: Story = {
-  args: { variant: "default", size: "md", disabled: true },
+  args: { disabled: true, size: "md", variant: "default" },
 };
 
 export const AllVariants: StoryObj = {
   render: () => ({
+    moduleMetadata: { imports: [ButtonComponent] },
     template: `
       <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
         <nv-button variant="default">Default</nv-button>
@@ -61,12 +63,12 @@ export const AllVariants: StoryObj = {
         <nv-button disabled>Disabled</nv-button>
       </div>
     `,
-    moduleMetadata: { imports: [ButtonComponent] },
   }),
 };
 
 export const AllSizes: StoryObj = {
   render: () => ({
+    moduleMetadata: { imports: [ButtonComponent] },
     template: `
       <div style="display:flex; gap:8px; align-items:center;">
         <nv-button size="sm">Small</nv-button>
@@ -74,6 +76,5 @@ export const AllSizes: StoryObj = {
         <nv-button size="lg">Large</nv-button>
       </div>
     `,
-    moduleMetadata: { imports: [ButtonComponent] },
   }),
 };

@@ -1,58 +1,67 @@
-import { ParkingSlotStatus } from '@core/type/parking-slot.type';
-import { SlotType } from '@core/type/slot-distribution.type';
+import type { ParkingSlotStatus } from "@core/type/parking-slot.type";
+import type { SlotType } from "@core/type/slot-distribution.type";
 
-export type Option = { value: string; label: string };
+export interface Option {
+  value: string;
+  label: string;
+}
 
-export type SlotStatusVariant = 'success' | 'warning' | 'destructive' | 'secondary';
+export type SlotStatusVariant =
+  | "success"
+  | "warning"
+  | "destructive"
+  | "secondary";
 
-export const SLOT_TYPE_LABELS: Record<SlotType, string> = {
-  CAR: 'Carro',
-  MOTORCYCLE: 'Moto',
-  BIKE: 'Bicicleta',
-  ELECTRIC_VEHICLE: 'Eléctrico',
-  DISABLED: 'Discapacitado',
-};
+export const SLOT_TYPE_LABELS = {
+  BIKE: "Bicicleta",
+  CAR: "Carro",
+  DISABLED: "Discapacitado",
+  ELECTRIC_VEHICLE: "Eléctrico",
+  MOTORCYCLE: "Moto",
+} satisfies Record<SlotType, string>;
 
-export const SLOT_STATUS_LABELS: Record<ParkingSlotStatus, string> = {
-  AVAILABLE: 'Disponible',
-  OCCUPIED: 'Ocupada',
-  MAINTENANCE: 'Mantenimiento',
-  RESERVED: 'Reservada',
-};
+export const SLOT_STATUS_LABELS = {
+  AVAILABLE: "Disponible",
+  MAINTENANCE: "Mantenimiento",
+  OCCUPIED: "Ocupada",
+  RESERVED: "Reservada",
+} satisfies Record<ParkingSlotStatus, string>;
 
-export const SLOT_STATUS_VARIANTS: Record<ParkingSlotStatus, SlotStatusVariant> = {
-  AVAILABLE: 'success',
-  OCCUPIED: 'destructive',
-  MAINTENANCE: 'warning',
-  RESERVED: 'secondary',
-};
+export const SLOT_STATUS_VARIANTS = {
+  AVAILABLE: "success",
+  MAINTENANCE: "warning",
+  OCCUPIED: "destructive",
+  RESERVED: "secondary",
+} satisfies Record<ParkingSlotStatus, SlotStatusVariant>;
 
 export const SLOT_TYPE_OPTIONS: Option[] = [
-  { value: 'CAR', label: 'Carro' },
-  { value: 'MOTORCYCLE', label: 'Moto' },
-  { value: 'BIKE', label: 'Bicicleta' },
-  { value: 'ELECTRIC_VEHICLE', label: 'Eléctrico' },
-  { value: 'DISABLED', label: 'Discapacitado' },
+  { label: "Carro", value: "CAR" },
+  { label: "Moto", value: "MOTORCYCLE" },
+  { label: "Bicicleta", value: "BIKE" },
+  { label: "Eléctrico", value: "ELECTRIC_VEHICLE" },
+  { label: "Discapacitado", value: "DISABLED" },
 ];
 
 export const SLOT_STATUS_OPTIONS: Option[] = [
-  { value: 'AVAILABLE', label: 'Disponible' },
-  { value: 'OCCUPIED', label: 'Ocupada' },
-  { value: 'MAINTENANCE', label: 'Mantenimiento' },
-  { value: 'RESERVED', label: 'Reservada' },
+  { label: "Disponible", value: "AVAILABLE" },
+  { label: "Ocupada", value: "OCCUPIED" },
+  { label: "Mantenimiento", value: "MAINTENANCE" },
+  { label: "Reservada", value: "RESERVED" },
 ];
 
 export const SLOT_STATUS_FILTER_OPTIONS: Option[] = [
-  { value: '', label: 'Estado: Todos' },
+  { label: "Estado: Todos", value: "" },
   ...SLOT_STATUS_OPTIONS,
 ];
 
 export const SLOT_ZONE_FILTER_OPTIONS: Option[] = [
-  { value: '', label: 'Zona: Todas' },
-  { value: 'NORTE', label: 'NORTE' },
-  { value: 'Z_MOTO', label: 'Z_MOTO' },
-  { value: 'PISO_2', label: 'PISO_2' },
+  { label: "Zona: Todas", value: "" },
+  { label: "NORTE", value: "NORTE" },
+  { label: "Z_MOTO", value: "Z_MOTO" },
+  { label: "PISO_2", value: "PISO_2" },
 ];
 
-export const displayOptionFn = (item: unknown): string => (item as Option).label;
-export const valueOptionFn = (item: unknown): string => (item as Option).value;
+export const displayOptionFn = (item: Option | null | undefined): string =>
+  item?.label ?? "";
+export const valueOptionFn = (item: Option | null | undefined): string =>
+  item?.value ?? "";

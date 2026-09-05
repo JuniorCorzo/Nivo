@@ -1,5 +1,5 @@
 <button
-  class="inline-flex h-9 w-full rounded-md gap-2 bg-transparent text-foreground hover:bg-muted items-center cursor-pointer transition-all"
+  class="text-foreground hover:bg-muted inline-flex h-9 w-full cursor-pointer items-center gap-2 rounded-md bg-transparent transition-all"
   [class.px-3]="!collapsed()"
   [class.justify-start]="!collapsed()"
   [class.justify-center]="collapsed()"
@@ -8,6 +8,6 @@
 >
   <ng-icon [name]="currentIcon()" size="18" class="shrink-0" />
   @if (!collapsed()) {
-    <span>{{ themeLabel }}</span>
+  <span>{{ themeLabel }}</span>
   }
 </button>

@@ -1,22 +1,12 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  input,
-  computed,
-} from "@angular/core";
-import { TypographyH1 } from "../typography";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "block font-semibold leading-none tracking-tight font-sans",
+  },
   selector: "nv-card-title",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<nv-h1 [class]="classes()"><ng-content /></nv-h1>`,
-  imports: [TypographyH1],
+  template: `<ng-content />`,
 })
-export class CardTitleComponent {
-  readonly class = input<string>("");
-  readonly classes = computed(() => {
-    const base = "";
-    return this.class() ? `${base} ${this.class()}`.trim() : base;
-  });
-}
+export class CardTitleComponent {}

@@ -1,34 +1,52 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { ValidationError, FormField, FieldTree } from '@angular/forms/signals';
-
-import { APP_TEXTS } from '@shared/constants/app-texts.constant';
-import { OperatingHours } from '@core/type/operating-hours.type';
-import { InputComponent, TypographyH3, TypographyMuted } from '@nivo-sass/design-system';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideClock } from '@ng-icons/lucide';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
+import type { ValidationError, FieldTree } from "@angular/forms/signals";
+import { FormField } from "@angular/forms/signals";
+import type { OperatingHours } from "@core/type/operating-hours.type";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucideClock } from "@ng-icons/lucide";
+import {
+  InputComponent,
+  TypographyH3,
+  TypographyMuted,
+} from "@nivo-sass/design-system";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({
-  selector: 'app-parking-operating-hours-section',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [InputComponent, TypographyH3, TypographyMuted, FormField, NgIcon],
   providers: [provideIcons({ lucideClock })],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-parking-operating-hours-section",
+  standalone: true,
+  styles: `
+    :host {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+  `,
   template: `
     <div class="flex items-center gap-2">
-      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-warning/10 text-warning border border-warning/20">
+      <div
+        class="bg-warning/10 text-warning border-warning/20 flex h-8 w-8 items-center justify-center rounded-lg border"
+      >
         <ng-icon name="lucideClock" class="text-base" />
       </div>
       <div>
-        <nv-h3 class="text-base font-bold text-foreground">
+        <nv-h3 class="text-foreground text-base font-bold">
           {{ APP_TEXTS.parking.form.fields.operatingHours.title }}
         </nv-h3>
-        <nv-muted class="text-xs text-muted-foreground">
+        <nv-muted class="text-muted-foreground text-xs">
           Horarios de apertura y cierre para atención y cobro
         </nv-muted>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <nv-input
         id="openTime"
         type="text"
@@ -47,13 +65,6 @@ import { lucideClock } from '@ng-icons/lucide';
       />
     </div>
   `,
-  styles: `
-    :host {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-  `,
 })
 export class ParkingOperatingHoursSectionComponent {
   protected readonly APP_TEXTS = APP_TEXTS;
@@ -61,16 +72,22 @@ export class ParkingOperatingHoursSectionComponent {
   readonly operatingHours = input.required<FieldTree<OperatingHours>>();
 
   readonly openTimeError = computed(() =>
-    this.getError(this.operatingHours().openTime),
+    ParkingOperatingHoursSectionComponent.getError(
+      this.operatingHours().openTime
+    )
   );
   readonly closeTimeError = computed(() =>
-    this.getError(this.operatingHours().closeTime),
+    ParkingOperatingHoursSectionComponent.getError(
+      this.operatingHours().closeTime
+    )
   );
 
-  private getError(
-    field: FieldTree<string, string>,
+  private static getError(
+    field: FieldTree<string, string>
   ): ValidationError.WithFieldTree[] | undefined {
-    if (!field().touched() && field().invalid()) return undefined;
+    if (!field().touched() && field().invalid()) {
+      return undefined;
+    }
     return field().errors() ?? [];
   }
 }

@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/angular";
-import { TableComponent } from "./table";
-import { TableHeaderComponent } from "./table-header";
-import { TableBodyComponent } from "./table-body";
-import { TableRowComponent } from "./table-row";
-import { TableHeadComponent } from "./table-head";
-import { TableCellComponent } from "./table-cell";
+
 import { BadgeComponent } from "../badge/badge";
+import { TableComponent } from "./table";
+import { TableBodyComponent } from "./table-body";
+import { TableCellComponent } from "./table-cell";
+import { TableHeadComponent } from "./table-head";
+import { TableHeaderComponent } from "./table-header";
+import { TableRowComponent } from "./table-row";
 
 const ALL_TABLE_IMPORTS = [
   TableComponent,
@@ -20,8 +21,8 @@ const ALL_TABLE_IMPORTS = [
 // ─── Meta ──────────────────────────────────────────────────────────────────────
 
 const meta: Meta = {
-  title: "Components/Table",
   tags: ["autodocs"],
+  title: "Components/Table",
 };
 
 export default meta;

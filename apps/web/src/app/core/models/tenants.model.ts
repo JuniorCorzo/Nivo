@@ -1,12 +1,11 @@
-import { BaseModel } from './base.model';
-import { RegisterUserModel } from './user.model';
+import type { RegisterUserModel } from "./user.model";
 
-export type TenantInfoModel = {
+export interface TenantInfoModel {
   id: string;
   companyName: string;
-};
+}
 
-export type RegisterTenant = {
+export interface RegisterTenant {
   companyName: string;
   user: RegisterUserModel;
-};
+}

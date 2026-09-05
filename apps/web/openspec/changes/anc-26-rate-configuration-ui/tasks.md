@@ -2,24 +2,21 @@
 
 ## Review Workload Forecast
 
-| Field | Value |
-|-------|-------|
-| Estimated changed lines | ~380 lines |
-| 400-line budget risk | Medium |
-| Chained PRs recommended | No |
-| Suggested split | Single PR |
-| Delivery strategy | single-pr |
-| Chain strategy | size-exception |
+| Field                   | Value          |
+| ----------------------- | -------------- |
+| Estimated changed lines | ~380 lines     |
+| 400-line budget risk    | Medium         |
+| Chained PRs recommended | No             |
+| Suggested split         | Single PR      |
+| Delivery strategy       | single-pr      |
+| Chain strategy          | size-exception |
 
-Decision needed before apply: No
-Chained PRs recommended: No
-Chain strategy: size-exception
-400-line budget risk: Medium
+Decision needed before apply: No Chained PRs recommended: No Chain strategy: size-exception 400-line budget risk: Medium
 
 ### Suggested Work Units
 
 | Unit | Goal | Likely PR | Focused test command | Runtime harness | Rollback boundary |
-|------|------|-----------|----------------------|-----------------|-------------------|
+| --- | --- | --- | --- | --- | --- |
 | 1 | Core models, mappers, and RateService | PR 1 | `bun test rate.mapper.spec.ts rate-service.spec.ts` | N/A (headless domain layer) | `src/app/core/models/rate.model.ts`, `src/app/core/mappers/rate.mapper.ts`, `src/app/core/services/rate-service.ts` |
 | 2 | Rate UI components, facade, calculator, and routes | PR 1 | `bun test rate-form.facade.spec.ts` | Visit `/app/parking-lots/:id/rates` in browser | `src/app/features/rates/`, `src/app/app.routes.ts` |
 

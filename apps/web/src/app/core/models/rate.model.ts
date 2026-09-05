@@ -1,7 +1,7 @@
-export type TimeUnit = 'MINUTES' | 'HOURS' | 'DAYS';
-export type VehicleType = 'CAR' | 'MOTORCYCLE' | 'BIKE';
-export type RatePolicyOperation = 'SUBTRACT' | 'PERCENTAGE' | 'SET';
-export type RatePolicyTarget = 'PRICE' | 'TIME' | 'DISCOUNT' | 'SURCHARGE';
+export type TimeUnit = "MINUTES" | "HOURS" | "DAYS";
+export type VehicleType = "CAR" | "MOTORCYCLE" | "BIKE";
+export type RatePolicyOperation = "SUBTRACT" | "PERCENTAGE" | "SET";
+export type RatePolicyTarget = "PRICE" | "TIME" | "DISCOUNT" | "SURCHARGE";
 
 export interface SpecialPolicyModel {
   id?: string;

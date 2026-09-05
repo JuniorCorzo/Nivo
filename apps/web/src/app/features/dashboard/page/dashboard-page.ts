@@ -1,10 +1,13 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { RouterOutlet } from "@angular/router";
 
 @Component({
-  selector: 'app-dashboard-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet],
-  templateUrl: './dashboard-page.html',
-  styleUrl: './dashboard-page.css',
+  selector: "app-dashboard-page",
+  styleUrl: "./dashboard-page.css",
+  templateUrl: "./dashboard-page.html",
 })
-export class DashboardPage {}
+export class DashboardPage {
+  protected readonly isReady = true;
+}

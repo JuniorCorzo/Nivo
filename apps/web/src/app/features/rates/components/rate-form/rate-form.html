@@ -1,178 +1,218 @@
 @if (facade.parking(); as p) {
-  <div class="flex flex-col gap-6 p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
-    <!-- Breadcrumbs & Top Bar -->
-    <div class="flex flex-col gap-3">
-      <div class="flex flex-wrap items-center gap-2 text-muted-foreground text-xs">
-        <a [routerLink]="APP_ROUTES.app.parkingLots" class="hover:text-foreground transition-colors">Parqueaderos</a>
-        <ng-icon name="lucideChevronRight" size="14" />
-        <a [routerLink]="APP_ROUTES.app.parkingLotDetail(p.id)" class="hover:text-foreground transition-colors">{{ p.name }}</a>
-        <ng-icon name="lucideChevronRight" size="14" />
-        <a [routerLink]="APP_ROUTES.app.parkingLotRates(p.id)" class="hover:text-foreground transition-colors">Tarifas</a>
-        <ng-icon name="lucideChevronRight" size="14" />
-        <span class="text-foreground font-semibold">{{ facade.mode() === 'create' ? 'Nueva tarifa' : 'Editar tarifa' }}</span>
+<div class="mx-auto flex max-w-7xl flex-col gap-6 p-4 sm:p-6 md:p-8">
+  <!-- Breadcrumbs & Top Bar -->
+  <div class="flex flex-col gap-3">
+    <div
+      class="text-muted-foreground flex flex-wrap items-center gap-2 text-xs"
+    >
+      <a
+        [routerLink]="APP_ROUTES.app.parkingLots"
+        class="hover:text-foreground transition-colors"
+        >Parqueaderos</a
+      >
+      <ng-icon name="lucideChevronRight" size="14" />
+      <a
+        [routerLink]="APP_ROUTES.app.parkingLots"
+        class="hover:text-foreground transition-colors"
+        >{{ p.name }}</a
+      >
+      <ng-icon name="lucideChevronRight" size="14" />
+      <a
+        [routerLink]="APP_ROUTES.app.parkingLotRates(p.id)"
+        class="hover:text-foreground transition-colors"
+        >Tarifas</a
+      >
+      <ng-icon name="lucideChevronRight" size="14" />
+      <span class="text-foreground font-semibold"
+        >{{ facade.mode() === 'create' ? 'Nueva tarifa' : 'Editar tarifa'
+        }}</span
+      >
+    </div>
+
+    <div
+      class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="bg-primary/10 text-primary border-primary/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
+        >
+          <ng-icon name="lucideCoins" class="text-xl" />
+        </div>
+        <div>
+          <h1 class="text-foreground text-xl font-bold sm:text-2xl">
+            {{ facade.mode() === 'create' ? 'Configurar nueva tarifa' : 'Editar
+            tarifa' }}
+          </h1>
+          <p class="text-muted-foreground text-xs sm:text-sm">
+            {{ p.name }} — Definí el valor base y las condiciones de cobro
+          </p>
+        </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
-            <ng-icon name="lucideCoins" class="text-xl" />
-          </div>
-          <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-foreground">
-              {{ facade.mode() === 'create' ? 'Configurar nueva tarifa' : 'Editar tarifa' }}
-            </h1>
-            <p class="text-xs sm:text-sm text-muted-foreground">
-              {{ p.name }} — Definí el valor base y las condiciones de cobro
-            </p>
-          </div>
-        </div>
+      <nv-button
+        variant="outline"
+        [routerLink]="APP_ROUTES.app.parkingLotRates(p.id)"
+        size="sm"
+        class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-flex cursor-pointer items-center gap-1.5 rounded-xl border text-xs font-semibold transition-colors"
+      >
+        <ng-icon name="lucideArrowLeft" size="14" />
+        <span>Volver a tarifas</span>
+      </nv-button>
+    </div>
+  </div>
 
+  <!-- Main Grid -->
+  <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+    <!-- Form Column (2 cols) -->
+    <div
+      class="bg-card text-card-foreground border-border flex flex-col gap-6 rounded-2xl border p-6 shadow-xs sm:p-8 lg:col-span-2"
+    >
+      <div class="border-border border-b pb-3">
+        <h2 class="text-foreground text-base font-bold">
+          Parámetros de la tarifa
+        </h2>
+        <p class="text-muted-foreground text-xs">
+          Configuración de precio, tipo de vehículo y tiempo
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <nv-input
+          label="Nombre de la tarifa"
+          [required]="true"
+          placeholder="Ej. Tarifa Plena Carro"
+          [value]="facade.form.name()"
+          (input)="onNameInput($event)"
+        />
+
+        <nv-input
+          label="Descripción"
+          [required]="true"
+          placeholder="Ej. Cobro estándar por hora para automóviles"
+          [value]="facade.form.description()"
+          (input)="onDescInput($event)"
+        />
+
+        <nv-select
+          class="w-full"
+          label="Tipo de vehículo"
+          [required]="true"
+          [items]="vehicleTypeOptions"
+          [displayFn]="displayOptionFn"
+          [valueFn]="valueOptionFn"
+          [value]="facade.form.vehicleType()"
+          (valueChange)="onVehicleTypeChange($event)"
+        />
+
+        <nv-select
+          class="w-full"
+          label="Unidad de tiempo"
+          [required]="true"
+          [items]="timeUnitOptions"
+          [displayFn]="displayOptionFn"
+          [valueFn]="valueOptionFn"
+          [value]="facade.form.timeUnit()"
+          (valueChange)="onTimeUnitChange($event)"
+        />
+
+        <nv-input
+          label="Precio base por unidad ($)"
+          type="number"
+          [required]="true"
+          placeholder="0"
+          [value]="'' + facade.form.pricePerUnit()"
+          (input)="onPriceInput($event)"
+        />
+
+        <nv-input
+          label="Tiempo de gracia / mínimo (minutos)"
+          type="number"
+          [required]="true"
+          placeholder="0"
+          [value]="'' + facade.form.minChargeTimeMinutes()"
+          (input)="onMinTimeInput($event)"
+        />
+
+        @if (facade.mode() === 'create') {
+        <nv-select
+          class="col-span-1 w-full sm:col-span-2"
+          label="Política especial / recargo (Opcional)"
+          [items]="policyOptions()"
+          [displayFn]="displayOptionFn"
+          [valueFn]="valueOptionFn"
+          [value]="facade.form.specialPolicyId() ?? ''"
+          (valueChange)="onPolicyChange($event)"
+        />
+        }
+      </div>
+
+      <div
+        class="border-border mt-2 flex items-center justify-end gap-3 border-t pt-4"
+      >
         <nv-button
           variant="outline"
           [routerLink]="APP_ROUTES.app.parkingLotRates(p.id)"
-          size="sm"
-          class="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card text-xs font-semibold text-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
+          class="cursor-pointer rounded-xl"
         >
-          <ng-icon name="lucideArrowLeft" size="14" />
-          <span>Volver a tarifas</span>
+          Cancelar
+        </nv-button>
+        <nv-button
+          (click)="facade.submit()"
+          [disabled]="!facade.isValid() || facade.isSubmitting()"
+          class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex cursor-pointer items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-semibold shadow-xs transition-all disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
+        >
+          @if (facade.isSubmitting()) {
+          <ng-icon name="lucideLoader2" class="animate-spin text-base" />
+          <span>Guardando...</span>
+          } @else {
+          <ng-icon name="lucideSave" size="16" />
+          <span
+            >{{ facade.mode() === 'create' ? 'Crear tarifa' : 'Guardar cambios'
+            }}</span
+          >
+          }
         </nv-button>
       </div>
     </div>
 
-    <!-- Main Grid -->
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 items-start">
-      <!-- Form Column (2 cols) -->
-      <div class="lg:col-span-2 rounded-2xl bg-card text-card-foreground border border-border p-6 sm:p-8 shadow-xs flex flex-col gap-6">
-        <div class="border-b border-border pb-3">
-          <h2 class="text-base font-bold text-foreground">Parámetros de la tarifa</h2>
-          <p class="text-xs text-muted-foreground">Configuración de precio, tipo de vehículo y tiempo</p>
-        </div>
+    <!-- Simulation Column (1 col) -->
+    <div class="flex flex-col gap-4 lg:sticky lg:top-4">
+      <app-rate-preview [simulation]="facade.simulation()" />
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <nv-input
-            label="Nombre de la tarifa"
-            [required]="true"
-            placeholder="Ej. Tarifa Plena Carro"
-            [value]="facade.form.name()"
-            (input)="onNameInput($event)"
-          />
-
-          <nv-input
-            label="Descripción"
-            [required]="true"
-            placeholder="Ej. Cobro estándar por hora para automóviles"
-            [value]="facade.form.description()"
-            (input)="onDescInput($event)"
-          />
-
-          <nv-select
-            class="w-full"
-            label="Tipo de vehículo"
-            [required]="true"
-            [items]="vehicleTypeOptions"
-            [displayFn]="displayOptionFn"
-            [valueFn]="valueOptionFn"
-            [value]="facade.form.vehicleType()"
-            (valueChange)="onVehicleTypeChange($event)"
-          />
-
-          <nv-select
-            class="w-full"
-            label="Unidad de tiempo"
-            [required]="true"
-            [items]="timeUnitOptions"
-            [displayFn]="displayOptionFn"
-            [valueFn]="valueOptionFn"
-            [value]="facade.form.timeUnit()"
-            (valueChange)="onTimeUnitChange($event)"
-          />
-
-          <nv-input
-            label="Precio base por unidad ($)"
-            type="number"
-            [required]="true"
-            placeholder="0"
-            [value]="'' + facade.form.pricePerUnit()"
-            (input)="onPriceInput($event)"
-          />
-
-          <nv-input
-            label="Tiempo de gracia / mínimo (minutos)"
-            type="number"
-            [required]="true"
-            placeholder="0"
-            [value]="'' + facade.form.minChargeTimeMinutes()"
-            (input)="onMinTimeInput($event)"
-          />
-
-          @if (facade.mode() === 'create') {
-            <nv-select
-              class="col-span-1 sm:col-span-2 w-full"
-              label="Política especial / recargo (Opcional)"
-              [items]="policyOptions()"
-              [displayFn]="displayOptionFn"
-              [valueFn]="valueOptionFn"
-              [value]="facade.form.specialPolicyId() ?? ''"
-              (valueChange)="onPolicyChange($event)"
-            />
-          }
-        </div>
-
-        <div class="flex items-center justify-end gap-3 border-t border-border pt-4 mt-2">
-          <nv-button
-            variant="outline"
-            [routerLink]="APP_ROUTES.app.parkingLotRates(p.id)"
-            class="rounded-xl cursor-pointer"
+      <div
+        class="bg-card text-card-foreground border-border flex flex-col gap-3 rounded-2xl border p-5 shadow-xs"
+      >
+        <div class="flex items-center justify-between">
+          <span
+            class="text-foreground text-xs font-bold tracking-wider uppercase"
           >
-            Cancelar
-          </nv-button>
-          <nv-button
-            (click)="facade.submit()"
-            [disabled]="!facade.isValid() || facade.isSubmitting()"
-            class="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 text-xs sm:text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
+            Ajustar estancia de prueba
+          </span>
+          <span
+            class="text-primary bg-primary/10 border-primary/20 rounded-md border px-2 py-0.5 font-mono text-xs font-bold"
           >
-            @if (facade.isSubmitting()) {
-              <ng-icon name="lucideLoader2" class="animate-spin text-base" />
-              <span>Guardando...</span>
-            } @else {
-              <ng-icon name="lucideSave" size="16" />
-              <span>{{ facade.mode() === 'create' ? 'Crear tarifa' : 'Guardar cambios' }}</span>
-            }
-          </nv-button>
+            {{ facade.previewDurationMinutes() }} min
+          </span>
         </div>
-      </div>
-
-      <!-- Simulation Column (1 col) -->
-      <div class="flex flex-col gap-4 lg:sticky lg:top-4">
-        <app-rate-preview [simulation]="facade.simulation()" />
-
-        <div class="rounded-2xl bg-card text-card-foreground border border-border p-5 shadow-xs flex flex-col gap-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-foreground">
-              Ajustar estancia de prueba
-            </span>
-            <span class="font-mono text-xs font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-md">
-              {{ facade.previewDurationMinutes() }} min
-            </span>
-          </div>
-          <input
-            type="range"
-            [value]="facade.previewDurationMinutes()"
-            (input)="onDurationChange($event)"
-            min="15"
-            max="720"
-            step="15"
-            class="w-full cursor-pointer"
-          />
-          <div class="flex justify-between text-[10px] text-muted-foreground font-mono">
-            <span>15m</span>
-            <span>2h</span>
-            <span>6h</span>
-            <span>12h</span>
-          </div>
+        <input
+          type="range"
+          [value]="facade.previewDurationMinutes()"
+          (input)="onDurationChange($event)"
+          min="15"
+          max="720"
+          step="15"
+          class="w-full cursor-pointer"
+        />
+        <div
+          class="text-muted-foreground flex justify-between font-mono text-[10px]"
+        >
+          <span>15m</span>
+          <span>2h</span>
+          <span>6h</span>
+          <span>12h</span>
         </div>
       </div>
     </div>
   </div>
+</div>
 }
-

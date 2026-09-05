@@ -1,8 +1,8 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from "@angular/core/testing";
 
-import { RedirectService } from './redirect-service';
+import { RedirectService } from "./redirect-service";
 
-describe('RedirectService', () => {
+describe("RedirectService", () => {
   let service: RedirectService;
 
   beforeEach(() => {
@@ -10,7 +10,7 @@ describe('RedirectService', () => {
     service = TestBed.inject(RedirectService);
   });
 
-  it('should be created', () => {
+  it("should be created", () => {
     expect(service).toBeTruthy();
   });
 });

@@ -1,5 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { SlotSummary } from '@core/models/slot.model';
+import { Injectable, signal, computed } from "@angular/core";
+import type { SlotSummary } from "@core/models/slot.model";
 
 @Injectable()
 export class SlotsSelectionState {
@@ -7,23 +7,31 @@ export class SlotsSelectionState {
   readonly selectedCount = computed(() => this.selectedIds().size);
 
   allSelected(filteredSlots: SlotSummary[]): boolean {
-    return filteredSlots.length > 0 && filteredSlots.every((slot) => this.selectedIds().has(slot.id));
+    return (
+      filteredSlots.length > 0 &&
+      filteredSlots.every((slot) => this.selectedIds().has(slot.id))
+    );
   }
 
   toggleSelected(slotId: string, event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
+    /* SAFETY: Event target is HTMLInputElement */
+    const { checked } = event.target as HTMLInputElement;
     this.selectedIds.update((current) => {
       const next = new Set(current);
-      if (checked) next.add(slotId);
-      else next.delete(slotId);
+      if (checked) {
+        next.add(slotId);
+      } else {
+        next.delete(slotId);
+      }
       return next;
     });
   }
 
   toggleAll(event: Event, filteredSlots: SlotSummary[]): void {
-    const checked = (event.target as HTMLInputElement).checked;
+    /* SAFETY: Event target is HTMLInputElement */
+    const { checked } = event.target as HTMLInputElement;
     this.selectedIds.set(
-      checked ? new Set(filteredSlots.map((slot) => slot.id)) : new Set(),
+      checked ? new Set(filteredSlots.map((slot) => slot.id)) : new Set()
     );
   }
 

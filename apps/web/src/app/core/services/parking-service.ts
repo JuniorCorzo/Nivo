@@ -1,57 +1,62 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-
-import { ParkingLotsService } from '@core/api/generated/services/parking-lots.service';
-import {
-  ParkingLotListItemResponse,
+import { HttpContext } from "@angular/common/http";
+import { inject, Injectable, signal } from "@angular/core";
+import type {
   ResponseListParkingLotListItemResponse,
   ResponseParkingLotsResponse,
-} from '@core/api/generated/models';
+} from "@core/api/generated/models";
+import { ParkingLotsService } from "@core/api/generated/services/parking-lots.service";
+import { AUTHORIZED } from "@core/http/context/auth.token";
 import {
+  mapListItemToUpsertParkingLotsModel,
+  mapToParkingLotListItemModel,
+  mapToParkingLotsModel,
+  mapToUpsertParkingLotsRequest,
+} from "@core/mappers/parking.mapper";
+import type {
   ParkingLotListItemModel,
   ParkingLotsModel,
   UpsertParkingLotsModel,
-} from '@core/models/parking.model';
-import { ParkingMapper } from '@core/mappers/parking.mapper';
-import { HttpContext } from '@angular/common/http';
-import { AUTHORIZED } from '@core/http/context/auth.token';
-import { SlotDistribution } from '@core/type/slot-distribution.type';
+} from "@core/models/parking.model";
+import type { SlotDistribution } from "@core/type/slot-distribution.type";
+import type { Observable } from "rxjs";
+import { map, tap } from "rxjs/operators";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class ParkingService {
   private _parkingLots = signal<ParkingLotListItemModel[]>([]);
   public parkingLots = this._parkingLots.asReadonly();
 
   private parkingLotsService = inject(ParkingLotsService);
-  private parkingMapper = inject(ParkingMapper);
 
-  private httpContext = () => {
+  private static httpContext() {
     const context = new HttpContext();
     context.set(AUTHORIZED, true);
     return context;
-  };
+  }
 
   constructor() {
     this.updateState();
   }
 
   private updateState() {
-    this.getAll().subscribe((parkintLotsResponse) => this._parkingLots.set(parkintLotsResponse));
+    this.getAll().subscribe((parkintLotsResponse) =>
+      this._parkingLots.set(parkintLotsResponse)
+    );
   }
 
   /**
    * Get all parking lots
    */
   getAll(): Observable<ParkingLotListItemModel[]> {
-    return this.parkingLotsService.listParkingLots({}, this.httpContext()).pipe(
-      map((response: ResponseListParkingLotListItemResponse) =>
-        response.data.map((item) => this.parkingMapper.mapToParkingLotListItemModel(item)),
-      ),
-      catchError((error) => throwError(() => error)),
-    );
+    return this.parkingLotsService
+      .listParkingLots({}, ParkingService.httpContext())
+      .pipe(
+        map((response: ResponseListParkingLotListItemResponse) =>
+          response.data.map((item) => mapToParkingLotListItemModel(item))
+        )
+      );
   }
 
   /**
@@ -66,8 +71,7 @@ export class ParkingService {
           throw new Error(`Parking lot with ID ${id} not found`);
         }
         return parking;
-      }),
-      catchError((error) => throwError(() => error)),
+      })
     );
   }
 
@@ -75,42 +79,69 @@ export class ParkingService {
    * Create a new parking lot
    */
   create(model: UpsertParkingLotsModel): Observable<ParkingLotsModel> {
-    const request = this.parkingMapper.mapToUpsertParkingLotsRequest(model);
+    const request = mapToUpsertParkingLotsRequest(model);
 
-    return this.parkingLotsService.createParkingLots({ body: request }, this.httpContext()).pipe(
-      map((response: ResponseParkingLotsResponse) =>
-        this.parkingMapper.mapToParkingLotsModel(response.data),
-      ),
-      tap(() => this.updateState()),
-      catchError((error) => throwError(() => error)),
-    );
+    return this.parkingLotsService
+      .createParkingLots({ body: request }, ParkingService.httpContext())
+      .pipe(
+        map((response: ResponseParkingLotsResponse) =>
+          mapToParkingLotsModel(response.data)
+        ),
+        tap(() => this.updateState())
+      );
   }
 
   /**
    * Update an existing parking lot
    */
   update(model: UpsertParkingLotsModel): Observable<ParkingLotsModel> {
-    const request = this.parkingMapper.mapToUpsertParkingLotsRequest(model);
+    const request = mapToUpsertParkingLotsRequest(model);
 
-    return this.parkingLotsService.updateParkingLots({ body: request }, this.httpContext()).pipe(
-      map((response: ResponseParkingLotsResponse) =>
-        this.parkingMapper.mapToParkingLotsModel(response.data),
-      ),
-      tap(() => this.updateState()),
-      catchError((error) => throwError(() => error)),
-    );
+    return this.parkingLotsService
+      .updateParkingLots({ body: request }, ParkingService.httpContext())
+      .pipe(
+        map((response: ResponseParkingLotsResponse) =>
+          mapToParkingLotsModel(response.data)
+        ),
+        tap(() => this.updateState())
+      );
   }
 
   deleteSlotGroup(parkingId: string, slot: SlotDistribution): Observable<void> {
-    return this.parkingLotsService.deleteSlotGroup(
-      { parkingId, slotType: slot.type, prefix: slot.prefix || undefined, zone: slot.zone || undefined },
-      this.httpContext(),
-    ).pipe(map(() => void 0));
+    return this.parkingLotsService
+      .deleteSlotGroup(
+        {
+          parkingId,
+          prefix: slot.prefix || undefined,
+          slotType: slot.type,
+          zone: slot.zone || undefined,
+        },
+        ParkingService.httpContext()
+      )
+      .pipe(
+        map(() => {
+          // void return
+        })
+      );
+  }
+
+  /**
+   * Delete a parking lot by ID
+   */
+  delete(id: string): Observable<void> {
+    return this.parkingLotsService
+      .deleteParkingLot({ parkingId: id }, ParkingService.httpContext())
+      .pipe(
+        tap(() => this.updateState()),
+        map(() => {
+          // void return
+        })
+      );
   }
 
   getUpsertById(id: string): Observable<UpsertParkingLotsModel> {
     return this.getById(id).pipe(
-      map((parking) => this.parkingMapper.mapListItemToUpsertParkingLotsModel(parking)),
+      map((parking) => mapListItemToUpsertParkingLotsModel(parking))
     );
   }
 }

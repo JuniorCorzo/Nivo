@@ -4,9 +4,6 @@
     "outDir": "./out-tsc/storybook",
     "types": ["node"]
   },
-  "include": [
-    "src/**/*.ts",
-    ".storybook/**/*.ts"
-  ],
+  "include": ["src/**/*.ts", ".storybook/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

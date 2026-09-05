@@ -1,10 +1,7 @@
 ---
 name: nivo-brand-design
 description: >
-  Nivo brand design system for web: colors (Zinc-based, shadcn/ui inspired),
-  typography (Inter + JetBrains Mono), logo rules, and voice/tone guidelines.
-  Trigger: When designing or building UI components, pages, or any visual element
-  for the Nivo web app. Also triggers on brand, color, typography, logo, or tone questions.
+  Nivo brand design system for web: colors (Zinc-based, shadcn/ui inspired), typography (Inter + JetBrains Mono), logo rules, and voice/tone guidelines. Trigger: When designing or building UI components, pages, or any visual element for the Nivo web app. Also triggers on brand, color, typography, logo, or tone questions.
 license: Apache-2.0
 metadata:
   author: gentleman-programming
@@ -25,18 +22,18 @@ metadata:
 
 The ONLY chromatic colors are the 4 semantic states. Everything else is Zinc grayscale.
 
-| Distribution | Tokens | Percentage |
-|---|---|---|
-| Neutros | Background, Foreground, Border | 80% |
-| Primary | Inverted white/black | 10% |
-| Semánticos | Success, Warning, Destructive, Info | 10% |
+| Distribution | Tokens                              | Percentage |
+| ------------ | ----------------------------------- | ---------- |
+| Neutros      | Background, Foreground, Border      | 80%        |
+| Primary      | Inverted white/black                | 10%        |
+| Semánticos   | Success, Warning, Destructive, Info | 10%        |
 
 ### 2. Color tokens by theme
 
 **Dark theme (default):**
 
 | Token | HEX | Use |
-|---|---|---|
+| --- | --- | --- |
 | Background / Card / Popover | `#09090b` | Fondo principal |
 | Foreground | `#fafafa` | Texto principal |
 | Muted Foreground | `#a1a1aa` | Texto secundario, labels |
@@ -54,7 +51,7 @@ The ONLY chromatic colors are the 4 semantic states. Everything else is Zinc gra
 **Light theme:**
 
 | Token | HEX | Use |
-|---|---|---|
+| --- | --- | --- |
 | Background / Card / Popover | `#ffffff` | Fondo principal |
 | Foreground | `#09090b` | Texto principal |
 | Muted Foreground | `#71717a` | Texto secundario |
@@ -72,7 +69,7 @@ The ONLY chromatic colors are the 4 semantic states. Everything else is Zinc gra
 ### 3. Typography system
 
 | Level | Font | Size | Weight | Line-height | Tracking |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | H1 | Inter | 48px / 3rem | Bold (700) | 56px | -1.2px |
 | H2 | Inter | 36px / 2.25rem | Semibold (600) | 44px | -0.75px |
 | H3 | Inter | 24px / 1.5rem | Semibold (600) | 32px | -0.5px |
@@ -91,17 +88,19 @@ The ONLY chromatic colors are the 4 semantic states. Everything else is Zinc gra
 
 **Variants:**
 
-| Variant | Layout | Min size |
-|---|---|---|
-| Horizontal (main) | Isotipo left + wordmark right | 120px wide |
-| Vertical (stacked) | Isotipo top + wordmark bottom | 80px wide |
-| Solo isotipo | Icon only | 24x24px |
+| Variant            | Layout                        | Min size   |
+| ------------------ | ----------------------------- | ---------- |
+| Horizontal (main)  | Isotipo left + wordmark right | 120px wide |
+| Vertical (stacked) | Isotipo top + wordmark bottom | 80px wide  |
+| Solo isotipo       | Icon only                     | 24x24px    |
 
 **Theme versions:**
+
 - Dark: `#fafafa` on dark bg
 - Light: `#09090b` on light bg
 
 **PROHIBITED:**
+
 - Stretch, rotate, or distort
 - Colors outside Zinc tokens
 - Shadows, gradients, or effects
@@ -112,19 +111,21 @@ The ONLY chromatic colors are the 4 semantic states. Everything else is Zinc gra
 
 ### 5. Voice & Tone
 
-| Principle | Rule |
-|---|---|
-| Clarity | Direct messages, no jargon |
-| Minimalism | Every word justifies its presence |
+| Principle       | Rule                                    |
+| --------------- | --------------------------------------- |
+| Clarity         | Direct messages, no jargon              |
+| Minimalism      | Every word justifies its presence       |
 | Technical trust | Show expertise with data, not buzzwords |
-| Action-oriented | CTAs with imperative verbs |
+| Action-oriented | CTAs with imperative verbs              |
 
 **Action verbs:** Centraliza, Controla, Optimiza, Gestiona
 
 **UI tone:** Instructive, concise, functional
+
 > "Selecciona una plaza disponible"
 
 **Marketing tone:** Convincing but honest
+
 > "Gestiona múltiples parqueaderos desde un solo panel"
 
 **NEVER use:** Hyperbole ("revolucionario"), absolute promises ("la solución definitiva"), unnecessary tech jargon
@@ -159,11 +160,19 @@ The ONLY chromatic colors are the 4 semantic states. Everything else is Zinc gra
 ### Typography classes
 
 ```css
-.h1 { font: 700 3rem/56px Inter; letter-spacing: -1.2px; }
-.h2 { font: 600 2.25rem/44px Inter; letter-spacing: -0.75px; }
-.body { font: 400 0.875rem/22px Inter; }
+.h1 {
+  font: 700 3rem/56px Inter;
+  letter-spacing: -1.2px;
+}
+.h2 {
+  font: 600 2.25rem/44px Inter;
+  letter-spacing: -0.75px;
+}
+.body {
+  font: 400 0.875rem/22px Inter;
+}
 .code-data {
-  font: 400 0.8125rem/20px 'JetBrains Mono';
+  font: 400 0.8125rem/20px "JetBrains Mono";
   font-feature-settings: "tnum";
 }
 ```

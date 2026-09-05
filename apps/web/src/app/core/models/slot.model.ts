@@ -1,7 +1,12 @@
-export type SlotStatus = 'AVAILABLE' | 'OCCUPIED' | 'RESERVED' | 'MAINTENANCE';
-export type SlotType = 'CAR' | 'MOTORCYCLE' | 'BIKE' | 'ELECTRIC_VEHICLE' | 'DISABLED';
+export type SlotStatus = "AVAILABLE" | "OCCUPIED" | "RESERVED" | "MAINTENANCE";
+export type SlotType =
+  | "CAR"
+  | "MOTORCYCLE"
+  | "BIKE"
+  | "ELECTRIC_VEHICLE"
+  | "DISABLED";
 
-export type SlotModel = {
+export interface SlotModel {
   id: string;
   slotNumber: string;
   status: SlotStatus;
@@ -9,9 +14,9 @@ export type SlotModel = {
   parkingId: string;
   createdAt: string;
   updatedAt: string;
-};
+}
 
-export type SlotSummary = {
+export interface SlotSummary {
   id: string;
   parkingName: string;
   slotNumber: string;
@@ -21,34 +26,33 @@ export type SlotSummary = {
   status: SlotStatus;
   hasHistory?: boolean;
   hasTicket?: boolean;
-};
+}
 
-export type UpsertSlotModel = {
+export interface UpsertSlotModel {
   id?: string;
   parkingLotId: string;
   slotNumber: string;
   status: SlotStatus;
   type: SlotType;
-};
+}
 
-export type CreatedSlotGroup = {
+export interface CreatedSlotGroup {
   prefix: string;
   zone: string;
   slotType: SlotType;
   numberSlots: number;
-};
+}
 
-export type BatchCreateSlotModel = {
+export interface BatchCreateSlotModel {
   parkingLotId: string;
   slots: CreatedSlotGroup[];
-};
+}
 
-export type BatchSlotModel = {
+export interface BatchSlotModel {
   prefix: string;
   from: number;
   to: number;
   zone: string;
   type: SlotType;
   status: SlotStatus;
-};
-
+}

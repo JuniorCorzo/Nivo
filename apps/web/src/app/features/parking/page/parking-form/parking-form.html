@@ -1,0 +1,135 @@
+<div class="mx-auto flex max-w-5xl flex-col gap-6 p-4 sm:p-6 md:p-8">
+  <!-- Top Bar: Back & Title -->
+  <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+    <div class="flex items-center gap-3">
+      <a
+        routerLink="/app/parking-lots"
+        class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border shadow-xs transition-colors"
+        [title]="APP_TEXTS.parking.actions.backToList"
+      >
+        <ng-icon name="lucideArrowLeft" class="text-base" />
+      </a>
+      <div>
+        <nv-h1 class="text-foreground text-xl font-bold sm:text-2xl">
+          {{ facade.title() }}
+        </nv-h1>
+        <nv-muted class="text-muted-foreground text-xs sm:text-sm">
+          Configurá los datos de sede, ubicación geográfica, horarios y
+          capacidad
+        </nv-muted>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <nv-card class="overflow-hidden rounded-2xl p-0">
+    <form novalidate class="flex flex-col gap-6 p-4 sm:gap-8 sm:p-8">
+      <!-- Section 1: Basic Information -->
+      <div class="flex flex-col gap-4">
+        <div class="border-border flex items-center gap-2 border-b pb-3">
+          <div
+            class="bg-primary/10 text-primary border-primary/20 flex h-8 w-8 items-center justify-center rounded-lg border"
+          >
+            <ng-icon name="lucideBuilding2" class="text-base" />
+          </div>
+          <div>
+            <nv-h2 class="text-foreground text-base font-bold">
+              Datos del parqueadero
+            </nv-h2>
+            <nv-muted class="text-muted-foreground text-xs">
+              Nombre comercial y datos generales de la sede
+            </nv-muted>
+          </div>
+        </div>
+
+        <div class="w-full">
+          <nv-input
+            id="name"
+            [label]="APP_TEXTS.parking.form.fields.name.label"
+            [placeholder]="APP_TEXTS.parking.form.fields.name.placeholder"
+            [formField]="facade.form.name"
+            [error]="facade.nameError()"
+          />
+        </div>
+      </div>
+
+      <!-- Section 2: Address -->
+      <div class="border-border border-t pt-6">
+        <app-parking-address-section
+          [streetField]="facade.form.address.street"
+          [streetError]="facade.streetError()"
+          [stateField]="facade.form.address.state"
+          [stateError]="facade.stateError()"
+          [cityField]="facade.form.address.city"
+          [cityError]="facade.cityError()"
+          [zipCodeField]="facade.form.address.zipCode"
+          [zipCodeError]="facade.zipCodeError()"
+          [departments]="facade.departments()"
+          [cities]="facade.cities()"
+          (stateSelectionChange)="facade.onStateSelected($event)"
+        />
+      </div>
+
+      <!-- Section 3: Map Location -->
+      <div class="border-border border-t pt-6">
+        <app-parking-location-section
+          [initialPosition]="facade.selectedCoordinates()"
+          [coordinates]="facade.coordinates()"
+          [hasCoordinates]="facade.isSelectedCoordinates()"
+          [showPlaceholder]="facade.isMapPlaceholderVisible()"
+          [placeholderText]="APP_TEXTS.parking.actions.placeholderMap"
+          (positionChange)="facade.onCoordinatesChange($event)"
+          (mapInteracted)="facade.dismissMapPlaceholder()"
+        />
+      </div>
+
+      <!-- Section 4: Operating Hours -->
+      <div class="border-border border-t pt-6">
+        <app-parking-operating-hours-section
+          [operatingHours]="facade.form.operatingHours"
+        />
+      </div>
+
+      <!-- Section 5: Slots Distribution -->
+      <div class="border-border border-t pt-6">
+        <app-parking-slot-groups-section
+          [slots]="facade.slots()"
+          [slotTypeOptions]="facade.slotTypeOptions"
+          (addSlot)="facade.addSlot()"
+          (removeSlot)="facade.removeSlot($event)"
+          (slotChange)="facade.updateSlot($event.index, $event.field, $any($event.value))"
+        />
+      </div>
+    </form>
+
+    <!-- Footer Actions -->
+    <div
+      class="bg-muted/50 border-border flex flex-col-reverse gap-2 border-t p-4 sm:flex-row sm:items-center sm:justify-end sm:gap-3 sm:p-6"
+    >
+      <nv-button
+        type="button"
+        variant="secondary"
+        (click)="onCancel()"
+        class="w-full sm:w-auto"
+      >
+        Cancelar
+      </nv-button>
+
+      <nv-button
+        type="button"
+        variant="default"
+        (click)="onSubmit()"
+        [disabled]="facade.isSubmitting() || facade.form().invalid()"
+        class="w-full sm:w-auto"
+      >
+        @if (facade.isSubmitting()) {
+        <ng-icon name="lucideLoader2" class="animate-spin text-base" />
+        <span>Guardando...</span>
+        } @else {
+        <ng-icon name="lucideSave" class="text-base" />
+        <span>{{ facade.submitButtonText() }}</span>
+        }
+      </nv-button>
+    </div>
+  </nv-card>
+</div>

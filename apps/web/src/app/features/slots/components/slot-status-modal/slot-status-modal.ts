@@ -1,16 +1,23 @@
-import { afterNextRender, Component, ElementRef, input, OnDestroy, output, viewChild } from '@angular/core';
-import { ButtonComponent, TypographyH3 } from '@nivo-sass/design-system';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideX } from '@ng-icons/lucide';
-import { SlotStatus, SlotSummary } from '@core/models/slot.model';
+import type { ElementRef, OnDestroy } from "@angular/core";
+import {
+  afterNextRender,
+  Component,
+  input,
+  output,
+  viewChild,
+} from "@angular/core";
+import type { SlotStatus, SlotSummary } from "@core/models/slot.model";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucideX } from "@ng-icons/lucide";
+import { ButtonComponent, TypographyH3 } from "@nivo-sass/design-system";
 
 @Component({
-  selector: 'app-slot-status-modal',
-  standalone: true,
   imports: [ButtonComponent, TypographyH3, NgIcon],
   providers: [provideIcons({ lucideX })],
-  templateUrl: './slot-status-modal.html',
-  styleUrl: './slot-status-modal.css',
+  selector: "app-slot-status-modal",
+  standalone: true,
+  styleUrl: "./slot-status-modal.css",
+  templateUrl: "./slot-status-modal.html",
 })
 export class SlotStatusModal implements OnDestroy {
   readonly title = input.required<string>();
@@ -21,15 +28,15 @@ export class SlotStatusModal implements OnDestroy {
   readonly requiresExtraConfirm = input.required<boolean>();
   readonly confirmChecked = input.required<boolean>();
 
-  readonly confirm = output<void>();
-  readonly cancel = output<void>();
+  readonly confirm = output();
+  readonly cancel = output();
   readonly selectStatusNext = output<SlotStatus>();
   readonly confirmCheckedChange = output<boolean>();
 
-  protected readonly titleId = 'status-slot-title';
-  protected readonly descriptionId = 'status-slot-description';
+  protected readonly titleId = "status-slot-title";
+  protected readonly descriptionId = "status-slot-description";
 
-  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
+  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>("dialog");
 
   constructor() {
     afterNextRender(() => {
@@ -43,7 +50,8 @@ export class SlotStatusModal implements OnDestroy {
   }
 
   protected onConfirmCheckedChange(event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
+    /* SAFETY: Event target of checkbox input change is HTMLInputElement */
+    const { checked } = event.target as HTMLInputElement;
     this.confirmCheckedChange.emit(checked);
   }
 

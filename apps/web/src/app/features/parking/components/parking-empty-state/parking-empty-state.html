@@ -1,0 +1,22 @@
+<div
+  class="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center p-6 text-center"
+>
+  <div
+    class="bg-primary/10 text-primary border-primary/20 mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border shadow-xs"
+  >
+    <ng-icon name="lucideParkingSquare" size="32" />
+  </div>
+  <nv-h2 class="mb-2 text-xl font-bold"> {{ LABELS.list.empty.title }} </nv-h2>
+  <nv-p class="text-muted-foreground mb-6 text-sm">
+    {{ LABELS.list.empty.description }}
+  </nv-p>
+  <nv-button
+    variant="default"
+    size="md"
+    (click)="onCreate()"
+    class="whitespace-nowrap"
+  >
+    <ng-icon name="lucidePlus" size="16" />
+    <span class="whitespace-nowrap">{{ LABELS.form.create.title }}</span>
+  </nv-button>
+</div>

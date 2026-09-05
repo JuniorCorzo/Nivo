@@ -1,8 +1,11 @@
 # register-form Specification
 
 ## Purpose
+
 TBD - created by archiving change auth-ui-flow. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Formulario de registro multi-inquilino
 
 El sistema SHALL presentar un formulario de registro que permita a un nuevo propietario crear su cuenta y su parqueadero en una sola operación. El formulario SHALL incluir los campos: email, contraseña, confirmación de contraseña y nombre del parqueadero.
@@ -64,4 +67,3 @@ El sistema SHALL indicar visualmente cuando el formulario está procesando el re
 
 - **WHEN** el formulario es enviado y está esperando respuesta del servidor
 - **THEN** el sistema SHALL deshabilitar todos los campos e inputs y mostrar un indicador de carga en el botón de registro
-

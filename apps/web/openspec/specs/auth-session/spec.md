@@ -1,8 +1,11 @@
 # auth-session Specification
 
 ## Purpose
+
 TBD - created by archiving change auth-ui-flow. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Almacenamiento seguro de tokens
 
 El sistema SHALL almacenar el access token de forma segura en el cliente, preferentemente usando httpOnly cookies gestionadas por el servidor, para prevenir acceso desde JavaScript (XSS).
@@ -63,4 +66,3 @@ El sistema SHALL mantener la sesión del usuario activa al recargar la página, 
 
 - **WHEN** el usuario recarga la página con tokens expirados
 - **THEN** el sistema SHALL redirigir al usuario a la pantalla de login
-

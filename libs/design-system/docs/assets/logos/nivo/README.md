@@ -9,7 +9,7 @@
 ## Assets finales
 
 | Archivo | Tipo | Dimensiones | Uso principal |
-|---------|------|-------------|---------------|
+| --- | --- | --- | --- |
 | `nivo-logo-horizontal.svg` | Isotipo + wordmark | 180 x 68 | Logo principal, headers, firmas |
 | `nivo-logo-stacked.svg` | Isotipo + wordmark apilado | 180 x 148 | Formatos cuadrados, tarjetas |
 | `nivo-logo-icon.svg` | Isotipo solo | 64 x 64 | Favicon, avatar, app icon |
@@ -30,11 +30,11 @@
 
 ## Proporciones de la N por variante
 
-| Variante | Espacio N | Trazo vertical | Ratio |
-|----------|-----------|----------------|-------|
-| Icon (64px) | 38 x 34 px | 10 px | 26.3% |
-| Horizontal (64px isotipo) | 38 x 34 px | 10 px | 26.3% |
-| Stacked (72px isotipo) | 43 x 38 px | 11 px | 25.6% |
+| Variante                  | Espacio N  | Trazo vertical | Ratio |
+| ------------------------- | ---------- | -------------- | ----- |
+| Icon (64px)               | 38 x 34 px | 10 px          | 26.3% |
+| Horizontal (64px isotipo) | 38 x 34 px | 10 px          | 26.3% |
+| Stacked (72px isotipo)    | 43 x 38 px | 11 px          | 25.6% |
 
 ## Reglas de uso
 

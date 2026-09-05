@@ -1,7 +1,9 @@
 import { inject, Injectable } from "@angular/core";
 import { HotToastService } from "@ngxpert/hot-toast";
-import { ToastData, ToastObservableData, ToastsComponent } from "./toast";
-import { Observable } from "rxjs";
+import type { Observable } from "rxjs";
+
+import type { ToastData, ToastObservableData } from "./toast";
+import { ToastsComponent } from "./toast";
 
 @Injectable({
   providedIn: "root",
@@ -17,19 +19,19 @@ export class ToastService {
 
   showObservableToast<T>(
     observable$: Observable<T>,
-    data: ToastObservableData,
+    data: ToastObservableData
   ) {
     const toastRef = this.hotToastService.show(ToastsComponent, {
       data: data.loading,
     });
 
     observable$.subscribe({
-      next: () => {
-        toastRef.data = data.success;
-        toastRef.updateToast({ type: "blank" });
-      },
       error: () => {
         toastRef.data = data.error;
+        toastRef.updateToast({ type: "blank" });
+      },
+      next: () => {
+        toastRef.data = data.success;
         toastRef.updateToast({ type: "blank" });
       },
     });

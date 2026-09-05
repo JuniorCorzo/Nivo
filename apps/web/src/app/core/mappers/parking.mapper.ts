@@ -1,99 +1,103 @@
-import { Injectable } from '@angular/core';
-import { CreatedSlots, SlotDistributionResponse } from '@core/api/generated/models';
-import { ParkingLotListItemResponse } from '@core/api/generated/models/parking-lot-list-item-response';
-import { ParkingLotsResponse } from '@core/api/generated/models/parking-lots-response';
-import { UpsertParkingLotsRequest } from '@core/api/generated/models/upsert-parking-lots-request';
-import {
+import type {
+  CreatedSlots,
+  SlotDistributionResponse,
+} from "@core/api/generated/models";
+import type { ParkingLotListItemResponse } from "@core/api/generated/models/parking-lot-list-item-response";
+import type { ParkingLotsResponse } from "@core/api/generated/models/parking-lots-response";
+import type { UpsertParkingLotsRequest } from "@core/api/generated/models/upsert-parking-lots-request";
+import type {
   ParkingLotListItemModel,
   ParkingLotsModel,
   UpsertParkingLotsModel,
-} from '@core/models/parking.model';
-import { SlotDistribution, SlotType } from '@core/type/slot-distribution.type';
+} from "@core/models/parking.model";
+import type {
+  SlotDistribution,
+  SlotType,
+} from "@core/type/slot-distribution.type";
 
-@Injectable({ providedIn: 'root' })
-export class ParkingMapper {
-  mapToParkingLotsModel(response: ParkingLotsResponse): ParkingLotsModel {
-    return {
-      id: response.id,
-      createdAt: new Date(response.createdAt),
-      updatedAt: new Date(response.updatedAt),
-      name: response.name,
-      address: response.address,
-      coordinates: response.coordinates,
-      currency: response.currency,
-      timezone: response.timezone,
-      operatingHours: response.operatingHours,
-      owner: response.owner,
-      tenant: response.tenant,
-    };
-  }
+const mapToSlotDistributionModel = (
+  response: SlotDistributionResponse
+): SlotDistribution => {
+  /* SAFETY: Backend returns valid SlotType string value corresponding to the enum */
+  const type = response.type as SlotType;
+  return { ...response, type };
+};
 
-  mapToParkingLotListItemModel(response: ParkingLotListItemResponse): ParkingLotListItemModel {
-    return {
-      address: response.address,
-      coordinates: response.coordinates,
-      createdAt: response.createdAt,
-      currency: response.currency,
-      id: response.id,
-      name: response.name,
-      occuppationRate: response.occuppationRate,
-      ownerName: response.ownerName,
-      operatingHours: response.operatingHours,
-      slotDistribution: response.slotDistribution.map((slot) =>
-        this.mapToSlotDistributionModel(slot),
-      ),
-      totalCapacity: response.totalCapacity,
-      updatedAt: response.updatedAt,
-    };
-  }
+const mapToCreatedSlot = (model: SlotDistribution): CreatedSlots => ({
+  numberSlots: model.count,
+  prefix: model.prefix,
+  slotType: model.type,
+  zone: model.zone,
+});
 
-  mapListItemToUpsertParkingLotsModel(model: ParkingLotListItemModel): UpsertParkingLotsModel {
-    return {
-      id: model.id,
-      name: model.name,
-      address: {
-        ...model.address,
-        country: model.address.country || 'Colombia',
-      },
-      coordinates: model.coordinates,
-      currency: model.currency || 'COP',
-      timezone: 'UTC-05:00',
-      operatingHours: {
-        openTime: model.operatingHours?.openTime ?? '',
-        closeTime: model.operatingHours?.closeTime ?? '',
-      },
-      slots: model.slotDistribution.map((slot) => ({
-        prefix: slot.prefix ?? '',
-        zone: slot.zone ?? '',
-        type: slot.type,
-        count: slot.count ?? 0,
-      })),
-    };
-  }
+export const mapToParkingLotsModel = (
+  response: ParkingLotsResponse
+): ParkingLotsModel => ({
+  address: response.address,
+  coordinates: response.coordinates,
+  createdAt: new Date(response.createdAt),
+  currency: response.currency,
+  id: response.id,
+  name: response.name,
+  operatingHours: response.operatingHours,
+  owner: response.owner,
+  tenant: response.tenant,
+  timezone: response.timezone,
+  updatedAt: new Date(response.updatedAt),
+});
 
-  mapToUpsertParkingLotsRequest(model: UpsertParkingLotsModel): UpsertParkingLotsRequest {
-    return {
-      id: model.id,
-      name: model.name,
-      address: model.address,
-      coordinates: model.coordinates,
-      currency: model.currency,
-      timezone: model.timezone,
-      operatingHours: model.operatingHours,
-      slots: model.slots?.map((slot) => this.mapToCreatedSlot(slot)),
-    };
-  }
+export const mapToParkingLotListItemModel = (
+  response: ParkingLotListItemResponse
+): ParkingLotListItemModel => ({
+  address: response.address,
+  coordinates: response.coordinates,
+  createdAt: response.createdAt,
+  currency: response.currency,
+  id: response.id,
+  name: response.name,
+  occuppationRate: response.occuppationRate,
+  operatingHours: response.operatingHours,
+  ownerName: response.ownerName,
+  slotDistribution: response.slotDistribution.map((slot) =>
+    mapToSlotDistributionModel(slot)
+  ),
+  totalCapacity: response.totalCapacity,
+  updatedAt: response.updatedAt,
+});
 
-  private mapToSlotDistributionModel(response: SlotDistributionResponse): SlotDistribution {
-    return { ...response, type: response.type as SlotType };
-  }
+export const mapListItemToUpsertParkingLotsModel = (
+  model: ParkingLotListItemModel
+): UpsertParkingLotsModel => ({
+  address: {
+    ...model.address,
+    country: model.address.country || "Colombia",
+  },
+  coordinates: model.coordinates,
+  currency: model.currency || "COP",
+  id: model.id,
+  name: model.name,
+  operatingHours: {
+    closeTime: model.operatingHours?.closeTime ?? "",
+    openTime: model.operatingHours?.openTime ?? "",
+  },
+  slots: model.slotDistribution.map((slot) => ({
+    count: slot.count ?? 0,
+    prefix: slot.prefix ?? "",
+    type: slot.type,
+    zone: slot.zone ?? "",
+  })),
+  timezone: "UTC-05:00",
+});
 
-  private mapToCreatedSlot(model: SlotDistribution): CreatedSlots {
-    return {
-      prefix: model.prefix,
-      zone: model.zone,
-      numberSlots: model.count,
-      slotType: model.type,
-    };
-  }
-}
+export const mapToUpsertParkingLotsRequest = (
+  model: UpsertParkingLotsModel
+): UpsertParkingLotsRequest => ({
+  address: model.address,
+  coordinates: model.coordinates,
+  currency: model.currency,
+  id: model.id,
+  name: model.name,
+  operatingHours: model.operatingHours,
+  slots: model.slots?.map((slot) => mapToCreatedSlot(slot)),
+  timezone: model.timezone,
+});

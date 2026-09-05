@@ -1,25 +1,27 @@
-import { provideZonelessChangeDetection } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { App } from './app';
+import { provideZonelessChangeDetection } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
 
-describe('App', () => {
+import { App } from "./app";
+
+describe("App", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideZonelessChangeDetection()]
+      providers: [provideZonelessChangeDetection()],
     }).compileComponents();
   });
 
-  it('should create the app', () => {
+  it("should create the app", () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
 
-  it('should render title', () => {
+  it("should render title", () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
+    /* SAFETY: The test fixture native element is a DOM HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('router-outlet')).toBeTruthy();
+    expect(compiled.querySelector("router-outlet")).toBeTruthy();
   });
 });

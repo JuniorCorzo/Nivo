@@ -1,15 +1,15 @@
+import { CommonModule } from "@angular/common";
+import type { ElementRef } from "@angular/core";
 import {
   Component,
   ChangeDetectionStrategy,
-  ElementRef,
   ViewChild,
   effect,
   inject,
   input,
   output,
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+} from "@angular/core";
+import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideAlertCircle,
   lucideAlertTriangle,
@@ -19,31 +19,31 @@ import {
   lucideLoader2,
   lucideLogIn,
   lucideX,
-} from '@ng-icons/lucide';
+} from "@ng-icons/lucide";
 
-import { CheckInFacade } from '../../facades/check-in.facade';
-import { TicketReceiptComponent } from '../ticket-receipt/ticket-receipt.component';
+import { CheckInFacade } from "../../facades/check-in.facade";
+import { TicketReceiptComponent } from "../ticket-receipt/ticket-receipt.component";
 
 @Component({
-  selector: 'app-check-in-modal',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, NgIcon, TicketReceiptComponent],
   providers: [
     CheckInFacade,
     provideIcons({
-      lucideLogIn,
-      lucideX,
-      lucideCar,
-      lucideBike,
       lucideAlertCircle,
       lucideAlertTriangle,
+      lucideBike,
+      lucideCar,
       lucideCheckCircle2,
       lucideLoader2,
+      lucideLogIn,
+      lucideX,
     }),
   ],
-  templateUrl: './check-in-modal.component.html',
-  styleUrl: './check-in-modal.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-check-in-modal",
+  standalone: true,
+  styleUrl: "./check-in-modal.component.css",
+  templateUrl: "./check-in-modal.component.html",
 })
 export class CheckInModalComponent {
   readonly facade = inject(CheckInFacade);
@@ -51,9 +51,9 @@ export class CheckInModalComponent {
   readonly isOpen = input<boolean>(false);
   readonly parkingId = input<string | null>(null);
 
-  readonly closed = output<void>();
+  readonly closed = output();
 
-  @ViewChild('plateInput') plateInputRef?: ElementRef<HTMLInputElement>;
+  @ViewChild("plateInput") plateInputRef?: ElementRef<HTMLInputElement>;
 
   constructor() {
     effect(() => {
@@ -74,6 +74,7 @@ export class CheckInModalComponent {
   }
 
   onPlateInput(event: Event): void {
+    /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
     this.facade.setPlate(target.value);
   }
@@ -86,16 +87,19 @@ export class CheckInModalComponent {
   }
 
   onSlotChange(event: Event): void {
+    /* SAFETY: Target is HTMLSelectElement */
     const target = event.target as HTMLSelectElement;
     this.facade.setSlotId(target.value || null);
   }
 
   onRateChange(event: Event): void {
+    /* SAFETY: Target is HTMLSelectElement */
     const target = event.target as HTMLSelectElement;
     this.facade.setRateId(target.value || null);
   }
 
   onEmailInput(event: Event): void {
+    /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
     this.facade.setEmail(target.value);
   }

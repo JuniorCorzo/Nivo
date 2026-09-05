@@ -1,17 +1,12 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
-
-import { input, computed } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "flex items-center p-6 pt-0",
+  },
   selector: "nv-card-footer",
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<div [class]="classes()"><ng-content /></div>`,
+  template: `<ng-content />`,
 })
-export class CardFooterComponent {
-  readonly class = input<string>("");
-  readonly classes = computed(() => {
-    const base = "flex items-center p-6 pt-0";
-    return this.class() ? `${base} ${this.class()}` : base;
-  });
-}
+export class CardFooterComponent {}

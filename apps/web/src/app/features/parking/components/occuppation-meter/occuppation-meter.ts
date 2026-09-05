@@ -1,20 +1,28 @@
-import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, input, viewChild } from '@angular/core';
+import type { ElementRef } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  input,
+  viewChild,
+} from "@angular/core";
 
 @Component({
-  selector: 'app-occuppation-meter',
-  imports: [],
-  templateUrl: './occuppation-meter.html',
-  styleUrl: './occuppation-meter.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [],
+  selector: "app-occuppation-meter",
+  styleUrl: "./occuppation-meter.css",
+  templateUrl: "./occuppation-meter.html",
 })
 export class OccuppationMeter {
-  public id = input('occuppation-meter');
-  public min = input('0');
-  public max = input('100');
-  public value = input('0');
-  public low = input('33');
-  public optimum = input('70');
-  public high = input('90');
+  public id = input("occuppation-meter");
+  public min = input("0");
+  public max = input("100");
+  public value = input("0");
+  public low = input("33");
+  public optimum = input("70");
+  public high = input("90");
 
   public totalCapacity = input<number | string>();
   public occupiedSlots = input<number | string>();
@@ -23,11 +31,17 @@ export class OccuppationMeter {
   protected ratio = computed(() => {
     const maxVal = Number(this.max()) || 100;
     const computedRatio = Math.round((Number(this.value()) * 100) / maxVal);
-    return isNaN(computedRatio) ? 0 : Math.min(100, Math.max(0, computedRatio));
+    return Number.isNaN(computedRatio)
+      ? 0
+      : Math.min(100, Math.max(0, computedRatio));
   });
 
   protected occupied = computed(() => {
-    if (this.occupiedSlots() !== undefined && this.occupiedSlots() !== null && this.occupiedSlots() !== '') {
+    if (
+      this.occupiedSlots() !== undefined &&
+      this.occupiedSlots() !== null &&
+      this.occupiedSlots() !== ""
+    ) {
       return Number(this.occupiedSlots());
     }
     const total = Number(this.totalCapacity()) || 0;
@@ -35,14 +49,18 @@ export class OccuppationMeter {
     return Math.round((total * rate) / 100);
   });
 
-  private occuppationMeter = viewChild<ElementRef<HTMLDivElement>>('occuppation_meter');
+  private occuppationMeter =
+    viewChild<ElementRef<HTMLDivElement>>("occuppation_meter");
 
   constructor() {
     effect(() => {
-      this.occuppationMeter()?.nativeElement.style.setProperty('--bar-width', `${this.ratio()}%`);
       this.occuppationMeter()?.nativeElement.style.setProperty(
-        '--bar-background',
-        this.getBarBackground(),
+        "--bar-width",
+        `${this.ratio()}%`
+      );
+      this.occuppationMeter()?.nativeElement.style.setProperty(
+        "--bar-background",
+        this.getBarBackground()
       );
     });
   }
@@ -50,13 +68,16 @@ export class OccuppationMeter {
   private getBarBackground() {
     const ratio = this.ratio();
     switch (true) {
-      case ratio > parseInt(this.optimum()) && ratio < parseInt(this.high()):
-        return 'var(--color-warning)';
-      case ratio > parseInt(this.high()):
-        return 'var(--color-error)';
-      default:
-        return 'var(--color-success)';
+      case ratio > Math.trunc(Number(this.optimum())) &&
+        ratio < Math.trunc(Number(this.high())): {
+        return "var(--color-warning)";
+      }
+      case ratio > Math.trunc(Number(this.high())): {
+        return "var(--color-error)";
+      }
+      default: {
+        return "var(--color-success)";
+      }
     }
   }
 }
-

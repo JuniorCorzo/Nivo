@@ -22,43 +22,43 @@ Nivo adopta un sistema visual inspirado en **shadcn/ui**: neutros basados en la 
 
 **Colores de base (neutros)**
 
-*   **Background** - `#09090b`
-    *   HSL: `hsl(240, 10%, 3.9%)`
-    *   **Uso**: Fondo principal de la aplicación.
-*   **Card** - `#09090b`
-    *   HSL: `hsl(240, 10%, 3.9%)`
-    *   **Uso**: Tarjetas y paneles, separados por borde sutil y no por fondo.
-*   **Popover** - `#09090b`
-    *   **Uso**: Modales, dropdowns y tooltips.
-*   **Foreground** - `#fafafa`
-    *   HSL: `hsl(0, 0%, 98%)`
-    *   **Uso**: Texto principal y contenido de alta legibilidad.
-*   **Muted Foreground** - `#a1a1aa`
-    *   HSL: `hsl(240, 4.9%, 65.1%)`
-    *   **Uso**: Texto secundario, labels, placeholders y descripciones.
-*   **Muted** - `#27272a`
-    *   HSL: `hsl(240, 3.7%, 15.9%)`
-    *   **Uso**: Fondos de badges, botones secundarios y áreas inactivas.
+- **Background** - `#09090b`
+  - HSL: `hsl(240, 10%, 3.9%)`
+  - **Uso**: Fondo principal de la aplicación.
+- **Card** - `#09090b`
+  - HSL: `hsl(240, 10%, 3.9%)`
+  - **Uso**: Tarjetas y paneles, separados por borde sutil y no por fondo.
+- **Popover** - `#09090b`
+  - **Uso**: Modales, dropdowns y tooltips.
+- **Foreground** - `#fafafa`
+  - HSL: `hsl(0, 0%, 98%)`
+  - **Uso**: Texto principal y contenido de alta legibilidad.
+- **Muted Foreground** - `#a1a1aa`
+  - HSL: `hsl(240, 4.9%, 65.1%)`
+  - **Uso**: Texto secundario, labels, placeholders y descripciones.
+- **Muted** - `#27272a`
+  - HSL: `hsl(240, 3.7%, 15.9%)`
+  - **Uso**: Fondos de badges, botones secundarios y áreas inactivas.
 
 **Colores de componentes**
 
-*   **Primary** - `#fafafa` (Texto: `#18181b`)
-    *   **Uso**: Fondo de botón principal y elementos de acción primaria.
-*   **Secondary** - `#27272a` (Texto: `#fafafa`)
-    *   **Uso**: Fondo de botón secundario y toggle inactivo.
-*   **Accent** - `#27272a`
-    *   **Uso**: Hover en sidebar, item de menú activo y fondo de selección.
-*   **Border / Input** - `#27272a`
-    *   **Uso**: Bordes de tarjetas, divisores y formularios.
-*   **Ring** - `#d4d4d8`
-    *   **Uso**: Anillo de foco (`focus-visible`).
+- **Primary** - `#fafafa` (Texto: `#18181b`)
+  - **Uso**: Fondo de botón principal y elementos de acción primaria.
+- **Secondary** - `#27272a` (Texto: `#fafafa`)
+  - **Uso**: Fondo de botón secundario y toggle inactivo.
+- **Accent** - `#27272a`
+  - **Uso**: Hover en sidebar, item de menú activo y fondo de selección.
+- **Border / Input** - `#27272a`
+  - **Uso**: Bordes de tarjetas, divisores y formularios.
+- **Ring** - `#d4d4d8`
+  - **Uso**: Anillo de foco (`focus-visible`).
 
 **Colores semánticos (estados)**
 
-*   **Destructive** - `#7f1d1d` (Texto: `#fafafa`) - Errores, plazas ocupadas.
-*   **Success** - `#22c55e` - Plazas disponibles, check-in exitoso.
-*   **Warning** - `#eab308` - Advertencias, reservas pendientes.
-*   **Info** - `#3b82f6` - Mensajes informativos, tooltips.
+- **Destructive** - `#7f1d1d` (Texto: `#fafafa`) - Errores, plazas ocupadas.
+- **Success** - `#22c55e` - Plazas disponibles, check-in exitoso.
+- **Warning** - `#eab308` - Advertencias, reservas pendientes.
+- **Info** - `#3b82f6` - Mensajes informativos, tooltips.
 
 ---
 
@@ -66,31 +66,31 @@ Nivo adopta un sistema visual inspirado en **shadcn/ui**: neutros basados en la 
 
 **Colores de base (neutros)**
 
-*   **Background / Card / Popover** - `#ffffff`
-    *   HSL: `hsl(0, 0%, 100%)`
-    *   **Uso**: Fondo principal.
-*   **Foreground** - `#09090b`
-    *   HSL: `hsl(240, 10%, 3.9%)`
-    *   **Uso**: Texto principal.
-*   **Muted Foreground** - `#71717a`
-    *   **Uso**: Texto secundario.
-*   **Muted** - `#f4f4f5`
-    *   **Uso**: Fondos sutiles.
+- **Background / Card / Popover** - `#ffffff`
+  - HSL: `hsl(0, 0%, 100%)`
+  - **Uso**: Fondo principal.
+- **Foreground** - `#09090b`
+  - HSL: `hsl(240, 10%, 3.9%)`
+  - **Uso**: Texto principal.
+- **Muted Foreground** - `#71717a`
+  - **Uso**: Texto secundario.
+- **Muted** - `#f4f4f5`
+  - **Uso**: Fondos sutiles.
 
 **Colores de componentes**
 
-*   **Primary** - `#18181b` (Texto: `#fafafa`)
-*   **Secondary** - `#f4f4f5` (Texto: `#18181b`)
-*   **Accent** - `#f4f4f5`
-*   **Border / Input** - `#e4e4e7`
-*   **Ring** - `#18181b`
+- **Primary** - `#18181b` (Texto: `#fafafa`)
+- **Secondary** - `#f4f4f5` (Texto: `#18181b`)
+- **Accent** - `#f4f4f5`
+- **Border / Input** - `#e4e4e7`
+- **Ring** - `#18181b`
 
 **Colores semánticos (estados)**
 
-*   **Destructive** - `#ef4444` (Texto: `#fafafa`)
-*   **Success** - `#16a34a`
-*   **Warning** - `#ca8a04`
-*   **Info** - `#2563eb`
+- **Destructive** - `#ef4444` (Texto: `#fafafa`)
+- **Success** - `#16a34a`
+- **Warning** - `#ca8a04`
+- **Info** - `#2563eb`
 
 ---
 

@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/angular";
-import { Component } from "@angular/core";
+
+import { BadgeComponent } from "../badge/badge";
+import { ButtonComponent } from "../button/button";
+import { InputComponent } from "../input/input";
 import { CardComponent } from "./card";
+import { CardContentComponent } from "./card-content";
+import { CardDescriptionComponent } from "./card-description";
+import { CardFooterComponent } from "./card-footer";
 import { CardHeaderComponent } from "./card-header";
 import { CardTitleComponent } from "./card-title";
-import { CardDescriptionComponent } from "./card-description";
-import { CardContentComponent } from "./card-content";
-import { CardFooterComponent } from "./card-footer";
-import { ButtonComponent } from "../button/button";
-import { BadgeComponent } from "../badge/badge";
-import { InputComponent } from "../input/input";
 
 const ALL_CARD_IMPORTS = [
   CardComponent,
@@ -25,8 +25,8 @@ const ALL_CARD_IMPORTS = [
 // ─── Meta ──────────────────────────────────────────────────────────────────────
 
 const meta: Meta = {
-  title: "Components/Card",
   tags: ["autodocs"],
+  title: "Components/Card",
 };
 
 export default meta;

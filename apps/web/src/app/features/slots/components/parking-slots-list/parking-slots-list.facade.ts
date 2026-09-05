@@ -1,56 +1,61 @@
-import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import {
+  DestroyRef,
+  Injectable,
+  computed,
+  effect,
+  inject,
+  signal,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router } from "@angular/router";
+import type { SlotStatus, SlotSummary } from "@core/models/slot.model";
+import { ParkingService } from "@core/services/parking-service";
+import { SlotService } from "@core/services/slot-service";
+import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
-import { SlotStatus, SlotSummary } from '@core/models/slot.model';
-import { ParkingService } from '@core/services/parking-service';
-import { SlotService } from '@core/services/slot-service';
-import { APP_ROUTES } from '@shared/constants/app-routes.constant';
 import {
   SLOT_STATUS_FILTER_OPTIONS,
   SLOT_TYPE_OPTIONS,
   SLOT_ZONE_FILTER_OPTIONS,
   displayOptionFn,
   valueOptionFn,
-} from '../../shared/parking-slot-presentations';
-
-import { SlotsSelectionState } from './slots-selection.state';
-import { SlotsTableState } from './slots-table.state';
-import {
-  SlotDeleteState,
-  getDeleteModalCopy,
-  requiresDeleteConfirm,
-} from '../slot-delete-modal/slots-delete.state';
-import {
-  SlotStatusState,
-  getStatusModalCopy,
-  getStatusTransitionOptions,
-  VALID_STATUS_TRANSITIONS,
-} from '../slot-status-modal/slot-status.state';
+} from "../../shared/parking-slot-presentations";
+import { SlotDeleteState } from "../slot-delete-modal/slots-delete.state";
+import { SlotStatusState } from "../slot-status-modal/slot-status.state";
+import { SlotsSelectionState } from "./slots-selection.state";
+import { SlotsTableState } from "./slots-table.state";
 
 export {
   getDeleteModalCopy,
   requiresDeleteConfirm,
+} from "../slot-delete-modal/slots-delete.state";
+export {
   getStatusModalCopy,
   getStatusTransitionOptions,
   VALID_STATUS_TRANSITIONS,
-};
+} from "../slot-status-modal/slot-status.state";
 
-export type DrawerTab = 'general' | 'history';
+export type DrawerTab = "general" | "history";
 
-export function getHistoryCopy(slot: SlotSummary | null): {
+export interface HistoryCopy {
   empty: boolean;
-  title?: string;
   message?: string;
-} {
-  if (!slot) return { empty: true };
-  if (!slot.hasHistory) return { empty: true, message: 'Sin historial de tickets' };
+  title?: string;
+}
+
+export const getHistoryCopy = (slot: SlotSummary | null): HistoryCopy => {
+  if (!slot) {
+    return { empty: true };
+  }
+  if (!slot.hasHistory) {
+    return { empty: true, message: "Sin historial de tickets" };
+  }
   return {
     empty: false,
-    title: 'Esta plaza tiene tickets previos.',
-    message: 'El detalle de tickets no está disponible en esta vista.',
+    message: "El detalle de tickets no está disponible en esta vista.",
+    title: "Esta plaza tiene tickets previos.",
   };
-}
+};
 
 @Injectable()
 export class ParkingSlotsListFacade {
@@ -79,7 +84,9 @@ export class ParkingSlotsListFacade {
   // ─── delegated selection signals ───
   readonly selectedIds = this.selectionState.selectedIds;
   readonly selectedCount = this.selectionState.selectedCount;
-  readonly allSelected = computed(() => this.selectionState.allSelected(this.filteredSlots()));
+  readonly allSelected = computed(() =>
+    this.selectionState.allSelected(this.filteredSlots())
+  );
 
   // ─── delegated delete signals ───
   readonly deleteModalOpen = this.deleteState.deleteModalOpen;
@@ -99,13 +106,15 @@ export class ParkingSlotsListFacade {
 
   // ─── drawer & route specific signals ───
   readonly drawerSlotId = signal<string | null>(null);
-  readonly drawerTab = signal<DrawerTab>('general');
+  readonly drawerTab = signal<DrawerTab>("general");
   private readonly parkingId = signal<string | null>(null);
 
   readonly parking = computed(() => {
     const parkingId = this.parkingId();
     return parkingId
-      ? (this.parkingService.parkingLots().find((parking) => parking.id === parkingId) ?? null)
+      ? (this.parkingService
+          .parkingLots()
+          .find((parking) => parking.id === parkingId) ?? null)
       : null;
   });
 
@@ -116,7 +125,9 @@ export class ParkingSlotsListFacade {
 
   readonly table = this.tableState.initTable(() => this.slots());
 
-  readonly filteredSlots = computed(() => this.table.getRowModel().rows.map((row) => row.original));
+  readonly filteredSlots = computed(() =>
+    this.table.getRowModel().rows.map((row) => row.original)
+  );
 
   readonly pageCount = computed(() => this.table.getPageCount());
 
@@ -128,10 +139,12 @@ export class ParkingSlotsListFacade {
   constructor() {
     const destroyRef = inject(DestroyRef);
 
-    this.route.paramMap.pipe(takeUntilDestroyed(destroyRef)).subscribe((params) => {
-      this.parkingId.set(params.get('parkingId'));
-      this.drawerSlotId.set(params.get('slotId'));
-    });
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(destroyRef))
+      .subscribe((params) => {
+        this.parkingId.set(params.get("parkingId"));
+        this.drawerSlotId.set(params.get("slotId"));
+      });
 
     effect((onCleanup) => {
       const parking = this.parking();
@@ -139,7 +152,9 @@ export class ParkingSlotsListFacade {
         return;
       }
 
-      const sub = this.slotsService.getAllSlotSummariesByParkingId(parking.id).subscribe();
+      const sub = this.slotsService
+        .getAllSlotSummariesByParkingId(parking.id)
+        .subscribe();
 
       onCleanup(() => sub.unsubscribe());
     });
@@ -148,26 +163,38 @@ export class ParkingSlotsListFacade {
   // ─── navigation ───
   onCreate(): void {
     const parking = this.parking();
-    if (!parking) return;
+    if (!parking) {
+      return;
+    }
     this.router.navigate([APP_ROUTES.app.createParkingLotSlot(parking.id)]);
   }
 
   onEdit(slotId: string): void {
     const parking = this.parking();
-    if (!parking) return;
-    this.router.navigate([APP_ROUTES.app.editParkingLotSlot(parking.id, slotId)]);
+    if (!parking) {
+      return;
+    }
+    this.router.navigate([
+      APP_ROUTES.app.editParkingLotSlot(parking.id, slotId),
+    ]);
   }
 
   openDrawer(slotId: string): void {
     const parking = this.parking();
-    if (!parking) return;
-    this.drawerTab.set('general');
-    this.router.navigate([APP_ROUTES.app.parkingLotSlotDetail(parking.id, slotId)]);
+    if (!parking) {
+      return;
+    }
+    this.drawerTab.set("general");
+    this.router.navigate([
+      APP_ROUTES.app.parkingLotSlotDetail(parking.id, slotId),
+    ]);
   }
 
   closeDrawer(): void {
     const parking = this.parking();
-    if (!parking) return;
+    if (!parking) {
+      return;
+    }
     this.router.navigate([APP_ROUTES.app.parkingLotSlots(parking.id)]);
   }
 
@@ -177,6 +204,7 @@ export class ParkingSlotsListFacade {
 
   // ─── filters ───
   onQueryInput(event: Event): void {
+    /* SAFETY: event.target is guaranteed to be an HTMLInputElement for input event */
     this.tableState.globalFilter.set((event.target as HTMLInputElement).value);
   }
 
@@ -222,14 +250,20 @@ export class ParkingSlotsListFacade {
 
   confirmStatusChange(): void {
     const parkingId = this.parkingId();
-    if (!parkingId) return;
+    if (!parkingId) {
+      return;
+    }
     this.statusState.confirmStatusChange(parkingId);
   }
 
   // ─── modals: delete ───
   openBatchDeleteModal(): void {
-    const first = this.filteredSlots().find((slot) => this.selectedIds().has(slot.id));
-    if (!first) return;
+    const first = this.filteredSlots().find((slot) =>
+      this.selectedIds().has(slot.id)
+    );
+    if (!first) {
+      return;
+    }
     this.deleteState.openBatchDeleteModal(first);
   }
 
@@ -243,13 +277,15 @@ export class ParkingSlotsListFacade {
 
   confirmDelete(): void {
     const parkingId = this.parkingId();
-    if (!parkingId) return;
+    if (!parkingId) {
+      return;
+    }
 
     this.deleteState.confirmDelete(
       parkingId,
       this.selectedIds(),
       () => this.selectionState.clear(),
-      (id) => this.selectionState.remove(id),
+      (id) => this.selectionState.remove(id)
     );
   }
 }

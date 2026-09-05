@@ -1,0 +1,124 @@
+@if (facade.activeParkingLot(); as p) {
+<div class="mx-auto flex max-w-7xl flex-col gap-5 p-3.5 sm:gap-6 sm:p-6 md:p-8">
+  <!-- Top Bar / Hero Header -->
+  <div class="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+    <div class="flex min-w-0 items-center gap-3">
+      <div
+        class="bg-primary/10 text-primary border-primary/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border shadow-xs"
+      >
+        <ng-icon name="lucideParkingSquare" size="22" class="shrink-0" />
+      </div>
+      <div class="min-w-0">
+        <app-parking-lot-selector variant="title" />
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-wrap items-center gap-2">
+      <nv-button
+        variant="default"
+        size="md"
+        (click)="facade.onManageOperations()"
+        class="whitespace-nowrap"
+      >
+        <ng-icon name="lucideLogIn" size="16" class="shrink-0" />
+        <span class="whitespace-nowrap">Operaciones en vivo</span>
+      </nv-button>
+
+      <nv-button
+        variant="secondary"
+        size="md"
+        (click)="facade.onManageRates()"
+        class="whitespace-nowrap"
+      >
+        <ng-icon name="lucideCoins" size="16" class="text-primary shrink-0" />
+        <span class="whitespace-nowrap">Tarifas</span>
+      </nv-button>
+
+      <nv-button
+        variant="secondary"
+        size="md"
+        (click)="facade.onManageSlots()"
+        class="whitespace-nowrap"
+      >
+        <ng-icon
+          name="lucideParkingSquare"
+          size="16"
+          class="text-primary shrink-0"
+        />
+        <span class="whitespace-nowrap">Espacios / Slots</span>
+      </nv-button>
+
+      <nv-button
+        variant="secondary"
+        size="md"
+        (click)="facade.onEdit()"
+        class="whitespace-nowrap"
+        [title]="LABELS_DETAIL.actions.edit"
+      >
+        <ng-icon name="lucidePencil" size="16" class="shrink-0" />
+        <span class="whitespace-nowrap">{{ LABELS_DETAIL.actions.edit }}</span>
+      </nv-button>
+
+      <nv-button
+        variant="destructive"
+        size="md"
+        (click)="facade.onDeleteClick()"
+        class="whitespace-nowrap"
+        [title]="LABELS_DETAIL.actions.delete"
+      >
+        <ng-icon name="lucideTrash2" size="16" class="shrink-0" />
+        <span class="whitespace-nowrap"
+          >{{ LABELS_DETAIL.actions.delete }}</span
+        >
+      </nv-button>
+    </div>
+  </div>
+
+  <!-- Summary Metrics Grid Sub-component -->
+  <app-parking-stats-grid
+    [totalSlots]="facade.totalSlots()"
+    [occupiedSlots]="facade.occupiedSlots()"
+    [availableSlots]="facade.availableSlots()"
+    [occupationRate]="p.occuppationRate || 0"
+    [currency]="p.currency"
+    [coordinates]="p.coordinates"
+  />
+
+  <!-- Main General Info Sub-component -->
+  <app-parking-general-info [parking]="p" />
+
+  <!-- Slot Distribution Sub-component -->
+  @if (p.slotDistribution && p.slotDistribution.length > 0) {
+  <app-parking-slot-distribution
+    [slotDistribution]="p.slotDistribution"
+    [occupiedSlots]="facade.occupiedSlots()"
+    [availableSlots]="facade.availableSlots()"
+    [totalSlots]="facade.totalSlots()"
+  />
+  }
+
+  <!-- Map Card -->
+  <nv-card class="flex flex-col gap-3 rounded-2xl p-4 sm:gap-4 sm:p-6">
+    <div class="flex items-center gap-2">
+      <ng-icon name="lucideMapPin" size="18" class="text-primary shrink-0" />
+      <nv-h3 class="text-sm font-bold sm:text-base">
+        {{ LABELS_DETAIL.map.title }}
+      </nv-h3>
+    </div>
+    <div
+      class="border-border h-[200px] overflow-hidden rounded-xl border shadow-inner sm:h-[240px]"
+    >
+      <app-parking-map [initialPosition]="p.coordinates" [readonly]="true" />
+    </div>
+  </nv-card>
+</div>
+} @else {
+<!-- Empty State Sub-component -->
+<app-parking-empty-state (create)="facade.onCreateParking()" />
+} @if (facade.isDeleteModalOpen()) {
+<app-delete-parking-modal
+  (confirm)="facade.onDeleteConfirm()"
+  (cancel)="facade.onDeleteCancel()"
+/>
+}

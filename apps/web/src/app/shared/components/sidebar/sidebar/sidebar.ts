@@ -1,32 +1,45 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink } from '@angular/router';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
+import type { OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { NavigationEnd, Router, RouterLink } from "@angular/router";
+import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideCar,
   lucideLayoutDashboard,
   lucidePanelLeftClose,
   lucidePanelLeftOpen,
-} from '@ng-icons/lucide';
-import { APP_ROUTES } from '@shared/constants/app-routes.constant';
-import { APP_TEXTS } from '@shared/constants/app-texts.constant';
-import { filter, map } from 'rxjs';
-import { SidebarFooter } from '@shared/components/sidebar-footer/sidebar-footer';
+} from "@ng-icons/lucide";
+import { SidebarFooter } from "@shared/components/sidebar-footer/sidebar-footer";
+import { APP_ROUTES } from "@shared/constants/app-routes.constant";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
+import { filter, map } from "rxjs";
 
 @Component({
-  selector: 'app-sidebar',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgIcon, SidebarFooter, RouterLink],
   providers: [
-    provideIcons({ lucideLayoutDashboard, lucideCar, lucidePanelLeftClose, lucidePanelLeftOpen }),
+    provideIcons({
+      lucideCar,
+      lucideLayoutDashboard,
+      lucidePanelLeftClose,
+      lucidePanelLeftOpen,
+    }),
   ],
-  templateUrl: './sidebar.html',
-  styleUrl: './sidebar.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-sidebar",
+  styleUrl: "./sidebar.css",
+  templateUrl: "./sidebar.html",
 })
 export class Sidebar implements OnInit {
   protected readonly homeUrl = APP_ROUTES.app.parkingLots;
-  protected navItems = signal(APP_TEXTS.sidebar.nav.map((item) => ({ ...item, isActive: false })));
+  protected navItems = signal(
+    APP_TEXTS.sidebar.nav.map((item) => ({ ...item, isActive: false }))
+  );
   private route = inject(Router);
   private breakpointObserver = inject(BreakpointObserver);
 
@@ -34,17 +47,23 @@ export class Sidebar implements OnInit {
     this.breakpointObserver
       .observe([Breakpoints.XSmall, Breakpoints.Small, Breakpoints.Medium])
       .pipe(map((result) => result.matches)),
-    { initialValue: window.innerWidth <= 1024 },
+    { initialValue: window.innerWidth <= 1024 }
   );
 
   protected collapsed = signal(this.isTabletOrSmaller());
 
   ngOnInit(): void {
-    this.setActiveItem(this.route.url.split('?', 1)[0]);
+    this.setActiveItem(this.route.url.split("?", 1)[0]);
 
-    this.route.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event) => {
-      this.setActiveItem((event as NavigationEnd).urlAfterRedirects);
-    });
+    this.route.events
+      .pipe(
+        filter(
+          (event): event is NavigationEnd => event instanceof NavigationEnd
+        )
+      )
+      .subscribe((event) => {
+        this.setActiveItem(event.urlAfterRedirects);
+      });
   }
 
   protected toggleCollapsed(): void {
@@ -53,7 +72,7 @@ export class Sidebar implements OnInit {
 
   private setActiveItem(url: string) {
     this.navItems.update((items) =>
-      items.map((item) => ({ ...item, isActive: item.url.includes(url) })),
+      items.map((item) => ({ ...item, isActive: item.url.includes(url) }))
     );
   }
 }

@@ -1,1 +1,7 @@
-export type Role = 'SUPERADMIN' | 'OWNER' | 'MANAGER' | 'OPERATOR' | 'DRIVER' | 'AUDITOR';
+export type Role =
+  | "SUPERADMIN"
+  | "OWNER"
+  | "MANAGER"
+  | "OPERATOR"
+  | "DRIVER"
+  | "AUDITOR";

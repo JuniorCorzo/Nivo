@@ -1,15 +1,16 @@
-import { computed, Injectable, signal, Signal, WritableSignal } from '@angular/core';
-import { ActivatedRouteSnapshot } from '@angular/router';
+import type { WritableSignal } from "@angular/core";
+import { computed, Injectable, signal } from "@angular/core";
+import type { ActivatedRouteSnapshot } from "@angular/router";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class RedirectService {
   private redirectUrl: WritableSignal<string | null> = signal(null);
   public hasRedirectUrl = computed(() => !!this.redirectUrl());
 
   saveRedirectUrl(route: ActivatedRouteSnapshot) {
-    this.redirectUrl.set(route.url.map((segment) => segment.path).join('/'));
+    this.redirectUrl.set(route.url.map((segment) => segment.path).join("/"));
   }
 
   getRedirectUrl(): string | null {

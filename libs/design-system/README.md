@@ -65,8 +65,7 @@ export class ExampleComponent {}
 
 ### Usar tokens.css desde npm
 
-El archivo `tokens.css` se empaqueta dentro del paquete en `styles/tokens.css`.
-Ademas, el paquete ahora exporta explicitamente `./styles/tokens.css` para que funcione con proyectos que respetan `exports` en `package.json`.
+El archivo `tokens.css` se empaqueta dentro del paquete en `styles/tokens.css`. Ademas, el paquete ahora exporta explicitamente `./styles/tokens.css` para que funcione con proyectos que respetan `exports` en `package.json`.
 
 En una app Angular, agregalo en `angular.json`:
 

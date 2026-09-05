@@ -1,25 +1,21 @@
-import { inject, Injectable } from '@angular/core';
-import { RegisterTenantDto } from '@core/api/generated/models';
-import { RegisterTenant, TenantInfoModel } from '@core/models/tenants.model';
-import { UserMapper } from './user.mapper';
+import type { RegisterTenantDto } from "@core/api/generated/models";
+import type {
+  RegisterTenant,
+  TenantInfoModel,
+} from "@core/models/tenants.model";
 
-@Injectable({
-  providedIn: 'root',
-})
-export class TenantMapper {
-  private userMapper = inject(UserMapper);
+import { mapToCreatedRegisterDto } from "./user.mapper";
 
-  mapToTenantInfoModel(data: any): TenantInfoModel {
-    return {
-      id: data.id,
-      companyName: data.companyName,
-    };
-  }
+export const mapToTenantInfoModel = (
+  data: TenantInfoModel
+): TenantInfoModel => ({
+  companyName: data.companyName,
+  id: data.id,
+});
 
-  mapToRegisterTenantDto(model: RegisterTenant): RegisterTenantDto {
-    return {
-      companyName: model.companyName,
-      user: this.userMapper.mapToCreatedRegisterDto(model.user),
-    };
-  }
-}
+export const mapToRegisterTenantDto = (
+  model: RegisterTenant
+): RegisterTenantDto => ({
+  companyName: model.companyName,
+  user: mapToCreatedRegisterDto(model.user),
+});

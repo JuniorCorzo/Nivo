@@ -1,0 +1,128 @@
+@if (facade.activeParkingLot(); as p) {
+<div class="bg-background flex min-h-dvh flex-col">
+  <div class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-8">
+    <!-- Top header bar: unified selector & create button -->
+    <div class="flex items-start justify-between gap-2">
+      <div class="flex min-w-0 flex-1 items-center gap-2.5">
+        <div
+          class="bg-primary/10 text-primary border-primary/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border shadow-xs"
+        >
+          <ng-icon name="lucideParkingSquare" size="20" />
+        </div>
+        <div class="min-w-0 flex-1">
+          <app-parking-lot-selector variant="title" />
+        </div>
+      </div>
+      <nv-button
+        variant="default"
+        size="sm"
+        (click)="facade.onCreateParking()"
+        class="shrink-0 whitespace-nowrap"
+        title="Nueva sede"
+      >
+        <ng-icon name="lucidePlus" size="14" />
+        <span class="xs:inline hidden whitespace-nowrap">Nueva sede</span>
+      </nv-button>
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="flex flex-col gap-2">
+      <nv-button
+        variant="default"
+        size="md"
+        (click)="facade.onManageOperations()"
+        class="w-full whitespace-nowrap"
+      >
+        <ng-icon name="lucideLogIn" size="16" />
+        <span class="whitespace-nowrap">Operaciones en vivo</span>
+      </nv-button>
+
+      <div class="grid grid-cols-2 gap-2">
+        <nv-button
+          variant="secondary"
+          size="sm"
+          (click)="facade.onManageRates()"
+          class="whitespace-nowrap"
+        >
+          <ng-icon name="lucideCoins" size="15" class="text-primary" />
+          <span class="whitespace-nowrap">Tarifas</span>
+        </nv-button>
+
+        <nv-button
+          variant="secondary"
+          size="sm"
+          (click)="facade.onManageSlots()"
+          class="whitespace-nowrap"
+        >
+          <ng-icon name="lucideParkingSquare" size="15" class="text-primary" />
+          <span class="whitespace-nowrap">Espacios / Slots</span>
+        </nv-button>
+
+        <nv-button
+          variant="secondary"
+          size="sm"
+          (click)="facade.onEdit()"
+          class="whitespace-nowrap"
+        >
+          <ng-icon name="lucidePencil" size="15" />
+          <span class="whitespace-nowrap">Editar</span>
+        </nv-button>
+
+        <nv-button
+          variant="destructive"
+          size="sm"
+          (click)="facade.onDeleteClick()"
+          class="whitespace-nowrap"
+        >
+          <ng-icon name="lucideTrash2" size="15" />
+          <span class="whitespace-nowrap">Eliminar</span>
+        </nv-button>
+      </div>
+    </div>
+
+    <!-- Metrics Grid Sub-component -->
+    <app-parking-stats-grid
+      [totalSlots]="facade.totalSlots()"
+      [occupiedSlots]="facade.occupiedSlots()"
+      [availableSlots]="facade.availableSlots()"
+      [occupationRate]="p.occuppationRate || 0"
+      [currency]="p.currency"
+      [coordinates]="p.coordinates"
+    />
+
+    <!-- General Info Sub-component -->
+    <app-parking-general-info [parking]="p" />
+
+    <!-- Slot Distribution Sub-component -->
+    @if (p.slotDistribution && p.slotDistribution.length > 0) {
+    <app-parking-slot-distribution
+      [slotDistribution]="p.slotDistribution"
+      [occupiedSlots]="facade.occupiedSlots()"
+      [availableSlots]="facade.availableSlots()"
+      [totalSlots]="facade.totalSlots()"
+    />
+    }
+
+    <!-- Map Card -->
+    <nv-card class="flex flex-col gap-2.5 rounded-2xl p-3.5 sm:p-4">
+      <div class="flex items-center gap-1.5">
+        <ng-icon name="lucideMapPin" size="15" class="text-primary" />
+        <span class="text-foreground text-xs font-bold">Ubicación</span>
+      </div>
+      <div
+        class="border-border h-[180px] overflow-hidden rounded-xl border shadow-inner"
+      >
+        <app-parking-map [initialPosition]="p.coordinates" [readonly]="true" />
+      </div>
+    </nv-card>
+  </div>
+</div>
+} @else {
+<!-- Empty State Sub-component -->
+<app-parking-empty-state (create)="facade.onCreateParking()" />
+} @if (facade.isDeleteModalOpen()) {
+<app-delete-parking-modal
+  (confirm)="facade.onDeleteConfirm()"
+  (cancel)="facade.onDeleteCancel()"
+/>
+}

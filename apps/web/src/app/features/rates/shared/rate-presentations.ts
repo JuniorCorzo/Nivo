@@ -1,21 +1,26 @@
-export type Option = { value: string; label: string };
+export interface Option {
+  value: string;
+  label: string;
+}
 
 export const VEHICLE_TYPE_OPTIONS: Option[] = [
-  { value: 'CAR', label: 'Carro' },
-  { value: 'MOTORCYCLE', label: 'Moto' },
-  { value: 'BIKE', label: 'Bicicleta' },
+  { label: "Carro", value: "CAR" },
+  { label: "Moto", value: "MOTORCYCLE" },
+  { label: "Bicicleta", value: "BIKE" },
 ];
 
 export const VEHICLE_FILTER_OPTIONS: Option[] = [
-  { value: 'ALL', label: 'Todos los vehículos' },
+  { label: "Todos los vehículos", value: "ALL" },
   ...VEHICLE_TYPE_OPTIONS,
 ];
 
 export const TIME_UNIT_OPTIONS: Option[] = [
-  { value: 'MINUTES', label: 'Por Minuto' },
-  { value: 'HOURS', label: 'Por Hora' },
-  { value: 'DAYS', label: 'Por Día' },
+  { label: "Por Minuto", value: "MINUTES" },
+  { label: "Por Hora", value: "HOURS" },
+  { label: "Por Día", value: "DAYS" },
 ];
 
-export const displayOptionFn = (item: unknown): string => (item as Option)?.label ?? '';
-export const valueOptionFn = (item: unknown): string => (item as Option)?.value ?? '';
+export const displayOptionFn = (item: Option | null | undefined): string =>
+  item?.label ?? "";
+export const valueOptionFn = (item: Option | null | undefined): string =>
+  item?.value ?? "";

@@ -6,13 +6,13 @@ import {
 } from "@angular/core";
 
 @Component({
-  selector: "th[nv-table-head]",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<ng-content />`,
   host: {
     "[class]": "classes()",
   },
+  selector: "th[nv-table-head]",
+  standalone: true,
+  template: `<ng-content />`,
 })
 export class TableHeadComponent {
   readonly class = input<string>("");
