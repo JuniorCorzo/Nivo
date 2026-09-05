@@ -13,5 +13,11 @@ export default defineConfig({
   rules: {
     "anti-slop/no-unknown-parameters": "off",
     "max-classes-per-file": "off",
+    "typescript/no-extraneous-class": [
+      "error",
+      {
+        allowWithDecorator: true,
+      },
+    ],
   },
 });

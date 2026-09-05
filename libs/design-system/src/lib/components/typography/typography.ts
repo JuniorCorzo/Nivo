@@ -1,128 +1,91 @@
-import {
-  Component,
-  input,
-  computed,
-  ChangeDetectionStrategy,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class:
+      "block scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl font-sans",
+  },
   selector: "nv-h1",
   standalone: true,
-  template: `<h1 [class]="classes()"><ng-content /></h1>`,
+  template: `<ng-content />`,
 })
-export class TypographyH1 {
-  readonly class = input<string>("");
-
-  readonly classes = computed(() => {
-    const base =
-      "scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl font-sans";
-    return this.class() ? `${base} ${this.class()}` : base;
-  });
-}
+export class TypographyH1 {}
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class:
+      "block scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0 font-sans",
+  },
   selector: "nv-h2",
   standalone: true,
-  template: `<h2 [class]="classes()"><ng-content /></h2>`,
+  template: `<ng-content />`,
 })
-export class TypographyH2 {
-  readonly class = input<string>("");
-
-  readonly classes = computed(() => {
-    const base =
-      "scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0 font-sans";
-    return this.class() ? `${base} ${this.class()}` : base;
-  });
-}
+export class TypographyH2 {}
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "block scroll-m-20 text-2xl font-semibold tracking-tight font-sans",
+  },
   selector: "nv-h3",
   standalone: true,
-  template: `<h3 [class]="classes()"><ng-content /></h3>`,
+  template: `<ng-content />`,
 })
-export class TypographyH3 {
-  readonly class = input<string>("");
-
-  readonly classes = computed(() => {
-    const base = "scroll-m-20 text-2xl font-semibold tracking-tight font-sans";
-    return this.class() ? `${base} ${this.class()}` : base;
-  });
-}
+export class TypographyH3 {}
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "block scroll-m-20 text-xl font-semibold tracking-tight font-sans",
+  },
   selector: "nv-h4",
   standalone: true,
-  template: `<h4 [class]="classes()"><ng-content /></h4>`,
+  template: `<ng-content />`,
 })
-export class TypographyH4 {
-  readonly class = input<string>("");
-
-  readonly classes = computed(() => {
-    const base = "scroll-m-20 text-xl font-semibold tracking-tight font-sans";
-    return this.class() ? `${base} ${this.class()}` : base;
-  });
-}
+export class TypographyH4 {}
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "block leading-7 text-[var(--foreground)] font-sans",
+  },
   selector: "nv-p",
   standalone: true,
-  template: `<p [class]="classes()"><ng-content /></p>`,
+  template: `<ng-content />`,
 })
-export class TypographyP {
-  readonly class = input<string>("");
-
-  readonly classes = computed(() => {
-    const base = "leading-7 text-[var(--foreground)] font-sans";
-    return this.class() ? `${base} ${this.class()}` : base;
-  });
-}
+export class TypographyP {}
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "text-sm text-[var(--foreground)] font-sans",
+  },
   selector: "nv-span",
   standalone: true,
-  template: `<span [class]="classes()"><ng-content /></span>`,
+  template: `<ng-content />`,
 })
-export class TypographySpan {
-  readonly class = input<string>("");
-
-  readonly classes = computed(() => {
-    const base = "text-sm text-[var(--foreground)] font-sans";
-    return this.class() ? `${base} ${this.class()}` : base;
-  });
-}
+export class TypographySpan {}
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "text-sm text-[var(--muted-foreground)] font-sans",
+  },
   selector: "nv-muted",
   standalone: true,
-  template: `<span [class]="classes()"><ng-content /></span>`,
+  template: `<ng-content />`,
 })
-export class TypographyMuted {
-  readonly class = input<string>("");
-
-  readonly classes = computed(() => {
-    const base = "text-sm text-[var(--muted-foreground)] font-sans";
-    return this.class() ? `${base} ${this.class()}` : base;
-  });
-}
+export class TypographyMuted {}
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "font-mono text-sm text-[var(--foreground)]",
+  },
   selector: "nv-mono",
   standalone: true,
-  template: `<code [class]="classes()"><ng-content /></code>`,
+  template: `<ng-content />`,
 })
-export class TypographyMono {
-  readonly class = input<string>("");
-
-  readonly classes = computed(() => {
-    const base = "font-mono text-sm text-[var(--foreground)]";
-    return this.class() ? `${base} ${this.class()}` : base;
-  });
-}
+export class TypographyMono {}

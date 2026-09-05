@@ -1,28 +1,30 @@
 import {
-  Component,
-  input,
-  computed,
   ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
 } from "@angular/core";
 
-type AlertVariant = "default" | "success" | "warning" | "destructive" | "info";
+type AlertVariant = "default" | "destructive" | "info" | "success" | "warning";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    "[class]": "classes()",
+    role: "alert",
+  },
   selector: "nv-alert",
   standalone: true,
   template: `
-    <div [class]="classes()" role="alert">
-      @if (icon()) {
-        <span class="mr-2">{{ icon() }}</span>
-      }
-      @if (title()) {
-        <h4 class="mb-1 font-sans leading-none font-semibold tracking-tight">
-          {{ title() }}
-        </h4>
-      }
-      <ng-content />
-    </div>
+    @if (icon()) {
+      <span class="mr-2">{{ icon() }}</span>
+    }
+    @if (title()) {
+      <h4 class="mb-1 font-sans leading-none font-semibold tracking-tight">
+        {{ title() }}
+      </h4>
+    }
+    <ng-content />
   `,
 })
 export class AlertComponent {
@@ -31,7 +33,8 @@ export class AlertComponent {
   readonly icon = input<string | undefined>();
 
   readonly classes = computed(() => {
-    const base = "relative w-full rounded-lg border p-4 font-sans text-sm";
+    const base =
+      "relative block w-full rounded-lg border p-4 font-sans text-sm";
 
     const variants = {
       default:

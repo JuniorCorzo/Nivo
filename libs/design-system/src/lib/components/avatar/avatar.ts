@@ -1,32 +1,33 @@
 import {
-  Component,
-  input,
-  computed,
   ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
 } from "@angular/core";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    "[class]": "wrapperClasses()",
+  },
   selector: "nv-avatar",
   standalone: true,
   template: `
-    <div [class]="wrapperClasses()">
-      @if (src()) {
-        <img
-          [src]="src()"
-          [alt]="alt() || ''"
-          loading="lazy"
-          decoding="async"
-          class="h-full w-full rounded-full border border-[var(--border)] bg-[var(--muted)] object-cover"
-        />
-      } @else {
-        <div
-          class="flex h-full w-full items-center justify-center rounded-full bg-[var(--muted)] font-sans font-semibold text-[var(--muted-foreground)] select-none"
-        >
-          {{ initials() }}
-        </div>
-      }
-    </div>
+    @if (src()) {
+      <img
+        [src]="src()"
+        [alt]="alt() || ''"
+        loading="lazy"
+        decoding="async"
+        class="h-full w-full rounded-full border border-[var(--border)] bg-[var(--muted)] object-cover"
+      />
+    } @else {
+      <div
+        class="flex h-full w-full items-center justify-center rounded-full bg-[var(--muted)] font-sans font-semibold text-[var(--muted-foreground)] select-none"
+      >
+        {{ initials() }}
+      </div>
+    }
   `,
 })
 export class AvatarComponent {

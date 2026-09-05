@@ -1,15 +1,18 @@
 import {
-  Component,
-  input,
-  computed,
   ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
 } from "@angular/core";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    "[class]": "classes()",
+  },
   selector: "nv-badge",
   standalone: true,
-  template: `<span [class]="classes()"><ng-content /></span>`,
+  template: `<ng-content />`,
 })
 export class BadgeComponent {
   readonly variant = input<

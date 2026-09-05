@@ -1,15 +1,16 @@
-import { CommonModule } from "@angular/common";
 import {
-  Component,
-  input,
-  computed,
   ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
 } from "@angular/core";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule],
-  selector: "nv-button",
+  host: {
+    class: "contents",
+  },
+  selector: "nv-button, button[nv-button], a[nv-button]",
   standalone: true,
   template: `
     <button [type]="type()" [disabled]="disabled()" [class]="classes()">

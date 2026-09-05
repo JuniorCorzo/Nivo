@@ -1,20 +1,12 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  input,
-  computed,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "block p-6 pt-0",
+  },
   selector: "nv-card-content",
   standalone: true,
-  template: `<div [class]="classes()"><ng-content /></div>`,
+  template: `<ng-content />`,
 })
-export class CardContentComponent {
-  readonly class = input<string>("");
-  readonly classes = computed(() => {
-    const base = "p-6 pt-0";
-    return this.class() ? `${base} ${this.class()}` : base;
-  });
-}
+export class CardContentComponent {}
