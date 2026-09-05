@@ -43,7 +43,7 @@ export const routes: Routes = [
             canMatch: [mobileGuard],
             loadComponent: async () => {
               const c =
-                await import("@features/parking/components/parking-home-mobile/parking-home-mobile");
+                await import("@features/parking/page/parking-home-mobile/parking-home-mobile");
               return c.ParkingHomeMobile;
             },
             path: APP_ROUTE_PATHS.app.parkingLots,
@@ -51,7 +51,7 @@ export const routes: Routes = [
           {
             loadComponent: async () => {
               const c =
-                await import("@features/parking/components/parking-home/parking-home");
+                await import("@features/parking/page/parking-home/parking-home");
               return c.ParkingHome;
             },
             path: APP_ROUTE_PATHS.app.parkingLots,
@@ -59,7 +59,7 @@ export const routes: Routes = [
           {
             loadComponent: async () => {
               const c =
-                await import("@features/parking/components/parking-form/parking-form");
+                await import("@features/parking/page/parking-form/parking-form");
               return c.ParkingFormComponent;
             },
             path: APP_ROUTE_PATHS.app.createParkingLots,
@@ -67,7 +67,7 @@ export const routes: Routes = [
           {
             loadComponent: async () => {
               const c =
-                await import("@features/parking/components/parking-form/parking-form");
+                await import("@features/parking/page/parking-form/parking-form");
               return c.ParkingFormComponent;
             },
             path: APP_ROUTE_PATHS.app.editParkingLots,
@@ -127,14 +127,6 @@ export const routes: Routes = [
               return c.RateFormComponent;
             },
             path: APP_ROUTE_PATHS.app.editParkingLotRate,
-          },
-          {
-            loadComponent: async () => {
-              const c =
-                await import("@features/parking/components/parking-detail/parking-detail");
-              return c.ParkingDetail;
-            },
-            path: APP_ROUTE_PATHS.app.parkingLotDetail,
           },
           {
             loadComponent: async () => {

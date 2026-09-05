@@ -12,7 +12,7 @@
       >
       <ng-icon name="lucideChevronRight" size="14" />
       <a
-        [routerLink]="APP_ROUTES.app.parkingLotDetail(p.id)"
+        [routerLink]="APP_ROUTES.app.parkingLots"
         class="hover:text-foreground transition-colors"
         >{{ p.name }}</a
       >
@@ -45,18 +45,13 @@
       <div class="flex flex-wrap items-center gap-2">
         <nv-button
           variant="outline"
-          [routerLink]="APP_ROUTES.app.parkingLotDetail(p.id)"
+          [routerLink]="APP_ROUTES.app.parkingLots"
           size="sm"
-          class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-flex cursor-pointer items-center gap-1.5 rounded-xl border text-xs font-semibold transition-colors"
         >
           <ng-icon name="lucideArrowLeft" size="12" />
           Volver al parqueadero
         </nv-button>
-        <nv-button
-          (click)="createRate()"
-          size="sm"
-          class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold shadow-xs transition-all active:scale-98 sm:text-sm"
-        >
+        <nv-button (click)="createRate()" size="sm">
           <ng-icon name="lucidePlus" size="16" />
           Nueva tarifa
         </nv-button>

@@ -12,5 +12,6 @@ export default defineConfig({
   jsPlugins: jsPlugins.jsPlugins,
   rules: {
     "anti-slop/no-unknown-parameters": "off",
+    "github/filenames-match-regex": ["error", "^[a-z0-9-]+(\\.[a-z0-9-]+)*$"],
   },
 });
