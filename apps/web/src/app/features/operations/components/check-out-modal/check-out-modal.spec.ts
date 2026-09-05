@@ -8,28 +8,45 @@ import { of } from "rxjs";
 
 import { CheckOutModalComponent } from "./check-out-modal.component";
 
+interface MockTicketService {
+  calculatePrice: ReturnType<typeof vi.fn>;
+  checkOutVehicle: ReturnType<typeof vi.fn>;
+}
+
+interface MockSlotService {
+  getAllSlotSummariesByParkingId: ReturnType<typeof vi.fn>;
+}
+
+interface MockParkingService {
+  getAll: ReturnType<typeof vi.fn>;
+  parkingLots: () => unknown[];
+}
+
+interface MockToastService {
+  showToast: ReturnType<typeof vi.fn>;
+}
+
 describe("CheckOutModalComponent", () => {
   let component: CheckOutModalComponent;
   let fixture: ComponentFixture<CheckOutModalComponent>;
-  let ticketServiceSpy: jasmine.SpyObj<TicketService>;
-  let slotServiceSpy: jasmine.SpyObj<SlotService>;
-  let parkingServiceSpy: jasmine.SpyObj<ParkingService>;
-  let toastSpy: jasmine.SpyObj<ToastService>;
+  let ticketServiceSpy: MockTicketService;
+  let slotServiceSpy: MockSlotService;
+  let parkingServiceSpy: MockParkingService;
+  let toastSpy: MockToastService;
 
   beforeEach(async () => {
-    ticketServiceSpy = jasmine.createSpyObj("TicketService", [
-      "calculatePrice",
-      "checkOutVehicle",
-    ]);
-    slotServiceSpy = jasmine.createSpyObj("SlotService", [
-      "getAllSlotSummariesByParkingId",
-    ]);
-    parkingServiceSpy = jasmine.createSpyObj("ParkingService", ["getAll"], {
+    ticketServiceSpy = {
+      calculatePrice: vi.fn(),
+      checkOutVehicle: vi.fn(),
+    };
+    slotServiceSpy = {
+      getAllSlotSummariesByParkingId: vi.fn().mockReturnValue(of([])),
+    };
+    parkingServiceSpy = {
+      getAll: vi.fn(),
       parkingLots: () => [],
-    });
-    toastSpy = jasmine.createSpyObj("ToastService", ["showToast"]);
-
-    slotServiceSpy.getAllSlotSummariesByParkingId.and.returnValue(of([]));
+    };
+    toastSpy = { showToast: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [CheckOutModalComponent],
@@ -50,14 +67,14 @@ describe("CheckOutModalComponent", () => {
   });
 
   it("should emit closed when onClose is called", () => {
-    spyOn(component.closed, "emit");
+    const emitSpy = vi.spyOn(component.closed, "emit");
     component.onClose();
-    expect(component.closed.emit).toHaveBeenCalled();
+    expect(emitSpy).toHaveBeenCalled();
   });
 
   it("should delegate confirm checkout to facade", () => {
-    spyOn(component.facade, "confirmCheckOut");
+    const confirmSpy = vi.spyOn(component.facade, "confirmCheckOut");
     component.onConfirmCheckOut();
-    expect(component.facade.confirmCheckOut).toHaveBeenCalled();
+    expect(confirmSpy).toHaveBeenCalled();
   });
 });

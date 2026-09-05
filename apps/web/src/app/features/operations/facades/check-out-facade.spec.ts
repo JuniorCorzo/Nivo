@@ -12,37 +12,53 @@ import { of } from "rxjs";
 
 import { CheckOutFacade } from "./check-out.facade";
 
+interface MockTicketService {
+  calculatePrice: ReturnType<typeof vi.fn>;
+  checkOutVehicle: ReturnType<typeof vi.fn>;
+}
+
+interface MockSlotService {
+  getAllSlotSummariesByParkingId: ReturnType<typeof vi.fn>;
+}
+
+interface MockParkingService {
+  getAll: ReturnType<typeof vi.fn>;
+  parkingLots: () => unknown[];
+}
+
+interface MockToastService {
+  showToast: ReturnType<typeof vi.fn>;
+}
+
 describe("CheckOutFacade", () => {
   let facade: CheckOutFacade;
-  let ticketServiceSpy: jasmine.SpyObj<TicketService>;
-  let slotServiceSpy: jasmine.SpyObj<SlotService>;
-  let parkingServiceSpy: jasmine.SpyObj<ParkingService>;
-  let toastSpy: jasmine.SpyObj<ToastService>;
+  let ticketServiceSpy: MockTicketService;
+  let slotServiceSpy: MockSlotService;
+  let parkingServiceSpy: MockParkingService;
+  let toastSpy: MockToastService;
 
   beforeEach(() => {
-    ticketServiceSpy = jasmine.createSpyObj("TicketService", [
-      "calculatePrice",
-      "checkOutVehicle",
-    ]);
-    slotServiceSpy = jasmine.createSpyObj("SlotService", [
-      "getAllSlotSummariesByParkingId",
-    ]);
-    parkingServiceSpy = jasmine.createSpyObj("ParkingService", ["getAll"], {
+    ticketServiceSpy = {
+      calculatePrice: vi.fn().mockReturnValue(
+        of({
+          breakdown: [],
+          ivaAmount: 950,
+          ivaRate: 19,
+          name: "Tarifa",
+          subtotal: 5000,
+          total: 5950,
+        })
+      ),
+      checkOutVehicle: vi.fn(),
+    };
+    slotServiceSpy = {
+      getAllSlotSummariesByParkingId: vi.fn().mockReturnValue(of([])),
+    };
+    parkingServiceSpy = {
+      getAll: vi.fn(),
       parkingLots: () => [],
-    });
-    toastSpy = jasmine.createSpyObj("ToastService", ["showToast"]);
-
-    slotServiceSpy.getAllSlotSummariesByParkingId.and.returnValue(of([]));
-    ticketServiceSpy.calculatePrice.and.returnValue(
-      of({
-        breakdown: [],
-        ivaAmount: 950,
-        ivaRate: 19,
-        name: "Tarifa",
-        subtotal: 5000,
-        total: 5950,
-      })
-    );
+    };
+    toastSpy = { showToast: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
@@ -66,7 +82,7 @@ describe("CheckOutFacade", () => {
       subtotal: 5000,
       total: 5950,
     };
-    ticketServiceSpy.calculatePrice.and.returnValue(of(mockCalculation));
+    ticketServiceSpy.calculatePrice.mockReturnValue(of(mockCalculation));
 
     const ticket: TicketSummary = {
       entryTime: "2026-08-27T10:00:00Z",
@@ -92,7 +108,7 @@ describe("CheckOutFacade", () => {
       subtotal: 0,
       total: 0,
     };
-    ticketServiceSpy.calculatePrice.and.returnValue(of(zeroCalculation));
+    ticketServiceSpy.calculatePrice.mockReturnValue(of(zeroCalculation));
 
     const ticket: TicketSummary = {
       entryTime: "2026-08-27T10:00:00Z",
@@ -113,7 +129,7 @@ describe("CheckOutFacade", () => {
       paymentMethod: "EFFECTIVE",
       status: "APPROVED",
     };
-    ticketServiceSpy.checkOutVehicle.and.returnValue(of(mockPayment));
+    ticketServiceSpy.checkOutVehicle.mockReturnValue(of(mockPayment));
 
     const ticket: TicketSummary = {
       entryTime: "2026-08-27T10:00:00Z",
@@ -138,7 +154,7 @@ describe("CheckOutFacade", () => {
     expect(facade.lastPaymentRecord()).toEqual(mockPayment);
     expect(facade.isReceiptOpen()).toBe(true);
     expect(toastSpy.showToast).toHaveBeenCalledWith(
-      jasmine.objectContaining({ type: "success" })
+      expect.objectContaining({ type: "success" })
     );
   });
 });

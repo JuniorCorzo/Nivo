@@ -6,29 +6,44 @@ import {
   TenantsService,
 } from "@core/api/generated/services";
 import type { SpecialPolicyModel } from "@core/models/rate.model";
-import { of } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import { RateService } from "./rate-service";
 
+interface MockParkingLotsService {
+  showRatesByParkingId: ReturnType<typeof vi.fn>;
+  createRateForParking: ReturnType<typeof vi.fn>;
+}
+
+interface MockRatesService {
+  updateRate: ReturnType<typeof vi.fn>;
+  deleteRate: ReturnType<typeof vi.fn>;
+  calculatePrice: ReturnType<typeof vi.fn>;
+}
+
+interface MockTenantsService {
+  showSpecialPoliciesByTenant: ReturnType<typeof vi.fn>;
+}
+
 describe("RateService", () => {
   let service: RateService;
-  let parkingLotsServiceSpy: jasmine.SpyObj<ParkingLotsService>;
-  let ratesServiceSpy: jasmine.SpyObj<RatesService>;
-  let tenantsServiceSpy: jasmine.SpyObj<TenantsService>;
+  let parkingLotsServiceSpy: MockParkingLotsService;
+  let ratesServiceSpy: MockRatesService;
+  let tenantsServiceSpy: MockTenantsService;
 
   beforeEach(() => {
-    parkingLotsServiceSpy = jasmine.createSpyObj("ParkingLotsService", [
-      "showRatesByParkingId",
-      "createRateForParking",
-    ]);
-    ratesServiceSpy = jasmine.createSpyObj("RatesService", [
-      "updateRate",
-      "deleteRate",
-      "calculatePrice",
-    ]);
-    tenantsServiceSpy = jasmine.createSpyObj("TenantsService", [
-      "showSpecialPoliciesByTenant",
-    ]);
+    parkingLotsServiceSpy = {
+      createRateForParking: vi.fn(),
+      showRatesByParkingId: vi.fn(),
+    };
+    ratesServiceSpy = {
+      calculatePrice: vi.fn(),
+      deleteRate: vi.fn(),
+      updateRate: vi.fn(),
+    };
+    tenantsServiceSpy = {
+      showSpecialPoliciesByTenant: vi.fn(),
+    };
 
     TestBed.configureTestingModule({
       providers: [
@@ -118,7 +133,7 @@ describe("RateService", () => {
   });
 
   describe("CRUD Operations", () => {
-    it("should fetch rates by parking ID", (done) => {
+    it("should fetch rates by parking ID", async () => {
       const mockResponse: ResponseIterableRatesDto = {
         data: [
           {
@@ -137,17 +152,17 @@ describe("RateService", () => {
         timestamp: "2024-01-01T00:00:00Z",
       };
 
-      parkingLotsServiceSpy.showRatesByParkingId.and.returnValue(
+      parkingLotsServiceSpy.showRatesByParkingId.mockReturnValue(
         of(mockResponse)
       );
 
-      service.getRatesByParkingId("parking-123").subscribe((rates) => {
-        expect(rates.length).toBe(1);
-        expect(rates[0].name).toBe("Standard Car");
-        expect(rates[0].pricePerUnit).toBe(4000);
-        expect(rates[0].minChargeTimeMinutes).toBe(15);
-        done();
-      });
+      const rates = await firstValueFrom(
+        service.getRatesByParkingId("parking-123")
+      );
+      expect(rates.length).toBe(1);
+      expect(rates[0].name).toBe("Standard Car");
+      expect(rates[0].pricePerUnit).toBe(4000);
+      expect(rates[0].minChargeTimeMinutes).toBe(15);
     });
   });
 });

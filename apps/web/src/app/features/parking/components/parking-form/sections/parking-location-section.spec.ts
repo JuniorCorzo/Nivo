@@ -117,7 +117,7 @@ describe("ParkingLocationSectionComponent", () => {
       ) as HTMLElement;
       container.click();
 
-      expect(hostComponent.mapInteractedCalled).toBeTrue();
+      expect(hostComponent.mapInteractedCalled).toBe(true);
     });
 
     it("should forward positionChange output when child parking map emits", () => {

@@ -9,28 +9,43 @@ import { of } from "rxjs";
 
 import { RateFormFacade } from "./rate-form.facade";
 
+interface MockRateService {
+  createRate: ReturnType<typeof vi.fn>;
+  updateRate: ReturnType<typeof vi.fn>;
+  getRateById: ReturnType<typeof vi.fn>;
+  getRatesByParkingId: ReturnType<typeof vi.fn>;
+  loadSpecialPolicies: ReturnType<typeof vi.fn>;
+  specialPolicies: () => unknown[];
+}
+
+interface MockParkingService {
+  parkingLots: () => ParkingLotListItemModel[];
+}
+
+interface MockToastService {
+  showToast: ReturnType<typeof vi.fn>;
+}
+
+interface MockRouter {
+  navigate: ReturnType<typeof vi.fn>;
+}
+
 describe("RateFormFacade", () => {
   let facade: RateFormFacade;
-  let rateServiceSpy: jasmine.SpyObj<RateService>;
-  let parkingServiceSpy: jasmine.SpyObj<ParkingService>;
-  let toastSpy: jasmine.SpyObj<ToastService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let rateServiceSpy: MockRateService;
+  let parkingServiceSpy: MockParkingService;
+  let toastSpy: MockToastService;
+  let routerSpy: MockRouter;
 
   beforeEach(() => {
-    rateServiceSpy = jasmine.createSpyObj(
-      "RateService",
-      [
-        "createRate",
-        "updateRate",
-        "getRateById",
-        "getRatesByParkingId",
-        "loadSpecialPolicies",
-        "specialPolicies",
-      ],
-      {
-        specialPolicies: () => [],
-      }
-    );
+    rateServiceSpy = {
+      createRate: vi.fn(),
+      getRateById: vi.fn(),
+      getRatesByParkingId: vi.fn().mockReturnValue(of([])),
+      loadSpecialPolicies: vi.fn().mockReturnValue(of([])),
+      specialPolicies: () => [],
+      updateRate: vi.fn(),
+    };
     const mockLot: ParkingLotListItemModel = {
       address: {
         city: "Bogota",
@@ -50,12 +65,12 @@ describe("RateFormFacade", () => {
       totalCapacity: 100,
       updatedAt: "",
     };
-    parkingServiceSpy = jasmine.createSpyObj("ParkingService", [], {
+    parkingServiceSpy = {
       parkingLots: () => [mockLot],
-    });
+    };
 
-    toastSpy = jasmine.createSpyObj("ToastService", ["showToast"]);
-    routerSpy = jasmine.createSpyObj("Router", ["navigate"]);
+    toastSpy = { showToast: vi.fn() };
+    routerSpy = { navigate: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
@@ -114,7 +129,7 @@ describe("RateFormFacade", () => {
       updatedAt: "",
       vehicleType: "CAR",
     };
-    rateServiceSpy.createRate.and.returnValue(of(mockCreatedRate));
+    rateServiceSpy.createRate.mockReturnValue(of(mockCreatedRate));
 
     facade.form.name.set("Tarifa Plena");
     facade.form.description.set("Tarifa estándar");
@@ -124,7 +139,7 @@ describe("RateFormFacade", () => {
     facade.submit();
 
     expect(rateServiceSpy.createRate).toHaveBeenCalledWith(
-      jasmine.objectContaining({
+      expect.objectContaining({
         description: "Tarifa estándar",
         minChargeTimeMinutes: 15,
         name: "Tarifa Plena",
@@ -133,7 +148,7 @@ describe("RateFormFacade", () => {
       })
     );
     expect(toastSpy.showToast).toHaveBeenCalledWith(
-      jasmine.objectContaining({ type: "success" })
+      expect.objectContaining({ type: "success" })
     );
   });
 });

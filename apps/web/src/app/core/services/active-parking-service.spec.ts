@@ -81,14 +81,14 @@ describe("ActiveParkingService", () => {
 
   it("should default activeParkingLot to the first lot when no id is stored", () => {
     expect(service.activeParkingLot()).toEqual(mockLots[0]);
-    expect(service.hasActiveParking()).toBeTrue();
+    expect(service.hasActiveParking()).toBe(true);
     expect(service.activeParkingName()).toBe("Parqueadero Norte");
   });
 
   it("should return null when there are no parking lots available", () => {
     mockParkingLotsSignal.set([]);
     expect(service.activeParkingLot()).toBeNull();
-    expect(service.hasActiveParking()).toBeFalse();
+    expect(service.hasActiveParking()).toBe(false);
     expect(service.activeParkingName()).toBe("");
   });
 

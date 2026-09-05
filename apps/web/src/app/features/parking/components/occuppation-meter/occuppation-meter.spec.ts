@@ -35,8 +35,8 @@ class TestHostComponent {
   public low = signal("33");
   public optimum = signal("70");
   public high = signal("90");
-  public totalCapacity = signal<number | string | null>(100);
-  public occupiedSlots = signal<number | string | null>(null);
+  public totalCapacity = signal<number | string | undefined>(100);
+  public occupiedSlots = signal<number | string | undefined>(0);
   public showDetails = signal(false);
 }
 

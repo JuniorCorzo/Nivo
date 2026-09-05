@@ -10,6 +10,10 @@ import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
 import { ParkingLotSelector } from "./parking-lot-selector";
 
+interface MockRouter {
+  navigate: ReturnType<typeof vi.fn>;
+}
+
 describe("ParkingLotSelector", () => {
   let component: ParkingLotSelector;
   let fixture: ComponentFixture<ParkingLotSelector>;
@@ -19,8 +23,8 @@ describe("ParkingLotSelector", () => {
   let mockActiveParkingLotSignal: ReturnType<
     typeof signal<ParkingLotListItemModel | null>
   >;
-  let setActiveParkingSpy: jasmine.Spy;
-  let mockRouter: jasmine.SpyObj<Router>;
+  let setActiveParkingSpy: ReturnType<typeof vi.fn>;
+  let mockRouter: MockRouter;
 
   const mockLots: ParkingLotListItemModel[] = [
     {
@@ -68,8 +72,8 @@ describe("ParkingLotSelector", () => {
     mockActiveParkingLotSignal = signal<ParkingLotListItemModel | null>(
       mockLots[0]
     );
-    setActiveParkingSpy = jasmine.createSpy("setActiveParking");
-    mockRouter = jasmine.createSpyObj<Router>("Router", ["navigate"]);
+    setActiveParkingSpy = vi.fn();
+    mockRouter = { navigate: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [ParkingLotSelector],
@@ -110,13 +114,13 @@ describe("ParkingLotSelector", () => {
   });
 
   it("should toggle dropdown open and closed on toggleOpen()", () => {
-    expect(component.isOpen()).toBeFalse();
+    expect(component.isOpen()).toBe(false);
 
     component.toggleOpen();
-    expect(component.isOpen()).toBeTrue();
+    expect(component.isOpen()).toBe(true);
 
     component.toggleOpen();
-    expect(component.isOpen()).toBeFalse();
+    expect(component.isOpen()).toBe(false);
   });
 
   it("should not toggle open when disabled", () => {
@@ -124,13 +128,13 @@ describe("ParkingLotSelector", () => {
     fixture.detectChanges();
 
     component.toggleOpen();
-    expect(component.isOpen()).toBeFalse();
+    expect(component.isOpen()).toBe(false);
   });
 
   it("should close dropdown on close()", () => {
     component.isOpen.set(true);
     component.close();
-    expect(component.isOpen()).toBeFalse();
+    expect(component.isOpen()).toBe(false);
   });
 
   it("should select a parking lot, update ActiveParkingService, emit event, and close", () => {
@@ -144,12 +148,12 @@ describe("ParkingLotSelector", () => {
 
     expect(setActiveParkingSpy).toHaveBeenCalledWith(mockLots[1]);
     expect(emittedLot).toEqual(mockLots[1]);
-    expect(component.isOpen()).toBeFalse();
+    expect(component.isOpen()).toBe(false);
   });
 
   it("should correctly determine isSelected", () => {
-    expect(component.isSelected(mockLots[0])).toBeTrue();
-    expect(component.isSelected(mockLots[1])).toBeFalse();
+    expect(component.isSelected(mockLots[0])).toBe(true);
+    expect(component.isSelected(mockLots[1])).toBe(false);
   });
 
   it("should format address properly", () => {
@@ -165,9 +169,9 @@ describe("ParkingLotSelector", () => {
   });
 
   it("should compute hasMultipleLots based on parkingLots length", () => {
-    expect(component.hasMultipleLots()).toBeTrue();
+    expect(component.hasMultipleLots()).toBe(true);
     mockParkingLotsSignal.set([mockLots[0]]);
-    expect(component.hasMultipleLots()).toBeFalse();
+    expect(component.hasMultipleLots()).toBe(false);
   });
 
   it("should not toggle open when variant is title and hasMultipleLots is false", () => {
@@ -176,7 +180,7 @@ describe("ParkingLotSelector", () => {
     fixture.detectChanges();
 
     component.toggleOpen();
-    expect(component.isOpen()).toBeFalse();
+    expect(component.isOpen()).toBe(false);
   });
 
   it("should toggle open when variant is title and hasMultipleLots is true", () => {
@@ -184,14 +188,14 @@ describe("ParkingLotSelector", () => {
     fixture.detectChanges();
 
     component.toggleOpen();
-    expect(component.isOpen()).toBeTrue();
+    expect(component.isOpen()).toBe(true);
   });
 
   it("should navigate to create parking page and close dropdown on onCreateParking()", () => {
     component.isOpen.set(true);
     component.onCreateParking();
 
-    expect(component.isOpen()).toBeFalse();
+    expect(component.isOpen()).toBe(false);
     expect(mockRouter.navigate).toHaveBeenCalledWith([
       APP_ROUTES.app.createParkingLots,
     ]);

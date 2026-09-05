@@ -9,7 +9,7 @@ import {
 import { Injector, runInInjectionContext } from "@angular/core";
 import { AuthService } from "@core/services/auth-service";
 import type { Observable } from "rxjs";
-import { Subject, of, throwError } from "rxjs";
+import { Subject, firstValueFrom, of, throwError } from "rxjs";
 
 import { AUTHORIZED } from "../context/auth.token";
 import {
@@ -18,8 +18,8 @@ import {
 } from "./refresh-token-interceptor";
 
 interface AuthServiceMock {
-  logout: jasmine.Spy;
-  refreshSession: jasmine.Spy;
+  logout: ReturnType<typeof vi.fn>;
+  refreshSession: ReturnType<typeof vi.fn>;
 }
 
 describe("refreshTokenInterceptor", () => {
@@ -36,10 +36,8 @@ describe("refreshTokenInterceptor", () => {
     _resetRefreshTokenState();
 
     authServiceMock = {
-      logout: jasmine.createSpy("logout"),
-      refreshSession: jasmine
-        .createSpy("refreshSession")
-        .and.returnValue(of("mocked-refreshed-token")),
+      logout: vi.fn(),
+      refreshSession: vi.fn().mockReturnValue(of("mocked-refreshed-token")),
     };
 
     injector = Injector.create({
@@ -51,46 +49,32 @@ describe("refreshTokenInterceptor", () => {
     expect(refreshTokenInterceptor).toBeTruthy();
   });
 
-  it("should pass through when AUTHORIZED context is false or missing", (done: DoneFn) => {
+  it("should pass through when AUTHORIZED context is false or missing", async () => {
     const req = new HttpRequest("GET", "/api/public-data");
     const expectedResponse = new HttpResponse({ body: "public", status: 200 });
-    const next: HttpHandlerFn = jasmine
-      .createSpy("next")
-      .and.returnValue(of(expectedResponse));
+    const next: HttpHandlerFn = vi.fn().mockReturnValue(of(expectedResponse));
 
-    runInterceptor(req, next).subscribe({
-      error: (err) => done.fail(err),
-      next: (res) => {
-        expect(res).toBe(expectedResponse);
-        expect(next).toHaveBeenCalledTimes(1);
-        expect(next).toHaveBeenCalledWith(req);
-        expect(authServiceMock.refreshSession).not.toHaveBeenCalled();
-        done();
-      },
-    });
+    const res = await firstValueFrom(runInterceptor(req, next));
+    expect(res).toBe(expectedResponse);
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledWith(req);
+    expect(authServiceMock.refreshSession).not.toHaveBeenCalled();
   });
 
-  it("should pass through successful requests when AUTHORIZED is true", (done: DoneFn) => {
+  it("should pass through successful requests when AUTHORIZED is true", async () => {
     const req = new HttpRequest("GET", "/api/protected", {
       context: new HttpContext().set(AUTHORIZED, true),
     });
     const expectedResponse = new HttpResponse({ body: "success", status: 200 });
-    const next: HttpHandlerFn = jasmine
-      .createSpy("next")
-      .and.returnValue(of(expectedResponse));
+    const next: HttpHandlerFn = vi.fn().mockReturnValue(of(expectedResponse));
 
-    runInterceptor(req, next).subscribe({
-      error: (err) => done.fail(err),
-      next: (res) => {
-        expect(res).toBe(expectedResponse);
-        expect(next).toHaveBeenCalledTimes(1);
-        expect(authServiceMock.refreshSession).not.toHaveBeenCalled();
-        done();
-      },
-    });
+    const res = await firstValueFrom(runInterceptor(req, next));
+    expect(res).toBe(expectedResponse);
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(authServiceMock.refreshSession).not.toHaveBeenCalled();
   });
 
-  it("should rethrow non-401 errors without attempting to refresh the token", (done: DoneFn) => {
+  it("should rethrow non-401 errors without attempting to refresh the token", async () => {
     const req = new HttpRequest("GET", "/api/protected", {
       context: new HttpContext().set(AUTHORIZED, true),
     });
@@ -98,24 +82,18 @@ describe("refreshTokenInterceptor", () => {
       status: 500,
       statusText: "Server Error",
     });
-    const next: HttpHandlerFn = jasmine
-      .createSpy("next")
-      .and.returnValue(throwError(() => error500));
+    const next: HttpHandlerFn = vi
+      .fn()
+      .mockReturnValue(throwError(() => error500));
 
-    runInterceptor(req, next).subscribe({
-      error: (err) => {
-        expect(err).toBe(error500);
-        expect(authServiceMock.refreshSession).not.toHaveBeenCalled();
-        expect(authServiceMock.logout).not.toHaveBeenCalled();
-        done();
-      },
-      next: () => {
-        done.fail("Should have failed");
-      },
-    });
+    await expect(firstValueFrom(runInterceptor(req, next))).rejects.toBe(
+      error500
+    );
+    expect(authServiceMock.refreshSession).not.toHaveBeenCalled();
+    expect(authServiceMock.logout).not.toHaveBeenCalled();
   });
 
-  it("should handle 401 by refreshing token and retrying request with Bearer prefix", (done: DoneFn) => {
+  it("should handle 401 by refreshing token and retrying request with Bearer prefix", async () => {
     const req = new HttpRequest("GET", "/api/protected", {
       context: new HttpContext().set(AUTHORIZED, true),
     });
@@ -129,7 +107,7 @@ describe("refreshTokenInterceptor", () => {
     });
 
     let callCount = 0;
-    const next: HttpHandlerFn = jasmine.createSpy("next").and.callFake(() => {
+    const next = vi.fn<HttpHandlerFn>((_request) => {
       callCount += 1;
       if (callCount === 1) {
         return throwError(() => error401);
@@ -137,29 +115,19 @@ describe("refreshTokenInterceptor", () => {
       return of(successResponse);
     });
 
-    authServiceMock.refreshSession.and.returnValue(of("fresh-jwt-token-123"));
+    authServiceMock.refreshSession.mockReturnValue(of("fresh-jwt-token-123"));
 
-    runInterceptor(req, next).subscribe({
-      error: (err) => done.fail(err),
-      next: (res) => {
-        expect(res).toBe(successResponse);
-        expect(authServiceMock.refreshSession).toHaveBeenCalledTimes(1);
-        expect(callCount).toBe(2);
-        /* SAFETY: next is a jasmine Spy configured above */
-        const nextSpy = next as jasmine.Spy;
-        /* SAFETY: the spy's first argument is an HttpRequest */
-        const secondCallReq = nextSpy.calls.argsFor(
-          1
-        )[0] as HttpRequest<unknown>;
-        expect(secondCallReq.headers.get("Authorization")).toBe(
-          "Bearer fresh-jwt-token-123"
-        );
-        done();
-      },
-    });
+    const res = await firstValueFrom(runInterceptor(req, next));
+    expect(res).toBe(successResponse);
+    expect(authServiceMock.refreshSession).toHaveBeenCalledTimes(1);
+    expect(callCount).toBe(2);
+    const secondCallReq = next.mock.calls[1]?.[0];
+    expect(secondCallReq?.headers.get("Authorization")).toBe(
+      "Bearer fresh-jwt-token-123"
+    );
   });
 
-  it("should queue concurrent 401 requests and retry them all with the new Bearer token", (done: DoneFn) => {
+  it("should queue concurrent 401 requests and retry them all with the new Bearer token", async () => {
     const req1 = new HttpRequest("GET", "/api/resource-1", {
       context: new HttpContext().set(AUTHORIZED, true),
     });
@@ -172,14 +140,14 @@ describe("refreshTokenInterceptor", () => {
       statusText: "Unauthorized",
     });
     const refreshSubject = new Subject<string>();
-    authServiceMock.refreshSession.and.returnValue(
+    authServiceMock.refreshSession.mockReturnValue(
       refreshSubject.asObservable()
     );
 
     let req1Calls = 0;
     let req2Calls = 0;
 
-    const next1: HttpHandlerFn = jasmine.createSpy("next1").and.callFake(() => {
+    const next1 = vi.fn<HttpHandlerFn>((_request) => {
       req1Calls += 1;
       if (req1Calls === 1) {
         return throwError(() => error401);
@@ -187,7 +155,7 @@ describe("refreshTokenInterceptor", () => {
       return of(new HttpResponse({ body: "res-1", status: 200 }));
     });
 
-    const next2: HttpHandlerFn = jasmine.createSpy("next2").and.callFake(() => {
+    const next2 = vi.fn<HttpHandlerFn>((_request) => {
       req2Calls += 1;
       if (req2Calls === 1) {
         return throwError(() => error401);
@@ -195,55 +163,31 @@ describe("refreshTokenInterceptor", () => {
       return of(new HttpResponse({ body: "res-2", status: 200 }));
     });
 
-    let completedCount = 0;
-    const checkAllDone = () => {
-      completedCount += 1;
-      if (completedCount === 2) {
-        expect(authServiceMock.refreshSession).toHaveBeenCalledTimes(1);
-        expect(req1Calls).toBe(2);
-        expect(req2Calls).toBe(2);
-
-        /* SAFETY: next1 is a jasmine Spy */
-        const next1Spy = next1 as jasmine.Spy;
-        /* SAFETY: next2 is a jasmine Spy */
-        const next2Spy = next2 as jasmine.Spy;
-        /* SAFETY: spy arguments are HttpRequest objects */
-        const retriedReq1 = next1Spy.calls.argsFor(
-          1
-        )[0] as HttpRequest<unknown>;
-        /* SAFETY: spy arguments are HttpRequest objects */
-        const retriedReq2 = next2Spy.calls.argsFor(
-          1
-        )[0] as HttpRequest<unknown>;
-
-        expect(retriedReq1.headers.get("Authorization")).toBe(
-          "Bearer queued-token-xyz"
-        );
-        expect(retriedReq2.headers.get("Authorization")).toBe(
-          "Bearer queued-token-xyz"
-        );
-        done();
-      }
-    };
-
-    // First request triggers the refresh flow
-    runInterceptor(req1, next1).subscribe({
-      error: (err) => done.fail(err),
-      next: () => checkAllDone(),
-    });
-
-    // Second request is queued while refresh is in progress
-    runInterceptor(req2, next2).subscribe({
-      error: (err) => done.fail(err),
-      next: () => checkAllDone(),
-    });
+    const p1 = firstValueFrom(runInterceptor(req1, next1));
+    const p2 = firstValueFrom(runInterceptor(req2, next2));
 
     // Emit the refreshed token
     refreshSubject.next("queued-token-xyz");
     refreshSubject.complete();
+
+    await Promise.all([p1, p2]);
+
+    expect(authServiceMock.refreshSession).toHaveBeenCalledTimes(1);
+    expect(req1Calls).toBe(2);
+    expect(req2Calls).toBe(2);
+
+    const retriedReq1 = next1.mock.calls[1]?.[0];
+    const retriedReq2 = next2.mock.calls[1]?.[0];
+
+    expect(retriedReq1?.headers.get("Authorization")).toBe(
+      "Bearer queued-token-xyz"
+    );
+    expect(retriedReq2?.headers.get("Authorization")).toBe(
+      "Bearer queued-token-xyz"
+    );
   });
 
-  it("should handle refresh failure by resetting isRefresh, calling authService.logout(), and rethrowing error", (done: DoneFn) => {
+  it("should handle refresh failure by resetting isRefresh, calling authService.logout(), and rethrowing error", async () => {
     const req = new HttpRequest("GET", "/api/protected", {
       context: new HttpContext().set(AUTHORIZED, true),
     });
@@ -256,23 +200,17 @@ describe("refreshTokenInterceptor", () => {
       statusText: "Refresh Expired",
     });
 
-    const next: HttpHandlerFn = jasmine
-      .createSpy("next")
-      .and.returnValue(throwError(() => error401));
-    authServiceMock.refreshSession.and.returnValue(
+    const next: HttpHandlerFn = vi
+      .fn()
+      .mockReturnValue(throwError(() => error401));
+    authServiceMock.refreshSession.mockReturnValue(
       throwError(() => refreshError)
     );
 
-    runInterceptor(req, next).subscribe({
-      error: (err) => {
-        expect(err).toBe(refreshError);
-        expect(authServiceMock.refreshSession).toHaveBeenCalledTimes(1);
-        expect(authServiceMock.logout).toHaveBeenCalledTimes(1);
-        done();
-      },
-      next: () => {
-        done.fail("Should have failed");
-      },
-    });
+    await expect(firstValueFrom(runInterceptor(req, next))).rejects.toBe(
+      refreshError
+    );
+    expect(authServiceMock.refreshSession).toHaveBeenCalledTimes(1);
+    expect(authServiceMock.logout).toHaveBeenCalledTimes(1);
   });
 });
