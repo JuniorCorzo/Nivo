@@ -10,10 +10,17 @@ import { of } from "rxjs";
 
 import { ParkingFormComponent } from "./parking-form";
 
+interface MockParkingService {
+  create: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
+  getUpsertById: ReturnType<typeof vi.fn>;
+  deleteSlotGroup: ReturnType<typeof vi.fn>;
+}
+
 describe("ParkingFormComponent", () => {
   let component: ParkingFormComponent;
   let fixture: ComponentFixture<ParkingFormComponent>;
-  let mockParkingService: jasmine.SpyObj<ParkingService>;
+  let mockParkingService: MockParkingService;
   let mockColombiaService: Partial<ColombiaService>;
   let router: Router;
 
@@ -44,38 +51,34 @@ describe("ParkingFormComponent", () => {
   };
 
   beforeEach(async () => {
-    mockParkingService = jasmine.createSpyObj("ParkingService", [
-      "create",
-      "update",
-      "getUpsertById",
-      "deleteSlotGroup",
-    ]);
-    mockParkingService.create.and.returnValue(of(mockCreatedLot));
-    mockParkingService.getUpsertById.and.returnValue(
-      of({
-        address: {
-          city: "Bogotá",
-          country: "Colombia",
-          state: "Cundinamarca",
-          street: "Cll 100",
-          zipCode: "110111",
-        },
-        coordinates: { latitude: 4.6, longitude: -74 },
-        currency: "COP",
-        name: "Test",
-        operatingHours: {
-          closeTime: "20:00:00-05:00",
-          openTime: "08:00:00-05:00",
-        },
-        timezone: "UTC-05:00",
-      })
-    );
+    mockParkingService = {
+      create: vi.fn().mockReturnValue(of(mockCreatedLot)),
+      deleteSlotGroup: vi.fn(),
+      getUpsertById: vi.fn().mockReturnValue(
+        of({
+          address: {
+            city: "Bogotá",
+            country: "Colombia",
+            state: "Cundinamarca",
+            street: "Cll 100",
+            zipCode: "110111",
+          },
+          coordinates: { latitude: 4.6, longitude: -74 },
+          currency: "COP",
+          name: "Test",
+          operatingHours: {
+            closeTime: "20:00:00-05:00",
+            openTime: "08:00:00-05:00",
+          },
+          timezone: "UTC-05:00",
+        })
+      ),
+      update: vi.fn(),
+    };
 
     mockColombiaService = {
       departaments: signal(["Cundinamarca"]),
-      getCitiesByDepartmentName: jasmine
-        .createSpy("getCitiesByDepartmentName")
-        .and.returnValue(["Bogotá"]),
+      getCitiesByDepartmentName: vi.fn().mockReturnValue(["Bogotá"]),
     };
 
     await TestBed.configureTestingModule({
@@ -98,7 +101,7 @@ describe("ParkingFormComponent", () => {
     }).compileComponents();
 
     router = TestBed.inject(Router);
-    spyOn(router, "navigate").and.returnValue(Promise.resolve(true));
+    vi.spyOn(router, "navigate").mockReturnValue(Promise.resolve(true));
 
     fixture = TestBed.createComponent(ParkingFormComponent);
     component = fixture.componentInstance;

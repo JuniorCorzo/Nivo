@@ -5,7 +5,7 @@
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
     "rootDir": "../../",
-    "types": ["jasmine"],
+    "types": ["vitest/globals"],
     "strictNullChecks": true
   },
   "include": ["src/**/*.ts"]

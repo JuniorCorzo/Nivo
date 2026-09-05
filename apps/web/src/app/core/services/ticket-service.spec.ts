@@ -12,22 +12,34 @@ import type {
   CreateTicketPayload,
   CheckOutPayload,
 } from "@core/models/ticket.model";
-import { of } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import { TicketService } from "./ticket-service";
 
+interface MockParkingTicketsService {
+  createTicket: ReturnType<typeof vi.fn>;
+  getActiveTicket: ReturnType<typeof vi.fn>;
+  checkOutVehicle: ReturnType<typeof vi.fn>;
+}
+
+interface MockRatesService {
+  calculatePrice: ReturnType<typeof vi.fn>;
+}
+
 describe("TicketService", () => {
   let service: TicketService;
-  let parkingTicketsSpy: jasmine.SpyObj<ParkingTicketsService>;
-  let ratesSpy: jasmine.SpyObj<RatesService>;
+  let parkingTicketsSpy: MockParkingTicketsService;
+  let ratesSpy: MockRatesService;
 
   beforeEach(() => {
-    parkingTicketsSpy = jasmine.createSpyObj("ParkingTicketsService", [
-      "createTicket",
-      "getActiveTicket",
-      "checkOutVehicle",
-    ]);
-    ratesSpy = jasmine.createSpyObj("RatesService", ["calculatePrice"]);
+    parkingTicketsSpy = {
+      checkOutVehicle: vi.fn(),
+      createTicket: vi.fn(),
+      getActiveTicket: vi.fn(),
+    };
+    ratesSpy = {
+      calculatePrice: vi.fn(),
+    };
 
     TestBed.configureTestingModule({
       providers: [
@@ -40,7 +52,7 @@ describe("TicketService", () => {
     service = TestBed.inject(TicketService);
   });
 
-  it("should call ParkingTicketsService.createTicket and return mapped TicketSummary", (done) => {
+  it("should call ParkingTicketsService.createTicket and return mapped TicketSummary", async () => {
     const mockResponse: ResponseParkingTicketsDto = {
       data: {
         entryTime: "2026-08-27T10:00:00Z",
@@ -60,7 +72,7 @@ describe("TicketService", () => {
       timestamp: "2026-08-27T10:00:00Z",
     };
 
-    parkingTicketsSpy.createTicket.and.returnValue(of(mockResponse));
+    parkingTicketsSpy.createTicket.mockReturnValue(of(mockResponse));
 
     const payload: CreateTicketPayload = {
       plate: "ABC123",
@@ -68,15 +80,13 @@ describe("TicketService", () => {
       slotId: "slot-1",
     };
 
-    service.createTicket(payload).subscribe((result) => {
-      expect(result.id).toBe("ticket-1");
-      expect(result.licensePlate).toBe("ABC123");
-      expect(service.activeTickets().length).toBe(1);
-      done();
-    });
+    const result = await firstValueFrom(service.createTicket(payload));
+    expect(result.id).toBe("ticket-1");
+    expect(result.licensePlate).toBe("ABC123");
+    expect(service.activeTickets().length).toBe(1);
   });
 
-  it("should call RatesService.calculatePrice and return mapped PriceDetailedModel", (done) => {
+  it("should call RatesService.calculatePrice and return mapped PriceDetailedModel", async () => {
     const mockResponse: ResponsePriceDetailed = {
       data: {
         breakpoint: [],
@@ -91,16 +101,14 @@ describe("TicketService", () => {
       timestamp: "2026-08-27T10:00:00Z",
     };
 
-    ratesSpy.calculatePrice.and.returnValue(of(mockResponse));
+    ratesSpy.calculatePrice.mockReturnValue(of(mockResponse));
 
-    service.calculatePrice("ticket-1").subscribe((result) => {
-      expect(result.total).toBe(5950);
-      expect(result.name).toBe("Tarifa General");
-      done();
-    });
+    const result = await firstValueFrom(service.calculatePrice("ticket-1"));
+    expect(result.total).toBe(5950);
+    expect(result.name).toBe("Tarifa General");
   });
 
-  it("should call ParkingTicketsService.checkOutVehicle and return mapped PaymentRecord", (done) => {
+  it("should call ParkingTicketsService.checkOutVehicle and return mapped PaymentRecord", async () => {
     const mockResponse: ResponsePaymentsDto = {
       data: {
         amount: 5950,
@@ -113,7 +121,7 @@ describe("TicketService", () => {
       timestamp: "2026-08-27T10:00:00Z",
     };
 
-    parkingTicketsSpy.checkOutVehicle.and.returnValue(of(mockResponse));
+    parkingTicketsSpy.checkOutVehicle.mockReturnValue(of(mockResponse));
 
     const payload: CheckOutPayload = {
       paymentMethod: "EFFECTIVE",
@@ -121,14 +129,12 @@ describe("TicketService", () => {
       ticketId: "ticket-1",
     };
 
-    service.checkOutVehicle(payload).subscribe((result) => {
-      expect(result.id).toBe("payment-1");
-      expect(result.amount).toBe(5950);
-      done();
-    });
+    const result = await firstValueFrom(service.checkOutVehicle(payload));
+    expect(result.id).toBe("payment-1");
+    expect(result.amount).toBe(5950);
   });
 
-  it("should call ParkingTicketsService.getActiveTicket and return mapped TicketSummary", (done) => {
+  it("should call ParkingTicketsService.getActiveTicket and return mapped TicketSummary", async () => {
     const mockResponse: ResponseParkingTicketsDto = {
       data: {
         entryTime: "2026-08-27T10:00:00Z",
@@ -154,17 +160,17 @@ describe("TicketService", () => {
       timestamp: "2026-08-27T10:00:00Z",
     };
 
-    parkingTicketsSpy.getActiveTicket.and.returnValue(of(mockResponse));
+    parkingTicketsSpy.getActiveTicket.mockReturnValue(of(mockResponse));
 
-    service.getActiveTicketBySlot("slot-1").subscribe((result) => {
-      expect(parkingTicketsSpy.getActiveTicket).toHaveBeenCalledWith(
-        { slot: "slot-1" },
-        jasmine.any(Object)
-      );
-      expect(result.id).toBe("ticket-real-123");
-      expect(result.licensePlate).toBe("XYZ789");
-      expect(result.slotId).toBe("slot-1");
-      done();
-    });
+    const result = await firstValueFrom(
+      service.getActiveTicketBySlot("slot-1")
+    );
+    expect(parkingTicketsSpy.getActiveTicket).toHaveBeenCalledWith(
+      { slot: "slot-1" },
+      expect.any(Object)
+    );
+    expect(result.id).toBe("ticket-real-123");
+    expect(result.licensePlate).toBe("XYZ789");
+    expect(result.slotId).toBe("slot-1");
   });
 });

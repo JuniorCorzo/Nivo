@@ -40,10 +40,10 @@ class TestHostComponent {
     required(path.city);
   });
 
-  public streetError = signal<ValidationError.WithFieldTree[] | null>(null);
-  public stateError = signal<ValidationError.WithFieldTree[] | null>(null);
-  public cityError = signal<ValidationError.WithFieldTree[] | null>(null);
-  public zipCodeError = signal<ValidationError.WithFieldTree[] | null>(null);
+  public streetError = signal<ValidationError.WithFieldTree[] | undefined>([]);
+  public stateError = signal<ValidationError.WithFieldTree[] | undefined>([]);
+  public cityError = signal<ValidationError.WithFieldTree[] | undefined>([]);
+  public zipCodeError = signal<ValidationError.WithFieldTree[] | undefined>([]);
 
   public departments = signal<string[]>(["Cundinamarca", "Antioquia", "Valle"]);
   public cities = signal<string[]>(["Bogotá", "Soacha", "Chía"]);

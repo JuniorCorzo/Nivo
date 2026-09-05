@@ -11,6 +11,14 @@ import { of, throwError } from "rxjs";
 
 import { ParkingHomeFacade } from "./parking-home.facade";
 
+interface MockParkingService {
+  delete: ReturnType<typeof vi.fn>;
+}
+
+interface MockToastService {
+  showToast: ReturnType<typeof vi.fn>;
+}
+
 describe("ParkingHomeFacade", () => {
   let facade: ParkingHomeFacade;
   let mockActiveParkingLotSignal: ReturnType<
@@ -18,8 +26,8 @@ describe("ParkingHomeFacade", () => {
   >;
   let navigatedCommands: unknown[] | null = null;
   let mockRouter: Partial<Router>;
-  let mockParkingService: Partial<ParkingService>;
-  let mockToastService: jasmine.SpyObj<ToastService>;
+  let mockParkingService: MockParkingService;
+  let mockToastService: MockToastService;
 
   const mockLots: ParkingLotListItemModel[] = [
     {
@@ -79,11 +87,11 @@ describe("ParkingHomeFacade", () => {
       },
     };
     mockParkingService = {
-      delete: jasmine.createSpy("delete").and.returnValue(of()),
+      delete: vi.fn().mockReturnValue(of(null)),
     };
-    mockToastService = jasmine.createSpyObj<ToastService>("ToastService", [
-      "showToast",
-    ]);
+    mockToastService = {
+      showToast: vi.fn(),
+    };
 
     const injector = Injector.create({
       providers: [
@@ -184,20 +192,20 @@ describe("ParkingHomeFacade", () => {
   describe("Delete Modal", () => {
     it("should open delete modal on onDeleteClick", () => {
       facade.onDeleteClick();
-      expect(facade.isDeleteModalOpen()).toBeTrue();
+      expect(facade.isDeleteModalOpen()).toBe(true);
       expect(facade.selectedParkingId()).toBe("lot-1");
     });
 
     it("should not open delete modal if active parking is null", () => {
       mockActiveParkingLotSignal.set(null);
       facade.onDeleteClick();
-      expect(facade.isDeleteModalOpen()).toBeFalse();
+      expect(facade.isDeleteModalOpen()).toBe(false);
     });
 
     it("should close delete modal on onDeleteCancel", () => {
       facade.onDeleteClick();
       facade.onDeleteCancel();
-      expect(facade.isDeleteModalOpen()).toBeFalse();
+      expect(facade.isDeleteModalOpen()).toBe(false);
       expect(facade.selectedParkingId()).toBeNull();
     });
 
@@ -210,12 +218,11 @@ describe("ParkingHomeFacade", () => {
         message: APP_TEXTS.parking.messages.deleted,
         type: "success",
       });
-      expect(facade.isDeleteModalOpen()).toBeFalse();
+      expect(facade.isDeleteModalOpen()).toBe(false);
     });
 
     it("should handle delete error and show error toast", () => {
-      /* SAFETY: delete spy is configured as jasmine.Spy */
-      (mockParkingService.delete as jasmine.Spy).and.returnValue(
+      mockParkingService.delete.mockReturnValue(
         throwError(() => new Error("Error"))
       );
       facade.onDeleteClick();
@@ -225,7 +232,7 @@ describe("ParkingHomeFacade", () => {
         message: APP_TEXTS.parking.messages.errors.notFound,
         type: "error",
       });
-      expect(facade.isDeleteModalOpen()).toBeFalse();
+      expect(facade.isDeleteModalOpen()).toBe(false);
     });
   });
 });

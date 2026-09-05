@@ -12,14 +12,40 @@ import { of, throwError } from "rxjs";
 
 import { OperationsPageComponent } from "./operations-page";
 
+interface MockParkingService {
+  getAll: ReturnType<typeof vi.fn>;
+  parkingLots: () => ParkingLotListItemModel[];
+}
+
+interface MockSlotService {
+  getAllSlotSummariesByParkingId: ReturnType<typeof vi.fn>;
+  summaries: () => Record<string, unknown[]>;
+}
+
+interface MockRateService {
+  getRatesByParkingId: ReturnType<typeof vi.fn>;
+  ratesByParking: () => Record<string, RateModel[]>;
+}
+
+interface MockTicketService {
+  createTicket: ReturnType<typeof vi.fn>;
+  getActiveTicketBySlot: ReturnType<typeof vi.fn>;
+  calculatePrice: ReturnType<typeof vi.fn>;
+  checkOutVehicle: ReturnType<typeof vi.fn>;
+}
+
+interface MockToastService {
+  showToast: ReturnType<typeof vi.fn>;
+}
+
 describe("OperationsPageComponent", () => {
   let component: OperationsPageComponent;
   let fixture: ComponentFixture<OperationsPageComponent>;
-  let parkingServiceSpy: jasmine.SpyObj<ParkingService>;
-  let slotServiceSpy: jasmine.SpyObj<SlotService>;
-  let rateServiceSpy: jasmine.SpyObj<RateService>;
-  let ticketServiceSpy: jasmine.SpyObj<TicketService>;
-  let toastSpy: jasmine.SpyObj<ToastService>;
+  let parkingServiceSpy: MockParkingService;
+  let slotServiceSpy: MockSlotService;
+  let rateServiceSpy: MockRateService;
+  let ticketServiceSpy: MockTicketService;
+  let toastSpy: MockToastService;
 
   beforeEach(async () => {
     const mockLot: ParkingLotListItemModel = {
@@ -41,38 +67,36 @@ describe("OperationsPageComponent", () => {
       totalCapacity: 100,
       updatedAt: "",
     };
-    parkingServiceSpy = jasmine.createSpyObj("ParkingService", ["getAll"], {
+    parkingServiceSpy = {
+      getAll: vi.fn(),
       parkingLots: () => [mockLot],
-    });
+    };
 
-    slotServiceSpy = jasmine.createSpyObj(
-      "SlotService",
-      ["getAllSlotSummariesByParkingId"],
-      {
-        summaries: () => ({
-          "p-1": [
-            {
-              id: "s-1",
-              parkingName: "Central",
-              prefix: "A",
-              slotNumber: "101",
-              status: "AVAILABLE",
-              type: "CAR",
-              zone: "Z1",
-            },
-            {
-              id: "s-2",
-              parkingName: "Central",
-              prefix: "A",
-              slotNumber: "102",
-              status: "OCCUPIED",
-              type: "CAR",
-              zone: "Z1",
-            },
-          ],
-        }),
-      }
-    );
+    slotServiceSpy = {
+      getAllSlotSummariesByParkingId: vi.fn().mockReturnValue(of([])),
+      summaries: () => ({
+        "p-1": [
+          {
+            id: "s-1",
+            parkingName: "Central",
+            prefix: "A",
+            slotNumber: "101",
+            status: "AVAILABLE",
+            type: "CAR",
+            zone: "Z1",
+          },
+          {
+            id: "s-2",
+            parkingName: "Central",
+            prefix: "A",
+            slotNumber: "102",
+            status: "OCCUPIED",
+            type: "CAR",
+            zone: "Z1",
+          },
+        ],
+      }),
+    };
 
     const mockRate: RateModel = {
       createdAt: "",
@@ -86,26 +110,20 @@ describe("OperationsPageComponent", () => {
       updatedAt: "",
       vehicleType: "CAR",
     };
-    rateServiceSpy = jasmine.createSpyObj(
-      "RateService",
-      ["getRatesByParkingId"],
-      {
-        ratesByParking: () => ({
-          "p-1": [mockRate],
-        }),
-      }
-    );
+    rateServiceSpy = {
+      getRatesByParkingId: vi.fn().mockReturnValue(of([])),
+      ratesByParking: () => ({
+        "p-1": [mockRate],
+      }),
+    };
 
-    ticketServiceSpy = jasmine.createSpyObj("TicketService", [
-      "createTicket",
-      "getActiveTicketBySlot",
-      "calculatePrice",
-      "checkOutVehicle",
-    ]);
-    toastSpy = jasmine.createSpyObj("ToastService", ["showToast"]);
-
-    slotServiceSpy.getAllSlotSummariesByParkingId.and.returnValue(of([]));
-    rateServiceSpy.getRatesByParkingId.and.returnValue(of([]));
+    ticketServiceSpy = {
+      calculatePrice: vi.fn(),
+      checkOutVehicle: vi.fn(),
+      createTicket: vi.fn(),
+      getActiveTicketBySlot: vi.fn(),
+    };
+    toastSpy = { showToast: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [OperationsPageComponent],
@@ -183,7 +201,7 @@ describe("OperationsPageComponent", () => {
       status: "OPEN" as const,
     };
 
-    ticketServiceSpy.getActiveTicketBySlot.and.returnValue(of(mockTicket));
+    ticketServiceSpy.getActiveTicketBySlot.mockReturnValue(of(mockTicket));
 
     component.checkOutSpecificSlot(mockSlot);
 
@@ -203,7 +221,7 @@ describe("OperationsPageComponent", () => {
       zone: "Z1",
     };
 
-    ticketServiceSpy.getActiveTicketBySlot.and.returnValue(
+    ticketServiceSpy.getActiveTicketBySlot.mockReturnValue(
       throwError(() => ({ error: { message: "Ticket no encontrado" } }))
     );
 
@@ -228,7 +246,7 @@ describe("OperationsPageComponent", () => {
       zone: "Z1",
     };
 
-    ticketServiceSpy.getActiveTicketBySlot.and.returnValue(
+    ticketServiceSpy.getActiveTicketBySlot.mockReturnValue(
       throwError(() => new Error("Unknown"))
     );
 

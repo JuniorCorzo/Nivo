@@ -68,7 +68,7 @@ describe("ParkingMapComponent", () => {
         latitude: 4.711,
         longitude: -74.0721,
       });
-      expect(isValid).toBeTrue();
+      expect(isValid).toBe(true);
     });
 
     it("should return true for coordinates with zero values", () => {
@@ -78,15 +78,15 @@ describe("ParkingMapComponent", () => {
         latitude: 0,
         longitude: 0,
       });
-      expect(isValid).toBeTrue();
+      expect(isValid).toBe(true);
     });
 
     it("should return false for null or undefined coordinates", () => {
       /* SAFETY: Accessing private static method for testing */
       const mapStatic: ParkingMapStatic = ParkingMapComponent as never;
-      expect(mapStatic.isValidCoordinates(null)).toBeFalse();
+      expect(mapStatic.isValidCoordinates(null)).toBe(false);
       const holder: PositionHolder = {};
-      expect(mapStatic.isValidCoordinates(holder.position)).toBeFalse();
+      expect(mapStatic.isValidCoordinates(holder.position)).toBe(false);
     });
 
     it("should return false for NaN or infinite coordinates", () => {
@@ -97,13 +97,13 @@ describe("ParkingMapComponent", () => {
           latitude: Number.NaN,
           longitude: -74.0721,
         })
-      ).toBeFalse();
+      ).toBe(false);
       expect(
         mapStatic.isValidCoordinates({
           latitude: 4.711,
           longitude: Number.POSITIVE_INFINITY,
         })
-      ).toBeFalse();
+      ).toBe(false);
     });
   });
 
@@ -130,7 +130,7 @@ describe("ParkingMapComponent", () => {
         zoom: 13,
       });
 
-      spyOn(privateComp, "setMarkerPosition").and.callThrough();
+      vi.spyOn(privateComp, "setMarkerPosition");
 
       fixture.componentRef.setInput("initialPosition", {
         latitude: 10.9685,
@@ -196,7 +196,7 @@ describe("ParkingMapComponent", () => {
       fixture.componentRef.setInput("readonly", true);
       fixture.detectChanges();
 
-      expect(component.readonly()).toBeTrue();
+      expect(component.readonly()).toBe(true);
     });
   });
 
@@ -212,11 +212,8 @@ describe("ParkingMapComponent", () => {
       });
       privateComp.marker = L.marker([4.711, -74.0721]).addTo(privateComp.map);
 
-      const mapRemoveSpy = spyOn(privateComp.map, "remove").and.callThrough();
-      const markerRemoveSpy = spyOn(
-        privateComp.marker,
-        "remove"
-      ).and.callThrough();
+      const mapRemoveSpy = vi.spyOn(privateComp.map, "remove");
+      const markerRemoveSpy = vi.spyOn(privateComp.marker, "remove");
 
       component.ngOnDestroy();
 

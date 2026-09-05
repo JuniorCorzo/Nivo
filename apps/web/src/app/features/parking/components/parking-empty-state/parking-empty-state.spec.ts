@@ -46,6 +46,6 @@ describe("ParkingEmptyState", () => {
       "nv-button button, nv-button"
     ) as HTMLElement | null;
     button?.click();
-    expect(hostComponent.createdCalled()).toBeTrue();
+    expect(hostComponent.createdCalled()).toBe(true);
   });
 });

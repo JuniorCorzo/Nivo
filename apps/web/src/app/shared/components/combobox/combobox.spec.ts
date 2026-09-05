@@ -90,7 +90,7 @@ describe("ComboboxComponent", () => {
     });
 
     it("should call onChange with display text when an item is selected via Enter", () => {
-      const onChangeSpy = jasmine.createSpy("onChange");
+      const onChangeSpy = vi.fn();
       fixture.componentInstance.registerOnChange(onChangeSpy);
       fixture.componentRef.setInput("items", SAMPLE_ITEMS);
       fixture.componentRef.setInput("displayFn", (item: TestItem) => item.name);
@@ -114,7 +114,7 @@ describe("ComboboxComponent", () => {
     });
 
     it("should call registerOnTouched when input loses focus", () => {
-      const onTouchedSpy = jasmine.createSpy("onTouched");
+      const onTouchedSpy = vi.fn();
       fixture.componentInstance.registerOnTouched(onTouchedSpy);
       fixture.detectChanges();
 
@@ -133,7 +133,7 @@ describe("ComboboxComponent", () => {
 
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector("input");
-      expect(inputEl.disabled).toBeTrue();
+      expect(inputEl.disabled).toBe(true);
     });
 
     it("should reset disabled state when setDisabledState called with false", () => {
@@ -143,7 +143,7 @@ describe("ComboboxComponent", () => {
 
       const inputEl: HTMLInputElement =
         fixture.nativeElement.querySelector("input");
-      expect(inputEl.disabled).toBeFalse();
+      expect(inputEl.disabled).toBe(false);
     });
   });
 
@@ -310,7 +310,7 @@ describe("ComboboxComponent", () => {
     });
 
     it("should emit selectionChange and update input on Enter with highlighted item", () => {
-      const selectionSpy = jasmine.createSpy("selectionChange");
+      const selectionSpy = vi.fn();
       fixture.componentInstance.selectionChange.subscribe(selectionSpy);
 
       const inputEl: HTMLInputElement =
@@ -329,7 +329,7 @@ describe("ComboboxComponent", () => {
     });
 
     it("should fire onChange when selecting an item via Enter", () => {
-      const onChangeSpy = jasmine.createSpy("onChange");
+      const onChangeSpy = vi.fn();
       fixture.componentInstance.registerOnChange(onChangeSpy);
 
       const inputEl: HTMLInputElement =
@@ -355,8 +355,8 @@ describe("ComboboxComponent", () => {
     });
 
     it("should select an item on mousedown and emit selectionChange", () => {
-      const selectionSpy = jasmine.createSpy("selectionChange");
-      const onChangeSpy = jasmine.createSpy("onChange");
+      const selectionSpy = vi.fn();
+      const onChangeSpy = vi.fn();
       fixture.componentInstance.selectionChange.subscribe(selectionSpy);
       fixture.componentInstance.registerOnChange(onChangeSpy);
       fixture.detectChanges();

@@ -9,38 +9,53 @@ import { of } from "rxjs";
 
 import { CheckInModalComponent } from "./check-in-modal.component";
 
+interface MockTicketService {
+  createTicket: ReturnType<typeof vi.fn>;
+}
+
+interface MockSlotService {
+  getAllSlotSummariesByParkingId: ReturnType<typeof vi.fn>;
+  summaries: () => Record<string, unknown[]>;
+}
+
+interface MockRateService {
+  getRatesByParkingId: ReturnType<typeof vi.fn>;
+  ratesByParking: () => Record<string, unknown[]>;
+}
+
+interface MockParkingService {
+  getAll: ReturnType<typeof vi.fn>;
+  parkingLots: () => unknown[];
+}
+
+interface MockToastService {
+  showToast: ReturnType<typeof vi.fn>;
+}
+
 describe("CheckInModalComponent", () => {
   let component: CheckInModalComponent;
   let fixture: ComponentFixture<CheckInModalComponent>;
-  let ticketServiceSpy: jasmine.SpyObj<TicketService>;
-  let slotServiceSpy: jasmine.SpyObj<SlotService>;
-  let rateServiceSpy: jasmine.SpyObj<RateService>;
-  let parkingServiceSpy: jasmine.SpyObj<ParkingService>;
-  let toastSpy: jasmine.SpyObj<ToastService>;
+  let ticketServiceSpy: MockTicketService;
+  let slotServiceSpy: MockSlotService;
+  let rateServiceSpy: MockRateService;
+  let parkingServiceSpy: MockParkingService;
+  let toastSpy: MockToastService;
 
   beforeEach(async () => {
-    ticketServiceSpy = jasmine.createSpyObj("TicketService", ["createTicket"]);
-    slotServiceSpy = jasmine.createSpyObj(
-      "SlotService",
-      ["getAllSlotSummariesByParkingId"],
-      {
-        summaries: () => ({ "p-1": [] }),
-      }
-    );
-    rateServiceSpy = jasmine.createSpyObj(
-      "RateService",
-      ["getRatesByParkingId"],
-      {
-        ratesByParking: () => ({ "p-1": [] }),
-      }
-    );
-    parkingServiceSpy = jasmine.createSpyObj("ParkingService", ["getAll"], {
+    ticketServiceSpy = { createTicket: vi.fn() };
+    slotServiceSpy = {
+      getAllSlotSummariesByParkingId: vi.fn().mockReturnValue(of([])),
+      summaries: () => ({ "p-1": [] }),
+    };
+    rateServiceSpy = {
+      getRatesByParkingId: vi.fn().mockReturnValue(of([])),
+      ratesByParking: () => ({ "p-1": [] }),
+    };
+    parkingServiceSpy = {
+      getAll: vi.fn(),
       parkingLots: () => [],
-    });
-    toastSpy = jasmine.createSpyObj("ToastService", ["showToast"]);
-
-    slotServiceSpy.getAllSlotSummariesByParkingId.and.returnValue(of([]));
-    rateServiceSpy.getRatesByParkingId.and.returnValue(of([]));
+    };
+    toastSpy = { showToast: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [CheckInModalComponent],
@@ -62,9 +77,9 @@ describe("CheckInModalComponent", () => {
   });
 
   it("should emit closed event when onClose is called", () => {
-    spyOn(component.closed, "emit");
+    const emitSpy = vi.spyOn(component.closed, "emit");
     component.onClose();
-    expect(component.closed.emit).toHaveBeenCalled();
+    expect(emitSpy).toHaveBeenCalled();
   });
 
   it("should update plate in facade on input event", () => {

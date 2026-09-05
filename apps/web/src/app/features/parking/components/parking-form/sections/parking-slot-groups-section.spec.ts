@@ -114,7 +114,7 @@ describe("ParkingSlotGroupsSectionComponent", () => {
       ) as HTMLButtonElement;
       addButton.click();
 
-      expect(hostComponent.addSlotCalled).toBeTrue();
+      expect(hostComponent.addSlotCalled).toBe(true);
     });
 
     it("should emit removeSlot output with index when remove button is clicked", () => {

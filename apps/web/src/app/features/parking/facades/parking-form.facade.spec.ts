@@ -1,5 +1,5 @@
-import "@angular/compiler";
-import { Injector, runInInjectionContext, signal } from "@angular/core";
+import { signal } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
 import type { UpsertParkingLotsModel } from "@core/models/parking.model";
 import { ColombiaService } from "@core/service/colombia-service";
 import { ParkingService } from "@core/services/parking-service";
@@ -7,10 +7,17 @@ import { of } from "rxjs";
 
 import { ParkingFormFacade } from "./parking-form.facade";
 
+interface MockParkingService {
+  create: ReturnType<typeof vi.fn>;
+  deleteSlotGroup: ReturnType<typeof vi.fn>;
+  getUpsertById: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
+}
+
 describe("ParkingFormFacade", () => {
   let facade: ParkingFormFacade;
   let mockColombiaService: Partial<ColombiaService>;
-  let mockParkingService: jasmine.SpyObj<ParkingService>;
+  let mockParkingService: MockParkingService;
 
   const mockDepartamentsSignal = signal<string[]>([
     "Antioquia",
@@ -20,26 +27,25 @@ describe("ParkingFormFacade", () => {
   beforeEach(() => {
     mockColombiaService = {
       departaments: mockDepartamentsSignal,
-      getCitiesByDepartmentName: jasmine
-        .createSpy("getCitiesByDepartmentName")
-        .and.callFake((dept: string) => {
-          if (dept === "Cundinamarca") {
-            return ["Bogotá", "Soacha"];
-          }
-          if (dept === "Antioquia") {
-            return ["Medellín", "Envigado"];
-          }
-          return [];
-        }),
+      getCitiesByDepartmentName: vi.fn((dept: string) => {
+        if (dept === "Cundinamarca") {
+          return ["Bogotá", "Soacha"];
+        }
+        if (dept === "Antioquia") {
+          return ["Medellín", "Envigado"];
+        }
+        return [];
+      }),
     };
 
-    mockParkingService = jasmine.createSpyObj<ParkingService>(
-      "ParkingService",
-      ["deleteSlotGroup", "create", "update", "getUpsertById"]
-    );
-    mockParkingService.deleteSlotGroup.and.returnValue(of());
+    mockParkingService = {
+      create: vi.fn(),
+      deleteSlotGroup: vi.fn().mockReturnValue(of()),
+      getUpsertById: vi.fn(),
+      update: vi.fn(),
+    };
 
-    const injector = Injector.create({
+    TestBed.configureTestingModule({
       providers: [
         ParkingFormFacade,
         {
@@ -53,15 +59,15 @@ describe("ParkingFormFacade", () => {
       ],
     });
 
-    facade = runInInjectionContext(injector, () => new ParkingFormFacade());
+    facade = TestBed.inject(ParkingFormFacade);
   });
 
   it("should create facade instance with default values", () => {
     expect(facade).toBeTruthy();
     expect(facade.mode()).toBe("create");
     expect(facade.parkingId()).toBeNull();
-    expect(facade.isSubmitting()).toBeFalse();
-    expect(facade.isMapPlaceholderVisible()).toBeTrue();
+    expect(facade.isSubmitting()).toBe(false);
+    expect(facade.isMapPlaceholderVisible()).toBe(true);
     expect(facade.slots().length).toBe(0);
   });
 
@@ -100,14 +106,14 @@ describe("ParkingFormFacade", () => {
         latitude: 4.6097,
         longitude: -74.0817,
       });
-      expect(facade.isMapPlaceholderVisible()).toBeFalse();
-      expect(facade.isSelectedCoordinates()).toBeTrue();
+      expect(facade.isMapPlaceholderVisible()).toBe(false);
+      expect(facade.isSelectedCoordinates()).toBe(true);
       expect(facade.coordinates().length).toBe(2);
     });
 
     it("should hide map placeholder on dismissMapPlaceholder", () => {
       facade.dismissMapPlaceholder();
-      expect(facade.isMapPlaceholderVisible()).toBeFalse();
+      expect(facade.isMapPlaceholderVisible()).toBe(false);
     });
   });
 
@@ -233,9 +239,9 @@ describe("ParkingFormFacade", () => {
 
     it("should update isSubmitting state", () => {
       facade.setSubmitting(true);
-      expect(facade.isSubmitting()).toBeTrue();
+      expect(facade.isSubmitting()).toBe(true);
       facade.setSubmitting(false);
-      expect(facade.isSubmitting()).toBeFalse();
+      expect(facade.isSubmitting()).toBe(false);
     });
   });
 });

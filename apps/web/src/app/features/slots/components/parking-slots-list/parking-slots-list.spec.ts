@@ -71,26 +71,24 @@ const setupTest = (opts: {
   const slots = opts.slotSummaries ?? [];
   const parkingId = opts.parkingId ?? "parking-1";
 
-  const parkingService = jasmine.createSpyObj<ParkingService>(
-    "ParkingService",
-    [],
-    { parkingLots: signal(parkings).asReadonly() }
-  );
+  const parkingService = {
+    parkingLots: signal(parkings).asReadonly(),
+  };
 
   const summariesSignal = signal<Record<string, SlotSummary[]>>({
     [parkingId]: slots,
   });
 
-  const slotService = jasmine.createSpyObj<SlotService>(
-    "SlotService",
-    ["getAllSlotSummariesByParkingId", "update", "delete"],
-    { summaries: summariesSignal.asReadonly() }
-  );
-  slotService.getAllSlotSummariesByParkingId.and.returnValue(of(slots));
+  const slotService = {
+    delete: vi.fn(),
+    getAllSlotSummariesByParkingId: vi.fn().mockReturnValue(of(slots)),
+    summaries: summariesSignal.asReadonly(),
+    update: vi.fn(),
+  };
 
-  const toastService = jasmine.createSpyObj<ToastService>("ToastService", [
-    "showToast",
-  ]);
+  const toastService = {
+    showToast: vi.fn(),
+  };
   const routeMock = mockActivatedRoute(parkingId);
 
   return {
@@ -515,8 +513,8 @@ describe("ParkingSlotsListPage — Pure Function Safety Net", () => {
     it("covers all statuses", () => {
       expect(Object.keys(VALID_STATUS_TRANSITIONS)).toEqual([
         "AVAILABLE",
-        "OCCUPIED",
         "MAINTENANCE",
+        "OCCUPIED",
         "RESERVED",
       ]);
     });

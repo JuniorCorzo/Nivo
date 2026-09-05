@@ -107,7 +107,7 @@ describe("ParkingTable", () => {
         column: { parent: undefined },
         isPlaceholder: false,
       };
-      expect(staticHelpers.shouldRenderHeader(header, 0)).toBeTrue();
+      expect(staticHelpers.shouldRenderHeader(header, 0)).toBe(true);
     });
 
     it("should return true when depth > 0, has parent column, and is not placeholder", () => {
@@ -115,7 +115,7 @@ describe("ParkingTable", () => {
         column: { parent: { id: "group" } },
         isPlaceholder: false,
       };
-      expect(staticHelpers.shouldRenderHeader(header, 1)).toBeTrue();
+      expect(staticHelpers.shouldRenderHeader(header, 1)).toBe(true);
     });
 
     it("should return false when depth > 0 and header is placeholder", () => {
@@ -123,7 +123,7 @@ describe("ParkingTable", () => {
         column: { parent: { id: "group" } },
         isPlaceholder: true,
       };
-      expect(staticHelpers.shouldRenderHeader(header, 1)).toBeFalse();
+      expect(staticHelpers.shouldRenderHeader(header, 1)).toBe(false);
     });
 
     it("should return false when depth > 0 and column has no parent", () => {
@@ -131,7 +131,7 @@ describe("ParkingTable", () => {
         column: { parent: undefined },
         isPlaceholder: false,
       };
-      expect(staticHelpers.shouldRenderHeader(header, 1)).toBeFalse();
+      expect(staticHelpers.shouldRenderHeader(header, 1)).toBe(false);
     });
   });
 

@@ -5,9 +5,13 @@ import { of } from "rxjs";
 
 import { UserService } from "./user-service";
 
+interface MockUsersService {
+  getCurrentUser: ReturnType<typeof vi.fn>;
+}
+
 describe("UserService", () => {
   let service: UserService;
-  let usersServiceSpy: jasmine.SpyObj<UsersService>;
+  let usersServiceSpy: MockUsersService;
   const mockUserDto: UserDto = {
     contactInfo: "1234567890",
     createdAt: "2026-01-01T00:00:00.000Z",
@@ -23,14 +27,14 @@ describe("UserService", () => {
   };
 
   beforeEach(() => {
-    usersServiceSpy = jasmine.createSpyObj("UsersService", ["getCurrentUser"]);
+    usersServiceSpy = { getCurrentUser: vi.fn() };
     const mockResponse: ResponseUserDto = {
       data: mockUserDto,
       message: "OK",
       status: "200",
       timestamp: "2026-01-01T00:00:00.000Z",
     };
-    usersServiceSpy.getCurrentUser.and.returnValue(of(mockResponse));
+    usersServiceSpy.getCurrentUser.mockReturnValue(of(mockResponse));
 
     TestBed.configureTestingModule({
       providers: [
@@ -60,7 +64,7 @@ describe("UserService", () => {
       timestamp: "2026-01-01T00:00:00.000Z",
     };
     /* SAFETY: Simulating backend response with missing user payload */
-    usersServiceSpy.getCurrentUser.and.returnValue(
+    usersServiceSpy.getCurrentUser.mockReturnValue(
       of(emptyResponse as ResponseUserDto)
     );
     const newService = TestBed.runInInjectionContext(() => new UserService());

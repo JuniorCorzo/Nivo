@@ -21,9 +21,9 @@ describe("TicketReceiptComponent", () => {
   });
 
   it("should emit closed output when onClose is called", () => {
-    spyOn(component.closed, "emit");
+    const emitSpy = vi.spyOn(component.closed, "emit");
     component.onClose();
-    expect(component.closed.emit).toHaveBeenCalled();
+    expect(emitSpy).toHaveBeenCalled();
   });
 
   it("should format date correctly", () => {

@@ -10,57 +10,74 @@ import { of, throwError } from "rxjs";
 
 import { CheckInFacade } from "./check-in.facade";
 
+interface MockTicketService {
+  createTicket: ReturnType<typeof vi.fn>;
+}
+
+interface MockSlotService {
+  getAllSlotSummariesByParkingId: ReturnType<typeof vi.fn>;
+  summaries: () => Record<string, unknown[]>;
+}
+
+interface MockRateService {
+  getRatesByParkingId: ReturnType<typeof vi.fn>;
+  ratesByParking: () => Record<string, unknown[]>;
+}
+
+interface MockParkingService {
+  getAll: ReturnType<typeof vi.fn>;
+  parkingLots: () => ParkingLotListItemModel[];
+}
+
+interface MockToastService {
+  showToast: ReturnType<typeof vi.fn>;
+}
+
 describe("CheckInFacade", () => {
   let facade: CheckInFacade;
-  let ticketServiceSpy: jasmine.SpyObj<TicketService>;
-  let slotServiceSpy: jasmine.SpyObj<SlotService>;
-  let rateServiceSpy: jasmine.SpyObj<RateService>;
-  let parkingServiceSpy: jasmine.SpyObj<ParkingService>;
-  let toastSpy: jasmine.SpyObj<ToastService>;
+  let ticketServiceSpy: MockTicketService;
+  let slotServiceSpy: MockSlotService;
+  let rateServiceSpy: MockRateService;
+  let parkingServiceSpy: MockParkingService;
+  let toastSpy: MockToastService;
 
   beforeEach(() => {
-    ticketServiceSpy = jasmine.createSpyObj("TicketService", ["createTicket"]);
-    slotServiceSpy = jasmine.createSpyObj(
-      "SlotService",
-      ["getAllSlotSummariesByParkingId"],
-      {
-        summaries: () => ({
-          "parking-1": [
-            {
-              id: "slot-1",
-              parkingName: "Central",
-              prefix: "A",
-              slotNumber: "101",
-              status: "AVAILABLE",
-              type: "CAR",
-              zone: "Z1",
-            },
-          ],
-        }),
-      }
-    );
-    rateServiceSpy = jasmine.createSpyObj(
-      "RateService",
-      ["getRatesByParkingId"],
-      {
-        ratesByParking: () => ({
-          "parking-1": [
-            {
-              createdAt: "",
-              description: "Hora",
-              id: "rate-1",
-              minChargeTimeMinutes: 15,
-              name: "Tarifa Carros",
-              parkingId: "parking-1",
-              pricePerUnit: 4000,
-              timeUnit: "HOURS",
-              updatedAt: "",
-              vehicleType: "CAR",
-            },
-          ],
-        }),
-      }
-    );
+    ticketServiceSpy = { createTicket: vi.fn() };
+    slotServiceSpy = {
+      getAllSlotSummariesByParkingId: vi.fn().mockReturnValue(of([])),
+      summaries: () => ({
+        "parking-1": [
+          {
+            id: "slot-1",
+            parkingName: "Central",
+            prefix: "A",
+            slotNumber: "101",
+            status: "AVAILABLE",
+            type: "CAR",
+            zone: "Z1",
+          },
+        ],
+      }),
+    };
+    rateServiceSpy = {
+      getRatesByParkingId: vi.fn().mockReturnValue(of([])),
+      ratesByParking: () => ({
+        "parking-1": [
+          {
+            createdAt: "",
+            description: "Hora",
+            id: "rate-1",
+            minChargeTimeMinutes: 15,
+            name: "Tarifa Carros",
+            parkingId: "parking-1",
+            pricePerUnit: 4000,
+            timeUnit: "HOURS",
+            updatedAt: "",
+            vehicleType: "CAR",
+          },
+        ],
+      }),
+    };
     const mockLot: ParkingLotListItemModel = {
       address: {
         city: "Bogota",
@@ -80,13 +97,11 @@ describe("CheckInFacade", () => {
       totalCapacity: 100,
       updatedAt: "",
     };
-    parkingServiceSpy = jasmine.createSpyObj("ParkingService", ["getAll"], {
+    parkingServiceSpy = {
+      getAll: vi.fn(),
       parkingLots: () => [mockLot],
-    });
-    toastSpy = jasmine.createSpyObj("ToastService", ["showToast"]);
-
-    slotServiceSpy.getAllSlotSummariesByParkingId.and.returnValue(of([]));
-    rateServiceSpy.getRatesByParkingId.and.returnValue(of([]));
+    };
+    toastSpy = { showToast: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
@@ -145,7 +160,7 @@ describe("CheckInFacade", () => {
       licensePlate: "ABC123",
       status: "OPEN",
     };
-    ticketServiceSpy.createTicket.and.returnValue(of(mockTicket));
+    ticketServiceSpy.createTicket.mockReturnValue(of(mockTicket));
 
     facade.init("parking-1");
     facade.setVehicleType("CAR");
@@ -166,7 +181,7 @@ describe("CheckInFacade", () => {
   });
 
   it("should handle conflict / duplicate plate error and set error message", () => {
-    ticketServiceSpy.createTicket.and.returnValue(
+    ticketServiceSpy.createTicket.mockReturnValue(
       throwError(() => ({
         error: { message: "Vehículo ya tiene un ticket activo" },
       }))
@@ -180,7 +195,7 @@ describe("CheckInFacade", () => {
 
     expect(facade.errorMessage()).toBe("Vehículo ya tiene un ticket activo");
     expect(toastSpy.showToast).toHaveBeenCalledWith(
-      jasmine.objectContaining({ type: "error" })
+      expect.objectContaining({ type: "error" })
     );
   });
 });

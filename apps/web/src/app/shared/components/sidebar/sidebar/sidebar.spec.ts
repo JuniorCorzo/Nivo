@@ -89,7 +89,7 @@ describe("Sidebar", () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(internal.collapsed()).toBeTrue();
+    expect(internal.collapsed()).toBe(true);
     /* SAFETY: querySelector returns HTMLButtonElement */
     const expandButton = fixture.nativeElement.querySelector(
       'button[aria-label="Expandir sidebar"]'
