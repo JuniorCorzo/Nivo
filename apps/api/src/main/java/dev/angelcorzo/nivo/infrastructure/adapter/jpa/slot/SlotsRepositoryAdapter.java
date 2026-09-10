@@ -30,6 +30,13 @@ public class SlotsRepositoryAdapter
   }
 
   @Override
+  public List<Slots> findAllById(List<UUID> ids) {
+    return super.repository.findAllById(ids).stream()
+        .map(super::toEntity)
+        .toList();
+  }
+
+  @Override
   public List<Slots> findAllByParkingLotsId(UUID parkingLotsId) {
     return super.repository.findAllByParking_Id(parkingLotsId).stream()
         .map(super::toEntity)
@@ -52,6 +59,11 @@ public class SlotsRepositoryAdapter
   @Override
   public Boolean existsById(UUID id) {
     return super.repository.existsById(id);
+  }
+
+  @Override
+  public List<Slots> saveAll(List<Slots> slots) {
+    return super.saveAllEntities(slots);
   }
 
   @Override
