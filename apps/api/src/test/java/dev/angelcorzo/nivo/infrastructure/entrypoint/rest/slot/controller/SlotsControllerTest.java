@@ -14,12 +14,18 @@ import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationCon
 import dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository;
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotSummary;
+import dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException;
 import dev.angelcorzo.nivo.domain.usecase.slot.BatchDeleteSlotsUseCase;
 import dev.angelcorzo.nivo.domain.usecase.slot.BatchUpsertSlotsUseCase;
 import dev.angelcorzo.nivo.domain.usecase.slot.EditSlotUseCase;
 import dev.angelcorzo.nivo.domain.usecase.slot.ListSlotsUseCase;
 import dev.angelcorzo.nivo.domain.usecase.slot.ListSlotsSummaryUseCase;
 import dev.angelcorzo.nivo.domain.usecase.slot.RemoveSlotUseCase;
+import dev.angelcorzo.nivo.domain.usecase.slot.UpdateSlotGroupUseCase;
+import dev.angelcorzo.nivo.domain.usecase.slot.UpdateSlotMetadataUseCase;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.exception.ExceptionHandlerController;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto.UpdateSlotGroupRequest;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto.UpdateSlotMetadataRequest;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +44,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @ActiveProfiles("test")
 @WebMvcTest(SlotsController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@ContextConfiguration(classes = SlotsController.class)
+@ContextConfiguration(classes = {SlotsController.class, ExceptionHandlerController.class})
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SlotsController Unit Tests")
 class SlotsControllerTest {
@@ -56,6 +62,8 @@ class SlotsControllerTest {
   @MockitoBean private EditSlotUseCase editSlotUseCase;
   @MockitoBean private RemoveSlotUseCase removeSlotUseCase;
   @MockitoBean private BatchDeleteSlotsUseCase batchDeleteSlotsUseCase;
+  @MockitoBean private UpdateSlotMetadataUseCase updateSlotMetadataUseCase;
+  @MockitoBean private UpdateSlotGroupUseCase updateSlotGroupUseCase;
 
   @Test
   @DisplayName("GET /slots/list - Should list slots for parking lot")
@@ -116,5 +124,104 @@ class SlotsControllerTest {
         .andExpect(jsonPath("$.message").value("Slots deleted successfully"));
 
     verify(batchDeleteSlotsUseCase).execute(ids);
+  }
+
+  @Test
+  @DisplayName("PATCH /slots/metadata - Should update slot metadata successfully")
+  void shouldUpdateSlotMetadata() throws Exception {
+    UUID slotId = UUID.randomUUID();
+    UpdateSlotMetadataRequest request = new UpdateSlotMetadataRequest(
+        List.of(slotId),
+        true,
+        false,
+        true
+    );
+    UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand command =
+        UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand.builder()
+            .slotIds(List.of(slotId))
+            .hasCharger(true)
+            .isAccessible(false)
+            .isActive(true)
+            .build();
+    Slots updatedSlot = Slots.builder().id(slotId).hasCharger(true).isActive(true).build();
+    SlotResponse slotResponse = mock(SlotResponse.class);
+
+    when(slotsMapper.toCommand(request)).thenReturn(command);
+    when(updateSlotMetadataUseCase.execute(command)).thenReturn(List.of(updatedSlot));
+    when(slotsMapper.toDto(updatedSlot)).thenReturn(slotResponse);
+
+    mockMvc
+        .perform(
+            patch("/slots/metadata")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("Slot metadata updated successfully"));
+
+    verify(updateSlotMetadataUseCase).execute(command);
+  }
+
+  @Test
+  @DisplayName("PATCH /slots/metadata - Should return 409 Conflict when SlotCannotBeModifiedException thrown")
+  void shouldReturn409WhenSlotCannotBeModified() throws Exception {
+    UUID slotId = UUID.randomUUID();
+    UpdateSlotMetadataRequest request = new UpdateSlotMetadataRequest(
+        List.of(slotId),
+        true,
+        null,
+        null
+    );
+    UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand command =
+        UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand.builder()
+            .slotIds(List.of(slotId))
+            .hasCharger(true)
+            .build();
+
+    when(slotsMapper.toCommand(request)).thenReturn(command);
+    when(updateSlotMetadataUseCase.execute(command))
+        .thenThrow(new SlotCannotBeModifiedException(List.of(slotId)));
+
+    mockMvc
+        .perform(
+            patch("/slots/metadata")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  @DisplayName("PATCH /slots/groups - Should rename slot group successfully")
+  void shouldUpdateSlotGroup() throws Exception {
+    UUID parkingId = UUID.randomUUID();
+    UpdateSlotGroupRequest request = new UpdateSlotGroupRequest(
+        parkingId,
+        "ZONE-A",
+        "A",
+        "ZONE-B",
+        "B"
+    );
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command =
+        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
+            .parkingId(parkingId)
+            .currentZone("ZONE-A")
+            .currentPrefix("A")
+            .newZone("ZONE-B")
+            .newPrefix("B")
+            .build();
+    Slots updatedSlot = Slots.builder().id(UUID.randomUUID()).zone("ZONE-B").prefix("B").build();
+    SlotResponse slotResponse = mock(SlotResponse.class);
+
+    when(slotsMapper.toCommand(request)).thenReturn(command);
+    when(updateSlotGroupUseCase.execute(command)).thenReturn(List.of(updatedSlot));
+    when(slotsMapper.toDto(updatedSlot)).thenReturn(slotResponse);
+
+    mockMvc
+        .perform(
+            patch("/slots/groups")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk());
+
+    verify(updateSlotGroupUseCase).execute(command);
   }
 }

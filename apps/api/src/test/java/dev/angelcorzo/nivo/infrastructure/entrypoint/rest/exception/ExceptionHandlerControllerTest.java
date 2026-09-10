@@ -87,4 +87,22 @@ class ExceptionHandlerControllerTest {
     assertThat(response.getBody().code()).isEqualTo("INVALID_PAYLOAD");
     assertThat(response.getBody().error()).isEqualTo("Payload validation failed");
   }
+
+  @Test
+  @DisplayName("Should handle SlotCannotBeModifiedException with 409 Conflict")
+  void shouldHandleSlotCannotBeModifiedException() {
+    // Arrange
+    dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException ex =
+        new dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException(
+            java.util.List.of(UUID.randomUUID()));
+
+    // Act
+    ResponseEntity<ResponseError<Object>> response =
+        exceptionHandlerController.handleSlotCannotBeModified(ex);
+
+    // Assert
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().code()).isEqualTo("SLOT_CANNOT_BE_MODIFIED");
+  }
 }

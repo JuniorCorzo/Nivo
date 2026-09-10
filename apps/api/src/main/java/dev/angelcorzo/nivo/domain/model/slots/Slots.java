@@ -36,6 +36,14 @@ public class Slots {
     return hasCharger;
   }
 
+  public boolean getHasCharger() {
+    return hasCharger;
+  }
+
+  public boolean hasCharger() {
+    return hasCharger;
+  }
+
   public boolean isAccessible() {
     return isAccessible;
   }

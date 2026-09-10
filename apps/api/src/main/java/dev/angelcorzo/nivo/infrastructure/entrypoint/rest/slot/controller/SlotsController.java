@@ -18,6 +18,10 @@ import dev.angelcorzo.nivo.domain.usecase.slot.EditSlotUseCase;
 import dev.angelcorzo.nivo.domain.usecase.slot.ListSlotsUseCase;
 import dev.angelcorzo.nivo.domain.usecase.slot.ListSlotsSummaryUseCase;
 import dev.angelcorzo.nivo.domain.usecase.slot.RemoveSlotUseCase;
+import dev.angelcorzo.nivo.domain.usecase.slot.UpdateSlotGroupUseCase;
+import dev.angelcorzo.nivo.domain.usecase.slot.UpdateSlotMetadataUseCase;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto.UpdateSlotGroupRequest;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto.UpdateSlotMetadataRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -45,6 +49,8 @@ public class SlotsController {
   private final EditSlotUseCase editSlotUseCase;
   private final RemoveSlotUseCase removeSlotUseCase;
   private final BatchDeleteSlotsUseCase batchDeleteSlotsUseCase;
+  private final UpdateSlotMetadataUseCase updateSlotMetadataUseCase;
+  private final UpdateSlotGroupUseCase updateSlotGroupUseCase;
 
   @Operation(
       summary = "List slots for parking lot",
@@ -148,6 +154,39 @@ public class SlotsController {
   Response<?> batchDelete(@RequestBody List<UUID> ids) {
     this.batchDeleteSlotsUseCase.execute(ids);
     return Response.ok(null, "Slots deleted successfully");
+  }
+
+  @Operation(
+      summary = "Batch update equipment metadata for selected slots",
+      description = "Batch update equipment metadata for selected slots")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Slot metadata updated successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+    @ApiResponse(responseCode = "404", description = "Slot not found"),
+    @ApiResponse(responseCode = "409", description = "Slot cannot be modified because one or more are not available")
+  })
+  @PatchMapping("/metadata")
+  @PreAuthorize("hasRole('MANAGER')")
+  Response<List<SlotResponse>> updateSlotMetadata(@Valid @RequestBody UpdateSlotMetadataRequest request) {
+    List<Slots> updatedSlots = this.updateSlotMetadataUseCase.execute(this.slotsMapper.toCommand(request));
+    List<SlotResponse> responses = updatedSlots.stream().map(this.slotsMapper::toDto).toList();
+    return Response.ok(responses, "Slot metadata updated successfully");
+  }
+
+  @Operation(
+      summary = "Rename zone and/or prefix for an entire slot family",
+      description = "Rename zone and/or prefix for an entire slot family")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Slot group updated successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+    @ApiResponse(responseCode = "409", description = "Slot cannot be modified because one or more are not available")
+  })
+  @PatchMapping("/groups")
+  @PreAuthorize("hasRole('MANAGER')")
+  Response<List<SlotResponse>> updateSlotGroup(@Valid @RequestBody UpdateSlotGroupRequest request) {
+    List<Slots> updatedSlots = this.updateSlotGroupUseCase.execute(this.slotsMapper.toCommand(request));
+    List<SlotResponse> responses = updatedSlots.stream().map(this.slotsMapper::toDto).toList();
+    return Response.ok(responses, "Slot group updated successfully");
   }
 
   private UUID getTenantId() {

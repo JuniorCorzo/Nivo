@@ -8,6 +8,10 @@ import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto.UpdateSlotReq
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotSummary;
 import dev.angelcorzo.nivo.domain.usecase.slot.EditSlotUseCase;
+import dev.angelcorzo.nivo.domain.usecase.slot.UpdateSlotGroupUseCase;
+import dev.angelcorzo.nivo.domain.usecase.slot.UpdateSlotMetadataUseCase;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto.UpdateSlotGroupRequest;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto.UpdateSlotMetadataRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -21,4 +25,8 @@ public interface SlotsMapper {
   SlotResponse toDto(Slots model);
 
   SlotSummaryResponse toDto(SlotSummary model);
+
+  UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand toCommand(UpdateSlotMetadataRequest request);
+
+  UpdateSlotGroupUseCase.UpdateSlotGroupCommand toCommand(UpdateSlotGroupRequest request);
 }
