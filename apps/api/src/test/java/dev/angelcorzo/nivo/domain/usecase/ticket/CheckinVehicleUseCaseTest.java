@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.ParkingTicketsRepository;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot;
 import dev.angelcorzo.nivo.domain.model.rates.Rates;
 import dev.angelcorzo.nivo.domain.model.rates.exceptions.RateNotFoundException;
 import dev.angelcorzo.nivo.domain.model.rates.gateways.RatesRepository;
@@ -101,6 +102,7 @@ class CheckinVehicleUseCaseTest {
       assertThat(ticket).isNotNull();
       assertThat(ticket.getLicensePlate()).isEqualTo(plate);
       assertThat(ticket.getEntryTime()).isNotNull();
+      assertThat(ticket.getSlotSnapshot()).isEqualTo(SlotSnapshot.from(mockSlot));
       assertThat(mockSlot.getStatus()).isEqualTo(SlotStatus.OCCUPIED);
       assertThat(ticket.getSlot().status()).isEqualTo(SlotStatus.OCCUPIED);
       verify(slotsRepository).findById(slotId);
@@ -144,6 +146,7 @@ class CheckinVehicleUseCaseTest {
 
       // Assert
       assertThat(ticket).isNotNull();
+      assertThat(ticket.getSlotSnapshot()).isEqualTo(SlotSnapshot.from(mockSlot));
       assertThat(mockSlot.getStatus()).isEqualTo(SlotStatus.OCCUPIED);
       assertThat(ticket.getSlot().status()).isEqualTo(SlotStatus.OCCUPIED);
       verify(slotsRepository).findById(slotId);
