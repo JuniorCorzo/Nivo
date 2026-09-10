@@ -32,6 +32,9 @@ class SlotSummaryDataMapperTest {
     when(row.get("status", SlotStatus.class)).thenReturn(SlotStatus.AVAILABLE);
     when(row.get("hasTicket", Boolean.class)).thenReturn(false);
     when(row.get("hasHistory", Boolean.class)).thenReturn(false);
+    when(row.get("hasCharger", Boolean.class)).thenReturn(true);
+    when(row.get("isAccessible", Boolean.class)).thenReturn(false);
+    when(row.get("isActive", Boolean.class)).thenReturn(true);
 
     SlotSummaryData result = mapper.toSummaryData(row);
 
@@ -44,6 +47,9 @@ class SlotSummaryDataMapperTest {
     assertThat(result.status()).isEqualTo(SlotStatus.AVAILABLE);
     assertThat(result.hasTicket()).isFalse();
     assertThat(result.hasHistory()).isFalse();
+    assertThat(result.hasCharger()).isTrue();
+    assertThat(result.isAccessible()).isFalse();
+    assertThat(result.isActive()).isTrue();
   }
 
   @Test
@@ -105,6 +111,9 @@ class SlotSummaryDataMapperTest {
         .status(SlotStatus.OCCUPIED)
         .hasTicket(false)
         .hasHistory(false)
+        .hasCharger(true)
+        .isAccessible(false)
+        .isActive(true)
         .build();
 
     SlotSummary result = mapper.toModel(data);
@@ -118,6 +127,9 @@ class SlotSummaryDataMapperTest {
     assertThat(result.status()).isEqualTo(SlotStatus.OCCUPIED);
     assertThat(result.hasTicket()).isFalse();
     assertThat(result.hasHistory()).isFalse();
+    assertThat(result.hasCharger()).isTrue();
+    assertThat(result.isAccessible()).isFalse();
+    assertThat(result.isActive()).isTrue();
   }
 
   @Test

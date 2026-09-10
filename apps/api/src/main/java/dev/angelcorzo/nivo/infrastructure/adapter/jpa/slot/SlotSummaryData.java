@@ -16,6 +16,9 @@ public record SlotSummaryData(
     String numberSlot,
     SlotStatus status,
     boolean hasTicket,
-    boolean hasHistory) {
+    boolean hasHistory,
+    boolean hasCharger,
+    boolean isAccessible,
+    boolean isActive) {
 
 }

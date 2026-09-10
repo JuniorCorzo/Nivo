@@ -1,6 +1,7 @@
 package dev.angelcorzo.nivo.domain.model.parkingtickets;
 
 import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.ParkingTicketStatus;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot;
 import dev.angelcorzo.nivo.domain.model.rates.valueobject.RateReference;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotsReference;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
@@ -31,6 +32,7 @@ public class ParkingTickets {
   private BigDecimal totalToCharge;
   @Builder.Default
   private ParkingTicketStatus status = ParkingTicketStatus.OPEN;
+  private SlotSnapshot slotSnapshot;
   private OffsetDateTime closedAt;
   private OffsetDateTime createdAt;
   private OffsetDateTime updatedAt;

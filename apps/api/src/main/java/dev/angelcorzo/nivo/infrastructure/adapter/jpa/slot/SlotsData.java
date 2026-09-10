@@ -11,10 +11,12 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.*;
 
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -53,6 +55,21 @@ public class SlotsData {
   @Column(name = "status", nullable = false)
   @Enumerated(EnumType.STRING)
   private SlotStatus status;
+
+  @Builder.Default
+  @ColumnDefault(value = "false")
+  @Column(name = "has_charger", nullable = false)
+  private Boolean hasCharger = false;
+
+  @Builder.Default
+  @ColumnDefault(value = "false")
+  @Column(name = "is_accessible", nullable = false)
+  private Boolean isAccessible = false;
+
+  @Builder.Default
+  @ColumnDefault(value = "true")
+  @Column(name = "is_active", nullable = false)
+  private Boolean isActive = true;
 
   @CreationTimestamp
   @Column(name = "created_at")

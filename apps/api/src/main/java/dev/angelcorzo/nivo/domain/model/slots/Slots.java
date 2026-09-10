@@ -22,7 +22,41 @@ public class Slots {
   private String prefix;
   private SlotType type;
   private SlotStatus status;
+  @Builder.Default
+  private boolean hasCharger = false;
+  @Builder.Default
+  private boolean isAccessible = false;
+  @Builder.Default
+  private boolean isActive = true;
   private OffsetDateTime createdAt;
   private OffsetDateTime updatedAt;
   private OffsetDateTime deletedAt;
+
+  public boolean isHasCharger() {
+    return hasCharger;
+  }
+
+  public boolean isAccessible() {
+    return isAccessible;
+  }
+
+  public void setIsAccessible(boolean isAccessible) {
+    this.isAccessible = isAccessible;
+  }
+
+  public boolean getIsAccessible() {
+    return isAccessible;
+  }
+
+  public boolean isActive() {
+    return isActive;
+  }
+
+  public void setIsActive(boolean isActive) {
+    this.isActive = isActive;
+  }
+
+  public boolean getIsActive() {
+    return isActive;
+  }
 }
