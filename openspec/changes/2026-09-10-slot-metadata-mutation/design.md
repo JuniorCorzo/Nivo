@@ -74,8 +74,8 @@ File: `dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedExce
 - Location: `dev.angelcorzo.nivo.domain.usecase.slot.UpdateSlotMetadataUseCase`
 - Command:
   ```java
+  // Tenant is resolved internally via injected AuthenticationContextGateway
   public record UpdateSlotMetadataCommand(
-      TenantReference tenant,
       List<UUID> slotIds,
       Boolean hasCharger,
       Boolean isAccessible,
@@ -83,7 +83,7 @@ File: `dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedExce
   ) {}
   ```
 - Workflow:
-  1. Query slots matching `slotIds` and `tenant`. If any ID is missing, throw `SlotNotFoundException`.
+  1. Resolve `tenant` from `authenticationContext.getCurrentTenant()`, then query slots matching `slotIds` and `tenant`. If any ID is missing, throw `SlotNotFoundException`.
   2. Guard Check: For each slot, verify `status == SlotStatus.AVAILABLE` (and no active ticket exists).
   3. If one or more slots are `OCCUPIED`: throw `SlotCannotBeModifiedException(conflicts)`.
   4. For each slot, apply partial updates using `toBuilder()`:
@@ -97,8 +97,8 @@ File: `dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedExce
 - Location: `dev.angelcorzo.nivo.domain.usecase.slot.UpdateSlotGroupUseCase`
 - Command:
   ```java
+  // Tenant is resolved internally via injected AuthenticationContextGateway
   public record UpdateSlotGroupCommand(
-      TenantReference tenant,
       UUID parkingId,
       String currentZone,
       String currentPrefix,
@@ -107,7 +107,7 @@ File: `dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedExce
   ) {}
   ```
 - Workflow:
-  1. Query all slots matching `(parkingId, currentZone, currentPrefix)` under `tenant`.
+  1. Resolve `tenant` from `authenticationContext.getCurrentTenant()`, then query all slots matching `(parkingId, currentZone, currentPrefix)` under `tenant`.
   2. Guard Check: Verify 100% of slots in group have `status == SlotStatus.AVAILABLE`.
   3. Validate that target `(parkingId, newZone, newPrefix)` does not collide with existing slots unless identical.
   4. Mutate `zone` and `prefix`. If `newPrefix` changed, regenerate `slotNumber`.
@@ -135,7 +135,7 @@ Controller: `dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.controller.
   - `Boolean hasCharger` (optional)
   - `Boolean isAccessible` (optional)
   - `Boolean isActive` (optional)
-- **Response DTO**: `List<SlotResponse>`
+- **Response DTO**: `List<SlotResponse>` (updated with `hasCharger`, `isAccessible`, `isActive`)
 
 ### 5.2 `PATCH /api/v1/slots/groups`
 - **Operation**: `updateSlotGroup`
@@ -149,6 +149,17 @@ Controller: `dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.controller.
   - `String currentPrefix` (required)
   - `String newZone` (optional)
   - `String newPrefix` (optional)
+
+### 5.3 Updated Response DTOs & Projections (OpenAPI & JPA)
+1. **`SlotResponse`**:
+   - Added fields: `boolean hasCharger`, `boolean isAccessible`, `boolean isActive`.
+   - Updated `@Schema` annotations with descriptions, required modes, and OpenAPI examples.
+2. **`SlotSummaryResponse` & `SlotSummary` (Domain Value Object)**:
+   - Added fields: `boolean hasCharger`, `boolean isAccessible`, `boolean isActive`.
+   - Used directly by `GET /slots/list/summary` to feed the web table with EV/PMR badges and operational status.
+3. **`SlotSummaryData` (JPA projection interface)** & `SlotSummaryDataMapper`:
+   - Updated SQL select/projection in `SlotsRepositoryData` to fetch `s.has_charger`, `s.is_accessible`, `s.is_active`.
+   - Mapped to domain `SlotSummary` and REST `SlotSummaryResponse`.
 
 ---
 

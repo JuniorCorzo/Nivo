@@ -13,8 +13,9 @@
 - [ ] 1.1 **Create Flyway Migration V28**
   - Add `has_charger`, `is_accessible`, and `is_active` columns and index to `slots`.
   - Add `slot_snapshot JSONB` column to `parking_tickets`.
-- [ ] 1.2 **Update JPA Entities and Mappers**
+- [ ] 1.2 **Update JPA Entities, Projections, and Mappers**
   - Update `SlotsData` and `SlotsMappers` to support `hasCharger`, `isAccessible`, `isActive`.
+  - Update `SlotSummaryData` projection interface, `SlotsRepositoryData` queries, and `SlotSummaryDataMapper` to map `hasCharger`, `isAccessible`, `isActive`.
   - Update `ParkingTicketsData` and `ParkingTicketMapper` to persist and map `slotSnapshot`.
 
 ## Phase 2: Domain Logic & Use Cases (`apps/api`)
@@ -38,8 +39,9 @@
 - [ ] 3.1 **Create DTOs & Endpoints in `SlotsController`**
   - Implement `PATCH /api/v1/slots/metadata` with `@Operation`, `@ApiResponse`, `@Schema`.
   - Implement `PATCH /api/v1/slots/groups` with comprehensive OpenAPI documentation.
-  - Update `SlotResponse` and `ParkingTicketsDTO`.
-  - Add slice test in `SlotsControllerTest`.
+  - Update `SlotResponse` and `SlotSummaryResponse` with `hasCharger`, `isAccessible`, `isActive` and complete OpenAPI schema metadata.
+  - Update `ParkingTicketsDTO` with `slotSnapshot`.
+  - Add slice tests in `SlotsControllerTest`.
 
 ## Phase 4: Frontend Web Architecture Refactor & Models (`apps/web`)
 

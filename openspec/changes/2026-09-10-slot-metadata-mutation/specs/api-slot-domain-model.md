@@ -12,3 +12,5 @@ Represent EV charger availability, PMR accessibility, and soft-delete/operationa
    - `vehicle_type` is immutable post-creation and must not be editable through update commands.
 3. **Guard Invariant**:
    - Slot metadata and group changes can only occur when `status == SlotStatus.AVAILABLE`.\n
+4. **SlotSummary Value Object**:
+   - `SlotSummary` domain record must include `hasCharger`, `isAccessible`, and `isActive` to project equipment status across summary queries.

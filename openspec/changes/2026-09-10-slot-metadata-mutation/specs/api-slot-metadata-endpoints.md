@@ -15,3 +15,8 @@ Expose dedicated endpoints for batch updating slot equipment metadata and slot f
    - Renames all matching slots atomically.
 3. **OpenAPI Compliance**:
    - All DTOs and endpoints must include `@Operation`, `@ApiResponse`, and `@Schema` definitions.\n
+4. **Response DTO Updates**:
+   - `SlotResponse`: Add `hasCharger`, `isAccessible`, and `isActive` booleans with OpenAPI documentation.
+   - `SlotSummaryResponse`: Add `hasCharger`, `isAccessible`, and `isActive` booleans to power web list/summary table badges.
+5. **Security & Context**:
+   - Resolve `tenant` from `AuthenticationContextGateway` inside use cases, keeping requests free of redundant tenant IDs.
