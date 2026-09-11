@@ -105,4 +105,47 @@ class ExceptionHandlerControllerTest {
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody().code()).isEqualTo("SLOT_CANNOT_BE_MODIFIED");
   }
+
+  @Test
+  @DisplayName("Should handle MethodArgumentNotValidException with 400 Bad Request and field errors")
+  void shouldHandleMethodArgumentNotValidException() {
+    // Arrange
+    org.springframework.web.bind.MethodArgumentNotValidException ex =
+        org.mockito.Mockito.mock(org.springframework.web.bind.MethodArgumentNotValidException.class);
+    org.springframework.validation.BindingResult bindingResult =
+        new org.springframework.validation.BeanPropertyBindingResult(new Object(), "target");
+    bindingResult.addError(new org.springframework.validation.FieldError("target", "prefix", "must not be blank"));
+    org.mockito.Mockito.when(ex.getBindingResult()).thenReturn(bindingResult);
+
+    // Act
+    ResponseEntity<ResponseError<Object>> response =
+        exceptionHandlerController.handleValidationException(ex);
+
+    // Assert
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().code()).isEqualTo("VALIDATION_FAILED");
+    assertThat(response.getBody().error()).isEqualTo("prefix: must not be blank");
+  }
+
+  @Test
+  @DisplayName("Should handle MethodArgumentNotValidException with default message when no field errors exist")
+  void shouldHandleMethodArgumentNotValidExceptionWithDefaultMessage() {
+    // Arrange
+    org.springframework.web.bind.MethodArgumentNotValidException ex =
+        org.mockito.Mockito.mock(org.springframework.web.bind.MethodArgumentNotValidException.class);
+    org.springframework.validation.BindingResult bindingResult =
+        new org.springframework.validation.BeanPropertyBindingResult(new Object(), "target");
+    org.mockito.Mockito.when(ex.getBindingResult()).thenReturn(bindingResult);
+
+    // Act
+    ResponseEntity<ResponseError<Object>> response =
+        exceptionHandlerController.handleValidationException(ex);
+
+    // Assert
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().code()).isEqualTo("VALIDATION_FAILED");
+    assertThat(response.getBody().error()).isEqualTo("Validation error");
+  }
 }
