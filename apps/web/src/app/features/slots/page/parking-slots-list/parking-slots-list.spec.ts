@@ -87,6 +87,8 @@ const setupTest = (opts: {
     getAllSlotSummariesByParkingId: vi.fn().mockReturnValue(of(slots)),
     summaries: summariesSignal.asReadonly(),
     update: vi.fn(),
+    updateSlotGroup: vi.fn().mockReturnValue(of([])),
+    updateSlotMetadata: vi.fn().mockReturnValue(of([])),
   };
 
   const toastService = {
@@ -415,6 +417,95 @@ describe("ParkingSlotsListPage — Integration", () => {
     it("should show empty state when parking is not found", () => {
       const text = fixture.nativeElement.textContent ?? "";
       expect(text).toContain("Parqueadero Norte");
+    });
+  });
+
+  // ── Spec: Badges & Batch Metadata Modal ─────────────────────────────
+
+  describe("Slot metadata badges and batch modal", () => {
+    let facade: ParkingSlotsListFacade;
+    let slotServiceMock: { updateSlotMetadata: ReturnType<typeof vi.fn> };
+    let toastServiceMock: { showToast: ReturnType<typeof vi.fn> };
+
+    beforeEach(async () => {
+      const config = setupTest({
+        slotSummaries: [
+          mockSlot({
+            hasCharger: true,
+            id: "1",
+            isAccessible: true,
+            isActive: false,
+            slotNumber: "A-001",
+            status: "AVAILABLE",
+          }),
+        ],
+      });
+      slotServiceMock = config.slotService;
+      toastServiceMock = config.toastService;
+
+      await TestBed.configureTestingModule({
+        imports: [ParkingSlotsListPage],
+        providers: config.providers,
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(ParkingSlotsListPage);
+      facade = fixture.debugElement.injector.get(ParkingSlotsListFacade);
+      fixture.detectChanges();
+      await fixture.whenStable();
+    });
+
+    it("should render EV, PMR, and inactive badges when slot metadata flags are set", () => {
+      const text = fixture.nativeElement.textContent ?? "";
+      expect(text).toContain("⚡ EV");
+      expect(text).toContain("♿ PMR");
+      expect(text).toContain("⏸️ Inactiva");
+    });
+
+    it("should display 'Editar equipamiento (N)' button when slots are selected and open modal on click", () => {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = true;
+      const changeEvent = new Event("change");
+      checkbox.dispatchEvent(changeEvent);
+      facade.toggleSelected("1", changeEvent);
+      fixture.detectChanges();
+
+      const batchText = fixture.nativeElement.textContent ?? "";
+      expect(batchText).toContain("Editar equipamiento (1)");
+
+      facade.openMetadataModal();
+      fixture.detectChanges();
+
+      expect(facade.metadataModalOpen()).toBe(true);
+      const modal = fixture.nativeElement.querySelector(
+        "app-slot-metadata-batch-modal"
+      );
+      expect(modal).toBeTruthy();
+    });
+
+    it("should delegate updateSlotsMetadata to slotService and show success toast", () => {
+      facade.openMetadataModal();
+      fixture.detectChanges();
+
+      facade.updateSlotsMetadata({
+        hasCharger: true,
+        isAccessible: true,
+        isActive: true,
+        slotIds: ["1"],
+      });
+
+      expect(slotServiceMock.updateSlotMetadata).toHaveBeenCalledWith({
+        hasCharger: true,
+        isAccessible: true,
+        isActive: true,
+        slotIds: ["1"],
+      });
+      expect(facade.metadataModalOpen()).toBe(false);
+      expect(toastServiceMock.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "success",
+        })
+      );
     });
   });
 });

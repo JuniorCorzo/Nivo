@@ -11,6 +11,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import type { SlotStatus, SlotSummary } from "@core/models/slot.model";
 import { ParkingService } from "@core/services/parking-service";
 import { SlotService } from "@core/services/slot-service";
+import { ToastService } from "@nivo-sass/design-system";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
 import { SlotDeleteState } from "../components/slot-delete-modal/slots-delete.state";
@@ -103,6 +104,18 @@ export class ParkingSlotsListFacade {
   readonly statusConfirmChecked = this.statusState.statusConfirmChecked;
   readonly statusTransitionOptions = this.statusState.statusTransitionOptions;
   readonly statusModalCopy = this.statusState.statusModalCopy;
+
+  private readonly toast = inject(ToastService, { optional: true });
+
+  // ─── metadata batch signals ───
+  readonly metadataModalOpen = signal(false);
+  readonly selectedSlots = computed(() =>
+    this.slots().filter((slot) => this.selectedIds().has(slot.id))
+  );
+
+  // ─── group edit signals ───
+  readonly groupModalOpen = signal(false);
+  readonly groupTarget = signal<{ zone: string; prefix: string } | null>(null);
 
   // ─── drawer & route specific signals ───
   readonly drawerSlotId = signal<string | null>(null);
@@ -287,5 +300,93 @@ export class ParkingSlotsListFacade {
       () => this.selectionState.clear(),
       (id) => this.selectionState.remove(id)
     );
+  }
+
+  // ─── modals: metadata batch ───
+  openMetadataModal(): void {
+    if (this.selectedCount() === 0) {
+      return;
+    }
+    this.metadataModalOpen.set(true);
+  }
+
+  closeMetadataModal(): void {
+    this.metadataModalOpen.set(false);
+  }
+
+  updateSlotsMetadata(payload: {
+    hasCharger?: boolean;
+    isAccessible?: boolean;
+    isActive?: boolean;
+    slotIds: string[];
+  }): void {
+    const parking = this.parking();
+    if (!parking) {
+      return;
+    }
+
+    this.slotsService.updateSlotMetadata(payload).subscribe({
+      error: () => {
+        this.toast?.showToast({
+          message: "Error al actualizar equipamiento",
+          type: "error",
+        });
+      },
+      next: () => {
+        this.closeMetadataModal();
+        this.selectionState.clear();
+        this.toast?.showToast({
+          message: "Equipamiento actualizado",
+          type: "success",
+        });
+      },
+    });
+  }
+
+  // ─── modals: group edit ───
+  openGroupModal(zone?: string, prefix?: string): void {
+    if (zone !== undefined && prefix !== undefined) {
+      this.groupTarget.set({ prefix, zone });
+    } else {
+      const selected = this.selectedSlots();
+      if (selected.length > 0) {
+        this.groupTarget.set({
+          prefix: selected[0].prefix,
+          zone: selected[0].zone,
+        });
+      } else {
+        this.groupTarget.set(null);
+      }
+    }
+    this.groupModalOpen.set(true);
+  }
+
+  closeGroupModal(): void {
+    this.groupModalOpen.set(false);
+    this.groupTarget.set(null);
+  }
+
+  updateSlotGroup(payload: {
+    currentPrefix: string;
+    currentZone: string;
+    newPrefix?: string;
+    newZone?: string;
+    parkingId: string;
+  }): void {
+    this.slotsService.updateSlotGroup(payload).subscribe({
+      error: () => {
+        this.toast?.showToast({
+          message: "Error al actualizar grupo",
+          type: "error",
+        });
+      },
+      next: () => {
+        this.closeGroupModal();
+        this.toast?.showToast({
+          message: "Grupo actualizado",
+          type: "success",
+        });
+      },
+    });
   }
 }

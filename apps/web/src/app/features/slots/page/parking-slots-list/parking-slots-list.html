@@ -110,7 +110,14 @@
             >{{ facade.selectedCount() }} plazas seleccionadas</span
           >
         </div>
-        <div class="flex gap-2">
+        <div class="flex items-center gap-2">
+          <nv-button
+            variant="outline"
+            size="sm"
+            (click)="facade.openMetadataModal()"
+          >
+            Editar equipamiento ({{ facade.selectedCount() }})
+          </nv-button>
           <button
             type="button"
             (click)="facade.openBatchDeleteModal()"
@@ -231,10 +238,23 @@
                   class="cursor-pointer rounded-sm"
                 />
                 } @else if (cell.column.id === 'slotNumber') {
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-1.5">
                   <span class="text-foreground font-mono text-sm font-bold">
                     {{ row.original.slotNumber }}
                   </span>
+                  @if (row.original.hasCharger) {
+                  <nv-badge variant="info" title="Cargador eléctrico">
+                    ⚡ EV
+                  </nv-badge>
+                  } @if (row.original.isAccessible) {
+                  <nv-badge variant="default" title="Movilidad reducida (PMR)">
+                    ♿ PMR
+                  </nv-badge>
+                  } @if (!row.original.isActive) {
+                  <nv-badge variant="warning" title="Fuera de servicio">
+                    ⏸️ Inactiva
+                  </nv-badge>
+                  }
                 </div>
                 } @else if (cell.column.id === 'zone') {
                 <span
@@ -394,6 +414,15 @@
     (cancel)="facade.closeDeleteModal()"
     (confirmCheckedChange)="facade.deleteConfirmChecked.set($event)"
     (confirm)="facade.confirmDelete()"
+  />
+  }
+
+  <!-- Metadata Batch Modal Component -->
+  @if (facade.metadataModalOpen()) {
+  <app-slot-metadata-batch-modal
+    [selectedSlots]="facade.selectedSlots()"
+    (cancel)="facade.closeMetadataModal()"
+    (submitMetadata)="facade.updateSlotsMetadata($event)"
   />
   }
 </div>

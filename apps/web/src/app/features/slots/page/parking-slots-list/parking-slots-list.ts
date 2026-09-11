@@ -20,6 +20,7 @@ import {
   lucideAlertTriangle,
 } from "@ng-icons/lucide";
 import {
+  BadgeComponent,
   ButtonComponent,
   SelectComponent,
   TableBodyComponent,
@@ -40,6 +41,7 @@ import { PaginationTable } from "@/app/shared/components/pagination-table/pagina
 import { SlotDeleteModal } from "../../components/slot-delete-modal/slot-delete-modal";
 import { SlotDeleteState } from "../../components/slot-delete-modal/slots-delete.state";
 import { SlotDetailDrawer } from "../../components/slot-detail-drawer/slot-detail-drawer";
+import { SlotMetadataBatchModalComponent } from "../../components/slot-metadata-batch-modal/slot-metadata-batch-modal.component";
 import { SlotStatusModal } from "../../components/slot-status-modal/slot-status-modal";
 import { SlotStatusState } from "../../components/slot-status-modal/slot-status.state";
 import {
@@ -70,9 +72,11 @@ import { SlotsTableState } from "./slots-table.state";
     SlotDeleteModal,
     SlotStatusModal,
     SlotDetailDrawer,
+    SlotMetadataBatchModalComponent,
     PaginationTable,
     InputComponent,
     TypographyH1,
+    BadgeComponent,
   ],
   providers: [
     SlotsTableState,
