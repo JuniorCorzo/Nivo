@@ -42,7 +42,9 @@ export const toMinutes = (
   return Math.max(0, Math.round(amount * multiplier));
 };
 
-export const fromMinutes = (totalMinutes?: number): DurationValue => {
+export const fromMinutes = (
+  totalMinutes?: number | null
+): DurationValue => {
   if (!totalMinutes || !Number.isFinite(totalMinutes) || totalMinutes <= 0) {
     return { amount: 0, unit: "MINUTES" };
   }

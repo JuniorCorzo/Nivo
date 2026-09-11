@@ -73,7 +73,7 @@ describe("TicketMapper", () => {
       rate: {
         id: "r-1",
         name: "Tarifa Carros",
-      },
+      } as any,
       slot: {
         id: "s-1",
         slotNumber: "101",

@@ -46,9 +46,9 @@ describe("RateMapper", () => {
         createdAt: "2026-01-01T00:00:00Z",
         description: "Standard car rate",
         id: "rate-1",
-        minChargeTimeMinutes: "15",
+        minChargeTimeMinutes: 15,
         name: "Car Hourly",
-        parking: { id: "parking-1" },
+        parking: { id: "parking-1" } as any,
         pricePerUnit: 5000,
         specialPolicy: {
           active: true,
@@ -61,6 +61,7 @@ describe("RateMapper", () => {
         timeUnit: "HOURS",
         updatedAt: "2026-01-02T00:00:00Z",
         vehicleType: "CAR",
+        tenant: { id: "t-1", name: "Tenant 1" } as any,
       };
 
       const result = mapToRateModel(dto);
@@ -76,7 +77,7 @@ describe("RateMapper", () => {
     });
 
     it("should fallback defaults when optional fields are missing", () => {
-      const dto: RatesDto = {};
+      const dto: RatesDto = {} as any;
       const result = mapToRateModel(dto);
 
       expect(result.id).toBe("");
@@ -108,7 +109,7 @@ describe("RateMapper", () => {
       expect(dto.vehicleType).toBe("BIKE");
       expect(dto.timeUnit).toBe("MINUTES");
       expect(dto.pricePerUnit).toBe(100);
-      expect(dto.minChargeTimeMinutes).toBe("5");
+      expect(dto.minChargeTimeMinutes).toBe(5);
       expect(dto.specialPolicyId).toBe("sp-99");
     });
   });
@@ -130,7 +131,7 @@ describe("RateMapper", () => {
       expect(dto.name).toBe("Updated Rate");
       expect(dto.vehicleType).toBe("MOTORCYCLE");
       expect(dto.pricePerUnit).toBe(2500);
-      expect(dto.minChargeTimeMinutes).toBe("10");
+      expect(dto.minChargeTimeMinutes).toBe(10);
     });
   });
 

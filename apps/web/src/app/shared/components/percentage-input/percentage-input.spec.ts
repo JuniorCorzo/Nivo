@@ -28,7 +28,7 @@ class TestHostComponent {
   readonly placeholder = signal("19");
   readonly error = signal<
     string | ValidationError.WithFieldTree[] | undefined
-  >();
+  >(undefined);
 }
 
 describe("PercentageInputComponent", () => {
