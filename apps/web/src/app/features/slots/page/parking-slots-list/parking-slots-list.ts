@@ -41,6 +41,7 @@ import { PaginationTable } from "@/app/shared/components/pagination-table/pagina
 import { SlotDeleteModal } from "../../components/slot-delete-modal/slot-delete-modal";
 import { SlotDeleteState } from "../../components/slot-delete-modal/slots-delete.state";
 import { SlotDetailDrawer } from "../../components/slot-detail-drawer/slot-detail-drawer";
+import { SlotGroupEditModalComponent } from "../../components/slot-group-edit-modal/slot-group-edit-modal.component";
 import { SlotMetadataBatchModalComponent } from "../../components/slot-metadata-batch-modal/slot-metadata-batch-modal.component";
 import { SlotStatusModal } from "../../components/slot-status-modal/slot-status-modal";
 import { SlotStatusState } from "../../components/slot-status-modal/slot-status.state";
@@ -73,6 +74,7 @@ import { SlotsTableState } from "./slots-table.state";
     SlotStatusModal,
     SlotDetailDrawer,
     SlotMetadataBatchModalComponent,
+    SlotGroupEditModalComponent,
     PaginationTable,
     InputComponent,
     TypographyH1,

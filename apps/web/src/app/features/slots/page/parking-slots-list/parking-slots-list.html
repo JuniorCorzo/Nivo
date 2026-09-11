@@ -48,6 +48,14 @@
           <ng-icon name="lucideArrowLeft" size="12" />
           Volver al parqueadero
         </nv-button>
+        <nv-button
+          variant="outline"
+          (click)="facade.openGroupModal()"
+          size="sm"
+        >
+          <ng-icon name="lucidePencil" size="14" />
+          Editar grupo
+        </nv-button>
         <nv-button (click)="facade.onCreate()" size="sm">
           <ng-icon name="lucidePlus" size="16" />
           Crear plazas
@@ -423,6 +431,17 @@
     [selectedSlots]="facade.selectedSlots()"
     (cancel)="facade.closeMetadataModal()"
     (submitMetadata)="facade.updateSlotsMetadata($event)"
+  />
+  }
+
+  <!-- Group Edit Modal Component -->
+  @if (facade.groupModalOpen()) {
+  <app-slot-group-edit-modal
+    [parkingId]="facade.parking()?.id ?? ''"
+    [currentZone]="facade.groupTarget()?.zone ?? ''"
+    [currentPrefix]="facade.groupTarget()?.prefix ?? ''"
+    (cancel)="facade.closeGroupModal()"
+    (submitGroup)="facade.updateSlotGroup($event)"
   />
   }
 </div>

@@ -508,6 +508,81 @@ describe("ParkingSlotsListPage — Integration", () => {
       );
     });
   });
+
+  // ── Spec: Group Edit Modal ──────────────────────────────────────────
+
+  describe("Slot group edit modal", () => {
+    let facade: ParkingSlotsListFacade;
+    let slotServiceMock: { updateSlotGroup: ReturnType<typeof vi.fn> };
+    let toastServiceMock: { showToast: ReturnType<typeof vi.fn> };
+
+    beforeEach(async () => {
+      const config = setupTest({
+        parkingId: "parking-1",
+        slotSummaries: [
+          mockSlot({
+            id: "1",
+            prefix: "A",
+            slotNumber: "A-001",
+            zone: "NORTE",
+          }),
+        ],
+      });
+      slotServiceMock = config.slotService;
+      toastServiceMock = config.toastService;
+
+      await TestBed.configureTestingModule({
+        imports: [ParkingSlotsListPage],
+        providers: config.providers,
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(ParkingSlotsListPage);
+      facade = fixture.debugElement.injector.get(ParkingSlotsListFacade);
+      fixture.detectChanges();
+      await fixture.whenStable();
+    });
+
+    it("should show 'Editar grupo' button and open group modal on click", () => {
+      const text = fixture.nativeElement.textContent ?? "";
+      expect(text).toContain("Editar grupo");
+
+      facade.openGroupModal("NORTE", "A");
+      fixture.detectChanges();
+
+      expect(facade.groupModalOpen()).toBe(true);
+      const modal = fixture.nativeElement.querySelector(
+        "app-slot-group-edit-modal"
+      );
+      expect(modal).toBeTruthy();
+    });
+
+    it("should delegate updateSlotGroup to slotService and show success toast", () => {
+      facade.openGroupModal("NORTE", "A");
+      fixture.detectChanges();
+
+      facade.updateSlotGroup({
+        currentPrefix: "A",
+        currentZone: "NORTE",
+        newPrefix: "B",
+        newZone: "SUR",
+        parkingId: "parking-1",
+      });
+
+      expect(slotServiceMock.updateSlotGroup).toHaveBeenCalledWith({
+        currentPrefix: "A",
+        currentZone: "NORTE",
+        newPrefix: "B",
+        newZone: "SUR",
+        parkingId: "parking-1",
+      });
+      expect(facade.groupModalOpen()).toBe(false);
+      expect(toastServiceMock.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "success",
+        })
+      );
+    });
+  });
 });
 
 // ── Pure Function Safety Net (re-export verification) ──────────────────
