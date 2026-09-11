@@ -233,7 +233,10 @@ describe("OperationsPageComponent", () => {
 
   it("should fetch active ticket for occupied slot and open checkout modal on checkOutSpecificSlot", () => {
     const mockSlot = {
+      hasCharger: false,
       id: "s-2",
+      isAccessible: false,
+      isActive: true,
       parkingName: "Central",
       prefix: "A",
       slotNumber: "102",
@@ -261,7 +264,10 @@ describe("OperationsPageComponent", () => {
 
   it("should show error toast when active ticket lookup fails on checkOutSpecificSlot", () => {
     const mockSlot = {
+      hasCharger: false,
       id: "s-2",
+      isAccessible: false,
+      isActive: true,
       parkingName: "Central",
       prefix: "A",
       slotNumber: "102",
@@ -286,7 +292,10 @@ describe("OperationsPageComponent", () => {
 
   it("should fallback to default error message if error payload has no message", () => {
     const mockSlot = {
+      hasCharger: false,
       id: "s-2",
+      isAccessible: false,
+      isActive: true,
       parkingName: "Central",
       prefix: "A",
       slotNumber: "102",

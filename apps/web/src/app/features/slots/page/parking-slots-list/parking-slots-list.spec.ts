@@ -42,7 +42,10 @@ const mockParking = (
 });
 
 const mockSlot = (overrides: Partial<SlotSummary> = {}): SlotSummary => ({
+  hasCharger: false,
   id: "slot-1",
+  isAccessible: false,
+  isActive: true,
   parkingName: "Parqueadero Norte",
   prefix: "A",
   slotNumber: "A-001",

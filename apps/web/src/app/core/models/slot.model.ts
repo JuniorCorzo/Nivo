@@ -6,7 +6,7 @@ export type SlotType =
   | "ELECTRIC_VEHICLE"
   | "DISABLED";
 
-export interface SlotModel {
+export interface Slot {
   id: string;
   slotNumber: string;
   status: SlotStatus;
@@ -14,7 +14,12 @@ export interface SlotModel {
   parkingId: string;
   createdAt: string;
   updatedAt: string;
+  hasCharger: boolean;
+  isAccessible: boolean;
+  isActive: boolean;
 }
+
+export type SlotModel = Slot;
 
 export interface SlotSummary {
   id: string;
@@ -26,6 +31,9 @@ export interface SlotSummary {
   status: SlotStatus;
   hasHistory?: boolean;
   hasTicket?: boolean;
+  hasCharger: boolean;
+  isAccessible: boolean;
+  isActive: boolean;
 }
 
 export interface UpsertSlotModel {

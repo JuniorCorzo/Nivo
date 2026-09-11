@@ -9,6 +9,20 @@ import {
   VALID_STATUS_TRANSITIONS,
 } from "./parking-slots-list.facade";
 
+const createSlot = (overrides: Partial<SlotSummary> = {}): SlotSummary => ({
+  hasCharger: false,
+  id: "1",
+  isAccessible: false,
+  isActive: true,
+  parkingName: "P",
+  prefix: "A",
+  slotNumber: "001",
+  status: "AVAILABLE",
+  type: "CAR",
+  zone: "Z",
+  ...overrides,
+});
+
 describe("ParkingSlotsListFacade pure functions", () => {
   describe("getDeleteModalCopy", () => {
     it("should return default message when slot is null", () => {
@@ -17,15 +31,7 @@ describe("ParkingSlotsListFacade pure functions", () => {
     });
 
     it("should return batch message for batch scope", () => {
-      const slot: SlotSummary = {
-        id: "1",
-        parkingName: "P",
-        prefix: "A",
-        slotNumber: "001",
-        status: "AVAILABLE",
-        type: "CAR",
-        zone: "Z",
-      };
+      const slot = createSlot();
       const result = getDeleteModalCopy(slot, "batch");
       expect(result).toBe(
         "Hay plazas seleccionadas. Debés confirmar para continuar."
@@ -33,16 +39,7 @@ describe("ParkingSlotsListFacade pure functions", () => {
     });
 
     it("should return simple delete message when no history", () => {
-      const slot: SlotSummary = {
-        hasHistory: false,
-        id: "1",
-        parkingName: "P",
-        prefix: "A",
-        slotNumber: "001",
-        status: "AVAILABLE",
-        type: "CAR",
-        zone: "Z",
-      };
+      const slot = createSlot({ hasHistory: false });
       const result = getDeleteModalCopy(slot, "single");
       expect(result).toBe(
         "¿Eliminar la plaza 001? Esta acción no se puede deshacer."
@@ -50,16 +47,7 @@ describe("ParkingSlotsListFacade pure functions", () => {
     });
 
     it("should include history warning when slot has history", () => {
-      const slot: SlotSummary = {
-        hasHistory: true,
-        id: "1",
-        parkingName: "P",
-        prefix: "A",
-        slotNumber: "001",
-        status: "AVAILABLE",
-        type: "CAR",
-        zone: "Z",
-      };
+      const slot = createSlot({ hasHistory: true });
       const result = getDeleteModalCopy(slot, "single");
       expect(result).toContain("historial de tickets");
       expect(result).toContain("001");
@@ -68,43 +56,27 @@ describe("ParkingSlotsListFacade pure functions", () => {
 
   describe("requiresDeleteConfirm", () => {
     it("should not require confirmation when no history", () => {
-      const slot: SlotSummary = {
-        hasHistory: false,
-        id: "1",
-        parkingName: "P",
-        prefix: "A",
-        slotNumber: "001",
-        status: "AVAILABLE",
-        type: "CAR",
-        zone: "Z",
-      };
+      const slot = createSlot({ hasHistory: false });
       expect(requiresDeleteConfirm(slot)).toBe(false);
     });
 
     it("should require confirmation when has history", () => {
-      const slot: SlotSummary = {
+      const slot = createSlot({
         hasHistory: true,
-        id: "1",
-        parkingName: "P",
         prefix: "B",
         slotNumber: "002",
         status: "OCCUPIED",
         type: "MOTORCYCLE",
-        zone: "Z",
-      };
+      });
       expect(requiresDeleteConfirm(slot)).toBe(true);
     });
 
     it("should require confirmation when hasHistory is undefined (safety)", () => {
-      const slot: SlotSummary = {
-        id: "1",
-        parkingName: "P",
+      const slot = createSlot({
         prefix: "C",
         slotNumber: "003",
         status: "MAINTENANCE",
-        type: "CAR",
-        zone: "Z",
-      };
+      });
       expect(requiresDeleteConfirm(slot)).toBe(true);
     });
 
@@ -180,32 +152,20 @@ describe("ParkingSlotsListFacade pure functions", () => {
 
   describe("getHistoryCopy", () => {
     it("should return empty state when no history", () => {
-      const slot: SlotSummary = {
-        hasHistory: false,
-        id: "1",
-        parkingName: "P",
-        prefix: "A",
-        slotNumber: "001",
-        status: "AVAILABLE",
-        type: "CAR",
-        zone: "Z",
-      };
+      const slot = createSlot({ hasHistory: false });
       const result = getHistoryCopy(slot);
       expect(result.empty).toBe(true);
       expect(result.message).toContain("Sin historial");
     });
 
     it("should return unavailable state when has history but no details", () => {
-      const slot: SlotSummary = {
+      const slot = createSlot({
         hasHistory: true,
-        id: "1",
-        parkingName: "P",
         prefix: "B",
         slotNumber: "002",
         status: "OCCUPIED",
         type: "MOTORCYCLE",
-        zone: "Z",
-      };
+      });
       const result = getHistoryCopy(slot);
       expect(result.empty).toBe(false);
       expect(result.title).toContain("tickets previos");
