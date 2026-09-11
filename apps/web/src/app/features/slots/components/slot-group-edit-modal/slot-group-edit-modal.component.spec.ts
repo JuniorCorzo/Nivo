@@ -1,10 +1,8 @@
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 
-import {
-  SlotGroupEditModalComponent,
-  type SlotGroupOption,
-} from "./slot-group-edit-modal.component";
+import type { SlotGroupOption } from "./slot-group-edit-modal.component";
+import { SlotGroupEditModalComponent } from "./slot-group-edit-modal.component";
 
 describe("SlotGroupEditModalComponent", () => {
   let component: SlotGroupEditModalComponent;
@@ -127,9 +125,46 @@ describe("SlotGroupEditModalComponent", () => {
     });
   });
 
-  it("should emit cancel when cancel button or backdrop is clicked", () => {
+  it("should emit cancel when cancel button is clicked", () => {
     const spy = vi.spyOn(component.cancel, "emit");
     component.onCancel(new MouseEvent("click"));
     expect(spy).toHaveBeenCalled();
+  });
+
+  it("should emit cancel on Escape keydown", () => {
+    const spy = vi.spyOn(component.cancel, "emit");
+    const escapeEvent = new KeyboardEvent("keydown", { key: "Escape" });
+    const stopPropagationSpy = vi.spyOn(escapeEvent, "stopPropagation");
+
+    component.onKeydownEscape(escapeEvent);
+
+    expect(stopPropagationSpy).toHaveBeenCalled();
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it("should emit cancel when clicking backdrop (target === currentTarget)", () => {
+    const spy = vi.spyOn(component.cancel, "emit");
+    const backdropEl = fixture.nativeElement.querySelector('[role="dialog"]');
+    backdropEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it("should not emit cancel when clicking inside dialog panel", () => {
+    const spy = vi.spyOn(component.cancel, "emit");
+    const panelEl = fixture.nativeElement.querySelector('[role="dialog"] > div');
+    panelEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it("should update selected group, zone, and prefix on onGroupOptionSelect", () => {
+    component.onGroupOptionSelect(mockGroups[1]);
+    fixture.detectChanges();
+
+    expect(component.selectedGroupKey()).toBe("SUR:::B");
+    expect(component.newZone()).toBe("SUR");
+    expect(component.newPrefix()).toBe("B");
+    expect(component.selectedGroup()).toEqual(mockGroups[1]);
   });
 });

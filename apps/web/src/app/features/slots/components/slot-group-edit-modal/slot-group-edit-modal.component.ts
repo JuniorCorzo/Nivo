@@ -1,15 +1,13 @@
-import type { ElementRef, OnDestroy } from "@angular/core";
 import {
-  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   effect,
+  HostListener,
   input,
   output,
   signal,
   untracked,
-  viewChild,
 } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideLayers, lucideX } from "@ng-icons/lucide";
@@ -55,7 +53,7 @@ export const displaySlotGroup = (g: SlotGroupOption): string =>
   styleUrl: "./slot-group-edit-modal.component.css",
   templateUrl: "./slot-group-edit-modal.component.html",
 })
-export class SlotGroupEditModalComponent implements OnDestroy {
+export class SlotGroupEditModalComponent {
   readonly groups = input<SlotGroupOption[]>([]);
   readonly initialZone = input<string>("");
   readonly initialPrefix = input<string>("");
@@ -97,13 +95,13 @@ export class SlotGroupEditModalComponent implements OnDestroy {
   protected readonly titleId = "slot-group-edit-title";
   protected readonly descriptionId = "slot-group-edit-description";
 
-  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>("dialog");
+  @HostListener("document:keydown.escape", ["$event"])
+  onKeydownEscape(event: Event): void {
+    event.stopPropagation();
+    this.cancel.emit();
+  }
 
   constructor() {
-    afterNextRender(() => {
-      this.dialog()?.nativeElement.showModal();
-    });
-
     effect(() => {
       const groups = this.groups();
       const initZ = this.initialZone();
@@ -135,6 +133,14 @@ export class SlotGroupEditModalComponent implements OnDestroy {
     }
   }
 
+  onGroupOptionSelect(group: SlotGroupOption): void {
+    if (group) {
+      this.selectedGroupKey.set(this.groupKey(group));
+      this.newZone.set(group.zone);
+      this.newPrefix.set(group.prefix);
+    }
+  }
+
   onZoneInput(event: Event): void {
     /* SAFETY: event target of input is HTMLInputElement */
     const target = event.target as HTMLInputElement;
@@ -153,7 +159,7 @@ export class SlotGroupEditModalComponent implements OnDestroy {
   }
 
   protected onBackdropClick(event: MouseEvent): void {
-    if (event.target === this.dialog()?.nativeElement) {
+    if (event.target === event.currentTarget) {
       this.cancel.emit();
     }
   }
@@ -175,12 +181,5 @@ export class SlotGroupEditModalComponent implements OnDestroy {
       newZone: this.newZone().trim() || undefined,
       parkingId: this.parkingId(),
     });
-  }
-
-  ngOnDestroy(): void {
-    const dialog = this.dialog()?.nativeElement;
-    if (dialog?.open) {
-      dialog.close();
-    }
   }
 }

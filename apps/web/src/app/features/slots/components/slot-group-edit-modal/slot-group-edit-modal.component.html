@@ -1,12 +1,15 @@
-<dialog
-  #dialog
-  class="slot-dialog"
+<div
+  class="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs duration-200"
   role="dialog"
+  aria-modal="true"
   [attr.aria-labelledby]="titleId"
   [attr.aria-describedby]="descriptionId"
   (click)="onBackdropClick($event)"
 >
-  <div class="slot-dialog__panel">
+  <div
+    class="border-border bg-card text-card-foreground relative w-full max-w-md rounded-2xl border p-5 shadow-2xl transition-all"
+    (click)="$event.stopPropagation()"
+  >
     <!-- Header -->
     <div
       class="border-border flex items-center justify-between border-b pb-3.5"
@@ -55,6 +58,7 @@
         [valueFn]="groupKey"
         [value]="selectedGroupKey()"
         (valueChange)="onGroupSelect($event)"
+        (selectionChange)="onGroupOptionSelect($event)"
       />
 
       @if (selectedGroup(); as group) {
@@ -103,4 +107,4 @@
       </nv-button>
     </div>
   </div>
-</dialog>
+</div>
