@@ -542,6 +542,12 @@ describe("ParkingSlotsListPage — Integration", () => {
       await fixture.whenStable();
     });
 
+    it("should compute availableGroups correctly from slots", () => {
+      expect(facade.availableGroups()).toEqual([
+        { count: 1, prefix: "A", zone: "NORTE" },
+      ]);
+    });
+
     it("should show 'Editar grupo' button and open group modal on click", () => {
       const text = fixture.nativeElement.textContent ?? "";
       expect(text).toContain("Editar grupo");

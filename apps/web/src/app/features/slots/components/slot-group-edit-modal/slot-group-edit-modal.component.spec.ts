@@ -1,11 +1,19 @@
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 
-import { SlotGroupEditModalComponent } from "./slot-group-edit-modal.component";
+import {
+  SlotGroupEditModalComponent,
+  type SlotGroupOption,
+} from "./slot-group-edit-modal.component";
 
 describe("SlotGroupEditModalComponent", () => {
   let component: SlotGroupEditModalComponent;
   let fixture: ComponentFixture<SlotGroupEditModalComponent>;
+
+  const mockGroups: SlotGroupOption[] = [
+    { count: 5, prefix: "A", zone: "NORTE" },
+    { count: 3, prefix: "B", zone: "SUR" },
+  ];
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -15,22 +23,70 @@ describe("SlotGroupEditModalComponent", () => {
     fixture = TestBed.createComponent(SlotGroupEditModalComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput("parkingId", "parking-1");
-    fixture.componentRef.setInput("currentZone", "NORTE");
-    fixture.componentRef.setInput("currentPrefix", "A");
+    fixture.componentRef.setInput("groups", mockGroups);
+    fixture.componentRef.setInput("initialZone", "NORTE");
+    fixture.componentRef.setInput("initialPrefix", "A");
     fixture.detectChanges();
   });
 
-  it("should create component and populate initial values", () => {
+  it("should create component and pre-select matching group", () => {
     expect(component).toBeTruthy();
+    expect(component.selectedGroupKey()).toBe("NORTE:::A");
+    expect(component.selectedGroup()).toEqual(mockGroups[0]);
     expect(component.newZone()).toBe("NORTE");
     expect(component.newPrefix()).toBe("A");
   });
 
-  it("should render modal title and current group info", () => {
+  it("should auto-select single group if groups has only 1 item and no initial values", () => {
+    const singleGroupFixture = TestBed.createComponent(
+      SlotGroupEditModalComponent
+    );
+    const comp = singleGroupFixture.componentInstance;
+    singleGroupFixture.componentRef.setInput("parkingId", "parking-1");
+    singleGroupFixture.componentRef.setInput("groups", [
+      { count: 10, prefix: "C", zone: "ESTE" },
+    ]);
+    singleGroupFixture.detectChanges();
+
+    expect(comp.selectedGroupKey()).toBe("ESTE:::C");
+    expect(comp.newZone()).toBe("ESTE");
+    expect(comp.newPrefix()).toBe("C");
+  });
+
+  it("should display message when no group is selected", () => {
+    const unselectedFixture = TestBed.createComponent(
+      SlotGroupEditModalComponent
+    );
+    const comp = unselectedFixture.componentInstance;
+    unselectedFixture.componentRef.setInput("parkingId", "parking-1");
+    unselectedFixture.componentRef.setInput("groups", mockGroups);
+    unselectedFixture.detectChanges();
+
+    expect(comp.selectedGroupKey()).toBe("");
+    expect(comp.selectedGroup()).toBeNull();
+    const text = unselectedFixture.nativeElement.textContent ?? "";
+    expect(text).toContain(
+      "Elegí un grupo en el selector para configurar la nueva zona o prefijo."
+    );
+  });
+
+  it("should display group slot count badge when group is selected", () => {
     const text = fixture.nativeElement.textContent ?? "";
-    expect(text).toContain("Editar grupo de plazas");
-    expect(text).toContain("NORTE");
-    expect(text).toContain("A");
+    expect(text).toContain("Plazas en este grupo");
+    expect(text).toContain("5 plazas");
+  });
+
+  it("should update selected group and inputs on selection", () => {
+    component.onGroupSelect("SUR:::B");
+    fixture.detectChanges();
+
+    expect(component.selectedGroupKey()).toBe("SUR:::B");
+    expect(component.newZone()).toBe("SUR");
+    expect(component.newPrefix()).toBe("B");
+    expect(component.selectedGroup()).toEqual(mockGroups[1]);
+
+    const text = fixture.nativeElement.textContent ?? "";
+    expect(text).toContain("3 plazas");
   });
 
   it("should disable submit button when there are no changes", () => {

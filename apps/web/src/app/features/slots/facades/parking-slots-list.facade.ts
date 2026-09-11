@@ -18,6 +18,7 @@ import { SlotDeleteState } from "../components/slot-delete-modal/slots-delete.st
 import { SlotStatusState } from "../components/slot-status-modal/slot-status.state";
 import { SlotsSelectionState } from "../page/parking-slots-list/slots-selection.state";
 import { SlotsTableState } from "../page/parking-slots-list/slots-table.state";
+import type { SlotGroupOption } from "../components/slot-group-edit-modal/slot-group-edit-modal.component";
 import {
   SLOT_STATUS_FILTER_OPTIONS,
   SLOT_TYPE_OPTIONS,
@@ -35,6 +36,7 @@ export {
   getStatusTransitionOptions,
   VALID_STATUS_TRANSITIONS,
 } from "../components/slot-status-modal/slot-status.state";
+export type { SlotGroupOption } from "../components/slot-group-edit-modal/slot-group-edit-modal.component";
 
 export type DrawerTab = "general" | "history";
 
@@ -134,6 +136,25 @@ export class ParkingSlotsListFacade {
   readonly slots = computed(() => {
     const parkingId = this.parkingId();
     return parkingId ? (this.slotsService.summaries()[parkingId] ?? []) : [];
+  });
+
+  readonly availableGroups = computed<SlotGroupOption[]>(() => {
+    const slots = this.slots();
+    const map = new Map<string, SlotGroupOption>();
+    for (const slot of slots) {
+      const zone = slot.zone ?? "";
+      const prefix = slot.prefix ?? "";
+      const key = `${zone}:::${prefix}`;
+      const existing = map.get(key);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        map.set(key, { count: 1, prefix, zone });
+      }
+    }
+    return [...map.values()].toSorted(
+      (a, b) => a.zone.localeCompare(b.zone) || a.prefix.localeCompare(b.prefix)
+    );
   });
 
   readonly table = this.tableState.initTable(() => this.slots());

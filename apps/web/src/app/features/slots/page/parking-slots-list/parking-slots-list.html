@@ -438,8 +438,9 @@
   @if (facade.groupModalOpen()) {
   <app-slot-group-edit-modal
     [parkingId]="facade.parking()?.id ?? ''"
-    [currentZone]="facade.groupTarget()?.zone ?? ''"
-    [currentPrefix]="facade.groupTarget()?.prefix ?? ''"
+    [groups]="facade.availableGroups()"
+    [initialZone]="facade.groupTarget()?.zone ?? ''"
+    [initialPrefix]="facade.groupTarget()?.prefix ?? ''"
     (cancel)="facade.closeGroupModal()"
     (submitGroup)="facade.updateSlotGroup($event)"
   />

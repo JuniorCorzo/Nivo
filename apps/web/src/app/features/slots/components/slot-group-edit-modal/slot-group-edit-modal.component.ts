@@ -12,12 +12,19 @@ import {
   viewChild,
 } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideX } from "@ng-icons/lucide";
+import { lucideLayers, lucideX } from "@ng-icons/lucide";
 import {
   ButtonComponent,
   InputComponent,
+  SelectComponent,
   TypographyH3,
 } from "@nivo-sass/design-system";
+
+export interface SlotGroupOption {
+  count: number;
+  prefix: string;
+  zone: string;
+}
 
 export interface UpdateSlotGroupPayload {
   currentPrefix: string;
@@ -27,31 +34,60 @@ export interface UpdateSlotGroupPayload {
   parkingId: string;
 }
 
+export const slotGroupKey = (g: SlotGroupOption): string =>
+  `${g.zone}:::${g.prefix}`;
+
+export const displaySlotGroup = (g: SlotGroupOption): string =>
+  `${g.zone ? `Zona ${g.zone}` : "Sin zona"} · ${g.prefix ? `Prefijo ${g.prefix}` : "Sin prefijo"} (${g.count} plazas)`;
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, InputComponent, TypographyH3, NgIcon],
-  providers: [provideIcons({ lucideX })],
+  imports: [
+    ButtonComponent,
+    InputComponent,
+    SelectComponent,
+    TypographyH3,
+    NgIcon,
+  ],
+  providers: [provideIcons({ lucideLayers, lucideX })],
   selector: "app-slot-group-edit-modal",
   standalone: true,
   styleUrl: "./slot-group-edit-modal.component.css",
   templateUrl: "./slot-group-edit-modal.component.html",
 })
 export class SlotGroupEditModalComponent implements OnDestroy {
-  readonly currentZone = input<string>("");
-  readonly currentPrefix = input<string>("");
+  readonly groups = input<SlotGroupOption[]>([]);
+  readonly initialZone = input<string>("");
+  readonly initialPrefix = input<string>("");
   readonly parkingId = input.required<string>();
 
   readonly cancel = output();
   readonly submitGroup = output<UpdateSlotGroupPayload>();
 
+  readonly selectedGroupKey = signal<string>("");
   readonly newZone = signal<string>("");
   readonly newPrefix = signal<string>("");
 
+  readonly groupKey = slotGroupKey;
+  readonly displayGroup = displaySlotGroup;
+
+  readonly selectedGroup = computed<SlotGroupOption | null>(() => {
+    const key = this.selectedGroupKey();
+    if (!key) {
+      return null;
+    }
+    return this.groups().find((g) => this.groupKey(g) === key) ?? null;
+  });
+
   readonly hasChanges = computed(() => {
+    const group = this.selectedGroup();
+    if (!group) {
+      return false;
+    }
     const z = this.newZone().trim();
     const p = this.newPrefix().trim();
-    const curZ = this.currentZone().trim();
-    const curP = this.currentPrefix().trim();
+    const curZ = group.zone.trim();
+    const curP = group.prefix.trim();
 
     const changed = z !== curZ || p !== curP;
     const nonEmpty = z.length > 0 || p.length > 0;
@@ -69,13 +105,34 @@ export class SlotGroupEditModalComponent implements OnDestroy {
     });
 
     effect(() => {
-      const zone = this.currentZone();
-      const prefix = this.currentPrefix();
+      const groups = this.groups();
+      const initZ = this.initialZone();
+      const initP = this.initialPrefix();
+
       untracked(() => {
-        this.newZone.set(zone);
-        this.newPrefix.set(prefix);
+        if (initZ || initP) {
+          const match = groups.find(
+            (g) => g.zone === initZ && g.prefix === initP
+          );
+          if (match) {
+            this.onGroupSelect(this.groupKey(match));
+            return;
+          }
+        }
+        if (groups.length === 1) {
+          this.onGroupSelect(this.groupKey(groups[0]));
+        }
       });
     });
+  }
+
+  onGroupSelect(key: string): void {
+    this.selectedGroupKey.set(key);
+    const group = this.groups().find((g) => this.groupKey(g) === key);
+    if (group) {
+      this.newZone.set(group.zone);
+      this.newPrefix.set(group.prefix);
+    }
   }
 
   onZoneInput(event: Event): void {
@@ -106,24 +163,18 @@ export class SlotGroupEditModalComponent implements OnDestroy {
       return;
     }
 
-    const z = this.newZone().trim();
-    const p = this.newPrefix().trim();
+    const group = this.selectedGroup();
+    if (!group) {
+      return;
+    }
 
-    const payload: UpdateSlotGroupPayload = {
-      currentPrefix: this.currentPrefix(),
-      currentZone: this.currentZone(),
+    this.submitGroup.emit({
+      currentPrefix: group.prefix,
+      currentZone: group.zone,
+      newPrefix: this.newPrefix().trim() || undefined,
+      newZone: this.newZone().trim() || undefined,
       parkingId: this.parkingId(),
-    };
-
-    if (z !== this.currentZone()) {
-      payload.newZone = z;
-    }
-
-    if (p !== this.currentPrefix()) {
-      payload.newPrefix = p;
-    }
-
-    this.submitGroup.emit(payload);
+    });
   }
 
   ngOnDestroy(): void {
