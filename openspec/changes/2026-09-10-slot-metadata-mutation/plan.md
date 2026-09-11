@@ -462,15 +462,15 @@ rtk git commit -m "feat(web): add slot metadata models and service operations (A
 - Modify: `apps/web/src/app/features/slots/page/parking-slots-list/parking-slots-list.html`
 - Modify: `apps/web/src/app/features/slots/page/parking-slots-list/parking-slots-list.ts`
 
-- [ ] **Step 1: Write component unit test for batch modal**
-- [ ] **Step 2: Implement batch modal using `@nivo-sass/design-system` (`nv-modal`, `nv-button`, switches)**
-- [ ] **Step 3: Add EV ⚡ and PMR ♿ badges to slot table**
-- [ ] **Step 4: Integrate with `SlotsSelectionState`**
-- [ ] **Step 5: Run tests and verify**
+- [x] **Step 1: Write component unit test for batch modal**
+- [x] **Step 2: Implement batch modal using `@nivo-sass/design-system` (`nv-modal`, `nv-button`, switches)**
+- [x] **Step 3: Add EV ⚡ and PMR ♿ badges to slot table**
+- [x] **Step 4: Integrate with `SlotsSelectionState`**
+- [x] **Step 5: Run tests and verify**
 Run: `rtk bun run --cwd apps/web test`
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 ```bash
 rtk git add apps/web/src/app/features/slots/
 rtk git commit -m "feat(web): add slot metadata batch modal and EV/PMR badges (ANC-80)"
@@ -486,14 +486,14 @@ rtk git commit -m "feat(web): add slot metadata batch modal and EV/PMR badges (A
 - Create: `apps/web/src/app/features/slots/components/slot-group-edit-modal/slot-group-edit-modal.component.spec.ts`
 - Modify: `apps/web/src/app/features/slots/facades/parking-slots-list.facade.ts`
 
-- [ ] **Step 1: Write component unit tests for group edit modal**
-- [ ] **Step 2: Implement group rename modal with `nv-input` and confirmation prompt**
-- [ ] **Step 3: Connect to `parking-slots-list.facade.ts`**
-- [ ] **Step 4: Run all unit tests and linter**
+- [x] **Step 1: Write component unit tests for group edit modal**
+- [x] **Step 2: Implement group rename modal with `nv-input` and confirmation prompt**
+- [x] **Step 3: Connect to `parking-slots-list.facade.ts`**
+- [x] **Step 4: Run all unit tests and linter**
 Run: `rtk bun run --cwd apps/web check` and `rtk bun run --cwd apps/web test`
 Expected: Clean check, all tests passing.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 ```bash
 rtk git add apps/web/src/app/features/slots/
 rtk git commit -m "feat(web): add slot group edit modal and facade integration (ANC-80)"
