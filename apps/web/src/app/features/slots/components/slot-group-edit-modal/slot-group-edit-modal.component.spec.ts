@@ -1,16 +1,19 @@
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 
+import {
+  displaySlotGroup,
+  SlotGroupEditModalComponent,
+} from "./slot-group-edit-modal.component";
 import type { SlotGroupOption } from "./slot-group-edit-modal.component";
-import { SlotGroupEditModalComponent } from "./slot-group-edit-modal.component";
 
 describe("SlotGroupEditModalComponent", () => {
   let component: SlotGroupEditModalComponent;
   let fixture: ComponentFixture<SlotGroupEditModalComponent>;
 
   const mockGroups: SlotGroupOption[] = [
-    { count: 5, prefix: "A", zone: "NORTE" },
-    { count: 3, prefix: "B", zone: "SUR" },
+    { count: 5, occupiedCount: 0, prefix: "A", zone: "NORTE" },
+    { count: 3, occupiedCount: 0, prefix: "B", zone: "SUR" },
   ];
 
   beforeEach(async () => {
@@ -42,7 +45,7 @@ describe("SlotGroupEditModalComponent", () => {
     const comp = singleGroupFixture.componentInstance;
     singleGroupFixture.componentRef.setInput("parkingId", "parking-1");
     singleGroupFixture.componentRef.setInput("groups", [
-      { count: 10, prefix: "C", zone: "ESTE" },
+      { count: 10, occupiedCount: 0, prefix: "C", zone: "ESTE" },
     ]);
     singleGroupFixture.detectChanges();
 
@@ -152,7 +155,9 @@ describe("SlotGroupEditModalComponent", () => {
 
   it("should not emit cancel when clicking inside dialog panel", () => {
     const spy = vi.spyOn(component.cancel, "emit");
-    const panelEl = fixture.nativeElement.querySelector('[role="dialog"] > div');
+    const panelEl = fixture.nativeElement.querySelector(
+      '[role="dialog"] > div'
+    );
     panelEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
     expect(spy).not.toHaveBeenCalled();
@@ -166,5 +171,93 @@ describe("SlotGroupEditModalComponent", () => {
     expect(component.newZone()).toBe("SUR");
     expect(component.newPrefix()).toBe("B");
     expect(component.selectedGroup()).toEqual(mockGroups[1]);
+  });
+
+  it("should display warning banner and disable submit button when selected group has occupied slots", () => {
+    const occupiedGroup: SlotGroupOption = {
+      count: 4,
+      occupiedCount: 2,
+      prefix: "D",
+      zone: "OESTE",
+    };
+    fixture.componentRef.setInput("groups", [occupiedGroup]);
+    fixture.componentRef.setInput("initialZone", "OESTE");
+    fixture.componentRef.setInput("initialPrefix", "D");
+    fixture.detectChanges();
+
+    expect(component.hasOccupiedSlots()).toBe(true);
+    expect(component.occupiedCount()).toBe(2);
+
+    const banner = fixture.nativeElement.querySelector(".text-destructive");
+    expect(banner).toBeTruthy();
+    expect(banner?.textContent).toContain(
+      "No se puede modificar este grupo porque tiene"
+    );
+    expect(banner?.textContent).toContain("2 plaza(s) ocupada(s) o en uso");
+
+    component.newZone.set("NUEVA");
+    fixture.detectChanges();
+
+    expect(component.hasChanges()).toBe(true);
+    expect(component.canSubmit()).toBe(false);
+
+    const submitBtn = fixture.nativeElement.querySelector(
+      '[data-testid="submit-group-btn"] button'
+    );
+    expect(submitBtn?.hasAttribute("disabled")).toBe(true);
+
+    const spy = vi.spyOn(component.submitGroup, "emit");
+    component.onSubmit();
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it("should enable submit button when group has occupiedCount === 0 and changes exist", () => {
+    component.newZone.set("SUR");
+    fixture.detectChanges();
+
+    expect(component.hasOccupiedSlots()).toBe(false);
+    expect(component.hasChanges()).toBe(true);
+    expect(component.canSubmit()).toBe(true);
+
+    const submitBtn = fixture.nativeElement.querySelector(
+      '[data-testid="submit-group-btn"] button'
+    );
+    expect(submitBtn?.hasAttribute("disabled")).toBe(false);
+  });
+
+  describe("displaySlotGroup", () => {
+    it("should format group without occupied label when occupiedCount is 0", () => {
+      const g: SlotGroupOption = {
+        count: 5,
+        occupiedCount: 0,
+        prefix: "A",
+        zone: "NORTE",
+      };
+      expect(displaySlotGroup(g)).toBe("Zona NORTE · Prefijo A (5 plazas)");
+    });
+
+    it("should format group with singular occupied label when occupiedCount is 1", () => {
+      const g: SlotGroupOption = {
+        count: 5,
+        occupiedCount: 1,
+        prefix: "A",
+        zone: "NORTE",
+      };
+      expect(displaySlotGroup(g)).toBe(
+        "Zona NORTE · Prefijo A (5 plazas · 1 ocupada)"
+      );
+    });
+
+    it("should format group with plural occupied label when occupiedCount > 1", () => {
+      const g: SlotGroupOption = {
+        count: 5,
+        occupiedCount: 3,
+        prefix: "A",
+        zone: "NORTE",
+      };
+      expect(displaySlotGroup(g)).toBe(
+        "Zona NORTE · Prefijo A (5 plazas · 3 ocupadas)"
+      );
+    });
   });
 });

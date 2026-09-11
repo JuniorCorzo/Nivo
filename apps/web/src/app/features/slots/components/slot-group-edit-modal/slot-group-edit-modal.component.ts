@@ -10,7 +10,7 @@ import {
   untracked,
 } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideLayers, lucideX } from "@ng-icons/lucide";
+import { lucideAlertTriangle, lucideLayers, lucideX } from "@ng-icons/lucide";
 import {
   ButtonComponent,
   InputComponent,
@@ -20,6 +20,7 @@ import {
 
 export interface SlotGroupOption {
   count: number;
+  occupiedCount: number;
   prefix: string;
   zone: string;
 }
@@ -35,8 +36,15 @@ export interface UpdateSlotGroupPayload {
 export const slotGroupKey = (g: SlotGroupOption): string =>
   `${g.zone}:::${g.prefix}`;
 
-export const displaySlotGroup = (g: SlotGroupOption): string =>
-  `${g.zone ? `Zona ${g.zone}` : "Sin zona"} · ${g.prefix ? `Prefijo ${g.prefix}` : "Sin prefijo"} (${g.count} plazas)`;
+export const displaySlotGroup = (g: SlotGroupOption): string => {
+  const zoneLabel = g.zone ? `Zona ${g.zone}` : "Sin zona";
+  const prefixLabel = g.prefix ? `Prefijo ${g.prefix}` : "Sin prefijo";
+  const occupiedLabel =
+    g.occupiedCount > 0
+      ? ` · ${g.occupiedCount} ocupada${g.occupiedCount > 1 ? "s" : ""}`
+      : "";
+  return `${zoneLabel} · ${prefixLabel} (${g.count} plazas${occupiedLabel})`;
+};
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,7 +55,7 @@ export const displaySlotGroup = (g: SlotGroupOption): string =>
     TypographyH3,
     NgIcon,
   ],
-  providers: [provideIcons({ lucideLayers, lucideX })],
+  providers: [provideIcons({ lucideAlertTriangle, lucideLayers, lucideX })],
   selector: "app-slot-group-edit-modal",
   standalone: true,
   styleUrl: "./slot-group-edit-modal.component.css",
@@ -91,6 +99,18 @@ export class SlotGroupEditModalComponent {
     const nonEmpty = z.length > 0 || p.length > 0;
     return changed && nonEmpty;
   });
+
+  readonly hasOccupiedSlots = computed(
+    () => (this.selectedGroup()?.occupiedCount ?? 0) > 0
+  );
+
+  readonly occupiedCount = computed(
+    () => this.selectedGroup()?.occupiedCount ?? 0
+  );
+
+  readonly canSubmit = computed(
+    () => this.hasChanges() && !this.hasOccupiedSlots()
+  );
 
   protected readonly titleId = "slot-group-edit-title";
   protected readonly descriptionId = "slot-group-edit-description";
@@ -165,7 +185,7 @@ export class SlotGroupEditModalComponent {
   }
 
   onSubmit(): void {
-    if (!this.hasChanges()) {
+    if (!this.canSubmit()) {
       return;
     }
 

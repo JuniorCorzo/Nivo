@@ -15,10 +15,10 @@ import { ToastService } from "@nivo-sass/design-system";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
 import { SlotDeleteState } from "../components/slot-delete-modal/slots-delete.state";
+import type { SlotGroupOption } from "../components/slot-group-edit-modal/slot-group-edit-modal.component";
 import { SlotStatusState } from "../components/slot-status-modal/slot-status.state";
 import { SlotsSelectionState } from "../page/parking-slots-list/slots-selection.state";
 import { SlotsTableState } from "../page/parking-slots-list/slots-table.state";
-import type { SlotGroupOption } from "../components/slot-group-edit-modal/slot-group-edit-modal.component";
 import {
   SLOT_STATUS_FILTER_OPTIONS,
   SLOT_TYPE_OPTIONS,
@@ -145,11 +145,20 @@ export class ParkingSlotsListFacade {
       const zone = slot.zone ?? "";
       const prefix = slot.prefix ?? "";
       const key = `${zone}:::${prefix}`;
+      const isOccupied = slot.status !== "AVAILABLE";
       const existing = map.get(key);
       if (existing) {
         existing.count += 1;
+        if (isOccupied) {
+          existing.occupiedCount += 1;
+        }
       } else {
-        map.set(key, { count: 1, prefix, zone });
+        map.set(key, {
+          count: 1,
+          occupiedCount: isOccupied ? 1 : 0,
+          prefix,
+          zone,
+        });
       }
     }
     return [...map.values()].toSorted(
@@ -347,9 +356,13 @@ export class ParkingSlotsListFacade {
     }
 
     this.slotsService.updateSlotMetadata(payload).subscribe({
-      error: () => {
+      error: (err) => {
+        const msg =
+          err?.error?.message ||
+          err?.message ||
+          "Error al actualizar equipamiento";
         this.toast?.showToast({
-          message: "Error al actualizar equipamiento",
+          message: msg,
           type: "error",
         });
       },
@@ -394,10 +407,29 @@ export class ParkingSlotsListFacade {
     newZone?: string;
     parkingId: string;
   }): void {
+    const hasOccupied = this.slots().some(
+      (slot) =>
+        (slot.zone ?? "") === payload.currentZone &&
+        (slot.prefix ?? "") === payload.currentPrefix &&
+        slot.status !== "AVAILABLE"
+    );
+    if (hasOccupied) {
+      this.toast?.showToast({
+        message:
+          "No se puede modificar el grupo porque contiene plazas ocupadas o no disponibles.",
+        type: "error",
+      });
+      return;
+    }
+
     this.slotsService.updateSlotGroup(payload).subscribe({
-      error: () => {
+      error: (err) => {
+        const msg =
+          err?.error?.message ||
+          err?.message ||
+          "Error al actualizar el grupo de plazas";
         this.toast?.showToast({
-          message: "Error al actualizar grupo",
+          message: msg,
           type: "error",
         });
       },

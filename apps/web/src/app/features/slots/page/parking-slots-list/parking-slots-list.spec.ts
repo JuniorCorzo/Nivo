@@ -11,7 +11,7 @@ import type { SlotStatus, SlotSummary } from "@core/models/slot.model";
 import { ParkingService } from "@core/services/parking-service";
 import { SlotService } from "@core/services/slot-service";
 import { ToastService } from "@nivo-sass/design-system";
-import { of } from "rxjs";
+import { of, throwError } from "rxjs";
 
 import {
   ParkingSlotsListFacade,
@@ -507,6 +507,23 @@ describe("ParkingSlotsListPage — Integration", () => {
         })
       );
     });
+
+    it("should extract specific error message on updateSlotsMetadata failure", () => {
+      slotServiceMock.updateSlotMetadata.mockReturnValue(
+        throwError(() => ({
+          error: { message: "Error específico de equipamiento" },
+        }))
+      );
+
+      facade.updateSlotsMetadata({
+        slotIds: ["1"],
+      });
+
+      expect(toastServiceMock.showToast).toHaveBeenCalledWith({
+        message: "Error específico de equipamiento",
+        type: "error",
+      });
+    });
   });
 
   // ── Spec: Group Edit Modal ──────────────────────────────────────────
@@ -544,7 +561,7 @@ describe("ParkingSlotsListPage — Integration", () => {
 
     it("should compute availableGroups correctly from slots", () => {
       expect(facade.availableGroups()).toEqual([
-        { count: 1, prefix: "A", zone: "NORTE" },
+        { count: 1, occupiedCount: 0, prefix: "A", zone: "NORTE" },
       ]);
     });
 
@@ -587,6 +604,73 @@ describe("ParkingSlotsListPage — Integration", () => {
           type: "success",
         })
       );
+    });
+
+    it("should show error toast and not call service when group has occupied slots", async () => {
+      TestBed.resetTestingModule();
+      const occupiedConfig = setupTest({
+        parkingId: "parking-1",
+        slotSummaries: [
+          mockSlot({
+            id: "1",
+            prefix: "A",
+            slotNumber: "A-001",
+            status: "OCCUPIED",
+            zone: "NORTE",
+          }),
+        ],
+      });
+      await TestBed.configureTestingModule({
+        imports: [ParkingSlotsListPage],
+        providers: occupiedConfig.providers,
+      }).compileComponents();
+
+      const occupiedFixture = TestBed.createComponent(ParkingSlotsListPage);
+      const occupiedFacade = occupiedFixture.debugElement.injector.get(
+        ParkingSlotsListFacade
+      );
+      occupiedFixture.detectChanges();
+      await occupiedFixture.whenStable();
+
+      expect(occupiedFacade.availableGroups()).toEqual([
+        { count: 1, occupiedCount: 1, prefix: "A", zone: "NORTE" },
+      ]);
+
+      occupiedFacade.updateSlotGroup({
+        currentPrefix: "A",
+        currentZone: "NORTE",
+        newPrefix: "B",
+        newZone: "SUR",
+        parkingId: "parking-1",
+      });
+
+      expect(occupiedConfig.slotService.updateSlotGroup).not.toHaveBeenCalled();
+      expect(occupiedConfig.toastService.showToast).toHaveBeenCalledWith({
+        message:
+          "No se puede modificar el grupo porque contiene plazas ocupadas o no disponibles.",
+        type: "error",
+      });
+    });
+
+    it("should extract specific error message on updateSlotGroup failure", () => {
+      slotServiceMock.updateSlotGroup.mockReturnValue(
+        throwError(() => ({
+          error: { message: "No se puede renombrar el grupo" },
+        }))
+      );
+
+      facade.updateSlotGroup({
+        currentPrefix: "A",
+        currentZone: "NORTE",
+        newPrefix: "B",
+        newZone: "SUR",
+        parkingId: "parking-1",
+      });
+
+      expect(toastServiceMock.showToast).toHaveBeenCalledWith({
+        message: "No se puede renombrar el grupo",
+        type: "error",
+      });
     });
   });
 });

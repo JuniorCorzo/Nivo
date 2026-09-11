@@ -62,34 +62,51 @@
       />
 
       @if (selectedGroup(); as group) {
-      <div
-        class="bg-muted/50 border-border text-muted-foreground flex items-center justify-between rounded-lg border px-3 py-2 text-xs"
-      >
-        <span>Plazas en este grupo</span>
-        <span class="text-foreground font-semibold"
-          >{{ group.count }} plazas</span
+        <div
+          class="bg-muted/50 border-border text-muted-foreground flex items-center justify-between rounded-lg border px-3 py-2 text-xs"
         >
-      </div>
+          <span>Plazas en este grupo</span>
+          <span class="text-foreground font-semibold"
+            >{{ group.count }} plazas</span
+          >
+        </div>
 
-      <nv-input
-        label="Nueva Zona"
-        placeholder="Ej: NORTE"
-        [value]="newZone()"
-        (input)="onZoneInput($event)"
-      />
+        @if (hasOccupiedSlots()) {
+          <div
+            class="border-destructive/30 bg-destructive/10 text-destructive mt-3 flex items-start gap-2.5 rounded-xl border p-3 text-xs"
+          >
+            <ng-icon
+              name="lucideAlertTriangle"
+              size="16"
+              class="mt-0.5 shrink-0"
+            />
+            <span>
+              No se puede modificar este grupo porque tiene
+              {{ occupiedCount() }} plaza(s) ocupada(s) o en uso. Todas las
+              plazas deben estar disponibles para renombrar el grupo.
+            </span>
+          </div>
+        }
 
-      <nv-input
-        label="Nuevo Prefijo"
-        placeholder="Ej: A"
-        [value]="newPrefix()"
-        (input)="onPrefixInput($event)"
-      />
+        <nv-input
+          label="Nueva Zona"
+          placeholder="Ej: NORTE"
+          [value]="newZone()"
+          (input)="onZoneInput($event)"
+        />
+
+        <nv-input
+          label="Nuevo Prefijo"
+          placeholder="Ej: A"
+          [value]="newPrefix()"
+          (input)="onPrefixInput($event)"
+        />
       } @else {
-      <div
-        class="bg-muted/30 border-border text-muted-foreground rounded-lg border border-dashed p-4 text-center text-xs"
-      >
-        Elegí un grupo en el selector para configurar la nueva zona o prefijo.
-      </div>
+        <div
+          class="bg-muted/30 border-border text-muted-foreground rounded-lg border border-dashed p-4 text-center text-xs"
+        >
+          Elegí un grupo en el selector para configurar la nueva zona o prefijo.
+        </div>
       }
     </div>
 
@@ -100,7 +117,7 @@
       </nv-button>
       <nv-button
         data-testid="submit-group-btn"
-        [disabled]="!hasChanges()"
+        [disabled]="!canSubmit()"
         (click)="onSubmit()"
       >
         Guardar cambios
