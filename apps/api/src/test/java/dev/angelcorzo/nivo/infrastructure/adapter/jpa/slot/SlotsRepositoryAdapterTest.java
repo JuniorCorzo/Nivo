@@ -122,4 +122,21 @@ class SlotsRepositoryAdapterTest {
     assertThat(result.get(0)).isEqualTo(slot);
     verify(repository).findAllByParking_IdAndZoneAndPrefix(parkingId, zone, prefix);
   }
+
+  @Test
+  @DisplayName("Should normalize empty or blank zone and prefix to null when finding slots")
+  void shouldNormalizeEmptyZoneAndPrefixToNull() {
+    UUID parkingId = UUID.randomUUID();
+    SlotsData data = new SlotsData();
+    Slots slot = Slots.builder().id(UUID.randomUUID()).build();
+
+    when(repository.findAllByParking_IdAndZoneAndPrefix(parkingId, null, null)).thenReturn(List.of(data));
+    when(mapper.toEntity(data)).thenReturn(slot);
+
+    List<Slots> result = adapter.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, "", "   ");
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0)).isEqualTo(slot);
+    verify(repository).findAllByParking_IdAndZoneAndPrefix(parkingId, null, null);
+  }
 }

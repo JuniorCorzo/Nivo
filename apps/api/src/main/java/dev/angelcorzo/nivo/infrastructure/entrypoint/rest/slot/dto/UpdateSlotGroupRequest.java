@@ -1,7 +1,6 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.Builder;
@@ -12,11 +11,11 @@ public record UpdateSlotGroupRequest(
     @Schema(description = "Parking lot ID", example = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull UUID parkingId,
 
-    @Schema(description = "Current zone identifier", example = "NORTH", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank String currentZone,
+    @Schema(description = "Current zone identifier (optional, can be blank/empty for slots without zone)", example = "NORTH")
+    String currentZone,
 
-    @Schema(description = "Current prefix identifier", example = "A", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank String currentPrefix,
+    @Schema(description = "Current prefix identifier (optional, can be blank/empty for slots without prefix)", example = "A")
+    String currentPrefix,
 
     @Schema(description = "New zone identifier", example = "SOUTH")
     String newZone,

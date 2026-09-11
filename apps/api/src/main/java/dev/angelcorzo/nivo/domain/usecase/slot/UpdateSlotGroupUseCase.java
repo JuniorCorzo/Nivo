@@ -5,8 +5,10 @@ import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
 import dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.domain.model.slots.utils.SlotNumberUtils;
+import dev.angelcorzo.nivo.domain.model.utils.StringUtils;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +49,7 @@ public class UpdateSlotGroupUseCase {
               .prefix(targetPrefix);
 
           if (prefixChanged) {
-            builder.slotNumber(SlotNumberUtils.recalculateSlotNumber(slot.getSlotNumber(), command.currentPrefix(), targetPrefix));
+            builder.slotNumber(SlotNumberUtils.recalculateSlotNumber(slot.getSlotNumber(), command.currentPrefix(), targetPrefix != null ? targetPrefix : ""));
           }
 
           return builder.build();
@@ -66,15 +68,16 @@ public class UpdateSlotGroupUseCase {
       String newPrefix
   ) {
     public String resolveTargetZone() {
-      return newZone != null ? newZone : currentZone;
+      return newZone != null ? StringUtils.normalize(newZone) : currentZone;
     }
 
     public String resolveTargetPrefix() {
-      return newPrefix != null ? newPrefix : currentPrefix;
+      return newPrefix != null ? StringUtils.normalize(newPrefix) : currentPrefix;
     }
 
     public boolean isPrefixChanged() {
-      return newPrefix != null && !newPrefix.equals(currentPrefix);
+      return newPrefix != null
+          && !Objects.equals(StringUtils.normalize(newPrefix), StringUtils.normalize(currentPrefix));
     }
   }
 }

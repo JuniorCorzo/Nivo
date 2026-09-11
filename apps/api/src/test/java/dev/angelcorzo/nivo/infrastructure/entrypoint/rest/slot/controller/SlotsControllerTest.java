@@ -224,4 +224,41 @@ class SlotsControllerTest {
 
     verify(updateSlotGroupUseCase).execute(command);
   }
+
+  @Test
+  @DisplayName("PATCH /slots/groups - Should succeed when currentPrefix and currentZone are empty strings")
+  void shouldUpdateSlotGroupWithEmptyZoneAndPrefix() throws Exception {
+    UUID parkingId = UUID.randomUUID();
+    UpdateSlotGroupRequest request = new UpdateSlotGroupRequest(
+        parkingId,
+        "",
+        "",
+        "ZONE-A",
+        "A"
+    );
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command =
+        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
+            .parkingId(parkingId)
+            .currentZone("")
+            .currentPrefix("")
+            .newZone("ZONE-A")
+            .newPrefix("A")
+            .build();
+    Slots updatedSlot = Slots.builder().id(UUID.randomUUID()).zone("ZONE-A").prefix("A").build();
+    SlotResponse slotResponse = mock(SlotResponse.class);
+
+    when(slotsMapper.toCommand(request)).thenReturn(command);
+    when(updateSlotGroupUseCase.execute(command)).thenReturn(List.of(updatedSlot));
+    when(slotsMapper.toDto(updatedSlot)).thenReturn(slotResponse);
+
+    mockMvc
+        .perform(
+            patch("/slots/groups")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("Slot group updated successfully"));
+
+    verify(updateSlotGroupUseCase).execute(command);
+  }
 }

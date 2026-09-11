@@ -245,5 +245,109 @@ class UpdateSlotGroupUseCaseTest {
     assertThat(cmdSamePrefix.resolveTargetZone()).isEqualTo("Z2");
     assertThat(cmdSamePrefix.resolveTargetPrefix()).isEqualTo("P1");
     assertThat(cmdSamePrefix.isPrefixChanged()).isFalse();
+
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdEmptyNew =
+        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
+            .currentZone("Z1")
+            .currentPrefix("P1")
+            .newZone("")
+            .newPrefix("")
+            .build();
+
+    assertThat(cmdEmptyNew.resolveTargetZone()).isNull();
+    assertThat(cmdEmptyNew.resolveTargetPrefix()).isNull();
+    assertThat(cmdEmptyNew.isPrefixChanged()).isTrue();
+
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdBothEmpty =
+        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
+            .currentZone("")
+            .currentPrefix("")
+            .newZone("")
+            .newPrefix("")
+            .build();
+
+    assertThat(cmdBothEmpty.isPrefixChanged()).isFalse();
+
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdNullCurrentEmptyNew =
+        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
+            .currentZone(null)
+            .currentPrefix(null)
+            .newZone("")
+            .newPrefix("")
+            .build();
+
+    assertThat(cmdNullCurrentEmptyNew.isPrefixChanged()).isFalse();
+  }
+
+  @Test
+  @DisplayName("Should update group when current prefix and zone are null or empty")
+  void shouldUpdateGroupWhenCurrentPrefixAndZoneAreNullOrEmpty() {
+    UUID parkingId = UUID.randomUUID();
+    UUID slotId = UUID.randomUUID();
+
+    Slots slot =
+        Slots.builder()
+            .id(slotId)
+            .zone(null)
+            .prefix(null)
+            .slotNumber("01")
+            .status(SlotStatus.AVAILABLE)
+            .build();
+
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command =
+        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
+            .parkingId(parkingId)
+            .currentZone(null)
+            .currentPrefix(null)
+            .newZone("Zone-B")
+            .newPrefix("B")
+            .build();
+
+    when(slotsRepository.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, null, null))
+        .thenReturn(List.of(slot));
+    when(batchPersistSlotsUseCase.execute(anyList())).thenAnswer(inv -> inv.getArgument(0));
+
+    List<Slots> result = useCase.execute(command);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getZone()).isEqualTo("Zone-B");
+    assertThat(result.get(0).getPrefix()).isEqualTo("B");
+    assertThat(result.get(0).getSlotNumber()).isEqualTo("B-01");
+  }
+
+  @Test
+  @DisplayName("Should remove prefix and zone when new values are empty")
+  void shouldRemovePrefixAndZoneWhenNewValuesAreEmpty() {
+    UUID parkingId = UUID.randomUUID();
+    UUID slotId = UUID.randomUUID();
+
+    Slots slot =
+        Slots.builder()
+            .id(slotId)
+            .zone("Zone-A")
+            .prefix("A")
+            .slotNumber("A-01")
+            .status(SlotStatus.AVAILABLE)
+            .build();
+
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command =
+        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
+            .parkingId(parkingId)
+            .currentZone("Zone-A")
+            .currentPrefix("A")
+            .newZone("")
+            .newPrefix("")
+            .build();
+
+    when(slotsRepository.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, "Zone-A", "A"))
+        .thenReturn(List.of(slot));
+    when(batchPersistSlotsUseCase.execute(anyList())).thenAnswer(inv -> inv.getArgument(0));
+
+    List<Slots> result = useCase.execute(command);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getZone()).isNull();
+    assertThat(result.get(0).getPrefix()).isNull();
+    assertThat(result.get(0).getSlotNumber()).isEqualTo("01");
   }
 }

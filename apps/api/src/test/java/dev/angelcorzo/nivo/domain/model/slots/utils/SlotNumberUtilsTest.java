@@ -93,4 +93,18 @@ class SlotNumberUtilsTest {
     String result = SlotNumberUtils.recalculateSlotNumber("01", "", "VIP");
     assertThat(result).isEqualTo("VIP-01");
   }
+
+  @Test
+  @DisplayName("Should remove prefix when new prefix is empty")
+  void shouldRemovePrefixWhenNewPrefixIsEmpty() {
+    String result = SlotNumberUtils.recalculateSlotNumber("A-01", "A", "");
+    assertThat(result).isEqualTo("01");
+  }
+
+  @Test
+  @DisplayName("Should remove prefix without hyphen when new prefix is empty")
+  void shouldRemovePrefixWithoutHyphenWhenNewPrefixIsEmpty() {
+    String result = SlotNumberUtils.recalculateSlotNumber("A01", "A", "");
+    assertThat(result).isEqualTo("01");
+  }
 }

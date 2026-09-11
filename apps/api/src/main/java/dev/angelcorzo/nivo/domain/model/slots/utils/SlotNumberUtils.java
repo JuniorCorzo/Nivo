@@ -13,13 +13,26 @@ public final class SlotNumberUtils {
     if (oldSlotNumber == null) {
       return null;
     }
-    if (oldPrefix != null && !oldPrefix.isEmpty()) {
-      if (oldSlotNumber.startsWith(oldPrefix + "-")) {
-        return newPrefix + "-" + oldSlotNumber.substring(oldPrefix.length() + 1);
-      } else if (oldSlotNumber.startsWith(oldPrefix)) {
-        return newPrefix + oldSlotNumber.substring(oldPrefix.length());
-      }
+
+    String safeOldPrefix = oldPrefix == null ? "" : oldPrefix;
+    String safeNewPrefix = newPrefix;
+
+    if (safeOldPrefix.equals(safeNewPrefix)) {
+      return oldSlotNumber;
     }
-    return newPrefix + "-" + oldSlotNumber;
+
+    if (safeOldPrefix.isEmpty()) {
+      return safeNewPrefix.isEmpty() ? oldSlotNumber : safeNewPrefix + "-" + oldSlotNumber;
+    }
+
+    if (oldSlotNumber.startsWith(safeOldPrefix + "-")) {
+      String numberPart = oldSlotNumber.substring(safeOldPrefix.length() + 1);
+      return safeNewPrefix.isEmpty() ? numberPart : safeNewPrefix + "-" + numberPart;
+    } else if (oldSlotNumber.startsWith(safeOldPrefix)) {
+      String numberPart = oldSlotNumber.substring(safeOldPrefix.length());
+      return safeNewPrefix.isEmpty() ? numberPart : safeNewPrefix + numberPart;
+    }
+
+    return safeNewPrefix.isEmpty() ? oldSlotNumber : safeNewPrefix + "-" + oldSlotNumber;
   }
 }
