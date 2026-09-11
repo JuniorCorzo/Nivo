@@ -12,6 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 public interface SlotsRepositoryData extends JpaRepository<SlotsData, UUID> {
   List<SlotsData> findAllByParking_Id(@Param("parkingLotId") UUID parkingLotId);
 
+  @Query("SELECT s FROM SlotsData s WHERE s.parking.id = :parkingLotId AND (:zone IS NULL OR s.zone = :zone) AND (:prefix IS NULL OR s.prefix = :prefix)")
+  List<SlotsData> findAllByParking_IdAndZoneAndPrefix(@Param("parkingLotId") UUID parkingLotId, @Param("zone") String zone, @Param("prefix") String prefix);
+
+  List<SlotsData> findAllByIdInAndTenant_Id(List<UUID> ids, UUID tenantId);
+
   @Query(value = """
         SELECT s.id AS id, p.name AS parkingName, s.type AS type, s.zone AS zone, s.prefix AS prefix, s.slotNumber AS numberSlot, s.status AS status,
                s.hasCharger AS hasCharger, s.isAccessible AS isAccessible, s.isActive AS isActive,

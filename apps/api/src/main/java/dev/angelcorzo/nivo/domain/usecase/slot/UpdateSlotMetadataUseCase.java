@@ -18,21 +18,21 @@ import lombok.RequiredArgsConstructor;
 public class UpdateSlotMetadataUseCase {
   private final SlotsRepository slotsRepository;
   private final AuthenticationContextGateway authenticationContext;
+  private final BatchPersistSlotsUseCase batchPersistSlotsUseCase;
 
   public List<Slots> execute(UpdateSlotMetadataCommand command) {
     final Tenants tenant = this.authenticationContext.getCurrentTenant();
-    final List<Slots> slots = this.slotsRepository.findAllById(command.slotIds());
+    final List<Slots> slots = this.slotsRepository.findAllByIdInAndTenantId(command.slotIds(), tenant.getId());
 
-    final Set<UUID> foundIds = slots.stream()
-        .filter(s -> tenant == null || tenant.getId() == null
-            || s.getTenant() == null || s.getTenant().id() == null
-            || s.getTenant().id().equals(tenant.getId()))
-        .map(Slots::getId)
-        .collect(Collectors.toSet());
+    if (slots.size() != command.slotIds().size()) {
+      final Set<UUID> foundIds = slots.stream()
+          .map(Slots::getId)
+          .collect(Collectors.toSet());
 
-    for (UUID requestedId : command.slotIds()) {
-      if (!foundIds.contains(requestedId)) {
-        throw new SlotNotFoundException(requestedId);
+      for (UUID requestedId : command.slotIds()) {
+        if (!foundIds.contains(requestedId)) {
+          throw new SlotNotFoundException(requestedId);
+        }
       }
     }
 
@@ -55,7 +55,7 @@ public class UpdateSlotMetadataUseCase {
         })
         .toList();
 
-    return this.slotsRepository.saveAll(updatedSlots);
+    return this.batchPersistSlotsUseCase.execute(updatedSlots);
   }
 
   @Builder(toBuilder = true)

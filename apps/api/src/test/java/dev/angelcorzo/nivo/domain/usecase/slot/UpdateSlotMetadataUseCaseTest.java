@@ -24,6 +24,7 @@ class UpdateSlotMetadataUseCaseTest {
 
   private SlotsRepository slotsRepository;
   private AuthenticationContextGateway authenticationContext;
+  private BatchPersistSlotsUseCase batchPersistSlotsUseCase;
   private UpdateSlotMetadataUseCase useCase;
   private Tenants tenant;
 
@@ -31,7 +32,8 @@ class UpdateSlotMetadataUseCaseTest {
   void setUp() {
     slotsRepository = mock(SlotsRepository.class);
     authenticationContext = mock(AuthenticationContextGateway.class);
-    useCase = new UpdateSlotMetadataUseCase(slotsRepository, authenticationContext);
+    batchPersistSlotsUseCase = mock(BatchPersistSlotsUseCase.class);
+    useCase = new UpdateSlotMetadataUseCase(slotsRepository, authenticationContext, batchPersistSlotsUseCase);
 
     tenant = Tenants.builder().id(UUID.randomUUID()).companyName("Central Parking").build();
     when(authenticationContext.getCurrentTenant()).thenReturn(tenant);
@@ -71,16 +73,17 @@ class UpdateSlotMetadataUseCaseTest {
             .isActive(false)
             .build();
 
-    when(slotsRepository.findAllById(List.of(slot1Id, slot2Id)))
+    when(slotsRepository.findAllByIdInAndTenantId(List.of(slot1Id, slot2Id), tenant.getId()))
         .thenReturn(List.of(slot1, slot2));
-    when(slotsRepository.saveAll(anyList()))
+    when(batchPersistSlotsUseCase.execute(anyList()))
         .thenAnswer(inv -> inv.getArgument(0));
 
     List<Slots> updated = useCase.execute(command);
 
     assertThat(updated).hasSize(2);
     assertThat(updated).allMatch(s -> s.isHasCharger() && s.isAccessible() && !s.isActive());
-    verify(slotsRepository).saveAll(anyList());
+    verify(batchPersistSlotsUseCase).execute(anyList());
+    verify(slotsRepository, never()).saveAll(anyList());
   }
 
   @Test
@@ -111,7 +114,7 @@ class UpdateSlotMetadataUseCaseTest {
             .hasCharger(true)
             .build();
 
-    when(slotsRepository.findAllById(List.of(availableSlotId, occupiedSlotId)))
+    when(slotsRepository.findAllByIdInAndTenantId(List.of(availableSlotId, occupiedSlotId), tenant.getId()))
         .thenReturn(List.of(availableSlot, occupiedSlot));
 
     assertThatThrownBy(() -> useCase.execute(command))
@@ -121,6 +124,7 @@ class UpdateSlotMetadataUseCaseTest {
           assertThat(slotEx.getConflictingSlotIds()).containsExactly(occupiedSlotId);
         });
 
+    verify(batchPersistSlotsUseCase, never()).execute(anyList());
     verify(slotsRepository, never()).saveAll(anyList());
     verify(slotsRepository, never()).save(any());
   }
@@ -148,8 +152,8 @@ class UpdateSlotMetadataUseCaseTest {
             .isActive(null)
             .build();
 
-    when(slotsRepository.findAllById(List.of(slotId))).thenReturn(List.of(slot));
-    when(slotsRepository.saveAll(anyList())).thenAnswer(inv -> inv.getArgument(0));
+    when(slotsRepository.findAllByIdInAndTenantId(List.of(slotId), tenant.getId())).thenReturn(List.of(slot));
+    when(batchPersistSlotsUseCase.execute(anyList())).thenAnswer(inv -> inv.getArgument(0));
 
     List<Slots> updated = useCase.execute(command);
 
@@ -158,7 +162,8 @@ class UpdateSlotMetadataUseCaseTest {
     assertThat(result.isHasCharger()).isTrue();
     assertThat(result.isAccessible()).isTrue();
     assertThat(result.isActive()).isTrue();
-    verify(slotsRepository).saveAll(anyList());
+    verify(batchPersistSlotsUseCase).execute(anyList());
+    verify(slotsRepository, never()).saveAll(anyList());
   }
 
   @Test
@@ -180,11 +185,12 @@ class UpdateSlotMetadataUseCaseTest {
             .hasCharger(true)
             .build();
 
-    when(slotsRepository.findAllById(List.of(existingId, missingId))).thenReturn(List.of(slot));
+    when(slotsRepository.findAllByIdInAndTenantId(List.of(existingId, missingId), tenant.getId())).thenReturn(List.of(slot));
 
     assertThatThrownBy(() -> useCase.execute(command))
         .isInstanceOf(SlotNotFoundException.class);
 
+    verify(batchPersistSlotsUseCase, never()).execute(anyList());
     verify(slotsRepository, never()).saveAll(anyList());
   }
 }

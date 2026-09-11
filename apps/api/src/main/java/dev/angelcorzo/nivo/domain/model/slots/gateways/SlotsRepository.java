@@ -12,7 +12,11 @@ public interface SlotsRepository {
 
   List<Slots> findAllById(List<UUID> ids);
 
+  List<Slots> findAllByIdInAndTenantId(List<UUID> ids, UUID tenantId);
+
   List<Slots> findAllByParkingLotsId(UUID parkingLotsId);
+
+  List<Slots> findAllByParkingLotsIdAndZoneAndPrefix(UUID parkingLotsId, String zone, String prefix);
 
   List<SlotSummary> findAllSummaryByParkingLotsId(UUID parkingLotsId);
 

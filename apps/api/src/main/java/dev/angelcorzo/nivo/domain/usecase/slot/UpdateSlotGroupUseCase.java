@@ -1,15 +1,12 @@
 package dev.angelcorzo.nivo.domain.usecase.slot;
 
-import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
 import dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
-import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
-import dev.angelcorzo.nivo.domain.model.utils.StringUtils;
+import dev.angelcorzo.nivo.domain.model.slots.utils.SlotNumberUtils;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -17,20 +14,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UpdateSlotGroupUseCase {
   private final SlotsRepository slotsRepository;
-  private final AuthenticationContextGateway authenticationContext;
+  private final BatchPersistSlotsUseCase batchPersistSlotsUseCase;
 
   public List<Slots> execute(UpdateSlotGroupCommand command) {
-    final Tenants tenant = this.authenticationContext.getCurrentTenant();
-
-    final List<Slots> allSlots = this.slotsRepository.findAllByParkingLotsId(command.parkingId());
-
-    final List<Slots> groupSlots = allSlots.stream()
-        .filter(slot -> tenant == null || tenant.getId() == null
-            || slot.getTenant() == null || slot.getTenant().id() == null
-            || slot.getTenant().id().equals(tenant.getId()))
-        .filter(slot -> Objects.equals(StringUtils.normalize(slot.getPrefix()), StringUtils.normalize(command.currentPrefix()))
-            && Objects.equals(StringUtils.normalize(slot.getZone()), StringUtils.normalize(command.currentZone())))
-        .toList();
+    final List<Slots> groupSlots = this.slotsRepository.findAllByParkingLotsIdAndZoneAndPrefix(
+        command.parkingId(),
+        command.currentZone(),
+        command.currentPrefix()
+    );
 
     if (groupSlots.isEmpty()) {
       return Collections.emptyList();
@@ -45,9 +36,9 @@ public class UpdateSlotGroupUseCase {
       throw new SlotCannotBeModifiedException(conflictingIds);
     }
 
-    final String targetZone = command.newZone() != null ? command.newZone() : command.currentZone();
-    final String targetPrefix = command.newPrefix() != null ? command.newPrefix() : command.currentPrefix();
-    final boolean prefixChanged = command.newPrefix() != null && !command.newPrefix().equals(command.currentPrefix());
+    final String targetZone = command.resolveTargetZone();
+    final String targetPrefix = command.resolveTargetPrefix();
+    final boolean prefixChanged = command.isPrefixChanged();
 
     final List<Slots> updatedSlots = groupSlots.stream()
         .map(slot -> {
@@ -56,31 +47,14 @@ public class UpdateSlotGroupUseCase {
               .prefix(targetPrefix);
 
           if (prefixChanged) {
-            builder.slotNumber(recalculateSlotNumber(slot.getSlotNumber(), command.currentPrefix(), targetPrefix));
+            builder.slotNumber(SlotNumberUtils.recalculateSlotNumber(slot.getSlotNumber(), command.currentPrefix(), targetPrefix));
           }
 
           return builder.build();
         })
         .toList();
 
-    return this.slotsRepository.saveAll(updatedSlots);
-  }
-
-  private String recalculateSlotNumber(String oldSlotNumber, String oldPrefix, String newPrefix) {
-    if (newPrefix == null || newPrefix.equals(oldPrefix)) {
-      return oldSlotNumber;
-    }
-    if (oldSlotNumber == null) {
-      return null;
-    }
-    if (oldPrefix != null && !oldPrefix.isEmpty()) {
-      if (oldSlotNumber.startsWith(oldPrefix + "-")) {
-        return newPrefix + "-" + oldSlotNumber.substring(oldPrefix.length() + 1);
-      } else if (oldSlotNumber.startsWith(oldPrefix)) {
-        return newPrefix + oldSlotNumber.substring(oldPrefix.length());
-      }
-    }
-    return newPrefix + "-" + oldSlotNumber;
+    return this.batchPersistSlotsUseCase.execute(updatedSlots);
   }
 
   @Builder(toBuilder = true)
@@ -90,5 +64,17 @@ public class UpdateSlotGroupUseCase {
       String currentPrefix,
       String newZone,
       String newPrefix
-  ) {}
+  ) {
+    public String resolveTargetZone() {
+      return newZone != null ? newZone : currentZone;
+    }
+
+    public String resolveTargetPrefix() {
+      return newPrefix != null ? newPrefix : currentPrefix;
+    }
+
+    public boolean isPrefixChanged() {
+      return newPrefix != null && !newPrefix.equals(currentPrefix);
+    }
+  }
 }

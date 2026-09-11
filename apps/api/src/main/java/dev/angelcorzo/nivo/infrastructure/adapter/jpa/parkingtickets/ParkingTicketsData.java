@@ -26,12 +26,8 @@ import org.hibernate.type.SqlTypes;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(
-    name = "parking_tickets",
-    uniqueConstraints =
-        @UniqueConstraint(
-            name = "uq_parking_ticket_tenant_id",
-            columnNames = {"tenant_id", "id"}))
+@Table(name = "parking_tickets", uniqueConstraints = @UniqueConstraint(name = "uq_parking_ticket_tenant_id", columnNames = {
+    "tenant_id", "id" }))
 @Entity()
 public class ParkingTicketsData {
   @Id
@@ -70,6 +66,7 @@ public class ParkingTicketsData {
   @ColumnDefault(value = "OPEN")
   @Column(name = "status", nullable = false)
   @Enumerated(EnumType.STRING)
+  @Builder.Default
   private ParkingTicketStatus status = ParkingTicketStatus.OPEN;
 
   @JdbcTypeCode(SqlTypes.JSON)

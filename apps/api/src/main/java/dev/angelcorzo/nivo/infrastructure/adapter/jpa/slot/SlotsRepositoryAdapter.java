@@ -37,8 +37,22 @@ public class SlotsRepositoryAdapter
   }
 
   @Override
+  public List<Slots> findAllByIdInAndTenantId(List<UUID> ids, UUID tenantId) {
+    return super.repository.findAllByIdInAndTenant_Id(ids, tenantId).stream()
+        .map(super::toEntity)
+        .toList();
+  }
+
+  @Override
   public List<Slots> findAllByParkingLotsId(UUID parkingLotsId) {
     return super.repository.findAllByParking_Id(parkingLotsId).stream()
+        .map(super::toEntity)
+        .toList();
+  }
+
+  @Override
+  public List<Slots> findAllByParkingLotsIdAndZoneAndPrefix(UUID parkingLotsId, String zone, String prefix) {
+    return super.repository.findAllByParking_IdAndZoneAndPrefix(parkingLotsId, zone, prefix).stream()
         .map(super::toEntity)
         .toList();
   }
