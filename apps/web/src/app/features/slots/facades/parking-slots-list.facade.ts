@@ -13,27 +13,27 @@ import { ParkingService } from "@core/services/parking-service";
 import { SlotService } from "@core/services/slot-service";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
+import { SlotDeleteState } from "../components/slot-delete-modal/slots-delete.state";
+import { SlotStatusState } from "../components/slot-status-modal/slot-status.state";
+import { SlotsSelectionState } from "../page/parking-slots-list/slots-selection.state";
+import { SlotsTableState } from "../page/parking-slots-list/slots-table.state";
 import {
   SLOT_STATUS_FILTER_OPTIONS,
   SLOT_TYPE_OPTIONS,
   SLOT_ZONE_FILTER_OPTIONS,
   displayOptionFn,
   valueOptionFn,
-} from "../../shared/parking-slot-presentations";
-import { SlotDeleteState } from "../slot-delete-modal/slots-delete.state";
-import { SlotStatusState } from "../slot-status-modal/slot-status.state";
-import { SlotsSelectionState } from "./slots-selection.state";
-import { SlotsTableState } from "./slots-table.state";
+} from "../shared/parking-slot-presentations";
 
 export {
   getDeleteModalCopy,
   requiresDeleteConfirm,
-} from "../slot-delete-modal/slots-delete.state";
+} from "../components/slot-delete-modal/slots-delete.state";
 export {
   getStatusModalCopy,
   getStatusTransitionOptions,
   VALID_STATUS_TRANSITIONS,
-} from "../slot-status-modal/slot-status.state";
+} from "../components/slot-status-modal/slot-status.state";
 
 export type DrawerTab = "general" | "history";
 

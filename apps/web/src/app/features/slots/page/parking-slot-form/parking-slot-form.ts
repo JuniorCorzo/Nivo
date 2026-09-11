@@ -18,13 +18,13 @@ import {
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
+import { ParkingSlotFormFacade } from "../../facades/parking-slot-form.facade";
 import {
   SLOT_STATUS_OPTIONS,
   SLOT_TYPE_OPTIONS,
   displayOptionFn,
   valueOptionFn,
 } from "../../shared/parking-slot-presentations";
-import { ParkingSlotFormFacade } from "./parking-slot-form.facade";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -13,7 +13,6 @@ import { SlotService } from "@core/services/slot-service";
 import { ToastService } from "@nivo-sass/design-system";
 import { of } from "rxjs";
 
-import { ParkingSlotsListPage } from "./parking-slots-list";
 import {
   ParkingSlotsListFacade,
   getDeleteModalCopy,
@@ -22,7 +21,8 @@ import {
   getStatusTransitionOptions,
   requiresDeleteConfirm,
   VALID_STATUS_TRANSITIONS,
-} from "./parking-slots-list.facade";
+} from "../../facades/parking-slots-list.facade";
+import { ParkingSlotsListPage } from "./parking-slots-list";
 
 const mockParking = (
   overrides: Partial<ParkingLotListItemModel> = {}

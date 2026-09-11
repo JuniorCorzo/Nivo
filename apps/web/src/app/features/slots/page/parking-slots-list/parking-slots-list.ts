@@ -37,16 +37,16 @@ import { FlexRender } from "@tanstack/angular-table";
 
 import { PaginationTable } from "@/app/shared/components/pagination-table/pagination-table";
 
-import { SLOT_TYPE_LABELS } from "../../shared/parking-slot-presentations";
-import { SlotDeleteModal } from "../slot-delete-modal/slot-delete-modal";
-import { SlotDeleteState } from "../slot-delete-modal/slots-delete.state";
-import { SlotDetailDrawer } from "../slot-detail-drawer/slot-detail-drawer";
-import { SlotStatusModal } from "../slot-status-modal/slot-status-modal";
-import { SlotStatusState } from "../slot-status-modal/slot-status.state";
+import { SlotDeleteModal } from "../../components/slot-delete-modal/slot-delete-modal";
+import { SlotDeleteState } from "../../components/slot-delete-modal/slots-delete.state";
+import { SlotDetailDrawer } from "../../components/slot-detail-drawer/slot-detail-drawer";
+import { SlotStatusModal } from "../../components/slot-status-modal/slot-status-modal";
+import { SlotStatusState } from "../../components/slot-status-modal/slot-status.state";
 import {
   ParkingSlotsListFacade,
   getHistoryCopy,
-} from "./parking-slots-list.facade";
+} from "../../facades/parking-slots-list.facade";
+import { SLOT_TYPE_LABELS } from "../../shared/parking-slot-presentations";
 import { SlotsSelectionState } from "./slots-selection.state";
 import { SlotsTableState } from "./slots-table.state";
 

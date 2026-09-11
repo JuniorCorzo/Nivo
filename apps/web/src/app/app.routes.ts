@@ -81,7 +81,7 @@ export const routes: Routes = [
           {
             loadComponent: async () => {
               const c =
-                await import("@features/slots/components/parking-slots-list/parking-slots-list");
+                await import("@features/slots/page/parking-slots-list/parking-slots-list");
               return c.ParkingSlotsListPage;
             },
             path: APP_ROUTE_PATHS.app.parkingLotSlots,
@@ -90,7 +90,7 @@ export const routes: Routes = [
           {
             loadComponent: async () => {
               const c =
-                await import("@features/slots/components/parking-slot-form/parking-slot-form");
+                await import("@features/slots/page/parking-slot-form/parking-slot-form");
               return c.ParkingSlotFormPage;
             },
             path: APP_ROUTE_PATHS.app.createParkingLotSlot,
@@ -99,7 +99,7 @@ export const routes: Routes = [
           {
             loadComponent: async () => {
               const c =
-                await import("@features/slots/components/parking-slot-form/parking-slot-form");
+                await import("@features/slots/page/parking-slot-form/parking-slot-form");
               return c.ParkingSlotFormPage;
             },
             path: APP_ROUTE_PATHS.app.editParkingLotSlot,
@@ -108,7 +108,7 @@ export const routes: Routes = [
           {
             loadComponent: async () => {
               const c =
-                await import("@features/slots/components/parking-slots-list/parking-slots-list");
+                await import("@features/slots/page/parking-slots-list/parking-slots-list");
               return c.ParkingSlotsListPage;
             },
             path: APP_ROUTE_PATHS.app.parkingLotSlotDetail,

@@ -11,8 +11,8 @@ import {
 } from "@ng-icons/lucide";
 import { TypographyH3, TypographyMuted } from "@nivo-sass/design-system";
 
-import type { DrawerTab } from "../parking-slots-list/parking-slots-list.facade";
-import { getHistoryCopy } from "../parking-slots-list/parking-slots-list.facade";
+import type { DrawerTab } from "../../facades/parking-slots-list.facade";
+import { getHistoryCopy } from "../../facades/parking-slots-list.facade";
 
 @Component({
   imports: [TypographyH3, TypographyMuted, NgIcon],
