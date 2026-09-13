@@ -1,9 +1,10 @@
-import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
+import { BreakpointObserver } from "@angular/cdk/layout";
 import type { OnInit } from "@angular/core";
 import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  linkedSignal,
   signal,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -45,14 +46,19 @@ export class Sidebar implements OnInit {
   private route = inject(Router);
   private breakpointObserver = inject(BreakpointObserver);
 
-  private isTabletOrSmaller = toSignal(
+  private isTablet = toSignal(
     this.breakpointObserver
-      .observe([Breakpoints.XSmall, Breakpoints.Small, Breakpoints.Medium])
+      .observe(["(min-width: 768px) and (max-width: 1024px)"])
       .pipe(map((result) => result.matches)),
-    { initialValue: window.innerWidth <= 1024 }
+    {
+      initialValue:
+        typeof window !== "undefined" &&
+        window.innerWidth <= 1024 &&
+        window.innerWidth >= 768,
+    }
   );
 
-  protected collapsed = signal(this.isTabletOrSmaller());
+  protected collapsed = linkedSignal(() => this.isTablet() ?? false);
 
   ngOnInit(): void {
     this.setActiveItem(this.route.url.split("?", 1)[0]);

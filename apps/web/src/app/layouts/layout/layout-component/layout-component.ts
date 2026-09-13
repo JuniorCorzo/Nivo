@@ -1,4 +1,4 @@
-import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
+import { BreakpointObserver } from "@angular/cdk/layout";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -37,7 +37,7 @@ export class LayoutComponent {
 
   public readonly isMobile = toSignal(
     this.breakpointObserver
-      .observe([Breakpoints.XSmall, Breakpoints.Small, "(max-width: 767.98px)"])
+      .observe(["(max-width: 767.98px)"])
       .pipe(map((result) => result.matches)),
     { initialValue: false }
   );

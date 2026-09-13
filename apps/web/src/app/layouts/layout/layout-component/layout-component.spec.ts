@@ -1,4 +1,8 @@
-import { BreakpointObserver, type BreakpointState } from "@angular/cdk/layout";
+import {
+  BreakpointObserver,
+  type BreakpointState,
+  Breakpoints,
+} from "@angular/cdk/layout";
 import { signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
@@ -6,6 +10,7 @@ import { By } from "@angular/platform-browser";
 import { NavigationEnd, Router, provideRouter } from "@angular/router";
 import { ActiveParkingService } from "@core/services/active-parking.service";
 import { BehaviorSubject, Subject } from "rxjs";
+import { vi } from "vitest";
 
 import { LayoutComponent } from "./layout-component";
 
@@ -15,6 +20,7 @@ describe("LayoutComponent", () => {
   let breakpointSubject: BehaviorSubject<BreakpointState>;
   let routerEventsSubject: Subject<unknown>;
   let activeParkingNameSignal: ReturnType<typeof signal<string>>;
+  let observeSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     breakpointSubject = new BehaviorSubject<BreakpointState>({
@@ -23,6 +29,7 @@ describe("LayoutComponent", () => {
     });
     routerEventsSubject = new Subject<unknown>();
     activeParkingNameSignal = signal<string>("Central Parking");
+    observeSpy = vi.fn().mockReturnValue(breakpointSubject.asObservable());
 
     await TestBed.configureTestingModule({
       imports: [LayoutComponent],
@@ -32,7 +39,7 @@ describe("LayoutComponent", () => {
           provide: BreakpointObserver,
           useValue: {
             isMatched: () => breakpointSubject.value.matches,
-            observe: () => breakpointSubject.asObservable(),
+            observe: observeSpy,
           },
         },
         {
@@ -58,6 +65,12 @@ describe("LayoutComponent", () => {
 
   it("should create", () => {
     expect(component).toBeTruthy();
+  });
+
+  it("should observe strictly mobile query without Breakpoints.Small", () => {
+    expect(observeSpy).toHaveBeenCalledWith(["(max-width: 767.98px)"]);
+    const queriedBreakpoints = observeSpy.mock.calls[0][0] as string[];
+    expect(queriedBreakpoints).not.toContain(Breakpoints.Small);
   });
 
   describe("Desktop mode (>=768px)", () => {
@@ -109,12 +122,16 @@ describe("LayoutComponent", () => {
       expect(topBar.nativeElement.classList.contains("border-b")).toBe(true);
     });
 
-    it("should render logo Nivo in top bar", () => {
+    it("should render logo Nivo in top bar without duplicate text", () => {
       const logoLink = fixture.debugElement.query(
         By.css("header a[aria-label='Nivo']")
       );
       expect(logoLink).toBeTruthy();
-      expect(logoLink.nativeElement.textContent).toContain("Nivo");
+      const logoIcon = logoLink.query(
+        By.css("ng-icon[name='nivo-logo-horizontal']")
+      );
+      expect(logoIcon).toBeTruthy();
+      expect(logoLink.nativeElement.querySelector("span")).toBeNull();
     });
 
     it("should render hamburger button with correct aria-label", () => {
