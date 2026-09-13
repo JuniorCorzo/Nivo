@@ -1,28 +1,66 @@
 @let name = user()?.fullName; @let email = user()?.email;
 
-<div
-  class="flex flex-col justify-center gap-1 px-3 text-sm"
-  [class.px-3]="!collapsed()"
-  [class.px-0]="collapsed()"
+<button
+  type="button"
+  role="button"
+  cdkOverlayOrigin
+  #origin="cdkOverlayOrigin"
+  aria-haspopup="menu"
+  [attr.aria-expanded]="isOpen()"
+  (click)="toggleOpen()"
+  (keydown.escape)="close()"
+  class="hover:bg-muted text-foreground flex w-full cursor-pointer items-center rounded-lg p-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+  [class.justify-center]="collapsed()"
+  [class.gap-2]="!collapsed()"
+  [attr.title]="collapsed() ? (name || 'Invitado') : null"
 >
-  <div class="flex flex-col overflow-hidden">
-    <span
-      class="inline-flex items-center truncate text-sm font-medium"
-      [class.gap-2]="!collapsed()"
-      [class.justify-center]="collapsed()"
-      [attr.title]="collapsed() ? (name || 'Invitado') : null"
-    >
+  <img [src]="userProfileImage()" alt="" class="size-8 shrink-0 rounded-full" />
+  @if (!collapsed()) {
+  <span class="flex min-w-0 flex-1 flex-col overflow-hidden">
+    <span class="truncate text-sm font-medium">{{ name || 'Invitado' }}</span>
+    <span class="text-muted-foreground truncate text-xs">{{ email }}</span>
+  </span>
+  <ng-icon
+    name="lucideChevronsUpDown"
+    size="16"
+    class="text-muted-foreground shrink-0"
+  />
+  }
+</button>
+
+@if (isOpen()) {
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="origin"
+  [cdkConnectedOverlayOpen]="true"
+  [cdkConnectedOverlayPositions]="overlayPositions"
+  (overlayOutsideClick)="close()"
+  (detach)="close()"
+>
+  <div
+    role="menu"
+    class="border-border bg-popover text-popover-foreground z-50 w-64 rounded-xl border p-2 shadow-lg animate-in fade-in-0 zoom-in-95"
+  >
+    <div class="flex items-center gap-3 p-2">
       <img
         [src]="userProfileImage()"
         alt=""
-        class="size-8 shrink-0 rounded-full"
+        class="size-9 shrink-0 rounded-full"
       />
-      @if (!collapsed()) {
-      <span class="flex flex-col">
-        <span>{{ name || 'Invitado' }}</span>
-        <span class="text-muted-foreground text-xs">{{ email }}</span>
-      </span>
-      }
-    </span>
+      <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <span class="text-foreground truncate text-sm font-semibold">
+          {{ name || 'Invitado' }}
+        </span>
+        <nv-muted class="truncate text-xs"> {{ email }} </nv-muted>
+      </div>
+    </div>
+
+    <nv-divider class="my-1.5" />
+
+    <div class="flex flex-col gap-1">
+      <app-theme-button [collapsed]="false" />
+      <app-logout-button [collapsed]="false" (click)="close()" />
+    </div>
   </div>
-</div>
+</ng-template>
+}
