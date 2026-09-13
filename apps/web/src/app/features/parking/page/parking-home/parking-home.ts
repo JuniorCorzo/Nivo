@@ -14,6 +14,7 @@ import {
   TypographyH3,
 } from "@nivo-sass/design-system";
 import { DeleteParkingModal } from "@shared/components/delete-parking-modal/delete-parking-modal";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 import { ParkingEmptyState } from "../../components/parking-empty-state/parking-empty-state";
@@ -31,7 +32,7 @@ import { ParkingHomeFacade } from "../../facades/parking-home.facade";
     ButtonComponent,
     CardComponent,
     TypographyH3,
-    ParkingLotSelector,
+    PageHeaderComponent,
     ParkingMapComponent,
     DeleteParkingModal,
     ParkingStatsGrid,
@@ -57,4 +58,13 @@ import { ParkingHomeFacade } from "../../facades/parking-home.facade";
 export class ParkingHome {
   protected readonly LABELS_DETAIL = APP_TEXTS.parking.detail;
   protected readonly facade = inject(ParkingHomeFacade);
+
+  protected activeParkingSubtitle(): string {
+    const lot = this.facade.activeParkingLot();
+    if (!lot) {
+      return "";
+    }
+    const address = ParkingLotSelector.getFormattedAddress(lot);
+    return address ? `${lot.name} — ${address}` : lot.name;
+  }
 }

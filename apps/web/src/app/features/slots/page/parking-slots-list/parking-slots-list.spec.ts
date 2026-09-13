@@ -151,6 +151,15 @@ describe("ParkingSlotsListPage — Integration", () => {
       expect(text).toContain("Plazas");
     });
 
+    it("should render app-page-header with title and actions", () => {
+      const header = fixture.nativeElement.querySelector("app-page-header");
+      expect(header).toBeTruthy();
+      expect(header.textContent).toContain("Plazas de Parqueo");
+      const actions = header.querySelector("[actions]");
+      expect(actions).toBeTruthy();
+      expect(actions.textContent).toContain("Crear plazas");
+    });
+
     it("should render search input", () => {
       const search = fixture.nativeElement.querySelector(
         'input[type="search"]'

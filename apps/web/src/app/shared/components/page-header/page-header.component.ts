@@ -65,7 +65,10 @@ export class PageHeaderComponent {
     }
 
     const items: PageHeaderBreadcrumbItem[] = [];
-    const parkingName = this.activeParkingService?.activeParkingName()?.trim();
+    const parkingName =
+      typeof this.activeParkingService?.activeParkingName === "function"
+        ? this.activeParkingService.activeParkingName()?.trim()
+        : this.activeParkingService?.activeParkingLot?.()?.name?.trim();
     if (parkingName) {
       items.push({ label: parkingName });
     }

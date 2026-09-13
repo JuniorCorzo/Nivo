@@ -1,68 +1,38 @@
 @if (facade.parking(); as p) {
 <div class="mx-auto flex max-w-7xl flex-col gap-6 p-4 sm:p-6 md:p-8">
-  <!-- Breadcrumb & Top Bar -->
-  <div class="flex flex-col gap-3">
-    <div
-      class="text-muted-foreground flex flex-wrap items-center gap-2 text-xs"
-    >
-      <a
-        routerLink="/app/parking-lots"
-        class="hover:text-foreground transition-colors"
-        >Parqueaderos</a
-      >
-      <ng-icon name="lucideChevronRight" size="14" />
-      <a
+  <!-- Header & Actions -->
+  <app-page-header
+    title="Plazas de Parqueo"
+    [subtitle]="texts.list.subtitle"
+    [breadcrumbs]="[
+      { label: 'Parqueaderos', url: APP_ROUTES.app.parkingLots },
+      { label: p.name, url: APP_ROUTES.app.parkingLots },
+      { label: 'Plazas' }
+    ]"
+  >
+    <div actions class="flex flex-wrap items-center gap-2">
+      <nv-button
+        variant="outline"
         [routerLink]="APP_ROUTES.app.parkingLots"
-        class="hover:text-foreground transition-colors"
-        >{{ p.name }}</a
+        size="sm"
       >
-      <ng-icon name="lucideChevronRight" size="14" />
-      <span class="text-foreground font-semibold">Plazas</span>
+        <ng-icon name="lucideArrowLeft" size="12" />
+        Volver al parqueadero
+      </nv-button>
+      <nv-button
+        variant="outline"
+        (click)="facade.openGroupModal()"
+        size="sm"
+      >
+        <ng-icon name="lucidePencil" size="14" />
+        Editar grupo
+      </nv-button>
+      <nv-button (click)="facade.onCreate()" size="sm">
+        <ng-icon name="lucidePlus" size="16" />
+        Crear plazas
+      </nv-button>
     </div>
-
-    <div
-      class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
-    >
-      <div class="flex items-center gap-3">
-        <div
-          class="bg-primary/10 text-primary border-primary/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
-        >
-          <ng-icon name="lucideParkingSquare" class="text-xl" />
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <nv-h1>{{ texts.list.title }} — {{ p.name }}</nv-h1>
-          </div>
-          <p class="text-muted-foreground text-xs sm:text-sm">
-            Listado y filtros sobre plazas del parqueadero
-          </p>
-        </div>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <nv-button
-          variant="outline"
-          [routerLink]="APP_ROUTES.app.parkingLots"
-          size="sm"
-        >
-          <ng-icon name="lucideArrowLeft" size="12" />
-          Volver al parqueadero
-        </nv-button>
-        <nv-button
-          variant="outline"
-          (click)="facade.openGroupModal()"
-          size="sm"
-        >
-          <ng-icon name="lucidePencil" size="14" />
-          Editar grupo
-        </nv-button>
-        <nv-button (click)="facade.onCreate()" size="sm">
-          <ng-icon name="lucidePlus" size="16" />
-          Crear plazas
-        </nv-button>
-      </div>
-    </div>
-  </div>
+  </app-page-header>
 
   <!-- Main Card with Filters and Table -->
   <div

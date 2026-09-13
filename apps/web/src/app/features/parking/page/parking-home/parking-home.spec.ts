@@ -1,5 +1,5 @@
 import "@angular/compiler";
-import { signal } from "@angular/core";
+import { computed, signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
@@ -71,6 +71,9 @@ describe("ParkingHome Component", () => {
           provide: ActiveParkingService,
           useValue: {
             activeParkingLot: mockActiveParkingLotSignal,
+            activeParkingName: computed(
+              () => mockActiveParkingLotSignal()?.name ?? ""
+            ),
           },
         },
       ],
@@ -96,6 +99,15 @@ describe("ParkingHome Component", () => {
     expect(el.querySelector("app-parking-stats-grid")).toBeTruthy();
     expect(el.querySelector("app-parking-general-info")).toBeTruthy();
     expect(el.querySelector("app-parking-empty-state")).toBeNull();
+  });
+
+  it("should render app-page-header with title and actions", () => {
+    const header = fixture.nativeElement.querySelector("app-page-header");
+    expect(header).toBeTruthy();
+    expect(header.textContent).toContain("Parqueaderos");
+    const actions = header.querySelector("[actions]");
+    expect(actions).toBeTruthy();
+    expect(actions.textContent).toContain("Operaciones en vivo");
   });
 
   it("should render empty state when active parking is null", () => {
