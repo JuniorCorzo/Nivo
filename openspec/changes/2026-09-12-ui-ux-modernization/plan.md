@@ -17,6 +17,80 @@
 - Convención de commits: `feat(web):`, `refactor(web):`, `test(web):` según `AGENTS.md`.
 - Límite de revisión: presupuesto máximo de 400 líneas por tarea / commit.
 - TDD estricto: escribir prueba primero, verificar fallo (Red), implementar (Green) y refactorizar.
+- Enrutamiento multi-agente centralizado (Hub-and-Spoke): el orquestador delega a subagentes de implementación (`sdd-apply`) y verificación (`sdd-verify`) con conjuntos de archivos disjuntos (`files(A) ∩ files(B) = ∅`).
+
+---
+
+## Graph Agent Execution Architecture (DAG & Routing)
+
+### 1. Hub-and-Spoke Topology & Multi-Agent State Machine
+
+```mermaid
+flowchart TD
+    subgraph Orchestrator["Centralized Orchestrator (Hub)"]
+        STATE_INIT["[STATE_INIT] Inicialización & Conventions Gate"]
+        STATE_PLAN["[STATE_PLAN] Descomposición en DAG"]
+        STATE_WRITE["[STATE_WRITE] Despacho a Workers"]
+        STATE_VERIFY["[STATE_VERIFY] Auditoría de Verificación"]
+        STATE_EVALUATE{"[STATE_EVALUATE] Verdict?"}
+        STATE_COMPLETE["[STATE_COMPLETE] Conventional Commit"]
+        STATE_BLOCKED["[STATE_BLOCKED] Escalación (Retries >= 2)"]
+    end
+
+    STATE_INIT --> STATE_PLAN
+    STATE_PLAN --> STATE_WRITE
+    STATE_WRITE --> STATE_VERIFY
+    STATE_VERIFY --> STATE_EVALUATE
+    STATE_EVALUATE -->|PASS| STATE_COMPLETE
+    STATE_EVALUATE -->|FAIL & retries < 2| STATE_WRITE
+    STATE_EVALUATE -->|FAIL & retries >= 2| STATE_BLOCKED
+```
+
+### 2. Task Execution DAG (Directed Acyclic Graph)
+
+```mermaid
+flowchart LR
+    subgraph Wave1["Ola 1: Fundaciones Disjuntas (in_degree = 0)"]
+        T1["Task 1: PageHeader Breadcrumbs<br/><b>Worker:</b> sdd-apply-1<br/><b>Files:</b> shared/components/page-header/*"]
+        T4["Task 4: User Menu Popover<br/><b>Worker:</b> sdd-apply-2<br/><b>Files:</b> shared/components/user-menu/*<br/>shared/components/sidebar-footer/*"]
+    end
+
+    subgraph Wave2["Ola 2: Estandarización de Vistas (in_degree = 1)"]
+        T2["Task 2: Headers en Parking & Slots<br/><b>Worker:</b> sdd-apply-1<br/><b>Files:</b> features/parking/*<br/>features/slots/*"]
+        T3["Task 3: Headers en Rates & Formularios<br/><b>Worker:</b> sdd-apply-3<br/><b>Files:</b> features/rates/*<br/>features/parking/page/parking-form/*"]
+    end
+
+    subgraph Wave3["Ola 3: Layout & Navegación Móvil (in_degree = 1)"]
+        T5["Task 5: Mobile Drawer & TopBar<br/><b>Worker:</b> sdd-apply-2<br/><b>Files:</b> layouts/layout/*<br/>shared/components/sidebar/*"]
+    end
+
+    subgraph Wave4["Ola 4: Verificación Integral & Cierre (in_degree = 3)"]
+        T6["Task 6: Auditoría Completa & Sync<br/><b>Auditor:</b> sdd-verify<br/><b>Suite:</b> bun check + ng test<br/><b>Sync:</b> Vikunja Task #60"]
+    end
+
+    T1 -->|files disjoint| T2
+    T1 -->|files disjoint| T3
+    T4 -->|files disjoint| T5
+    T2 --> T6
+    T3 --> T6
+    T5 --> T6
+
+    classDef worker fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef auditor fill:#312e81,stroke:#a855f7,stroke-width:2px,color:#f8fafc;
+    class T1,T2,T3,T4,T5 worker;
+    class T6 auditor;
+```
+
+### 3. Matriz de Concurrencia y Aislamiento de Archivos
+
+| Tarea | Worker / Subagente | Archivos Afectados | Dependencias (`in_degree`) | Elegible para Paralelo |
+| :--- | :--- | :--- | :--- | :--- |
+| **Task 1** | `sdd-apply` (Worker 1) | `apps/web/src/app/shared/components/page-header/*` | Ninguna (`in_degree = 0`) | Sí (con Task 4) |
+| **Task 4** | `sdd-apply` (Worker 2) | `apps/web/src/app/shared/components/user-menu/*`<br/>`apps/web/src/app/shared/components/sidebar-footer/*` | Ninguna (`in_degree = 0`) | Sí (con Task 1: `files(T1) ∩ files(T4) = ∅`) |
+| **Task 2** | `sdd-apply` (Worker 1) | `apps/web/src/app/features/parking/page/parking-home/*`<br/>`apps/web/src/app/features/slots/*` | Requiere Task 1 | Sí (con Task 3: `files(T2) ∩ files(T3) = ∅`) |
+| **Task 3** | `sdd-apply` (Worker 3) | `apps/web/src/app/features/rates/*`<br/>`apps/web/src/app/features/parking/page/parking-form/*` | Requiere Task 1 | Sí (con Task 2: `files(T2) ∩ files(T3) = ∅`) |
+| **Task 5** | `sdd-apply` (Worker 2) | `apps/web/src/app/layouts/layout/*`<br/>`apps/web/src/app/shared/components/sidebar/*` | Requiere Task 4 | Secuencial tras Task 4 |
+| **Task 6** | `sdd-verify` (Auditor) | Workspace completo (`apps/web/src/*`) | Requiere Tasks 2, 3, 5 | Punto de convergencia / auditoría final |
 
 ---
 

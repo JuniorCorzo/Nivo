@@ -1,5 +1,35 @@
 # Tareas de Implementación: Modernización UI/UX
 
+## Execution DAG & Agent Routing
+
+```mermaid
+flowchart LR
+    subgraph Wave1["Ola 1 (Disjuntos, in_degree = 0)"]
+        T1["Fase 1.1 - 1.2: PageHeader Breadcrumbs<br/><b>Worker:</b> sdd-apply-1"]
+        T2["Fase 2: User Menu Popover<br/><b>Worker:</b> sdd-apply-2"]
+    end
+
+    subgraph Wave2["Ola 2 (Estandarización, in_degree = 1)"]
+        T3["Fase 1.3 - 1.4: Headers en Parking & Slots<br/><b>Worker:</b> sdd-apply-1"]
+        T4["Fase 1.5: Headers en Rates & Formularios<br/><b>Worker:</b> sdd-apply-3"]
+    end
+
+    subgraph Wave3["Ola 3 (Layout Móvil, in_degree = 1)"]
+        T5["Fase 3: Mobile Drawer & TopBar<br/><b>Worker:</b> sdd-apply-2"]
+    end
+
+    subgraph Wave4["Ola 4 (Auditoría Final)"]
+        T6["Fase 4: Verificación Integral & Vikunja Sync<br/><b>Auditor:</b> sdd-verify"]
+    end
+
+    T1 --> T3
+    T1 --> T4
+    T2 --> T5
+    T3 --> T6
+    T4 --> T6
+    T5 --> T6
+```
+
 ## Fase 1: PageHeader Estandarizado con Breadcrumbs Reactivos
 - [ ] 1.1 Escribir pruebas unitarias en `page-header.component.spec.ts` para breadcrumbs automáticos (con/sin parqueadero activo) e inputs explícitos.
 - [ ] 1.2 Implementar soporte de breadcrumbs y maquetación visual en `PageHeaderComponent` (`page-header.component.ts`, `page-header.component.html`).
