@@ -142,9 +142,7 @@ describe("LayoutComponent", () => {
     });
 
     it("should render active parking name badge when available", () => {
-      const badge = fixture.debugElement.query(
-        By.css("header nv-badge")
-      );
+      const badge = fixture.debugElement.query(By.css("header nv-badge"));
       expect(badge).toBeTruthy();
       expect(badge.nativeElement.textContent).toContain("Central Parking");
     });

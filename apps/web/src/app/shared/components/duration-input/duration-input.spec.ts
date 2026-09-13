@@ -24,9 +24,9 @@ class TestHostComponent {
   readonly control = new FormControl<number>(0);
   readonly label = signal("Tiempo de gracia");
   readonly id = signal("grace-duration");
-  readonly error = signal<
-    string | ValidationError.WithFieldTree[] | undefined
-  >(undefined);
+  readonly error = signal<string | ValidationError.WithFieldTree[] | undefined>(
+    undefined
+  );
 }
 
 describe("DurationInputComponent", () => {

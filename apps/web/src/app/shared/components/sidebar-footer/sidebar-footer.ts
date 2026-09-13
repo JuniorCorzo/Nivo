@@ -1,13 +1,13 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
-import { UserMenu } from '../user-menu/user-menu';
+import { UserMenu } from "../user-menu/user-menu";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [UserMenu],
-  selector: 'app-sidebar-footer',
-  styleUrl: './sidebar-footer.css',
-  templateUrl: './sidebar-footer.html',
+  selector: "app-sidebar-footer",
+  styleUrl: "./sidebar-footer.css",
+  templateUrl: "./sidebar-footer.html",
 })
 export class SidebarFooter {
   readonly collapsed = input(false);

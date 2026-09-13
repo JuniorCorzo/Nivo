@@ -8,7 +8,12 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { NavigationEnd, Router, RouterLink, RouterOutlet } from "@angular/router";
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterOutlet,
+} from "@angular/router";
 import { ActiveParkingService } from "@core/services/active-parking.service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideMenu } from "@ng-icons/lucide";

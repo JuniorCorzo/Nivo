@@ -2,7 +2,12 @@ import "@angular/compiler";
 import { signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
-import { ActivatedRoute, convertToParamMap, provideRouter, Router } from "@angular/router";
+import {
+  ActivatedRoute,
+  convertToParamMap,
+  provideRouter,
+  Router,
+} from "@angular/router";
 import type { RateModel, SpecialPolicyModel } from "@core/models/rate.model";
 import { ParkingService } from "@core/services/parking-service";
 import { RateService } from "@core/services/rate-service";
@@ -111,7 +116,9 @@ describe("RateListComponent", () => {
       "Gestión de esquemas tarifarios, precios base y simulación en tiempo real"
     );
 
-    const breadcrumb = header.querySelector('[data-testid="page-header-breadcrumb"]');
+    const breadcrumb = header.querySelector(
+      '[data-testid="page-header-breadcrumb"]'
+    );
     expect(breadcrumb).toBeTruthy();
     expect(breadcrumb?.textContent).toContain("Parqueaderos");
     expect(breadcrumb?.textContent).toContain("Parqueadero Central");

@@ -31,9 +31,9 @@ import {
   TableRowComponent,
   InputComponent,
 } from "@nivo-sass/design-system";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
-import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
 import { FlexRender } from "@tanstack/angular-table";
 
 import { PaginationTable } from "@/app/shared/components/pagination-table/pagination-table";
