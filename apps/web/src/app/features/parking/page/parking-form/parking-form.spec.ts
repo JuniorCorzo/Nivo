@@ -15,6 +15,7 @@ interface MockParkingService {
   update: ReturnType<typeof vi.fn>;
   getUpsertById: ReturnType<typeof vi.fn>;
   deleteSlotGroup: ReturnType<typeof vi.fn>;
+  parkingLots: ReturnType<typeof signal<ParkingLotsModel[]>>;
 }
 
 describe("ParkingFormComponent", () => {
@@ -79,6 +80,7 @@ describe("ParkingFormComponent", () => {
           timezone: "UTC-05:00",
         })
       ),
+      parkingLots: signal([]),
       update: vi.fn(),
     };
 
@@ -121,5 +123,17 @@ describe("ParkingFormComponent", () => {
   it("should navigate back on onCancel", () => {
     component.onCancel();
     expect(router.navigate).toHaveBeenCalledWith(["/app/parking-lots"]);
+  });
+
+  it("should render app-page-header with title, subtitle and backLink", () => {
+    const header = fixture.nativeElement.querySelector("app-page-header");
+    expect(header).toBeTruthy();
+    expect(header.textContent).toContain("Crear Parqueadero");
+    expect(header.textContent).toContain(
+      "Configurá los datos de sede, ubicación geográfica, horarios y capacidad"
+    );
+    const backBtn = header.querySelector("a");
+    expect(backBtn).toBeTruthy();
+    expect(backBtn?.getAttribute("href")).toBe("/app/parking-lots");
   });
 });

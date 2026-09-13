@@ -14,7 +14,6 @@ import { RateService } from "@core/services/rate-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideArrowLeft,
-  lucideChevronRight,
   lucideCoins,
   lucideInbox,
   lucidePencil,
@@ -33,8 +32,8 @@ import {
   InputComponent,
   SelectComponent,
   ToastService,
-  TypographyH1,
 } from "@nivo-sass/design-system";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
 import {
@@ -58,7 +57,7 @@ import { SpecialPoliciesConfigComponent } from "../special-policies-config/speci
     RateCalculatorComponent,
     SpecialPoliciesConfigComponent,
     RateDeleteModal,
-    TypographyH1,
+    PageHeaderComponent,
   ],
   providers: [
     provideIcons({
@@ -66,7 +65,6 @@ import { SpecialPoliciesConfigComponent } from "../special-policies-config/speci
       lucideBike,
       lucideCalculator,
       lucideCar,
-      lucideChevronRight,
       lucideClock,
       lucideCoins,
       lucideInbox,
