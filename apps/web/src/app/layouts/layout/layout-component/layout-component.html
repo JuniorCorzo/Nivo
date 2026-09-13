@@ -1,5 +1,63 @@
-<main class="flex min-h-dvh">
-  <router-outlet class="max-w-sm" name="sidebar" />
+@if (isMobile()) {
+  <header class="border-border bg-background flex h-14 items-center justify-between border-b px-4">
+    <div class="flex items-center gap-3">
+      <button
+        nv-button
+        variant="ghost"
+        size="icon"
+        aria-label="Abrir menú de navegación"
+        (click)="openDrawer()"
+      >
+        <ng-icon name="lucideMenu" size="20" />
+      </button>
+
+      <a
+        [routerLink]="homeUrl"
+        aria-label="Nivo"
+        class="flex items-center gap-2 focus:outline-none"
+      >
+        <ng-icon
+          name="nivo-logo-horizontal"
+          class="text-foreground h-fit! w-24!"
+        ></ng-icon>
+        <span class="font-bold text-lg tracking-tight">Nivo</span>
+      </a>
+    </div>
+
+    @if (activeParkingName()) {
+      <nv-badge variant="secondary" class="max-w-40 truncate">
+        {{ activeParkingName() }}
+      </nv-badge>
+    }
+  </header>
+
+  @if (mobileDrawerOpen()) {
+    <div
+      class="fixed inset-0 z-50 flex"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Menú de navegación"
+    >
+      <div
+        class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
+        aria-hidden="true"
+        (click)="closeDrawer()"
+        data-testid="drawer-backdrop"
+      ></div>
+
+      <div
+        class="border-border bg-background relative z-10 flex h-full w-72 flex-col border-r shadow-xl"
+      >
+        <router-outlet name="sidebar" />
+      </div>
+    </div>
+  }
+}
+
+<main class="flex min-h-dvh flex-col md:flex-row">
+  @if (!isMobile()) {
+    <router-outlet class="max-w-sm" name="sidebar" />
+  }
   <section class="min-w-0 flex-1 overflow-hidden">
     <router-outlet />
   </section>
