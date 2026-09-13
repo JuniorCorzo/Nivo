@@ -1,8 +1,10 @@
-import { Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
+import type { WritableSignal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideRouter } from "@angular/router";
+import { ActiveParkingService } from "@core/services/active-parking.service";
 import {
   BadgeComponent,
   TypographyH1,
@@ -10,6 +12,10 @@ import {
 } from "@nivo-sass/design-system";
 
 import { PageHeaderComponent } from "./page-header.component";
+
+interface MockActiveParkingService {
+  activeParkingName: WritableSignal<string>;
+}
 
 @Component({
   imports: [PageHeaderComponent],
@@ -32,11 +38,19 @@ class TestHostComponent {
 describe("PageHeaderComponent", () => {
   let component: PageHeaderComponent;
   let fixture: ComponentFixture<PageHeaderComponent>;
+  let mockActiveParkingService: MockActiveParkingService;
 
   beforeEach(async () => {
+    mockActiveParkingService = {
+      activeParkingName: signal<string>(""),
+    };
+
     await TestBed.configureTestingModule({
       imports: [PageHeaderComponent, TestHostComponent],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        { provide: ActiveParkingService, useValue: mockActiveParkingService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PageHeaderComponent);
@@ -184,6 +198,49 @@ describe("PageHeaderComponent", () => {
       expect(defaultContent.nativeElement.textContent.trim()).toBe(
         "Default Content"
       );
+    });
+  });
+
+  describe("Breadcrumbs", () => {
+    it("should render reactive breadcrumb with active parking lot name and title by default", () => {
+      mockActiveParkingService.activeParkingName.set("Sede Central");
+      fixture.componentRef.setInput("title", "Dashboard");
+      fixture.detectChanges();
+
+      const breadcrumbEl = fixture.nativeElement.querySelector(
+        '[data-testid="page-header-breadcrumb"]'
+      );
+      expect(breadcrumbEl).toBeTruthy();
+      expect(breadcrumbEl.textContent).toContain("Sede Central");
+      expect(breadcrumbEl.textContent).toContain("Dashboard");
+    });
+
+    it("should render fallback breadcrumb with only title when no active parking exists", () => {
+      mockActiveParkingService.activeParkingName.set("");
+      fixture.componentRef.setInput("title", "Dashboard");
+      fixture.detectChanges();
+
+      const breadcrumbEl = fixture.nativeElement.querySelector(
+        '[data-testid="page-header-breadcrumb"]'
+      );
+      expect(breadcrumbEl).toBeTruthy();
+      expect(breadcrumbEl.textContent).not.toContain("Sede Central");
+      expect(breadcrumbEl.textContent).toContain("Dashboard");
+    });
+
+    it("should render custom explicit breadcrumbs when provided", () => {
+      fixture.componentRef.setInput("breadcrumbs", [
+        { label: "Parqueaderos", url: "/app/parking-lots" },
+        { label: "Detalle" },
+      ]);
+      fixture.detectChanges();
+
+      const breadcrumbEl = fixture.nativeElement.querySelector(
+        '[data-testid="page-header-breadcrumb"]'
+      );
+      expect(breadcrumbEl).toBeTruthy();
+      expect(breadcrumbEl.textContent).toContain("Parqueaderos");
+      expect(breadcrumbEl.textContent).toContain("Detalle");
     });
   });
 });

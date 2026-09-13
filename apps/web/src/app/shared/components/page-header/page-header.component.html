@@ -13,6 +13,32 @@
       </a>
     }
     <div class="min-w-0 flex-1">
+      @if (computedBreadcrumbs().length > 0) {
+        <nav
+          aria-label="Ruta de navegación"
+          data-testid="page-header-breadcrumb"
+          class="text-muted-foreground flex items-center gap-1.5 font-mono text-xs"
+        >
+          @for (item of computedBreadcrumbs(); track $index) {
+            @if ($index > 0) {
+              <span class="text-border">/</span>
+            }
+            @if (item.url) {
+              <a
+                [routerLink]="item.url"
+                class="hover:text-foreground transition-colors"
+                >{{ item.label }}</a
+              >
+            } @else {
+              <span
+                [class.text-foreground]="$last"
+                [class.font-semibold]="$last"
+                >{{ item.label }}</span
+              >
+            }
+          }
+        </nav>
+      }
       <div class="flex items-center gap-2">
         <nv-h1 class="truncate">{{ title() }}</nv-h1>
         @if (badge()) {
