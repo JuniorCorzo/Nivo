@@ -43,6 +43,14 @@ export const routes: Routes = [
         children: [
           {
             canMatch: [mobileGuard],
+            data: {
+              navContext: {
+                scope: "parking",
+                isRoot: true,
+                title: "Parqueaderos",
+                section: "Inicio",
+              },
+            },
             loadComponent: async () => {
               const c =
                 await import("@features/parking/page/parking-home-mobile/parking-home-mobile");
@@ -52,6 +60,14 @@ export const routes: Routes = [
             title: "Parqueaderos",
           },
           {
+            data: {
+              navContext: {
+                scope: "parking",
+                isRoot: true,
+                title: "Parqueaderos",
+                section: "Inicio",
+              },
+            },
             loadComponent: async () => {
               const c =
                 await import("@features/parking/page/parking-home/parking-home");
@@ -61,6 +77,14 @@ export const routes: Routes = [
             title: "Parqueaderos",
           },
           {
+            data: {
+              navContext: {
+                scope: "parking",
+                title: "Crear parqueadero",
+                section: "Parqueaderos",
+                backLink: "/app/parking-lots",
+              },
+            },
             loadComponent: async () => {
               const c =
                 await import("@features/parking/page/parking-form/parking-form");
@@ -70,6 +94,14 @@ export const routes: Routes = [
             title: "Crear parqueadero",
           },
           {
+            data: {
+              navContext: {
+                scope: "parking",
+                title: "Configurar Parqueadero",
+                section: "Parqueaderos",
+                backLink: "/app/parking-lots",
+              },
+            },
             loadComponent: async () => {
               const c =
                 await import("@features/parking/page/parking-form/parking-form");
@@ -79,6 +111,14 @@ export const routes: Routes = [
             title: "Editar parqueadero",
           },
           {
+            data: {
+              navContext: {
+                scope: "parking",
+                title: "Plazas",
+                section: "Plazas",
+                backLink: "/app/parking-lots",
+              },
+            },
             loadComponent: async () => {
               const c =
                 await import("@features/slots/page/parking-slots-list/parking-slots-list");
@@ -88,6 +128,14 @@ export const routes: Routes = [
             title: "Plazas",
           },
           {
+            data: {
+              navContext: {
+                scope: "parking",
+                title: "Crear plazas",
+                section: "Plazas",
+                backLink: "/app/parking-lots",
+              },
+            },
             loadComponent: async () => {
               const c =
                 await import("@features/slots/page/parking-slot-form/parking-slot-form");
@@ -97,6 +145,14 @@ export const routes: Routes = [
             title: "Crear plazas",
           },
           {
+            data: {
+              navContext: {
+                scope: "parking",
+                title: "Editar plaza",
+                section: "Plazas",
+                backLink: "/app/parking-lots",
+              },
+            },
             loadComponent: async () => {
               const c =
                 await import("@features/slots/page/parking-slot-form/parking-slot-form");
@@ -106,6 +162,14 @@ export const routes: Routes = [
             title: "Editar plaza",
           },
           {
+            data: {
+              navContext: {
+                scope: "parking",
+                title: "Detalle de plaza",
+                section: "Plazas",
+                backLink: "/app/parking-lots",
+              },
+            },
             loadComponent: async () => {
               const c =
                 await import("@features/slots/page/parking-slots-list/parking-slots-list");
@@ -115,6 +179,14 @@ export const routes: Routes = [
             title: "Detalle de plaza",
           },
           {
+            data: {
+              navContext: {
+                scope: "parking",
+                title: "Tarifas",
+                section: "Tarifas",
+                backLink: "/app/parking-lots",
+              },
+            },
             loadComponent: async () => {
               const c =
                 await import("@features/rates/components/rates-list/rates-list");
@@ -124,6 +196,14 @@ export const routes: Routes = [
             title: "Tarifas",
           },
           {
+            data: {
+              navContext: {
+                scope: "parking",
+                title: "Crear tarifa",
+                section: "Tarifas",
+                backLink: "/app/parking-lots",
+              },
+            },
             loadComponent: async () => {
               const c =
                 await import("@features/rates/components/rate-form/rate-form");
@@ -133,6 +213,14 @@ export const routes: Routes = [
             title: "Crear tarifa",
           },
           {
+            data: {
+              navContext: {
+                scope: "parking",
+                title: "Editar tarifa",
+                section: "Tarifas",
+                backLink: "/app/parking-lots",
+              },
+            },
             loadComponent: async () => {
               const c =
                 await import("@features/rates/components/rate-form/rate-form");
@@ -142,6 +230,14 @@ export const routes: Routes = [
             title: "Editar tarifa",
           },
           {
+            data: {
+              navContext: {
+                scope: "parking",
+                title: "Operaciones",
+                section: "Operaciones",
+                backLink: "/app/parking-lots",
+              },
+            },
             loadComponent: async () => {
               const c =
                 await import("@features/operations/page/operations-page");
@@ -151,6 +247,14 @@ export const routes: Routes = [
             title: "Operaciones",
           },
           {
+            data: {
+              navContext: {
+                scope: "parking",
+                title: "Tickets",
+                section: "Operaciones",
+                backLink: "/app/parking-lots",
+              },
+            },
             loadComponent: async () => {
               const c = await import("@features/tickets/page/tickets-page");
               return c.TicketsPageComponent;
@@ -158,6 +262,14 @@ export const routes: Routes = [
             path: APP_ROUTE_PATHS.app.parkingLotTickets,
           },
           {
+            data: {
+              navContext: {
+                scope: "tenant",
+                isRoot: true,
+                title: "Tickets Emitidos",
+                section: "Operaciones",
+              },
+            },
             loadComponent: async () => {
               const c = await import("@features/tickets/page/tickets-page");
               return c.TicketsPageComponent;
