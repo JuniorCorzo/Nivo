@@ -1,0 +1,4 @@
+# Propuesta: Rediseño de PageHeader y Navegación Declarativa
+
+## Meta y Justificación
+Implementar el rediseño dual y responsivo del componente `PageHeader` basándose en el mockup de diseño (`page-header-mockups.html`), proporcionando una experiencia optimizada tanto en escritorio (tarjeta unificada, píldora de historial `< >`, migas de pan semánticas y acciones) como en móviles (tres filas compactas para ruta/estado, identidad/título y acciones en grilla). Se introduce `NavigationContextService` con Signals para desacoplar y estandarizar la resolución declarativa de rutas y migas según el ámbito (`tenant` vs `parking`), se migra la página de tarifas a `features/rates/page/rates-page/`, y se integran los nuevos patrones en las vistas principales (`parking-form`, `parking-home`, `operations`, `slots` y `tickets`).
