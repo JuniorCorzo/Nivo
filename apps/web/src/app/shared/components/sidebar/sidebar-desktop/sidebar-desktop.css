@@ -1,0 +1,7 @@
+.sidebar {
+  width: 15rem;
+}
+
+.sidebar--collapsed {
+  width: 3.5rem;
+}
