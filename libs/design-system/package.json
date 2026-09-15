@@ -13,6 +13,7 @@
     "./styles/components.css": "./src/lib/styles/components.css"
   },
   "scripts": {
+    "test": "ng test --watch=false",
     "generate:tokens": "node scripts/generate-tokens.mjs",
     "build:css": "bunx @tailwindcss/cli -i src/lib/styles/components.css -o dist/libs/design-system/styles/components.css",
     "build": "node scripts/generate-tokens.mjs && bunx ng-packagr --config=tsconfig.lib.json -p ng-package.json && bun run build:css && node scripts/patch-dist-exports.mjs",
@@ -34,6 +35,7 @@
     "@angular-devkit/build-angular": "21.2.6",
     "@angular-devkit/core": "21.2.6",
     "@angular/aria": "21.2.6",
+    "@angular/build": "21.2.6",
     "@angular/cdk": "21.2.6",
     "@angular/cli": "21.2.6",
     "@angular/compiler": "21.2.6",
@@ -44,6 +46,7 @@
     "@storybook/angular": "10.3.4",
     "@tailwindcss/postcss": "^4.2.2",
     "eslint-plugin-github": "6.1.2",
+    "happy-dom": "^17.1.8",
     "ng-packagr": "^21.2.2",
     "oxfmt": "^0.66.0",
     "oxlint": "^1.81.0",
@@ -51,7 +54,8 @@
     "storybook": "10.3.4",
     "tailwindcss": "^4",
     "typescript": "~6.0.2",
-    "ultracite": "7.10.7"
+    "ultracite": "7.10.7",
+    "vitest": "^3.0.7"
   },
   "peerDependencies": {
     "@angular/aria": "^21.2.0",
