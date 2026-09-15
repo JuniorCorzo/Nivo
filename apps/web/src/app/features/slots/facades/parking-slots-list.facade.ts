@@ -15,7 +15,7 @@ import { ToastService } from "@nivo-sass/design-system";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
 import { SlotDeleteState } from "../components/slot-delete-modal/slots-delete.state";
-import type { SlotGroupOption } from "../components/slot-group-edit-modal/slot-group-edit-modal.component";
+import type { SlotGroupOption } from "../components/slot-group-edit-modal/slot-group-edit-modal";
 import { SlotStatusState } from "../components/slot-status-modal/slot-status.state";
 import { SlotsSelectionState } from "../page/parking-slots-list/slots-selection.state";
 import { SlotsTableState } from "../page/parking-slots-list/slots-table.state";
@@ -36,7 +36,7 @@ export {
   getStatusTransitionOptions,
   VALID_STATUS_TRANSITIONS,
 } from "../components/slot-status-modal/slot-status.state";
-export type { SlotGroupOption } from "../components/slot-group-edit-modal/slot-group-edit-modal.component";
+export type { SlotGroupOption } from "../components/slot-group-edit-modal/slot-group-edit-modal";
 
 export type DrawerTab = "general" | "history";
 

@@ -7,7 +7,7 @@ import { TicketService } from "@core/services/ticket-service";
 import { ToastService } from "@nivo-sass/design-system";
 import { of } from "rxjs";
 
-import { CheckInModalComponent } from "./check-in-modal.component";
+import { CheckInModalComponent } from "./check-in-modal";
 
 interface MockTicketService {
   createTicket: ReturnType<typeof vi.fn>;

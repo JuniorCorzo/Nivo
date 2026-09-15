@@ -8,12 +8,9 @@ import {
   lucidePencil,
   lucideTrash2,
 } from "@ng-icons/lucide";
-import {
-  CardComponent,
-  TypographyH3,
-} from "@nivo-sass/design-system";
+import { CardComponent, TypographyH3 } from "@nivo-sass/design-system";
 import { DeleteParkingModal } from "@shared/components/delete-parking-modal/delete-parking-modal";
-import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 import { ParkingActionButton } from "../../components/parking-action-button/parking-action-button";

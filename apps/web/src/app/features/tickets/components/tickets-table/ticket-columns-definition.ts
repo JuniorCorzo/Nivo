@@ -1,16 +1,13 @@
 import type { TicketSummary } from "@core/models/ticket.model";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import type { ColumnDef } from "@tanstack/angular-table";
-import {
-  createColumnHelper,
-  flexRenderComponent,
-} from "@tanstack/angular-table";
+import { createColumnHelper, flexRenderComponent } from "@tanstack/angular-table";
 
-import { TicketParkingBadgeComponent } from "./ticket-parking-badge.component";
-import { TicketPlateCellComponent } from "./ticket-plate-cell.component";
-import { TicketRowActionsComponent } from "./ticket-row-actions.component";
-import { TicketStatusBadgeComponent } from "./ticket-status-badge.component";
-import { TicketVehicleBadgeComponent } from "./ticket-vehicle-badge.component";
+import { TicketParkingBadgeComponent } from "./ticket-parking-badge";
+import { TicketPlateCellComponent } from "./ticket-plate-cell";
+import { TicketRowActionsComponent } from "./ticket-row-actions";
+import { TicketStatusBadgeComponent } from "./ticket-status-badge";
+import { TicketVehicleBadgeComponent } from "./ticket-vehicle-badge";
 
 export const formatTicketDate = (dateStr?: string): string => {
   if (!dateStr) {
@@ -54,9 +51,7 @@ const columnHelper = createColumnHelper<TicketSummary>();
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TicketTableColumn = ColumnDef<TicketSummary, any>;
 
-export const createTicketColumns = (
-  options: TicketColumnsOptions = {}
-): TicketTableColumn[] => {
+export const createTicketColumns = (options: TicketColumnsOptions = {}): TicketTableColumn[] => {
   const columns: TicketTableColumn[] = [
     columnHelper.accessor("licensePlate", {
       cell: (info) =>
@@ -66,9 +61,7 @@ export const createTicketColumns = (
       enableSorting: true,
       filterFn: (row, columnId, filterValue: string) =>
         !filterValue ||
-        String(row.getValue(columnId))
-          .toUpperCase()
-          .includes(filterValue.trim().toUpperCase()),
+        String(row.getValue(columnId)).toUpperCase().includes(filterValue.trim().toUpperCase()),
       header: APP_TEXTS.tickets.table.columns.plate,
       id: "licensePlate",
     }),
@@ -84,7 +77,7 @@ export const createTicketColumns = (
         enableSorting: true,
         header: APP_TEXTS.tickets.table.columns.parkingLot,
         id: "parkingLotName",
-      })
+      }),
     );
   }
 
@@ -96,9 +89,7 @@ export const createTicketColumns = (
         }),
       enableSorting: true,
       filterFn: (row, columnId, filterValue: string) =>
-        !filterValue ||
-        filterValue === "ALL" ||
-        row.getValue(columnId) === filterValue,
+        !filterValue || filterValue === "ALL" || row.getValue(columnId) === filterValue,
       header: APP_TEXTS.tickets.table.columns.vehicleType,
       id: "slotType",
     }),
@@ -141,9 +132,7 @@ export const createTicketColumns = (
         }),
       enableSorting: true,
       filterFn: (row, columnId, filterValue: string) =>
-        !filterValue ||
-        filterValue === "ALL" ||
-        row.getValue(columnId) === filterValue,
+        !filterValue || filterValue === "ALL" || row.getValue(columnId) === filterValue,
       header: APP_TEXTS.tickets.table.columns.status,
       id: "status",
     }),
@@ -170,12 +159,10 @@ export const createTicketColumns = (
     columnHelper.accessor("parkingLotId", {
       enableHiding: true,
       filterFn: (row, columnId, filterValue: string) =>
-        !filterValue ||
-        filterValue === "ALL" ||
-        row.getValue(columnId) === filterValue,
+        !filterValue || filterValue === "ALL" || row.getValue(columnId) === filterValue,
       header: "Parking Lot ID",
       id: "parkingLotId",
-    })
+    }),
   );
 
   return columns;

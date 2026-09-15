@@ -17,7 +17,7 @@ import {
   DividerComponent,
   ToastService,
 } from "@nivo-sass/design-system";
-import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { of, throwError } from "rxjs";
 
 import { OperationsPageComponent } from "./operations-page";

@@ -1,9 +1,9 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import type { ActivatedRouteSnapshot } from "@angular/router";
-import { filter } from "rxjs/operators";
 import { ActiveParkingService } from "@core/services/active-parking.service";
-import type { PageHeaderBreadcrumbItem } from "@shared/components/page-header/page-header.component";
+import type { PageHeaderBreadcrumbItem } from "@shared/components/page-header/page-header";
+import { filter } from "rxjs/operators";
 
 export type NavigationScope = "tenant" | "parking";
 
@@ -115,7 +115,11 @@ export class NavigationContextService {
     this.extractAndSetNavContext();
 
     this.router.events
-      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .pipe(
+        filter(
+          (event): event is NavigationEnd => event instanceof NavigationEnd
+        )
+      )
       .subscribe(() => {
         this.extractAndSetNavContext();
       });

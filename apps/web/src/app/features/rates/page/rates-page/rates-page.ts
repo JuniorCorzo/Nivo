@@ -13,7 +13,7 @@ import { RateService } from "@core/services/rate-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideArrowLeft, lucideCoins, lucidePlus } from "@ng-icons/lucide";
 import { ButtonComponent } from "@nivo-sass/design-system";
-import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
 import { RateCalculatorComponent } from "../../components/rate-calculator/rate-calculator";

@@ -1,7 +1,7 @@
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 
-import { TicketReceiptComponent } from "./ticket-receipt.component";
+import { TicketReceiptComponent } from "./ticket-receipt";
 
 describe("TicketReceiptComponent", () => {
   let component: TicketReceiptComponent;

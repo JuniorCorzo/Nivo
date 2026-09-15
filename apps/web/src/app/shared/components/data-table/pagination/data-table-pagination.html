@@ -1,0 +1,63 @@
+<div class="flex flex-col items-center justify-between gap-4 px-2 py-4 sm:flex-row">
+  <div class="text-muted-foreground flex items-center gap-2 text-sm">
+    <span>{{ texts.rowsPerPage }}</span>
+    <div class="w-24">
+      <nv-select
+        [items]="pageSizeOptions()"
+        [value]="pageSizeString()"
+        [displayFn]="displaySizeFn"
+        [valueFn]="valueSizeFn"
+        (valueChange)="onPageSizeChange($event)"
+      />
+    </div>
+    <span class="ml-2"> {{ texts.totalResults(table().getFilteredRowModel().rows.length) }} </span>
+  </div>
+
+  <div class="flex items-center gap-4">
+    <span class="text-muted-foreground text-sm">
+      {{ texts.pageInfo(currentPage(), totalPages()) }}
+    </span>
+    <div class="flex items-center gap-1">
+      <nv-button
+        type="button"
+        variant="outline"
+        size="sm"
+        [attr.aria-label]="texts.firstPage"
+        [disabled]="!table().getCanPreviousPage()"
+        (click)="goToFirstPage()"
+      >
+        <ng-icon name="lucideChevronsLeft" size="16" />
+      </nv-button>
+      <nv-button
+        type="button"
+        variant="outline"
+        size="sm"
+        [attr.aria-label]="texts.previousPage"
+        [disabled]="!table().getCanPreviousPage()"
+        (click)="goToPreviousPage()"
+      >
+        <ng-icon name="lucideChevronLeft" size="16" />
+      </nv-button>
+      <nv-button
+        type="button"
+        variant="outline"
+        size="sm"
+        [attr.aria-label]="texts.nextPage"
+        [disabled]="!table().getCanNextPage()"
+        (click)="goToNextPage()"
+      >
+        <ng-icon name="lucideChevronRight" size="16" />
+      </nv-button>
+      <nv-button
+        type="button"
+        variant="outline"
+        size="sm"
+        [attr.aria-label]="texts.lastPage"
+        [disabled]="!table().getCanNextPage()"
+        (click)="goToLastPage()"
+      >
+        <ng-icon name="lucideChevronsRight" size="16" />
+      </nv-button>
+    </div>
+  </div>
+</div>

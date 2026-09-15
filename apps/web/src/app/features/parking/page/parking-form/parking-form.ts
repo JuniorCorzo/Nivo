@@ -23,7 +23,7 @@ import {
   TypographyH2,
   TypographyMuted,
 } from "@nivo-sass/design-system";
-import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { Subject, exhaustMap, firstValueFrom, takeUntil } from "rxjs";

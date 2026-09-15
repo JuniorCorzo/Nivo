@@ -31,7 +31,7 @@ import {
   TableRowComponent,
   InputComponent,
 } from "@nivo-sass/design-system";
-import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { FlexRender } from "@tanstack/angular-table";
@@ -41,8 +41,8 @@ import { PaginationTable } from "@/app/shared/components/pagination-table/pagina
 import { SlotDeleteModal } from "../../components/slot-delete-modal/slot-delete-modal";
 import { SlotDeleteState } from "../../components/slot-delete-modal/slots-delete.state";
 import { SlotDetailDrawer } from "../../components/slot-detail-drawer/slot-detail-drawer";
-import { SlotGroupEditModalComponent } from "../../components/slot-group-edit-modal/slot-group-edit-modal.component";
-import { SlotMetadataBatchModalComponent } from "../../components/slot-metadata-batch-modal/slot-metadata-batch-modal.component";
+import { SlotGroupEditModalComponent } from "../../components/slot-group-edit-modal/slot-group-edit-modal";
+import { SlotMetadataBatchModalComponent } from "../../components/slot-metadata-batch-modal/slot-metadata-batch-modal";
 import { SlotStatusModal } from "../../components/slot-status-modal/slot-status-modal";
 import { SlotStatusState } from "../../components/slot-status-modal/slot-status.state";
 import {

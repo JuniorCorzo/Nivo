@@ -1,7 +1,7 @@
 import type { Routes } from "@angular/router";
 import { publicGuard } from "@core/guards/auth/public-guard";
 import { LayoutMinimal } from "@layouts/layout-minimal/layout-minimal";
-import { LayoutComponent } from "@layouts/layout/layout-component/layout-component";
+import { LayoutComponent } from "@layouts/layout/layout";
 
 import { APP_ROUTE_PATHS } from "./shared/constants/app-routes.constant";
 

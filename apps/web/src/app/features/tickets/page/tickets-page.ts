@@ -7,7 +7,7 @@ import {
   inject,
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { TicketReceiptComponent } from "@features/operations/components/ticket-receipt/ticket-receipt.component";
+import { TicketReceiptComponent } from "@features/operations/components/ticket-receipt/ticket-receipt";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideArrowLeft,
@@ -20,14 +20,13 @@ import {
   CardContentComponent,
   TypographyMuted,
 } from "@nivo-sass/design-system";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
-import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
-
-import { TicketDetailDrawerComponent } from "../components/ticket-detail-drawer/ticket-detail-drawer.component";
-import { TicketFiltersComponent } from "../components/ticket-filters/ticket-filters.component";
-import { TicketsTableComponent } from "../components/tickets-table/tickets-table.component";
+import { TicketDetailDrawerComponent } from "../components/ticket-detail-drawer/ticket-detail-drawer";
+import { TicketFiltersComponent } from "../components/ticket-filters/ticket-filters";
+import { TicketsTableComponent } from "../components/tickets-table/tickets-table";
 import { TicketsFacade } from "../facades/tickets.facade";
 
 interface HeaderContext {

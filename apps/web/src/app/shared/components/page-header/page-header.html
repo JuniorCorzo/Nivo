@@ -1,0 +1,88 @@
+<header
+  class="bg-card border-border flex w-full flex-col gap-3.5 rounded-2xl border p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-6"
+>
+  <!-- ========================================== -->
+  <!-- MOBILE ROW 1: Back + Route Path + Badge     -->
+  <!-- ========================================== -->
+  <app-page-header-mobile-bar
+    [isRoot]="isRoot()"
+    [backAriaLabel]="backAriaLabel()"
+    [mobilePath]="currentMobilePath()"
+    [badge]="badge()"
+    [badgeVariant]="badgeVariant()"
+    (back)="goBack()"
+  >
+    <ng-content select="[badge]" ngProjectAs="[badge]" />
+  </app-page-header-mobile-bar>
+
+  <!-- ========================================== -->
+  <!-- MAIN IDENTITY & DESKTOP BREADCRUMBS        -->
+  <!-- ========================================== -->
+  <div class="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+    @if (icon()) {
+    <div
+      class="bg-primary/10 text-primary border-primary/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border sm:h-11 sm:w-11"
+    >
+      <ng-icon [name]="icon()!" size="20" class="shrink-0" />
+    </div>
+    } @else {
+    <ng-content select="[icon]" />
+    }
+
+    <div class="flex min-w-0 flex-1 flex-col gap-1">
+      <!-- Desktop Navigation / Breadcrumbs -->
+      <div class="page-header-desktop hidden sm:flex sm:items-center sm:gap-2">
+        @if (showHistoryButtons()) {
+        <app-page-header-history (back)="goBack()" (forward)="goForward()" />
+        } @if ((!isRoot() && backLink()) || computedBreadcrumbs().length > 0) { @if
+        (showHistoryButtons()) {
+        <span class="text-border">|</span>
+        }
+        <app-page-header-breadcrumbs
+          [breadcrumbs]="computedBreadcrumbs()"
+          [backLink]="backLink()"
+          [backAriaLabel]="backAriaLabel()"
+          [isRoot]="isRoot()"
+        />
+        }
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <nv-h1 class="truncate text-base font-bold tracking-tight text-foreground sm:text-2xl">
+          {{ title() }}
+        </nv-h1>
+        <div class="hidden sm:block">
+          @if (badge()) {
+          <nv-badge
+            [variant]="badgeVariant()"
+            class="shrink-0 text-[10px] font-semibold sm:text-xs"
+          >
+            {{ badge() }}
+          </nv-badge>
+          } @else {
+          <ng-content select="[badge]" />
+          }
+        </div>
+      </div>
+
+      @if (subtitle()) {
+      <nv-muted class="text-muted-foreground block truncate text-xs sm:text-sm">
+        {{ subtitle() }}
+      </nv-muted>
+      } @else {
+      <ng-content select="[subtitle]" />
+      }
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- ACTIONS: Desktop right, Mobile bottom      -->
+  <!-- ========================================== -->
+  <div
+    class="border-border/60 flex shrink-0 flex-wrap items-center gap-2 border-t pt-2.5 sm:border-0 sm:pt-0 sm:justify-end"
+    data-testid="page-header-actions"
+  >
+    <ng-content select="[actions]" />
+    <ng-content />
+  </div>
+</header>

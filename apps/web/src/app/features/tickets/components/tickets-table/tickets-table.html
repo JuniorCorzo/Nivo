@@ -1,0 +1,23 @@
+<app-data-table
+  [table]="table()"
+  [isLoading]="isLoading()"
+  [emptyMessage]="texts.emptyState.message"
+>
+  <div emptyState class="flex flex-col items-center justify-center py-12 text-center">
+    <div
+      class="bg-muted text-muted-foreground mb-4 flex h-12 w-12 items-center justify-center rounded-full"
+    >
+      <ng-icon name="lucideInbox" size="24" />
+    </div>
+    <nv-h4 class="mb-1">{{ texts.emptyState.title }}</nv-h4>
+    <nv-muted class="mb-4 max-w-sm"> {{ texts.emptyState.description }} </nv-muted>
+    <nv-button type="button" variant="outline" size="sm" (click)="resetFilters.emit()">
+      <ng-icon name="lucideRotateCcw" size="14" />
+      {{ texts.actions.resetFilters }}
+    </nv-button>
+  </div>
+</app-data-table>
+
+@if (!isLoading() && table().getRowModel().rows.length > 0) {
+<app-data-table-pagination [table]="table()" />
+}
