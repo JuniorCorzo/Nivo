@@ -3,7 +3,6 @@ import { publicGuard } from "@core/guards/auth/public-guard";
 import { LayoutMinimal } from "@layouts/layout-minimal/layout-minimal";
 import { LayoutComponent } from "@layouts/layout/layout-component/layout-component";
 
-import { mobileGuard } from "./core/guards/mobile/mobile-guard";
 import { APP_ROUTE_PATHS } from "./shared/constants/app-routes.constant";
 
 export const routes: Routes = [
@@ -41,24 +40,6 @@ export const routes: Routes = [
     children: [
       {
         children: [
-          {
-            canMatch: [mobileGuard],
-            data: {
-              navContext: {
-                isRoot: true,
-                scope: "parking",
-                section: "Inicio",
-                title: "Parqueaderos",
-              },
-            },
-            loadComponent: async () => {
-              const c =
-                await import("@features/parking/page/parking-home-mobile/parking-home-mobile");
-              return c.ParkingHomeMobile;
-            },
-            path: APP_ROUTE_PATHS.app.parkingLots,
-            title: "Parqueaderos",
-          },
           {
             data: {
               navContext: {
