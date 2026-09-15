@@ -5,20 +5,10 @@
       title="Tarifas"
       subtitle="Gestión de esquemas tarifarios, precios base y simulación en tiempo real"
     >
-      <div actions class="flex flex-wrap items-center gap-2">
-        <nv-button
-          variant="outline"
-          [routerLink]="APP_ROUTES.app.parkingLots"
-          size="sm"
-        >
-          <ng-icon name="lucideArrowLeft" size="12" />
-          Volver al parqueadero
-        </nv-button>
-        <nv-button (click)="createRate()" size="sm">
-          <ng-icon name="lucidePlus" size="16" />
-          Nueva tarifa
-        </nv-button>
-      </div>
+      <nv-button actions (click)="createRate()">
+        <ng-icon name="lucidePlus" size="16" />
+        Nueva tarifa
+      </nv-button>
     </app-page-header>
 
     <div
@@ -50,15 +40,15 @@
       </nv-button>
     </div>
 
-    @if (activeTab() === 'rates') {
+    @if (activeTab() === "rates") {
       <app-rates-list [parkingId]="parkingId()" />
     }
 
-    @if (activeTab() === 'calculator') {
+    @if (activeTab() === "calculator") {
       <app-rate-calculator />
     }
 
-    @if (activeTab() === 'policies') {
+    @if (activeTab() === "policies") {
       <app-special-policies-config />
     }
   </div>

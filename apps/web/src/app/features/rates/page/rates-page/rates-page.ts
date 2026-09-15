@@ -7,7 +7,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ParkingService } from "@core/services/parking-service";
 import { RateService } from "@core/services/rate-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -24,7 +24,6 @@ import { SpecialPoliciesConfigComponent } from "../../components/special-policie
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    RouterLink,
     NgIcon,
     ButtonComponent,
     PageHeaderComponent,
