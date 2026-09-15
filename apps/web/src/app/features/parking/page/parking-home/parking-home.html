@@ -8,66 +8,7 @@
     title="Parqueaderos"
     [subtitle]="activeParkingSubtitle()"
   >
-    <!-- Action Buttons -->
-    <div actions class="flex flex-wrap items-center gap-2">
-      <nv-button
-        variant="default"
-        size="md"
-        (click)="facade.onManageOperations()"
-        class="whitespace-nowrap"
-      >
-        <ng-icon name="lucideLogIn" size="16" class="shrink-0" />
-        <span class="whitespace-nowrap">Operaciones en vivo</span>
-      </nv-button>
-
-      <nv-button
-        variant="secondary"
-        size="md"
-        (click)="facade.onManageRates()"
-        class="whitespace-nowrap"
-      >
-        <ng-icon name="lucideCoins" size="16" class="text-primary shrink-0" />
-        <span class="whitespace-nowrap">Tarifas</span>
-      </nv-button>
-
-      <nv-button
-        variant="secondary"
-        size="md"
-        (click)="facade.onManageSlots()"
-        class="whitespace-nowrap"
-      >
-        <ng-icon
-          name="lucideParkingSquare"
-          size="16"
-          class="text-primary shrink-0"
-        />
-        <span class="whitespace-nowrap">Plazas</span>
-      </nv-button>
-
-      <nv-button
-        variant="secondary"
-        size="md"
-        (click)="facade.onEdit()"
-        class="whitespace-nowrap"
-        [title]="LABELS_DETAIL.actions.edit"
-      >
-        <ng-icon name="lucidePencil" size="16" class="shrink-0" />
-        <span class="whitespace-nowrap">{{ LABELS_DETAIL.actions.edit }}</span>
-      </nv-button>
-
-      <nv-button
-        variant="destructive"
-        size="md"
-        (click)="facade.onDeleteClick()"
-        class="whitespace-nowrap"
-        [title]="LABELS_DETAIL.actions.delete"
-      >
-        <ng-icon name="lucideTrash2" size="16" class="shrink-0" />
-        <span class="whitespace-nowrap"
-          >{{ LABELS_DETAIL.actions.delete }}</span
-        >
-      </nv-button>
-    </div>
+    <app-parking-action-button actions />
   </app-page-header>
 
   <!-- Summary Metrics Grid Sub-component -->

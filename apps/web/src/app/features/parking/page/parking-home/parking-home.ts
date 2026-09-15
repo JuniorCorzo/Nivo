@@ -9,7 +9,6 @@ import {
   lucideTrash2,
 } from "@ng-icons/lucide";
 import {
-  ButtonComponent,
   CardComponent,
   TypographyH3,
 } from "@nivo-sass/design-system";
@@ -17,6 +16,7 @@ import { DeleteParkingModal } from "@shared/components/delete-parking-modal/dele
 import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
+import { ParkingActionButton } from "../../components/parking-action-button/parking-action-button";
 import { ParkingEmptyState } from "../../components/parking-empty-state/parking-empty-state";
 import { ParkingGeneralInfo } from "../../components/parking-general-info/parking-general-info";
 import { ParkingLotSelector } from "../../components/parking-lot-selector/parking-lot-selector";
@@ -29,12 +29,12 @@ import { ParkingHomeFacade } from "../../facades/parking-home.facade";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     NgIcon,
-    ButtonComponent,
     CardComponent,
     TypographyH3,
     PageHeaderComponent,
     ParkingMapComponent,
     DeleteParkingModal,
+    ParkingActionButton,
     ParkingStatsGrid,
     ParkingGeneralInfo,
     ParkingSlotDistribution,
