@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { signal } from "@angular/core";
-import { NavigationEnd, Router, provideRouter } from "@angular/router";
+import { Router, provideRouter } from "@angular/router";
 import { ActiveParkingService } from "@core/services/active-parking.service";
 import { NavigationContextService } from "./navigation-context.service";
 import type { RouteNavContext } from "./navigation-context.service";
@@ -18,44 +18,47 @@ describe("NavigationContextService", () => {
         NavigationContextService,
         provideRouter([
           {
-            path: "app/parking-lots",
+            children: [],
             data: {
+              /* SAFETY: route data['navContext'] is mocked to conform to RouteNavContext */
               navContext: {
-                scope: "parking",
                 isRoot: true,
-                title: "Parqueaderos",
+                scope: "parking",
                 section: "Inicio",
+                title: "Parqueaderos",
               } as RouteNavContext,
             },
-            children: [],
+            path: "app/parking-lots",
           },
           {
-            path: "app/parking-lots/:parkingId/operations",
+            children: [],
             data: {
+              /* SAFETY: route data['navContext'] is mocked to conform to RouteNavContext */
               navContext: {
-                scope: "parking",
-                title: "Operaciones",
-                section: "Operaciones",
                 backLink: "/app/parking-lots",
-              } as RouteNavContext,
-            },
-            children: [],
-          },
-          {
-            path: "app/tickets",
-            data: {
-              navContext: {
-                scope: "tenant",
-                isRoot: true,
-                title: "Tickets Emitidos",
+                scope: "parking",
                 section: "Operaciones",
+                title: "Operaciones",
               } as RouteNavContext,
             },
-            children: [],
+            path: "app/parking-lots/:parkingId/operations",
           },
           {
-            path: "app/no-context",
             children: [],
+            data: {
+              /* SAFETY: route data['navContext'] is mocked to conform to RouteNavContext */
+              navContext: {
+                isRoot: true,
+                scope: "tenant",
+                section: "Operaciones",
+                title: "Tickets Emitidos",
+              } as RouteNavContext,
+            },
+            path: "app/tickets",
+          },
+          {
+            children: [],
+            path: "app/no-context",
           },
         ]),
         {
@@ -83,7 +86,7 @@ describe("NavigationContextService", () => {
     expect(service.navContext()?.title).toBe("Parqueaderos");
     expect(service.mobilePath()).toBe("Inicio / Parqueaderos");
     expect(service.breadcrumbs()).toEqual([
-      { label: "Inicio", url: "/app/parking-lots", icon: "lucideLayoutDashboard" },
+      { icon: "lucideLayoutDashboard", label: "Inicio", url: "/app/parking-lots" },
       { label: "Parqueaderos" },
     ]);
   });

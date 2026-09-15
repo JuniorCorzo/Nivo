@@ -28,17 +28,17 @@ export class NavigationContextService {
   private readonly _navContext = signal<RouteNavContext | null>(null);
   public readonly navContext = this._navContext.asReadonly();
 
-  public readonly scope = computed<NavigationScope>(() => {
-    return this.navContext()?.scope ?? "parking";
-  });
+  public readonly scope = computed<NavigationScope>(
+    () => this.navContext()?.scope ?? "parking"
+  );
 
-  public readonly isRoot = computed<boolean>(() => {
-    return this.navContext()?.isRoot ?? false;
-  });
+  public readonly isRoot = computed<boolean>(
+    () => this.navContext()?.isRoot ?? false
+  );
 
-  public readonly backLink = computed<string | null>(() => {
-    return this.navContext()?.backLink ?? null;
-  });
+  public readonly backLink = computed<string | null>(
+    () => this.navContext()?.backLink ?? null
+  );
 
   public readonly breadcrumbs = computed<PageHeaderBreadcrumbItem[]>(() => {
     const ctx = this.navContext();
@@ -50,12 +50,14 @@ export class NavigationContextService {
 
     if (ctx.scope === "parking") {
       if (ctx.isRoot) {
-        items.push({
-          icon: "lucideLayoutDashboard",
-          label: ctx.section || "Inicio",
-          url: "/app/parking-lots",
-        });
-        items.push({ label: ctx.title || "Parqueaderos" });
+        items.push(
+          {
+            icon: "lucideLayoutDashboard",
+            label: ctx.section || "Inicio",
+            url: "/app/parking-lots",
+          },
+          { label: ctx.title || "Parqueaderos" }
+        );
       } else {
         const parkingName =
           this.activeParkingService?.activeParkingName()?.trim() || "";
@@ -127,6 +129,7 @@ export class NavigationContextService {
 
     while (currentRoute) {
       if (currentRoute.data && currentRoute.data["navContext"]) {
+        /* SAFETY: route data['navContext'] adheres to RouteNavContext contract */
         foundContext = currentRoute.data["navContext"] as RouteNavContext;
       }
       currentRoute = currentRoute.firstChild;

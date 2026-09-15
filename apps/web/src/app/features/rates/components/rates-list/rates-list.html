@@ -95,22 +95,22 @@
       <div
         class="border-border mt-5 flex items-center justify-end gap-2 border-t pt-3"
       >
-        <button
-          type="button"
+        <nv-button
+          variant="outline"
+          size="sm"
           (click)="editRate(rate.id)"
-          class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-flex cursor-pointer items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors"
         >
           <ng-icon name="lucidePencil" size="13" />
           <span>Editar</span>
-        </button>
-        <button
-          type="button"
+        </nv-button>
+        <nv-button
+          variant="destructive"
+          size="sm"
           (click)="openDeleteModal(rate)"
-          class="border-border bg-card text-destructive hover:bg-destructive/10 inline-flex cursor-pointer items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors"
         >
           <ng-icon name="lucideTrash2" size="13" />
           <span>Eliminar</span>
-        </button>
+        </nv-button>
       </div>
     </div>
     } @empty {
@@ -129,14 +129,14 @@
         Configurá las tarifas base por tipo de vehículo y tiempo para este
         parqueadero.
       </p>
-      <button
-        type="button"
+      <nv-button
         (click)="createRate()"
-        class="bg-primary text-primary-foreground hover:bg-primary/90 mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold shadow-xs transition-all"
+        size="sm"
+        class="mt-2"
       >
         <ng-icon name="lucidePlus" size="14" />
         <span>Crear primera tarifa</span>
-      </button>
+      </nv-button>
     </div>
     }
   </div>

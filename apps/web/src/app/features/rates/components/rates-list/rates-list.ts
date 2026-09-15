@@ -23,6 +23,7 @@ import {
   lucideTrash2,
 } from "@ng-icons/lucide";
 import {
+  ButtonComponent,
   InputComponent,
   SelectComponent,
   ToastService,
@@ -40,6 +41,7 @@ import { RateDeleteModal } from "../rate-delete-modal/rate-delete-modal";
   imports: [
     CommonModule,
     NgIcon,
+    ButtonComponent,
     InputComponent,
     SelectComponent,
     RateDeleteModal,

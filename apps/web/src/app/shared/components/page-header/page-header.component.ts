@@ -22,6 +22,7 @@ import {
 } from "@ng-icons/lucide";
 import {
   BadgeComponent,
+  ButtonComponent,
   TypographyH1,
   TypographyMuted,
 } from "@nivo-sass/design-system";
@@ -46,7 +47,14 @@ export interface PageHeaderBreadcrumbItem {
   host: {
     class: "block w-full",
   },
-  imports: [RouterLink, NgIcon, BadgeComponent, TypographyH1, TypographyMuted],
+  imports: [
+    RouterLink,
+    NgIcon,
+    BadgeComponent,
+    ButtonComponent,
+    TypographyH1,
+    TypographyMuted,
+  ],
   providers: [
     provideIcons({
       lucideArrowLeft,

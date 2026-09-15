@@ -45,10 +45,10 @@ export const routes: Routes = [
             canMatch: [mobileGuard],
             data: {
               navContext: {
-                scope: "parking",
                 isRoot: true,
-                title: "Parqueaderos",
+                scope: "parking",
                 section: "Inicio",
+                title: "Parqueaderos",
               },
             },
             loadComponent: async () => {
@@ -62,10 +62,10 @@ export const routes: Routes = [
           {
             data: {
               navContext: {
-                scope: "parking",
                 isRoot: true,
-                title: "Parqueaderos",
+                scope: "parking",
                 section: "Inicio",
+                title: "Parqueaderos",
               },
             },
             loadComponent: async () => {
@@ -79,10 +79,10 @@ export const routes: Routes = [
           {
             data: {
               navContext: {
-                scope: "parking",
-                title: "Crear parqueadero",
-                section: "Parqueaderos",
                 backLink: "/app/parking-lots",
+                scope: "parking",
+                section: "Parqueaderos",
+                title: "Crear parqueadero",
               },
             },
             loadComponent: async () => {
@@ -96,10 +96,10 @@ export const routes: Routes = [
           {
             data: {
               navContext: {
-                scope: "parking",
-                title: "Configurar Parqueadero",
-                section: "Parqueaderos",
                 backLink: "/app/parking-lots",
+                scope: "parking",
+                section: "Parqueaderos",
+                title: "Configurar Parqueadero",
               },
             },
             loadComponent: async () => {
@@ -113,10 +113,10 @@ export const routes: Routes = [
           {
             data: {
               navContext: {
-                scope: "parking",
-                title: "Plazas",
-                section: "Plazas",
                 backLink: "/app/parking-lots",
+                scope: "parking",
+                section: "Plazas",
+                title: "Plazas",
               },
             },
             loadComponent: async () => {
@@ -130,10 +130,10 @@ export const routes: Routes = [
           {
             data: {
               navContext: {
-                scope: "parking",
-                title: "Crear plazas",
-                section: "Plazas",
                 backLink: "/app/parking-lots",
+                scope: "parking",
+                section: "Plazas",
+                title: "Crear plazas",
               },
             },
             loadComponent: async () => {
@@ -147,10 +147,10 @@ export const routes: Routes = [
           {
             data: {
               navContext: {
-                scope: "parking",
-                title: "Editar plaza",
-                section: "Plazas",
                 backLink: "/app/parking-lots",
+                scope: "parking",
+                section: "Plazas",
+                title: "Editar plaza",
               },
             },
             loadComponent: async () => {
@@ -164,10 +164,10 @@ export const routes: Routes = [
           {
             data: {
               navContext: {
-                scope: "parking",
-                title: "Detalle de plaza",
-                section: "Plazas",
                 backLink: "/app/parking-lots",
+                scope: "parking",
+                section: "Plazas",
+                title: "Detalle de plaza",
               },
             },
             loadComponent: async () => {
@@ -181,10 +181,10 @@ export const routes: Routes = [
           {
             data: {
               navContext: {
-                scope: "parking",
-                title: "Tarifas",
-                section: "Tarifas",
                 backLink: "/app/parking-lots",
+                scope: "parking",
+                section: "Tarifas",
+                title: "Tarifas",
               },
             },
             loadComponent: async () => {
@@ -198,10 +198,10 @@ export const routes: Routes = [
           {
             data: {
               navContext: {
-                scope: "parking",
-                title: "Crear tarifa",
-                section: "Tarifas",
                 backLink: "/app/parking-lots",
+                scope: "parking",
+                section: "Tarifas",
+                title: "Crear tarifa",
               },
             },
             loadComponent: async () => {
@@ -215,10 +215,10 @@ export const routes: Routes = [
           {
             data: {
               navContext: {
-                scope: "parking",
-                title: "Editar tarifa",
-                section: "Tarifas",
                 backLink: "/app/parking-lots",
+                scope: "parking",
+                section: "Tarifas",
+                title: "Editar tarifa",
               },
             },
             loadComponent: async () => {
@@ -232,10 +232,10 @@ export const routes: Routes = [
           {
             data: {
               navContext: {
-                scope: "parking",
-                title: "Operaciones",
-                section: "Operaciones",
                 backLink: "/app/parking-lots",
+                scope: "parking",
+                section: "Operaciones",
+                title: "Operaciones",
               },
             },
             loadComponent: async () => {
@@ -249,10 +249,10 @@ export const routes: Routes = [
           {
             data: {
               navContext: {
-                scope: "parking",
-                title: "Tickets",
-                section: "Operaciones",
                 backLink: "/app/parking-lots",
+                scope: "parking",
+                section: "Operaciones",
+                title: "Tickets",
               },
             },
             loadComponent: async () => {
@@ -264,10 +264,10 @@ export const routes: Routes = [
           {
             data: {
               navContext: {
-                scope: "tenant",
                 isRoot: true,
-                title: "Tickets Emitidos",
+                scope: "tenant",
                 section: "Operaciones",
+                title: "Tickets Emitidos",
               },
             },
             loadComponent: async () => {

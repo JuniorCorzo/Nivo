@@ -9,15 +9,16 @@
   >
     <div class="flex min-w-0 items-center gap-2 text-xs">
       @if (!isRoot()) {
-        <button
-          type="button"
+        <nv-button
+          variant="secondary"
+          size="icon"
           (click)="goBack()"
-          class="border-border bg-muted text-foreground hover:bg-background flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg border transition-colors"
+          class="!h-7 !w-7 shrink-0 !rounded-lg"
           [attr.aria-label]="backAriaLabel()"
           data-testid="page-header-mobile-back-btn"
         >
           <ng-icon name="lucideChevronLeft" size="14" class="shrink-0" />
-        </button>
+        </nv-button>
       }
       <span
         class="text-muted-foreground max-w-[200px] truncate font-mono text-xs font-medium"
@@ -58,26 +59,28 @@
             class="border-border bg-muted inline-flex h-6 shrink-0 items-center rounded-md border px-0.5"
             data-testid="page-header-history"
           >
-            <button
-              type="button"
+            <nv-button
+              variant="ghost"
+              size="icon"
               (click)="goBack()"
-              class="hover:text-foreground text-muted-foreground inline-flex h-5 w-5 cursor-pointer items-center justify-center rounded transition-colors"
+              class="!h-5 !w-5 !p-0 text-muted-foreground hover:text-foreground"
               aria-label="Atrás"
               title="Atrás"
               data-testid="page-header-back-btn"
             >
               <ng-icon name="lucideChevronLeft" size="12" class="shrink-0" />
-            </button>
-            <button
-              type="button"
+            </nv-button>
+            <nv-button
+              variant="ghost"
+              size="icon"
               (click)="goForward()"
-              class="hover:text-foreground text-muted-foreground inline-flex h-5 w-5 cursor-pointer items-center justify-center rounded transition-colors"
+              class="!h-5 !w-5 !p-0 text-muted-foreground hover:text-foreground"
               aria-label="Adelante"
               title="Adelante"
               data-testid="page-header-forward-btn"
             >
               <ng-icon name="lucideChevronRight" size="12" class="shrink-0" />
-            </button>
+            </nv-button>
           </div>
         }
 

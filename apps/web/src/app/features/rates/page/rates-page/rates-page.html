@@ -22,41 +22,32 @@
     </app-page-header>
 
     <div
-      class="border-border no-scrollbar scrollbar-none flex gap-2 overflow-x-auto border-b text-xs font-medium whitespace-nowrap sm:gap-6 sm:text-sm"
+      class="border-border no-scrollbar scrollbar-none flex gap-2 overflow-x-auto border-b text-xs font-medium whitespace-nowrap sm:gap-4 sm:text-sm pb-2"
     >
-      <button
+      <nv-button
         type="button"
+        [variant]="activeTab() === 'rates' ? 'default' : 'ghost'"
+        size="sm"
         (click)="activeTab.set('rates')"
-        [class.border-primary]="activeTab() === 'rates'"
-        [class.text-primary]="activeTab() === 'rates'"
-        [class.border-transparent]="activeTab() !== 'rates'"
-        [class.text-muted-foreground]="activeTab() !== 'rates'"
-        class="hover:text-foreground shrink-0 cursor-pointer border-b-2 px-3 py-3 font-bold transition-colors"
       >
         Tarifas activas ({{ allRates().length }})
-      </button>
-      <button
+      </nv-button>
+      <nv-button
         type="button"
+        [variant]="activeTab() === 'calculator' ? 'default' : 'ghost'"
+        size="sm"
         (click)="activeTab.set('calculator')"
-        [class.border-primary]="activeTab() === 'calculator'"
-        [class.text-primary]="activeTab() === 'calculator'"
-        [class.border-transparent]="activeTab() !== 'calculator'"
-        [class.text-muted-foreground]="activeTab() !== 'calculator'"
-        class="hover:text-foreground shrink-0 cursor-pointer border-b-2 px-3 py-3 font-bold transition-colors"
       >
         Calculadora & simulador
-      </button>
-      <button
+      </nv-button>
+      <nv-button
         type="button"
+        [variant]="activeTab() === 'policies' ? 'default' : 'ghost'"
+        size="sm"
         (click)="activeTab.set('policies')"
-        [class.border-primary]="activeTab() === 'policies'"
-        [class.text-primary]="activeTab() === 'policies'"
-        [class.border-transparent]="activeTab() !== 'policies'"
-        [class.text-muted-foreground]="activeTab() !== 'policies'"
-        class="hover:text-foreground shrink-0 cursor-pointer border-b-2 px-3 py-3 font-bold transition-colors"
       >
         Políticas especiales
-      </button>
+      </nv-button>
     </div>
 
     @if (activeTab() === 'rates') {
