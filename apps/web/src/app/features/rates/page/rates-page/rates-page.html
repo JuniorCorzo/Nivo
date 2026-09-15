@@ -1,0 +1,74 @@
+@if (parking(); as p) {
+  <div class="mx-auto flex max-w-7xl flex-col gap-6 p-4 sm:p-6 md:p-8">
+    <app-page-header
+      icon="lucideCoins"
+      title="Tarifas"
+      subtitle="Gestión de esquemas tarifarios, precios base y simulación en tiempo real"
+    >
+      <div actions class="flex flex-wrap items-center gap-2">
+        <nv-button
+          variant="outline"
+          [routerLink]="APP_ROUTES.app.parkingLots"
+          size="sm"
+        >
+          <ng-icon name="lucideArrowLeft" size="12" />
+          Volver al parqueadero
+        </nv-button>
+        <nv-button (click)="createRate()" size="sm">
+          <ng-icon name="lucidePlus" size="16" />
+          Nueva tarifa
+        </nv-button>
+      </div>
+    </app-page-header>
+
+    <div
+      class="border-border no-scrollbar scrollbar-none flex gap-2 overflow-x-auto border-b text-xs font-medium whitespace-nowrap sm:gap-6 sm:text-sm"
+    >
+      <button
+        type="button"
+        (click)="activeTab.set('rates')"
+        [class.border-primary]="activeTab() === 'rates'"
+        [class.text-primary]="activeTab() === 'rates'"
+        [class.border-transparent]="activeTab() !== 'rates'"
+        [class.text-muted-foreground]="activeTab() !== 'rates'"
+        class="hover:text-foreground shrink-0 cursor-pointer border-b-2 px-3 py-3 font-bold transition-colors"
+      >
+        Tarifas activas ({{ allRates().length }})
+      </button>
+      <button
+        type="button"
+        (click)="activeTab.set('calculator')"
+        [class.border-primary]="activeTab() === 'calculator'"
+        [class.text-primary]="activeTab() === 'calculator'"
+        [class.border-transparent]="activeTab() !== 'calculator'"
+        [class.text-muted-foreground]="activeTab() !== 'calculator'"
+        class="hover:text-foreground shrink-0 cursor-pointer border-b-2 px-3 py-3 font-bold transition-colors"
+      >
+        Calculadora & simulador
+      </button>
+      <button
+        type="button"
+        (click)="activeTab.set('policies')"
+        [class.border-primary]="activeTab() === 'policies'"
+        [class.text-primary]="activeTab() === 'policies'"
+        [class.border-transparent]="activeTab() !== 'policies'"
+        [class.text-muted-foreground]="activeTab() !== 'policies'"
+        class="hover:text-foreground shrink-0 cursor-pointer border-b-2 px-3 py-3 font-bold transition-colors"
+      >
+        Políticas especiales
+      </button>
+    </div>
+
+    @if (activeTab() === 'rates') {
+      <app-rates-list [parkingId]="parkingId()" />
+    }
+
+    @if (activeTab() === 'calculator') {
+      <app-rate-calculator />
+    }
+
+    @if (activeTab() === 'policies') {
+      <app-special-policies-config />
+    }
+  </div>
+}

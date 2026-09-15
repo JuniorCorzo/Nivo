@@ -4,75 +4,54 @@ import {
   Component,
   computed,
   inject,
+  input,
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import type { RateModel } from "@core/models/rate.model";
 import { ParkingService } from "@core/services/parking-service";
 import { RateService } from "@core/services/rate-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
-  lucideArrowLeft,
+  lucideBike,
+  lucideCar,
   lucideCoins,
-  lucideInbox,
   lucidePencil,
   lucidePlus,
   lucideSearch,
   lucideTrash2,
-  lucideCar,
-  lucideBike,
-  lucideClock,
-  lucideCalculator,
-  lucideShieldCheck,
-  lucideLayers,
 } from "@ng-icons/lucide";
 import {
-  ButtonComponent,
   InputComponent,
   SelectComponent,
   ToastService,
 } from "@nivo-sass/design-system";
-import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
-import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
 import {
   VEHICLE_FILTER_OPTIONS,
   displayOptionFn,
   valueOptionFn,
 } from "../../shared/rate-presentations";
-import { RateCalculatorComponent } from "../rate-calculator/rate-calculator";
 import { RateDeleteModal } from "../rate-delete-modal/rate-delete-modal";
-import { SpecialPoliciesConfigComponent } from "../special-policies-config/special-policies-config";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    RouterLink,
     NgIcon,
-    ButtonComponent,
     InputComponent,
     SelectComponent,
-    RateCalculatorComponent,
-    SpecialPoliciesConfigComponent,
     RateDeleteModal,
-    PageHeaderComponent,
   ],
   providers: [
     provideIcons({
-      lucideArrowLeft,
       lucideBike,
-      lucideCalculator,
       lucideCar,
-      lucideClock,
       lucideCoins,
-      lucideInbox,
-      lucideLayers,
       lucidePencil,
       lucidePlus,
       lucideSearch,
-      lucideShieldCheck,
       lucideTrash2,
     }),
   ],
@@ -87,9 +66,13 @@ export class RateListComponent {
   private readonly parkingService = inject(ParkingService);
   private readonly toast = inject(ToastService);
 
-  protected readonly APP_ROUTES = APP_ROUTES;
-  readonly parkingId = signal<string | null>(null);
-  readonly activeTab = signal<"rates" | "calculator" | "policies">("rates");
+  readonly parkingIdInput = input<string | null>(null, { alias: "parkingId" });
+  readonly routeParkingId = signal<string | null>(null);
+
+  readonly effectiveParkingId = computed(
+    () => this.parkingIdInput() ?? this.routeParkingId()
+  );
+
   readonly searchQuery = signal("");
   readonly vehicleFilter = signal<string>("ALL");
 
@@ -101,7 +84,7 @@ export class RateListComponent {
   readonly valueOptionFn = valueOptionFn;
 
   readonly parking = computed(() => {
-    const id = this.parkingId();
+    const id = this.effectiveParkingId();
     if (!id) {
       return null;
     }
@@ -112,7 +95,7 @@ export class RateListComponent {
   });
 
   readonly allRates = computed(() => {
-    const id = this.parkingId();
+    const id = this.effectiveParkingId();
     if (!id) {
       return [];
     }
@@ -143,7 +126,7 @@ export class RateListComponent {
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       const id = params.get("parkingId");
-      this.parkingId.set(id);
+      this.routeParkingId.set(id);
       if (id) {
         this.rateService.getRatesByParkingId(id).subscribe();
         this.rateService.loadSpecialPolicies().subscribe();
@@ -162,14 +145,14 @@ export class RateListComponent {
   }
 
   createRate(): void {
-    const pId = this.parkingId();
+    const pId = this.effectiveParkingId();
     if (pId) {
       this.router.navigate([`/app/parking-lots/${pId}/rates/new`]);
     }
   }
 
   editRate(rateId: string): void {
-    const pId = this.parkingId();
+    const pId = this.effectiveParkingId();
     if (pId) {
       this.router.navigate([`/app/parking-lots/${pId}/rates/${rateId}/edit`]);
     }
@@ -185,7 +168,7 @@ export class RateListComponent {
 
   confirmDelete(): void {
     const rate = this.rateToDelete();
-    const pId = this.parkingId();
+    const pId = this.effectiveParkingId();
     if (!rate || !pId) {
       return;
     }

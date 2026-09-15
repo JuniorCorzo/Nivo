@@ -189,8 +189,8 @@ export const routes: Routes = [
             },
             loadComponent: async () => {
               const c =
-                await import("@features/rates/components/rates-list/rates-list");
-              return c.RateListComponent;
+                await import("@features/rates/page/rates-page/rates-page");
+              return c.RatesPageComponent;
             },
             path: APP_ROUTE_PATHS.app.parkingLotRates,
             title: "Tarifas",

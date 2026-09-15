@@ -2,6 +2,7 @@ import "@angular/compiler";
 import { signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import {
   ActivatedRoute,
   convertToParamMap,
@@ -14,11 +15,11 @@ import { RateService } from "@core/services/rate-service";
 import { ToastService } from "@nivo-sass/design-system";
 import { of } from "rxjs";
 
-import { RateListComponent } from "./rates-list";
+import { RatesPageComponent } from "./rates-page";
 
-describe("RateListComponent", () => {
-  let component: RateListComponent;
-  let fixture: ComponentFixture<RateListComponent>;
+describe("RatesPageComponent", () => {
+  let component: RatesPageComponent;
+  let fixture: ComponentFixture<RatesPageComponent>;
   let router: Router;
 
   const mockParkingLots = signal([
@@ -81,7 +82,7 @@ describe("RateListComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RateListComponent],
+      imports: [RatesPageComponent],
       providers: [
         provideRouter([]),
         {
@@ -99,44 +100,53 @@ describe("RateListComponent", () => {
     router = TestBed.inject(Router);
     vi.spyOn(router, "navigate").mockReturnValue(Promise.resolve(true));
 
-    fixture = TestBed.createComponent(RateListComponent);
+    fixture = TestBed.createComponent(RatesPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it("should create component instance", () => {
+  it("should create RatesPageComponent instance", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should render search bar and vehicle filter", () => {
-    const searchInput = fixture.nativeElement.querySelector("nv-input");
-    const vehicleSelect = fixture.nativeElement.querySelector("nv-select");
-    expect(searchInput).toBeTruthy();
-    expect(vehicleSelect).toBeTruthy();
+  it("should render app-page-header with title, subtitle and actions", () => {
+    const header = fixture.nativeElement.querySelector("app-page-header");
+    expect(header).toBeTruthy();
+    expect(header.textContent).toContain("Tarifas");
+    expect(header.textContent).toContain(
+      "Gestión de esquemas tarifarios, precios base y simulación en tiempo real"
+    );
+
+    const actions = header.querySelector("[actions]");
+    expect(actions).toBeTruthy();
+    expect(actions.textContent).toContain("Nueva tarifa");
   });
 
-  it("should filter rates by search query", () => {
-    expect(component.filteredRates().length).toBe(1);
-
-    component.searchQuery.set("Moto");
-    expect(component.filteredRates().length).toBe(0);
-
-    component.searchQuery.set("Carro");
-    expect(component.filteredRates().length).toBe(1);
-  });
-
-  it("should filter rates by vehicle type", () => {
-    component.vehicleFilter.set("BIKE");
-    expect(component.filteredRates().length).toBe(0);
-
-    component.vehicleFilter.set("CAR");
-    expect(component.filteredRates().length).toBe(1);
-  });
-
-  it("should navigate to edit rate", () => {
-    component.editRate("rate-1");
+  it("should navigate to create rate when clicking nueva tarifa", () => {
+    component.createRate();
     expect(router.navigate).toHaveBeenCalledWith([
-      "/app/parking-lots/parking-1/rates/rate-1/edit",
+      "/app/parking-lots/parking-1/rates/new",
     ]);
+  });
+
+  it("should switch tabs between rates, calculator and policies", () => {
+    expect(component.activeTab()).toBe("rates");
+    expect(fixture.nativeElement.querySelector("app-rates-list")).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelector("app-rate-calculator")
+    ).toBeFalsy();
+
+    component.activeTab.set("calculator");
+    fixture.detectChanges();
+    expect(
+      fixture.nativeElement.querySelector("app-rate-calculator")
+    ).toBeTruthy();
+    expect(fixture.nativeElement.querySelector("app-rates-list")).toBeFalsy();
+
+    component.activeTab.set("policies");
+    fixture.detectChanges();
+    expect(
+      fixture.nativeElement.querySelector("app-special-policies-config")
+    ).toBeTruthy();
   });
 });
