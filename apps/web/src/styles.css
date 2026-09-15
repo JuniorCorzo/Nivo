@@ -1,5 +1,6 @@
 @import "@nivo-sass/design-system/styles/tokens.css";
 @import "@nivo-sass/design-system/styles/components.css";
+@import "@angular/cdk/overlay-prebuilt.css";
 @import "tailwindcss";
 
 @theme inline {

@@ -1,17 +1,17 @@
-<nv-button
-  [variant]="variant()"
-  [size]="size()"
-  cdkOverlayOrigin
-  #origin="cdkOverlayOrigin"
-  (click)="toggle()"
-  (keydown.escape)="close()"
-  [attr.aria-expanded]="isOpen()"
-  aria-haspopup="menu"
-  [attr.aria-label]="ariaLabel()"
-  class="px-0! aspect-square"
->
-  <ng-icon name="lucideEllipsis" size="16" />
-</nv-button>
+<div cdkOverlayOrigin #origin="cdkOverlayOrigin" class="inline-flex">
+  <nv-button
+    [variant]="variant()"
+    [size]="size()"
+    (click)="toggle()"
+    (keydown.escape)="close()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="menu"
+    [attr.aria-label]="ariaLabel()"
+    class="px-0! aspect-square"
+  >
+    <ng-icon name="lucideEllipsis" size="16" />
+  </nv-button>
+</div>
 
 @if (isOpen()) {
 <ng-template

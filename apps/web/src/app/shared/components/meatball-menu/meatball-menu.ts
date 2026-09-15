@@ -21,6 +21,7 @@ export interface MeatballMenuItem {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: "inline-flex" },
   imports: [OverlayModule, ButtonComponent, NgIcon],
   providers: [provideIcons({ lucideEllipsis })],
   selector: "app-meatball-menu",

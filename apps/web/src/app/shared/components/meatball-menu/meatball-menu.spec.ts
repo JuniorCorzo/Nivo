@@ -68,6 +68,17 @@ describe("MeatballMenu", () => {
     expect(trigger?.getAttribute("aria-label")).toBe("Más opciones");
   });
 
+  it("should attach cdkOverlayOrigin to an inline-flex wrapper div around nv-button", () => {
+    const wrapper = fixture.nativeElement.querySelector("div[cdkoverlayorigin]");
+    expect(wrapper).toBeTruthy();
+    expect(wrapper?.classList.contains("inline-flex")).toBe(true);
+    expect(wrapper?.querySelector("nv-button")).toBeTruthy();
+  });
+
+  it("should have inline-flex class on host", () => {
+    expect(fixture.nativeElement.classList.contains("inline-flex")).toBe(true);
+  });
+
   it("should allow customizing ariaLabel, variant, and size inputs", async () => {
     fixture.componentRef.setInput("ariaLabel", "Opciones adicionales");
     fixture.componentRef.setInput("variant", "ghost");
