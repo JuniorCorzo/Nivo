@@ -1,12 +1,5 @@
 import { Location } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-} from "@angular/core";
-import { RouterLink } from "@angular/router";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { ActiveParkingService } from "@core/services/active-parking.service";
 import { NavigationContextService } from "@core/services/navigation-context.service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -20,12 +13,10 @@ import {
   lucideParkingSquare,
   lucideTicket,
 } from "@ng-icons/lucide";
-import {
-  BadgeComponent,
-  ButtonComponent,
-  TypographyH1,
-  TypographyMuted,
-} from "@nivo-sass/design-system";
+import { BadgeComponent, TypographyH1, TypographyMuted } from "@nivo-sass/design-system";
+import { PageHeaderBreadcrumbsComponent } from "./components/page-header-breadcrumbs.component";
+import { PageHeaderHistoryComponent } from "./components/page-header-history.component";
+import { PageHeaderMobileBarComponent } from "./components/page-header-mobile-bar.component";
 
 export type PageHeaderBadgeVariant =
   | "default"
@@ -48,12 +39,13 @@ export interface PageHeaderBreadcrumbItem {
     class: "block w-full",
   },
   imports: [
-    RouterLink,
     NgIcon,
     BadgeComponent,
-    ButtonComponent,
     TypographyH1,
     TypographyMuted,
+    PageHeaderHistoryComponent,
+    PageHeaderBreadcrumbsComponent,
+    PageHeaderMobileBarComponent,
   ],
   providers: [
     provideIcons({
@@ -162,4 +154,3 @@ export class PageHeaderComponent {
     return this.title();
   });
 }
-

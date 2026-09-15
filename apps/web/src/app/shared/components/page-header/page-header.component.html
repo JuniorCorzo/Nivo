@@ -4,38 +4,16 @@
   <!-- ========================================== -->
   <!-- MOBILE ROW 1: Back + Route Path + Badge     -->
   <!-- ========================================== -->
-  <div
-    class="page-header-mobile flex items-center justify-between gap-2 sm:hidden"
+  <app-page-header-mobile-bar
+    [isRoot]="isRoot()"
+    [backAriaLabel]="backAriaLabel()"
+    [mobilePath]="currentMobilePath()"
+    [badge]="badge()"
+    [badgeVariant]="badgeVariant()"
+    (back)="goBack()"
   >
-    <div class="flex min-w-0 items-center gap-2 text-xs">
-      @if (!isRoot()) {
-        <nv-button
-          variant="secondary"
-          size="icon"
-          (click)="goBack()"
-          class="!h-7 !w-7 shrink-0 !rounded-lg"
-          [attr.aria-label]="backAriaLabel()"
-          data-testid="page-header-mobile-back-btn"
-        >
-          <ng-icon name="lucideChevronLeft" size="14" class="shrink-0" />
-        </nv-button>
-      }
-      <span
-        class="text-muted-foreground max-w-[200px] truncate font-mono text-xs font-medium"
-        data-testid="page-header-mobile-path"
-      >
-        {{ currentMobilePath() }}
-      </span>
-    </div>
-
-    @if (badge()) {
-      <nv-badge [variant]="badgeVariant()" class="shrink-0 text-[10px] font-bold">
-        {{ badge() }}
-      </nv-badge>
-    } @else {
-      <ng-content select="[badge]" />
-    }
-  </div>
+    <ng-content select="[badge]" ngProjectAs="[badge]" />
+  </app-page-header-mobile-bar>
 
   <!-- ========================================== -->
   <!-- MAIN IDENTITY & DESKTOP BREADCRUMBS        -->
@@ -55,94 +33,24 @@
       <!-- Desktop Navigation / Breadcrumbs -->
       <div class="page-header-desktop hidden sm:flex sm:items-center sm:gap-2">
         @if (showHistoryButtons()) {
-          <div
-            class="border-border bg-muted inline-flex h-6 shrink-0 items-center rounded-md border px-0.5"
-            data-testid="page-header-history"
-          >
-            <nv-button
-              variant="ghost"
-              size="icon"
-              (click)="goBack()"
-              class="!h-5 !w-5 !p-0 text-muted-foreground hover:text-foreground"
-              aria-label="Atrás"
-              title="Atrás"
-              data-testid="page-header-back-btn"
-            >
-              <ng-icon name="lucideChevronLeft" size="12" class="shrink-0" />
-            </nv-button>
-            <nv-button
-              variant="ghost"
-              size="icon"
-              (click)="goForward()"
-              class="!h-5 !w-5 !p-0 text-muted-foreground hover:text-foreground"
-              aria-label="Adelante"
-              title="Adelante"
-              data-testid="page-header-forward-btn"
-            >
-              <ng-icon name="lucideChevronRight" size="12" class="shrink-0" />
-            </nv-button>
-          </div>
+          <app-page-header-history (back)="goBack()" (forward)="goForward()" />
         }
 
         @if ((!isRoot() && backLink()) || computedBreadcrumbs().length > 0) {
           @if (showHistoryButtons()) {
             <span class="text-border">|</span>
           }
-          <nav
-            aria-label="Ruta de navegación"
-            data-testid="page-header-breadcrumb"
-            class="text-muted-foreground flex flex-wrap items-center gap-2 font-mono text-xs"
-          >
-            @if (backLink() && !isRoot()) {
-              <a
-                [routerLink]="backLink()"
-                class="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 font-mono text-xs transition-colors"
-                [attr.aria-label]="backAriaLabel()"
-                [attr.title]="backAriaLabel()"
-              >
-                <ng-icon name="lucideArrowLeft" size="14" class="shrink-0" />
-                <span>{{ backAriaLabel() }}</span>
-              </a>
-              @if (computedBreadcrumbs().length > 0) {
-                <span class="text-border">&gt;</span>
-              }
-            }
-
-            @for (item of computedBreadcrumbs(); track $index) {
-              @if ($index > 0) {
-                <span class="text-border">&gt;</span>
-              }
-              @if (item.url) {
-                <a
-                  [routerLink]="item.url"
-                  class="hover:text-foreground inline-flex items-center gap-1 transition-colors"
-                >
-                  @if (item.icon) {
-                    <ng-icon [name]="item.icon" size="12" class="shrink-0" />
-                  }
-                  <span>{{ item.label }}</span>
-                </a>
-              } @else {
-                <span
-                  class="inline-flex items-center gap-1"
-                  [class.text-foreground]="$last"
-                  [class.font-semibold]="$last"
-                >
-                  @if (item.icon) {
-                    <ng-icon [name]="item.icon" size="12" class="shrink-0" />
-                  }
-                  <span>{{ item.label }}</span>
-                </span>
-              }
-            }
-          </nav>
+          <app-page-header-breadcrumbs
+            [breadcrumbs]="computedBreadcrumbs()"
+            [backLink]="backLink()"
+            [backAriaLabel]="backAriaLabel()"
+            [isRoot]="isRoot()"
+          />
         }
       </div>
 
       <div class="flex items-center gap-2.5">
-        <nv-h1
-          class="truncate text-base font-bold tracking-tight text-foreground sm:text-2xl"
-        >
+        <nv-h1 class="truncate text-base font-bold tracking-tight text-foreground sm:text-2xl">
           {{ title() }}
         </nv-h1>
         <div class="hidden sm:block">
@@ -160,9 +68,7 @@
       </div>
 
       @if (subtitle()) {
-        <nv-muted
-          class="text-muted-foreground block truncate text-xs sm:text-sm"
-        >
+        <nv-muted class="text-muted-foreground block truncate text-xs sm:text-sm">
           {{ subtitle() }}
         </nv-muted>
       } @else {
