@@ -101,13 +101,17 @@ describe("ParkingHome Component", () => {
     expect(el.querySelector("app-parking-empty-state")).toBeNull();
   });
 
-  it("should render app-page-header with title and actions", () => {
+  it("should render app-page-header with title and actions, and without breadcrumbs", () => {
     const header = fixture.nativeElement.querySelector("app-page-header");
     expect(header).toBeTruthy();
     expect(header.textContent).toContain("Parqueaderos");
     const actions = header.querySelector("[actions]");
     expect(actions).toBeTruthy();
     expect(actions.textContent).toContain("Operaciones en vivo");
+    const breadcrumb = header.querySelector(
+      '[data-testid="page-header-breadcrumb"]'
+    );
+    expect(breadcrumb).toBeNull();
   });
 
   it("should render empty state when active parking is null", () => {

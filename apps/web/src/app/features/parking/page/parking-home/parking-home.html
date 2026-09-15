@@ -1,7 +1,13 @@
 @if (facade.activeParkingLot(); as p) {
 <div class="mx-auto flex max-w-7xl flex-col gap-5 p-3.5 sm:gap-6 sm:p-6 md:p-8">
   <!-- Top Bar / Hero Header -->
-  <app-page-header title="Parqueaderos" [subtitle]="activeParkingSubtitle()">
+  <app-page-header
+    icon="lucideParkingSquare"
+    [isRoot]="true"
+    [showHistoryButtons]="false"
+    title="Parqueaderos"
+    [subtitle]="activeParkingSubtitle()"
+  >
     <!-- Action Buttons -->
     <div actions class="flex flex-wrap items-center gap-2">
       <nv-button
@@ -35,7 +41,7 @@
           size="16"
           class="text-primary shrink-0"
         />
-        <span class="whitespace-nowrap">Espacios / Slots</span>
+        <span class="whitespace-nowrap">Plazas</span>
       </nv-button>
 
       <nv-button

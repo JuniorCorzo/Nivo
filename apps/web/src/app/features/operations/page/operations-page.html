@@ -1,6 +1,7 @@
 <div class="mx-auto flex max-w-7xl flex-col gap-4 p-3.5 sm:gap-6 sm:p-6 md:p-8">
   <!-- Top Bar: Navigation, Parking Name & Quick Actions -->
   <app-page-header
+    icon="lucideCar"
     title="Operaciones de Parqueo"
     [subtitle]="(parking()?.name || 'Cargando parqueadero...') + ' · Control vehicular'"
     [backLink]="APP_ROUTES.app.parkingLots"

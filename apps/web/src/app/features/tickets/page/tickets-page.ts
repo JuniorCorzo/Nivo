@@ -23,7 +23,7 @@ import {
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
-import { PageHeaderComponent } from "@/app/shared/components/page-header/page-header.component";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
 
 import { TicketDetailDrawerComponent } from "../components/ticket-detail-drawer/ticket-detail-drawer.component";
 import { TicketFiltersComponent } from "../components/ticket-filters/ticket-filters.component";

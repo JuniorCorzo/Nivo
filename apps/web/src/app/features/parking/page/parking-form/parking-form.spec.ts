@@ -136,4 +136,21 @@ describe("ParkingFormComponent", () => {
     expect(backBtn).toBeTruthy();
     expect(backBtn?.getAttribute("href")).toBe("/app/parking-lots");
   });
+
+  it("should render cancel and save actions in app-page-header and trigger onCancel", () => {
+    const header = fixture.nativeElement.querySelector("app-page-header");
+    expect(header).toBeTruthy();
+    const cancelBtn: HTMLElement = header.querySelector(
+      '[data-testid="parking-form-header-cancel"]'
+    );
+    const submitBtn: HTMLElement = header.querySelector(
+      '[data-testid="parking-form-header-submit"]'
+    );
+    expect(cancelBtn).toBeTruthy();
+    expect(submitBtn).toBeTruthy();
+
+    vi.spyOn(component, "onCancel");
+    cancelBtn.click();
+    expect(component.onCancel).toHaveBeenCalled();
+  });
 });
