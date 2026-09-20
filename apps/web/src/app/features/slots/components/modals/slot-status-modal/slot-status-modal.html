@@ -1,0 +1,80 @@
+<dialog
+  #dialog
+  class="slot-dialog"
+  role="dialog"
+  [attr.aria-labelledby]="titleId"
+  [attr.aria-describedby]="descriptionId"
+  (click)="onBackdropClick($event)"
+>
+  <div class="slot-dialog__panel">
+    <div class="border-border flex items-center justify-between border-b pb-3.5">
+      <nv-h3 [id]="titleId" class="text-foreground text-base font-bold">{{ title() }}</nv-h3>
+      <button
+        type="button"
+        class="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border transition-colors"
+        (click)="onCancel($event)"
+        aria-label="Cerrar"
+      >
+        <ng-icon name="lucideX" size="16" />
+      </button>
+    </div>
+
+    <div class="mt-4 flex flex-col gap-4">
+      <p [id]="descriptionId" class="text-muted-foreground text-xs leading-relaxed">{{ body() }}</p>
+
+      @if (target(); as currentTarget) {
+      <div class="bg-muted/50 border-border flex flex-col gap-2.5 rounded-xl border p-3.5">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-muted-foreground font-medium">Estado actual:</span>
+          <span class="text-foreground font-semibold">
+            {{ currentTarget.status === 'AVAILABLE' ? 'Disponible' : currentTarget.status ===
+            'OCCUPIED' ? 'Ocupada' : currentTarget.status === 'MAINTENANCE' ? 'Mantenimiento' :
+            'Reservada' }}
+          </span>
+        </div>
+
+        <div class="border-border flex flex-wrap gap-2 border-t pt-2">
+          @for (option of transitionOptions(); track option) {
+          <button
+            type="button"
+            class="cursor-pointer rounded-xl border px-3 py-1.5 text-xs font-semibold shadow-2xs transition-all select-none"
+            [class.border-primary]="nextStatus() === option"
+            [class.bg-primary]="nextStatus() === option"
+            [class.text-primary-foreground]="nextStatus() === option"
+            [class.border-border]="nextStatus() !== option"
+            [class.bg-card]="nextStatus() !== option"
+            [class.text-foreground]="nextStatus() !== option"
+            (click)="selectStatusNext.emit(option)"
+          >
+            {{ option === 'AVAILABLE' ? 'Disponible' : option === 'OCCUPIED' ? 'Ocupada' : option
+            === 'MAINTENANCE' ? 'Mantenimiento' : 'Reservada' }}
+          </button>
+          }
+        </div>
+      </div>
+      } @if (requiresExtraConfirm()) {
+      <label
+        class="border-warning/20 bg-warning/10 text-warning flex cursor-pointer items-start gap-2.5 rounded-xl border p-3 text-xs font-medium select-none"
+      >
+        <input
+          type="checkbox"
+          [checked]="confirmChecked()"
+          (change)="onConfirmCheckedChange($event)"
+          class="accent-warning mt-0.5 cursor-pointer rounded-sm"
+        />
+        <span>Entiendo el riesgo y quiero continuar con el cambio de estado.</span>
+      </label>
+      }
+    </div>
+
+    <div class="border-border mt-5 flex justify-end gap-2.5 border-t pt-3.5">
+      <nv-button variant="outline" (click)="onCancel($event)">Cancelar</nv-button>
+      <nv-button
+        [disabled]="!nextStatus() || (requiresExtraConfirm() && !confirmChecked())"
+        (click)="confirm.emit()"
+      >
+        Confirmar cambio
+      </nv-button>
+    </div>
+  </div>
+</dialog>

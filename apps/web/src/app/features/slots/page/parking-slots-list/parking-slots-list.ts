@@ -1,35 +1,29 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { RouterLink } from "@angular/router";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
+  lucideAlertTriangle,
   lucideArrowLeft,
   lucideChevronLeft,
   lucideChevronRight,
   lucideEye,
   lucideFilterX,
   lucideInbox,
+  lucideParkingSquare,
   lucidePencil,
   lucidePlus,
   lucideSearch,
   lucideToggleLeft,
   lucideTrash2,
   lucideX,
-  lucideCar,
-  lucideBike,
-  lucideParkingSquare,
-  lucideAlertTriangle,
 } from "@ng-icons/lucide";
 import {
-  BadgeComponent,
   ButtonComponent,
-  SelectComponent,
   TableBodyComponent,
   TableCellComponent,
   TableComponent,
   TableHeadComponent,
   TableHeaderComponent,
   TableRowComponent,
-  InputComponent,
 } from "@nivo-sass/design-system";
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
@@ -38,15 +32,21 @@ import { FlexRender } from "@tanstack/angular-table";
 
 import { PaginationTable } from "@/app/shared/components/pagination-table/pagination-table";
 
-import { SlotDeleteModal } from "../../components/slot-delete-modal/slot-delete-modal";
-import { SlotDeleteState } from "../../components/slot-delete-modal/slots-delete.state";
-import { SlotDetailDrawer } from "../../components/slot-detail-drawer/slot-detail-drawer";
-import { SlotGroupEditModalComponent } from "../../components/slot-group-edit-modal/slot-group-edit-modal";
-import { SlotMetadataBatchModalComponent } from "../../components/slot-metadata-batch-modal/slot-metadata-batch-modal";
-import { SlotStatusModal } from "../../components/slot-status-modal/slot-status-modal";
-import { SlotStatusState } from "../../components/slot-status-modal/slot-status.state";
+import { SlotDetailDrawer } from "../../components/drawer/slot-detail-drawer/slot-detail-drawer";
+import { SlotEmptyStateComponent } from "../../components/empty-state/slot-empty-state/slot-empty-state";
+import { SlotDeleteModal } from "../../components/modals/slot-delete-modal/slot-delete-modal";
+import { SlotDeleteState } from "../../components/modals/slot-delete-modal/slots-delete.state";
+import { SlotGroupEditModalComponent } from "../../components/modals/slot-group-edit-modal/slot-group-edit-modal";
+import { SlotMetadataBatchModalComponent } from "../../components/modals/slot-metadata-batch-modal/slot-metadata-batch-modal";
+import { SlotStatusModal } from "../../components/modals/slot-status-modal/slot-status-modal";
+import { SlotStatusState } from "../../components/modals/slot-status-modal/slot-status.state";
+import { SlotBatchSelectionBarComponent } from "../../components/toolbar/slot-batch-selection-bar/slot-batch-selection-bar";
+import { SlotFilterToolbarComponent } from "../../components/toolbar/slot-filter-toolbar/slot-filter-toolbar";
 import {
   ParkingSlotsListFacade,
+  SlotDrawerState,
+  SlotGroupState,
+  SlotMetadataBatchState,
   getHistoryCopy,
 } from "../../facades/parking-slots-list.facade";
 import { SLOT_TYPE_LABELS } from "../../shared/parking-slot-presentations";
@@ -59,10 +59,8 @@ import { SlotsTableState } from "./slots-table.state";
     class: "block w-full",
   },
   imports: [
-    RouterLink,
     NgIcon,
     ButtonComponent,
-    SelectComponent,
     TableComponent,
     TableBodyComponent,
     TableHeaderComponent,
@@ -75,9 +73,10 @@ import { SlotsTableState } from "./slots-table.state";
     SlotDetailDrawer,
     SlotMetadataBatchModalComponent,
     SlotGroupEditModalComponent,
+    SlotFilterToolbarComponent,
+    SlotBatchSelectionBarComponent,
+    SlotEmptyStateComponent,
     PaginationTable,
-    InputComponent,
-    BadgeComponent,
     PageHeaderComponent,
   ],
   providers: [
@@ -85,12 +84,13 @@ import { SlotsTableState } from "./slots-table.state";
     SlotsSelectionState,
     SlotDeleteState,
     SlotStatusState,
+    SlotMetadataBatchState,
+    SlotGroupState,
+    SlotDrawerState,
     ParkingSlotsListFacade,
     provideIcons({
       lucideAlertTriangle,
       lucideArrowLeft,
-      lucideBike,
-      lucideCar,
       lucideChevronLeft,
       lucideChevronRight,
       lucideEye,

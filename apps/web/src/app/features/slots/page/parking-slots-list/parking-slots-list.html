@@ -1,483 +1,193 @@
 @if (facade.parking(); as p) {
-  <div class="mx-auto flex max-w-7xl flex-col gap-6 p-4 sm:p-6 md:p-8">
-    <!-- Header & Actions -->
-    <app-page-header
-      icon="lucideParkingSquare"
-      title="Plazas de Parqueo"
-      [subtitle]="texts.list.subtitle"
-      [breadcrumbs]="[
-        {
-          label: 'Parqueaderos',
-          url: APP_ROUTES.app.parkingLots,
-          icon: 'lucideParkingSquare',
-        },
-        { label: p.name, url: APP_ROUTES.app.parkingLots },
-        { label: 'Plazas' },
-      ]"
-    >
-      <div actions class="flex flex-wrap items-center gap-2">
-        <nv-button
-          variant="outline"
-          [routerLink]="APP_ROUTES.app.parkingLots"
-          size="sm"
-        >
-          <ng-icon name="lucideArrowLeft" size="12" />
-          Volver al parqueadero
-        </nv-button>
-        <nv-button variant="outline" (click)="facade.openGroupModal()">
-          <ng-icon name="lucidePencil" size="14" />
-          Editar grupo
-        </nv-button>
-        <nv-button (click)="facade.onCreate()">
-          <ng-icon name="lucidePlus" size="16" />
-          Crear plazas
-        </nv-button>
-      </div>
-    </app-page-header>
-
-    <!-- Main Card with Filters and Table -->
-    <div
-      class="bg-card text-card-foreground border-border overflow-hidden rounded-2xl border shadow-xs"
-    >
-      <div class="flex flex-col gap-4 p-4 sm:p-6">
-        <!-- Filter Toolbar -->
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <nv-input
-            type="search"
-            class="w-full lg:col-span-1"
-            startIcon="lucideSearch"
-            [placeholder]="texts.list.search.placeholder"
-            [value]="facade.globalFilter()"
-            (input)="facade.onQueryInput($event)"
-          />
-          <nv-select
-            class="w-full"
-            [items]="facade.typeOptions"
-            [displayFn]="facade.displayOptionFn"
-            [valueFn]="facade.valueOptionFn"
-            [value]="facade.columnFilterValue('type')"
-            (valueChange)="facade.setFilter('type', $event)"
-          />
-          <nv-select
-            class="w-full"
-            [items]="facade.zoneOptions"
-            [displayFn]="facade.displayOptionFn"
-            [valueFn]="facade.valueOptionFn"
-            [value]="facade.columnFilterValue('zone')"
-            (valueChange)="facade.setFilter('zone', $event)"
-          />
-          <nv-select
-            class="w-full"
-            [items]="facade.statusOptions"
-            [displayFn]="facade.displayOptionFn"
-            [valueFn]="facade.valueOptionFn"
-            [value]="facade.columnFilterValue('status')"
-            (valueChange)="facade.setFilter('status', $event)"
-          />
-        </div>
-
-        <!-- Batch Selection Bar -->
-        @if (facade.selectedCount() > 0) {
-          <div
-            class="border-primary/20 bg-primary/10 text-foreground flex items-center justify-between rounded-xl border px-4 py-3 transition-all"
-          >
-            <div class="flex items-center gap-2">
-              <span
-                class="bg-primary flex h-2 w-2 animate-pulse rounded-full"
-              ></span>
-              <span class="text-xs font-semibold sm:text-sm"
-                >{{ facade.selectedCount() }} plazas seleccionadas</span
-              >
-            </div>
-            <div class="flex items-center gap-2">
-              <nv-button
-                variant="outline"
-                size="sm"
-                (click)="facade.openMetadataModal()"
-              >
-                Editar equipamiento ({{ facade.selectedCount() }})
-              </nv-button>
-              <button
-                type="button"
-                (click)="facade.openBatchDeleteModal()"
-                class="bg-destructive text-destructive-foreground hover:bg-destructive/90 inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-              >
-                <ng-icon name="lucideTrash2" size="13" />
-                <span>Eliminar</span>
-              </button>
-            </div>
-          </div>
-        }
-
-        <!-- Empty State -->
-        @if (facade.filteredSlots().length === 0) {
-          <div
-            class="text-muted-foreground border-border flex min-h-72 flex-col items-center justify-center gap-3 rounded-xl border border-dashed p-8 text-center"
-          >
-            @if (facade.slots().length === 0) {
-              <div
-                class="bg-muted text-muted-foreground flex h-14 w-14 items-center justify-center rounded-2xl"
-              >
-                <ng-icon name="lucideInbox" size="32" />
-              </div>
-              <h3 class="text-foreground text-base font-bold">
-                No hay plazas configuradas
-              </h3>
-              <p class="max-w-sm text-xs">
-                Este parqueadero aún no tiene plazas. Creá el primer lote para
-                empezar.
-              </p>
-              <button
-                type="button"
-                (click)="facade.onCreate()"
-                class="bg-primary text-primary-foreground hover:bg-primary/90 mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold shadow-xs transition-all"
-              >
-                <ng-icon name="lucidePlus" size="14" />
-                <span>Crear primer lote</span>
-              </button>
-            } @else {
-              <div
-                class="bg-muted text-muted-foreground flex h-14 w-14 items-center justify-center rounded-2xl"
-              >
-                <ng-icon name="lucideFilterX" size="32" />
-              </div>
-              <h3 class="text-foreground text-base font-bold">
-                Ninguna plaza coincide
-              </h3>
-              <p class="max-w-sm text-xs">
-                Los filtros seleccionados no devuelven resultados.
-              </p>
-              <button
-                type="button"
-                (click)="facade.clearFilters()"
-                class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground mt-2 inline-flex cursor-pointer items-center rounded-xl border px-4 py-2 text-xs font-medium transition-colors"
-              >
-                Limpiar filtros
-              </button>
-            }
-          </div>
-        } @else {
-          <!-- Slots Table -->
-          <div class="border-border overflow-x-auto rounded-xl border">
-            <table nv-table class="w-full min-w-190 border-collapse text-left">
-              <colgroup>
-                @for (
-                  column of facade.table.getAllLeafColumns();
-                  track column.id
-                ) {
-                  <col [style.width.px]="column.getSize()" />
-                }
-              </colgroup>
-
-              <thead nv-table-header class="bg-muted/80 border-border border-b">
-                @for (
-                  headerGroup of facade.table.getHeaderGroups();
-                  track headerGroup.id
-                ) {
-                  <tr nv-table-row>
-                    @for (header of headerGroup.headers; track header.id) {
-                      <th
-                        nv-table-head
-                        class="text-muted-foreground px-4 py-3 text-[11px] font-bold tracking-wider uppercase"
-                        [class.text-right]="header.column.id === 'actions'"
-                      >
-                        @if (header.column.id === "select") {
-                          <input
-                            type="checkbox"
-                            [checked]="facade.allSelected()"
-                            (change)="facade.toggleAll($event)"
-                            class="cursor-pointer rounded-sm"
-                          />
-                        } @else {
-                          <ng-container
-                            *flexRender="
-                              header.column.columnDef.header;
-                              props: header.getContext();
-                              let headerRender
-                            "
-                          >
-                            <div [innerHTML]="headerRender"></div>
-                          </ng-container>
-                        }
-                      </th>
-                    }
-                  </tr>
-                }
-              </thead>
-
-              <tbody nv-table-body class="divide-border divide-y">
-                @for (row of facade.table.getRowModel().rows; track row.id) {
-                  <tr nv-table-row class="hover:bg-muted/40 transition-colors">
-                    @for (cell of row.getVisibleCells(); track cell.id) {
-                      <td
-                        nv-table-cell
-                        class="px-4 py-3 text-xs"
-                        [class.text-right]="cell.column.id === 'actions'"
-                      >
-                        @if (cell.column.id === "select") {
-                          <input
-                            type="checkbox"
-                            [checked]="
-                              facade.selectedIds().has(row.original.id)
-                            "
-                            (change)="
-                              facade.toggleSelected(row.original.id, $event)
-                            "
-                            class="cursor-pointer rounded-sm"
-                          />
-                        } @else if (cell.column.id === "slotNumber") {
-                          <div class="flex flex-wrap items-center gap-1.5">
-                            <span
-                              class="text-foreground font-mono text-sm font-bold"
-                            >
-                              {{ row.original.slotNumber }}
-                            </span>
-                            @if (row.original.hasCharger) {
-                              <nv-badge
-                                variant="info"
-                                title="Cargador eléctrico"
-                              >
-                                ⚡ EV
-                              </nv-badge>
-                            }
-                            @if (row.original.isAccessible) {
-                              <nv-badge
-                                variant="default"
-                                title="Movilidad reducida (PMR)"
-                              >
-                                ♿ PMR
-                              </nv-badge>
-                            }
-                            @if (!row.original.isActive) {
-                              <nv-badge
-                                variant="warning"
-                                title="Fuera de servicio"
-                              >
-                                ⏸️ Inactiva
-                              </nv-badge>
-                            }
-                          </div>
-                        } @else if (cell.column.id === "zone") {
-                          <span
-                            class="bg-muted text-muted-foreground border-border inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold"
-                          >
-                            {{ row.original.zone || "Sin zona" }}
-                          </span>
-                        } @else if (cell.column.id === "type") {
-                          <div
-                            class="text-foreground inline-flex items-center gap-1.5 font-medium"
-                          >
-                            @if (row.original.type === "CAR") {
-                              <ng-icon
-                                name="lucideCar"
-                                class="text-muted-foreground text-sm"
-                              />
-                            } @else {
-                              <ng-icon
-                                name="lucideBike"
-                                class="text-muted-foreground text-sm"
-                              />
-                            }
-                            <span>{{ slotTypeLabel[row.original.type] }}</span>
-                          </div>
-                        } @else if (cell.column.id === "status") {
-                          <span
-                            class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold"
-                            [class.bg-success/10]="
-                              row.original.status === 'AVAILABLE'
-                            "
-                            [class.text-success]="
-                              row.original.status === 'AVAILABLE'
-                            "
-                            [class.border-success/20]="
-                              row.original.status === 'AVAILABLE'
-                            "
-                            [class.bg-info/10]="
-                              row.original.status === 'OCCUPIED'
-                            "
-                            [class.text-info]="
-                              row.original.status === 'OCCUPIED'
-                            "
-                            [class.border-info/20]="
-                              row.original.status === 'OCCUPIED'
-                            "
-                            [class.bg-warning/10]="
-                              row.original.status === 'MAINTENANCE'
-                            "
-                            [class.text-warning]="
-                              row.original.status === 'MAINTENANCE'
-                            "
-                            [class.border-warning/20]="
-                              row.original.status === 'MAINTENANCE'
-                            "
-                            [class.bg-muted]="
-                              row.original.status === 'RESERVED'
-                            "
-                            [class.text-muted-foreground]="
-                              row.original.status === 'RESERVED'
-                            "
-                            [class.border-border]="
-                              row.original.status === 'RESERVED'
-                            "
-                          >
-                            <span
-                              class="h-1.5 w-1.5 rounded-full"
-                              [class.bg-success]="
-                                row.original.status === 'AVAILABLE'
-                              "
-                              [class.bg-info]="
-                                row.original.status === 'OCCUPIED'
-                              "
-                              [class.bg-warning]="
-                                row.original.status === 'MAINTENANCE'
-                              "
-                              [class.bg-muted-foreground]="
-                                row.original.status === 'RESERVED'
-                              "
-                            ></span>
-                            <span>
-                              {{
-                                row.original.status === "AVAILABLE"
-                                  ? "Disponible"
-                                  : row.original.status === "OCCUPIED"
-                                    ? "Ocupada"
-                                    : row.original.status === "MAINTENANCE"
-                                      ? "Mantenimiento"
-                                      : "Reservada"
-                              }}
-                            </span>
-                          </span>
-                        } @else if (cell.column.id === "actions") {
-                          <div class="flex justify-end gap-1.5">
-                            <button
-                              type="button"
-                              class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border transition-colors"
-                              title="Ver detalle"
-                              (click)="facade.openDrawer(row.original.id)"
-                            >
-                              <ng-icon name="lucideEye" size="14" />
-                            </button>
-                            <button
-                              type="button"
-                              class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border transition-colors"
-                              title="Editar"
-                              (click)="facade.onEdit(row.original.id)"
-                            >
-                              <ng-icon name="lucidePencil" size="14" />
-                            </button>
-                            <button
-                              type="button"
-                              class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border transition-colors"
-                              title="Cambiar estado"
-                              (click)="facade.openStatusModal(row.original)"
-                            >
-                              <ng-icon name="lucideToggleLeft" size="14" />
-                            </button>
-                            <button
-                              type="button"
-                              class="border-border bg-card text-destructive hover:bg-destructive/10 inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border transition-colors"
-                              title="Eliminar"
-                              (click)="facade.openDeleteModal(row.original)"
-                            >
-                              <ng-icon name="lucideTrash2" size="14" />
-                            </button>
-                          </div>
-                        } @else {
-                          <ng-container
-                            *flexRender="
-                              cell.column.columnDef.cell;
-                              props: cell.getContext();
-                              let cellRender
-                            "
-                          >
-                            <div [innerHTML]="cellRender"></div>
-                          </ng-container>
-                        }
-                      </td>
-                    }
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-
-          <app-pagination-table
-            [currentItems]="facade.table.getRowModel().rows.length"
-            [countItems]="facade.slots().length"
-            [currentPage]="facade.table.getState().pagination.pageIndex"
-            [countPages]="facade.table.getPageCount()"
-            [getCanPreviousPage]="facade.table.getCanPreviousPage()"
-            [previousPage]="facade.table.previousPage"
-            [getCanNextPage]="facade.table.getCanNextPage()"
-            [nextPage]="facade.table.nextPage"
-          />
-        }
-      </div>
+<div class="mx-auto flex max-w-7xl flex-col gap-6 p-4 sm:p-6 md:p-8">
+  <!-- Header & Actions -->
+  <app-page-header
+    icon="lucideParkingSquare"
+    title="Plazas de Parqueo"
+    [subtitle]="texts.list.subtitle"
+  >
+    <div actions class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+      <nv-button variant="outline" (click)="facade.openGroupModal()" class="w-full sm:w-auto">
+        <ng-icon name="lucidePencil" size="14" />
+        Editar grupo
+      </nv-button>
+      <nv-button (click)="facade.onCreate()" class="w-full sm:w-auto">
+        <ng-icon name="lucidePlus" size="16" />
+        Crear plazas
+      </nv-button>
     </div>
+  </app-page-header>
 
-    <!-- Detail Drawer Component -->
-    @if (facade.drawerSlot(); as slot) {
-      <app-slot-detail-drawer
-        [slot]="slot"
-        [drawerTab]="facade.drawerTab()"
-        [slotTypeLabel]="slotTypeLabel"
-        (close)="facade.closeDrawer()"
-        (setTab)="facade.setDrawerTab($event)"
+  <!-- Main Card with Filters and Table -->
+  <div
+    class="bg-card text-card-foreground border-border overflow-hidden rounded-2xl border shadow-xs"
+  >
+    <div class="flex flex-col gap-4 p-4 sm:p-6">
+      <!-- Filter Toolbar -->
+      <app-slot-filter-toolbar
+        [globalFilter]="facade.globalFilter()"
+        [typeFilter]="facade.columnFilterValue('type')"
+        [zoneFilter]="facade.columnFilterValue('zone')"
+        [statusFilter]="facade.columnFilterValue('status')"
+        [isAccessibleFilter]="facade.isAccessibleFilter()"
+        [hasChargerFilter]="facade.hasChargerFilter()"
+        [typeOptions]="facade.typeOptions"
+        [zoneOptions]="facade.zoneOptions()"
+        [statusOptions]="facade.statusOptions"
+        (queryInput)="facade.onQueryInput($event)"
+        (filterChange)="facade.setFilter($event.key, $event.value)"
+        (clearFilters)="facade.clearFilters()"
       />
-    }
 
-    <!-- Status Change Modal Component -->
-    @if (facade.statusModalOpen()) {
-      <app-slot-status-modal
-        [title]="facade.statusModalCopy().title"
-        [body]="facade.statusModalCopy().body"
-        [target]="facade.statusTarget()"
-        [nextStatus]="facade.statusNext()"
-        [transitionOptions]="facade.statusTransitionOptions()"
-        [requiresExtraConfirm]="facade.statusModalCopy().requiresExtraConfirm"
-        [confirmChecked]="facade.statusConfirmChecked()"
-        (cancel)="facade.closeStatusModal()"
-        (selectStatusNext)="facade.selectStatusNext($event)"
-        (confirmCheckedChange)="facade.statusConfirmChecked.set($event)"
-        (confirm)="facade.confirmStatusChange()"
+      <!-- Batch Selection Bar -->
+      <app-slot-batch-selection-bar
+        [selectedCount]="facade.selectedCount()"
+        (editMetadata)="facade.openMetadataModal()"
+        (deleteBatch)="facade.openBatchDeleteModal()"
       />
-    }
 
-    <!-- Delete Modal Component -->
-    @if (facade.deleteModalOpen()) {
-      <app-slot-delete-modal
-        [copy]="facade.deleteModalCopy()"
-        [requiresConfirm]="facade.deleteRequiresConfirm()"
-        [confirmChecked]="facade.deleteConfirmChecked()"
-        (cancel)="facade.closeDeleteModal()"
-        (confirmCheckedChange)="facade.deleteConfirmChecked.set($event)"
-        (confirm)="facade.confirmDelete()"
+      <!-- Empty State -->
+      @if (facade.filteredSlots().length === 0) {
+      <app-slot-empty-state
+        [hasSlots]="facade.slots().length > 0"
+        (create)="facade.onCreate()"
+        (clearFilters)="facade.clearFilters()"
       />
-    }
+      } @else {
+      <!-- Slots Table -->
+      <div class="border-border overflow-x-auto rounded-xl border">
+        <table nv-table class="w-full min-w-190 border-collapse text-left">
+          <colgroup>
+            @for ( column of facade.table.getAllLeafColumns(); track column.id ) {
+            <col [style.width.px]="column.getSize()" />
+            }
+          </colgroup>
 
-    <!-- Metadata Batch Modal Component -->
-    @if (facade.metadataModalOpen()) {
-      <app-slot-metadata-batch-modal
-        [selectedSlots]="facade.selectedSlots()"
-        (cancel)="facade.closeMetadataModal()"
-        (submitMetadata)="facade.updateSlotsMetadata($event)"
-      />
-    }
+          <thead nv-table-header class="bg-muted/80 border-border border-b">
+            @for ( headerGroup of facade.table.getHeaderGroups(); track headerGroup.id ) {
+            <tr nv-table-row>
+              @for (header of headerGroup.headers; track header.id) {
+              <th
+                nv-table-head
+                class="text-muted-foreground px-4 py-3 text-[11px] font-bold tracking-wider uppercase"
+                [class.text-right]="header.column.id === 'actions'"
+              >
+                <ng-container
+                  *flexRender="
+                            header.column.columnDef.header;
+                            props: header.getContext();
+                            let headerRender
+                          "
+                >
+                  <div [innerHTML]="headerRender"></div>
+                </ng-container>
+              </th>
+              }
+            </tr>
+            }
+          </thead>
 
-    <!-- Group Edit Modal Component -->
-    @if (facade.groupModalOpen()) {
-      <app-slot-group-edit-modal
-        [parkingId]="facade.parking()?.id ?? ''"
-        [groups]="facade.availableGroups()"
-        [initialZone]="facade.groupTarget()?.zone ?? ''"
-        [initialPrefix]="facade.groupTarget()?.prefix ?? ''"
-        (cancel)="facade.closeGroupModal()"
-        (submitGroup)="facade.updateSlotGroup($event)"
+          <tbody nv-table-body class="divide-border divide-y">
+            @for (row of facade.table.getRowModel().rows; track row.id) {
+            <tr nv-table-row class="hover:bg-muted/40 transition-colors">
+              @for (cell of row.getVisibleCells(); track cell.id) {
+              <td
+                nv-table-cell
+                class="px-4 py-3 text-xs"
+                [class.text-right]="cell.column.id === 'actions'"
+              >
+                <ng-container
+                  *flexRender="
+                            cell.column.columnDef.cell;
+                            props: cell.getContext();
+                            let cellRender
+                          "
+                >
+                  {{ cellRender }}
+                </ng-container>
+              </td>
+              }
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <app-pagination-table
+        [currentItems]="facade.table.getRowModel().rows.length"
+        [countItems]="facade.slots().length"
+        [currentPage]="facade.table.getState().pagination.pageIndex"
+        [countPages]="facade.table.getPageCount()"
+        [getCanPreviousPage]="facade.table.getCanPreviousPage()"
+        [previousPage]="facade.table.previousPage"
+        [getCanNextPage]="facade.table.getCanNextPage()"
+        [nextPage]="facade.table.nextPage"
       />
-    }
+      }
+    </div>
   </div>
+
+  <!-- Detail Drawer Component -->
+  @if (facade.drawerSlot(); as slot) {
+  <app-slot-detail-drawer
+    [slot]="slot"
+    [drawerTab]="facade.drawerTab()"
+    [slotTypeLabel]="slotTypeLabel"
+    (close)="facade.closeDrawer()"
+    (setTab)="facade.setDrawerTab($event)"
+  />
+  }
+
+  <!-- Status Change Modal Component -->
+  @if (facade.statusModalOpen()) {
+  <app-slot-status-modal
+    [title]="facade.statusModalCopy().title"
+    [body]="facade.statusModalCopy().body"
+    [target]="facade.statusTarget()"
+    [nextStatus]="facade.statusNext()"
+    [transitionOptions]="facade.statusTransitionOptions()"
+    [requiresExtraConfirm]="facade.statusModalCopy().requiresExtraConfirm"
+    [confirmChecked]="facade.statusConfirmChecked()"
+    (cancel)="facade.closeStatusModal()"
+    (selectStatusNext)="facade.selectStatusNext($event)"
+    (confirmCheckedChange)="facade.statusConfirmChecked.set($event)"
+    (confirm)="facade.confirmStatusChange()"
+  />
+  }
+
+  <!-- Delete Modal Component -->
+  @if (facade.deleteModalOpen()) {
+  <app-slot-delete-modal
+    [copy]="facade.deleteModalCopy()"
+    [requiresConfirm]="facade.deleteRequiresConfirm()"
+    [confirmChecked]="facade.deleteConfirmChecked()"
+    (cancel)="facade.closeDeleteModal()"
+    (confirmCheckedChange)="facade.deleteConfirmChecked.set($event)"
+    (confirm)="facade.confirmDelete()"
+  />
+  }
+
+  <!-- Metadata Batch Modal Component -->
+  @if (facade.metadataModalOpen()) {
+  <app-slot-metadata-batch-modal
+    [selectedSlots]="facade.selectedSlots()"
+    (cancel)="facade.closeMetadataModal()"
+    (submitMetadata)="facade.updateSlotsMetadata($event)"
+  />
+  }
+
+  <!-- Group Edit Modal Component -->
+  @if (facade.groupModalOpen()) {
+  <app-slot-group-edit-modal
+    [parkingId]="facade.parking()?.id ?? ''"
+    [groups]="facade.availableGroups()"
+    [initialZone]="facade.groupTarget()?.zone ?? ''"
+    [initialPrefix]="facade.groupTarget()?.prefix ?? ''"
+    (cancel)="facade.closeGroupModal()"
+    (submitGroup)="facade.updateSlotGroup($event)"
+  />
+  }
+</div>
 } @else {
-  <div class="text-muted-foreground p-8 text-center">
-    {{ texts.list.empty.parkingNotFound }}
-  </div>
+<div class="text-muted-foreground p-8 text-center">{{ texts.list.empty.parkingNotFound }}</div>
 }

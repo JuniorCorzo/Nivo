@@ -1,64 +1,43 @@
-import {
-  DestroyRef,
-  Injectable,
-  computed,
-  effect,
-  inject,
-  signal,
-} from "@angular/core";
+import { DestroyRef, Injectable, computed, effect, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import type { SlotStatus, SlotSummary } from "@core/models/slot.model";
 import { ParkingService } from "@core/services/parking-service";
 import { SlotService } from "@core/services/slot-service";
-import { ToastService } from "@nivo-sass/design-system";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
-import { SlotDeleteState } from "../components/slot-delete-modal/slots-delete.state";
-import type { SlotGroupOption } from "../components/slot-group-edit-modal/slot-group-edit-modal";
-import { SlotStatusState } from "../components/slot-status-modal/slot-status.state";
+import { SlotDeleteState } from "../components/modals/slot-delete-modal/slots-delete.state";
+import type { SlotGroupOption } from "../components/modals/slot-group-edit-modal/slot-group-edit-modal";
+import { SlotStatusState } from "../components/modals/slot-status-modal/slot-status.state";
 import { SlotsSelectionState } from "../page/parking-slots-list/slots-selection.state";
 import { SlotsTableState } from "../page/parking-slots-list/slots-table.state";
+import type { Option } from "../shared/parking-slot-presentations";
 import {
   SLOT_STATUS_FILTER_OPTIONS,
-  SLOT_TYPE_OPTIONS,
+  SLOT_TYPE_FILTER_OPTIONS,
   SLOT_ZONE_FILTER_OPTIONS,
   displayOptionFn,
   valueOptionFn,
 } from "../shared/parking-slot-presentations";
+import type { DrawerTab } from "./slot-drawer.state";
+import { SlotDrawerState } from "./slot-drawer.state";
+import { SlotGroupState } from "./slot-group.state";
+import { SlotMetadataBatchState } from "./slot-metadata-batch.state";
 
 export {
   getDeleteModalCopy,
   requiresDeleteConfirm,
-} from "../components/slot-delete-modal/slots-delete.state";
+} from "../components/modals/slot-delete-modal/slots-delete.state";
 export {
   getStatusModalCopy,
   getStatusTransitionOptions,
   VALID_STATUS_TRANSITIONS,
-} from "../components/slot-status-modal/slot-status.state";
-export type { SlotGroupOption } from "../components/slot-group-edit-modal/slot-group-edit-modal";
-
-export type DrawerTab = "general" | "history";
-
-export interface HistoryCopy {
-  empty: boolean;
-  message?: string;
-  title?: string;
-}
-
-export const getHistoryCopy = (slot: SlotSummary | null): HistoryCopy => {
-  if (!slot) {
-    return { empty: true };
-  }
-  if (!slot.hasHistory) {
-    return { empty: true, message: "Sin historial de tickets" };
-  }
-  return {
-    empty: false,
-    message: "El detalle de tickets no está disponible en esta vista.",
-    title: "Esta plaza tiene tickets previos.",
-  };
-};
+} from "../components/modals/slot-status-modal/slot-status.state";
+export type { SlotGroupOption } from "../components/modals/slot-group-edit-modal/slot-group-edit-modal";
+export { getHistoryCopy, SlotDrawerState } from "./slot-drawer.state";
+export type { DrawerTab, HistoryCopy } from "./slot-drawer.state";
+export { SlotGroupState } from "./slot-group.state";
+export { SlotMetadataBatchState } from "./slot-metadata-batch.state";
 
 @Injectable()
 export class ParkingSlotsListFacade {
@@ -71,13 +50,39 @@ export class ParkingSlotsListFacade {
   private readonly tableState = inject(SlotsTableState);
   private readonly deleteState = inject(SlotDeleteState);
   private readonly statusState = inject(SlotStatusState);
+  private readonly metadataBatchState = inject(SlotMetadataBatchState);
+  private readonly groupState = inject(SlotGroupState);
+  private readonly drawerState = inject(SlotDrawerState);
 
   // ─── filter options ───
-  readonly typeOptions = SLOT_TYPE_OPTIONS;
-  readonly zoneOptions = SLOT_ZONE_FILTER_OPTIONS;
+  readonly typeOptions = SLOT_TYPE_FILTER_OPTIONS;
+  readonly zoneOptions = computed<Option[]>(() => {
+    const zones = new Set(
+      this.slots()
+        .map((s) => s.zone)
+        .filter((z): z is string => Boolean(z)),
+    );
+    if (zones.size === 0) {
+      return SLOT_ZONE_FILTER_OPTIONS;
+    }
+    return [
+      { label: "Zona: Todas", value: "" },
+      ...[...zones].toSorted((a, b) => a.localeCompare(b)).map((z) => ({ label: z, value: z })),
+    ];
+  });
   readonly statusOptions = SLOT_STATUS_FILTER_OPTIONS;
   readonly displayOptionFn = displayOptionFn;
   readonly valueOptionFn = valueOptionFn;
+
+  readonly isAccessibleFilter = computed<boolean>(() => {
+    const val = this.tableState.columnFilterValue("isAccessible");
+    return val === true;
+  });
+
+  readonly hasChargerFilter = computed<boolean>(() => {
+    const val = this.tableState.columnFilterValue("hasCharger");
+    return val === true;
+  });
 
   // ─── delegated table & filter signals ───
   readonly globalFilter = this.tableState.globalFilter;
@@ -87,9 +92,7 @@ export class ParkingSlotsListFacade {
   // ─── delegated selection signals ───
   readonly selectedIds = this.selectionState.selectedIds;
   readonly selectedCount = this.selectionState.selectedCount;
-  readonly allSelected = computed(() =>
-    this.selectionState.allSelected(this.filteredSlots())
-  );
+  readonly allSelected = computed(() => this.selectionState.allSelected(this.filteredSlots()));
 
   // ─── delegated delete signals ───
   readonly deleteModalOpen = this.deleteState.deleteModalOpen;
@@ -107,29 +110,28 @@ export class ParkingSlotsListFacade {
   readonly statusTransitionOptions = this.statusState.statusTransitionOptions;
   readonly statusModalCopy = this.statusState.statusModalCopy;
 
-  private readonly toast = inject(ToastService, { optional: true });
-
-  // ─── metadata batch signals ───
-  readonly metadataModalOpen = signal(false);
+  // ─── delegated metadata batch signals ───
+  readonly metadataModalOpen = this.metadataBatchState.metadataModalOpen;
   readonly selectedSlots = computed(() =>
-    this.slots().filter((slot) => this.selectedIds().has(slot.id))
+    this.slots().filter((slot) => this.selectedIds().has(slot.id)),
   );
 
-  // ─── group edit signals ───
-  readonly groupModalOpen = signal(false);
-  readonly groupTarget = signal<{ zone: string; prefix: string } | null>(null);
+  // ─── delegated group edit signals ───
+  readonly groupModalOpen = this.groupState.groupModalOpen;
+  readonly groupTarget = this.groupState.groupTarget;
+  readonly availableGroups = computed<SlotGroupOption[]>(() =>
+    this.groupState.availableGroups(this.slots()),
+  );
 
-  // ─── drawer & route specific signals ───
-  readonly drawerSlotId = signal<string | null>(null);
-  readonly drawerTab = signal<DrawerTab>("general");
+  // ─── delegated drawer & route specific signals ───
+  readonly drawerSlotId = this.drawerState.drawerSlotId;
+  readonly drawerTab = this.drawerState.drawerTab;
   private readonly parkingId = signal<string | null>(null);
 
   readonly parking = computed(() => {
     const parkingId = this.parkingId();
     return parkingId
-      ? (this.parkingService
-          .parkingLots()
-          .find((parking) => parking.id === parkingId) ?? null)
+      ? (this.parkingService.parkingLots().find((parking) => parking.id === parkingId) ?? null)
       : null;
   });
 
@@ -138,56 +140,30 @@ export class ParkingSlotsListFacade {
     return parkingId ? (this.slotsService.summaries()[parkingId] ?? []) : [];
   });
 
-  readonly availableGroups = computed<SlotGroupOption[]>(() => {
-    const slots = this.slots();
-    const map = new Map<string, SlotGroupOption>();
-    for (const slot of slots) {
-      const zone = slot.zone ?? "";
-      const prefix = slot.prefix ?? "";
-      const key = `${zone}:::${prefix}`;
-      const isOccupied = slot.status !== "AVAILABLE";
-      const existing = map.get(key);
-      if (existing) {
-        existing.count += 1;
-        if (isOccupied) {
-          existing.occupiedCount += 1;
-        }
-      } else {
-        map.set(key, {
-          count: 1,
-          occupiedCount: isOccupied ? 1 : 0,
-          prefix,
-          zone,
-        });
-      }
-    }
-    return [...map.values()].toSorted(
-      (a, b) => a.zone.localeCompare(b.zone) || a.prefix.localeCompare(b.prefix)
-    );
+  readonly table = this.tableState.initTable(() => this.slots(), {
+    allSelected: () => this.allSelected(),
+    isSelected: (id: string) => this.selectedIds().has(id),
+    onChangeStatus: (slot) => this.openStatusModal(slot),
+    onDelete: (slot) => this.openDeleteModal(slot),
+    onEdit: (slot) => this.onEdit(slot.id),
+    onToggleAll: (event) => this.toggleAll(event),
+    onToggleSelected: (id, event) => this.toggleSelected(id, event),
+    onViewDetail: (slot) => this.openDrawer(slot.id),
   });
 
-  readonly table = this.tableState.initTable(() => this.slots());
-
-  readonly filteredSlots = computed(() =>
-    this.table.getRowModel().rows.map((row) => row.original)
-  );
+  readonly filteredSlots = computed(() => this.table.getRowModel().rows.map((row) => row.original));
 
   readonly pageCount = computed(() => this.table.getPageCount());
 
-  readonly drawerSlot = computed(() => {
-    const id = this.drawerSlotId();
-    return id ? (this.slots().find((slot) => slot.id === id) ?? null) : null;
-  });
+  readonly drawerSlot = computed(() => this.drawerState.drawerSlot(this.slots()));
 
   constructor() {
     const destroyRef = inject(DestroyRef);
 
-    this.route.paramMap
-      .pipe(takeUntilDestroyed(destroyRef))
-      .subscribe((params) => {
-        this.parkingId.set(params.get("parkingId"));
-        this.drawerSlotId.set(params.get("slotId"));
-      });
+    this.route.paramMap.pipe(takeUntilDestroyed(destroyRef)).subscribe((params) => {
+      this.parkingId.set(params.get("parkingId"));
+      this.drawerSlotId.set(params.get("slotId"));
+    });
 
     effect((onCleanup) => {
       const parking = this.parking();
@@ -195,9 +171,7 @@ export class ParkingSlotsListFacade {
         return;
       }
 
-      const sub = this.slotsService
-        .getAllSlotSummariesByParkingId(parking.id)
-        .subscribe();
+      const sub = this.slotsService.getAllSlotSummariesByParkingId(parking.id).subscribe();
 
       onCleanup(() => sub.unsubscribe());
     });
@@ -217,9 +191,7 @@ export class ParkingSlotsListFacade {
     if (!parking) {
       return;
     }
-    this.router.navigate([
-      APP_ROUTES.app.editParkingLotSlot(parking.id, slotId),
-    ]);
+    this.router.navigate([APP_ROUTES.app.editParkingLotSlot(parking.id, slotId)]);
   }
 
   openDrawer(slotId: string): void {
@@ -227,10 +199,7 @@ export class ParkingSlotsListFacade {
     if (!parking) {
       return;
     }
-    this.drawerTab.set("general");
-    this.router.navigate([
-      APP_ROUTES.app.parkingLotSlotDetail(parking.id, slotId),
-    ]);
+    this.drawerState.openDrawer(parking.id, slotId);
   }
 
   closeDrawer(): void {
@@ -238,11 +207,11 @@ export class ParkingSlotsListFacade {
     if (!parking) {
       return;
     }
-    this.router.navigate([APP_ROUTES.app.parkingLotSlots(parking.id)]);
+    this.drawerState.closeDrawer(parking.id);
   }
 
   setDrawerTab(tab: DrawerTab): void {
-    this.drawerTab.set(tab);
+    this.drawerState.setDrawerTab(tab);
   }
 
   // ─── filters ───
@@ -252,10 +221,11 @@ export class ParkingSlotsListFacade {
   }
 
   columnFilterValue(key: string): string {
-    return this.tableState.columnFilterValue(key);
+    const val = this.tableState.columnFilterValue(key);
+    return val !== undefined && val !== null ? String(val) : "";
   }
 
-  setFilter(key: string, value: string): void {
+  setFilter(key: string, value: unknown): void {
     this.tableState.setFilter(key, value);
   }
 
@@ -264,17 +234,27 @@ export class ParkingSlotsListFacade {
     this.selectionState.clear();
   }
 
+  toggleAccessibleFilter(): void {
+    const current = this.isAccessibleFilter();
+    this.setFilter("isAccessible", current === true ? undefined : true);
+  }
+
+  toggleChargerFilter(): void {
+    const current = this.hasChargerFilter();
+    this.setFilter("hasCharger", current === true ? undefined : true);
+  }
+
   // ─── pagination ───
   setPageIndex(index: number): void {
     this.tableState.pagination.update((p) => ({ ...p, pageIndex: index }));
   }
 
   // ─── selection ───
-  toggleSelected(slotId: string, event: Event): void {
+  toggleSelected(slotId: string, event: Event | boolean): void {
     this.selectionState.toggleSelected(slotId, event);
   }
 
-  toggleAll(event: Event): void {
+  toggleAll(event: Event | boolean): void {
     this.selectionState.toggleAll(event, this.filteredSlots());
   }
 
@@ -301,9 +281,7 @@ export class ParkingSlotsListFacade {
 
   // ─── modals: delete ───
   openBatchDeleteModal(): void {
-    const first = this.filteredSlots().find((slot) =>
-      this.selectedIds().has(slot.id)
-    );
+    const first = this.filteredSlots().find((slot) => this.selectedIds().has(slot.id));
     if (!first) {
       return;
     }
@@ -328,20 +306,17 @@ export class ParkingSlotsListFacade {
       parkingId,
       this.selectedIds(),
       () => this.selectionState.clear(),
-      (id) => this.selectionState.remove(id)
+      (id) => this.selectionState.remove(id),
     );
   }
 
   // ─── modals: metadata batch ───
   openMetadataModal(): void {
-    if (this.selectedCount() === 0) {
-      return;
-    }
-    this.metadataModalOpen.set(true);
+    this.metadataBatchState.openMetadataModal(this.selectedCount());
   }
 
   closeMetadataModal(): void {
-    this.metadataModalOpen.set(false);
+    this.metadataBatchState.closeMetadataModal();
   }
 
   updateSlotsMetadata(payload: {
@@ -350,54 +325,18 @@ export class ParkingSlotsListFacade {
     isActive?: boolean;
     slotIds: string[];
   }): void {
-    const parking = this.parking();
-    if (!parking) {
-      return;
-    }
-
-    this.slotsService.updateSlotMetadata(payload).subscribe({
-      error: (err) => {
-        const msg =
-          err?.error?.message ||
-          err?.message ||
-          "Error al actualizar equipamiento";
-        this.toast?.showToast({
-          message: msg,
-          type: "error",
-        });
-      },
-      next: () => {
-        this.closeMetadataModal();
-        this.selectionState.clear();
-        this.toast?.showToast({
-          message: "Equipamiento actualizado",
-          type: "success",
-        });
-      },
-    });
+    this.metadataBatchState.updateSlotsMetadata(payload, this.parkingId(), () =>
+      this.selectionState.clear(),
+    );
   }
 
   // ─── modals: group edit ───
   openGroupModal(zone?: string, prefix?: string): void {
-    if (zone !== undefined && prefix !== undefined) {
-      this.groupTarget.set({ prefix, zone });
-    } else {
-      const selected = this.selectedSlots();
-      if (selected.length > 0) {
-        this.groupTarget.set({
-          prefix: selected[0].prefix,
-          zone: selected[0].zone,
-        });
-      } else {
-        this.groupTarget.set(null);
-      }
-    }
-    this.groupModalOpen.set(true);
+    this.groupState.openGroupModal(this.selectedSlots(), zone, prefix);
   }
 
   closeGroupModal(): void {
-    this.groupModalOpen.set(false);
-    this.groupTarget.set(null);
+    this.groupState.closeGroupModal();
   }
 
   updateSlotGroup(payload: {
@@ -407,39 +346,6 @@ export class ParkingSlotsListFacade {
     newZone?: string;
     parkingId: string;
   }): void {
-    const hasOccupied = this.slots().some(
-      (slot) =>
-        (slot.zone ?? "") === payload.currentZone &&
-        (slot.prefix ?? "") === payload.currentPrefix &&
-        slot.status !== "AVAILABLE"
-    );
-    if (hasOccupied) {
-      this.toast?.showToast({
-        message:
-          "No se puede modificar el grupo porque contiene plazas ocupadas o no disponibles.",
-        type: "error",
-      });
-      return;
-    }
-
-    this.slotsService.updateSlotGroup(payload).subscribe({
-      error: (err) => {
-        const msg =
-          err?.error?.message ||
-          err?.message ||
-          "Error al actualizar el grupo de plazas";
-        this.toast?.showToast({
-          message: msg,
-          type: "error",
-        });
-      },
-      next: () => {
-        this.closeGroupModal();
-        this.toast?.showToast({
-          message: "Grupo actualizado",
-          type: "success",
-        });
-      },
-    });
+    this.groupState.updateSlotGroup(payload, this.slots());
   }
 }

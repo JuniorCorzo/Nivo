@@ -22,8 +22,12 @@
         <ng-icon name="lucideCar" class="text-xl" />
       </div>
       <div>
-        <nv-h3 class="font-mono text-lg font-bold"> {{ ticket()?.licensePlate }} </nv-h3>
-        <nv-muted class="text-xs"> {{ texts.idPrefix }} {{ ticket()?.id }} </nv-muted>
+        <nv-h3 class="font-mono text-lg font-bold">
+          {{ ticket()?.licensePlate }}
+        </nv-h3>
+        <nv-muted class="text-xs">
+          {{ texts.idPrefix }} {{ ticket()?.id }}
+        </nv-muted>
       </div>
     </div>
     <nv-button
@@ -42,7 +46,9 @@
   <div class="flex-1 space-y-6 overflow-y-auto p-5">
     <!-- Status Badge & Basic Info -->
     <div class="flex items-center justify-between">
-      <span class="text-muted-foreground text-sm font-medium">{{ texts.statusLabel }}</span>
+      <span class="text-muted-foreground text-sm font-medium"
+        >{{ texts.statusLabel }}</span
+      >
       @if (ticket()?.status === "OPEN") {
       <nv-badge variant="success">{{ texts.statusOpen }}</nv-badge>
       } @else if (ticket()?.status === "CLOSED") {
@@ -58,12 +64,15 @@
         <div class="flex items-center justify-between text-sm">
           <span class="text-muted-foreground">{{ texts.slotAssigned }}</span>
           <span class="font-mono font-medium"
-            >{{ ticket()?.slotNumber || texts.slotNone }} ({{ ticket()?.slotType || "N/A" }})</span
+            >{{ ticket()?.slotNumber || texts.slotNone }} ({{ ticket()?.slotType
+            || "N/A" }})</span
           >
         </div>
         <div class="flex items-center justify-between text-sm">
           <span class="text-muted-foreground">{{ texts.rate }}</span>
-          <span class="font-medium">{{ ticket()?.rateName || texts.rateDefault }}</span>
+          <span class="font-medium"
+            >{{ ticket()?.rateName || texts.rateDefault }}</span
+          >
         </div>
         <div class="flex items-center justify-between text-sm">
           <span class="text-muted-foreground">{{ texts.entryTime }}</span>
@@ -75,7 +84,9 @@
           <span class="font-medium">{{ formatDate(ticket()?.exitTime) }}</span>
         </div>
         }
-        <div class="border-border flex items-center justify-between border-t pt-2 text-sm">
+        <div
+          class="border-border flex items-center justify-between border-t pt-2 text-sm"
+        >
           <span class="text-muted-foreground flex items-center gap-1.5">
             <ng-icon name="lucideClock" size="14" />
             {{ texts.elapsedTime }}
@@ -88,9 +99,13 @@
     <!-- Live Pricing Simulation for OPEN Tickets -->
     @if (ticket()?.status === "OPEN") {
     <div class="space-y-3">
-      <nv-h4 class="text-base font-semibold">{{ texts.liveSimulation.title }}</nv-h4>
+      <nv-h4 class="text-base font-semibold"
+        >{{ texts.liveSimulation.title }}</nv-h4
+      >
       @if (isLoadingRate()) {
-      <div class="bg-muted/30 flex items-center justify-center rounded-lg border p-6">
+      <div
+        class="bg-muted/30 flex items-center justify-center rounded-lg border p-6"
+      >
         <div class="text-muted-foreground flex items-center gap-2 text-sm">
           <div
             class="border-primary h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"
@@ -108,12 +123,15 @@
           </div>
           }
           <div class="flex items-center justify-between text-sm">
-            <span class="text-muted-foreground">{{ texts.liveSimulation.subtotal }}</span>
+            <span class="text-muted-foreground"
+              >{{ texts.liveSimulation.subtotal }}</span
+            >
             <span class="font-mono">${{ liveRate()?.subtotal | number }}</span>
           </div>
           <div class="flex items-center justify-between text-sm">
             <span class="text-muted-foreground"
-              >{{ texts.liveSimulation.iva }} ({{ liveRate()?.ivaRate }}%):</span
+              >{{ texts.liveSimulation.iva }} ({{ liveRate()?.ivaRate
+              }}%):</span
             >
             <span class="font-mono">${{ liveRate()?.ivaAmount | number }}</span>
           </div>
@@ -121,7 +139,9 @@
             class="border-border text-foreground flex items-center justify-between border-t pt-2 text-base font-bold"
           >
             <span>{{ texts.liveSimulation.estimatedTotal }}</span>
-            <span class="text-primary font-mono">${{ liveRate()?.total | number }}</span>
+            <span class="text-primary font-mono"
+              >${{ liveRate()?.total | number }}</span
+            >
           </div>
         </nv-card-content>
       </nv-card>
@@ -132,23 +152,35 @@
     <!-- Finalized Payment Details for CLOSED Tickets -->
     @if (ticket()?.status === "CLOSED") {
     <div class="space-y-3">
-      <nv-h4 class="text-base font-semibold">{{ texts.finalizedPayment.title }}</nv-h4>
+      <nv-h4 class="text-base font-semibold"
+        >{{ texts.finalizedPayment.title }}</nv-h4
+      >
       <nv-card class="bg-muted/20">
         <nv-card-content class="space-y-2 p-4">
           <div class="flex items-center justify-between text-sm">
-            <span class="text-muted-foreground">{{ texts.finalizedPayment.totalPaid }}</span>
+            <span class="text-muted-foreground"
+              >{{ texts.finalizedPayment.totalPaid }}</span
+            >
             <span class="text-foreground font-mono text-base font-bold"
               >${{ ticket()?.totalToCharge | number }}</span
             >
           </div>
           <div class="flex items-center justify-between text-sm">
-            <span class="text-muted-foreground">{{ texts.finalizedPayment.method }}</span>
-            <span class="font-medium">{{ ticket()?.paymentMethod || "EFECTIVO" }}</span>
+            <span class="text-muted-foreground"
+              >{{ texts.finalizedPayment.method }}</span
+            >
+            <span class="font-medium"
+              >{{ ticket()?.paymentMethod || "EFECTIVO" }}</span
+            >
           </div>
           @if (ticket()?.transactionReference) {
           <div class="flex items-center justify-between text-sm">
-            <span class="text-muted-foreground">{{ texts.finalizedPayment.reference }}</span>
-            <span class="font-mono text-xs">{{ ticket()?.transactionReference }}</span>
+            <span class="text-muted-foreground"
+              >{{ texts.finalizedPayment.reference }}</span
+            >
+            <span class="font-mono text-xs"
+              >{{ ticket()?.transactionReference }}</span
+            >
           </div>
           }
         </nv-card-content>
@@ -158,11 +190,18 @@
   </div>
 
   <!-- Footer Actions -->
-  <div class="border-border bg-card flex items-center justify-between gap-3 border-t p-4">
+  <div
+    class="border-border bg-card flex items-center justify-between gap-3 border-t p-4"
+  >
     <nv-button type="button" variant="outline" size="md" (click)="close.emit()">
       {{ actionTexts.closeDrawer }}
     </nv-button>
-    <nv-button type="button" variant="default" size="md" (click)="reprintReceipt.emit(ticket()!)">
+    <nv-button
+      type="button"
+      variant="default"
+      size="md"
+      (click)="reprintReceipt.emit(ticket()!)"
+    >
       <ng-icon name="lucidePrinter" size="16" />
       {{ actionTexts.reprintReceipt }}
     </nv-button>

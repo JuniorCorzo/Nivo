@@ -8,14 +8,16 @@ export class SlotsSelectionState {
 
   allSelected(filteredSlots: SlotSummary[]): boolean {
     return (
-      filteredSlots.length > 0 &&
-      filteredSlots.every((slot) => this.selectedIds().has(slot.id))
+      filteredSlots.length > 0 && filteredSlots.every((slot) => this.selectedIds().has(slot.id))
     );
   }
 
-  toggleSelected(slotId: string, event: Event): void {
-    /* SAFETY: Event target is HTMLInputElement */
-    const { checked } = event.target as HTMLInputElement;
+  toggleSelected(slotId: string, eventOrChecked: Event | boolean): void {
+    /* SAFETY: Event target of change event is HTMLInputElement */
+    const checked =
+      eventOrChecked instanceof Event
+        ? Boolean((eventOrChecked.target as HTMLInputElement)?.checked)
+        : Boolean(eventOrChecked);
     this.selectedIds.update((current) => {
       const next = new Set(current);
       if (checked) {
@@ -27,12 +29,13 @@ export class SlotsSelectionState {
     });
   }
 
-  toggleAll(event: Event, filteredSlots: SlotSummary[]): void {
-    /* SAFETY: Event target is HTMLInputElement */
-    const { checked } = event.target as HTMLInputElement;
-    this.selectedIds.set(
-      checked ? new Set(filteredSlots.map((slot) => slot.id)) : new Set()
-    );
+  toggleAll(eventOrChecked: Event | boolean, filteredSlots: SlotSummary[]): void {
+    /* SAFETY: Event target of change event is HTMLInputElement */
+    const checked =
+      eventOrChecked instanceof Event
+        ? Boolean((eventOrChecked.target as HTMLInputElement)?.checked)
+        : Boolean(eventOrChecked);
+    this.selectedIds.set(checked ? new Set(filteredSlots.map((slot) => slot.id)) : new Set());
   }
 
   clear(): void {

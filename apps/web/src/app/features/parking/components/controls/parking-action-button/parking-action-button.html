@@ -1,0 +1,41 @@
+<nv-button
+  variant="default"
+  size="md"
+  (click)="facade.onManageOperations()"
+  class="w-full whitespace-nowrap sm:w-auto"
+>
+  <ng-icon name="lucideLogIn" size="16" class="shrink-0" />
+  <span class="whitespace-nowrap">Operaciones en vivo</span>
+</nv-button>
+
+<div
+  class="border-muted flex w-full flex-1 items-center rounded-md border sm:w-auto sm:flex-initial"
+>
+  <nv-button
+    variant="outline"
+    size="md"
+    (click)="facade.onManageRates()"
+    class="w-full flex-1 rounded-r-none border-0 whitespace-nowrap sm:w-auto sm:flex-initial"
+  >
+    <ng-icon name="lucideCoins" size="16" class="text-primary shrink-0" />
+    <span class="whitespace-nowrap">Tarifas</span>
+  </nv-button>
+
+  <nv-divider orientation="vertical"></nv-divider>
+
+  <nv-button
+    variant="outline"
+    size="md"
+    (click)="facade.onManageSlots()"
+    class="w-full flex-1 rounded-l-none border-0 whitespace-nowrap sm:w-auto sm:flex-initial"
+  >
+    <ng-icon
+      name="lucideParkingSquare"
+      size="16"
+      class="text-primary shrink-0"
+    />
+    <span class="whitespace-nowrap">Plazas</span>
+  </nv-button>
+</div>
+
+<app-meatball-menu [items]="menuItems" size="md" />

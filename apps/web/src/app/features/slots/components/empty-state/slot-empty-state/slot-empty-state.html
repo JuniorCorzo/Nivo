@@ -1,0 +1,38 @@
+<div
+  class="text-muted-foreground border-border flex min-h-72 flex-col items-center justify-center gap-3 rounded-xl border border-dashed p-8 text-center"
+>
+  @if (!hasSlots()) {
+  <div
+    class="bg-muted text-muted-foreground flex h-14 w-14 items-center justify-center rounded-2xl"
+  >
+    <ng-icon name="lucideInbox" size="32" />
+  </div>
+  <h3 class="text-foreground text-base font-bold">No hay plazas configuradas</h3>
+  <p class="max-w-sm text-xs">
+    Este parqueadero aún no tiene plazas. Creá el primer lote para empezar.
+  </p>
+  <button
+    type="button"
+    (click)="create.emit()"
+    class="bg-primary text-primary-foreground hover:bg-primary/90 mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold shadow-xs transition-all"
+  >
+    <ng-icon name="lucidePlus" size="14" />
+    <span>Crear primer lote</span>
+  </button>
+  } @else {
+  <div
+    class="bg-muted text-muted-foreground flex h-14 w-14 items-center justify-center rounded-2xl"
+  >
+    <ng-icon name="lucideFilterX" size="32" />
+  </div>
+  <h3 class="text-foreground text-base font-bold">Ninguna plaza coincide</h3>
+  <p class="max-w-sm text-xs">Los filtros seleccionados no devuelven resultados.</p>
+  <button
+    type="button"
+    (click)="clearFilters.emit()"
+    class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground mt-2 inline-flex cursor-pointer items-center rounded-xl border px-4 py-2 text-xs font-medium transition-colors"
+  >
+    Limpiar filtros
+  </button>
+  }
+</div>

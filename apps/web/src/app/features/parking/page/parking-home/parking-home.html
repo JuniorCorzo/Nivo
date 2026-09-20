@@ -3,9 +3,9 @@
   <!-- Top Bar / Hero Header -->
   <app-page-header
     icon="lucideParkingSquare"
-    [isRoot]="true"
     [showHistoryButtons]="false"
-    title="Parqueaderos"
+    [title]="p.name"
+    [showParkingSelector]="true"
     [subtitle]="activeParkingSubtitle()"
   >
     <app-parking-action-button actions />

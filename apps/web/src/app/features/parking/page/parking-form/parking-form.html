@@ -3,16 +3,15 @@
   <app-page-header
     [title]="title()"
     [subtitle]="subtitle"
-    [backLink]="backUrl"
-    [backAriaLabel]="APP_TEXTS.parking.actions.backToList"
     icon="lucideBuilding2"
   >
-    <div actions class="flex items-center gap-2">
+    <div actions class="flex w-full items-center gap-2 sm:w-auto">
       <nv-button
         type="button"
         variant="secondary"
         size="sm"
         (click)="onCancel()"
+        class="w-full sm:w-auto"
         data-testid="parking-form-header-cancel"
       >
         Cancelar
@@ -23,14 +22,15 @@
         size="sm"
         (click)="onSubmit()"
         [disabled]="facade.isSubmitting() || facade.form().invalid()"
+        class="w-full sm:w-auto"
         data-testid="parking-form-header-submit"
       >
         @if (facade.isSubmitting()) {
-          <ng-icon name="lucideLoader2" class="animate-spin text-base" />
-          <span>Guardando...</span>
+        <ng-icon name="lucideLoader2" class="animate-spin text-base" />
+        <span>Guardando...</span>
         } @else {
-          <ng-icon name="lucideSave" class="text-base" />
-          <span>{{ facade.submitButtonText() }}</span>
+        <ng-icon name="lucideSave" class="text-base" />
+        <span>{{ facade.submitButtonText() }}</span>
         }
       </nv-button>
     </div>
@@ -121,7 +121,9 @@
           [slotTypeOptions]="facade.slotTypeOptions"
           (addSlot)="facade.addSlot()"
           (removeSlot)="facade.removeSlot($event)"
-          (slotChange)="facade.updateSlot($event.index, $event.field, $any($event.value))"
+          (slotChange)="
+            facade.updateSlot($event.index, $event.field, $any($event.value))
+          "
         />
       </div>
     </form>

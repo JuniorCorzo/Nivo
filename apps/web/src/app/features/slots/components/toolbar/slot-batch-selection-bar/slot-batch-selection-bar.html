@@ -1,0 +1,23 @@
+@if (selectedCount() > 0) {
+<div
+  class="border-primary/20 bg-primary/10 text-foreground flex items-center justify-between rounded-xl border px-4 py-3 transition-all"
+>
+  <div class="flex items-center gap-2">
+    <span class="bg-primary flex h-2 w-2 animate-pulse rounded-full"></span>
+    <span class="text-xs font-semibold sm:text-sm">{{ selectedCount() }} plazas seleccionadas</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <nv-button variant="outline" size="sm" (click)="editMetadata.emit()">
+      Editar equipamiento ({{ selectedCount() }})
+    </nv-button>
+    <button
+      type="button"
+      (click)="deleteBatch.emit()"
+      class="bg-destructive text-destructive-foreground hover:bg-destructive/90 inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
+    >
+      <ng-icon name="lucideTrash2" size="13" />
+      <span>Eliminar</span>
+    </button>
+  </div>
+</div>
+}

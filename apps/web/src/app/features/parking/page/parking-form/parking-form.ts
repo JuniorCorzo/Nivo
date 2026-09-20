@@ -28,11 +28,11 @@ import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { Subject, exhaustMap, firstValueFrom, takeUntil } from "rxjs";
 
-import { ParkingAddressSectionComponent } from "../../components/parking-form/sections/parking-address-section";
-import { ParkingLocationSectionComponent } from "../../components/parking-form/sections/parking-location-section";
-import { ParkingOperatingHoursSectionComponent } from "../../components/parking-form/sections/parking-operating-hours-section";
-import { ParkingPolicySectionComponent } from "../../components/parking-form/sections/parking-policy-section";
-import { ParkingSlotGroupsSectionComponent } from "../../components/parking-form/sections/parking-slot-groups-section";
+import { ParkingAddressSectionComponent } from "../../components/form/parking-form/sections/parking-address-section";
+import { ParkingLocationSectionComponent } from "../../components/form/parking-form/sections/parking-location-section";
+import { ParkingOperatingHoursSectionComponent } from "../../components/form/parking-form/sections/parking-operating-hours-section";
+import { ParkingPolicySectionComponent } from "../../components/form/parking-form/sections/parking-policy-section";
+import { ParkingSlotGroupsSectionComponent } from "../../components/form/parking-form/sections/parking-slot-groups-section";
 import { ParkingFormFacade } from "../../facades/parking-form.facade";
 
 @Component({

@@ -125,16 +125,13 @@ describe("ParkingFormComponent", () => {
     expect(router.navigate).toHaveBeenCalledWith(["/app/parking-lots"]);
   });
 
-  it("should render app-page-header with title, subtitle and backLink", () => {
+  it("should render app-page-header with title and subtitle", () => {
     const header = fixture.nativeElement.querySelector("app-page-header");
     expect(header).toBeTruthy();
     expect(header.textContent).toContain("Crear Parqueadero");
     expect(header.textContent).toContain(
       "Configurá los datos de sede, ubicación geográfica, horarios y capacidad"
     );
-    const backBtn = header.querySelector("a");
-    expect(backBtn).toBeTruthy();
-    expect(backBtn?.getAttribute("href")).toBe("/app/parking-lots");
   });
 
   it("should render cancel and save actions in app-page-header and trigger onCancel", () => {

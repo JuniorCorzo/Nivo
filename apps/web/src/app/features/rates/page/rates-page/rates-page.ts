@@ -16,9 +16,9 @@ import { ButtonComponent } from "@nivo-sass/design-system";
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
-import { RateCalculatorComponent } from "../../components/rate-calculator/rate-calculator";
-import { RateListComponent } from "../../components/rates-list/rates-list";
-import { SpecialPoliciesConfigComponent } from "../../components/special-policies-config/special-policies-config";
+import { RateCalculatorComponent } from "../../components/calculator/rate-calculator/rate-calculator";
+import { RateListComponent } from "../../components/list/rates-list/rates-list";
+import { SpecialPoliciesConfigComponent } from "../../components/policies/special-policies-config/special-policies-config";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

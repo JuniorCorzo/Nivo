@@ -20,7 +20,7 @@ import type {
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { formatCoordinate } from "@shared/utils/coordinates.utils";
 
-import type { CoordinateSummary } from "../components/parking-form/sections/parking-location-section";
+import type { CoordinateSummary } from "../components/form/parking-form/sections/parking-location-section";
 
 export type ParkingFormMode = "create" | "edit";
 

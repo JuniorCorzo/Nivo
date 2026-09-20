@@ -13,13 +13,13 @@ import { DeleteParkingModal } from "@shared/components/delete-parking-modal/dele
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
-import { ParkingActionButton } from "../../components/parking-action-button/parking-action-button";
-import { ParkingEmptyState } from "../../components/parking-empty-state/parking-empty-state";
-import { ParkingGeneralInfo } from "../../components/parking-general-info/parking-general-info";
-import { ParkingLotSelector } from "../../components/parking-lot-selector/parking-lot-selector";
-import { ParkingMapComponent } from "../../components/parking-map/parking-map";
-import { ParkingSlotDistribution } from "../../components/parking-slot-distribution/parking-slot-distribution";
-import { ParkingStatsGrid } from "../../components/parking-stats-grid/parking-stats-grid";
+import { ParkingActionButton } from "../../components/controls/parking-action-button/parking-action-button";
+import { ParkingLotSelector } from "../../components/controls/parking-lot-selector/parking-lot-selector";
+import { ParkingGeneralInfo } from "../../components/detail/parking-general-info/parking-general-info";
+import { ParkingMapComponent } from "../../components/detail/parking-map/parking-map";
+import { ParkingSlotDistribution } from "../../components/detail/parking-slot-distribution/parking-slot-distribution";
+import { ParkingStatsGrid } from "../../components/detail/parking-stats-grid/parking-stats-grid";
+import { ParkingEmptyState } from "../../components/empty-state/parking-empty-state/parking-empty-state";
 import { ParkingHomeFacade } from "../../facades/parking-home.facade";
 
 @Component({
@@ -56,12 +56,11 @@ export class ParkingHome {
   protected readonly LABELS_DETAIL = APP_TEXTS.parking.detail;
   protected readonly facade = inject(ParkingHomeFacade);
 
-  protected activeParkingSubtitle(): string {
+  public activeParkingSubtitle(): string {
     const lot = this.facade.activeParkingLot();
     if (!lot) {
       return "";
     }
-    const address = ParkingLotSelector.getFormattedAddress(lot);
-    return address ? `${lot.name} — ${address}` : lot.name;
+    return ParkingLotSelector.getFormattedAddress(lot);
   }
 }

@@ -7,7 +7,7 @@ import {
   inject,
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { TicketReceiptComponent } from "@features/operations/components/ticket-receipt/ticket-receipt";
+import { TicketReceiptComponent } from "@features/operations/components/receipt/ticket-receipt/ticket-receipt";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideArrowLeft,

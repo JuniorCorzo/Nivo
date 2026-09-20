@@ -2,6 +2,7 @@ import "@angular/compiler";
 import { computed, signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
+import { provideRouter } from "@angular/router";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import { ActiveParkingService } from "@core/services/active-parking.service";
 import { ParkingService } from "@core/services/parking-service";
@@ -61,6 +62,7 @@ describe("ParkingHome Component", () => {
     await TestBed.configureTestingModule({
       imports: [ParkingHome],
       providers: [
+        provideRouter([]),
         {
           provide: ParkingService,
           useValue: {
@@ -101,17 +103,27 @@ describe("ParkingHome Component", () => {
     expect(el.querySelector("app-parking-empty-state")).toBeNull();
   });
 
-  it("should render app-page-header with title and actions, and without breadcrumbs", () => {
+  it("should render app-page-header with parking selector, actions, and breadcrumbs", () => {
     const header = fixture.nativeElement.querySelector("app-page-header");
     expect(header).toBeTruthy();
-    expect(header.textContent).toContain("Parqueaderos");
+    expect(header.textContent).toContain("Parqueadero Central");
+    const selector = header.querySelector("app-parking-lot-selector");
+    expect(selector).toBeTruthy();
     const actions = header.querySelector("[actions]");
     expect(actions).toBeTruthy();
-    expect(actions.textContent).toContain("Operaciones en vivo");
+    expect(header.textContent).toContain("Operaciones en vivo");
+    expect(header.textContent).toContain("Calle 100 # 15-20, Bogotá");
+    expect(header.textContent).not.toContain("Parqueadero Central — Calle 100");
     const breadcrumb = header.querySelector(
       '[data-testid="page-header-breadcrumb"]'
     );
-    expect(breadcrumb).toBeNull();
+    expect(breadcrumb).toBeTruthy();
+    expect(breadcrumb.textContent).toContain("Home");
+  });
+
+  it("should compute activeParkingSubtitle with only address when active lot is present", () => {
+    const subtitle = component.activeParkingSubtitle();
+    expect(subtitle).toBe("Calle 100 # 15-20, Bogotá");
   });
 
   it("should render empty state when active parking is null", () => {
