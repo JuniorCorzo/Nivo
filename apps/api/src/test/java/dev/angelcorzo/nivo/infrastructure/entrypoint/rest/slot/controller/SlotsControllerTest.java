@@ -9,10 +9,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto.SlotResponse;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto.SlotSummaryResponse;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto.UpdateSlotRequest;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.mappers.SlotsMapper;
 import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository;
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
+import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
+import dev.angelcorzo.nivo.domain.model.slots.enums.SlotType;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotSummary;
 import dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException;
 import dev.angelcorzo.nivo.domain.usecase.slot.BatchDeleteSlotsUseCase;
@@ -260,5 +263,69 @@ class SlotsControllerTest {
         .andExpect(jsonPath("$.message").value("Slot group updated successfully"));
 
     verify(updateSlotGroupUseCase).execute(command);
+  }
+
+  @Test
+  @DisplayName("PUT /slots/update - Should update slot successfully")
+  void shouldUpdateSlotSuccessfully() throws Exception {
+    UUID slotId = UUID.randomUUID();
+    UpdateSlotRequest request = new UpdateSlotRequest(
+        slotId,
+        "A-101",
+        SlotType.CAR,
+        SlotStatus.MAINTENANCE
+    );
+    EditSlotUseCase.UpdateSlotCommand command =
+        new EditSlotUseCase.UpdateSlotCommand(slotId, "A-101", SlotType.CAR, SlotStatus.MAINTENANCE);
+    Slots updatedSlot = Slots.builder()
+        .id(slotId)
+        .slotNumber("A-101")
+        .type(SlotType.CAR)
+        .status(SlotStatus.MAINTENANCE)
+        .build();
+    SlotResponse slotResponse = mock(SlotResponse.class);
+
+    when(slotsMapper.toModel(request)).thenReturn(command);
+    when(editSlotUseCase.execute(command)).thenReturn(updatedSlot);
+    when(slotsMapper.toDto(updatedSlot)).thenReturn(slotResponse);
+
+    mockMvc
+        .perform(
+            put("/slots/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("Slot updated successfully"));
+
+    verify(editSlotUseCase).execute(command);
+  }
+
+  @Test
+  @DisplayName("PUT /slots/update - Should return 409 Conflict when SlotCannotBeModifiedException thrown")
+  void shouldReturn409WhenSlotCannotBeModifiedOnUpdate() throws Exception {
+    UUID slotId = UUID.randomUUID();
+    UpdateSlotRequest request = new UpdateSlotRequest(
+        slotId,
+        "A-101",
+        SlotType.CAR,
+        SlotStatus.MAINTENANCE
+    );
+    EditSlotUseCase.UpdateSlotCommand command =
+        new EditSlotUseCase.UpdateSlotCommand(slotId, "A-101", SlotType.CAR, SlotStatus.MAINTENANCE);
+
+    when(slotsMapper.toModel(request)).thenReturn(command);
+    when(editSlotUseCase.execute(command))
+        .thenThrow(new SlotCannotBeModifiedException(
+            "Slot cannot be modified because it is currently OCCUPIED: " + slotId,
+            List.of(slotId)));
+
+    mockMvc
+        .perform(
+            put("/slots/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isConflict());
+
+    verify(editSlotUseCase).execute(command);
   }
 }

@@ -14,6 +14,11 @@ public class SlotCannotBeModifiedException extends AppException {
     this.conflictingSlotIds = conflictingSlotIds;
   }
 
+  public SlotCannotBeModifiedException(String message, List<UUID> conflictingSlotIds) {
+    super(message, STATUS, CODE);
+    this.conflictingSlotIds = conflictingSlotIds;
+  }
+
   public List<UUID> getConflictingSlotIds() {
     return conflictingSlotIds;
   }
