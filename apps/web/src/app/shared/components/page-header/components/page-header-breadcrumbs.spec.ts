@@ -1,8 +1,20 @@
+import { signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
+import type { ParkingLotListItemModel } from "@core/models/parking.model";
+import { ActiveParkingService } from "@core/services/active-parking.service";
+import { ParkingService } from "@core/services/parking-service";
 import { provideIcons } from "@ng-icons/core";
-import { lucideCar, lucideParkingSquare } from "@ng-icons/lucide";
+import {
+  lucideBuilding2,
+  lucideCar,
+  lucideChevronDown,
+  lucideChevronRight,
+  lucideHome,
+  lucideParkingSquare,
+} from "@ng-icons/lucide";
+
 import { PageHeaderBreadcrumbsComponent } from "./page-header-breadcrumbs";
 
 describe("PageHeaderBreadcrumbsComponent", () => {
@@ -14,8 +26,30 @@ describe("PageHeaderBreadcrumbsComponent", () => {
       imports: [PageHeaderBreadcrumbsComponent],
       providers: [
         provideRouter([]),
+        {
+          provide: ActiveParkingService,
+          useValue: {
+            /* SAFETY: Mock object satisfies ParkingLotListItemModel for testing */
+            activeParkingLot: signal<ParkingLotListItemModel | null>({
+              id: "lot-1",
+              name: "Sede Norte",
+              occuppationRate: 45,
+            } as ParkingLotListItemModel),
+            activeParkingName: signal<string>("Sede Norte"),
+          },
+        },
+        {
+          provide: ParkingService,
+          useValue: {
+            parkingLots: signal<ParkingLotListItemModel[]>([]),
+          },
+        },
         provideIcons({
+          lucideBuilding2,
           lucideCar,
+          lucideChevronDown,
+          lucideChevronRight,
+          lucideHome,
           lucideParkingSquare,
         }),
       ],
@@ -38,7 +72,9 @@ describe("PageHeaderBreadcrumbsComponent", () => {
     ]);
     fixture.detectChanges();
 
-    const nav = fixture.nativeElement.querySelector('[data-testid="page-header-breadcrumb"]');
+    const nav = fixture.nativeElement.querySelector(
+      '[data-testid="page-header-breadcrumb"]'
+    );
     expect(nav).toBeTruthy();
     expect(nav.getAttribute("aria-label")).toBe("Ruta de navegación");
   });
@@ -58,7 +94,7 @@ describe("PageHeaderBreadcrumbsComponent", () => {
     const spans = fixture.nativeElement.querySelectorAll("span");
     /* SAFETY: Querying span elements from fixture nativeElement guaranteed to be HTMLElement */
     const labelSpan = [...spans].find(
-      (s: unknown) => (s as HTMLElement).textContent?.trim() === "Ajustes",
+      (s: unknown) => (s as HTMLElement).textContent?.trim() === "Ajustes"
     );
     expect(labelSpan).toBeTruthy();
   });
@@ -71,10 +107,26 @@ describe("PageHeaderBreadcrumbsComponent", () => {
     fixture.detectChanges();
 
     const icons = fixture.nativeElement.querySelectorAll("ng-icon");
-    expect(icons.length).toBe(2);
+    expect(icons.length).toBe(3);
   });
 
-  it("should render separator > between breadcrumb items", () => {
+  it("should support all registered breadcrumb icons", () => {
+    fixture.componentRef.setInput("breadcrumbs", [
+      { icon: "lucideCoins", label: "Tarifas", url: "/rates" },
+      { icon: "lucideLayoutGrid", label: "Plazas", url: "/slots" },
+      { icon: "lucideTicket", label: "Tickets", url: "/tickets" },
+      { icon: "lucidePlus", label: "Crear" },
+    ]);
+    fixture.detectChanges();
+
+    const iconElements = fixture.nativeElement.querySelectorAll(
+      '[data-testid="page-header-breadcrumb"] ng-icon'
+    );
+    // 4 item icons + 3 separator icons = 7
+    expect(iconElements.length).toBe(7);
+  });
+
+  it("should render separator between breadcrumb items", () => {
     fixture.componentRef.setInput("breadcrumbs", [
       { label: "Item 1", url: "/1" },
       { label: "Item 2", url: "/2" },
@@ -82,22 +134,33 @@ describe("PageHeaderBreadcrumbsComponent", () => {
     ]);
     fixture.detectChanges();
 
-    const separators = fixture.nativeElement.querySelectorAll("span.text-border");
+    const separators = fixture.nativeElement.querySelectorAll(
+      'ng-icon[name="lucideChevronRight"]'
+    );
     expect(separators.length).toBe(2);
-    expect(separators[0].textContent?.trim()).toBe(">");
-    expect(separators[1].textContent?.trim()).toBe(">");
   });
 
-  it("should render back link when backLink is provided and isRoot is false", () => {
-    fixture.componentRef.setInput("breadcrumbs", [{ label: "Actual" }]);
-    fixture.componentRef.setInput("backAriaLabel", "Regresar");
-    fixture.componentRef.setInput("backLink", "/app/home");
-    fixture.componentRef.setInput("isRoot", false);
+  it("should render breadcrumb links with icons for parking item without parking selector", () => {
+    fixture.componentRef.setInput("breadcrumbs", [
+      { icon: "lucideHome", label: "Home", url: "/app" },
+      {
+        icon: "lucideBuilding2",
+        isParking: true,
+        label: "Sede Norte",
+        url: "/app/parking-lots",
+      },
+      { label: "Detalle" },
+    ]);
     fixture.detectChanges();
 
-    const backLink = fixture.nativeElement.querySelector('a[aria-label="Regresar"]');
-    expect(backLink).toBeTruthy();
-    expect(backLink.getAttribute("href")).toBe("/app/home");
-    expect(backLink.textContent).toContain("Regresar");
+    const selector = fixture.nativeElement.querySelector(
+      "app-parking-lot-selector"
+    );
+    expect(selector).toBeNull();
+
+    const links = fixture.nativeElement.querySelectorAll("a");
+    expect(links.length).toBe(2);
+    expect(links[0].textContent).toContain("Home");
+    expect(links[1].textContent).toContain("Sede Norte");
   });
 });

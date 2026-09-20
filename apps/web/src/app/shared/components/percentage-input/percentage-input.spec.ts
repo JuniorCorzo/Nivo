@@ -26,9 +26,9 @@ class TestHostComponent {
   readonly label = signal("Tasa IVA (%)");
   readonly id = signal("iva-rate-input");
   readonly placeholder = signal("19");
-  readonly error = signal<string | ValidationError.WithFieldTree[] | undefined>(
-    undefined
-  );
+  readonly error = signal<
+    string | ValidationError.WithFieldTree[] | undefined
+  >(undefined);
 }
 
 describe("PercentageInputComponent", () => {

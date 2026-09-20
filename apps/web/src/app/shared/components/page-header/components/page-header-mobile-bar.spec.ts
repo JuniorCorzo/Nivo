@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
+
 import { PageHeaderMobileBarComponent } from "./page-header-mobile-bar";
 
 @Component({
@@ -36,24 +37,24 @@ describe("PageHeaderMobileBarComponent", () => {
   });
 
   it("should render mobile path", () => {
-    const pathEl = fixture.nativeElement.querySelector('[data-testid="page-header-mobile-path"]');
+    const pathEl = fixture.nativeElement.querySelector(
+      '[data-testid="page-header-mobile-path"]'
+    );
     expect(pathEl).toBeTruthy();
     expect(pathEl.textContent.trim()).toBe("Inicio / Config");
   });
 
   it("should render back button when isRoot is false and emit back on click", () => {
     fixture.componentRef.setInput("isRoot", false);
-    fixture.componentRef.setInput("backAriaLabel", "Regresar");
     fixture.detectChanges();
 
     const backSpy = vi.fn();
     component.back.subscribe(backSpy);
 
     const backBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
-      '[data-testid="page-header-mobile-back-btn"]',
+      '[data-testid="page-header-mobile-back-btn"]'
     );
     expect(backBtn).toBeTruthy();
-    expect(backBtn.getAttribute("aria-label")).toBe("Regresar");
 
     backBtn.click();
     expect(backSpy).toHaveBeenCalledTimes(1);
@@ -64,7 +65,7 @@ describe("PageHeaderMobileBarComponent", () => {
     fixture.detectChanges();
 
     const backBtn = fixture.nativeElement.querySelector(
-      '[data-testid="page-header-mobile-back-btn"]',
+      '[data-testid="page-header-mobile-back-btn"]'
     );
     expect(backBtn).toBeNull();
   });
@@ -83,8 +84,16 @@ describe("PageHeaderMobileBarComponent", () => {
     const hostFixture = TestBed.createComponent(TestHostComponent);
     hostFixture.detectChanges();
 
-    const projected = hostFixture.nativeElement.querySelector("#projected-mobile-badge");
+    const projected = hostFixture.nativeElement.querySelector(
+      "#projected-mobile-badge"
+    );
     expect(projected).toBeTruthy();
     expect(projected.textContent.trim()).toBe("Custom Badge");
+  });
+
+  it("should have @sm:hidden in host classes", () => {
+    const hostEl: HTMLElement = fixture.nativeElement;
+    expect(hostEl.classList.contains("@sm:hidden")).toBe(true);
+    expect(hostEl.classList.contains("flex")).toBe(true);
   });
 });

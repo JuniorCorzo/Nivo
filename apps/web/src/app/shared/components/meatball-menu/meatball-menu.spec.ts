@@ -69,7 +69,9 @@ describe("MeatballMenu", () => {
   });
 
   it("should attach cdkOverlayOrigin to an inline-flex wrapper div around nv-button", () => {
-    const wrapper = fixture.nativeElement.querySelector("div[cdkoverlayorigin]");
+    const wrapper = fixture.nativeElement.querySelector(
+      "div[cdkoverlayorigin]"
+    );
     expect(wrapper).toBeTruthy();
     expect(wrapper?.classList.contains("inline-flex")).toBe(true);
     expect(wrapper?.querySelector("nv-button")).toBeTruthy();
@@ -138,9 +140,10 @@ describe("MeatballMenu", () => {
     const menu = overlayContainerElement.querySelector('[role="menu"]');
     expect(menu).toBeTruthy();
 
-    const menuItems = overlayContainerElement.querySelectorAll<HTMLButtonElement>(
-      '[role="menuitem"]'
-    );
+    const menuItems =
+      overlayContainerElement.querySelectorAll<HTMLButtonElement>(
+        '[role="menuitem"]'
+      );
     expect(menuItems.length).toBe(2);
     expect(menuItems[0]?.textContent).toContain("Editar");
     expect(menuItems[1]?.textContent).toContain("Eliminar");
@@ -171,9 +174,10 @@ describe("MeatballMenu", () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const itemBtn = overlayContainerElement.querySelector<HTMLButtonElement>(
-      '[role="menuitem"]'
-    );
+    const itemBtn =
+      overlayContainerElement.querySelector<HTMLButtonElement>(
+        '[role="menuitem"]'
+      );
     expect(itemBtn?.disabled).toBe(true);
 
     itemBtn?.click();

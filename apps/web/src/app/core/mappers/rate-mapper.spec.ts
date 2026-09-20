@@ -58,10 +58,10 @@ describe("RateMapper", () => {
           operation: "PERCENTAGE",
           valueToModify: 10,
         },
+        tenant: { id: "t-1", name: "Tenant 1" } as any,
         timeUnit: "HOURS",
         updatedAt: "2026-01-02T00:00:00Z",
         vehicleType: "CAR",
-        tenant: { id: "t-1", name: "Tenant 1" } as any,
       };
 
       const result = mapToRateModel(dto);

@@ -20,32 +20,32 @@ import { ThemeButton } from "../theme-button/theme-button";
 
 export const USER_MENU_OVERLAY_POSITIONS: ConnectedPosition[] = [
   {
+    offsetY: -8,
     originX: "start",
     originY: "top",
     overlayX: "start",
     overlayY: "bottom",
-    offsetY: -8,
   },
   {
+    offsetY: -8,
     originX: "end",
     originY: "top",
     overlayX: "end",
     overlayY: "bottom",
-    offsetY: -8,
   },
   {
+    offsetY: 8,
     originX: "start",
     originY: "bottom",
     overlayX: "start",
     overlayY: "top",
-    offsetY: 8,
   },
   {
+    offsetY: 8,
     originX: "end",
     originY: "bottom",
     overlayX: "end",
     overlayY: "top",
-    offsetY: 8,
   },
 ];
 

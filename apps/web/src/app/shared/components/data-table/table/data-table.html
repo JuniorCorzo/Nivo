@@ -1,4 +1,6 @@
-<div class="border-border bg-card w-full overflow-hidden rounded-lg border shadow-xs">
+<div
+  class="border-border bg-card w-full overflow-hidden rounded-lg border shadow-xs"
+>
   <div class="overflow-x-auto">
     <table nv-table>
       <colgroup>
@@ -82,7 +84,11 @@
       } @else {
       <tbody nv-table-body>
         @for (row of table().getRowModel().rows; track row.id) {
-        <tr nv-table-row [class.cursor-pointer]="rowClickable()" (click)="onRowClick(row.original)">
+        <tr
+          nv-table-row
+          [class.cursor-pointer]="rowClickable()"
+          (click)="onRowClick(row.original)"
+        >
           @for (cell of row.getVisibleCells(); track cell.id) {
           <td nv-table-cell>
             <ng-container

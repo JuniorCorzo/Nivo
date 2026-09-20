@@ -1,7 +1,26 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { RouterLink } from "@angular/router";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideArrowLeft, lucideChevronRight } from "@ng-icons/lucide";
+import {
+  lucideArrowLeft,
+  lucideBuilding2,
+  lucideCar,
+  lucideChevronRight,
+  lucideCoins,
+  lucideEdit,
+  lucideHome,
+  lucideLayers,
+  lucideLayoutDashboard,
+  lucideLayoutGrid,
+  lucideParkingSquare,
+  lucidePlus,
+  lucideSettings,
+  lucideSliders,
+  lucideSquare,
+  lucideSquareDashed,
+  lucideTicket,
+} from "@ng-icons/lucide";
+
 import type { PageHeaderBreadcrumbItem } from "../page-header";
 
 @Component({
@@ -10,7 +29,22 @@ import type { PageHeaderBreadcrumbItem } from "../page-header";
   providers: [
     provideIcons({
       lucideArrowLeft,
+      lucideBuilding2,
+      lucideCar,
       lucideChevronRight,
+      lucideCoins,
+      lucideEdit,
+      lucideHome,
+      lucideLayers,
+      lucideLayoutDashboard,
+      lucideLayoutGrid,
+      lucideParkingSquare,
+      lucidePlus,
+      lucideSettings,
+      lucideSliders,
+      lucideSquare,
+      lucideSquareDashed,
+      lucideTicket,
     }),
   ],
   selector: "app-page-header-breadcrumbs",
@@ -19,7 +53,4 @@ import type { PageHeaderBreadcrumbItem } from "../page-header";
 })
 export class PageHeaderBreadcrumbsComponent {
   readonly breadcrumbs = input.required<PageHeaderBreadcrumbItem[]>();
-  readonly backLink = input<string | unknown[] | null>(null);
-  readonly backAriaLabel = input<string>("Volver");
-  readonly isRoot = input<boolean>(false);
 }

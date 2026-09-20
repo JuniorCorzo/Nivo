@@ -16,6 +16,14 @@ export interface RouteNavContext {
   isRoot?: boolean;
 }
 
+export interface RouteBreadcrumb {
+  label: string;
+  icon: string;
+  url?: string;
+  isParking?: boolean;
+  isRoot?: boolean;
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -27,6 +35,8 @@ export class NavigationContextService {
 
   private readonly _navContext = signal<RouteNavContext | null>(null);
   public readonly navContext = this._navContext.asReadonly();
+
+  private readonly _routeBreadcrumbs = signal<RouteBreadcrumb[]>([]);
 
   public readonly scope = computed<NavigationScope>(
     () => this.navContext()?.scope ?? "parking"
@@ -41,75 +51,42 @@ export class NavigationContextService {
   );
 
   public readonly breadcrumbs = computed<PageHeaderBreadcrumbItem[]>(() => {
-    const ctx = this.navContext();
-    if (!ctx) {
-      return [];
-    }
+    const rawCrumbs = this._routeBreadcrumbs();
+    const activeParkingName =
+      this.activeParkingService?.activeParkingName()?.trim() ?? "";
 
-    const items: PageHeaderBreadcrumbItem[] = [];
+    const items: PageHeaderBreadcrumbItem[] = [
+      { icon: "lucideHome", label: "Home", url: "/app" },
+    ];
 
-    if (ctx.scope === "parking") {
-      if (ctx.isRoot) {
-        items.push(
-          {
-            icon: "lucideLayoutDashboard",
-            label: ctx.section || "Inicio",
-            url: "/app/parking-lots",
-          },
-          { label: ctx.title || "Parqueaderos" }
-        );
-      } else {
-        const parkingName =
-          this.activeParkingService?.activeParkingName()?.trim() || "";
-        if (parkingName) {
-          items.push({
-            label: parkingName,
-            url: ctx.backLink || "/app/parking-lots",
-          });
-        }
-        if (ctx.title) {
-          items.push({ label: ctx.title });
-        }
+    const seenLabels = new Set<string>(["Home"]);
+
+    for (const bc of rawCrumbs) {
+      const label = bc.isParking ? activeParkingName || bc.label : bc.label;
+      if (!label || seenLabels.has(label)) {
+        continue;
       }
-    } else {
-      // Scope tenant
-      if (ctx.section) {
-        items.push({ label: ctx.section });
-      }
-      const title =
-        ctx.title && ctx.title.includes("Tickets") ? "Tickets" : ctx.title;
-      if (title && title !== ctx.section) {
-        items.push({ label: title });
-      }
+      seenLabels.add(label);
+
+      const url = bc.isParking ? (bc.url ?? "/app/parking-lots") : bc.url;
+
+      items.push({
+        icon: bc.icon,
+        isParking: bc.isParking,
+        label,
+        url,
+      });
     }
 
     return items;
   });
 
-  public readonly mobilePath = computed<string>(() => {
-    const ctx = this.navContext();
-    if (!ctx) {
-      return "";
-    }
-
-    if (ctx.scope === "parking") {
-      if (ctx.isRoot) {
-        const section = ctx.section || "Inicio";
-        const title = ctx.title || "Parqueaderos";
-        return `${section} / ${title}`;
-      }
-      const parkingName =
-        this.activeParkingService?.activeParkingName()?.trim() || "";
-      const title = ctx.title || "";
-      return parkingName ? `${parkingName} / ${title}` : title;
-    }
-
-    // Scope tenant
-    const section = ctx.section || "Operaciones";
-    const title =
-      ctx.title && ctx.title.includes("Tickets") ? "Tickets" : ctx.title || "";
-    return `${section} / ${title}`;
-  });
+  public readonly mobilePath = computed<string>(() =>
+    this.breadcrumbs()
+      .map((b) => b.label)
+      .filter(Boolean)
+      .join(" / ")
+  );
 
   constructor() {
     this.extractAndSetNavContext();
@@ -130,15 +107,23 @@ export class NavigationContextService {
       this.router.routerState.snapshot.root;
 
     let foundContext: RouteNavContext | null = null;
+    const breadcrumbsStack: RouteBreadcrumb[] = [];
 
     while (currentRoute) {
       if (currentRoute.data && currentRoute.data["navContext"]) {
         /* SAFETY: route data['navContext'] adheres to RouteNavContext contract */
         foundContext = currentRoute.data["navContext"] as RouteNavContext;
       }
+      if (currentRoute.data && currentRoute.data["breadcrumb"]) {
+        /* SAFETY: route data['breadcrumb'] adheres to RouteBreadcrumb contract when declared */
+        breadcrumbsStack.push(
+          currentRoute.data["breadcrumb"] as RouteBreadcrumb
+        );
+      }
       currentRoute = currentRoute.firstChild;
     }
 
     this._navContext.set(foundContext);
+    this._routeBreadcrumbs.set(breadcrumbsStack);
   }
 }

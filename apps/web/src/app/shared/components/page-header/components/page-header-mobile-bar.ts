@@ -1,11 +1,21 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideChevronLeft } from "@ng-icons/lucide";
 import { BadgeComponent, ButtonComponent } from "@nivo-sass/design-system";
+
 import type { PageHeaderBadgeVariant } from "../page-header";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class:
+      "page-header-mobile flex items-center justify-between gap-2 @sm:hidden",
+  },
   imports: [BadgeComponent, ButtonComponent, NgIcon],
   providers: [
     provideIcons({
@@ -18,7 +28,6 @@ import type { PageHeaderBadgeVariant } from "../page-header";
 })
 export class PageHeaderMobileBarComponent {
   readonly isRoot = input<boolean>(false);
-  readonly backAriaLabel = input<string>("Volver");
   readonly mobilePath = input.required<string>();
   readonly badge = input<string | null>(null);
   readonly badgeVariant = input<PageHeaderBadgeVariant>("info");

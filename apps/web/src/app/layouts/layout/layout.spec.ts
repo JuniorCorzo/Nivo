@@ -35,9 +35,13 @@ describe("LayoutComponent", () => {
   });
 
   it("should render named sidebar router-outlet with max-w-sm class", () => {
-    const sidebarOutlet = fixture.debugElement.query(By.css("router-outlet[name='sidebar']"));
+    const sidebarOutlet = fixture.debugElement.query(
+      By.css("router-outlet[name='sidebar']")
+    );
     expect(sidebarOutlet).toBeTruthy();
-    expect(sidebarOutlet.nativeElement.classList.contains("max-w-sm")).toBe(true);
+    expect(sidebarOutlet.nativeElement.classList.contains("max-w-sm")).toBe(
+      true
+    );
   });
 
   it("should render primary router-outlet inside section container", () => {
@@ -45,7 +49,9 @@ describe("LayoutComponent", () => {
     expect(sectionEl).toBeTruthy();
     expect(sectionEl.nativeElement.classList.contains("min-w-0")).toBe(true);
     expect(sectionEl.nativeElement.classList.contains("flex-1")).toBe(true);
-    expect(sectionEl.nativeElement.classList.contains("overflow-hidden")).toBe(true);
+    expect(sectionEl.nativeElement.classList.contains("overflow-hidden")).toBe(
+      true
+    );
 
     const primaryOutlet = sectionEl.query(By.css("router-outlet:not([name])"));
     expect(primaryOutlet).toBeTruthy();

@@ -544,9 +544,13 @@ export const APP_TEXTS = {
     statusModal: {
       cancel: "Cancelar",
       confirm: "Confirmar",
+      confirmChange: (from: string, to: string) =>
+        `¿Confirmar cambio de estado de ${from} a ${to}?`,
+      error: "Error al actualizar estado",
+      success: "Estado actualizado",
       title: "Cambiar estado",
       warningActiveTicket:
-        "Esta plaza tiene un ticket activo. ¿Estás seguro de cambiar el estado?",
+        "La plaza tiene un ticket activo. Cambiar a disponible liberará el ticket actual. Esta acción puede generar inconsistencias.",
     },
   },
   tickets: {

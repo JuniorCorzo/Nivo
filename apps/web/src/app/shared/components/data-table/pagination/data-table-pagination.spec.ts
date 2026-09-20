@@ -14,11 +14,16 @@ interface Item {
 @Component({
   imports: [DataTablePaginationComponent],
   standalone: true,
-  template: ` <app-data-table-pagination [table]="table" [pageSizeOptions]="[5, 10, 20]" /> `,
+  template: `
+    <app-data-table-pagination
+      [table]="table"
+      [pageSizeOptions]="[5, 10, 20]"
+    />
+  `,
 })
 class PaginationTestHostComponent {
   readonly items = signal<Item[]>(
-    Array.from({ length: 25 }, (_, i) => ({ id: i + 1, name: `Item ${i + 1}` })),
+    Array.from({ length: 25 }, (_, i) => ({ id: i + 1, name: `Item ${i + 1}` }))
   );
 
   private readonly columnHelper = createColumnHelper<Item>();
@@ -62,7 +67,9 @@ describe("DataTablePaginationComponent", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const el = fixture.nativeElement as HTMLElement;
     /* SAFETY: Next page button exists in the pagination component */
-    const nextBtn = el.querySelector('[aria-label="Página siguiente"]') as HTMLElement;
+    const nextBtn = el.querySelector(
+      '[aria-label="Página siguiente"]'
+    ) as HTMLElement;
     expect(nextBtn).toBeTruthy();
     nextBtn.click();
     fixture.detectChanges();
@@ -71,7 +78,9 @@ describe("DataTablePaginationComponent", () => {
     expect(el.textContent).toContain("Página 2 de 5");
 
     /* SAFETY: Previous page button exists in the pagination component */
-    const prevBtn = el.querySelector('[aria-label="Página anterior"]') as HTMLElement;
+    const prevBtn = el.querySelector(
+      '[aria-label="Página anterior"]'
+    ) as HTMLElement;
     prevBtn.click();
     fixture.detectChanges();
 
@@ -83,7 +92,9 @@ describe("DataTablePaginationComponent", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const el = fixture.nativeElement as HTMLElement;
     /* SAFETY: Last page button exists in the pagination component */
-    const lastBtn = el.querySelector('[aria-label="Última página"]') as HTMLElement;
+    const lastBtn = el.querySelector(
+      '[aria-label="Última página"]'
+    ) as HTMLElement;
     lastBtn.click();
     fixture.detectChanges();
 
@@ -91,7 +102,9 @@ describe("DataTablePaginationComponent", () => {
     expect(el.textContent).toContain("Página 5 de 5");
 
     /* SAFETY: First page button exists in the pagination component */
-    const firstBtn = el.querySelector('[aria-label="Primera página"]') as HTMLElement;
+    const firstBtn = el.querySelector(
+      '[aria-label="Primera página"]'
+    ) as HTMLElement;
     firstBtn.click();
     fixture.detectChanges();
 
