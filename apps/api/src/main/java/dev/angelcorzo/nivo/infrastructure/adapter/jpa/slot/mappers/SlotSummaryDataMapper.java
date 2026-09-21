@@ -22,6 +22,9 @@ public class SlotSummaryDataMapper {
         .status(row.get("status", SlotStatus.class))
         .hasTicket(Boolean.TRUE.equals(row.get("hasTicket", Boolean.class)))
         .hasHistory(Boolean.TRUE.equals(row.get("hasHistory", Boolean.class)))
+        .hasCharger(Boolean.TRUE.equals(row.get("hasCharger", Boolean.class)))
+        .isAccessible(Boolean.TRUE.equals(row.get("isAccessible", Boolean.class)))
+        .isActive(Boolean.TRUE.equals(row.get("isActive", Boolean.class)))
         .build();
   }
 
@@ -35,6 +38,9 @@ public class SlotSummaryDataMapper {
         data.numberSlot(),
         data.status(),
         data.hasTicket(),
-        data.hasHistory());
+        data.hasHistory(),
+        data.hasCharger(),
+        data.isAccessible(),
+        data.isActive());
   }
 }

@@ -6,11 +6,7 @@ export interface Option {
   label: string;
 }
 
-export type SlotStatusVariant =
-  | "success"
-  | "warning"
-  | "destructive"
-  | "secondary";
+export type SlotStatusVariant = "success" | "warning" | "destructive" | "secondary";
 
 export const SLOT_TYPE_LABELS = {
   BIKE: "Bicicleta",
@@ -18,6 +14,14 @@ export const SLOT_TYPE_LABELS = {
   DISABLED: "Discapacitado",
   ELECTRIC_VEHICLE: "Eléctrico",
   MOTORCYCLE: "Moto",
+} satisfies Record<SlotType, string>;
+
+export const SLOT_TYPE_ICONS = {
+  BIKE: "lucideBike",
+  CAR: "lucideCar",
+  DISABLED: "lucideAccessibility",
+  ELECTRIC_VEHICLE: "lucideZap",
+  MOTORCYCLE: "lucideBike",
 } satisfies Record<SlotType, string>;
 
 export const SLOT_STATUS_LABELS = {
@@ -42,6 +46,11 @@ export const SLOT_TYPE_OPTIONS: Option[] = [
   { label: "Discapacitado", value: "DISABLED" },
 ];
 
+export const SLOT_TYPE_FILTER_OPTIONS: Option[] = [
+  { label: "Tipo Vehículo: Todos", value: "" },
+  ...SLOT_TYPE_OPTIONS,
+];
+
 export const SLOT_STATUS_OPTIONS: Option[] = [
   { label: "Disponible", value: "AVAILABLE" },
   { label: "Ocupada", value: "OCCUPIED" },
@@ -61,7 +70,5 @@ export const SLOT_ZONE_FILTER_OPTIONS: Option[] = [
   { label: "PISO_2", value: "PISO_2" },
 ];
 
-export const displayOptionFn = (item: Option | null | undefined): string =>
-  item?.label ?? "";
-export const valueOptionFn = (item: Option | null | undefined): string =>
-  item?.value ?? "";
+export const displayOptionFn = (item: Option | null | undefined): string => item?.label ?? "";
+export const valueOptionFn = (item: Option | null | undefined): string => item?.value ?? "";

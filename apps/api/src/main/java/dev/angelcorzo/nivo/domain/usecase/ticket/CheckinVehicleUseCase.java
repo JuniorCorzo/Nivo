@@ -3,6 +3,7 @@ package dev.angelcorzo.nivo.domain.usecase.ticket;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.ParkingTicketStatus;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.ParkingTicketsRepository;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot;
 import dev.angelcorzo.nivo.domain.model.rates.exceptions.RateNotFoundException;
 import dev.angelcorzo.nivo.domain.model.rates.gateways.RatesRepository;
 import dev.angelcorzo.nivo.domain.model.rates.valueobject.RateReference;
@@ -48,6 +49,7 @@ public class CheckinVehicleUseCase {
     final ParkingTickets parkingTicket =
         ParkingTickets.builder()
             .slot(SlotsReference.of(savedSlot))
+            .slotSnapshot(SlotSnapshot.from(slot))
             .tenant(TenantReference.of(this.tenantsRepository.getReferenceById(command.tenantId())))
             .user(UserReference.of(user))
             .rate(RateReference.of(this.ratesRepository.getReferenceById(command.rateId())))

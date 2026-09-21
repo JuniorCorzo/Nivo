@@ -12,7 +12,11 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from "@angular/core";
-import { TitleStrategy, provideRouter } from "@angular/router";
+import {
+  TitleStrategy,
+  provideRouter,
+  withViewTransitions,
+} from "@angular/router";
 import { addWithCredentialsInterceptor } from "@core/http/interceptors/add-with-credentials.interceptor";
 import { authInterceptor } from "@core/http/interceptors/auth-interceptor";
 import { refreshTokenInterceptor } from "@core/http/interceptors/refresh-token-interceptor";
@@ -31,7 +35,7 @@ export const appConfig: ApplicationConfig = {
     provideApiConfiguration(isDevMode() ? "http://localhost:8080/api" : "/api"),
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideRouter(routes),
+    provideRouter(routes, withViewTransitions({ skipInitialTransition: true })),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideHotToastConfig({
       autoClose: true,

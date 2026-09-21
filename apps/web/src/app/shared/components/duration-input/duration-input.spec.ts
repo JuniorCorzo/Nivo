@@ -26,7 +26,7 @@ class TestHostComponent {
   readonly id = signal("grace-duration");
   readonly error = signal<
     string | ValidationError.WithFieldTree[] | undefined
-  >();
+  >(undefined);
 }
 
 describe("DurationInputComponent", () => {

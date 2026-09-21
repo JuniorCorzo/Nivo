@@ -1,0 +1,120 @@
+@if (parking(); as p) {
+<nv-card class="flex flex-col gap-5 rounded-2xl p-4 sm:gap-6 sm:p-6">
+  <div
+    class="border-border flex flex-col justify-between gap-2 border-b pb-4 sm:flex-row sm:items-center"
+  >
+    <div>
+      <nv-h2 class="text-base font-bold">Información General</nv-h2>
+      <nv-muted class="block text-xs">
+        Detalles de ubicación y registro del parqueadero
+      </nv-muted>
+    </div>
+    <div class="flex items-center gap-2">
+      <nv-badge variant="secondary">{{ p.ownerName }}</nv-badge>
+      <nv-badge variant="info">{{ p.currency }}</nv-badge>
+    </div>
+  </div>
+
+  <!-- Info Grid: 3 columns -->
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+    <div
+      class="bg-muted/50 border-border flex flex-col gap-1 rounded-xl border p-3 sm:p-3.5"
+    >
+      <nv-muted
+        class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
+      >
+        {{ LABELS_DETAIL.fields.address }}
+      </nv-muted>
+      <nv-span
+        class="text-foreground text-xs font-semibold wrap-break-word sm:text-sm"
+      >
+        {{ addressLine() || 'Sin dirección' }}
+      </nv-span>
+      @if (addressSubline()) {
+      <nv-muted class="block text-[11px] wrap-break-word sm:text-xs">
+        {{ addressSubline() }}
+      </nv-muted>
+      }
+    </div>
+
+    <div
+      class="bg-muted/50 border-border flex flex-col gap-1 rounded-xl border p-3 sm:p-3.5"
+    >
+      <nv-muted
+        class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
+      >
+        {{ LABELS_DETAIL.fields.coordinates }}
+      </nv-muted>
+      <nv-mono class="text-foreground block text-xs font-bold break-all">
+        {{ formattedCoords() }}
+      </nv-mono>
+    </div>
+
+    <div
+      class="bg-muted/50 border-border flex flex-col gap-1 rounded-xl border p-3 sm:p-3.5"
+    >
+      <nv-muted
+        class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
+      >
+        {{ LABELS_DETAIL.fields.operatingHours }}
+      </nv-muted>
+      <nv-span class="text-foreground text-xs font-semibold sm:text-sm">
+        {{ operatingHoursText() }}
+      </nv-span>
+    </div>
+  </div>
+
+  <!-- Policies Section -->
+  <div class="border-border border-t pt-4 sm:pt-5">
+    <div class="mb-3 sm:mb-4">
+      <nv-h3 class="text-sm font-bold sm:text-base">
+        {{ LABELS_DETAIL.fields.policyTitle }}
+      </nv-h3>
+      <nv-muted class="block text-xs">
+        {{ LABELS_DETAIL.fields.policySubtitle }}
+      </nv-muted>
+    </div>
+
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+      <div
+        class="bg-muted/50 border-border flex flex-col gap-1 rounded-xl border p-3 sm:p-3.5"
+      >
+        <nv-muted
+          class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
+        >
+          {{ LABELS_DETAIL.fields.gracePeriodMinutes }}
+        </nv-muted>
+        <nv-span class="text-foreground text-xs font-semibold sm:text-sm">
+          {{ gracePeriodText() }}
+        </nv-span>
+      </div>
+
+      <div
+        class="bg-muted/50 border-border flex flex-col gap-1 rounded-xl border p-3 sm:p-3.5"
+      >
+        <nv-muted
+          class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
+        >
+          {{ LABELS_DETAIL.fields.gracePeriodPrice }}
+        </nv-muted>
+        <nv-mono class="text-foreground block text-xs font-bold sm:text-sm">
+          {{ gracePeriodPriceText() }}
+        </nv-mono>
+      </div>
+
+      <div
+        class="bg-muted/50 border-border flex flex-col gap-1 rounded-xl border p-3 sm:p-3.5"
+      >
+        <nv-muted
+          class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
+        >
+          {{ LABELS_DETAIL.fields.ivaRate }}
+        </nv-muted>
+        <nv-mono class="text-foreground block text-xs font-bold sm:text-sm">
+          {{ ivaRateText() }}
+        </nv-mono>
+      </div>
+    </div>
+  </div>
+</nv-card>
+}

@@ -18,6 +18,10 @@ import dev.angelcorzo.nivo.domain.usecase.slot.EditSlotUseCase;
 import dev.angelcorzo.nivo.domain.usecase.slot.ListSlotsUseCase;
 import dev.angelcorzo.nivo.domain.usecase.slot.ListSlotsSummaryUseCase;
 import dev.angelcorzo.nivo.domain.usecase.slot.RemoveSlotUseCase;
+import dev.angelcorzo.nivo.domain.usecase.slot.UpdateSlotGroupUseCase;
+import dev.angelcorzo.nivo.domain.usecase.slot.UpdateSlotMetadataUseCase;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto.UpdateSlotGroupRequest;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto.UpdateSlotMetadataRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -45,13 +49,13 @@ public class SlotsController {
   private final EditSlotUseCase editSlotUseCase;
   private final RemoveSlotUseCase removeSlotUseCase;
   private final BatchDeleteSlotsUseCase batchDeleteSlotsUseCase;
+  private final UpdateSlotMetadataUseCase updateSlotMetadataUseCase;
+  private final UpdateSlotGroupUseCase updateSlotGroupUseCase;
 
-  @Operation(
-      summary = "List slots for parking lot",
-      description = "Retrieves all parking slots belonging to a specific parking lot")
+  @Operation(summary = "List slots for parking lot", description = "Retrieves all parking slots belonging to a specific parking lot")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Slots retrieved successfully"),
-    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
+      @ApiResponse(responseCode = "200", description = "Slots retrieved successfully"),
+      @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
   })
   @GetMapping("/list")
   @PreAuthorize("hasRole('OPERATOR')")
@@ -62,12 +66,10 @@ public class SlotsController {
     return Response.ok(slots, "Slots retrieved successfully");
   }
 
-  @Operation(
-      summary = "List slot summaries for parking lot",
-      description = "Retrieves aggregated summary statistics for slots in a parking lot")
+  @Operation(summary = "List slot summaries for parking lot", description = "Retrieves aggregated summary statistics for slots in a parking lot")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Slot summaries retrieved successfully"),
-    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
+      @ApiResponse(responseCode = "200", description = "Slot summaries retrieved successfully"),
+      @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
   })
   @GetMapping("/list/summary")
   @PreAuthorize("hasRole('OPERATOR')")
@@ -79,13 +81,11 @@ public class SlotsController {
     return Response.ok(slots, "Slots retrieved successfully");
   }
 
-  @Operation(
-      summary = "Batch create slots",
-      description = "Creates multiple slots for a parking lot in a single batch operation")
+  @Operation(summary = "Batch create slots", description = "Creates multiple slots for a parking lot in a single batch operation")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Slots created successfully"),
-    @ApiResponse(responseCode = "400", description = "Invalid payload or parking lot not found"),
-    @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")
+      @ApiResponse(responseCode = "200", description = "Slots created successfully"),
+      @ApiResponse(responseCode = "400", description = "Invalid payload or parking lot not found"),
+      @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")
   })
   @PostMapping("/create")
   @PreAuthorize("hasRole('MANAGER')")
@@ -105,13 +105,11 @@ public class SlotsController {
     return Response.ok(null, "Slots created successfully");
   }
 
-  @Operation(
-      summary = "Update slot",
-      description = "Updates an existing slot's configuration, number, type or status")
+  @Operation(summary = "Update slot", description = "Updates an existing slot's configuration, number, type or status")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Slot updated successfully"),
-    @ApiResponse(responseCode = "400", description = "Invalid slot payload"),
-    @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")
+      @ApiResponse(responseCode = "200", description = "Slot updated successfully"),
+      @ApiResponse(responseCode = "400", description = "Invalid slot payload"),
+      @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")
   })
   @PutMapping("/update")
   @PreAuthorize("hasRole('MANAGER')")
@@ -122,12 +120,10 @@ public class SlotsController {
     return Response.ok(this.slotsMapper.toDto(updatedSlot), "Slot updated successfully");
   }
 
-  @Operation(
-      summary = "Delete slot",
-      description = "Deletes a single slot by its ID")
+  @Operation(summary = "Delete slot", description = "Deletes a single slot by its ID")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Slot deleted successfully"),
-    @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")
+      @ApiResponse(responseCode = "200", description = "Slot deleted successfully"),
+      @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")
   })
   @DeleteMapping("/delete/{slotId}")
   @PreAuthorize("hasRole('MANAGER')")
@@ -137,12 +133,10 @@ public class SlotsController {
     return Response.ok(null, "Slot deleted successfully");
   }
 
-  @Operation(
-      summary = "Batch delete slots",
-      description = "Deletes multiple slots by their IDs in a single batch operation")
+  @Operation(summary = "Batch delete slots", description = "Deletes multiple slots by their IDs in a single batch operation")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Slots deleted successfully"),
-    @ApiResponse(responseCode = "400", description = "Invalid IDs list")
+      @ApiResponse(responseCode = "200", description = "Slots deleted successfully"),
+      @ApiResponse(responseCode = "400", description = "Invalid IDs list")
   })
   @PostMapping("/delete-batch")
   Response<?> batchDelete(@RequestBody List<UUID> ids) {
@@ -150,7 +144,32 @@ public class SlotsController {
     return Response.ok(null, "Slots deleted successfully");
   }
 
-  private UUID getTenantId() {
-    return this.authenticationContext.getCurrentTenantId();
+  @Operation(summary = "Batch update equipment metadata for selected slots", description = "Batch update equipment metadata for selected slots")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Slot metadata updated successfully"),
+      @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+      @ApiResponse(responseCode = "404", description = "Slot not found"),
+      @ApiResponse(responseCode = "409", description = "Slot cannot be modified because one or more are not available")
+  })
+  @PatchMapping("/metadata")
+  @PreAuthorize("hasRole('MANAGER')")
+  Response<List<SlotResponse>> updateSlotMetadata(@Valid @RequestBody UpdateSlotMetadataRequest request) {
+    List<Slots> updatedSlots = this.updateSlotMetadataUseCase.execute(this.slotsMapper.toCommand(request));
+    List<SlotResponse> responses = updatedSlots.stream().map(this.slotsMapper::toDto).toList();
+    return Response.ok(responses, "Slot metadata updated successfully");
+  }
+
+  @Operation(summary = "Rename zone and/or prefix for an entire slot family", description = "Rename zone and/or prefix for an entire slot family")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Slot group updated successfully"),
+      @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+      @ApiResponse(responseCode = "409", description = "Slot cannot be modified because one or more are not available")
+  })
+  @PatchMapping("/groups")
+  @PreAuthorize("hasRole('MANAGER')")
+  Response<List<SlotResponse>> updateSlotGroup(@Valid @RequestBody UpdateSlotGroupRequest request) {
+    List<Slots> updatedSlots = this.updateSlotGroupUseCase.execute(this.slotsMapper.toCommand(request));
+    List<SlotResponse> responses = updatedSlots.stream().map(this.slotsMapper::toDto).toList();
+    return Response.ok(responses, "Slot group updated successfully");
   }
 }

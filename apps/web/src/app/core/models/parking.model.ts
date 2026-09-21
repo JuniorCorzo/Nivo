@@ -33,10 +33,10 @@ export interface ParkingLotListItemModel {
   slotDistribution: SlotDistribution[];
   totalCapacity: number;
   updatedAt: string;
-  operatingHours: OperatingHours;
-  gracePeriodMinutes: number;
-  gracePeriodPrice: number;
-  ivaRate: number;
+  operatingHours?: OperatingHours;
+  gracePeriodMinutes?: number;
+  gracePeriodPrice?: number;
+  ivaRate?: number;
 }
 
 export interface UpsertParkingLotsModel {

@@ -21,26 +21,33 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => mapResponseError(response));
       }
 
-      let errorMessage: string = messages.generic;
+      let errorMessage: string = response?.message || messages.generic;
 
       switch (httpError.status) {
         case 404: {
-          errorMessage = messages["404"];
+          errorMessage = response?.message || messages["404"];
+          break;
+        }
+        case 409: {
+          errorMessage =
+            response?.message ||
+            "No se puede realizar la operación porque los recursos están ocupados o en conflicto.";
           break;
         }
         case 500: {
-          errorMessage = messages["500"];
+          errorMessage = response?.message || messages["500"];
           break;
         }
         default: {
-          errorMessage = messages.generic;
+          errorMessage = response?.message || messages.generic;
         }
       }
 
-      show(toastService, errorMessage);
       if (httpError.name === "TimeoutError") {
         errorMessage = messages.timeout;
       }
+
+      show(toastService, errorMessage);
 
       return throwError(() => mapResponseError(response));
     })

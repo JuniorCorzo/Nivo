@@ -6,11 +6,11 @@ import {
   flexRenderComponent,
 } from "@tanstack/angular-table";
 
-import { TicketParkingBadgeComponent } from "./ticket-parking-badge.component";
-import { TicketPlateCellComponent } from "./ticket-plate-cell.component";
-import { TicketRowActionsComponent } from "./ticket-row-actions.component";
-import { TicketStatusBadgeComponent } from "./ticket-status-badge.component";
-import { TicketVehicleBadgeComponent } from "./ticket-vehicle-badge.component";
+import { TicketParkingBadgeComponent } from "./ticket-parking-badge";
+import { TicketPlateCellComponent } from "./ticket-plate-cell";
+import { TicketRowActionsComponent } from "./ticket-row-actions";
+import { TicketStatusBadgeComponent } from "./ticket-status-badge";
+import { TicketVehicleBadgeComponent } from "./ticket-vehicle-badge";
 
 export const formatTicketDate = (dateStr?: string): string => {
   if (!dateStr) {

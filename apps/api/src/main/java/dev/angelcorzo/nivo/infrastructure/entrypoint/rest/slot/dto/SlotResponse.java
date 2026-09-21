@@ -21,7 +21,10 @@ import java.util.UUID;
       "type",
       "status",
       "createdAt",
-      "updatedAt"
+      "updatedAt",
+      "hasCharger",
+      "isAccessible",
+      "isActive"
     })
 public record SlotResponse(
     @Schema(description = "Slot ID", example = "e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a55")
@@ -49,5 +52,14 @@ public record SlotResponse(
     OffsetDateTime updatedAt,
 
     @Schema(description = "Deletion timestamp (if deleted)")
-    OffsetDateTime deletedAt) {}
+    OffsetDateTime deletedAt,
+
+    @Schema(description = "Whether slot has EV charger equipment", example = "false")
+    boolean hasCharger,
+
+    @Schema(description = "Whether slot is PMR / accessible", example = "false")
+    boolean isAccessible,
+
+    @Schema(description = "Whether slot is active and operational", example = "true")
+    boolean isActive) {}
 

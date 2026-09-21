@@ -1,0 +1,130 @@
+<dialog
+  #dialog
+  class="slot-dialog"
+  role="dialog"
+  [attr.aria-labelledby]="titleId"
+  [attr.aria-describedby]="descriptionId"
+  (click)="onBackdropClick($event)"
+>
+  <div class="slot-dialog__panel">
+    <!-- Header -->
+    <div class="border-border flex items-center justify-between border-b pb-3.5">
+      <div>
+        <nv-h3 [id]="titleId" class="text-foreground text-base font-bold">
+          Editar equipamiento
+        </nv-h3>
+        <span class="text-muted-foreground text-xs">
+          {{ selectedSlots().length }} plazas seleccionadas
+        </span>
+      </div>
+      <button
+        type="button"
+        class="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border transition-colors"
+        (click)="onCancel($event)"
+        aria-label="Cerrar"
+      >
+        <ng-icon name="lucideX" size="16" />
+      </button>
+    </div>
+
+    <!-- Description -->
+    <p [id]="descriptionId" class="text-muted-foreground mt-4 text-xs leading-relaxed">
+      Modificá las características de equipamiento e infraestructura para las plazas seleccionadas.
+    </p>
+
+    <!-- Occupied Guard Alert -->
+    @if (hasOccupiedSlots()) {
+    <div
+      class="border-destructive/30 bg-destructive/10 text-destructive mt-3 flex items-start gap-2.5 rounded-xl border p-3 text-xs"
+    >
+      <ng-icon name="lucideAlertTriangle" size="16" class="mt-0.5 shrink-0" />
+      <span>
+        No se puede modificar el equipamiento porque hay {{ occupiedCount() }} plaza(s) ocupada(s)
+        en la selección. Deseleccionalas para continuar.
+      </span>
+    </div>
+    }
+
+    <!-- Equipment Toggles -->
+    <div class="mt-4 flex flex-col gap-3">
+      <!-- Cargador Eléctrico -->
+      <label
+        class="border-border hover:bg-muted/40 flex cursor-pointer items-center justify-between rounded-xl border p-3 transition-colors select-none"
+      >
+        <div class="flex items-center gap-3">
+          <div class="bg-info/10 text-info flex h-9 w-9 items-center justify-center rounded-lg">
+            <span class="text-base">⚡</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-foreground text-xs font-semibold">Cargador eléctrico</span>
+            <span class="text-muted-foreground text-[11px]">Habilitar punto de recarga EV</span>
+          </div>
+        </div>
+        <input
+          type="checkbox"
+          [checked]="hasCharger()"
+          (change)="onChargerChange($event)"
+          class="accent-primary h-4 w-4 cursor-pointer rounded"
+        />
+      </label>
+
+      <!-- Movilidad Reducida (PMR) -->
+      <label
+        class="border-border hover:bg-muted/40 flex cursor-pointer items-center justify-between rounded-xl border p-3 transition-colors select-none"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-lg"
+          >
+            <span class="text-base">♿</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-foreground text-xs font-semibold">Movilidad reducida (PMR)</span>
+            <span class="text-muted-foreground text-[11px]"
+              >Plaza accesible para personas con discapacidad</span
+            >
+          </div>
+        </div>
+        <input
+          type="checkbox"
+          [checked]="isAccessible()"
+          (change)="onAccessibleChange($event)"
+          class="accent-primary h-4 w-4 cursor-pointer rounded"
+        />
+      </label>
+
+      <!-- Plaza Activa / Operativa -->
+      <label
+        class="border-border hover:bg-muted/40 flex cursor-pointer items-center justify-between rounded-xl border p-3 transition-colors select-none"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="bg-success/10 text-success flex h-9 w-9 items-center justify-center rounded-lg"
+          >
+            <span class="text-base">🟢</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-foreground text-xs font-semibold">Plaza activa</span>
+            <span class="text-muted-foreground text-[11px]"
+              >Plaza operativa y habilitada para uso</span
+            >
+          </div>
+        </div>
+        <input
+          type="checkbox"
+          [checked]="isActive()"
+          (change)="onActiveChange($event)"
+          class="accent-primary h-4 w-4 cursor-pointer rounded"
+        />
+      </label>
+    </div>
+
+    <!-- Actions -->
+    <div class="border-border mt-5 flex justify-end gap-2.5 border-t pt-3.5">
+      <nv-button variant="outline" (click)="onCancel($event)"> Cancelar </nv-button>
+      <nv-button data-testid="submit-metadata-btn" [disabled]="!canSubmit()" (click)="onSubmit()">
+        Guardar cambios
+      </nv-button>
+    </div>
+  </div>
+</dialog>

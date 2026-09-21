@@ -1,0 +1,32 @@
+@if (breadcrumbs().length > 0) {
+<nav
+  aria-label="Ruta de navegación"
+  data-testid="page-header-breadcrumb"
+  class="text-muted-foreground flex flex-wrap items-center gap-1 font-mono text-xs"
+>
+  @for (item of breadcrumbs(); track $index) { @if ($index > 0) {
+  <ng-icon name="lucideChevronRight" size="18"></ng-icon>
+  } @if (item.url) {
+  <a
+    [routerLink]="item.url"
+    class="hover:text-foreground inline-flex items-center gap-1 whitespace-nowrap transition-colors"
+  >
+    @if (item.icon) {
+    <ng-icon [name]="item.icon" size="14" class="shrink-0" />
+    }
+    <span>{{ item.label }}</span>
+  </a>
+  } @else {
+  <span
+    class="inline-flex items-center gap-1 whitespace-nowrap"
+    [class.text-foreground]="$last"
+    [class.font-semibold]="$last"
+  >
+    @if (item.icon) {
+    <ng-icon [name]="item.icon" size="14" class="shrink-0" />
+    }
+    <span>{{ item.label }}</span>
+  </span>
+  } }
+</nav>
+}

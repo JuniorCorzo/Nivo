@@ -6,6 +6,7 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.mappers.SlotsMappers;
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotSummary;
+import dev.angelcorzo.nivo.domain.model.utils.StringUtils;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
@@ -30,8 +31,33 @@ public class SlotsRepositoryAdapter
   }
 
   @Override
+  public List<Slots> findAllById(List<UUID> ids) {
+    return super.repository.findAllById(ids).stream()
+        .map(super::toEntity)
+        .toList();
+  }
+
+  @Override
+  public List<Slots> findAllByIdInAndTenantId(List<UUID> ids, UUID tenantId) {
+    return super.repository.findAllByIdInAndTenant_Id(ids, tenantId).stream()
+        .map(super::toEntity)
+        .toList();
+  }
+
+  @Override
   public List<Slots> findAllByParkingLotsId(UUID parkingLotsId) {
     return super.repository.findAllByParking_Id(parkingLotsId).stream()
+        .map(super::toEntity)
+        .toList();
+  }
+
+  @Override
+  public List<Slots> findAllByParkingLotsIdAndZoneAndPrefix(UUID parkingLotsId, String zone, String prefix) {
+    return super.repository.findAllByParking_IdAndZoneAndPrefix(
+        parkingLotsId,
+        StringUtils.normalize(zone),
+        StringUtils.normalize(prefix)
+    ).stream()
         .map(super::toEntity)
         .toList();
   }
@@ -52,6 +78,11 @@ public class SlotsRepositoryAdapter
   @Override
   public Boolean existsById(UUID id) {
     return super.repository.existsById(id);
+  }
+
+  @Override
+  public List<Slots> saveAll(List<Slots> slots) {
+    return super.saveAllEntities(slots);
   }
 
   @Override

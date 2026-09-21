@@ -60,7 +60,10 @@ describe("CheckOutFacade", () => {
       summaries: () => ({
         "parking-1": [
           {
+            hasCharger: false,
             id: "slot-occ-1",
+            isAccessible: false,
+            isActive: true,
             parkingName: "Central",
             prefix: "A",
             slotNumber: "101",
@@ -69,7 +72,10 @@ describe("CheckOutFacade", () => {
             zone: "Z1",
           },
           {
+            hasCharger: false,
             id: "slot-avail-2",
+            isAccessible: false,
+            isActive: true,
             parkingName: "Central",
             prefix: "A",
             slotNumber: "102",

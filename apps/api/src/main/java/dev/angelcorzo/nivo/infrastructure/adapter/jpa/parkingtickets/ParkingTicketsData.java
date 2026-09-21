@@ -5,6 +5,7 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.SlotsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.TenantsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.UsersData;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.ParkingTicketStatus;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -16,19 +17,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(
-    name = "parking_tickets",
-    uniqueConstraints =
-        @UniqueConstraint(
-            name = "uq_parking_ticket_tenant_id",
-            columnNames = {"tenant_id", "id"}))
+@Table(name = "parking_tickets", uniqueConstraints = @UniqueConstraint(name = "uq_parking_ticket_tenant_id", columnNames = {
+    "tenant_id", "id" }))
 @Entity()
 public class ParkingTicketsData {
   @Id
@@ -67,7 +66,12 @@ public class ParkingTicketsData {
   @ColumnDefault(value = "OPEN")
   @Column(name = "status", nullable = false)
   @Enumerated(EnumType.STRING)
+  @Builder.Default
   private ParkingTicketStatus status = ParkingTicketStatus.OPEN;
+
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "slot_snapshot", columnDefinition = "jsonb")
+  private SlotSnapshot slotSnapshot;
 
   @Column(name = "closed_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime closedAt;

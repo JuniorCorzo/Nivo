@@ -5,9 +5,17 @@ spring:
     username: sa
     password: ""
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: dev.angelcorzo.nivo.infrastructure.adapter.jpa.config.TestH2Dialect
+    databasePlatform: dev.angelcorzo.nivo.infrastructure.adapter.jpa.config.TestH2Dialect
+    properties:
+      hibernate:
+        default_schema: PUBLIC
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     show-sql: false
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
   flyway:
     enabled: false

@@ -10,7 +10,13 @@ import java.util.UUID;
 public interface SlotsRepository {
   Optional<Slots> findById(UUID id);
 
+  List<Slots> findAllById(List<UUID> ids);
+
+  List<Slots> findAllByIdInAndTenantId(List<UUID> ids, UUID tenantId);
+
   List<Slots> findAllByParkingLotsId(UUID parkingLotsId);
+
+  List<Slots> findAllByParkingLotsIdAndZoneAndPrefix(UUID parkingLotsId, String zone, String prefix);
 
   List<SlotSummary> findAllSummaryByParkingLotsId(UUID parkingLotsId);
 
@@ -19,6 +25,8 @@ public interface SlotsRepository {
   Boolean existsById(UUID id);
 
   Slots save(Slots slot);
+
+  List<Slots> saveAll(List<Slots> slots);
 
   List<Slots> saveAllEntities(List<Slots> slots);
 

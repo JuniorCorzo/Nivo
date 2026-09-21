@@ -53,4 +53,19 @@ export interface SlotResponse {
    * Last update timestamp
    */
   updatedAt: string;
+
+  /**
+   * Whether slot has EV charger
+   */
+  hasCharger?: boolean;
+
+  /**
+   * Whether slot is accessible for PRM
+   */
+  isAccessible?: boolean;
+
+  /**
+   * Whether slot is active
+   */
+  isActive?: boolean;
 }

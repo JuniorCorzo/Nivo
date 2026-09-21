@@ -85,4 +85,58 @@ class SlotsRepositoryAdapterTest {
 
     verify(repository).deleteAllByIdInBatch(ids);
   }
+
+  @Test
+  @DisplayName("Should find all slots by IDs and tenant ID")
+  void shouldFindAllByIdInAndTenantId() {
+    List<UUID> ids = List.of(UUID.randomUUID());
+    UUID tenantId = UUID.randomUUID();
+    SlotsData data = new SlotsData();
+    Slots slot = Slots.builder().id(ids.get(0)).build();
+
+    when(repository.findAllByIdInAndTenant_Id(ids, tenantId)).thenReturn(List.of(data));
+    when(mapper.toEntity(data)).thenReturn(slot);
+
+    List<Slots> result = adapter.findAllByIdInAndTenantId(ids, tenantId);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0)).isEqualTo(slot);
+    verify(repository).findAllByIdInAndTenant_Id(ids, tenantId);
+  }
+
+  @Test
+  @DisplayName("Should find all slots by parking lot ID, zone, and prefix")
+  void shouldFindAllByParkingLotsIdAndZoneAndPrefix() {
+    UUID parkingId = UUID.randomUUID();
+    String zone = "Zone A";
+    String prefix = "P";
+    SlotsData data = new SlotsData();
+    Slots slot = Slots.builder().id(UUID.randomUUID()).build();
+
+    when(repository.findAllByParking_IdAndZoneAndPrefix(parkingId, zone, prefix)).thenReturn(List.of(data));
+    when(mapper.toEntity(data)).thenReturn(slot);
+
+    List<Slots> result = adapter.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, zone, prefix);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0)).isEqualTo(slot);
+    verify(repository).findAllByParking_IdAndZoneAndPrefix(parkingId, zone, prefix);
+  }
+
+  @Test
+  @DisplayName("Should normalize empty or blank zone and prefix to null when finding slots")
+  void shouldNormalizeEmptyZoneAndPrefixToNull() {
+    UUID parkingId = UUID.randomUUID();
+    SlotsData data = new SlotsData();
+    Slots slot = Slots.builder().id(UUID.randomUUID()).build();
+
+    when(repository.findAllByParking_IdAndZoneAndPrefix(parkingId, null, null)).thenReturn(List.of(data));
+    when(mapper.toEntity(data)).thenReturn(slot);
+
+    List<Slots> result = adapter.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, "", "   ");
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0)).isEqualTo(slot);
+    verify(repository).findAllByParking_IdAndZoneAndPrefix(parkingId, null, null);
+  }
 }

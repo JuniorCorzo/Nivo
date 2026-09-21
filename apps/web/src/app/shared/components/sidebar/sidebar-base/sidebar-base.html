@@ -1,0 +1,19 @@
+<nav class="flex flex-1 flex-col gap-2">
+  @for (item of navItems(); track $index) {
+  <a
+    [routerLink]="item.url"
+    class="hover:bg-muted inline-flex h-9 cursor-pointer items-center rounded-md font-mono text-base transition-all"
+    [class.gap-2]="!collapsed()"
+    [class.px-3]="!collapsed()"
+    [class.justify-center]="collapsed()"
+    [class.bg-muted]="item.isActive"
+    [attr.title]="collapsed() ? item.label : null"
+  >
+    <ng-icon [name]="item.icon" size="20" class="shrink-0" />
+    @if (!collapsed()) {
+    <span>{{ item.label }}</span>
+    }
+  </a>
+  }
+</nav>
+<app-sidebar-footer [collapsed]="collapsed()" />

@@ -1,0 +1,59 @@
+<div class="flex flex-col gap-3">
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <nv-input
+      type="search"
+      class="w-full lg:col-span-1"
+      startIcon="lucideSearch"
+      [placeholder]="placeholder()"
+      [value]="globalFilter()"
+      (input)="queryInput.emit($event)"
+    />
+    <nv-select
+      class="w-full"
+      [items]="typeOptions()"
+      [displayFn]="displayOptionFn"
+      [valueFn]="valueOptionFn"
+      [value]="typeFilter()"
+      (valueChange)="onFilterChange('type', $event)"
+    />
+    <nv-select
+      class="w-full"
+      [items]="zoneOptions()"
+      [displayFn]="displayOptionFn"
+      [valueFn]="valueOptionFn"
+      [value]="zoneFilter()"
+      (valueChange)="onFilterChange('zone', $event)"
+    />
+    <nv-select
+      class="w-full"
+      [items]="statusOptions()"
+      [displayFn]="displayOptionFn"
+      [valueFn]="valueOptionFn"
+      [value]="statusFilter()"
+      (valueChange)="onFilterChange('status', $event)"
+    />
+  </div>
+
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <div class="flex flex-wrap items-center gap-2">
+      <nv-muted class="text-muted-foreground text-xs font-medium">Filtros rápidos:</nv-muted>
+      <nv-button
+        size="sm"
+        [variant]="isAccessibleFilter() ? 'secondary' : 'outline'"
+        (click)="toggleAccessible()"
+      >
+        <nv-span> Solo Discapacitados </nv-span>
+        <ng-icon name="lucideAccessibility" size="16"></ng-icon>
+      </nv-button>
+      <nv-button
+        size="sm"
+        [variant]="hasChargerFilter() ? 'secondary' : 'outline'"
+        (click)="toggleCharger()"
+      >
+        Solo Eléctricos
+        <ng-icon name="lucidePlugZap2" size="16"></ng-icon>
+      </nv-button>
+    </div>
+    <nv-button variant="ghost" size="sm" (click)="clearFilters.emit()"> Limpiar filtros </nv-button>
+  </div>
+</div>
