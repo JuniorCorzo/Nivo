@@ -1,44 +1,36 @@
 package dev.angelcorzo.nivo.domain.usecase.dashboard;
 
+import dev.angelcorzo.nivo.domain.model.dashboard.OperationalReportModel;
+import dev.angelcorzo.nivo.domain.model.dashboard.PageResult;
+import dev.angelcorzo.nivo.domain.model.dashboard.gateways.OperationalReportGateway;
 import dev.angelcorzo.nivo.domain.usecase.dashboard.dtos.OperationalReportDTO;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.OperationalReportViewEntity;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.repository.OperationalReportViewRepository;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class GetOperationalReportUseCase {
 
-  private final OperationalReportViewRepository reportRepository;
+  private final OperationalReportGateway reportGateway;
 
-  public Page<OperationalReportDTO> execute(UUID tenantId, UUID parkingId, Pageable pageable) {
-    Page<OperationalReportViewEntity> page;
-    if (parkingId != null) {
-      page = reportRepository.findAllByTenantIdAndParkingLotId(tenantId, parkingId, pageable);
-    } else {
-      page = reportRepository.findAllByTenantId(tenantId, pageable);
-    }
-    return page.map(this::toDTO);
+  public PageResult<OperationalReportDTO> execute(UUID tenantId, UUID parkingId, int page, int size) {
+    var pageResult = reportGateway.findOperationalReports(tenantId, parkingId, page, size);
+    return PageResult.<OperationalReportDTO>builder()
+        .content(pageResult.getContent().stream().map(this::toDTO).toList())
+        .pageNumber(pageResult.getPageNumber())
+        .pageSize(pageResult.getPageSize())
+        .totalElements(pageResult.getTotalElements())
+        .totalPages(pageResult.getTotalPages())
+        .build();
   }
 
   public List<OperationalReportDTO> executeForExport(UUID tenantId, UUID parkingId) {
-    List<OperationalReportViewEntity> list;
-    if (parkingId != null) {
-      list = reportRepository.findAllByTenantId(tenantId).stream()
-          .filter(e -> parkingId.equals(e.getParkingLotId()))
-          .toList();
-    } else {
-      list = reportRepository.findAllByTenantId(tenantId);
-    }
-    return list.stream().map(this::toDTO).toList();
+    return reportGateway.findAllForExport(tenantId, parkingId).stream()
+        .map(this::toDTO)
+        .toList();
   }
 
-  private OperationalReportDTO toDTO(OperationalReportViewEntity e) {
+  private OperationalReportDTO toDTO(OperationalReportModel e) {
     return OperationalReportDTO.builder()
         .ticketId(e.getTicketId())
         .parkingId(e.getParkingLotId())

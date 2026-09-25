@@ -1,21 +1,19 @@
 package dev.angelcorzo.nivo.domain.usecase.dashboard;
 
+import dev.angelcorzo.nivo.domain.model.dashboard.gateways.HourlyOccupancyGateway;
 import dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.domain.usecase.dashboard.dtos.PublicParkingAvailabilityDTO;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.repository.HourlyOccupancyViewRepository;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class GetPublicParkingAvailabilityUseCase {
 
   private final ParkingLotsRepository parkingLotsRepository;
-  private final HourlyOccupancyViewRepository hourlyRepository;
+  private final HourlyOccupancyGateway hourlyGateway;
   private final SlotsRepository slotsRepository;
 
   public Optional<PublicParkingAvailabilityDTO> execute(UUID parkingId) {
@@ -25,7 +23,7 @@ public class GetPublicParkingAvailabilityUseCase {
     }
 
     var parking = parkingOpt.get();
-    var hourlyList = hourlyRepository.findByParkingLotId(parkingId);
+    var hourlyList = hourlyGateway.findByParkingLotId(parkingId);
 
     long totalSlots = 0;
     double occupancyRate = 0.0;

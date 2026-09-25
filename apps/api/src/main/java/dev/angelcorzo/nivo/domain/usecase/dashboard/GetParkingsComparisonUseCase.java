@@ -1,23 +1,21 @@
 package dev.angelcorzo.nivo.domain.usecase.dashboard;
 
+import dev.angelcorzo.nivo.domain.model.dashboard.gateways.DailySummaryGateway;
+import dev.angelcorzo.nivo.domain.model.dashboard.gateways.HourlyOccupancyGateway;
 import dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository;
 import dev.angelcorzo.nivo.domain.usecase.dashboard.dtos.ParkingComparisonDTO;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.repository.DailySummaryViewRepository;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.repository.HourlyOccupancyViewRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class GetParkingsComparisonUseCase {
 
-  private final DailySummaryViewRepository dailyRepository;
-  private final HourlyOccupancyViewRepository hourlyRepository;
+  private final DailySummaryGateway dailyGateway;
+  private final HourlyOccupancyGateway hourlyGateway;
   private final ParkingLotsRepository parkingLotsRepository;
 
   public List<ParkingComparisonDTO> execute(UUID tenantId, LocalDate startDate, LocalDate endDate) {
@@ -27,8 +25,8 @@ public class GetParkingsComparisonUseCase {
 
     for (var p : parkings) {
       UUID parkingId = p.id();
-      var summaryOpt = dailyRepository.findByParkingLotIdAndSummaryDate(parkingId, today);
-      var hourlyList = hourlyRepository.findByParkingLotId(parkingId);
+      var summaryOpt = dailyGateway.findByParkingLotIdAndSummaryDate(parkingId, today);
+      var hourlyList = hourlyGateway.findByParkingLotId(parkingId);
 
       int totalCapacity = p.totalCapacity() != null ? p.totalCapacity().intValue() : 0;
       double occupancyRate = 0.0;

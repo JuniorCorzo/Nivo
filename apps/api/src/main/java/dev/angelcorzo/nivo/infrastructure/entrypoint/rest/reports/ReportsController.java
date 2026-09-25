@@ -42,7 +42,9 @@ public class ReportsController {
     UUID tenantId = authenticationContext.getCurrentTenantId();
     AtomicReference<Page<OperationalReportDTO>> result = new AtomicReference<>();
     metricsManager.recordAnalyticsQueryDuration("ops", () -> {
-      result.set(reportUseCase.execute(tenantId, parkingId, pageable));
+      var domainPage = reportUseCase.execute(tenantId, parkingId, pageable.getPageNumber(), pageable.getPageSize());
+      result.set(new org.springframework.data.domain.PageImpl<>(
+          domainPage.getContent(), pageable, domainPage.getTotalElements()));
     });
     return ResponseEntity.ok(result.get());
   }

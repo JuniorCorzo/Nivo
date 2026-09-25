@@ -1,23 +1,21 @@
 package dev.angelcorzo.nivo.domain.usecase.dashboard;
 
+import dev.angelcorzo.nivo.domain.model.dashboard.DailySummaryModel;
+import dev.angelcorzo.nivo.domain.model.dashboard.HourlyOccupancyModel;
+import dev.angelcorzo.nivo.domain.model.dashboard.gateways.DailySummaryGateway;
+import dev.angelcorzo.nivo.domain.model.dashboard.gateways.HourlyOccupancyGateway;
 import dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository;
 import dev.angelcorzo.nivo.domain.usecase.dashboard.dtos.DashboardSummaryDTO;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.DailySummaryViewEntity;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.HourlyOccupancyViewEntity;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.repository.DailySummaryViewRepository;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.repository.HourlyOccupancyViewRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class GetDashboardSummaryUseCase {
 
-  private final DailySummaryViewRepository dailyRepository;
-  private final HourlyOccupancyViewRepository hourlyRepository;
+  private final DailySummaryGateway dailyGateway;
+  private final HourlyOccupancyGateway hourlyGateway;
   private final ParkingLotsRepository parkingLotsRepository;
 
   public DashboardSummaryDTO execute(UUID tenantId, UUID parkingId) {
@@ -30,8 +28,8 @@ public class GetDashboardSummaryUseCase {
         throw new IllegalArgumentException("Parking lot does not belong to tenant");
       }
 
-      var dailyOpt = dailyRepository.findByParkingLotIdAndSummaryDate(parkingId, today);
-      var hourlyList = hourlyRepository.findByParkingLotId(parkingId);
+      var dailyOpt = dailyGateway.findByParkingLotIdAndSummaryDate(parkingId, today);
+      var hourlyList = hourlyGateway.findByParkingLotId(parkingId);
 
       int totalCapacity = 0;
       double occupancyRate = 0.0;
@@ -78,9 +76,9 @@ public class GetDashboardSummaryUseCase {
           .build();
     }
 
-    var summaries = dailyRepository.findAllByTenantIdAndSummaryDate(tenantId, today);
+    var summaries = dailyGateway.findAllByTenantIdAndSummaryDate(tenantId, today);
     if (summaries.isEmpty()) {
-      summaries = dailyRepository.findAllByTenantId(tenantId);
+      summaries = dailyGateway.findAllByTenantId(tenantId);
     }
 
     long totalTickets = 0;
@@ -91,7 +89,7 @@ public class GetDashboardSummaryUseCase {
     int durationCount = 0;
     String currency = "COP";
 
-    for (DailySummaryViewEntity s : summaries) {
+    for (DailySummaryModel s : summaries) {
       if (s.getTotalTickets() != null) totalTickets += s.getTotalTickets();
       if (s.getCompletedTickets() != null) completedTickets += s.getCompletedTickets();
       if (s.getOngoingTickets() != null) ongoingTickets += s.getOngoingTickets();
@@ -103,10 +101,10 @@ public class GetDashboardSummaryUseCase {
       if (s.getCurrency() != null) currency = s.getCurrency();
     }
 
-    var hourlyList = hourlyRepository.findByTenantId(tenantId);
+    var hourlyList = hourlyGateway.findByTenantId(tenantId);
     int totalCapacity = 0;
     int totalOccupied = 0;
-    for (HourlyOccupancyViewEntity h : hourlyList) {
+    for (HourlyOccupancyModel h : hourlyList) {
       if (h.getTotalCapacity() != null) {
         totalCapacity += h.getTotalCapacity().intValue();
         if (h.getEstimatedOccupancyRate() != null) {
