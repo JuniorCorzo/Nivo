@@ -58,6 +58,8 @@ public class SecurityChain {
             "/webjars/**",
             "/context-path/**",
             "/auth/**",
+            "/public/**",
+            "/api/v1/public/**",
             "/favicon.ico")
         .csrf(AbstractHttpConfigurer::disable)
         .headers(AbstractHttpConfigurer::disable)
