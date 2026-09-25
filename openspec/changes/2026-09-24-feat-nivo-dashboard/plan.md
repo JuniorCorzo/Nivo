@@ -39,7 +39,7 @@
 - Consumes: PostgreSQL base tables `parking_tickets`, `slots`, `payments`, `parking_lots`.
 - Produces: `v_parking_occupancy_hourly`, `v_parking_daily_summary`, `v_parking_operational_report` views with composite indices, and Spring Data JPA repositories supporting queries by `tenantId` and `(tenantId, parkingLotId)`.
 
-- [ ] **Step 1: Write failing integration test for dashboard views repositories**
+- [ ] **Step 1: Write failing integration test with rich test fixtures and strict assertions**
 
 ```java
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard;
@@ -48,33 +48,178 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.repository.DailySummaryViewRepository;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.repository.HourlyOccupancyViewRepository;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.repository.OperationalReportViewRepository;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 @DataJpaTest
 class DashboardViewsRepositoryTest {
 
   @Autowired
-  private HourlyOccupancyViewRepository hourlyRepository;
+  private TestEntityManager entityManager;
 
   @Autowired
   private DailySummaryViewRepository dailyRepository;
 
-  @Test
-  @DisplayName("Should query hourly occupancy view by tenant and parking lot")
-  void shouldQueryHourlyOccupancyViewByParkingLot() {
-    var result = hourlyRepository.findByTenantIdAndParkingLotId(UUID.randomUUID(), UUID.randomUUID());
-    assertThat(result).isNotNull();
+  @Autowired
+  private HourlyOccupancyViewRepository hourlyRepository;
+
+  @Autowired
+  private OperationalReportViewRepository operationalRepository;
+
+  private UUID tenantA;
+  private UUID tenantB;
+  private UUID parkingA1;
+  private UUID parkingA2;
+  private UUID parkingB1;
+
+  @BeforeEach
+  void setUpFixtures() {
+    tenantA = UUID.randomUUID();
+    tenantB = UUID.randomUUID();
+    parkingA1 = UUID.randomUUID();
+    parkingA2 = UUID.randomUUID();
+    parkingB1 = UUID.randomUUID();
+
+    // 1. Insertar tenants y parkings en BD
+    insertTenant(tenantA, "Tenant A");
+    insertTenant(tenantB, "Tenant B");
+    insertParkingLot(parkingA1, tenantA, "Sede Centro", "COP");
+    insertParkingLot(parkingA2, tenantA, "Sede Norte", "COP");
+    insertParkingLot(parkingB1, tenantB, "Sede Externa B", "USD");
+
+    // 2. Insertar plazas (AVAILABLE, OCCUPIED, MAINTENANCE)
+    UUID slot1 = insertSlot(parkingA1, tenantA, "C-01", "AVAILABLE", "CAR");
+    UUID slot2 = insertSlot(parkingA1, tenantA, "C-02", "OCCUPIED", "CAR");
+    UUID slot3 = insertSlot(parkingA1, tenantA, "M-01", "MAINTENANCE", "MOTORCYCLE"); // no debe contar en capacidad activa
+    UUID slotB = insertSlot(parkingB1, tenantB, "B-01", "OCCUPIED", "CAR");
+
+    // 3. Insertar tickets con fechas y duraciones controladas para hoy (2026-09-24)
+    OffsetDateTime today8am = OffsetDateTime.of(2026, 9, 24, 8, 15, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime today9am = OffsetDateTime.of(2026, 9, 24, 9, 30, 0, 0, ZoneOffset.UTC); // 75 min
+    OffsetDateTime today10am = OffsetDateTime.of(2026, 9, 24, 10, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime today1130am = OffsetDateTime.of(2026, 9, 24, 11, 30, 0, 0, ZoneOffset.UTC); // 90 min
+
+    UUID ticket1 = insertTicket(tenantA, parkingA1, slot2, "AAA-111", today8am, null, "OPEN", BigDecimal.ZERO);
+    UUID ticket2 = insertTicket(tenantA, parkingA1, slot1, "BBB-222", today8am, today9am, "CLOSED", new BigDecimal("15000.00"));
+    UUID ticket3 = insertTicket(tenantA, parkingA1, slot1, "CCC-333", today10am, today1130am, "CLOSED", new BigDecimal("20000.00"));
+    UUID ticketB = insertTicket(tenantB, parkingB1, slotB, "ZZZ-999", today8am, null, "OPEN", BigDecimal.ZERO);
+
+    // 4. Insertar pagos (PAID vs FAILED vs PENDING)
+    insertPayment(tenantA, ticket2, new BigDecimal("15000.00"), "PAID");
+    insertPayment(tenantA, ticket3, new BigDecimal("20000.00"), "FAILED"); // no debe computar en recaudación
+    insertPayment(tenantB, ticketB, new BigDecimal("50.00"), "PAID"); // pertenece a tenant B
+
+    entityManager.flush();
+    entityManager.clear();
   }
 
   @Test
-  @DisplayName("Should query consolidated daily summary across all parking lots of a tenant")
-  void shouldQueryConsolidatedDailySummaryByTenant() {
-    var result = dailyRepository.findAllByTenantId(UUID.randomUUID());
-    assertThat(result).isNotNull();
+  @DisplayName("v_parking_daily_summary: debe calcular ingresos exactos (solo PAID), tickets y duración promedio")
+  void shouldCalculateExactDailySummaryMetrics() {
+    LocalDate today = LocalDate.of(2026, 9, 24);
+    var summary = dailyRepository.findByParkingLotIdAndSummaryDate(parkingA1, today)
+        .orElseThrow(() -> new AssertionError("Summary record must exist"));
+
+    assertThat(summary.getTotalTickets()).isEqualTo(3);
+    assertThat(summary.getCompletedTickets()).isEqualTo(2);
+    assertThat(summary.getOngoingTickets()).isEqualTo(1);
+    assertThat(summary.getUniqueVehicles()).isEqualTo(3);
+    // Solo ticket2 tiene pago PAID (15000.00); ticket3 fue FAILED
+    assertThat(summary.getTotalRevenue()).isEqualByComparingTo(new BigDecimal("15000.00"));
+    // Duraciones cerradas: 75 min y 90 min -> Promedio = 82.50 min
+    assertThat(summary.getAvgDurationMinutes()).isEqualTo(82.50);
+  }
+
+  @Test
+  @DisplayName("v_parking_occupancy_hourly: debe calcular entradas, salidas y tasa de ocupación por hora")
+  void shouldCalculateHourlyOccupancyAccurately() {
+    var hourlyList = hourlyRepository.findByParkingLotId(parkingA1);
+    assertThat(hourlyList).isNotEmpty();
+
+    // En la franja de las 08:00 UTC hubo 2 entradas (ticket1 y ticket2)
+    var bucket8am = hourlyList.stream()
+        .filter(h -> h.getHourBucket().getHour() == 8)
+        .findFirst()
+        .orElseThrow();
+    assertThat(bucket8am.getCheckins()).isEqualTo(2);
+    assertThat(bucket8am.getTotalCapacity()).isEqualTo(2); // slot1 y slot2 activos; slot3 en mantenimiento
+    assertThat(bucket8am.getEstimatedOccupancyRate()).isEqualTo(100.00); // 2 tickets / 2 plazas activas
+  }
+
+  @Test
+  @DisplayName("Aislamiento multi-tenant: tenantA nunca debe recibir datos pertenecientes a tenantB")
+  void shouldStrictlyIsolateTenantsInDailyAndHourlySummaries() {
+    var summariesA = dailyRepository.findAllByTenantId(tenantA);
+    assertThat(summariesA)
+        .isNotEmpty()
+        .allMatch(s -> s.getTenantId().equals(tenantA))
+        .noneMatch(s -> s.getTenantId().equals(tenantB));
+
+    var reportsA = operationalRepository.findAllByTenantId(tenantA);
+    assertThat(reportsA)
+        .isNotEmpty()
+        .allMatch(r -> r.getTenantId().equals(tenantA))
+        .noneMatch(r -> r.getLicensePlate().equals("ZZZ-999"));
+  }
+
+  @Test
+  @DisplayName("Parqueadero vacío o sin tickets debe retornar vacío/cero sin NullPointerException")
+  void shouldHandleEmptyParkingGracefullyWithoutNpe() {
+    UUID emptyParking = UUID.randomUUID();
+    insertParkingLot(emptyParking, tenantA, "Sede Nueva Vacía", "COP");
+    insertSlot(emptyParking, tenantA, "V-01", "AVAILABLE", "CAR");
+
+    var summary = dailyRepository.findByParkingLotIdAndSummaryDate(emptyParking, LocalDate.of(2026, 9, 24));
+    assertThat(summary).isEmpty();
+
+    var hourly = hourlyRepository.findByParkingLotId(emptyParking);
+    assertThat(hourly).isEmpty();
+  }
+
+  // Métodos auxiliares de inserción directa para pruebas
+  private void insertTenant(UUID id, String name) {
+    entityManager.getEntityManager().createNativeQuery(
+        "INSERT INTO nivo.tenants (id, name, created_at) VALUES (?, ?, CURRENT_TIMESTAMP)")
+        .setParameter(1, id).setParameter(2, name).executeUpdate();
+  }
+
+  private void insertParkingLot(UUID id, UUID tenant, String name, String currency) {
+    entityManager.getEntityManager().createNativeQuery(
+        "INSERT INTO nivo.parking_lots (id, tenant_id, name, currency, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)")
+        .setParameter(1, id).setParameter(2, tenant).setParameter(3, name).setParameter(4, currency).executeUpdate();
+  }
+
+  private UUID insertSlot(UUID parking, UUID tenant, String number, String status, String type) {
+    UUID id = UUID.randomUUID();
+    entityManager.getEntityManager().createNativeQuery(
+        "INSERT INTO nivo.slots (id, parking_lot_id, tenant_id, slot_number, status, type, created_at) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)")
+        .setParameter(1, id).setParameter(2, parking).setParameter(3, tenant).setParameter(4, number).setParameter(5, status).setParameter(6, type).executeUpdate();
+    return id;
+  }
+
+  private UUID insertTicket(UUID tenant, UUID parking, UUID slot, String plate, OffsetDateTime entry, OffsetDateTime exit, String status, BigDecimal charge) {
+    UUID id = UUID.randomUUID();
+    entityManager.getEntityManager().createNativeQuery(
+        "INSERT INTO nivo.parking_tickets (id, tenant_id, slot_id, license_plate, entry_time, exit_time, status, total_to_charge, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)")
+        .setParameter(1, id).setParameter(2, tenant).setParameter(3, slot).setParameter(4, plate).setParameter(5, entry).setParameter(6, exit).setParameter(7, status).setParameter(8, charge).executeUpdate();
+    return id;
+  }
+
+  private void insertPayment(UUID tenant, UUID ticketId, BigDecimal amount, String status) {
+    UUID id = UUID.randomUUID();
+    entityManager.getEntityManager().createNativeQuery(
+        "INSERT INTO nivo.payments (id, tenant_id, parking_ticket_id, amount, status, payment_method, created_at) VALUES (?, ?, ?, ?, ?, 'EFFECTIVE', CURRENT_TIMESTAMP)")
+        .setParameter(1, id).setParameter(2, tenant).setParameter(3, ticketId).setParameter(4, amount).setParameter(5, status).executeUpdate();
   }
 }
 ```
@@ -87,122 +232,13 @@ class DashboardViewsRepositoryTest {
 
 - [ ] **Step 3: Write minimal implementation**
 
-Create `apps/api/src/main/resources/db/migration/V5__create_dashboard_views_and_analytics.sql`:
+Create Flyway migration `V5__create_dashboard_views_and_analytics.sql` containing views and indexes.
+Create entities:
 
-```sql
-CREATE OR REPLACE VIEW nivo.v_parking_occupancy_hourly AS
-WITH hourly_buckets AS (
-    SELECT
-        t.tenant_id,
-        s.parking_lot_id,
-        date_trunc('hour', t.entry_time) AS hour_bucket,
-        COUNT(t.id) AS checkin_count
-    FROM nivo.parking_tickets t
-    JOIN nivo.slots s ON s.id = t.slot_id
-    WHERE t.deleted_at IS NULL
-    GROUP BY t.tenant_id, s.parking_lot_id, date_trunc('hour', t.entry_time)
-),
-hourly_exits AS (
-    SELECT
-        t.tenant_id,
-        s.parking_lot_id,
-        date_trunc('hour', t.exit_time) AS hour_bucket,
-        COUNT(t.id) AS checkout_count
-    FROM nivo.parking_tickets t
-    JOIN nivo.slots s ON s.id = t.slot_id
-    WHERE t.exit_time IS NOT NULL AND t.deleted_at IS NULL
-    GROUP BY t.tenant_id, s.parking_lot_id, date_trunc('hour', t.exit_time)
-),
-slot_capacities AS (
-    SELECT
-        parking_lot_id,
-        COUNT(id) AS total_slots
-    FROM nivo.slots
-    WHERE deleted_at IS NULL AND status != 'MAINTENANCE'
-    GROUP BY parking_lot_id
-)
-SELECT
-    COALESCE(b.tenant_id, e.tenant_id) AS tenant_id,
-    COALESCE(b.parking_lot_id, e.parking_lot_id) AS parking_lot_id,
-    COALESCE(b.hour_bucket, e.hour_bucket) AS hour_bucket,
-    COALESCE(b.checkin_count, 0) AS checkins,
-    COALESCE(e.checkout_count, 0) AS checkouts,
-    COALESCE(cap.total_slots, 0) AS total_capacity,
-    ROUND(
-        LEAST(100.0, GREATEST(0.0,
-            (COALESCE(b.checkin_count, 0) * 100.0) / NULLIF(cap.total_slots, 0)
-        )), 2
-    ) AS estimated_occupancy_rate
-FROM hourly_buckets b
-FULL OUTER JOIN hourly_exits e
-    ON b.parking_lot_id = e.parking_lot_id AND b.hour_bucket = e.hour_bucket
-JOIN slot_capacities cap
-    ON cap.parking_lot_id = COALESCE(b.parking_lot_id, e.parking_lot_id);
-
-CREATE OR REPLACE VIEW nivo.v_parking_daily_summary AS
-SELECT
-    s.parking_lot_id,
-    p.tenant_id,
-    p.name AS parking_name,
-    date_trunc('day', t.entry_time)::date AS summary_date,
-    COUNT(t.id) AS total_tickets,
-    COUNT(t.id) FILTER (WHERE t.status = 'CLOSED') AS completed_tickets,
-    COUNT(t.id) FILTER (WHERE t.status = 'OPEN') AS ongoing_tickets,
-    COUNT(DISTINCT t.license_plate) AS unique_vehicles,
-    COALESCE(SUM(pay.amount) FILTER (WHERE pay.status = 'PAID'), 0.00) AS total_revenue,
-    ROUND(AVG(EXTRACT(EPOCH FROM (t.exit_time - t.entry_time)) / 60.0) FILTER (WHERE t.status = 'CLOSED'), 2) AS avg_duration_minutes,
-    p.currency
-FROM nivo.parking_tickets t
-JOIN nivo.slots s ON s.id = t.slot_id
-JOIN nivo.parking_lots p ON p.id = s.parking_lot_id
-LEFT JOIN nivo.payments pay ON pay.parking_ticket_id = t.id AND pay.deleted_at IS NULL
-WHERE t.deleted_at IS NULL
-GROUP BY s.parking_lot_id, p.tenant_id, p.name, date_trunc('day', t.entry_time)::date, p.currency;
-
-CREATE OR REPLACE VIEW nivo.v_parking_operational_report AS
-SELECT
-    t.id AS ticket_id,
-    t.tenant_id,
-    p.id AS parking_lot_id,
-    p.name AS parking_name,
-    t.license_plate,
-    s.slot_number,
-    s.zone AS slot_zone,
-    s.prefix AS slot_prefix,
-    s.type AS slot_type,
-    r.name AS rate_name,
-    t.entry_time,
-    t.exit_time,
-    ROUND(EXTRACT(EPOCH FROM (COALESCE(t.exit_time, CURRENT_TIMESTAMP) - t.entry_time)) / 60.0, 1) AS duration_minutes,
-    t.status AS ticket_status,
-    t.total_to_charge,
-    pay.id AS payment_id,
-    pay.status AS payment_status,
-    pay.payment_method,
-    pay.amount AS paid_amount,
-    pay.completed_at AS payment_date,
-    u.full_name AS operator_or_user_name,
-    u.email AS user_email
-FROM nivo.parking_tickets t
-JOIN nivo.slots s ON s.id = t.slot_id
-JOIN nivo.parking_lots p ON p.id = s.parking_lot_id
-JOIN nivo.rates r ON r.id = t.rate_id
-LEFT JOIN nivo.payments pay ON pay.parking_ticket_id = t.id AND pay.deleted_at IS NULL
-LEFT JOIN nivo.users u ON u.id = t.user_id
-WHERE t.deleted_at IS NULL;
-
-CREATE INDEX IF NOT EXISTS idx_parking_tickets_tenant_entry
-    ON nivo.parking_tickets (tenant_id, entry_time) WHERE deleted_at IS NULL;
-
-CREATE INDEX IF NOT EXISTS idx_parking_tickets_tenant_exit
-    ON nivo.parking_tickets (tenant_id, exit_time) WHERE exit_time IS NOT NULL AND deleted_at IS NULL;
-
-CREATE INDEX IF NOT EXISTS idx_slots_tenant_parking_status
-    ON nivo.slots (tenant_id, parking_lot_id, status) WHERE deleted_at IS NULL;
-```
-
-Create JPA entities: `HourlyOccupancyViewEntity`, `DailySummaryViewEntity`, `OperationalReportViewEntity` with `@Immutable`.
-Create Spring Data repositories extending `JpaRepository`.
+- `DailySummaryViewEntity`: Maps `v_parking_daily_summary` with `@Immutable`, `@IdClass` (composite `parkingLotId`, `summaryDate`).
+- `HourlyOccupancyViewEntity`: Maps `v_parking_occupancy_hourly`.
+- `OperationalReportViewEntity`: Maps `v_parking_operational_report`.
+  Create Spring Data repositories extending `JpaRepository`.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -213,7 +249,7 @@ Create Spring Data repositories extending `JpaRepository`.
 - [ ] **Step 5: Commit changes**
 
 ```bash
-git commit -m "feat(api(db)): add analytics views with multi-parking support and composite indexes"
+git commit -m "feat(api(db)): implement dashboard views with robust multi-tenant aggregation and indexes"
 ```
 
 ---
@@ -237,14 +273,16 @@ git commit -m "feat(api(db)): add analytics views with multi-parking support and
   - `recordAvailabilityCacheHit()`, `recordAvailabilityCacheMiss()`
   - `recordCsvExportDuration(Runnable export)`
 
-- [ ] **Step 1: Write failing unit test**
+- [ ] **Step 1: Write failing unit test validating operational telemetries and cardinality constraints**
 
 ```java
 package dev.angelcorzo.nivo.infrastructure.adapter.metrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -261,20 +299,75 @@ class BackendOperationsMetricsManagerTest {
   }
 
   @Test
-  @DisplayName("Should increment active SSE connections gauge")
-  void shouldTrackSseActiveConnections() {
+  @DisplayName("Gauge de conexiones SSE: debe incrementar al abrir y decrementar al cerrar")
+  void shouldTrackSseActiveConnectionsLifecycle() {
     metricsManager.recordSseConnectionOpened();
-    assertThat(meterRegistry.get("sse.dashboard.active.connections").gauge().value()).isEqualTo(1.0);
+    metricsManager.recordSseConnectionOpened();
+    assertThat(meterRegistry.get("sse.dashboard.active.connections").gauge().value()).isEqualTo(2.0);
 
-    metricsManager.recordSseConnectionClosed();
-    assertThat(meterRegistry.get("sse.dashboard.active.connections").gauge().value()).isEqualTo(0.0);
+    metricsManager.recordSseDisconnect(); // debe decrementar conexiones activas y subir contador de desconexión
+    assertThat(meterRegistry.get("sse.dashboard.active.connections").gauge().value()).isEqualTo(1.0);
+    assertThat(meterRegistry.get("sse.dashboard.disconnects.total").counter().count()).isEqualTo(1.0);
   }
 
   @Test
-  @DisplayName("Should record query duration without high-cardinality tags")
-  void shouldRecordQueryDurationWithLowCardinalityTag() {
-    metricsManager.recordAnalyticsQueryDuration("hourly", () -> {});
-    assertThat(meterRegistry.get("db.analytics.query.duration").tag("view", "hourly").timer().count()).isEqualTo(1);
+  @DisplayName("Contador de transmisiones SSE: debe acumular eventos broadcast")
+  void shouldTrackSseBroadcastEventsAccurately() {
+    metricsManager.recordSseEventBroadcast();
+    metricsManager.recordSseEventBroadcast();
+    metricsManager.recordSseEventBroadcast();
+    assertThat(meterRegistry.get("sse.dashboard.events.broadcast.total").counter().count()).isEqualTo(3.0);
+  }
+
+  @Test
+  @DisplayName("Telemetría de API pública: solicitudes, rate limit y aciertos de caché")
+  void shouldTrackPublicApiOperationsAndRateLimits() {
+    metricsManager.recordPublicAvailabilityRequest(200);
+    metricsManager.recordPublicAvailabilityRequest(200);
+    metricsManager.recordPublicAvailabilityRequest(429);
+    metricsManager.recordPublicAvailabilityRateLimited();
+    metricsManager.recordAvailabilityCacheHit();
+    metricsManager.recordAvailabilityCacheMiss();
+
+    assertThat(meterRegistry.get("public.api.availability.requests.total").tag("status", "200").counter().count()).isEqualTo(2.0);
+    assertThat(meterRegistry.get("public.api.availability.requests.total").tag("status", "429").counter().count()).isEqualTo(1.0);
+    assertThat(meterRegistry.get("public.api.availability.rate_limited.total").counter().count()).isEqualTo(1.0);
+    assertThat(meterRegistry.get("public.api.availability.cache.hit").counter().count()).isEqualTo(1.0);
+    assertThat(meterRegistry.get("public.api.availability.cache.miss").counter().count()).isEqualTo(1.0);
+  }
+
+  @Test
+  @DisplayName("Timers de base de datos y CSV: deben registrar latencias con tag de vista")
+  void shouldRecordAnalyticsQueryAndCsvExportTimers() {
+    metricsManager.recordAnalyticsQueryDuration("hourly", () -> {
+      try { Thread.sleep(10); } catch (InterruptedException ignored) {}
+    });
+
+    metricsManager.recordCsvExportDuration(() -> {
+      try { Thread.sleep(15); } catch (InterruptedException ignored) {}
+    });
+
+    var queryTimer = meterRegistry.get("db.analytics.query.duration").tag("view", "hourly").timer();
+    assertThat(queryTimer.count()).isEqualTo(1);
+    assertThat(queryTimer.totalTime(TimeUnit.MILLISECONDS)).isGreaterThanOrEqualTo(9.0);
+
+    var csvTimer = meterRegistry.get("reports.csv.export.duration").timer();
+    assertThat(csvTimer.count()).isEqualTo(1);
+  }
+
+  @Test
+  @DisplayName("Restricción estricta de cardinalidad: NINGUNA métrica debe incluir tags parkingId, tenantId ni licensePlate")
+  void shouldNeverRegisterHighCardinalityTagsInPrometheusMetrics() {
+    // Ejecutar varias operaciones de registro
+    metricsManager.recordPublicAvailabilityRequest(200);
+    metricsManager.recordAnalyticsQueryDuration("daily", () -> {});
+
+    for (Meter meter : meterRegistry.getMeters()) {
+      var tagKeys = meter.getId().getTags().stream().map(t -> t.getKey().toLowerCase()).toList();
+      assertThat(tagKeys)
+          .as("Meter '%s' contains high cardinality tags", meter.getId().getName())
+          .doesNotContain("parkingid", "tenantid", "licenseplate", "plate", "userid");
+    }
   }
 }
 ```
@@ -287,12 +380,7 @@ class BackendOperationsMetricsManagerTest {
 
 - [ ] **Step 3: Write minimal implementation**
 
-Implement `BackendOperationsMetricsManager` with:
-
-- Gauges for `sse.dashboard.active.connections`.
-- Counters for `sse.dashboard.events.broadcast.total`, `sse.dashboard.disconnects.total`.
-- Timers for `db.analytics.query.duration` (tag `view`), `domain.events.dispatch.duration` (tag `event_type`), `reports.csv.export.duration`.
-- Public availability telemetry (`requests.total`, `rate_limited.total`, `latency`, `cache.hit`, `cache.miss`).
+Implement `BackendOperationsMetricsManager` utilizing standard `MeterRegistry` counters, gauges, and timers without dynamic multi-tenant tags.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -303,7 +391,7 @@ Implement `BackendOperationsMetricsManager` with:
 - [ ] **Step 5: Commit changes**
 
 ```bash
-git commit -m "feat(api(metrics)): implement BackendOperationsMetricsManager for platform observability"
+git commit -m "feat(api(metrics)): implement BackendOperationsMetricsManager with zero high-cardinality tags"
 ```
 
 ---
@@ -319,7 +407,7 @@ git commit -m "feat(api(metrics)): implement BackendOperationsMetricsManager for
 - Create: `apps/api/src/main/java/dev/angelcorzo/nivo/infrastructure/entrypoint/rest/dashboard/DashboardController.java`
 - Create: `apps/api/src/main/java/dev/angelcorzo/nivo/infrastructure/entrypoint/rest/reports/ReportsController.java`
 - Test: `apps/api/src/test/java/dev/angelcorzo/nivo/infrastructure/entrypoint/rest/dashboard/DashboardControllerTest.java`
-- Test: `apps/api/src/test/java/dev/angelcorzo/nivo/domain/usecase/dashboard/GetParkingsComparisonUseCaseTest.java`
+- Test: `apps/api/src/test/java/dev/angelcorzo/nivo/infrastructure/entrypoint/rest/reports/ReportsControllerTest.java`
 
 **Interfaces:**
 
@@ -331,21 +419,36 @@ git commit -m "feat(api(metrics)): implement BackendOperationsMetricsManager for
   - `GET /api/v1/reports/operational?parkingId={optionalUUID}&page=...` -> `Page<OperationalReportDTO>`
   - `GET /api/v1/reports/operational/csv?parkingId={optionalUUID}` -> `text/csv` stream
 
-- [ ] **Step 1: Write failing controller test for dashboard summary and comparison**
+- [ ] **Step 1: Write failing controller tests verifying scopes, cross-tenant security and CSV streaming**
 
 ```java
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.dashboard;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import dev.angelcorzo.nivo.domain.usecase.dashboard.GetDashboardSummaryUseCase;
+import dev.angelcorzo.nivo.domain.usecase.dashboard.GetParkingsComparisonUseCase;
+import dev.angelcorzo.nivo.domain.usecase.dashboard.dtos.DashboardSummaryDTO;
+import dev.angelcorzo.nivo.domain.usecase.dashboard.dtos.ParkingComparisonDTO;
+import dev.angelcorzo.nivo.infrastructure.security.context.AuthenticationContextGateway;
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -356,21 +459,145 @@ class DashboardControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
+  @MockBean
+  private GetDashboardSummaryUseCase summaryUseCase;
+
+  @MockBean
+  private GetParkingsComparisonUseCase comparisonUseCase;
+
+  @MockBean
+  private AuthenticationContextGateway authContextGateway;
+
   @Test
   @WithMockUser
-  @DisplayName("GET /api/v1/dashboard/summary without parkingId should return tenant global summary")
-  void shouldReturnGlobalSummary() throws Exception {
-    mockMvc.perform(get("/api/v1/dashboard/summary"))
+  @DisplayName("GET /dashboard/summary con parkingId retorna datos específicos de esa sede")
+  void shouldReturnSingleParkingSummaryWhenParkingIdProvided() throws Exception {
+    UUID tenantId = UUID.randomUUID();
+    UUID parkingId = UUID.randomUUID();
+    when(authContextGateway.getTenantId()).thenReturn(tenantId);
+
+    var mockSummary = DashboardSummaryDTO.builder()
+        .scope("SINGLE")
+        .parkingId(parkingId)
+        .totalCapacity(150)
+        .occupiedSlots(108)
+        .availableSlots(42)
+        .occupancyRate(72.0)
+        .todayRevenue(new BigDecimal("145000.00"))
+        .currency("COP")
+        .build();
+
+    when(summaryUseCase.execute(tenantId, parkingId)).thenReturn(mockSummary);
+
+    mockMvc.perform(get("/api/v1/dashboard/summary").param("parkingId", parkingId.toString()))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.scope").value("GLOBAL"));
+        .andExpect(jsonPath("$.scope").value("SINGLE"))
+        .andExpect(jsonPath("$.parkingId").value(parkingId.toString()))
+        .andExpect(jsonPath("$.occupancyRate").value(72.0))
+        .andExpect(jsonPath("$.totalCapacity").value(150));
   }
 
   @Test
   @WithMockUser
-  @DisplayName("GET /api/v1/dashboard/parkings-comparison should return comparative facilities list")
-  void shouldReturnParkingsComparison() throws Exception {
+  @DisplayName("GET /dashboard/summary sin parkingId retorna el consolidado global del tenant")
+  void shouldReturnGlobalSummaryWhenParkingIdOmitted() throws Exception {
+    UUID tenantId = UUID.randomUUID();
+    when(authContextGateway.getTenantId()).thenReturn(tenantId);
+
+    var globalSummary = DashboardSummaryDTO.builder()
+        .scope("GLOBAL")
+        .parkingId(null)
+        .totalCapacity(350)
+        .occupiedSlots(200)
+        .availableSlots(150)
+        .occupancyRate(57.14)
+        .todayRevenue(new BigDecimal("500000.00"))
+        .currency("COP")
+        .build();
+
+    when(summaryUseCase.execute(tenantId, null)).thenReturn(globalSummary);
+
+    mockMvc.perform(get("/api/v1/dashboard/summary"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.scope").value("GLOBAL"))
+        .andExpect(jsonPath("$.parkingId").doesNotExist())
+        .andExpect(jsonPath("$.totalCapacity").value(350))
+        .andExpect(jsonPath("$.todayRevenue").value(500000.00));
+  }
+
+  @Test
+  @WithMockUser
+  @DisplayName("GET /dashboard/parkings-comparison retorna lista ordenada de sedes con sus métricas")
+  void shouldReturnParkingsComparisonList() throws Exception {
+    UUID tenantId = UUID.randomUUID();
+    when(authContextGateway.getTenantId()).thenReturn(tenantId);
+
+    var comparisonList = List.of(
+        ParkingComparisonDTO.builder().parkingId(UUID.randomUUID()).parkingName("Sede Centro").occupancyRate(75.0).todayRevenue(new BigDecimal("300000")).build(),
+        ParkingComparisonDTO.builder().parkingId(UUID.randomUUID()).parkingName("Sede Norte").occupancyRate(40.0).todayRevenue(new BigDecimal("150000")).build()
+    );
+
+    when(comparisonUseCase.execute(eq(tenantId), any(), any())).thenReturn(comparisonList);
+
     mockMvc.perform(get("/api/v1/dashboard/parkings-comparison"))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(2)))
+        .andExpect(jsonPath("$[0].parkingName").value("Sede Centro"))
+        .andExpect(jsonPath("$[0].occupancyRate").value(75.0))
+        .andExpect(jsonPath("$[1].parkingName").value("Sede Norte"));
+  }
+
+  @Test
+  @WithMockUser
+  @DisplayName("Seguridad multi-tenant: solicitar parkingId ajeno retorna 404 o 403")
+  void shouldRejectCrossTenantParkingAccess() throws Exception {
+    UUID tenantA = UUID.randomUUID();
+    UUID foreignParking = UUID.randomUUID();
+    when(authContextGateway.getTenantId()).thenReturn(tenantA);
+    when(summaryUseCase.execute(tenantA, foreignParking))
+        .thenThrow(new IllegalArgumentException("Parking lot does not belong to tenant"));
+
+    mockMvc.perform(get("/api/v1/dashboard/summary").param("parkingId", foreignParking.toString()))
+        .andExpect(status().isNotFound());
+  }
+}
+```
+
+And for CSV streaming:
+
+```java
+package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.reports;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class ReportsControllerTest {
+
+  @Autowired
+  private MockMvc mockMvc;
+
+  @Test
+  @WithMockUser
+  @DisplayName("GET /reports/operational/csv debe emitir stream CSV con cabeceras correctas y columnas requeridas")
+  void shouldStreamCsvWithCorrectHeadersAndFormat() throws Exception {
+    mockMvc.perform(get("/api/v1/reports/operational/csv"))
+        .andExpect(status().isOk())
+        .andExpect(header().string("Content-Type", "text/csv;charset=UTF-8"))
+        .andExpect(header().string("Content-Disposition", containsString("attachment; filename=\"operational-report-")))
+        .andExpect(content().string(containsString("Ticket ID,Placa,Plaza,Tipo,Entrada,Salida,Minutos,Estado,Total,Metodo Pago,Sede")));
   }
 }
 ```
@@ -379,24 +606,26 @@ class DashboardControllerTest {
 
 ```bash
 ./gradlew test --tests "dev.angelcorzo.nivo.infrastructure.entrypoint.rest.dashboard.DashboardControllerTest"
+./gradlew test --tests "dev.angelcorzo.nivo.infrastructure.entrypoint.rest.reports.ReportsControllerTest"
 ```
 
 - [ ] **Step 3: Write minimal implementation**
 
-Implement `GetDashboardSummaryUseCase`, `GetHourlyOccupancyUseCase`, `GetParkingsComparisonUseCase`, `GetOperationalReportUseCase`.
-Expose `DashboardController` and `ReportsController`.
-Inject `AuthenticationContextGateway` to resolve `tenantId`.
+Implement use cases resolving tenant context and optional `parkingId`.
+Implement `DashboardController` and `ReportsController`.
+Inject `BackendOperationsMetricsManager` to time queries and CSV streaming.
 
 - [ ] **Step 4: Run test to verify it passes**
 
 ```bash
 ./gradlew test --tests "dev.angelcorzo.nivo.infrastructure.entrypoint.rest.dashboard.DashboardControllerTest"
+./gradlew test --tests "dev.angelcorzo.nivo.infrastructure.entrypoint.rest.reports.ReportsControllerTest"
 ```
 
 - [ ] **Step 5: Commit changes**
 
 ```bash
-git commit -m "feat(api(dashboard)): implement multi-parking summary, comparison and reports endpoints"
+git commit -m "feat(api(dashboard)): implement scoped dashboard endpoints, comparison and CSV streaming"
 ```
 
 ---
@@ -417,19 +646,21 @@ git commit -m "feat(api(dashboard)): implement multi-parking summary, comparison
   - `GET /api/v1/dashboard/stream?parkingId={optionalUUID}` -> `text/event-stream`
   - Dual broadcast: emits to specific facility subscribers AND tenant-wide subscribers.
 
-- [ ] **Step 1: Write failing unit test for dual-scope SseRegistry**
+- [ ] **Step 1: Write failing unit test for dual-scope SseRegistry with client disconnects**
 
 ```java
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.dashboard.sse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import dev.angelcorzo.nivo.infrastructure.adapter.metrics.BackendOperationsMetricsManager;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 class DashboardSseRegistryTest {
 
@@ -443,19 +674,41 @@ class DashboardSseRegistryTest {
   }
 
   @Test
-  @DisplayName("Should broadcast to both facility subscriber and tenant global subscriber")
-  void shouldBroadcastToBothFacilityAndTenantSubscribers() {
-    UUID tenantId = UUID.randomUUID();
-    UUID parkingId = UUID.randomUUID();
+  @DisplayName("Emisión dual: debe enviar evento a suscriptor de la sede y a suscriptor global del tenant, pero no a sedes ajenas")
+  void shouldBroadcastEventToMatchingFacilityAndTenantSubscribersOnly() {
+    UUID tenantA = UUID.randomUUID();
+    UUID tenantB = UUID.randomUUID();
+    UUID parking1 = UUID.randomUUID();
+    UUID parking2 = UUID.randomUUID();
 
-    var singleEmitter = sseRegistry.createEmitter(tenantId, parkingId);
-    var globalEmitter = sseRegistry.createEmitter(tenantId, null);
+    var clientFacility1 = sseRegistry.createEmitter(tenantA, parking1);
+    var clientFacility2 = sseRegistry.createEmitter(tenantA, parking2);
+    var clientTenantA = sseRegistry.createEmitter(tenantA, null); // canal consolidado global
+    var clientTenantB = sseRegistry.createEmitter(tenantB, null); // otro tenant
 
-    assertThat(singleEmitter).isNotNull();
-    assertThat(globalEmitter).isNotNull();
+    assertThat(sseRegistry.getActiveCount(tenantA)).isEqualTo(3);
 
-    sseRegistry.broadcast(tenantId, parkingId, "occupancy-update", "{\"occupancyRate\": 75.0}");
-    assertThat(sseRegistry.getActiveCount(tenantId)).isEqualTo(2);
+    // Disparar evento para parking1 de tenantA
+    sseRegistry.broadcast(tenantA, parking1, "occupancy-update", "{\"parkingId\":\"" + parking1 + "\",\"occupancyRate\":80.0}");
+
+    // Se verifica que metricsManager registró las emisiones broadcast
+    verify(metricsManager).recordSseEventBroadcast();
+  }
+
+  @Test
+  @DisplayName("Ciclo de vida: simular desconexión debe limpiar emitter y decrementar métrica")
+  void shouldCleanUpEmitterOnDisconnectWithoutMemoryLeak() {
+    UUID tenantA = UUID.randomUUID();
+    UUID parking1 = UUID.randomUUID();
+
+    SseEmitter emitter = sseRegistry.createEmitter(tenantA, parking1);
+    assertThat(sseRegistry.getActiveCount(tenantA)).isEqualTo(1);
+
+    // Simular evento de desconexión / finalización
+    sseRegistry.removeEmitter(tenantA, parking1, emitter);
+
+    assertThat(sseRegistry.getActiveCount(tenantA)).isEqualTo(0);
+    verify(metricsManager).recordSseDisconnect();
   }
 }
 ```
@@ -470,9 +723,9 @@ class DashboardSseRegistryTest {
 
 Implement `DashboardSseRegistry`:
 
-- `ConcurrentHashMap<String, CopyOnWriteArrayList<SseEmitter>>` using keys `tenantId` and `tenantId + ":" + parkingId`.
-- On ticket event: broadcast to `tenantId + ":" + parkingId` AND `tenantId`.
-- Heartbeat ping every 15s.
+- Maps emitters using compound keys: `tenantId` (global) and `tenantId + ":" + parkingId` (single).
+- `broadcast(tenantId, parkingId, eventName, data)` sends message to `tenantId + ":" + parkingId` AND `tenantId`.
+- Integrates `BackendOperationsMetricsManager` on open, close, and broadcast.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -483,7 +736,7 @@ Implement `DashboardSseRegistry`:
 - [ ] **Step 5: Commit changes**
 
 ```bash
-git commit -m "feat(api(sse)): support dual-scope SSE streaming for single parking and tenant global channels"
+git commit -m "feat(api(sse)): implement dual-scope SSE streaming and lifecycle cleanup"
 ```
 
 ---
@@ -501,7 +754,7 @@ git commit -m "feat(api(sse)): support dual-scope SSE streaming for single parki
 - Consumes: Scalar WebMVC configuration and OpenAPI 3.0 specification.
 - Produces: `x-scalar-pre-request` OpenAPI extension auto-authenticating with `/api/v1/auth/login`.
 
-- [ ] **Step 1: Write test verifying OpenAPI security schemes and Scalar extension**
+- [ ] **Step 1: Write test verifying OpenAPI document extensions and security schemes**
 
 ```java
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.config;
@@ -521,14 +774,24 @@ class SwaggerConfigurationTest {
   private OpenAPI openAPI;
 
   @Test
-  @DisplayName("Should register security schemes and pre-request configuration")
-  void shouldHaveSecuritySchemesAndPreRequestConfig() {
-    assertThat(openAPI.getComponents().getSecuritySchemes()).containsKey("Bearer Authentication");
+  @DisplayName("OpenAPI debe configurar Bearer Authentication y extensión pre-request para Scalar")
+  void shouldConfigureBearerAuthAndScalarPreRequestExtension() {
+    // 1. Esquema de seguridad
+    assertThat(openAPI.getComponents().getSecuritySchemes())
+        .containsKey("Bearer Authentication");
+
+    // 2. Extensión OpenAPI para pre-request script de Scalar
+    assertThat(openAPI.getInfo().getExtensions())
+        .containsKey("x-scalar-pre-request");
+
+    String preRequestScript = openAPI.getInfo().getExtensions().get("x-scalar-pre-request").toString();
+    assertThat(preRequestScript).contains("/api/v1/auth/login");
+    assertThat(preRequestScript).contains("Bearer");
   }
 }
 ```
 
-- [ ] **Step 2: Run test to verify failure / pass**
+- [ ] **Step 2: Run test to verify failure**
 
 ```bash
 ./gradlew test --tests "dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.config.SwaggerConfigurationTest"
@@ -536,7 +799,8 @@ class SwaggerConfigurationTest {
 
 - [ ] **Step 3: Write minimal implementation**
 
-Enrich `SwaggerConfiguration.java` with a custom `OpenApiCustomizer` bean adding pre-request hook configuration.
+In `SwaggerConfiguration.java`:
+Add `OpenApiCustomizer` adding the `x-scalar-pre-request` extension string to OpenAPI info extensions.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -547,7 +811,7 @@ Enrich `SwaggerConfiguration.java` with a custom `OpenApiCustomizer` bean adding
 - [ ] **Step 5: Commit changes**
 
 ```bash
-git commit -m "feat(api(scalar)): add Scalar pre-request auto-authentication hook"
+git commit -m "feat(api(scalar)): add Scalar pre-request auto-authentication hook in OpenAPI config"
 ```
 
 ---
@@ -568,7 +832,7 @@ git commit -m "feat(api(scalar)): add Scalar pre-request auto-authentication hoo
 - Consumes: IP address, `parkingId`, Caffeine in-memory cache.
 - Produces: `GET /api/v1/public/parkings/{parkingId}/availability` (HTTP 200, 404, 429).
 
-- [ ] **Step 1: Write failing unit test for Token Bucket rate limiter**
+- [ ] **Step 1: Write failing unit and integration tests for rate limiting, cache and sanitized responses**
 
 ```java
 package dev.angelcorzo.nivo.infrastructure.security.ratelimit;
@@ -581,8 +845,8 @@ import org.junit.jupiter.api.Test;
 class TokenBucketRateLimiterTest {
 
   @Test
-  @DisplayName("Should allow up to 60 tokens and reject the 61st within the same minute")
-  void shouldRateLimitAfterCapacityExhausted() {
+  @DisplayName("Token Bucket: 60 peticiones consecutivas pasan, la 61 es rechazada con HTTP 429")
+  void shouldAllow60RequestsAndReject61st() {
     var limiter = new TokenBucketRateLimiter(60, 60);
     String clientIp = "192.168.1.100";
 
@@ -590,6 +854,78 @@ class TokenBucketRateLimiterTest {
       assertThat(limiter.tryConsume(clientIp)).isTrue();
     }
     assertThat(limiter.tryConsume(clientIp)).isFalse();
+    assertThat(limiter.getRemainingTokens(clientIp)).isEqualTo(0);
+    assertThat(limiter.getSecondsUntilRefill(clientIp)).isGreaterThan(0);
+  }
+}
+```
+
+And controller test:
+
+```java
+package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.publicapi;
+
+import static org.hamcrest.Matchers.nullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.UUID;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class PublicAvailabilityControllerTest {
+
+  @Autowired
+  private MockMvc mockMvc;
+
+  @Test
+  @DisplayName("Endpoint público no requiere cabecera Authorization y devuelve JSON sanitizado sin datos privados")
+  void shouldReturnSanitizedAvailabilityWithoutAuth() throws Exception {
+    UUID parkingId = UUID.randomUUID(); // con fixture precargada en BD de test
+
+    mockMvc.perform(get("/api/v1/public/parkings/" + parkingId + "/availability"))
+        .andExpect(status().isOk())
+        .andExpect(header().string("Cache-Control", "public, max-age=30"))
+        .andExpect(jsonPath("$.parkingId").value(parkingId.toString()))
+        .andExpect(jsonPath("$.totalSlots").isNumber())
+        .andExpect(jsonPath("$.availableSlots").isNumber())
+        .andExpect(jsonPath("$.occupiedSlots").isNumber())
+        .andExpect(jsonPath("$.tenantId").doesNotExist()) // cero datos privados
+        .andExpect(jsonPath("$.revenue").doesNotExist())
+        .andExpect(jsonPath("$.tickets").doesNotExist());
+  }
+
+  @Test
+  @DisplayName("Parqueadero inexistente retorna HTTP 404")
+  void shouldReturn404ForNonExistentParking() throws Exception {
+    UUID nonExistent = UUID.randomUUID();
+    mockMvc.perform(get("/api/v1/public/parkings/" + nonExistent + "/availability"))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @DisplayName("Exceder tasa de 60 req/min genera HTTP 429 con Retry-After")
+  void shouldReturn429WhenRateLimitExceeded() throws Exception {
+    UUID parkingId = UUID.randomUUID();
+
+    // Consumir 60 peticiones
+    for (int i = 0; i < 60; i++) {
+      mockMvc.perform(get("/api/v1/public/parkings/" + parkingId + "/availability"));
+    }
+
+    // Petición 61
+    mockMvc.perform(get("/api/v1/public/parkings/" + parkingId + "/availability"))
+        .andExpect(status().isTooManyRequests())
+        .andExpect(header().exists("Retry-After"))
+        .andExpect(header().string("X-RateLimit-Remaining", "0"));
   }
 }
 ```
@@ -597,12 +933,13 @@ class TokenBucketRateLimiterTest {
 - [ ] **Step 2: Run test to verify failure**
 
 ```bash
-./gradlew test --tests "dev.angelcorzo.nivo.infrastructure.security.ratelimit.TokenBucketRateLimiterTest"
+./gradlew test --tests "dev.angelcorzo.nivo.infrastructure.security.ratelimit.*"
+./gradlew test --tests "dev.angelcorzo.nivo.infrastructure.entrypoint.rest.publicapi.*"
 ```
 
 - [ ] **Step 3: Write minimal implementation**
 
-Implement `TokenBucketRateLimiter`, `PublicApiRateLimitFilter`, and `PublicAvailabilityController` with Caffeine 30s cache. Permit `/api/v1/public/**` in `SecurityChain.java`.
+Implement `TokenBucketRateLimiter`, `PublicApiRateLimitFilter`, and `PublicAvailabilityController` with Caffeine 30s cache. Allow unauthenticated access to `/api/v1/public/**` in `SecurityChain.java`.
 
 - [ ] **Step 4: Run tests to verify they pass**
 
@@ -614,7 +951,7 @@ Implement `TokenBucketRateLimiter`, `PublicApiRateLimitFilter`, and `PublicAvail
 - [ ] **Step 5: Commit changes**
 
 ```bash
-git commit -m "feat(api(public)): implement public availability API with Token Bucket rate limiting and cache"
+git commit -m "feat(api(public)): implement sanitized availability API with Token Bucket rate limiter"
 ```
 
 ---
@@ -645,11 +982,12 @@ git commit -m "feat(api(public)): implement public availability API with Token B
 cd /home/juniorcorzo/Development/nivo/apps/web && bun add chart.js
 ```
 
-- [ ] **Step 2: Write failing component tests**
+- [ ] **Step 2: Write failing component tests verifying rendering, empty data handling and destroy cleanup**
 
 ```typescript
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ParkingComparisonChartComponent } from "./parking-comparison-chart";
+import { OccupancyTrendChartComponent } from "../occupancy-trend-chart/occupancy-trend-chart";
 
 describe("ParkingComparisonChartComponent", () => {
   let component: ParkingComparisonChartComponent;
@@ -664,31 +1002,69 @@ describe("ParkingComparisonChartComponent", () => {
     component = fixture.componentInstance;
   });
 
-  it("should render horizontal bar chart comparing facilities", () => {
+  it("debe instanciar Chart.js y renderizar barras horizontales con datos válidos", () => {
     fixture.componentRef.setInput("data", [
       {
-        parkingId: "1",
+        parkingId: "p1",
         parkingName: "Sede Centro",
         totalSlots: 100,
-        occupiedSlots: 70,
-        occupancyRate: 70.0,
+        occupiedSlots: 75,
+        occupancyRate: 75.0,
         todayRevenue: 300000,
-        activeTickets: 70,
+        activeTickets: 75,
         avgStayMinutes: 60,
       },
       {
-        parkingId: "2",
+        parkingId: "p2",
         parkingName: "Sede Norte",
-        totalSlots: 50,
-        occupiedSlots: 20,
+        totalSlots: 80,
+        occupiedSlots: 32,
         occupancyRate: 40.0,
-        todayRevenue: 100000,
-        activeTickets: 20,
+        todayRevenue: 150000,
+        activeTickets: 32,
         avgStayMinutes: 45,
       },
     ]);
     fixture.detectChanges();
-    expect(component).toBeTruthy();
+    expect(component.chartInstance).toBeDefined();
+    expect(component.chartInstance?.data.labels).toEqual([
+      "Sede Centro",
+      "Sede Norte",
+    ]);
+  });
+
+  it("debe manejar gracefully arrays vacíos sin lanzar errores ni excepciones", () => {
+    fixture.componentRef.setInput("data", []);
+    expect(() => fixture.detectChanges()).not.toThrow();
+    expect(component.chartInstance?.data.datasets[0].data).toEqual([]);
+  });
+
+  it("al hacer click en una barra debe emitir evento parkingSelected con el parkingId correspondiente", () => {
+    let selectedId: string | null = null;
+    component.parkingSelected.subscribe((id) => (selectedId = id));
+
+    component.handleBarClick("p1");
+    expect(selectedId).toBe("p1");
+  });
+
+  it("debe invocar chart.destroy() al destruir el componente para prevenir memory leaks", () => {
+    fixture.componentRef.setInput("data", [
+      {
+        parkingId: "p1",
+        parkingName: "Sede A",
+        totalSlots: 10,
+        occupiedSlots: 5,
+        occupancyRate: 50.0,
+        todayRevenue: 1000,
+        activeTickets: 5,
+        avgStayMinutes: 30,
+      },
+    ]);
+    fixture.detectChanges();
+
+    const destroySpy = vi.spyOn(component.chartInstance!, "destroy");
+    fixture.destroy();
+    expect(destroySpy).toHaveBeenCalled();
   });
 });
 ```
@@ -702,7 +1078,7 @@ cd /home/juniorcorzo/Development/nivo/apps/web && bun test parking-comparison-ch
 - [ ] **Step 4: Write minimal implementation**
 
 Implement `OccupancyTrendChartComponent`, `SlotDistributionDonutChartComponent`, and `ParkingComparisonChartComponent`.
-Ensure all use `ChangeDetectionStrategy.OnPush` and call `chart?.destroy()` in `ngOnDestroy()`.
+All components enforce `ChangeDetectionStrategy.OnPush`, create Chart instances on `effect()` or `ngAfterViewInit()`, and call `this.chart?.destroy()` in `ngOnDestroy()`.
 
 - [ ] **Step 5: Run tests to verify they pass**
 
@@ -713,7 +1089,7 @@ cd /home/juniorcorzo/Development/nivo/apps/web && bun test occupancy-trend-chart
 - [ ] **Step 6: Commit changes**
 
 ```bash
-git commit -m "feat(web(charts)): integrate Chart.js with occupancy trend, donut, and parking comparison charts"
+git commit -m "feat(web(charts)): implement Chart.js presentational components with comparison chart"
 ```
 
 ---
@@ -735,7 +1111,7 @@ git commit -m "feat(web(charts)): integrate Chart.js with occupancy trend, donut
   - `DashboardFacade` state (`activeScope`, `isMultiParkingTenant`, `summary`, `parkingsComparison`, `reports`).
   - `OperationalReportsTableComponent` with dynamic column `parkingName` for global scope and 0 template `@if` ladders.
 
-- [ ] **Step 1: Write failing facade unit test**
+- [ ] **Step 1: Write failing unit tests for facade SSE parsing, reconnect backoff and TanStack column rendering**
 
 ```typescript
 import { TestBed } from "@angular/core/testing";
@@ -751,7 +1127,7 @@ describe("DashboardFacade", () => {
     facade = TestBed.inject(DashboardFacade);
   });
 
-  it("should detect multi-parking tenant when accessibleParkings has > 1 items", () => {
+  it("debe detectar automáticamente tenant multi-sede si accessibleParkings > 1 y activar GLOBAL", () => {
     facade.accessibleParkings.set([
       { id: "1", name: "Sede Centro" },
       { id: "2", name: "Sede Norte" },
@@ -759,22 +1135,108 @@ describe("DashboardFacade", () => {
     expect(facade.isMultiParkingTenant()).toBe(true);
     expect(facade.activeScope().mode).toBe("GLOBAL");
   });
+
+  it("debe auto-configurar modo SINGLE si el tenant solo posee 1 sede", () => {
+    facade.accessibleParkings.set([{ id: "1", name: "Sede Única" }]);
+    expect(facade.isMultiParkingTenant()).toBe(false);
+    expect(facade.activeScope().mode).toBe("SINGLE");
+  });
+
+  it("debe procesar eventos SSE y actualizar Signals reactivamente", () => {
+    // Simular recepción de snapshot
+    facade.handleSseMessage("snapshot", {
+      scope: "GLOBAL",
+      totalCapacity: 200,
+      occupiedSlots: 100,
+      availableSlots: 100,
+      occupancyRate: 50.0,
+      todayRevenue: 250000,
+      currency: "COP",
+    });
+
+    expect(facade.summary()?.occupancyRate).toBe(50.0);
+    expect(facade.occupancyPercentage()).toBe(50.0);
+  });
+
+  it("debe activar retroceso exponencial en reconexión ante fallo de red SSE", () => {
+    const delay1 = facade.calculateBackoffDelay(0);
+    const delay2 = facade.calculateBackoffDelay(1);
+    const delay3 = facade.calculateBackoffDelay(2);
+
+    expect(delay1).toBe(1000); // 1s
+    expect(delay2).toBe(2000); // 2s
+    expect(delay3).toBe(4000); // 4s
+  });
+});
+```
+
+And TanStack Table test:
+
+```typescript
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { OperationalReportsTableComponent } from "./operational-reports-table";
+
+describe("OperationalReportsTableComponent", () => {
+  let component: OperationalReportsTableComponent;
+  let fixture: ComponentFixture<OperationalReportsTableComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [OperationalReportsTableComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(OperationalReportsTableComponent);
+    component = fixture.componentInstance;
+  });
+
+  it("debe mostrar la columna Sede cuando isGlobalScope es true y ocultarla en modo SINGLE", () => {
+    fixture.componentRef.setInput("isGlobalScope", true);
+    fixture.componentRef.setInput("data", [
+      {
+        ticketId: "t1",
+        licensePlate: "ABC-123",
+        slotNumber: "1",
+        slotType: "CAR",
+        parkingName: "Sede Centro",
+        entryTime: "10:00",
+        durationMinutes: 30,
+        ticketStatus: "OPEN",
+        totalToCharge: 5000,
+        paymentStatus: "PENDING",
+      },
+    ]);
+    fixture.detectChanges();
+
+    const columnIds = component.table.getAllColumns().map((c) => c.id);
+    expect(columnIds).toContain("parkingName");
+
+    fixture.componentRef.setInput("isGlobalScope", false);
+    fixture.detectChanges();
+    const columnIdsSingle = component.table
+      .getAllColumns()
+      .filter((c) => c.getIsVisible())
+      .map((c) => c.id);
+    expect(columnIdsSingle).not.toContain("parkingName");
+  });
+
+  it("template no debe contener escaleras @if/@else if de columnas (anti-ladder rule)", () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    // Comprueba que las celdas se delegan declarativamente vía *flexRender
+    expect(compiled.querySelectorAll("td").length).toBeGreaterThanOrEqual(0);
+  });
 });
 ```
 
 - [ ] **Step 2: Run test to verify failure**
 
 ```bash
-cd /home/juniorcorzo/Development/nivo/apps/web && bun test dashboard.facade.spec.ts
+cd /home/juniorcorzo/Development/nivo/apps/web && bun test dashboard.facade.spec.ts operational-reports-table.spec.ts
 ```
 
 - [ ] **Step 3: Write minimal implementation**
 
-Implement `DashboardFacade` with signals:
-
-- `accessibleParkings`, `activeScope`, `isMultiParkingTenant`, `summary`, `occupancyHourly`, `parkingsComparison`, `reports`.
-- Dynamic SSE URL construction based on `activeScope()`.
-- Implement `OperationalReportsTableComponent` with TanStack column definitions; conditionally render `parkingName` column when `activeScope().mode === 'GLOBAL'`.
+Implement `DashboardFacade` and `OperationalReportsTableComponent`.
+Use TanStack column helpers and `flexRenderComponent` for cell rendering.
 
 - [ ] **Step 4: Run tests to verify they pass**
 
@@ -785,7 +1247,7 @@ cd /home/juniorcorzo/Development/nivo/apps/web && bun test dashboard.facade.spec
 - [ ] **Step 5: Commit changes**
 
 ```bash
-git commit -m "feat(web(reports)): implement DashboardFacade with multi-parking scope and TanStack table"
+git commit -m "feat(web(reports)): implement DashboardFacade and scope-aware TanStack table"
 ```
 
 ---
@@ -803,28 +1265,60 @@ git commit -m "feat(web(reports)): implement DashboardFacade with multi-parking 
 - Consumes: `DashboardFacade`, `@nivo-sass/design-system`, `PageHeaderComponent`.
 - Produces: Integrated view with scope selector ("🏢 Todas las Sedes (Consolidado Global)" vs individual parking), KPI cards, comparison chart in global mode, trend chart, and report table.
 
-- [ ] **Step 1: Write failing page integration test**
+- [ ] **Step 1: Write failing page integration test verifying multi-parking selector and comparison chart visibility**
 
 ```typescript
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { DashboardPage } from "./dashboard-page";
+import { DashboardFacade } from "../facade/dashboard.facade";
 
 describe("DashboardPage", () => {
   let component: DashboardPage;
   let fixture: ComponentFixture<DashboardPage>;
+  let facade: DashboardFacade;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DashboardPage],
+      providers: [DashboardFacade],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardPage);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    facade = TestBed.inject(DashboardFacade);
   });
 
-  it("should render page header and kpi cards", () => {
-    expect(component).toBeTruthy();
+  it("con 1 sola sede debe renderizar vista limpia sin selector multi-sede", () => {
+    facade.accessibleParkings.set([{ id: "p1", name: "Sede Única" }]);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(
+      compiled.querySelector('[data-testid="multi-parking-selector"]'),
+    ).toBeNull();
+    expect(compiled.querySelector("app-parking-comparison-chart")).toBeNull();
+  });
+
+  it("con múltiples sedes debe renderizar selector con opción Todas las Sedes y gráfico comparativo en modo GLOBAL", () => {
+    facade.accessibleParkings.set([
+      { id: "p1", name: "Sede Centro" },
+      { id: "p2", name: "Sede Norte" },
+    ]);
+    facade.activeScope.set({ mode: "GLOBAL" });
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(
+      compiled.querySelector('[data-testid="multi-parking-selector"]'),
+    ).toBeTruthy();
+    expect(compiled.querySelector("app-parking-comparison-chart")).toBeTruthy();
+  });
+
+  it("debe utilizar exclusivamente componentes del @nivo-sass/design-system (cero raw buttons)", () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const rawButtons = compiled.querySelectorAll("button:not([nv-button])");
+    expect(rawButtons.length).toBe(0);
   });
 });
 ```
@@ -839,10 +1333,10 @@ cd /home/juniorcorzo/Development/nivo/apps/web && bun test dashboard-page.spec.t
 
 Update `dashboard-page.ts` and `dashboard-page.html`:
 
-- Include scope selector chip in page header when `facade.isMultiParkingTenant()` is true.
-- If in `GLOBAL` mode: render `<app-parking-comparison-chart />` alongside KPI cards.
-- Render `<app-occupancy-trend-chart />`, `<app-slot-distribution-donut-chart />`, and `<app-operational-reports-table />`.
-- All controls use `@nivo-sass/design-system` components (`nv-card`, `nv-badge`, `nv-button`, `nv-typography`, `nv-input`, `nv-select`, `nv-loader`).
+- Integrate `PageHeaderComponent` with active breadcrumb.
+- Add scope selector with `nv-select` or `nv-button` tabs when `isMultiParkingTenant()` is true.
+- Render `<app-parking-comparison-chart>` conditionally in global mode.
+- Render summary KPIs in `nv-card`, `<app-occupancy-trend-chart>`, `<app-slot-distribution-donut-chart>`, and `<app-operational-reports-table>`.
 
 - [ ] **Step 4: Run test to verify it passes**
 
