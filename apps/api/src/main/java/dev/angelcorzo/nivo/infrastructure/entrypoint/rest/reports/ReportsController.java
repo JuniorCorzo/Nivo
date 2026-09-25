@@ -37,12 +37,13 @@ public class ReportsController {
   @GetMapping("/operational")
   @Operation(summary = "Get operational report paginated", description = "Paginated tickets report across single or all parking facilities")
   public ResponseEntity<Page<OperationalReportDTO>> getOperationalReport(
-      @RequestParam(required = false) UUID parkingId,
-      @PageableDefault(size = 20) Pageable pageable) {
-    UUID tenantId = authenticationContext.getCurrentTenantId();
-    AtomicReference<Page<OperationalReportDTO>> result = new AtomicReference<>();
+      @RequestParam(required = false) final UUID parkingId,
+      @PageableDefault(size = 20) final Pageable pageable) {
+    final UUID tenantId = authenticationContext.getCurrentTenantId();
+    final AtomicReference<Page<OperationalReportDTO>> result = new AtomicReference<>();
     metricsManager.recordAnalyticsQueryDuration("ops", () -> {
-      var domainPage = reportUseCase.execute(tenantId, parkingId, pageable.getPageNumber(), pageable.getPageSize());
+      final dev.angelcorzo.nivo.domain.model.dashboard.PageResult<OperationalReportDTO> domainPage =
+          reportUseCase.execute(tenantId, parkingId, pageable.getPageNumber(), pageable.getPageSize());
       result.set(new org.springframework.data.domain.PageImpl<>(
           domainPage.getContent(), pageable, domainPage.getTotalElements()));
     });
@@ -52,21 +53,21 @@ public class ReportsController {
   @GetMapping("/operational/csv")
   @Operation(summary = "Export operational report to CSV", description = "Continuous streaming CSV download with zero buffer accumulation")
   public void exportOperationalReportCsv(
-      @RequestParam(required = false) UUID parkingId,
-      HttpServletResponse response) throws IOException {
-    UUID tenantId = authenticationContext.getCurrentTenantId();
+      @RequestParam(required = false) final UUID parkingId,
+      final HttpServletResponse response) throws IOException {
+    final UUID tenantId = authenticationContext.getCurrentTenantId();
 
     response.setContentType("text/csv;charset=UTF-8");
     response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-    String scopeName = parkingId != null ? parkingId.toString() : "global";
-    String fileName = "operational-report-" + scopeName + "-" + LocalDate.now() + ".csv";
+    final String scopeName = parkingId != null ? parkingId.toString() : "global";
+    final String fileName = "operational-report-" + scopeName + "-" + LocalDate.now() + ".csv";
     response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
 
-    try (PrintWriter writer = response.getWriter()) {
+    try (final PrintWriter writer = response.getWriter()) {
       writer.println("Ticket ID,Placa,Plaza,Tipo,Entrada,Salida,Minutos,Estado,Total,Metodo Pago,Sede");
 
-      List<OperationalReportDTO> records = reportUseCase.executeForExport(tenantId, parkingId);
-      for (OperationalReportDTO r : records) {
+      final List<OperationalReportDTO> records = reportUseCase.executeForExport(tenantId, parkingId);
+      for (final OperationalReportDTO r : records) {
         writer.printf("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
             safe(r.getTicketId()),
             safe(r.getLicensePlate()),
@@ -89,9 +90,11 @@ public class ReportsController {
     }
   }
 
-  private String safe(Object val) {
-    if (val == null) return "";
-    String str = val.toString().replace("\"", "\"\"");
+  private String safe(final Object val) {
+    if (val == null) {
+      return "";
+    }
+    final String str = val.toString().replace("\"", "\"\"");
     if (str.contains(",") || str.contains("\n") || str.contains("\"")) {
       return "\"" + str + "\"";
     }

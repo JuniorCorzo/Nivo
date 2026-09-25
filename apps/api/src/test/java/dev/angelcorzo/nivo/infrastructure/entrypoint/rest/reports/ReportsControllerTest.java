@@ -51,10 +51,10 @@ class ReportsControllerTest {
   @Test
   @DisplayName("GET /api/v1/reports/operational/csv debe emitir stream CSV con cabeceras correctas y columnas requeridas")
   void shouldStreamCsvWithCorrectHeadersAndFormat() throws Exception {
-    UUID tenantId = UUID.randomUUID();
+    final UUID tenantId = UUID.randomUUID();
     when(authContextGateway.getCurrentTenantId()).thenReturn(tenantId);
 
-    var sampleReport = OperationalReportDTO.builder()
+    final OperationalReportDTO sampleReport = OperationalReportDTO.builder()
         .ticketId(UUID.randomUUID())
         .licensePlate("ABC-123")
         .slotNumber("10")

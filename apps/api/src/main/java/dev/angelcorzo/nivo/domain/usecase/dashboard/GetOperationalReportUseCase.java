@@ -13,8 +13,10 @@ public class GetOperationalReportUseCase {
 
   private final OperationalReportGateway reportGateway;
 
-  public PageResult<OperationalReportDTO> execute(UUID tenantId, UUID parkingId, int page, int size) {
-    var pageResult = reportGateway.findOperationalReports(tenantId, parkingId, page, size);
+  public PageResult<OperationalReportDTO> execute(
+      final UUID tenantId, final UUID parkingId, final int page, final int size) {
+    final PageResult<OperationalReportModel> pageResult =
+        reportGateway.findOperationalReports(tenantId, parkingId, page, size);
     return PageResult.<OperationalReportDTO>builder()
         .content(pageResult.getContent().stream().map(this::toDTO).toList())
         .pageNumber(pageResult.getPageNumber())
@@ -24,13 +26,13 @@ public class GetOperationalReportUseCase {
         .build();
   }
 
-  public List<OperationalReportDTO> executeForExport(UUID tenantId, UUID parkingId) {
+  public List<OperationalReportDTO> executeForExport(final UUID tenantId, final UUID parkingId) {
     return reportGateway.findAllForExport(tenantId, parkingId).stream()
         .map(this::toDTO)
         .toList();
   }
 
-  private OperationalReportDTO toDTO(OperationalReportModel e) {
+  private OperationalReportDTO toDTO(final OperationalReportModel e) {
     return OperationalReportDTO.builder()
         .ticketId(e.getTicketId())
         .parkingId(e.getParkingLotId())

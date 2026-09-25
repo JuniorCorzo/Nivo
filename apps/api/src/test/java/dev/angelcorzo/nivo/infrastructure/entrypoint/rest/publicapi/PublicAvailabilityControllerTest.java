@@ -36,8 +36,8 @@ class PublicAvailabilityControllerTest {
   @Test
   @DisplayName("Endpoint público no requiere cabecera Authorization y devuelve JSON sanitizado sin datos privados")
   void shouldReturnSanitizedAvailabilityWithoutAuth() throws Exception {
-    UUID parkingId = UUID.randomUUID();
-    var dto = PublicParkingAvailabilityDTO.builder()
+    final UUID parkingId = UUID.randomUUID();
+    final PublicParkingAvailabilityDTO dto = PublicParkingAvailabilityDTO.builder()
         .parkingId(parkingId)
         .parkingName("Sede Central")
         .totalSlots(100)
@@ -69,7 +69,7 @@ class PublicAvailabilityControllerTest {
   @Test
   @DisplayName("Parqueadero inexistente retorna HTTP 404")
   void shouldReturn404ForNonExistentParking() throws Exception {
-    UUID nonExistent = UUID.randomUUID();
+    final UUID nonExistent = UUID.randomUUID();
     when(availabilityUseCase.execute(nonExistent)).thenReturn(Optional.empty());
 
     mockMvc.perform(get("/api/v1/public/parkings/" + nonExistent + "/availability")
@@ -83,8 +83,8 @@ class PublicAvailabilityControllerTest {
   @Test
   @DisplayName("Exceder tasa de 60 req/min genera HTTP 429 con Retry-After")
   void shouldReturn429WhenRateLimitExceeded() throws Exception {
-    UUID parkingId = UUID.randomUUID();
-    var dto = PublicParkingAvailabilityDTO.builder()
+    final UUID parkingId = UUID.randomUUID();
+    final PublicParkingAvailabilityDTO dto = PublicParkingAvailabilityDTO.builder()
         .parkingId(parkingId)
         .parkingName("Sede Rate Limit")
         .totalSlots(50)
@@ -95,7 +95,7 @@ class PublicAvailabilityControllerTest {
 
     when(availabilityUseCase.execute(parkingId)).thenReturn(Optional.of(dto));
 
-    String clientIp = "192.168.100.50";
+    final String clientIp = "192.168.100.50";
 
     // Consumir 60 peticiones
     for (int i = 0; i < 60; i++) {

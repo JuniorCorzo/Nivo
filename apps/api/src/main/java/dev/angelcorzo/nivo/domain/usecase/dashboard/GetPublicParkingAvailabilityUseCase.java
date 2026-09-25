@@ -1,10 +1,14 @@
 package dev.angelcorzo.nivo.domain.usecase.dashboard;
 
+import dev.angelcorzo.nivo.domain.model.dashboard.HourlyOccupancyModel;
 import dev.angelcorzo.nivo.domain.model.dashboard.gateways.HourlyOccupancyGateway;
+import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLots;
 import dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository;
+import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.domain.usecase.dashboard.dtos.PublicParkingAvailabilityDTO;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -16,29 +20,30 @@ public class GetPublicParkingAvailabilityUseCase {
   private final HourlyOccupancyGateway hourlyGateway;
   private final SlotsRepository slotsRepository;
 
-  public Optional<PublicParkingAvailabilityDTO> execute(UUID parkingId) {
-    var parkingOpt = parkingLotsRepository.findById(parkingId);
+  public Optional<PublicParkingAvailabilityDTO> execute(final UUID parkingId) {
+    final Optional<ParkingLots> parkingOpt = parkingLotsRepository.findById(parkingId);
     if (parkingOpt.isEmpty()) {
       return Optional.empty();
     }
 
-    var parking = parkingOpt.get();
-    var hourlyList = hourlyGateway.findByParkingLotId(parkingId);
+    final ParkingLots parking = parkingOpt.get();
+    final Optional<HourlyOccupancyModel> latestOpt = hourlyGateway.findLatestByParkingLotId(parkingId);
 
-    long totalSlots = 0;
-    double occupancyRate = 0.0;
-    if (!hourlyList.isEmpty()) {
-      var latest = hourlyList.getLast();
-      totalSlots = latest.getTotalCapacity() != null ? latest.getTotalCapacity() : 0;
+    final long totalSlots;
+    final double occupancyRate;
+    if (latestOpt.isPresent()) {
+      final HourlyOccupancyModel latest = latestOpt.get();
+      totalSlots = latest.getTotalCapacity() != null ? latest.getTotalCapacity() : 0L;
       occupancyRate =
           latest.getEstimatedOccupancyRate() != null ? latest.getEstimatedOccupancyRate() : 0.0;
     } else {
-      var slots = slotsRepository.findAllByParkingLotsId(parkingId);
+      final List<Slots> slots = slotsRepository.findAllByParkingLotsId(parkingId);
       totalSlots = slots.size();
+      occupancyRate = 0.0;
     }
 
-    long occupiedSlots = Math.round(totalSlots * (occupancyRate / 100.0));
-    long availableSlots = Math.max(0, totalSlots - occupiedSlots);
+    final long occupiedSlots = Math.round(totalSlots * (occupancyRate / 100.0));
+    final long availableSlots = Math.max(0L, totalSlots - occupiedSlots);
 
     return Optional.of(
         PublicParkingAvailabilityDTO.builder()

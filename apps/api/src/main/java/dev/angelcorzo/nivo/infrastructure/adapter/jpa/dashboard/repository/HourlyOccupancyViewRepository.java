@@ -4,6 +4,7 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.HourlyOccupancyI
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.HourlyOccupancyViewEntity;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface HourlyOccupancyViewRepository extends JpaRepository<HourlyOccupancyViewEntity, HourlyOccupancyId> {
   List<HourlyOccupancyViewEntity> findByParkingLotId(UUID parkingLotId);
+  Optional<HourlyOccupancyViewEntity> findFirstByParkingLotIdOrderByHourBucketDesc(UUID parkingLotId);
   List<HourlyOccupancyViewEntity> findByTenantIdAndParkingLotId(UUID tenantId, UUID parkingLotId);
   List<HourlyOccupancyViewEntity> findByTenantId(UUID tenantId);
   List<HourlyOccupancyViewEntity> findByTenantIdAndParkingLotIdAndHourBucketBetween(UUID tenantId, UUID parkingLotId, OffsetDateTime start, OffsetDateTime end);

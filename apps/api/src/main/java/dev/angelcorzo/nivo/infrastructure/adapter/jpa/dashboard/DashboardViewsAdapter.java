@@ -31,7 +31,7 @@ public class DashboardViewsAdapter
 
   @Override
   public Optional<DailySummaryModel> findByParkingLotIdAndSummaryDate(
-      UUID parkingLotId, LocalDate summaryDate) {
+      final UUID parkingLotId, final LocalDate summaryDate) {
     return dailySummaryRepository
         .findByParkingLotIdAndSummaryDate(parkingLotId, summaryDate)
         .map(this::toModel);
@@ -39,28 +39,35 @@ public class DashboardViewsAdapter
 
   @Override
   public List<DailySummaryModel> findAllByTenantIdAndSummaryDate(
-      UUID tenantId, LocalDate summaryDate) {
+      final UUID tenantId, final LocalDate summaryDate) {
     return dailySummaryRepository.findAllByTenantIdAndSummaryDate(tenantId, summaryDate).stream()
         .map(this::toModel)
         .toList();
   }
 
   @Override
-  public List<DailySummaryModel> findAllByTenantId(UUID tenantId) {
+  public List<DailySummaryModel> findAllByTenantId(final UUID tenantId) {
     return dailySummaryRepository.findAllByTenantId(tenantId).stream()
         .map(this::toModel)
         .toList();
   }
 
   @Override
-  public List<HourlyOccupancyModel> findByParkingLotId(UUID parkingLotId) {
+  public List<HourlyOccupancyModel> findByParkingLotId(final UUID parkingLotId) {
     return hourlyOccupancyRepository.findByParkingLotId(parkingLotId).stream()
         .map(this::toModel)
         .toList();
   }
 
   @Override
-  public List<HourlyOccupancyModel> findByTenantId(UUID tenantId) {
+  public Optional<HourlyOccupancyModel> findLatestByParkingLotId(final UUID parkingLotId) {
+    return hourlyOccupancyRepository
+        .findFirstByParkingLotIdOrderByHourBucketDesc(parkingLotId)
+        .map(this::toModel);
+  }
+
+  @Override
+  public List<HourlyOccupancyModel> findByTenantId(final UUID tenantId) {
     return hourlyOccupancyRepository.findByTenantId(tenantId).stream()
         .map(this::toModel)
         .toList();
@@ -68,7 +75,7 @@ public class DashboardViewsAdapter
 
   @Override
   public List<HourlyOccupancyModel> findByTenantIdAndParkingLotId(
-      UUID tenantId, UUID parkingLotId) {
+      final UUID tenantId, final UUID parkingLotId) {
     return hourlyOccupancyRepository.findByTenantIdAndParkingLotId(tenantId, parkingLotId).stream()
         .map(this::toModel)
         .toList();
@@ -76,7 +83,7 @@ public class DashboardViewsAdapter
 
   @Override
   public List<HourlyOccupancyModel> findByTenantIdAndParkingLotIdAndHourBucketBetween(
-      UUID tenantId, UUID parkingLotId, OffsetDateTime start, OffsetDateTime end) {
+      final UUID tenantId, final UUID parkingLotId, final OffsetDateTime start, final OffsetDateTime end) {
     return hourlyOccupancyRepository
         .findByTenantIdAndParkingLotIdAndHourBucketBetween(tenantId, parkingLotId, start, end)
         .stream()
@@ -86,7 +93,7 @@ public class DashboardViewsAdapter
 
   @Override
   public List<HourlyOccupancyModel> findByTenantIdAndHourBucketBetween(
-      UUID tenantId, OffsetDateTime start, OffsetDateTime end) {
+      final UUID tenantId, final OffsetDateTime start, final OffsetDateTime end) {
     return hourlyOccupancyRepository.findByTenantIdAndHourBucketBetween(tenantId, start, end).stream()
         .map(this::toModel)
         .toList();
@@ -94,9 +101,9 @@ public class DashboardViewsAdapter
 
   @Override
   public PageResult<OperationalReportModel> findOperationalReports(
-      UUID tenantId, UUID parkingLotId, int page, int size) {
-    var pageable = PageRequest.of(page, size);
-    Page<OperationalReportViewEntity> result;
+      final UUID tenantId, final UUID parkingLotId, final int page, final int size) {
+    final PageRequest pageable = PageRequest.of(page, size);
+    final Page<OperationalReportViewEntity> result;
     if (parkingLotId != null) {
       result = operationalReportRepository.findAllByTenantIdAndParkingLotId(tenantId, parkingLotId, pageable);
     } else {
@@ -112,8 +119,8 @@ public class DashboardViewsAdapter
   }
 
   @Override
-  public List<OperationalReportModel> findAllForExport(UUID tenantId, UUID parkingLotId) {
-    List<OperationalReportViewEntity> list;
+  public List<OperationalReportModel> findAllForExport(final UUID tenantId, final UUID parkingLotId) {
+    final List<OperationalReportViewEntity> list;
     if (parkingLotId != null) {
       list = operationalReportRepository.findAllByTenantId(tenantId).stream()
           .filter(e -> parkingLotId.equals(e.getParkingLotId()))
@@ -124,7 +131,7 @@ public class DashboardViewsAdapter
     return list.stream().map(this::toModel).toList();
   }
 
-  private DailySummaryModel toModel(DailySummaryViewEntity e) {
+  private DailySummaryModel toModel(final DailySummaryViewEntity e) {
     return DailySummaryModel.builder()
         .parkingLotId(e.getParkingLotId())
         .tenantId(e.getTenantId())
@@ -140,7 +147,7 @@ public class DashboardViewsAdapter
         .build();
   }
 
-  private HourlyOccupancyModel toModel(HourlyOccupancyViewEntity e) {
+  private HourlyOccupancyModel toModel(final HourlyOccupancyViewEntity e) {
     return HourlyOccupancyModel.builder()
         .tenantId(e.getTenantId())
         .parkingLotId(e.getParkingLotId())
@@ -152,7 +159,7 @@ public class DashboardViewsAdapter
         .build();
   }
 
-  private OperationalReportModel toModel(OperationalReportViewEntity e) {
+  private OperationalReportModel toModel(final OperationalReportViewEntity e) {
     return OperationalReportModel.builder()
         .ticketId(e.getTicketId())
         .tenantId(e.getTenantId())
