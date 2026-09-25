@@ -1,0 +1,268 @@
+import { Injectable, computed, effect, inject, signal } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Observable } from "rxjs";
+import { HourlyOccupancyPoint } from "../components/occupancy-trend-chart/occupancy-trend-chart";
+import { ParkingComparisonItem } from "../components/parking-comparison-chart/parking-comparison-chart";
+
+export interface ParkingItem {
+  id: string;
+  name: string;
+}
+
+export interface ScopeState {
+  mode: "GLOBAL" | "SINGLE";
+  parkingId?: string;
+}
+
+export interface DashboardSummary {
+  scope: string;
+  parkingId?: string;
+  totalCapacity: number;
+  occupiedSlots: number;
+  availableSlots: number;
+  occupancyRate: number;
+  todayRevenue: number;
+  currency?: string;
+  avgStayMinutes?: number;
+  totalTickets?: number;
+  activeTickets?: number;
+  completedTickets?: number;
+}
+
+export interface OperationalReportItem {
+  ticketId: string;
+  licensePlate: string;
+  slotNumber: string;
+  slotType: string;
+  parkingName?: string;
+  entryTime: string;
+  exitTime?: string;
+  durationMinutes?: number;
+  ticketStatus: string;
+  totalToCharge?: number;
+  paymentStatus?: string;
+  paymentMethod?: string;
+  paidAmount?: number;
+}
+
+@Injectable({
+  providedIn: "root",
+})
+export class DashboardFacade {
+  private readonly http = inject(HttpClient);
+
+  readonly accessibleParkings = signal<ParkingItem[]>([]);
+  private readonly userSelectedScope = signal<ScopeState | null>(null);
+
+  readonly isMultiParkingTenant = computed(
+    () => this.accessibleParkings().length > 1
+  );
+
+  readonly activeScope = computed<ScopeState>(() => {
+    const parkings = this.accessibleParkings();
+    if (parkings.length === 1) {
+      return { mode: "SINGLE", parkingId: parkings[0]?.id };
+    }
+    const selected = this.userSelectedScope();
+    if (selected) {
+      if (
+        selected.mode === "SINGLE" &&
+        selected.parkingId &&
+        !parkings.some((p) => p.id === selected.parkingId)
+      ) {
+        return { mode: "GLOBAL" };
+      }
+      return selected;
+    }
+    return { mode: "GLOBAL" };
+  });
+
+  readonly summary = signal<DashboardSummary | null>(null);
+  readonly hourlyOccupancy = signal<HourlyOccupancyPoint[]>([]);
+  readonly parkingsComparison = signal<ParkingComparisonItem[]>([]);
+  readonly reports = signal<OperationalReportItem[]>([]);
+  readonly reportsPage = signal<number>(0);
+  readonly reportsTotalPages = signal<number>(0);
+  readonly isLoading = signal<boolean>(false);
+
+  readonly occupancyPercentage = computed(
+    () => this.summary()?.occupancyRate ?? 0
+  );
+
+  private sseAbortController: AbortController | null = null;
+  private retryCount = 0;
+
+  setScope(mode: "GLOBAL" | "SINGLE", parkingId?: string): void {
+    this.userSelectedScope.set({ mode, parkingId });
+    this.loadAll();
+    this.connectSse(parkingId);
+  }
+
+  handleSseMessage(eventName: string, data: any): void {
+    if (!data) return;
+    const parsed = typeof data === "string" ? JSON.parse(data) : data;
+
+    if (
+      eventName === "snapshot" ||
+      eventName === "summary" ||
+      eventName === "occupancy-update"
+    ) {
+      this.summary.set(parsed);
+    }
+  }
+
+  calculateBackoffDelay(retryCount: number): number {
+    return Math.min(1000 * Math.pow(2, retryCount), 30000);
+  }
+
+  connectSse(parkingId?: string): void {
+    if (this.sseAbortController) {
+      this.sseAbortController.abort();
+      this.sseAbortController = null;
+    }
+
+    const abortController = new AbortController();
+    this.sseAbortController = abortController;
+
+    const url = parkingId
+      ? `/api/v1/dashboard/stream?parkingId=${encodeURIComponent(parkingId)}`
+      : `/api/v1/dashboard/stream`;
+
+    fetch(url, {
+      signal: abortController.signal,
+      headers: {
+        Accept: "text/event-stream",
+      },
+    })
+      .then(async (response) => {
+        if (!response.ok || !response.body) {
+          throw new Error(`SSE HTTP error ${response.status}`);
+        }
+        this.retryCount = 0;
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n\n");
+          buffer = lines.pop() || "";
+
+          for (const block of lines) {
+            this.parseSseBlock(block);
+          }
+        }
+      })
+      .catch((err) => {
+        if (err.name === "AbortError") return;
+        const delay = this.calculateBackoffDelay(this.retryCount++);
+        setTimeout(() => {
+          if (!abortController.signal.aborted) {
+            this.connectSse(parkingId);
+          }
+        }, delay);
+      });
+  }
+
+  private parseSseBlock(block: string): void {
+    const lines = block.split("\n");
+    let eventName = "message";
+    let data = "";
+
+    for (const line of lines) {
+      if (line.startsWith("event:")) {
+        eventName = line.substring(6).trim();
+      } else if (line.startsWith("data:")) {
+        data = line.substring(5).trim();
+      }
+    }
+
+    if (data) {
+      try {
+        const json = JSON.parse(data);
+        this.handleSseMessage(eventName, json);
+      } catch {
+        this.handleSseMessage(eventName, data);
+      }
+    }
+  }
+
+  loadAll(): void {
+    this.loadSummary();
+    this.loadHourlyOccupancy();
+    if (this.isMultiParkingTenant() && this.activeScope().mode === "GLOBAL") {
+      this.loadParkingsComparison();
+    }
+    this.loadReports();
+  }
+
+  loadSummary(): void {
+    const parkingId = this.activeScope().parkingId;
+    const url = parkingId
+      ? `/api/v1/dashboard/summary?parkingId=${encodeURIComponent(parkingId)}`
+      : `/api/v1/dashboard/summary`;
+
+    this.http.get<DashboardSummary>(url).subscribe({
+      next: (res) => this.summary.set(res),
+      error: () => {},
+    });
+  }
+
+  loadHourlyOccupancy(): void {
+    const parkingId = this.activeScope().parkingId;
+    const url = parkingId
+      ? `/api/v1/dashboard/occupancy-hourly?parkingId=${encodeURIComponent(parkingId)}`
+      : `/api/v1/dashboard/occupancy-hourly`;
+
+    this.http.get<HourlyOccupancyPoint[]>(url).subscribe({
+      next: (res) => this.hourlyOccupancy.set(res || []),
+      error: () => {},
+    });
+  }
+
+  loadParkingsComparison(): void {
+    this.http
+      .get<ParkingComparisonItem[]>("/api/v1/dashboard/parkings-comparison")
+      .subscribe({
+        next: (res) => this.parkingsComparison.set(res || []),
+        error: () => {},
+      });
+  }
+
+  loadReports(page = 0): void {
+    this.isLoading.set(true);
+    const parkingId = this.activeScope().parkingId;
+    let url = `/api/v1/reports/operational?page=${page}`;
+    if (parkingId) {
+      url += `&parkingId=${encodeURIComponent(parkingId)}`;
+    }
+
+    this.http.get<any>(url).subscribe({
+      next: (res) => {
+        this.reports.set(res.content || res || []);
+        this.reportsPage.set(res.number || page);
+        this.reportsTotalPages.set(res.totalPages || 1);
+        this.isLoading.set(false);
+      },
+      error: () => this.isLoading.set(false),
+    });
+  }
+
+  exportCsv(): Observable<Blob> {
+    const parkingId = this.activeScope().parkingId;
+    const url = parkingId
+      ? `/api/v1/reports/operational/csv?parkingId=${encodeURIComponent(parkingId)}`
+      : `/api/v1/reports/operational/csv`;
+
+    return this.http.get(url, { responseType: "blob" });
+  }
+
+  disconnect(): void {
+    if (this.sseAbortController) {
+      this.sseAbortController.abort();
+      this.sseAbortController = null;
+    }
+  }
+}
