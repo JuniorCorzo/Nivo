@@ -1,3 +1,120 @@
-<div class="max-h-dvh overflow-auto">
-  <router-outlet></router-outlet>
+<div class="flex flex-col gap-6 p-6">
+  <app-page-header
+    title="Dashboard Analítico"
+    subtitle="Métricas operativas y de ocupación en tiempo real"
+    [breadcrumbs]="breadcrumbs"
+  />
+
+  @if (facade.isMultiParkingTenant()) {
+    <div
+      data-testid="multi-parking-selector"
+      class="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 p-2"
+    >
+      <nv-button
+        [variant]="facade.activeScope().mode === 'GLOBAL' ? 'default' : 'outline'"
+        size="sm"
+        (click)="facade.setScope('GLOBAL')"
+      >
+        🏢 Todas las Sedes (Consolidado Global)
+      </nv-button>
+      @for (parking of facade.accessibleParkings(); track parking.id) {
+        <nv-button
+          [variant]="
+            facade.activeScope().mode === 'SINGLE' &&
+            facade.activeScope().parkingId === parking.id
+              ? 'default'
+              : 'outline'
+          "
+          size="sm"
+          (click)="facade.setScope('SINGLE', parking.id)"
+        >
+          {{ parking.name }}
+        </nv-button>
+      }
+    </div>
+  }
+
+  <!-- KPI summary cards -->
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <nv-card>
+      <nv-card-content class="space-y-1">
+        <span class="text-sm font-medium text-[var(--muted-foreground)]">Ocupación Actual</span>
+        <div class="text-2xl font-bold">{{ facade.occupancyPercentage() | number: '1.1-1' }}%</div>
+        <p class="text-xs text-[var(--muted-foreground)]">
+          {{ facade.summary()?.occupiedSlots ?? 0 }} / {{ facade.summary()?.totalCapacity ?? 0 }} plazas ocupadas
+        </p>
+      </nv-card-content>
+    </nv-card>
+
+    <nv-card>
+      <nv-card-content class="space-y-1">
+        <span class="text-sm font-medium text-[var(--muted-foreground)]">Ingresos Hoy</span>
+        <div class="text-2xl font-bold">${{ (facade.summary()?.todayRevenue ?? 0) | number: '1.0-0' }}</div>
+        <p class="text-xs text-[var(--muted-foreground)]">
+          Moneda: {{ facade.summary()?.currency ?? 'COP' }}
+        </p>
+      </nv-card-content>
+    </nv-card>
+
+    <nv-card>
+      <nv-card-content class="space-y-1">
+        <span class="text-sm font-medium text-[var(--muted-foreground)]">Tickets Activos</span>
+        <div class="text-2xl font-bold">{{ facade.summary()?.activeTickets ?? 0 }}</div>
+        <p class="text-xs text-[var(--muted-foreground)]">
+          Vehículos actualmente en sede
+        </p>
+      </nv-card-content>
+    </nv-card>
+
+    <nv-card>
+      <nv-card-content class="space-y-1">
+        <span class="text-sm font-medium text-[var(--muted-foreground)]">Tiempo Promedio</span>
+        <div class="text-2xl font-bold">{{ facade.summary()?.avgStayMinutes ?? 0 }} min</div>
+        <p class="text-xs text-[var(--muted-foreground)]">
+          Estancia promedio por vehículo
+        </p>
+      </nv-card-content>
+    </nv-card>
+  </div>
+
+  @if (facade.activeScope().mode === 'GLOBAL') {
+    <app-parking-comparison-chart
+      [data]="facade.parkingsComparison()"
+      (parkingSelected)="onParkingSelected($event)"
+    />
+  }
+
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      <app-occupancy-trend-chart [data]="facade.hourlyOccupancy()" />
+    </div>
+    <div class="lg:col-span-1">
+      <app-slot-distribution-donut-chart
+        [occupiedSlots]="facade.summary()?.occupiedSlots ?? 0"
+        [availableSlots]="facade.summary()?.availableSlots ?? 0"
+      />
+    </div>
+  </div>
+
+  <nv-card>
+    <nv-card-header class="flex flex-row items-center justify-between pb-2">
+      <div>
+        <nv-card-title>Reporte Operativo de Tickets</nv-card-title>
+        <nv-card-description>Detalle de transacciones y estados de tickets</nv-card-description>
+      </div>
+      <nv-button
+        variant="outline"
+        size="sm"
+        (click)="exportCsv()"
+      >
+        Descargar CSV
+      </nv-button>
+    </nv-card-header>
+    <nv-card-content>
+      <app-operational-reports-table
+        [data]="facade.reports()"
+        [isGlobalScope]="facade.activeScope().mode === 'GLOBAL'"
+      />
+    </nv-card-content>
+  </nv-card>
 </div>

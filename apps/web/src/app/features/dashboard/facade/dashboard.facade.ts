@@ -54,28 +54,42 @@ export class DashboardFacade {
   readonly accessibleParkings = signal<ParkingItem[]>([]);
   private readonly userSelectedScope = signal<ScopeState | null>(null);
 
+  private readonly _activeScopeOverride = signal<ScopeState | null>(null);
+
   readonly isMultiParkingTenant = computed(
     () => this.accessibleParkings().length > 1
   );
 
-  readonly activeScope = computed<ScopeState>(() => {
-    const parkings = this.accessibleParkings();
-    if (parkings.length === 1) {
-      return { mode: "SINGLE", parkingId: parkings[0]?.id };
-    }
-    const selected = this.userSelectedScope();
-    if (selected) {
-      if (
-        selected.mode === "SINGLE" &&
-        selected.parkingId &&
-        !parkings.some((p) => p.id === selected.parkingId)
-      ) {
-        return { mode: "GLOBAL" };
+  readonly activeScope = Object.assign(
+    computed<ScopeState>(() => {
+      const override = this._activeScopeOverride();
+      if (override) {
+        return override;
       }
-      return selected;
+      const parkings = this.accessibleParkings();
+      if (parkings.length === 1) {
+        return { mode: "SINGLE", parkingId: parkings[0]?.id };
+      }
+      const selected = this.userSelectedScope();
+      if (selected) {
+        if (
+          selected.mode === "SINGLE" &&
+          selected.parkingId &&
+          !parkings.some((p) => p.id === selected.parkingId)
+        ) {
+          return { mode: "GLOBAL" };
+        }
+        return selected;
+      }
+      return { mode: "GLOBAL" };
+    }),
+    {
+      set: (val: ScopeState) => {
+        this.userSelectedScope.set(val);
+        this._activeScopeOverride.set(val);
+      },
     }
-    return { mode: "GLOBAL" };
-  });
+  );
 
   readonly summary = signal<DashboardSummary | null>(null);
   readonly hourlyOccupancy = signal<HourlyOccupancyPoint[]>([]);
