@@ -4,7 +4,7 @@
 
 ## Motivación
 
-El administrador del parqueadero necesita auditar el detalle de cada transacción vehicular (ingresos, egresos, tiempos de permanencia, tarifas y liquidaciones) con capacidad de filtrado por rangos de fecha y exportación de grandes volúmenes a formato CSV. Para mantener la coherencia arquitectónica y el alto rendimiento, se integra `@tanstack/angular-table` siguiendo los principios estrictos de convenciones del proyecto y una descarga en streaming no bloqueante.
+El administrador del parqueadero necesita auditar el detalle de cada transacción vehicular (ingresos, egresos, tiempos de permanencia, tarifas y liquidaciones) con capacidad de filtrado por rangos de fecha y exportación de grandes volúmenes a formato CSV. Para organizaciones con múltiples sedes, la tabla debe soportar tanto la vista específica de una sede como el consolidado global de todas las instalaciones del tenant, identificando con claridad la sede de origen.
 
 ## Requerimientos
 
@@ -14,7 +14,8 @@ El administrador del parqueadero necesita auditar el detalle de cada transacció
 - **Estrategia de Detección**: `ChangeDetectionStrategy.OnPush`.
 - **Integración con TanStack Table**:
   - Utiliza `createAngularTable` con tipado estricto `OperationalReportItem`.
-  - Configura columnas con `createColumnHelper<OperationalReportItem>()`:
+  - Configura columnas dinámicas con `createColumnHelper<OperationalReportItem>()`:
+    - `parkingName`: **Columna de Sede / Instalación** visible automáticamente cuando el ámbito activo es `GLOBAL` (`isMultiParkingTenant() && activeScope().mode === 'GLOBAL'`). En modo sede individual se oculta para maximizar espacio.
     - `ticketId`: Identificador recortado accesible.
     - `licensePlate`: Placa vehicular renderizada con badge o estilo monospace.
     - `slot`: Prefijo y número de plaza con indicador de tipo (`CAR`, `MOTORCYCLE`, `EV`).
@@ -74,7 +75,7 @@ El administrador del parqueadero necesita auditar el detalle de cada transacció
 
 - **Botón de Exportación**: Componente `nv-button` con variante `outline` e icono de descarga (`lucideDownload`).
 - **Comportamiento en `DashboardFacade`**:
-  - Invoca el endpoint `/api/v1/parkings/{parkingId}/reports/operational/csv` enviando las fechas activas como parámetros.
+  - Invoca el endpoint `/api/v1/reports/operational/csv` enviando las fechas activas y el `parkingId` opcional (si el usuario está en modo sede individual; si está en modo global, se omite para descargar el consolidado del tenant).
   - Recibe el stream binario como `Blob` con tipo MIME `text/csv`.
   - Dispara la descarga en el navegador mediante la creación de un enlace dinámico (`URL.createObjectURL(blob)`) y limpieza posterior (`URL.revokeObjectURL(url)`).
   - Gestiona estados de carga (`isExportingCsv = signal(true/false)`) deshabilitando el botón mientras se genera el reporte.

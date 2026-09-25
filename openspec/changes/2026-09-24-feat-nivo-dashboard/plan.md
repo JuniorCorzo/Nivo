@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Implement real-time analytical dashboard with PostgreSQL optimized views (`v_parking_occupancy_hourly`, `v_parking_daily_summary`, `v_parking_operational_report`), backend operational observability with Micrometer (`MeterRegistry`), reactive Server-Sent Events (SSE) streaming with domain event listeners, public availability API with Token Bucket rate limiting (60 req/min per IP), Scalar pre-request auto-authentication, and an Angular 21+ Dashboard UI with Signals, Chart.js visualizations, TanStack Table operational reports, streaming CSV export, and `@nivo-sass/design-system` components.
+**Goal:** Implement real-time analytical dashboard with PostgreSQL optimized views (`v_parking_occupancy_hourly`, `v_parking_daily_summary`, `v_parking_operational_report`), dual-scope analytics (**Sede Individual** vs. **Consolidado Global Multi-Sede** a nivel de Tenant con ranking comparativo), backend operational observability with Micrometer (`MeterRegistry`), reactive Server-Sent Events (SSE) streaming with domain event listeners, public availability API with Token Bucket rate limiting (60 req/min per IP), Scalar pre-request auto-authentication, and an Angular 21+ Dashboard UI with Signals, Chart.js visualizations (curvas horarias, donas y gráfico comparativo de barras horizontales), TanStack Table operational reports, streaming CSV export, and `@nivo-sass/design-system` components.
 
-**Architecture:** Hexagonal / Clean Architecture in Spring Boot WebMVC (`apps/api`), domain event decoupling with `ApplicationEventPublisher`, PostgreSQL views with dedicated indices, in-memory Token Bucket filter and Caffeine caching. Reactive Angular 21+ in `apps/web` with Signal architecture (`DashboardFacade`), authenticated SSE stream consumption via `fetch` + `ReadableStream`, OnPush Chart.js canvas components, TanStack Table column-driven renderers without template ladders, and strict Design System compliance.
+**Architecture:** Hexagonal / Clean Architecture in Spring Boot WebMVC (`apps/api`), domain event decoupling with `ApplicationEventPublisher`, dual-scope REST and SSE streaming (`?parkingId={optionalUUID}`), PostgreSQL views with composite multi-tenant indices, in-memory Token Bucket filter and Caffeine caching. Reactive Angular 21+ in `apps/web` with Signal architecture (`DashboardFacade`), auto-detection of 1 vs. multiple parking facilities, authenticated SSE stream consumption via `fetch` + `ReadableStream`, OnPush Chart.js canvas components, TanStack Table column-driven renderers without template ladders, and strict Design System compliance.
 
 **Tech Stack:** Java 25, Spring Boot 4.0.3, Spring Data JPA, Flyway, PostgreSQL, Micrometer Prometheus, SpringDoc / Scalar OpenAPI, JUnit 5, Mockito, AssertJ, TypeScript 6, Angular 21.2+, Chart.js 4.4+, TanStack Angular Table 8.21+, Tailwind CSS 4, Vitest, Ultracite.
 
@@ -37,7 +37,7 @@
 **Interfaces:**
 
 - Consumes: PostgreSQL base tables `parking_tickets`, `slots`, `payments`, `parking_lots`.
-- Produces: `v_parking_occupancy_hourly`, `v_parking_daily_summary`, `v_parking_operational_report` views and Spring Data JPA repositories.
+- Produces: `v_parking_occupancy_hourly`, `v_parking_daily_summary`, `v_parking_operational_report` views with composite indices, and Spring Data JPA repositories supporting queries by `tenantId` and `(tenantId, parkingLotId)`.
 
 - [ ] **Step 1: Write failing integration test for dashboard views repositories**
 
@@ -64,9 +64,16 @@ class DashboardViewsRepositoryTest {
   private DailySummaryViewRepository dailyRepository;
 
   @Test
-  @DisplayName("Should query hourly occupancy view by parking lot")
-  void shouldQueryHourlyOccupancyView() {
-    var result = hourlyRepository.findByParkingLotId(UUID.randomUUID());
+  @DisplayName("Should query hourly occupancy view by tenant and parking lot")
+  void shouldQueryHourlyOccupancyViewByParkingLot() {
+    var result = hourlyRepository.findByTenantIdAndParkingLotId(UUID.randomUUID(), UUID.randomUUID());
+    assertThat(result).isNotNull();
+  }
+
+  @Test
+  @DisplayName("Should query consolidated daily summary across all parking lots of a tenant")
+  void shouldQueryConsolidatedDailySummaryByTenant() {
+    var result = dailyRepository.findAllByTenantId(UUID.randomUUID());
     assertThat(result).isNotNull();
   }
 }
@@ -136,6 +143,7 @@ CREATE OR REPLACE VIEW nivo.v_parking_daily_summary AS
 SELECT
     s.parking_lot_id,
     p.tenant_id,
+    p.name AS parking_name,
     date_trunc('day', t.entry_time)::date AS summary_date,
     COUNT(t.id) AS total_tickets,
     COUNT(t.id) FILTER (WHERE t.status = 'CLOSED') AS completed_tickets,
@@ -149,7 +157,7 @@ JOIN nivo.slots s ON s.id = t.slot_id
 JOIN nivo.parking_lots p ON p.id = s.parking_lot_id
 LEFT JOIN nivo.payments pay ON pay.parking_ticket_id = t.id AND pay.deleted_at IS NULL
 WHERE t.deleted_at IS NULL
-GROUP BY s.parking_lot_id, p.tenant_id, date_trunc('day', t.entry_time)::date, p.currency;
+GROUP BY s.parking_lot_id, p.tenant_id, p.name, date_trunc('day', t.entry_time)::date, p.currency;
 
 CREATE OR REPLACE VIEW nivo.v_parking_operational_report AS
 SELECT
@@ -182,9 +190,18 @@ JOIN nivo.rates r ON r.id = t.rate_id
 LEFT JOIN nivo.payments pay ON pay.parking_ticket_id = t.id AND pay.deleted_at IS NULL
 LEFT JOIN nivo.users u ON u.id = t.user_id
 WHERE t.deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_parking_tickets_tenant_entry
+    ON nivo.parking_tickets (tenant_id, entry_time) WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_parking_tickets_tenant_exit
+    ON nivo.parking_tickets (tenant_id, exit_time) WHERE exit_time IS NOT NULL AND deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_slots_tenant_parking_status
+    ON nivo.slots (tenant_id, parking_lot_id, status) WHERE deleted_at IS NULL;
 ```
 
-Create JPA entities: `HourlyOccupancyViewEntity`, `DailySummaryViewEntity`, `OperationalReportViewEntity` with `@Immutable` and `@Table(name = "v_...", schema = "nivo")`.
+Create JPA entities: `HourlyOccupancyViewEntity`, `DailySummaryViewEntity`, `OperationalReportViewEntity` with `@Immutable`.
 Create Spring Data repositories extending `JpaRepository`.
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -196,7 +213,7 @@ Create Spring Data repositories extending `JpaRepository`.
 - [ ] **Step 5: Commit changes**
 
 ```bash
-git commit -m "feat(api(db)): add analytics views and JPA view repositories"
+git commit -m "feat(api(db)): add analytics views with multi-parking support and composite indexes"
 ```
 
 ---
@@ -254,10 +271,10 @@ class BackendOperationsMetricsManagerTest {
   }
 
   @Test
-  @DisplayName("Should track rate limited counter")
-  void shouldTrackRateLimitedRequests() {
-    metricsManager.recordPublicAvailabilityRateLimited();
-    assertThat(meterRegistry.get("public.api.availability.rate_limited.total").counter().count()).isEqualTo(1.0);
+  @DisplayName("Should record query duration without high-cardinality tags")
+  void shouldRecordQueryDurationWithLowCardinalityTag() {
+    metricsManager.recordAnalyticsQueryDuration("hourly", () -> {});
+    assertThat(meterRegistry.get("db.analytics.query.duration").tag("view", "hourly").timer().count()).isEqualTo(1);
   }
 }
 ```
@@ -270,81 +287,12 @@ class BackendOperationsMetricsManagerTest {
 
 - [ ] **Step 3: Write minimal implementation**
 
-```java
-package dev.angelcorzo.nivo.infrastructure.adapter.metrics;
+Implement `BackendOperationsMetricsManager` with:
 
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.springframework.stereotype.Component;
-
-@Component
-public class BackendOperationsMetricsManager {
-
-  private final MeterRegistry meterRegistry;
-  private final AtomicInteger activeSseConnections = new AtomicInteger(0);
-  private final Counter sseBroadcastCounter;
-  private final Counter sseDisconnectCounter;
-  private final Counter rateLimitedCounter;
-  private final Counter cacheHitCounter;
-  private final Counter cacheMissCounter;
-
-  public BackendOperationsMetricsManager(MeterRegistry meterRegistry) {
-    this.meterRegistry = meterRegistry;
-    this.meterRegistry.gauge("sse.dashboard.active.connections", activeSseConnections);
-    this.sseBroadcastCounter = meterRegistry.counter("sse.dashboard.events.broadcast.total");
-    this.sseDisconnectCounter = meterRegistry.counter("sse.dashboard.disconnects.total");
-    this.rateLimitedCounter = meterRegistry.counter("public.api.availability.rate_limited.total");
-    this.cacheHitCounter = meterRegistry.counter("public.api.availability.cache.hit");
-    this.cacheMissCounter = meterRegistry.counter("public.api.availability.cache.miss");
-  }
-
-  public void recordSseConnectionOpened() {
-    activeSseConnections.incrementAndGet();
-  }
-
-  public void recordSseConnectionClosed() {
-    activeSseConnections.decrementAndGet();
-  }
-
-  public void recordSseEventBroadcast() {
-    sseBroadcastCounter.increment();
-  }
-
-  public void recordSseDisconnect() {
-    sseDisconnectCounter.increment();
-    recordSseConnectionClosed();
-  }
-
-  public void recordPublicAvailabilityRateLimited() {
-    rateLimitedCounter.increment();
-  }
-
-  public void recordPublicAvailabilityRequest(int statusCode) {
-    meterRegistry.counter("public.api.availability.requests.total", "status", String.valueOf(statusCode)).increment();
-  }
-
-  public void recordAvailabilityCacheHit() {
-    cacheHitCounter.increment();
-  }
-
-  public void recordAvailabilityCacheMiss() {
-    cacheMissCounter.increment();
-  }
-
-  public void recordAnalyticsQueryDuration(String view, Runnable query) {
-    Timer.builder("db.analytics.query.duration")
-        .tag("view", view)
-        .register(meterRegistry)
-        .record(query);
-  }
-
-  public void recordCsvExportDuration(Runnable export) {
-    meterRegistry.timer("reports.csv.export.duration").record(export);
-  }
-}
-```
+- Gauges for `sse.dashboard.active.connections`.
+- Counters for `sse.dashboard.events.broadcast.total`, `sse.dashboard.disconnects.total`.
+- Timers for `db.analytics.query.duration` (tag `view`), `domain.events.dispatch.duration` (tag `event_type`), `reports.csv.export.duration`.
+- Public availability telemetry (`requests.total`, `rate_limited.total`, `latency`, `cache.hit`, `cache.miss`).
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -360,34 +308,36 @@ git commit -m "feat(api(metrics)): implement BackendOperationsMetricsManager for
 
 ---
 
-### Task 3: REST Analytics Endpoints & Streaming CSV Export (`apps/api`)
+### Task 3: REST Analytics Endpoints & Streaming CSV Export with Scope Support (`apps/api`)
 
 **Files:**
 
 - Create: `apps/api/src/main/java/dev/angelcorzo/nivo/domain/usecase/dashboard/GetDashboardSummaryUseCase.java`
 - Create: `apps/api/src/main/java/dev/angelcorzo/nivo/domain/usecase/dashboard/GetHourlyOccupancyUseCase.java`
+- Create: `apps/api/src/main/java/dev/angelcorzo/nivo/domain/usecase/dashboard/GetParkingsComparisonUseCase.java`
 - Create: `apps/api/src/main/java/dev/angelcorzo/nivo/domain/usecase/dashboard/GetOperationalReportUseCase.java`
 - Create: `apps/api/src/main/java/dev/angelcorzo/nivo/infrastructure/entrypoint/rest/dashboard/DashboardController.java`
 - Create: `apps/api/src/main/java/dev/angelcorzo/nivo/infrastructure/entrypoint/rest/reports/ReportsController.java`
 - Test: `apps/api/src/test/java/dev/angelcorzo/nivo/infrastructure/entrypoint/rest/dashboard/DashboardControllerTest.java`
-- Test: `apps/api/src/test/java/dev/angelcorzo/nivo/infrastructure/entrypoint/rest/reports/ReportsControllerTest.java`
+- Test: `apps/api/src/test/java/dev/angelcorzo/nivo/domain/usecase/dashboard/GetParkingsComparisonUseCaseTest.java`
 
 **Interfaces:**
 
 - Consumes: JPA view repositories, `AuthenticationContextGateway`.
 - Produces:
-  - `GET /api/v1/parkings/{parkingId}/dashboard/summary` -> `DashboardSummaryDTO`
-  - `GET /api/v1/parkings/{parkingId}/dashboard/occupancy-hourly` -> `List<HourlyOccupancyDTO>`
-  - `GET /api/v1/parkings/{parkingId}/reports/operational` -> `Page<OperationalReportDTO>`
-  - `GET /api/v1/parkings/{parkingId}/reports/operational/csv` -> `text/csv` stream
+  - `GET /api/v1/dashboard/summary?parkingId={optionalUUID}` -> `DashboardSummaryDTO`
+  - `GET /api/v1/dashboard/occupancy-hourly?parkingId={optionalUUID}&startDate=...&endDate=...` -> `List<HourlyOccupancyDTO>`
+  - `GET /api/v1/dashboard/parkings-comparison?startDate=...&endDate=...` -> `List<ParkingComparisonDTO>`
+  - `GET /api/v1/reports/operational?parkingId={optionalUUID}&page=...` -> `Page<OperationalReportDTO>`
+  - `GET /api/v1/reports/operational/csv?parkingId={optionalUUID}` -> `text/csv` stream
 
-- [ ] **Step 1: Write failing controller test for dashboard summary and CSV export**
+- [ ] **Step 1: Write failing controller test for dashboard summary and comparison**
 
 ```java
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.dashboard;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.UUID;
@@ -408,22 +358,19 @@ class DashboardControllerTest {
 
   @Test
   @WithMockUser
-  @DisplayName("GET /dashboard/summary should return 200 with summary data")
-  void shouldReturnSummary() throws Exception {
-    UUID parkingId = UUID.randomUUID();
-    mockMvc.perform(get("/api/v1/parkings/" + parkingId + "/dashboard/summary"))
-        .andExpect(status().isOk());
+  @DisplayName("GET /api/v1/dashboard/summary without parkingId should return tenant global summary")
+  void shouldReturnGlobalSummary() throws Exception {
+    mockMvc.perform(get("/api/v1/dashboard/summary"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.scope").value("GLOBAL"));
   }
 
   @Test
   @WithMockUser
-  @DisplayName("GET /reports/operational/csv should stream text/csv with attachment header")
-  void shouldStreamCsvReport() throws Exception {
-    UUID parkingId = UUID.randomUUID();
-    mockMvc.perform(get("/api/v1/parkings/" + parkingId + "/reports/operational/csv"))
-        .andExpect(status().isOk())
-        .andExpect(header().string("Content-Type", "text/csv;charset=UTF-8"))
-        .andExpect(header().exists("Content-Disposition"));
+  @DisplayName("GET /api/v1/dashboard/parkings-comparison should return comparative facilities list")
+  void shouldReturnParkingsComparison() throws Exception {
+    mockMvc.perform(get("/api/v1/dashboard/parkings-comparison"))
+        .andExpect(status().isOk());
   }
 }
 ```
@@ -436,39 +383,9 @@ class DashboardControllerTest {
 
 - [ ] **Step 3: Write minimal implementation**
 
-Implement use cases in `dev.angelcorzo.nivo.domain.usecase.dashboard`.
-Implement `DashboardController` and `ReportsController`.
-For CSV export:
-
-```java
-@GetMapping(value = "/api/v1/parkings/{parkingId}/reports/operational/csv", produces = "text/csv")
-public void exportOperationalReportCsv(
-    @PathVariable UUID parkingId,
-    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime startDate,
-    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime endDate,
-    HttpServletResponse response) throws IOException {
-
-  response.setContentType("text/csv;charset=UTF-8");
-  response.setHeader("Content-Disposition", "attachment; filename=\"operational-report-" + parkingId + ".csv\"");
-
-  try (var writer = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8);
-       var csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.builder().setHeader(
-           "Ticket ID", "Placa", "Plaza", "Tipo", "Entrada", "Salida", "Minutos", "Estado", "Total", "Metodo Pago").build())) {
-
-    metricsManager.recordCsvExportDuration(() -> {
-      reportUseCase.streamReport(parkingId, startDate, endDate, item -> {
-        try {
-          csvPrinter.printRecord(item.ticketId(), item.licensePlate(), item.slotNumber(), item.slotType(),
-              item.entryTime(), item.exitTime(), item.durationMinutes(), item.ticketStatus(), item.totalToCharge(), item.paymentMethod());
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
-        }
-      });
-    });
-    csvPrinter.flush();
-  }
-}
-```
+Implement `GetDashboardSummaryUseCase`, `GetHourlyOccupancyUseCase`, `GetParkingsComparisonUseCase`, `GetOperationalReportUseCase`.
+Expose `DashboardController` and `ReportsController`.
+Inject `AuthenticationContextGateway` to resolve `tenantId`.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -479,12 +396,12 @@ public void exportOperationalReportCsv(
 - [ ] **Step 5: Commit changes**
 
 ```bash
-git commit -m "feat(api(dashboard)): implement dashboard REST endpoints and streaming CSV export"
+git commit -m "feat(api(dashboard)): implement multi-parking summary, comparison and reports endpoints"
 ```
 
 ---
 
-### Task 4: SseEmitter Registry, Domain Event Listeners & Stream Endpoint (`apps/api`)
+### Task 4: SseEmitter Registry with Multi-Parking & Tenant Broadcast (`apps/api`)
 
 **Files:**
 
@@ -495,12 +412,12 @@ git commit -m "feat(api(dashboard)): implement dashboard REST endpoints and stre
 
 **Interfaces:**
 
-- Consumes: `ApplicationEventPublisher`, Spring domain events (`TicketCreated`, `TicketCheckedOut`, `PaymentCompleted`).
+- Consumes: `ApplicationEventPublisher`, domain events (`TicketCreated`, `TicketCheckedOut`, `PaymentCompleted`).
 - Produces:
-  - `GET /api/v1/parkings/{parkingId}/dashboard/stream` -> `text/event-stream`
-  - Events: `snapshot`, `occupancy-update`, `revenue-update`, `ping`
+  - `GET /api/v1/dashboard/stream?parkingId={optionalUUID}` -> `text/event-stream`
+  - Dual broadcast: emits to specific facility subscribers AND tenant-wide subscribers.
 
-- [ ] **Step 1: Write failing unit test for SseRegistry**
+- [ ] **Step 1: Write failing unit test for dual-scope SseRegistry**
 
 ```java
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.dashboard.sse;
@@ -526,14 +443,19 @@ class DashboardSseRegistryTest {
   }
 
   @Test
-  @DisplayName("Should register emitter and broadcast event to parking subscribers")
-  void shouldBroadcastEventToParkingSubscribers() {
+  @DisplayName("Should broadcast to both facility subscriber and tenant global subscriber")
+  void shouldBroadcastToBothFacilityAndTenantSubscribers() {
+    UUID tenantId = UUID.randomUUID();
     UUID parkingId = UUID.randomUUID();
-    var emitter = sseRegistry.createEmitter(parkingId);
-    assertThat(emitter).isNotNull();
 
-    sseRegistry.broadcast(parkingId, "occupancy-update", "{\"occupancyRate\": 75.0}");
-    assertThat(sseRegistry.getActiveCount(parkingId)).isEqualTo(1);
+    var singleEmitter = sseRegistry.createEmitter(tenantId, parkingId);
+    var globalEmitter = sseRegistry.createEmitter(tenantId, null);
+
+    assertThat(singleEmitter).isNotNull();
+    assertThat(globalEmitter).isNotNull();
+
+    sseRegistry.broadcast(tenantId, parkingId, "occupancy-update", "{\"occupancyRate\": 75.0}");
+    assertThat(sseRegistry.getActiveCount(tenantId)).isEqualTo(2);
   }
 }
 ```
@@ -548,10 +470,9 @@ class DashboardSseRegistryTest {
 
 Implement `DashboardSseRegistry`:
 
-- `ConcurrentHashMap<UUID, CopyOnWriteArrayList<SseEmitter>>`
-- Set timeout to 30 mins, add `onCompletion`, `onTimeout`, `onError` callbacks.
-- Scheduled `@Scheduled(fixedRate = 15000)` heartbeat ping.
-- Domain event listener `@EventListener` responding to ticket checkin/checkout by calling `broadcast(parkingId, "occupancy-update", delta)`.
+- `ConcurrentHashMap<String, CopyOnWriteArrayList<SseEmitter>>` using keys `tenantId` and `tenantId + ":" + parkingId`.
+- On ticket event: broadcast to `tenantId + ":" + parkingId` AND `tenantId`.
+- Heartbeat ping every 15s.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -562,7 +483,7 @@ Implement `DashboardSseRegistry`:
 - [ ] **Step 5: Commit changes**
 
 ```bash
-git commit -m "feat(api(sse)): implement DashboardSseRegistry, stream endpoint and domain event listeners"
+git commit -m "feat(api(sse)): support dual-scope SSE streaming for single parking and tenant global channels"
 ```
 
 ---
@@ -578,9 +499,9 @@ git commit -m "feat(api(sse)): implement DashboardSseRegistry, stream endpoint a
 **Interfaces:**
 
 - Consumes: Scalar WebMVC configuration and OpenAPI 3.0 specification.
-- Produces: Custom HTML/JS pre-request hook or `x-pre-request` OpenAPI extension auto-authenticating with `/api/v1/auth/login`.
+- Produces: `x-scalar-pre-request` OpenAPI extension auto-authenticating with `/api/v1/auth/login`.
 
-- [ ] **Step 1: Write test verifying OpenAPI extension in SwaggerConfiguration**
+- [ ] **Step 1: Write test verifying OpenAPI security schemes and Scalar extension**
 
 ```java
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.config;
@@ -600,14 +521,14 @@ class SwaggerConfigurationTest {
   private OpenAPI openAPI;
 
   @Test
-  @DisplayName("Should register Scalar auto-auth configuration or security schemes")
+  @DisplayName("Should register security schemes and pre-request configuration")
   void shouldHaveSecuritySchemesAndPreRequestConfig() {
     assertThat(openAPI.getComponents().getSecuritySchemes()).containsKey("Bearer Authentication");
   }
 }
 ```
 
-- [ ] **Step 2: Run test to verify failure**
+- [ ] **Step 2: Run test to verify failure / pass**
 
 ```bash
 ./gradlew test --tests "dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.config.SwaggerConfigurationTest"
@@ -615,7 +536,7 @@ class SwaggerConfigurationTest {
 
 - [ ] **Step 3: Write minimal implementation**
 
-Enrich `SwaggerConfiguration.java` with a custom `OpenApiCustomizer` bean adding `x-scalar-pre-request` extension or serving the pre-request script snippet injecting the token from `/api/v1/auth/login`.
+Enrich `SwaggerConfiguration.java` with a custom `OpenApiCustomizer` bean adding pre-request hook configuration.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -645,9 +566,7 @@ git commit -m "feat(api(scalar)): add Scalar pre-request auto-authentication hoo
 **Interfaces:**
 
 - Consumes: IP address, `parkingId`, Caffeine in-memory cache.
-- Produces:
-  - `GET /api/v1/public/parkings/{parkingId}/availability` (HTTP 200, 404, 429)
-  - Headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After`, `Cache-Control: public, max-age=30`
+- Produces: `GET /api/v1/public/parkings/{parkingId}/availability` (HTTP 200, 404, 429).
 
 - [ ] **Step 1: Write failing unit test for Token Bucket rate limiter**
 
@@ -683,14 +602,7 @@ class TokenBucketRateLimiterTest {
 
 - [ ] **Step 3: Write minimal implementation**
 
-Implement `TokenBucketRateLimiter`:
-
-- Refill calculation based on elapsed nano-time.
-- `PublicApiRateLimitFilter`: Intercepts `/api/v1/public/**`, extracts client IP (`X-Forwarded-For` fallback to `remoteAddr`).
-- If token available: proceed with response headers `X-RateLimit-*`.
-- If exhausted: return HTTP 429 with `Retry-After: <seconds>` and invoke `metricsManager.recordPublicAvailabilityRateLimited()`.
-- Add `/api/v1/public/**` to `permitAll()` in `SecurityChain.java`.
-- `PublicAvailabilityController`: Returns availability JSON with Caffeine 30s cache.
+Implement `TokenBucketRateLimiter`, `PublicApiRateLimitFilter`, and `PublicAvailabilityController` with Caffeine 30s cache. Permit `/api/v1/public/**` in `SecurityChain.java`.
 
 - [ ] **Step 4: Run tests to verify they pass**
 
@@ -707,7 +619,7 @@ git commit -m "feat(api(public)): implement public availability API with Token B
 
 ---
 
-### Task 7: Chart.js Installation & Angular Presentational Charts (`apps/web`)
+### Task 7: Chart.js Installation & Angular Presentational Charts with Comparison (`apps/web`)
 
 **Files:**
 
@@ -718,11 +630,14 @@ git commit -m "feat(api(public)): implement public availability API with Token B
 - Create: `apps/web/src/app/features/dashboard/components/slot-distribution-donut-chart/slot-distribution-donut-chart.ts`
 - Create: `apps/web/src/app/features/dashboard/components/slot-distribution-donut-chart/slot-distribution-donut-chart.html`
 - Create: `apps/web/src/app/features/dashboard/components/slot-distribution-donut-chart/slot-distribution-donut-chart.spec.ts`
+- Create: `apps/web/src/app/features/dashboard/components/parking-comparison-chart/parking-comparison-chart.ts`
+- Create: `apps/web/src/app/features/dashboard/components/parking-comparison-chart/parking-comparison-chart.html`
+- Create: `apps/web/src/app/features/dashboard/components/parking-comparison-chart/parking-comparison-chart.spec.ts`
 
 **Interfaces:**
 
-- Consumes: Chart.js library, inputs `HourlyOccupancyPoint[]`, `SlotDistributionItem[]`.
-- Produces: Standalone `OnPush` components wrapping HTML canvas with linear gradients and donut cutouts, properly destroying chart instances in `ngOnDestroy`.
+- Consumes: Chart.js library, inputs `HourlyOccupancyPoint[]`, `SlotDistributionItem[]`, `ParkingComparisonItem[]`.
+- Produces: Standalone `OnPush` components wrapping HTML canvas with proper cleanup in `ngOnDestroy`.
 
 - [ ] **Step 1: Install Chart.js**
 
@@ -734,29 +649,42 @@ cd /home/juniorcorzo/Development/nivo/apps/web && bun add chart.js
 
 ```typescript
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { OccupancyTrendChartComponent } from "./occupancy-trend-chart";
+import { ParkingComparisonChartComponent } from "./parking-comparison-chart";
 
-describe("OccupancyTrendChartComponent", () => {
-  let component: OccupancyTrendChartComponent;
-  let fixture: ComponentFixture<OccupancyTrendChartComponent>;
+describe("ParkingComparisonChartComponent", () => {
+  let component: ParkingComparisonChartComponent;
+  let fixture: ComponentFixture<ParkingComparisonChartComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OccupancyTrendChartComponent],
+      imports: [ParkingComparisonChartComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(OccupancyTrendChartComponent);
+    fixture = TestBed.createComponent(ParkingComparisonChartComponent);
     component = fixture.componentInstance;
   });
 
-  it("should create and render chart with input data", () => {
+  it("should render horizontal bar chart comparing facilities", () => {
     fixture.componentRef.setInput("data", [
       {
-        hourBucket: "2026-09-24T08:00:00Z",
-        checkins: 10,
-        checkouts: 2,
-        estimatedOccupancyRate: 50.0,
-        totalCapacity: 100,
+        parkingId: "1",
+        parkingName: "Sede Centro",
+        totalSlots: 100,
+        occupiedSlots: 70,
+        occupancyRate: 70.0,
+        todayRevenue: 300000,
+        activeTickets: 70,
+        avgStayMinutes: 60,
+      },
+      {
+        parkingId: "2",
+        parkingName: "Sede Norte",
+        totalSlots: 50,
+        occupiedSlots: 20,
+        occupancyRate: 40.0,
+        todayRevenue: 100000,
+        activeTickets: 20,
+        avgStayMinutes: 45,
       },
     ]);
     fixture.detectChanges();
@@ -768,34 +696,29 @@ describe("OccupancyTrendChartComponent", () => {
 - [ ] **Step 3: Run test to verify failure**
 
 ```bash
-cd /home/juniorcorzo/Development/nivo/apps/web && bun test occupancy-trend-chart.spec.ts
+cd /home/juniorcorzo/Development/nivo/apps/web && bun test parking-comparison-chart.spec.ts
 ```
 
 - [ ] **Step 4: Write minimal implementation**
 
-Implement `OccupancyTrendChartComponent` and `SlotDistributionDonutChartComponent`:
-
-- `ChangeDetectionStrategy.OnPush`
-- `input.required<HourlyOccupancyPoint[]>()`
-- Canvas element with ViewChild
-- On `effect()` or `ngAfterViewInit()` instantiate `new Chart(ctx, config)` with linear gradient background.
-- On `ngOnDestroy()` call `this.chart?.destroy()`.
+Implement `OccupancyTrendChartComponent`, `SlotDistributionDonutChartComponent`, and `ParkingComparisonChartComponent`.
+Ensure all use `ChangeDetectionStrategy.OnPush` and call `chart?.destroy()` in `ngOnDestroy()`.
 
 - [ ] **Step 5: Run tests to verify they pass**
 
 ```bash
-cd /home/juniorcorzo/Development/nivo/apps/web && bun test occupancy-trend-chart.spec.ts slot-distribution-donut-chart.spec.ts
+cd /home/juniorcorzo/Development/nivo/apps/web && bun test occupancy-trend-chart.spec.ts slot-distribution-donut-chart.spec.ts parking-comparison-chart.spec.ts
 ```
 
 - [ ] **Step 6: Commit changes**
 
 ```bash
-git commit -m "feat(web(charts)): integrate Chart.js with occupancy trend and slot distribution components"
+git commit -m "feat(web(charts)): integrate Chart.js with occupancy trend, donut, and parking comparison charts"
 ```
 
 ---
 
-### Task 8: DashboardFacade & Operational Reports TanStack Table (`apps/web`)
+### Task 8: DashboardFacade & Operational Reports TanStack Table with Multi-Parking Scope (`apps/web`)
 
 **Files:**
 
@@ -807,10 +730,10 @@ git commit -m "feat(web(charts)): integrate Chart.js with occupancy trend and sl
 
 **Interfaces:**
 
-- Consumes: `@tanstack/angular-table`, backend endpoints `/dashboard/summary`, `/dashboard/stream`, `/reports/operational`, `/reports/operational/csv`.
+- Consumes: `@tanstack/angular-table`, backend endpoints `/dashboard/summary`, `/dashboard/stream`, `/dashboard/parkings-comparison`, `/reports/operational`, `/reports/operational/csv`.
 - Produces:
-  - `DashboardFacade` state (`summary`, `occupancyHourly`, `reports`, `isStreaming`, `isExportingCsv`).
-  - `OperationalReportsTableComponent` with column-driven renderers without HTML template `@if` ladders.
+  - `DashboardFacade` state (`activeScope`, `isMultiParkingTenant`, `summary`, `parkingsComparison`, `reports`).
+  - `OperationalReportsTableComponent` with dynamic column `parkingName` for global scope and 0 template `@if` ladders.
 
 - [ ] **Step 1: Write failing facade unit test**
 
@@ -828,10 +751,13 @@ describe("DashboardFacade", () => {
     facade = TestBed.inject(DashboardFacade);
   });
 
-  it("should initialize with default states and signals", () => {
-    expect(facade.summary()).toBeNull();
-    expect(facade.isStreaming()).toBe(false);
-    expect(facade.occupancyPercentage()).toBe(0);
+  it("should detect multi-parking tenant when accessibleParkings has > 1 items", () => {
+    facade.accessibleParkings.set([
+      { id: "1", name: "Sede Centro" },
+      { id: "2", name: "Sede Norte" },
+    ]);
+    expect(facade.isMultiParkingTenant()).toBe(true);
+    expect(facade.activeScope().mode).toBe("GLOBAL");
   });
 });
 ```
@@ -844,17 +770,11 @@ cd /home/juniorcorzo/Development/nivo/apps/web && bun test dashboard.facade.spec
 
 - [ ] **Step 3: Write minimal implementation**
 
-Implement `DashboardFacade`:
+Implement `DashboardFacade` with signals:
 
-- Signals: `summary`, `occupancyHourly`, `reports`, `isStreaming`, `isExportingCsv`.
-- `connectStream(parkingId)`: uses `fetch()` with `Authorization: Bearer <token>`, decodes `ReadableStream`, parses SSE events, updates signals, exponential backoff on disconnect.
-- `exportOperationalCsv(parkingId)`: calls CSV endpoint, creates blob object URL, triggers download, triggers `@ngxpert/hot-toast` notifications.
-
-Implement `OperationalReportsTableComponent`:
-
-- Use `createAngularTable` and `createColumnHelper`.
-- Define columns for `ticketId`, `licensePlate`, `slotNumber`, `entryTime`, `exitTime`, `durationMinutes`, `ticketStatus`, `totalToCharge`, `paymentStatus`.
-- Strictly declarative template delegating to `*flexRender="cell.column.columnDef.cell; props: cell.getContext()"`. No `@if (column.id === ...)` ladders.
+- `accessibleParkings`, `activeScope`, `isMultiParkingTenant`, `summary`, `occupancyHourly`, `parkingsComparison`, `reports`.
+- Dynamic SSE URL construction based on `activeScope()`.
+- Implement `OperationalReportsTableComponent` with TanStack column definitions; conditionally render `parkingName` column when `activeScope().mode === 'GLOBAL'`.
 
 - [ ] **Step 4: Run tests to verify they pass**
 
@@ -865,12 +785,12 @@ cd /home/juniorcorzo/Development/nivo/apps/web && bun test dashboard.facade.spec
 - [ ] **Step 5: Commit changes**
 
 ```bash
-git commit -m "feat(web(reports)): implement DashboardFacade with SSE stream reader and TanStack table"
+git commit -m "feat(web(reports)): implement DashboardFacade with multi-parking scope and TanStack table"
 ```
 
 ---
 
-### Task 9: Dashboard Main Page Integration with Design System (`apps/web`)
+### Task 9: Dashboard Main Page Integration with Multi-Parking Scope & Design System (`apps/web`)
 
 **Files:**
 
@@ -880,8 +800,8 @@ git commit -m "feat(web(reports)): implement DashboardFacade with SSE stream rea
 
 **Interfaces:**
 
-- Consumes: `DashboardFacade`, `ActiveParkingService`, `@nivo-sass/design-system` components (`nv-card`, `nv-badge`, `nv-button`, `nv-typography`, `nv-input`, `nv-loader`), `PageHeaderComponent`.
-- Produces: Responsive main dashboard view connecting charts, KPI cards, live SSE status chip, date filters, and operational report table.
+- Consumes: `DashboardFacade`, `@nivo-sass/design-system`, `PageHeaderComponent`.
+- Produces: Integrated view with scope selector ("🏢 Todas las Sedes (Consolidado Global)" vs individual parking), KPI cards, comparison chart in global mode, trend chart, and report table.
 
 - [ ] **Step 1: Write failing page integration test**
 
@@ -919,11 +839,10 @@ cd /home/juniorcorzo/Development/nivo/apps/web && bun test dashboard-page.spec.t
 
 Update `dashboard-page.ts` and `dashboard-page.html`:
 
-- Embed `<app-page-header title="Dashboard Analítico" />` with dynamic breadcrumbs.
-- Top KPI summary grid using `nv-card` for Occupancy Rate, Available Slots, Daily Revenue, and Active Tickets.
-- Render `<app-occupancy-trend-chart />` and `<app-slot-distribution-donut-chart />`.
-- Render `<app-operational-reports-table />` with date picker filters and CSV export `nv-button`.
-- Display live connection indicator (`nv-badge` variant "success" when `facade.isStreaming()`, "warning" when reconnecting).
+- Include scope selector chip in page header when `facade.isMultiParkingTenant()` is true.
+- If in `GLOBAL` mode: render `<app-parking-comparison-chart />` alongside KPI cards.
+- Render `<app-occupancy-trend-chart />`, `<app-slot-distribution-donut-chart />`, and `<app-operational-reports-table />`.
+- All controls use `@nivo-sass/design-system` components (`nv-card`, `nv-badge`, `nv-button`, `nv-typography`, `nv-input`, `nv-select`, `nv-loader`).
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -934,7 +853,7 @@ cd /home/juniorcorzo/Development/nivo/apps/web && bun test dashboard-page.spec.t
 - [ ] **Step 5: Commit changes**
 
 ```bash
-git commit -m "feat(web(dashboard)): integrate DashboardPage with Design System and PageHeader"
+git commit -m "feat(web(dashboard)): integrate DashboardPage with multi-parking scope and Design System"
 ```
 
 ---

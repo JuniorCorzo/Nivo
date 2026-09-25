@@ -2,7 +2,7 @@
 
 ## 1. Arquitectura General y Diagrama de Componentes
 
-La arquitectura de `feat-nivo-dashboard` integra capacidades analíticas de baja latencia y telemetría reactiva en el backend Spring Boot WebMVC, complementadas por una interfaz analítica en Angular 21+ impulsada por Signals y un canal público protegido por limitación de tasa (rate limiting).
+La arquitectura de `feat-nivo-dashboard` integra analítica de baja latencia con soporte dual de ámbito (**Sede Individual** vs. **Consolidado Global Multi-Sede** a nivel de Tenant), telemetría operativa en Prometheus, streaming reactivo Server-Sent Events (SSE) y un canal público de disponibilidad protegido por Token Bucket.
 
 ```mermaid
 flowchart TD
@@ -20,9 +20,9 @@ flowchart TD
 
     subgraph SpringBackend["Spring Boot WebMVC Backend"]
         PublicCtrl["PublicAvailabilityController (/api/v1/public/parkings/{id}/availability)"]
-        DashCtrl["DashboardController (/api/v1/parkings/{id}/dashboard/*)"]
-        ReportCtrl["ReportsController (/api/v1/parkings/{id}/reports/*)"]
-        SseManager["DashboardSseManager (SseEmitter Registry & Heartbeat)"]
+        DashCtrl["DashboardController (/api/v1/dashboard/*?parkingId={optionalUUID})"]
+        ReportCtrl["ReportsController (/api/v1/reports/*?parkingId={optionalUUID})"]
+        SseManager["DashboardSseManager (SseEmitter Multi-Tenant Registry & Heartbeat)"]
         MetricsService["BackendOperationsMetricsManager (MeterRegistry)"]
         EventBus["Spring Domain EventBus / ApplicationEventPublisher"]
     end
@@ -42,8 +42,8 @@ flowchart TD
     RateLimiter --> PublicCtrl
     ScalarDoc -->|Auto Bearer Token| ScalarAuth
     ScalarAuth --> JwtFilter
-    AngularApp -->|JWT Bearer REST| JwtFilter
-    AngularApp -->|SSE ReadableStream Bearer| SseManager
+    AngularApp -->|JWT Bearer REST con ?parkingId={optional}| JwtFilter
+    AngularApp -->|SSE ReadableStream Bearer (?parkingId={optional})| SseManager
 
     JwtFilter --> DashCtrl
     JwtFilter --> ReportCtrl
@@ -59,17 +59,17 @@ flowchart TD
     BaseTables --> ViewDaily
     BaseTables --> ViewReport
 
-    EventBus -->|CheckinVehicle / Checkout / SlotStatus| SseManager
-    EventBus -->|Eventos Operativos| MetricsService
+    EventBus -->|Checkin / Checkout / PaymentCompleted| SseManager
+    EventBus -->|Eventos Operativos de Infraestructura| MetricsService
     MetricsService --> PrometheusActuator
-    SseManager -.->|Push Event: occupancy-update| AngularApp
+    SseManager -.->|Push Event: occupancy-update (Tenant o Parking)| AngularApp
 ```
 
 ---
 
-## 2. Vistas en PostgreSQL (Modelado de Datos Analítico)
+## 2. Vistas en PostgreSQL (Modelado de Datos Analítico Multi-Sede)
 
-Para garantizar latencias de respuesta inferiores a 200ms en el endpoint público y 500ms en consultas agregadas del dashboard, se introducen tres vistas optimizadas en la migración Flyway `V5__create_dashboard_views_and_analytics.sql`:
+Para garantizar latencias de respuesta inferiores a 200ms en el endpoint público y 500ms en consultas agregadas del dashboard —tanto para una sede puntual como para el consolidado global de un tenant con múltiples sedes—, se introducen tres vistas optimizadas en la migración Flyway `V5__create_dashboard_views_and_analytics.sql`:
 
 ### 2.1 `v_parking_occupancy_hourly`
 
@@ -128,6 +128,11 @@ JOIN slot_capacities cap
     ON cap.parking_lot_id = COALESCE(b.parking_lot_id, e.parking_lot_id);
 ```
 
+**Estrategia de Consulta**:
+
+- **Por Sede Específica**: `SELECT ... FROM v_parking_occupancy_hourly WHERE tenant_id = :tenantId AND parking_lot_id = :parkingId`
+- **Consolidado Multi-Sede (Tenant Scope)**: `SELECT tenant_id, hour_bucket, SUM(checkins) AS checkins, SUM(checkouts) AS checkouts, SUM(total_capacity) AS total_capacity, ROUND(SUM(checkins) * 100.0 / NULLIF(SUM(total_capacity), 0), 2) AS estimated_occupancy_rate FROM v_parking_occupancy_hourly WHERE tenant_id = :tenantId GROUP BY tenant_id, hour_bucket ORDER BY hour_bucket ASC`
+
 ### 2.2 `v_parking_daily_summary`
 
 Proporciona KPIs consolidados diarios de volumen vehicular, facturación total recaudada, tiempo promedio de estadía y rotación por sede:
@@ -137,6 +142,7 @@ CREATE OR REPLACE VIEW nivo.v_parking_daily_summary AS
 SELECT
     s.parking_lot_id,
     p.tenant_id,
+    p.name AS parking_name,
     date_trunc('day', t.entry_time)::date AS summary_date,
     COUNT(t.id) AS total_tickets,
     COUNT(t.id) FILTER (WHERE t.status = 'CLOSED') AS completed_tickets,
@@ -150,7 +156,7 @@ JOIN nivo.slots s ON s.id = t.slot_id
 JOIN nivo.parking_lots p ON p.id = s.parking_lot_id
 LEFT JOIN nivo.payments pay ON pay.parking_ticket_id = t.id AND pay.deleted_at IS NULL
 WHERE t.deleted_at IS NULL
-GROUP BY s.parking_lot_id, p.tenant_id, date_trunc('day', t.entry_time)::date, p.currency;
+GROUP BY s.parking_lot_id, p.tenant_id, p.name, date_trunc('day', t.entry_time)::date, p.currency;
 ```
 
 ### 2.3 `v_parking_operational_report`
@@ -191,6 +197,22 @@ LEFT JOIN nivo.users u ON u.id = t.user_id
 WHERE t.deleted_at IS NULL;
 ```
 
+### 2.4 Índices de Soporte Multi-Tenant Compuestos
+
+```sql
+CREATE INDEX IF NOT EXISTS idx_parking_tickets_tenant_entry
+    ON nivo.parking_tickets (tenant_id, entry_time) WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_parking_tickets_tenant_exit
+    ON nivo.parking_tickets (tenant_id, exit_time) WHERE exit_time IS NOT NULL AND deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_slots_tenant_parking_status
+    ON nivo.slots (tenant_id, parking_lot_id, status) WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_payments_ticket_status
+    ON nivo.payments (parking_ticket_id, status) WHERE deleted_at IS NULL;
+```
+
 ---
 
 ## 3. Observabilidad y Telemetría Operativa con Micrometer (`MeterRegistry`)
@@ -227,33 +249,70 @@ Para mantener un rendimiento óptimo de monitoreo y cumplir las mejores práctic
 
 ## 4. Endpoints REST WebMVC y Streaming SSE Reactivo
 
-### 4.1 Endpoints REST del Dashboard
+### 4.1 Endpoints REST Unificados del Dashboard (Tenant vs. Parking Scope)
 
-1. `GET /api/v1/parkings/{parkingId}/dashboard/summary`
-   - Retorna resumen en tiempo real: ocupación actual, desglose por tipo de vehículo, ingresos del día, comparación porcentual frente al día anterior y tiempo medio de permanencia.
-2. `GET /api/v1/parkings/{parkingId}/dashboard/occupancy-hourly?startDate={iso}&endDate={iso}`
+Todos los endpoints analíticos resuelven el `tenantId` desde el contexto seguro de sesión (`AuthenticationContextGateway`) y aceptan un parámetro opcional `?parkingId={uuid}`:
+
+- **Si `parkingId` está presente**: La consulta se filtra exclusivamente para esa instalación.
+- **Si `parkingId` se omite**: La consulta agrega y consolida todas las instalaciones pertenecientes al tenant autenticado.
+
+1. `GET /api/v1/dashboard/summary?parkingId={optionalUUID}`
+   - Retorna resumen en tiempo real: ocupación actual, total de plazas, plazas libres/ocupadas, ingresos del día, comparación porcentual frente a ayer y tiempo medio de permanencia.
+   - En ámbito global (`parkingId` omitido): suma capacidades e ingresos de todas las sedes del tenant y calcula la tasa de ocupación ponderada.
+
+2. `GET /api/v1/dashboard/occupancy-hourly?parkingId={optionalUUID}&startDate={iso}&endDate={iso}`
    - Consulta `v_parking_occupancy_hourly` retornando la curva cronológica de ocupación y volumen de tráfico para gráficos de área y líneas.
-3. `GET /api/v1/parkings/{parkingId}/reports/operational?startDate={iso}&endDate={iso}&page=0&size=20&search={plate}`
-   - Retorna página paginada de registros operativos (`v_parking_operational_report`).
-4. `GET /api/v1/parkings/{parkingId}/reports/operational/csv?startDate={iso}&endDate={iso}`
-   - Produce `text/csv` con `Content-Disposition: attachment; filename="operational-report-{parkingId}-{date}.csv"`.
-   - Utiliza escritura en streaming directo al `OutputStream` del `HttpServletResponse` mediante chunks amortiguados para soportar exportaciones masivas con consumo constante de memoria O(1).
 
-### 4.2 Stream SSE Reactivo (`/api/v1/parkings/{parkingId}/dashboard/stream`)
+3. `GET /api/v1/dashboard/parkings-comparison?startDate={iso}&endDate={iso}`
+   - **Nuevo Endpoint de Ranking Comparativo**: Diseñado específicamente para tenants que gestionan múltiples sedes (> 1).
+   - Retorna array comparativo ordenado por tasa de ocupación o ingresos:
+
+     ```json
+     [
+       {
+         "parkingId": "c8b3687c-3f95-4424-9b5d-9c3f4e1762aa",
+         "parkingName": "Sede Central Mall",
+         "totalSlots": 150,
+         "occupiedSlots": 108,
+         "occupancyRate": 72.0,
+         "todayRevenue": 450000.0,
+         "currency": "COP",
+         "activeTickets": 108,
+         "avgStayMinutes": 75.5
+       },
+       {
+         "parkingId": "b1a2345c-8d12-4213-9a3b-7f1234567890",
+         "parkingName": "Sede Aeropuerto Express",
+         "totalSlots": 200,
+         "occupiedSlots": 90,
+         "occupancyRate": 45.0,
+         "todayRevenue": 620000.0,
+         "currency": "COP",
+         "activeTickets": 90,
+         "avgStayMinutes": 240.0
+       }
+     ]
+     ```
+
+4. `GET /api/v1/reports/operational?parkingId={optionalUUID}&startDate={iso}&endDate={iso}&page=0&size=20&search={query}`
+   - Retorna página paginada de registros operativos (`v_parking_operational_report`). Si se omite `parkingId`, lista tickets de todas las sedes del tenant, incluyendo la columna `parkingName`.
+
+5. `GET /api/v1/reports/operational/csv?parkingId={optionalUUID}&startDate={iso}&endDate={iso}`
+   - Produce `text/csv` con `Content-Disposition: attachment; filename="operational-report-{scope}-{date}.csv"`.
+   - Streaming directo continuo al `OutputStream` del `HttpServletResponse` con consumo constante de memoria O(1).
+
+### 4.2 Stream SSE Reactivo (`GET /api/v1/dashboard/stream?parkingId={optionalUUID}`)
 
 - **Controlador**: `DashboardStreamController`
 - **Manejador de Conexiones**: `DashboardSseRegistry`
-  - Utiliza `ConcurrentHashMap<UUID, CopyOnWriteArrayList<SseEmitter>>` mapeado por `parkingId`.
-  - Configuración de timeout: 30 minutos con reconexión automática del cliente.
-  - Tarea periódica de Heartbeat cada 15 segundos (`event: ping`) para evitar cierres prematuros por firewalls, proxies o balanceadores de carga.
-  - Handlers de ciclo de vida:
-    - `emitter.onCompletion(() -> removeEmitter(parkingId, emitter))`
-    - `emitter.onTimeout(() -> removeEmitter(parkingId, emitter))`
-    - `emitter.onError((e) -> removeEmitter(parkingId, emitter))`
-- **Eventos Emitidos**:
-  - `event: snapshot`: Payload inicial completo con resumen y ocupación actual nada más conectar.
-  - `event: occupancy-update`: Notificación diferencial ante cambios en ocupación (activado por listener de `TicketCheckedInEvent` o `TicketCheckedOutEvent`).
-  - `event: revenue-update`: Notificación de recaudación ante evento `PaymentCompletedEvent`.
+  - Soporta suscripción por sede específica (`tenantId:parkingId`) o suscripción global del tenant (`tenantId`).
+  - Timeout de 30 minutos con reconexión automática.
+  - Heartbeat periódico cada 15 segundos (`event: ping`).
+- **Despacho Reactivo por Eventos de Dominio**:
+  - Ante un evento `TicketCheckedInEvent` o `TicketCheckedOutEvent`:
+    1. Notifica a los suscriptores conectados al canal de la sede afectada (`tenantId:parkingId`).
+    2. Notifica a los suscriptores conectados al canal consolidado del tenant (`tenantId`) enviando el delta de ocupación global y el identificador de la sede que cambió.
+  - Eventos transmitidos: `event: snapshot`, `event: occupancy-update`, `event: revenue-update`, `event: ping`.
 
 ---
 
@@ -284,158 +343,108 @@ Para mantener un rendimiento óptimo de monitoreo y cumplir las mejores práctic
 
 ### 5.2 Token Bucket Rate Limiting (60 req/min por IP)
 
-- **Implementación**: Filtro WebMVC `PublicApiRateLimitFilter` utilizando el algoritmo Token Bucket en memoria (o Bucket4j) indexado por IP cliente (analizando cabeceras `X-Forwarded-For` y `RemoteAddr`).
-- **Parámetros**:
-  - Capacidad máxima del bucket: 60 tokens.
-  - Tasa de reabastecimiento: 60 tokens por minuto (1 token por segundo).
-- **Cabeceras HTTP en la Respuesta**:
-  - `X-RateLimit-Limit: 60`
-  - `X-RateLimit-Remaining: 34`
-  - `X-RateLimit-Reset: 1727218860`
-- **Caso Exceso de Tasa**:
-  - Código: `HTTP 429 Too Many Requests`
-  - Cabecera: `Retry-After: 26`
-  - Body:
-
-    ```json
-    {
-      "status": 429,
-      "error": "Too Many Requests",
-      "message": "Has excedido el límite de 60 peticiones por minuto. Intenta nuevamente en 26 segundos."
-    }
-    ```
-
-- **Caché de Corta Duración**:
-  - Cache en memoria (Caffeine) con TTL de 30 segundos para evitar saturación de la base de datos ante ráfagas concurrentes.
-  - Cabecera de respuesta: `Cache-Control: public, max-age=30`.
+- **Filtro WebMVC**: `PublicApiRateLimitFilter` aplicando Token Bucket (capacidad 60 tokens, recarga 1 token/segundo por IP).
+- **Cabeceras HTTP**: `X-RateLimit-Limit: 60`, `X-RateLimit-Remaining: n`, `X-RateLimit-Reset: epoch`.
+- **Exceso de Tasa**: Código `HTTP 429 Too Many Requests` con cabecera `Retry-After: <segundos>`.
+- **Caché en Memoria**: Caffeine con TTL de 30 segundos y cabecera `Cache-Control: public, max-age=30`.
 
 ---
 
 ## 6. Scalar Pre-Request Auto-Authentication
 
-### 6.1 Problema
-
-En la interfaz de documentación interactiva de Scalar (`/scalar`), los desarrolladores deben autenticarse continuamente mediante `POST /api/v1/auth/login`, copiar manualmente el token JWT y pegarlo en el cuadro modal de autorización Bearer.
-
-### 6.2 Solución Arquitectónica
-
-1. **Extensión OpenAPI**:
-   Se enriquece la definición de OpenAPI mediante la configuración de SpringDoc / SwaggerConfiguration inyectando metadatos de extensión pre-request reconocidos por Scalar (`x-scalar-pre-request` o scripting de inicialización).
-2. **Script de Inyección de Credenciales y Token**:
-   - Scalar se sirve con una plantilla personalizada (`ScalarCustomWebMvcConfigurer` o script hook) que ejecuta un hook `onBeforeRequest`.
-   - Verifica si existe un Bearer token válido en el almacenamiento de sesión/local. Si no existe o expira, realiza una llamada asíncrona de fondo a `/api/v1/auth/login` con credenciales de prueba preconfiguradas (`demo@nivo.dev` / contraseña del entorno de desarrollo).
-   - Extrae el token JWT devuelto (`accessToken`) y lo asigna en la cabecera `Authorization: Bearer <token>` de forma transparente para todas las peticiones interactivas lanzadas desde Scalar.
-   - Proporciona un control en la UI para forzar renovación o invalidar la sesión interactiva.
+1. **Extensión OpenAPI**: Inyección de metadatos `x-scalar-pre-request` en `SwaggerConfiguration`.
+2. **Script Hook**: Intercepta llamadas interactivas en `/scalar`, autentica en segundo plano vía `POST /api/v1/auth/login` con credenciales de prueba, almacena el JWT en caché de sesión e inyecta `Authorization: Bearer <token>` automáticamente.
 
 ---
 
 ## 7. Arquitectura Frontend en Angular 21+ (`apps/web`)
 
-### 7.1 `DashboardFacade` (Gestión Reactiva con Signals)
+### 7.1 `DashboardFacade` (Gestión Reactiva con Detección Automática de Ámbito)
 
 - **Ubicación**: `apps/web/src/app/features/dashboard/facade/dashboard.facade.ts`
-- **Estado Reactivo**:
+- **Gestión de Ámbito Inteligente**:
 
   ```typescript
+  export type DashboardScope =
+    | { mode: "GLOBAL" }
+    | { mode: "SINGLE"; parkingId: string; parkingName: string };
+
   export class DashboardFacade {
+    // Lista de sedes accesibles para el tenant
+    readonly accessibleParkings = signal<ParkingLotReference[]>([]);
+
+    // Ámbito activo seleccionado por el usuario o fijado automáticamente
+    readonly activeScope = signal<DashboardScope>({ mode: "GLOBAL" });
+
+    // Detección automática: true si el tenant tiene más de 1 parqueadero
+    readonly isMultiParkingTenant = computed(
+      () => this.accessibleParkings().length > 1,
+    );
+
+    // Estado analítico
     readonly summary = signal<DashboardSummary | null>(null);
     readonly occupancyHourly = signal<HourlyOccupancyPoint[]>([]);
+    readonly parkingsComparison = signal<ParkingComparisonItem[]>([]);
     readonly reports = signal<OperationalReportItem[]>([]);
-    readonly totalReports = signal<number>(0);
     readonly isStreaming = signal<boolean>(false);
     readonly isExportingCsv = signal<boolean>(false);
-    readonly dateRange = signal<{ startDate: string; endDate: string }>({
-      startDate: defaultStartDate(),
-      endDate: defaultEndDate(),
-    });
-
-    // Cómputos reactivos
-    readonly occupancyPercentage = computed(
-      () => this.summary()?.occupancyRate ?? 0,
-    );
-    readonly isCapacityAlert = computed(() => this.occupancyPercentage() >= 90);
   }
   ```
 
+- **Lógica de Conmutación de Modo en UI**:
+  - **Si `accessibleParkings().length === 1`**: La UI se auto-configura en modo `SINGLE` directo para esa sede, omitiendo selectores globales innecesarios.
+  - **Si `accessibleParkings().length > 1`**: En el encabezado / selector se agrega la opción destacada `"🏢 Todas las Sedes (Consolidado Global)"`. Al seleccionarla, se activa el modo `GLOBAL`.
 - **Consumo SSE con `fetch` y `ReadableStream`**:
-  Dado que el API SSE requiere cabecera `Authorization: Bearer <token>`, el navegador nativo `EventSource` es insuficiente. La fachada implementa conexión vía:
-
-  ```typescript
-  async connectStream(parkingId: string): Promise<void> {
-    const token = this.authService.getAccessToken();
-    const response = await fetch(`/api/v1/parkings/${parkingId}/dashboard/stream`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const reader = response.body?.getReader();
-    // Decodificación de chunks de eventos SSE, parseo de JSON y actualización de signals
-  }
-  ```
-
-  Soporta reconexión automática exponencial ante desconexiones accidentales.
+  - Construye la URL según el ámbito: `/api/v1/dashboard/stream` (global) o `/api/v1/dashboard/stream?parkingId=${id}` (individual).
+  - Incluye cabecera `Authorization: Bearer ${token}` y reconexión automática exponencial.
 
 ### 7.2 Componentes de Visualización con Chart.js
 
-- Se instala `chart.js` (`^4.4.x`) respetando los estilos globales de Tailwind CSS v4 y el diseño del sistema.
-- **`OccupancyTrendChartComponent`**:
-  - Curva de ocupación horaria con `tension: 0.4` (spline suave).
-  - Relleno vertical degradado (LinearGradient de CSS/Canvas de verde/azul semántico a transparente).
-  - Línea guía de capacidad máxima punteada (`borderDash: [5, 5]`).
-  - Tooltips accesibles formateados con hora local y tasa de ocupación.
-- **`SlotDistributionDonutChartComponent`**:
-  - Gráfico de dona que muestra la distribución de plazas ocupadas, disponibles y reservadas, o por tipo (autos, motos, eléctricos).
-  - Centro hueco con indicador de texto grande (`nv-typography`) con el porcentaje general.
-- **Componentes OnPush**: Todos los componentes de gráficos son puramente presentacionales, reciben datos vía `input()` y se destruyen limpiamente en `ngOnDestroy` (`chart.destroy()`).
+1. **`OccupancyTrendChartComponent`**:
+   - Curva de ocupación con gradiente vertical (`tension: 0.4`).
+   - Muestra la tendencia de ocupación horaria de la sede seleccionada o el promedio ponderado consolidado del tenant.
+
+2. **`SlotDistributionDonutChartComponent`**:
+   - Dona que muestra la proporción de plazas libres, ocupadas y reservadas con recorte central (`cutout: '75%'`) y tipografía del sistema.
+
+3. **`ParkingComparisonChartComponent` (Nuevo Componente para Modo Multi-Sede)**:
+   - **Renderizado Condicional**: Se visualiza exclusivamente cuando `isMultiParkingTenant()` es `true` y el ámbito es `GLOBAL`.
+   - **Tipo de Gráfico**: Gráfico de barras horizontales (`bar` con `indexAxis: 'y'`).
+   - **Métricas Contrastadas**: Compara la tasa de ocupación (%) y la facturación del día de cada sede lado a lado, permitiendo identificar al instante sedes congestionadas vs. sedes con capacidad ociosa.
 
 ### 7.3 Reportes Operativos con TanStack Table
 
-- **Ubicación**: `apps/web/src/app/features/dashboard/components/operational-reports-table/`
-- Se utiliza `@tanstack/angular-table` siguiendo las reglas estrictas de `conventions.md`:
-  - **Prohibido**: Escaleras de `@if / @else if (column.id === ...)` en el template HTML.
-  - **Obligatorio**: Definir cabeceras y renderizado de celdas en la propia definición de columnas (`columnHelper`), utilizando `flexRenderComponent` para chips de estado (`nv-badge`), fechas formateadas y acciones.
-  - Template minimalista y puramente declarativo con directiva `*flexRender`.
-- Selector de rango de fechas reactivo integrado con los inputs del diseño del sistema (`nv-input[type="date"]`, `nv-button`).
+- En modo `GLOBAL`: La tabla incluye de forma nativa la columna `"Sede / Instalación"` para distinguir el origen de cada ticket.
+- En modo `SINGLE`: La columna de sede se oculta dinámicamente para maximizar espacio útil.
+- **Regla Estricta**: No se permiten escaleras `@if / @else if` en el template. El renderizado de celdas se encapsula en la definición de columnas con `flexRenderComponent`.
 
-### 7.4 Exportación Continua por Streaming CSV
+### 7.4 Exportación en Streaming CSV
 
-- La interfaz ofrece un botón de descarga (`nv-button` con icono de descarga) conectado a `DashboardFacade.exportOperationalCsv()`.
-- Descarga el reporte sin congelar la interfaz ni agotar memoria en el navegador, mediante stream de descarga y trigger de guardado directo en archivo Blob.
-- Muestra notificación toast reactiva con `@ngxpert/hot-toast`.
+- El botón de exportación envía `parkingId` solo si el usuario se encuentra en modo sede individual; si está en modo global, descarga el consolidado de todas las sedes del tenant con la columna identificadora de sede.
 
 ### 7.5 Mandato del Sistema de Diseño (`@nivo-sass/design-system`)
 
-- **Regla Estricta**: No utilizar elementos HTML crudos `<button>` o `<input>`. Se utilizan exclusivamente:
-  - `nv-card`, `nv-card-header`, `nv-card-content`, `nv-card-title`, `nv-card-description`
-  - `nv-button` (con variantes `primary`, `secondary`, `outline`, `destructive`)
-  - `nv-badge` (para estados `AVAILABLE`, `OCCUPIED`, `PAID`, `OPEN`, `CLOSED`)
-  - `nv-typography`
-  - `nv-loader` / skeleton loaders para estados de carga
-  - `nv-divider`
+- Uso estricto de componentes `nv-card`, `nv-badge`, `nv-button`, `nv-input`, `nv-select`, `nv-typography`, `nv-loader`. Cero elementos HTML crudos.
 
 ---
 
 ## 8. Casos Borde y Manejo de Errores
 
-1. **Parqueadero sin actividad previa**:
-   - Si no existen tickets registrados para un rango de fecha, la vista SQL retorna totales en 0 y las series temporales devuelven arrays vacíos con formato válido. La UI muestra estados vacíos elegantes con `nv-card`.
-2. **Reconexión y Caída de Conexión SSE**:
-   - `DashboardFacade` detecta interrupción del `ReadableStream` y activa temporizador de reconexión con retroceso exponencial (1s, 2s, 4s... hasta 30s).
-   - En caso de desconexión prolongada, se activa un fallback de sondeo suave (polling) cada 60 segundos hasta restablecer el canal SSE.
-3. **Peticiones masivas a la API pública**:
-   - Si una IP excede 60 peticiones en 60 segundos, recibe inmediatamente `HTTP 429` sin golpear la base de datos gracias a la validación anticipada en el filtro WebMVC.
-4. **Destrucción de Componentes y Fugas de Memoria en Chart.js**:
-   - Todo componente que instancie `Chart` ejecuta `this.chart?.destroy()` en `ngOnDestroy` para liberar recursos de renderizado WebGL/Canvas.
+1. **Tenant con 1 sola sede**: La experiencia es completamente directa y limpia, comportándose idénticamente a una vista dedicada sin ruido de selectores multi-sede.
+2. **Tenant que añade su 2da sede dinámicamente**: La señal computada `isMultiParkingTenant()` pasa automáticamente a `true`, habilitando la pestaña consolidada y el gráfico comparativo sin requerir recarga ni reconfiguración.
+3. **Reconexión SSE con cambio de sede**: Si el usuario conmuta entre "Sede Norte" y "Consolidado Global", el `AbortController` cancela el stream anterior y abre de inmediato la nueva conexión SSE con el parámetro correspondiente.
+4. **Rate limit en API pública**: Bloqueo anticipado por IP en WebMVC Filter respondiendo HTTP 429 sin golpear la base de datos.
 
 ---
 
 ## 9. Estrategia de Pruebas (Strict TDD & QA)
 
 - **Unitarias Backend**:
-  - `PublicAvailabilityControllerTest`: Validación de respuesta 200, 404 ante parqueadero inexistente, y 429 ante violación de rate limit.
-  - `DashboardSseManagerTest`: Conexión de clientes, emisión de eventos a múltiples suscriptores de la misma sede y desregistro ante timeout o error.
-  - `BackendOperationsMetricsManagerTest`: Verificación de contadores, medidores (gauges) y temporizadores (timers) en `MeterRegistry` sin etiquetas de alta cardinalidad.
+  - `DashboardControllerTest`: Pruebas de endpoints con `parkingId` presente (ámbito sede) y sin `parkingId` (ámbito global tenant).
+  - `ParkingsComparisonUseCaseTest`: Verificación de ranking de ocupación e ingresos ordenados correctamente.
+  - `DashboardSseRegistryTest`: Comprobación de entrega de eventos a suscriptores específicos de sede y suscriptores del consolidado tenant.
+  - `BackendOperationsMetricsManagerTest`: Verificación de métricas operativas en `MeterRegistry` sin etiquetas de alta cardinalidad.
 - **Unitarias Frontend**:
-  - `dashboard.facade.spec.ts`: Pruebas de señales reactivas, conexión a streams mockeados y cálculo de porcentajes.
-  - `occupancy-trend-chart.spec.ts`: Renderizado del componente gráfico, actualización reactiva ante inputs y destrucción segura.
-  - `operational-reports-table.spec.ts`: Delegación correcta de renderizado de columnas TanStack sin ladders condicionales.
-- **E2E / Integración**:
-  - Validación del flujo completo de visualización de ocupación en vivo al simular operaciones vehiculares en el backend.
+  - `dashboard.facade.spec.ts`: Auto-detección de 1 vs. múltiples sedes, cambio de `activeScope` y reconexión de stream SSE.
+  - `parking-comparison-chart.spec.ts`: Renderizado del gráfico de barras horizontal comparativo.
+  - `operational-reports-table.spec.ts`: Visibilidad dinámica de columna de sede según el ámbito.

@@ -4,101 +4,109 @@
 
 ## Motivación
 
-El administrador de parqueadero requiere consultar resúmenes en tiempo real, visualizar tendencias históricas por horas, explorar reportes operacionales y recibir actualizaciones instantáneas de ocupación y recaudación sin necesidad de recargar la página o saturar el servidor mediante sondeo por intervalos continuos.
+El administrador de parqueadero requiere consultar resúmenes analíticos en tiempo real, visualizar tendencias históricas por horas, explorar reportes operacionales y recibir actualizaciones instantáneas de ocupación y recaudación sin necesidad de recargar la página o saturar el servidor mediante sondeo continuo (polling). Asimismo, para organizaciones que administran múltiples sedes, se requiere un modelo unificado de ámbito que permita alternar con un único parámetro (`?parkingId={optionalUUID}`) entre la vista de una sede puntual y la visión consolidada global con ranking comparativo entre sedes.
 
 ## Requerimientos
 
 ### 1. Endpoints REST de Analítica (`DashboardController` & `ReportsController`)
 
-1. **`GET /api/v1/parkings/{parkingId}/dashboard/summary`**:
-   - **Autenticación**: Requerida (Bearer JWT). Valida pertenencia de `parkingId` al tenant del usuario autenticado.
+Todos los endpoints analíticos resuelven de forma obligatoria el `tenantId` desde el contexto seguro de sesión (`AuthenticationContextGateway`). El parámetro `parkingId` es opcional:
+
+1. **`GET /api/v1/dashboard/summary?parkingId={optionalUUID}`**:
+   - **Autenticación**: Requerida (Bearer JWT).
+   - **Comportamiento**:
+     - Con `parkingId`: Retorna métricas puntuales de dicha sede, validando pertenencia al tenant.
+     - Sin `parkingId`: Retorna métricas consolidadas sumando capacidades, ingresos y tickets de todas las sedes del tenant, calculando el % de ocupación global ponderado.
    - **Respuesta (200 OK)**:
 
      ```json
      {
-       "parkingId": "c8b3687c-3f95-4424-9b5d-9c3f4e1762aa",
+       "scope": "GLOBAL",
+       "parkingId": null,
        "timestamp": "2026-09-24T21:40:00Z",
-       "totalCapacity": 150,
-       "occupiedSlots": 108,
-       "availableSlots": 42,
+       "totalCapacity": 350,
+       "occupiedSlots": 198,
+       "availableSlots": 152,
        "reservedSlots": 0,
-       "occupancyRate": 72.0,
-       "activeTickets": 108,
-       "todayRevenue": 145000.0,
+       "occupancyRate": 56.57,
+       "activeTickets": 198,
+       "todayRevenue": 1070000.0,
        "currency": "COP",
-       "avgStayMinutes": 84.5,
-       "comparedToYesterdayRate": 5.4,
+       "avgStayMinutes": 92.4,
+       "comparedToYesterdayRate": 4.2,
        "distributionByType": {
-         "CAR": { "total": 100, "occupied": 76, "available": 24 },
-         "MOTORCYCLE": { "total": 40, "occupied": 25, "available": 15 },
-         "EV": { "total": 10, "occupied": 7, "available": 3 }
+         "CAR": { "total": 240, "occupied": 140, "available": 100 },
+         "MOTORCYCLE": { "total": 80, "occupied": 45, "available": 35 },
+         "EV": { "total": 30, "occupied": 13, "available": 17 }
        }
      }
      ```
 
-   - **Latencia Objetivo**: < 200ms.
+2. **`GET /api/v1/dashboard/occupancy-hourly?parkingId={optionalUUID}&startDate={iso}&endDate={iso}`**:
+   - Retorna la serie temporal horaria de ocupación. Si se omite `parkingId`, agrega checkins, checkouts y capacidad de todas las sedes por hora.
 
-2. **`GET /api/v1/parkings/{parkingId}/dashboard/occupancy-hourly`**:
-   - **Parámetros**: `startDate` (ISO OffsetDateTime), `endDate` (ISO OffsetDateTime).
-   - **Respuesta**: Lista de puntos temporales ordenados ascendentemente:
+3. **`GET /api/v1/dashboard/parkings-comparison?startDate={iso}&endDate={iso}`**:
+   - **Endpoint de Ranking Comparativo Multi-Sede**: Diseñado para tenants con más de una sede.
+   - **Respuesta**: Array ordenado por ocupación o recaudación:
 
      ```json
      [
        {
-         "hourBucket": "2026-09-24T08:00:00Z",
-         "checkins": 14,
-         "checkouts": 2,
-         "estimatedOccupancyRate": 48.0,
-         "totalCapacity": 150
+         "parkingId": "c8b3687c-3f95-4424-9b5d-9c3f4e1762aa",
+         "parkingName": "Sede Central Mall",
+         "totalSlots": 150,
+         "occupiedSlots": 108,
+         "occupancyRate": 72.0,
+         "todayRevenue": 450000.0,
+         "currency": "COP",
+         "activeTickets": 108,
+         "avgStayMinutes": 75.5
+       },
+       {
+         "parkingId": "b1a2345c-8d12-4213-9a3b-7f1234567890",
+         "parkingName": "Sede Aeropuerto Express",
+         "totalSlots": 200,
+         "occupiedSlots": 90,
+         "occupancyRate": 45.0,
+         "todayRevenue": 620000.0,
+         "currency": "COP",
+         "activeTickets": 90,
+         "avgStayMinutes": 240.0
        }
      ]
      ```
 
-3. **`GET /api/v1/parkings/{parkingId}/reports/operational`**:
-   - **Parámetros**: `startDate`, `endDate`, `page` (default 0), `size` (default 20), `search` (opcional, filtra por placa o ticket).
-   - **Respuesta**: Estructura `PageResponse<OperationalReportItemDTO>` conteniendo tickets detallados, duraciones, tarifas, cobro y datos de usuario/operador.
+4. **`GET /api/v1/reports/operational?parkingId={optionalUUID}&startDate={iso}&endDate={iso}&page=0&size=20&search={query}`**:
+   - Retorna página paginada de registros operativos (`v_parking_operational_report`). Si `parkingId` es nulo, incluye tickets de todas las sedes del tenant con la columna `parkingName`.
 
-4. **`GET /api/v1/parkings/{parkingId}/reports/operational/csv`**:
-   - **Parámetros**: `startDate`, `endDate`.
-   - **Headers de Respuesta**:
-     - `Content-Type: text/csv; charset=UTF-8`
-     - `Content-Disposition: attachment; filename="report-parking-{parkingId}-{date}.csv"`
-   - **Streaming Directo**: Escribe por bloques en el `OutputStream` de la respuesta HTTP para evitar saturación de memoria heap ante grandes volúmenes de datos.
+5. **`GET /api/v1/reports/operational/csv?parkingId={optionalUUID}&startDate={iso}&endDate={iso}`**:
+   - Descarga en streaming continuo del archivo CSV con cabecera `Content-Disposition: attachment`.
 
-### 2. Stream SSE Reactivo (`/api/v1/parkings/{parkingId}/dashboard/stream`)
+### 2. Stream SSE Reactivo (`GET /api/v1/dashboard/stream?parkingId={optionalUUID}`)
 
 1. **Protocolo y Encabezados**:
    - Retorna `text/event-stream; charset=UTF-8`.
    - Cabecera `Cache-Control: no-cache`.
-   - Cabecera `X-Accel-Buffering: no` (para compatibilidad con proxies NGINX).
+   - Cabecera `X-Accel-Buffering: no`.
 
-2. **Manejo de Ciclo de Vida (`DashboardSseRegistry`)**:
-   - Mantiene instancias `SseEmitter` con un tiempo de vida (timeout) de 30 minutos.
-   - Envía cada 15 segundos un evento de mantenimiento de conexión:
-
-     ```text
-     event: ping
-     data: {"timestamp": "2026-09-24T21:40:15Z"}
-     ```
-
-   - Desregistra limpiamente la conexión en invocaciones de `onCompletion`, `onTimeout` o `onError`.
+2. **Gestión de Suscripciones Dual (`DashboardSseRegistry`)**:
+   - Si se incluye `parkingId`: El cliente se suscribe a los eventos puntuales de esa sede (`tenantId:parkingId`).
+   - Si se omite `parkingId`: El cliente se suscribe al canal consolidado del tenant (`tenantId`), recibiendo notificaciones agregadas de cualquier sede de su organización.
+   - Heartbeat periódico cada 15 segundos (`event: ping`).
+   - Timeout de 30 minutos con reconexión automática.
 
 3. **Eventos Transmitidos**:
-   - **`event: snapshot`**: Se envía inmediatamente tras abrir la conexión SSE con el objeto completo de `DashboardSummary`.
-   - **`event: occupancy-update`**: Se dispara cuando ocurre un evento de dominio `TicketCheckedInEvent` o `TicketCheckedOutEvent` en la sede:
+   - **`event: snapshot`**: Snapshot inicial completo de `DashboardSummary`.
+   - **`event: occupancy-update`**:
 
      ```text
      event: occupancy-update
-     data: {"parkingId":"...","occupiedSlots":109,"availableSlots":41,"occupancyRate":72.67,"timestamp":"..."}
+     data: {"scope":"GLOBAL","parkingId":"c8b3687c-...","occupiedSlots":199,"availableSlots":151,"occupancyRate":56.86,"timestamp":"..."}
      ```
 
-   - **`event: revenue-update`**: Se dispara cuando se confirma un pago con éxito (`PaymentCompletedEvent`):
+   - **`event: revenue-update`**:
 
      ```text
      event: revenue-update
-     data: {"parkingId":"...","todayRevenue":152000.00,"currency":"COP","timestamp":"..."}
+     data: {"scope":"GLOBAL","parkingId":"c8b3687c-...","todayRevenue":1085000.00,"currency":"COP","timestamp":"..."}
      ```
-
-4. **Seguridad y Aislamiento Multi-Tenant**:
-   - El endpoint valida el token Bearer JWT de la petición.
-   - Solamente se autoriza la suscripción a eventos de parqueaderos que pertenezcan al `tenant_id` validado en la sesión.
