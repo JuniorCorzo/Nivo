@@ -102,6 +102,7 @@ CREATE TABLE IF NOT EXISTS payments (
     user_id UUID,
     parking_ticket_id UUID NOT NULL,
     reservation_id UUID,
+    checkout_session_id VARCHAR(100),
     amount DECIMAL(10, 2) NOT NULL,
     payment_date TIMESTAMP WITH TIME ZONE,
     payment_method VARCHAR(50) NOT NULL,
