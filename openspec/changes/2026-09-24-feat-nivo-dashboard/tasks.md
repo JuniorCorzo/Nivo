@@ -6,7 +6,7 @@
 flowchart TD
     subgraph Phase1["Fase 1: Vistas SQL, Métricas Micrometer & APIs Backend / SSE"]
         T1_1["1.1 Migración Flyway: Vistas v_parking_occupancy_hourly, v_parking_daily_summary, v_parking_operational_report"]
-        T1_2["1.2 Instrumentación de Métricas de Negocio Micrometer (MeterRegistry)"]
+        T1_2["1.2 Instrumentación de Métricas Operativas Micrometer (MeterRegistry)"]
         T1_3["1.3 Endpoints REST del Dashboard (Summary, Hourly, Operational Reports)"]
         T1_4["1.4 Gestor SseEmitter, Registry y Endpoint SSE Reactivo con Event Listeners"]
     end
@@ -62,7 +62,7 @@ flowchart TD
 ## Fase 1: Database Views, Micrometer Metrics & Backend Analytics APIs / SSE
 
 - [ ] 1.1 Crear migración Flyway `V5__create_dashboard_views_and_analytics.sql` con las vistas analíticas `v_parking_occupancy_hourly`, `v_parking_daily_summary` y `v_parking_operational_report` con índices sobre `entry_time`, `exit_time` y `status`. _(Ref: `tsk-1790303890008384068`)_
-- [ ] 1.2 Implementar `ParkingMetricsManager` con `MeterRegistry` para instrumentar `parking.occupancy.rate`, `parking.slots.*`, `parking.revenue.daily` y contadores de check-in/check-out. _(Ref: `tsk-1790303890008384068`)_
+- [ ] 1.2 Implementar `BackendOperationsMetricsManager` con `MeterRegistry` para instrumentar telemetría de salud y rendimiento del backend (`sse.dashboard.*`, `db.analytics.query.duration`, `public.api.availability.*`, `reports.csv.export.duration`, `domain.events.dispatch.duration`) sin etiquetas de alta cardinalidad. _(Ref: `tsk-1790303890008384068`)_
 - [ ] 1.3 Desarrollar los casos de uso y repositorios JPA/JDBC para consultas analíticas agregadas: `GetDashboardSummaryUseCase`, `GetHourlyOccupancyUseCase` y `GetOperationalReportUseCase`. _(Ref: `tsk-anc-42`)_
 - [ ] 1.4 Exponer controladores REST WebMVC `DashboardController` (`/dashboard/summary`, `/dashboard/occupancy-hourly`) y `ReportsController` (`/reports/operational`, `/reports/operational/csv`). _(Ref: `tsk-anc-42`)_
 - [ ] 1.5 Implementar `DashboardSseRegistry` para gestión concurrente de `SseEmitter`, tarea programada de heartbeat cada 15s y desregistro seguro en timeout/error/completion. _(Ref: `tsk-1790303894823790364`)_
@@ -89,7 +89,7 @@ flowchart TD
 ## Fase 4: E2E and Unit Testing Coverage
 
 - [ ] 4.1 Escribir pruebas unitarias en `PublicAvailabilityControllerTest`, verificando respuestas 200, 404 y códigos 429 ante agotamiento del token bucket. _(Ref: `tsk-anc-46`)_
-- [ ] 4.2 Escribir pruebas unitarias en `DashboardSseManagerTest` y `ParkingMetricsManagerTest`, validando emisión de snapshots y contadores de Micrometer. _(Ref: `tsk-anc-44`)_
+- [ ] 4.2 Escribir pruebas unitarias en `DashboardSseManagerTest` y `BackendOperationsMetricsManagerTest`, validando emisión de snapshots y métricas operativas de Micrometer. _(Ref: `tsk-anc-44`)_
 - [ ] 4.3 Ejecutar pruebas de carga ligera simulada en el endpoint de disponibilidad para comprobar la resiliencia del caché y del rate limiter. _(Ref: `tsk-anc-46`)_
 - [ ] 4.4 Escribir pruebas unitarias de frontend (`dashboard.facade.spec.ts`, `occupancy-trend-chart.spec.ts`, `operational-reports-table.spec.ts`). _(Ref: `tsk-anc-44`)_
 - [ ] 4.5 Ejecutar la suite completa de pruebas en frontend (`bun test`) y backend (`./gradlew test`) asegurando 0 regresiones. _(Ref: `tsk-anc-44`)_

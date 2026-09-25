@@ -23,7 +23,7 @@ flowchart TD
         DashCtrl["DashboardController (/api/v1/parkings/{id}/dashboard/*)"]
         ReportCtrl["ReportsController (/api/v1/parkings/{id}/reports/*)"]
         SseManager["DashboardSseManager (SseEmitter Registry & Heartbeat)"]
-        MetricsService["Micrometer Metrics Service (MeterRegistry)"]
+        MetricsService["BackendOperationsMetricsManager (MeterRegistry)"]
         EventBus["Spring Domain EventBus / ApplicationEventPublisher"]
     end
 
@@ -193,29 +193,35 @@ WHERE t.deleted_at IS NULL;
 
 ---
 
-## 3. Instrumentación de Métricas con Micrometer (`MeterRegistry`)
+## 3. Observabilidad y Telemetría Operativa con Micrometer (`MeterRegistry`)
 
-Se configuran métricas personalizadas en el espacio de nombres `parking.*` accesibles vía `/actuator/prometheus`:
+Para mantener un rendimiento óptimo de monitoreo y cumplir las mejores prácticas en sistemas multi-tenant, se establece una separación arquitectónica estricta:
 
-### 3.1 Catálogo de Métricas
+- **Analítica de Negocio del Tenant**: Los KPIs comerciales y operativos (% de ocupación en vivo, plazas libres vs. ocupadas, facturación acumulada del día y tiempos promedio de estancia) residen en las vistas de PostgreSQL (`v_parking_daily_summary`, `v_parking_occupancy_hourly`) y son consumidos por los clientes vía REST y transmitidos reactivamente mediante SSE. No se almacenan en Prometheus como métricas etiquetadas por cliente.
+- **Telemetría Operativa de Plataforma**: `BackendOperationsMetricsManager` instrumenta exclusivamente métricas de salud, rendimiento, latencias y consumo de recursos del backend, eliminando etiquetas de alta cardinalidad (`parkingId`, `tenantId`, `licensePlate`) para proteger a Prometheus de la explosión dimensional de series temporales.
 
-| Métrica                                | Tipo            | Etiquetas (Tags)                      | Descripción                                       |
-| :------------------------------------- | :-------------- | :------------------------------------ | :------------------------------------------------ |
-| `parking.occupancy.rate`               | Gauge           | `parkingId`, `tenantId`               | Porcentaje actual de ocupación (0.00% a 100.00%). |
-| `parking.slots.total`                  | Gauge           | `parkingId`, `tenantId`               | Capacidad total de plazas activas.                |
-| `parking.slots.occupied`               | Gauge           | `parkingId`, `tenantId`               | Número de plazas ocupadas o reservadas.           |
-| `parking.slots.available`              | Gauge           | `parkingId`, `tenantId`               | Número de plazas libres de inmediato.             |
-| `parking.tickets.active`               | Gauge           | `parkingId`, `tenantId`               | Cantidad de tickets en estado `OPEN`.             |
-| `parking.revenue.daily`                | Counter / Gauge | `parkingId`, `tenantId`, `currency`   | Ingresos acumulados en la jornada actual.         |
-| `parking.checkin.total`                | Counter         | `parkingId`, `vehicleType`            | Contador de ingresos vehiculares registrados.     |
-| `parking.checkout.total`               | Counter         | `parkingId`, `vehicleType`            | Contador de egresos vehiculares procesados.       |
-| `parking.public.availability.requests` | Counter         | `parkingId`, `status` (200, 429, 404) | Tráfico hacia la API pública de disponibilidad.   |
+### 3.1 Catálogo de Métricas Operativas
+
+| Métrica                                      | Tipo    | Etiquetas (Tags)                  | Descripción                                                         |
+| :------------------------------------------- | :------ | :-------------------------------- | :------------------------------------------------------------------ |
+| `sse.dashboard.active.connections`           | Gauge   | _(ninguna)_                       | Conexiones SSE concurrentes activas en el servidor.                 |
+| `sse.dashboard.events.broadcast.total`       | Counter | _(ninguna)_                       | Total acumulado de eventos SSE transmitidos hacia clientes.         |
+| `sse.dashboard.disconnects.total`            | Counter | _(ninguna)_                       | Total de desconexiones SSE (timeout, cierre de cliente o error).    |
+| `db.analytics.query.duration`                | Timer   | `view` (`hourly`, `daily`, `ops`) | Latencia de ejecución de consultas sobre vistas SQL de analítica.   |
+| `public.api.availability.requests.total`     | Counter | `status` (`200`, `404`, `429`)    | Volumen de peticiones entrantes a la API pública de disponibilidad. |
+| `public.api.availability.rate_limited.total` | Counter | _(ninguna)_                       | Peticiones bloqueadas preventivamente por el filtro Token Bucket.   |
+| `public.api.availability.latency`            | Timer   | _(ninguna)_                       | Latencia de respuesta en el endpoint público de disponibilidad.     |
+| `public.api.availability.cache.hit`          | Counter | _(ninguna)_                       | Aciertos en la caché en memoria (Caffeine) de disponibilidad.       |
+| `public.api.availability.cache.miss`         | Counter | _(ninguna)_                       | Fallos de caché que requirieron consulta a base de datos.           |
+| `domain.events.dispatch.duration`            | Timer   | `event_type`                      | Tiempo de ejecución al procesar y despachar eventos de dominio.     |
+| `reports.csv.export.duration`                | Timer   | _(ninguna)_                       | Duración de generación y transmisión de streams de reportes CSV.    |
 
 ### 3.2 Arquitectura del Servicio de Métricas
 
-- **Clase**: `dev.angelcorzo.nivo.infrastructure.adapter.metrics.ParkingMetricsManager`
-- Mantiene referencias seguras a `AtomicDouble` y contadores registrados dinámicamente en `MeterRegistry`.
-- Se suscribe a los eventos del dominio para refrescar los medidores sin bloquear las transacciones HTTP del check-in o check-out.
+- **Clase**: `dev.angelcorzo.nivo.infrastructure.adapter.metrics.BackendOperationsMetricsManager`
+- Registra `AtomicInteger` para el seguimiento del pool de conexiones `SseEmitter`.
+- Registra temporizadores `Timer` para medir la latencia percentil (p95, p99) de consultas analíticas y exportaciones pesadas sin afectar el tiempo de respuesta.
+- Se integra con `MeterRegistry` y se expone de forma estándar a través de Spring Boot Actuator en `/actuator/prometheus`.
 
 ---
 
@@ -426,7 +432,7 @@ En la interfaz de documentación interactiva de Scalar (`/scalar`), los desarrol
 - **Unitarias Backend**:
   - `PublicAvailabilityControllerTest`: Validación de respuesta 200, 404 ante parqueadero inexistente, y 429 ante violación de rate limit.
   - `DashboardSseManagerTest`: Conexión de clientes, emisión de eventos a múltiples suscriptores de la misma sede y desregistro ante timeout o error.
-  - `ParkingMetricsManagerTest`: Verificación de actualización de métricas en `MeterRegistry` ante eventos de check-in y cobro.
+  - `BackendOperationsMetricsManagerTest`: Verificación de contadores, medidores (gauges) y temporizadores (timers) en `MeterRegistry` sin etiquetas de alta cardinalidad.
 - **Unitarias Frontend**:
   - `dashboard.facade.spec.ts`: Pruebas de señales reactivas, conexión a streams mockeados y cálculo de porcentajes.
   - `occupancy-trend-chart.spec.ts`: Renderizado del componente gráfico, actualización reactiva ante inputs y destrucción segura.

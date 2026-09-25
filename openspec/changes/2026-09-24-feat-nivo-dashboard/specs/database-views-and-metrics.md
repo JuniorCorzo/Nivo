@@ -1,16 +1,19 @@
 <!-- TAG: ADDED -->
 
-# Delta Spec: Database Views & Micrometer Metrics Instrumentation
+# Delta Spec: Database Views & Backend Operational Metrics Instrumentation
 
 ## Motivación
 
-El cómputo de métricas analíticas sobre millones de registros históricos en tiempo de consulta degrada el rendimiento de la base de datos PostgreSQL. Se requieren vistas precalculadas/optimizadas y telemetría de negocio instrumentada con Micrometer para monitorear el estado operativo y alimentar el dashboard y los sistemas de observabilidad (Prometheus/Grafana) con latencias mínimas.
+El cómputo de métricas analíticas sobre millones de registros históricos en tiempo de consulta degrada el rendimiento de la base de datos PostgreSQL. Para resolver esto de manera escalable y limpia, se establece una separación estricta entre la analítica de negocio multi-tenant y la observabilidad de la plataforma:
+
+1. **Analítica de Negocio del Tenant**: Los datos operativos y financieros (% de plazas libres, ocupación en tiempo real, ingresos del día, tiempos de permanencia, rotación) residen exclusivamente en PostgreSQL mediante vistas optimizadas e indexadas, y son consumidos por los clientes del tenant a través de endpoints REST WebMVC y canales reactivos SSE.
+2. **Telemetría Operativa en Prometheus**: Micrometer instrumenta métricas puramente operacionales del backend y de salud de la plataforma (rendimiento de consultas, volumen y latencia de endpoints públicos, conexiones SSE activas, despacho de eventos de dominio y exportaciones CSV). Se eliminan deliberadamente etiquetas de alta cardinalidad (`parkingId`, `tenantId`, `licensePlate`) para evitar la explosión de series temporales en Prometheus y preservar la privacidad multi-tenant.
 
 ## Requerimientos
 
-### 1. Migración de Base de Datos (Flyway)
+### 1. Vistas Analíticas en PostgreSQL (Flyway)
 
-La migración `V5__create_dashboard_views_and_analytics.sql` debe crear las siguientes vistas y sus índices de soporte:
+La migración `V5__create_dashboard_views_and_analytics.sql` crea las siguientes vistas y sus índices de soporte:
 
 1. **Vista `nivo.v_parking_occupancy_hourly`**:
    - Agrupa transacciones de tickets por parqueadero (`parking_lot_id`), `tenant_id` y tramos horarios truncados (`date_trunc('hour', entry_time)`).
@@ -40,23 +43,28 @@ La migración `V5__create_dashboard_views_and_analytics.sql` debe crear las sigu
    - `idx_parking_tickets_exit`: En `parking_tickets (exit_time) WHERE exit_time IS NOT NULL AND deleted_at IS NULL`.
    - `idx_payments_ticket_status`: En `payments (parking_ticket_id, status) WHERE deleted_at IS NULL`.
 
-### 2. Instrumentación de Métricas de Negocio con Micrometer
+### 2. Instrumentación de Telemetría Operativa con Micrometer (`BackendOperationsMetricsManager`)
 
-Se crea la clase de infraestructura `ParkingMetricsManager` gestionada por Spring e inyectada con `MeterRegistry`:
+Se crea la clase de infraestructura `BackendOperationsMetricsManager` inyectada con `MeterRegistry`. Sus métricas se centran 100% en la salud del backend y el consumo de recursos, sin tags de negocio con alta cardinalidad:
 
-1. **Gauges de Ocupación por Sede (`parking.occupancy.*`)**:
-   - `parking.occupancy.rate`: Registra el porcentaje actual de ocupación con tags `{parkingId, tenantId}`.
-   - `parking.slots.total`: Total de plazas físicas operativas.
-   - `parking.slots.occupied`: Plazas en estado `OCCUPIED` o `RESERVED`.
-   - `parking.slots.available`: Plazas en estado `AVAILABLE`.
-   - `parking.tickets.active`: Conteo de tickets en estado `OPEN`.
+1. **Métricas de Conectividad SSE (`sse.dashboard.*`)**:
+   - `sse.dashboard.active.connections`: Gauge global que monitorea el número de clientes SSE actualmente conectados.
+   - `sse.dashboard.events.broadcast.total`: Contador de eventos transmitidos exitosamente hacia clientes conectados.
+   - `sse.dashboard.disconnects.total`: Contador de desconexiones (por timeout, cierre de cliente o error).
 
-2. **Métricas de Facturación (`parking.revenue.*`)**:
-   - `parking.revenue.daily`: Medidor acumulado de ingresos recaudados en el día en curso con tags `{parkingId, tenantId, currency}`.
+2. **Rendimiento de Consultas Analíticas (`db.analytics.*`)**:
+   - `db.analytics.query.duration`: Timer que mide la latencia de ejecución de consultas sobre vistas analíticas, etiquetado con `view` (`occupancy_hourly`, `daily_summary`, `operational_report`).
 
-3. **Contadores de Flujo Vehicular**:
-   - `parking.checkin.total`: Incrementado ante cada check-in vehicular con tags `{parkingId, vehicleType}`.
-   - `parking.checkout.total`: Incrementado ante cada check-out procesado con tags `{parkingId, vehicleType}`.
+3. **API Pública de Disponibilidad y Caché (`public.api.availability.*`)**:
+   - `public.api.availability.requests.total`: Contador de solicitudes entrantes etiquetado con `status` (ej. `200`, `404`, `429`).
+   - `public.api.availability.rate_limited.total`: Contador de peticiones bloqueadas por el limitador Token Bucket.
+   - `public.api.availability.latency`: Timer que mide el tiempo de respuesta del endpoint público.
+   - `public.api.availability.cache.hit`: Contador de aciertos en la caché en memoria de disponibilidad.
+   - `public.api.availability.cache.miss`: Contador de fallos de caché que requirieron consulta a base de datos.
 
-4. **Exposición en Prometheus**:
-   - Todas las métricas del prefijo `parking.*` deben exponerse en `/actuator/prometheus` sin requerir credenciales de usuario final (habilitado para scrapers internos).
+4. **Despacho de Eventos y Exportaciones (`domain.events.*`, `reports.csv.*`)**:
+   - `domain.events.dispatch.duration`: Timer que mide el tiempo de procesamiento de listeners de eventos de dominio, etiquetado con `event_type` (`TicketCheckedInEvent`, `TicketCheckedOutEvent`, `PaymentCompletedEvent`).
+   - `reports.csv.export.duration`: Timer que mide el tiempo total de generación y transmisión de streams CSV.
+
+5. **Exposición en Prometheus**:
+   - Todas estas métricas operativas se exponen vía `/actuator/prometheus` garantizando baja cardinalidad y alto valor para observabilidad de infraestructura (SRE).
