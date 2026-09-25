@@ -1,8 +1,7 @@
+import type { ElementRef, OnDestroy } from "@angular/core";
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
-  OnDestroy,
   effect,
   input,
   output,
@@ -24,10 +23,10 @@ export interface ParkingComparisonItem {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-parking-comparison-chart",
   standalone: true,
   templateUrl: "./parking-comparison-chart.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ParkingComparisonChartComponent implements OnDestroy {
   readonly data = input<ParkingComparisonItem[]>([]);
@@ -63,24 +62,32 @@ export class ParkingComparisonChartComponent implements OnDestroy {
     const occupancyRates = items.map((i) => i.occupancyRate);
 
     this.chartInstance = new Chart(canvas, {
-      type: "bar",
       data: {
-        labels,
         datasets: [
           {
-            label: "% Ocupación",
-            data: occupancyRates,
             backgroundColor: "rgba(59, 130, 246, 0.7)",
             borderColor: "rgba(59, 130, 246, 1)",
-            borderWidth: 1,
             borderRadius: 6,
+            borderWidth: 1,
+            data: occupancyRates,
+            label: "% Ocupación",
           },
         ],
+        labels,
       },
       options: {
         indexAxis: "y",
-        responsive: true,
         maintainAspectRatio: false,
+        onClick: (_event, elements) => {
+          const [firstElement] = elements;
+          if (firstElement) {
+            const { index } = firstElement;
+            const clicked = items[index];
+            if (clicked) {
+              this.handleBarClick(clicked.parkingId);
+            }
+          }
+        },
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -89,25 +96,18 @@ export class ParkingComparisonChartComponent implements OnDestroy {
             },
           },
         },
+        responsive: true,
         scales: {
           x: {
-            min: 0,
             max: 100,
+            min: 0,
             ticks: {
               callback: (value) => `${value}%`,
             },
           },
         },
-        onClick: (_event, elements) => {
-          if (elements.length > 0) {
-            const index = elements[0].index;
-            const clicked = items[index];
-            if (clicked) {
-              this.handleBarClick(clicked.parkingId);
-            }
-          }
-        },
       },
+      type: "bar",
     });
   }
 

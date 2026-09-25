@@ -1,8 +1,7 @@
+import type { ElementRef, OnDestroy } from "@angular/core";
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
-  OnDestroy,
   effect,
   input,
   viewChild,
@@ -20,10 +19,10 @@ export interface HourlyOccupancyPoint {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-occupancy-trend-chart",
   standalone: true,
   templateUrl: "./occupancy-trend-chart.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OccupancyTrendChartComponent implements OnDestroy {
   readonly data = input<HourlyOccupancyPoint[]>([]);
@@ -52,7 +51,7 @@ export class OccupancyTrendChartComponent implements OnDestroy {
 
     const labels = points.map((p) => {
       const date = new Date(p.hourBucket);
-      return isNaN(date.getTime())
+      return Number.isNaN(date.getTime())
         ? p.hourBucket
         : `${date.getHours().toString().padStart(2, "0")}:00`;
     });
@@ -60,61 +59,61 @@ export class OccupancyTrendChartComponent implements OnDestroy {
     const checkinData = points.map((p) => p.checkins);
 
     this.chartInstance = new Chart(canvas, {
-      type: "line",
       data: {
-        labels,
         datasets: [
           {
-            label: "% Ocupación",
-            data: occupancyData,
-            borderColor: "rgb(59, 130, 246)",
             backgroundColor: "rgba(59, 130, 246, 0.1)",
+            borderColor: "rgb(59, 130, 246)",
+            data: occupancyData,
             fill: true,
+            label: "% Ocupación",
             tension: 0.3,
             yAxisID: "y",
           },
           {
-            label: "Entradas",
-            data: checkinData,
-            borderColor: "rgb(16, 185, 129)",
             backgroundColor: "transparent",
+            borderColor: "rgb(16, 185, 129)",
             borderDash: [5, 5],
+            data: checkinData,
+            label: "Entradas",
             tension: 0.3,
             yAxisID: "y1",
           },
         ],
+        labels,
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
         interaction: {
-          mode: "index",
           intersect: false,
+          mode: "index",
         },
+        maintainAspectRatio: false,
+        responsive: true,
         scales: {
           y: {
-            type: "linear",
             display: true,
-            position: "left",
-            min: 0,
             max: 100,
+            min: 0,
+            position: "left",
             ticks: {
               callback: (v) => `${v}%`,
             },
+            type: "linear",
           },
           y1: {
-            type: "linear",
             display: true,
-            position: "right",
             grid: {
               drawOnChartArea: false,
             },
+            position: "right",
             ticks: {
               precision: 0,
             },
+            type: "linear",
           },
         },
       },
+      type: "line",
     });
   }
 

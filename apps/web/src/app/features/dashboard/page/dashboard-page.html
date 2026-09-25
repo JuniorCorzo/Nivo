@@ -6,50 +6,59 @@
   />
 
   @if (facade.isMultiParkingTenant()) {
-    <div
-      data-testid="multi-parking-selector"
-      class="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 p-2"
+  <div
+    data-testid="multi-parking-selector"
+    class="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 p-2"
+  >
+    <nv-button
+      [variant]="facade.activeScope().mode === 'GLOBAL' ? 'default' : 'outline'"
+      size="sm"
+      (click)="facade.setScope('GLOBAL')"
     >
-      <nv-button
-        [variant]="facade.activeScope().mode === 'GLOBAL' ? 'default' : 'outline'"
-        size="sm"
-        (click)="facade.setScope('GLOBAL')"
-      >
-        🏢 Todas las Sedes (Consolidado Global)
-      </nv-button>
-      @for (parking of facade.accessibleParkings(); track parking.id) {
-        <nv-button
-          [variant]="
+      🏢 Todas las Sedes (Consolidado Global)
+    </nv-button>
+    @for (parking of facade.accessibleParkings(); track parking.id) {
+    <nv-button
+      [variant]="
             facade.activeScope().mode === 'SINGLE' &&
             facade.activeScope().parkingId === parking.id
               ? 'default'
               : 'outline'
           "
-          size="sm"
-          (click)="facade.setScope('SINGLE', parking.id)"
-        >
-          {{ parking.name }}
-        </nv-button>
-      }
-    </div>
+      size="sm"
+      (click)="facade.setScope('SINGLE', parking.id)"
+    >
+      {{ parking.name }}
+    </nv-button>
+    }
+  </div>
   }
 
   <!-- KPI summary cards -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <nv-card>
       <nv-card-content class="space-y-1">
-        <span class="text-sm font-medium text-[var(--muted-foreground)]">Ocupación Actual</span>
-        <div class="text-2xl font-bold">{{ facade.occupancyPercentage() | number: '1.1-1' }}%</div>
+        <span class="text-sm font-medium text-[var(--muted-foreground)]"
+          >Ocupación Actual</span
+        >
+        <div class="text-2xl font-bold">
+          {{ facade.occupancyPercentage() | number: '1.1-1' }}%
+        </div>
         <p class="text-xs text-[var(--muted-foreground)]">
-          {{ facade.summary()?.occupiedSlots ?? 0 }} / {{ facade.summary()?.totalCapacity ?? 0 }} plazas ocupadas
+          {{ facade.summary()?.occupiedSlots ?? 0 }} / {{
+          facade.summary()?.totalCapacity ?? 0 }} plazas ocupadas
         </p>
       </nv-card-content>
     </nv-card>
 
     <nv-card>
       <nv-card-content class="space-y-1">
-        <span class="text-sm font-medium text-[var(--muted-foreground)]">Ingresos Hoy</span>
-        <div class="text-2xl font-bold">${{ (facade.summary()?.todayRevenue ?? 0) | number: '1.0-0' }}</div>
+        <span class="text-sm font-medium text-[var(--muted-foreground)]"
+          >Ingresos Hoy</span
+        >
+        <div class="text-2xl font-bold">
+          ${{ (facade.summary()?.todayRevenue ?? 0) | number: '1.0-0' }}
+        </div>
         <p class="text-xs text-[var(--muted-foreground)]">
           Moneda: {{ facade.summary()?.currency ?? 'COP' }}
         </p>
@@ -58,8 +67,12 @@
 
     <nv-card>
       <nv-card-content class="space-y-1">
-        <span class="text-sm font-medium text-[var(--muted-foreground)]">Tickets Activos</span>
-        <div class="text-2xl font-bold">{{ facade.summary()?.activeTickets ?? 0 }}</div>
+        <span class="text-sm font-medium text-[var(--muted-foreground)]"
+          >Tickets Activos</span
+        >
+        <div class="text-2xl font-bold">
+          {{ facade.summary()?.activeTickets ?? 0 }}
+        </div>
         <p class="text-xs text-[var(--muted-foreground)]">
           Vehículos actualmente en sede
         </p>
@@ -68,8 +81,12 @@
 
     <nv-card>
       <nv-card-content class="space-y-1">
-        <span class="text-sm font-medium text-[var(--muted-foreground)]">Tiempo Promedio</span>
-        <div class="text-2xl font-bold">{{ facade.summary()?.avgStayMinutes ?? 0 }} min</div>
+        <span class="text-sm font-medium text-[var(--muted-foreground)]"
+          >Tiempo Promedio</span
+        >
+        <div class="text-2xl font-bold">
+          {{ facade.summary()?.avgStayMinutes ?? 0 }} min
+        </div>
         <p class="text-xs text-[var(--muted-foreground)]">
           Estancia promedio por vehículo
         </p>
@@ -78,10 +95,10 @@
   </div>
 
   @if (facade.activeScope().mode === 'GLOBAL') {
-    <app-parking-comparison-chart
-      [data]="facade.parkingsComparison()"
-      (parkingSelected)="onParkingSelected($event)"
-    />
+  <app-parking-comparison-chart
+    [data]="facade.parkingsComparison()"
+    (parkingSelected)="onParkingSelected($event)"
+  />
   }
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -100,13 +117,11 @@
     <nv-card-header class="flex flex-row items-center justify-between pb-2">
       <div>
         <nv-card-title>Reporte Operativo de Tickets</nv-card-title>
-        <nv-card-description>Detalle de transacciones y estados de tickets</nv-card-description>
+        <nv-card-description
+          >Detalle de transacciones y estados de tickets</nv-card-description
+        >
       </div>
-      <nv-button
-        variant="outline"
-        size="sm"
-        (click)="exportCsv()"
-      >
+      <nv-button variant="outline" size="sm" (click)="exportCsv()">
         Descargar CSV
       </nv-button>
     </nv-card-header>

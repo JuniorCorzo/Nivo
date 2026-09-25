@@ -1,6 +1,8 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ParkingComparisonChartComponent } from "./parking-comparison-chart";
+import type { ComponentFixture } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import { vi } from "vitest";
+
+import { ParkingComparisonChartComponent } from "./parking-comparison-chart";
 
 describe("ParkingComparisonChartComponent", () => {
   let component: ParkingComparisonChartComponent;
@@ -18,24 +20,24 @@ describe("ParkingComparisonChartComponent", () => {
   it("debe instanciar Chart.js y renderizar barras con datos válidos", () => {
     fixture.componentRef.setInput("data", [
       {
-        parkingId: "p1",
-        parkingName: "Sede Centro",
-        totalSlots: 100,
-        occupiedSlots: 75,
-        occupancyRate: 75.0,
-        todayRevenue: 300000,
         activeTickets: 75,
         avgStayMinutes: 60,
+        occupancyRate: 75,
+        occupiedSlots: 75,
+        parkingId: "p1",
+        parkingName: "Sede Centro",
+        todayRevenue: 300_000,
+        totalSlots: 100,
       },
       {
-        parkingId: "p2",
-        parkingName: "Sede Norte",
-        totalSlots: 80,
-        occupiedSlots: 32,
-        occupancyRate: 40.0,
-        todayRevenue: 150000,
         activeTickets: 32,
         avgStayMinutes: 45,
+        occupancyRate: 40,
+        occupiedSlots: 32,
+        parkingId: "p2",
+        parkingName: "Sede Norte",
+        todayRevenue: 150_000,
+        totalSlots: 80,
       },
     ]);
     fixture.detectChanges();
@@ -63,20 +65,24 @@ describe("ParkingComparisonChartComponent", () => {
   it("debe invocar chart.destroy() al destruir el componente para prevenir memory leaks", () => {
     fixture.componentRef.setInput("data", [
       {
-        parkingId: "p1",
-        parkingName: "Sede A",
-        totalSlots: 10,
-        occupiedSlots: 5,
-        occupancyRate: 50.0,
-        todayRevenue: 1000,
         activeTickets: 5,
         avgStayMinutes: 30,
+        occupancyRate: 50,
+        occupiedSlots: 5,
+        parkingId: "p1",
+        parkingName: "Sede A",
+        todayRevenue: 1000,
+        totalSlots: 10,
       },
     ]);
     fixture.detectChanges();
 
-    const destroySpy = vi.spyOn(component.chartInstance!, "destroy");
-    fixture.destroy();
-    expect(destroySpy).toHaveBeenCalled();
+    const instance = component.chartInstance;
+    expect(instance).toBeDefined();
+    if (instance) {
+      const destroySpy = vi.spyOn(instance, "destroy");
+      fixture.destroy();
+      expect(destroySpy).toHaveBeenCalled();
+    }
   });
 });

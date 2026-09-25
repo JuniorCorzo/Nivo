@@ -1,12 +1,12 @@
+import { CommonModule, DecimalPipe } from "@angular/common";
+import type { OnInit, OnDestroy } from "@angular/core";
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
-  OnDestroy,
   inject,
   effect,
 } from "@angular/core";
-import { CommonModule, DecimalPipe } from "@angular/common";
+import { ParkingService } from "@core/services/parking-service";
 import {
   ButtonComponent,
   CardComponent,
@@ -15,16 +15,14 @@ import {
   CardDescriptionComponent,
   CardContentComponent,
 } from "@nivo-sass/design-system";
-import {
-  PageHeaderComponent,
-  PageHeaderBreadcrumbItem,
-} from "@shared/components/page-header/page-header";
-import { ParkingService } from "@core/services/parking-service";
-import { DashboardFacade } from "../facade/dashboard.facade";
+import type { PageHeaderBreadcrumbItem } from "@shared/components/page-header/page-header";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header";
+
 import { OccupancyTrendChartComponent } from "../components/occupancy-trend-chart/occupancy-trend-chart";
-import { SlotDistributionDonutChartComponent } from "../components/slot-distribution-donut-chart/slot-distribution-donut-chart";
-import { ParkingComparisonChartComponent } from "../components/parking-comparison-chart/parking-comparison-chart";
 import { OperationalReportsTableComponent } from "../components/operational-reports-table/operational-reports-table";
+import { ParkingComparisonChartComponent } from "../components/parking-comparison-chart/parking-comparison-chart";
+import { SlotDistributionDonutChartComponent } from "../components/slot-distribution-donut-chart/slot-distribution-donut-chart";
+import { DashboardFacade } from "../facade/dashboard.facade";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -82,6 +80,9 @@ export class DashboardPage implements OnInit, OnDestroy {
 
   exportCsv(): void {
     this.facade.exportCsv().subscribe({
+      error: (err: unknown) => {
+        void err;
+      },
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -90,7 +91,6 @@ export class DashboardPage implements OnInit, OnDestroy {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => {},
     });
   }
 }

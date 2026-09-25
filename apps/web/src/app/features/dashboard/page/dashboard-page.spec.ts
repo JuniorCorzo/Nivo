@@ -1,12 +1,14 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
+import type { ComponentFixture } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
-import { DashboardPage } from "./dashboard-page";
+
 import { DashboardFacade } from "../facade/dashboard.facade";
+import { DashboardPage } from "./dashboard-page";
 
 describe("DashboardPage", () => {
-  let component: DashboardPage;
+  let _component: DashboardPage;
   let fixture: ComponentFixture<DashboardPage>;
   let facade: DashboardFacade;
 
@@ -22,7 +24,7 @@ describe("DashboardPage", () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardPage);
-    component = fixture.componentInstance;
+    _component = fixture.componentInstance;
     facade = TestBed.inject(DashboardFacade);
   });
 
@@ -30,6 +32,7 @@ describe("DashboardPage", () => {
     facade.accessibleParkings.set([{ id: "p1", name: "Sede Única" }]);
     fixture.detectChanges();
 
+    /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
     expect(
       compiled.querySelector('[data-testid="multi-parking-selector"]')
@@ -45,6 +48,7 @@ describe("DashboardPage", () => {
     facade.activeScope.set({ mode: "GLOBAL" });
     fixture.detectChanges();
 
+    /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
     expect(
       compiled.querySelector('[data-testid="multi-parking-selector"]')
@@ -54,6 +58,7 @@ describe("DashboardPage", () => {
 
   it("debe utilizar exclusivamente componentes del @nivo-sass/design-system (cero raw buttons)", () => {
     fixture.detectChanges();
+    /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
     const rawButtons = compiled.querySelectorAll("button:not([nv-button])");
     expect(rawButtons.length).toBe(0);

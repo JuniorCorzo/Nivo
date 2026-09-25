@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import {
   TableBodyComponent,
   TableCellComponent,
@@ -12,17 +7,17 @@ import {
   TableHeaderComponent,
   TableRowComponent,
 } from "@nivo-sass/design-system";
+import type { ColumnDef } from "@tanstack/angular-table";
 import {
-  ColumnDef,
   createAngularTable,
   FlexRender,
   getCoreRowModel,
 } from "@tanstack/angular-table";
-import { OperationalReportItem } from "../../facade/dashboard.facade";
+
+import type { OperationalReportItem } from "../../facade/dashboard.facade";
 
 @Component({
-  selector: "app-operational-reports-table",
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     TableComponent,
     TableBodyComponent,
@@ -32,8 +27,9 @@ import { OperationalReportItem } from "../../facade/dashboard.facade";
     TableHeadComponent,
     FlexRender,
   ],
+  selector: "app-operational-reports-table",
+  standalone: true,
   templateUrl: "./operational-reports-table.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OperationalReportsTableComponent {
   readonly data = input<OperationalReportItem[]>([]);
@@ -42,72 +38,82 @@ export class OperationalReportsTableComponent {
   private readonly columns: ColumnDef<OperationalReportItem>[] = [
     {
       accessorKey: "ticketId",
-      header: "Ticket ID",
       cell: (info) => String(info.getValue() || "").slice(0, 8),
+      header: "Ticket ID",
     },
     {
       accessorKey: "licensePlate",
-      header: "Placa",
       cell: (info) => info.getValue() || "-",
+      header: "Placa",
     },
     {
-      id: "parkingName",
       accessorKey: "parkingName",
-      header: "Sede",
       cell: (info) => info.getValue() || "-",
+      header: "Sede",
+      id: "parkingName",
     },
     {
       accessorKey: "slotNumber",
-      header: "Plaza",
       cell: (info) => info.getValue() || "-",
+      header: "Plaza",
     },
     {
       accessorKey: "slotType",
-      header: "Tipo",
       cell: (info) => info.getValue() || "-",
+      header: "Tipo",
     },
     {
       accessorKey: "entryTime",
-      header: "Entrada",
       cell: (info) => {
-        const val = info.getValue() as string;
-        if (!val) return "-";
+        const val = String(info.getValue() ?? "");
+        if (!val) {
+          return "-";
+        }
         const d = new Date(val);
-        return isNaN(d.getTime()) ? val : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return Number.isNaN(d.getTime())
+          ? val
+          : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       },
+      header: "Entrada",
     },
     {
       accessorKey: "exitTime",
-      header: "Salida",
       cell: (info) => {
-        const val = info.getValue() as string;
-        if (!val) return "-";
+        const val = String(info.getValue() ?? "");
+        if (!val) {
+          return "-";
+        }
         const d = new Date(val);
-        return isNaN(d.getTime()) ? val : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return Number.isNaN(d.getTime())
+          ? val
+          : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       },
+      header: "Salida",
     },
     {
       accessorKey: "durationMinutes",
-      header: "Duración (min)",
       cell: (info) => info.getValue() ?? "-",
+      header: "Duración (min)",
     },
     {
       accessorKey: "ticketStatus",
-      header: "Estado",
       cell: (info) => info.getValue() || "-",
+      header: "Estado",
     },
     {
       accessorKey: "totalToCharge",
-      header: "Total",
       cell: (info) => {
         const val = info.getValue();
-        return val != null ? `$${Number(val).toLocaleString()}` : "$0";
+        return val === null || val === undefined
+          ? "$0"
+          : `$${Number(val).toLocaleString()}`;
       },
+      header: "Total",
     },
     {
       accessorKey: "paymentStatus",
-      header: "Estado Pago",
       cell: (info) => info.getValue() || "-",
+      header: "Estado Pago",
     },
   ];
 

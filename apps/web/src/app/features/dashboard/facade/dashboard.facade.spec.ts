@@ -1,6 +1,7 @@
-import { TestBed } from "@angular/core/testing";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { TestBed } from "@angular/core/testing";
+
 import { DashboardFacade } from "./dashboard.facade";
 
 describe("DashboardFacade", () => {
@@ -34,17 +35,17 @@ describe("DashboardFacade", () => {
 
   it("debe procesar eventos SSE y actualizar Signals reactivamente", () => {
     facade.handleSseMessage("snapshot", {
-      scope: "GLOBAL",
-      totalCapacity: 200,
-      occupiedSlots: 100,
       availableSlots: 100,
-      occupancyRate: 50.0,
-      todayRevenue: 250000,
       currency: "COP",
+      occupancyRate: 50,
+      occupiedSlots: 100,
+      scope: "GLOBAL",
+      todayRevenue: 250_000,
+      totalCapacity: 200,
     });
 
-    expect(facade.summary()?.occupancyRate).toBe(50.0);
-    expect(facade.occupancyPercentage()).toBe(50.0);
+    expect(facade.summary()?.occupancyRate).toBe(50);
+    expect(facade.occupancyPercentage()).toBe(50);
   });
 
   it("debe activar retroceso exponencial en reconexión ante fallo de red SSE", () => {
@@ -52,8 +53,11 @@ describe("DashboardFacade", () => {
     const delay2 = facade.calculateBackoffDelay(1);
     const delay3 = facade.calculateBackoffDelay(2);
 
-    expect(delay1).toBe(1000); // 1s
-    expect(delay2).toBe(2000); // 2s
-    expect(delay3).toBe(4000); // 4s
+    /* 1s */
+    expect(delay1).toBe(1000);
+    /* 2s */
+    expect(delay2).toBe(2000);
+    /* 4s */
+    expect(delay3).toBe(4000);
   });
 });

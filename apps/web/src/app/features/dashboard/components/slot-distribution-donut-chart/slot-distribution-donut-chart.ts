@@ -1,8 +1,7 @@
+import type { ElementRef, OnDestroy } from "@angular/core";
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
-  OnDestroy,
   effect,
   input,
   viewChild,
@@ -12,10 +11,10 @@ import { Chart, registerables } from "chart.js";
 Chart.register(...registerables);
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-slot-distribution-donut-chart",
   standalone: true,
   templateUrl: "./slot-distribution-donut-chart.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SlotDistributionDonutChartComponent implements OnDestroy {
   readonly availableSlots = input<number>(0);
@@ -46,31 +45,31 @@ export class SlotDistributionDonutChartComponent implements OnDestroy {
     }
 
     this.chartInstance = new Chart(canvas, {
-      type: "doughnut",
       data: {
-        labels: ["Ocupadas", "Disponibles"],
         datasets: [
           {
-            data: [occupied, available],
             backgroundColor: [
               "rgba(59, 130, 246, 0.8)",
               "rgba(16, 185, 129, 0.8)",
             ],
             borderColor: ["rgb(59, 130, 246)", "rgb(16, 185, 129)"],
             borderWidth: 1,
+            data: [occupied, available],
           },
         ],
+        labels: ["Ocupadas", "Disponibles"],
       },
       options: {
-        responsive: true,
+        cutout: "70%",
         maintainAspectRatio: false,
         plugins: {
           legend: {
             position: "bottom",
           },
         },
-        cutout: "70%",
+        responsive: true,
       },
+      type: "doughnut",
     });
   }
 

@@ -1,4 +1,6 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import type { ComponentFixture } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
+
 import { OperationalReportsTableComponent } from "./operational-reports-table";
 
 describe("OperationalReportsTableComponent", () => {
@@ -18,34 +20,35 @@ describe("OperationalReportsTableComponent", () => {
     fixture.componentRef.setInput("isGlobalScope", true);
     fixture.componentRef.setInput("data", [
       {
-        ticketId: "t1",
-        licensePlate: "ABC-123",
-        slotNumber: "1",
-        slotType: "CAR",
-        parkingName: "Sede Centro",
+        durationMinutes: 30,
         entryTime: "10:00",
         exitTime: "10:30",
-        durationMinutes: 30,
+        licensePlate: "ABC-123",
+        parkingName: "Sede Centro",
+        paymentStatus: "PENDING",
+        slotNumber: "1",
+        slotType: "CAR",
+        ticketId: "t1",
         ticketStatus: "OPEN",
         totalToCharge: 5000,
-        paymentStatus: "PENDING",
       },
     ]);
     fixture.detectChanges();
 
-    const columnIds = component.table.getAllColumns().map((c: any) => c.id);
+    const columnIds = component.table.getAllColumns().map((c) => c.id);
     expect(columnIds).toContain("parkingName");
 
     fixture.componentRef.setInput("isGlobalScope", false);
     fixture.detectChanges();
     const columnIdsSingle = component.table
       .getAllColumns()
-      .filter((c: any) => c.getIsVisible())
-      .map((c: any) => c.id);
+      .filter((c) => c.getIsVisible())
+      .map((c) => c.id);
     expect(columnIdsSingle).not.toContain("parkingName");
   });
 
   it("template no debe contener escaleras @if/@else if de columnas (anti-ladder rule)", () => {
+    /* SAFETY: Angular fixture nativeElement is guaranteed to be an HTMLElement in DOM environment */
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelectorAll("td").length).toBeGreaterThanOrEqual(0);
   });

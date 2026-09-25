@@ -1,10 +1,14 @@
 <div class="border-border w-full max-w-full overflow-auto rounded-md border">
-  <table nv-table class="min-w-max w-full">
+  <table nv-table class="w-full min-w-max">
     <thead nv-table-header>
       @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
       <tr nv-table-row>
         @for (header of headerGroup.headers; track header.id) {
-        <th [attr.colspan]="header.colSpan" nv-table-head class="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider">
+        <th
+          [attr.colspan]="header.colSpan"
+          nv-table-head
+          class="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase"
+        >
           <ng-container
             *flexRender="
               header.column.columnDef.header;
@@ -42,7 +46,7 @@
         <td
           nv-table-cell
           [attr.colspan]="table.getAllLeafColumns().length"
-          class="h-24 text-center text-muted-foreground"
+          class="text-muted-foreground h-24 text-center"
         >
           No hay registros operativos para el período o sede seleccionada.
         </td>

@@ -1,8 +1,9 @@
-import { Injectable, computed, effect, inject, signal } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { HourlyOccupancyPoint } from "../components/occupancy-trend-chart/occupancy-trend-chart";
-import { ParkingComparisonItem } from "../components/parking-comparison-chart/parking-comparison-chart";
+import { Injectable, computed, inject, signal } from "@angular/core";
+import type { Observable } from "rxjs";
+
+import type { HourlyOccupancyPoint } from "../components/occupancy-trend-chart/occupancy-trend-chart";
+import type { ParkingComparisonItem } from "../components/parking-comparison-chart/parking-comparison-chart";
 
 export interface ParkingItem {
   id: string;
@@ -44,6 +45,9 @@ export interface OperationalReportItem {
   paymentMethod?: string;
   paidAmount?: number;
 }
+
+const isStringPayload = (val: unknown): val is string =>
+  Object.prototype.toString.call(val) === "[object String]";
 
 @Injectable({
   providedIn: "root",
@@ -112,9 +116,14 @@ export class DashboardFacade {
     this.connectSse(parkingId);
   }
 
-  handleSseMessage(eventName: string, data: any): void {
-    if (!data) return;
-    const parsed = typeof data === "string" ? JSON.parse(data) : data;
+  handleSseMessage(eventName: string, data: unknown): void {
+    if (!data) {
+      return;
+    }
+    /* SAFETY: SSE payload from backend matches DashboardSummary schema contract */
+    const parsed = (
+      isStringPayload(data) ? JSON.parse(data) : data
+    ) as DashboardSummary;
 
     if (
       eventName === "snapshot" ||
@@ -125,11 +134,12 @@ export class DashboardFacade {
     }
   }
 
-  calculateBackoffDelay(retryCount: number): number {
-    return Math.min(1000 * Math.pow(2, retryCount), 30000);
+  calculateBackoffDelay(retryCount?: number): number {
+    const count = retryCount ?? this.retryCount;
+    return Math.min(1000 * 2 ** count, 30_000);
   }
 
-  connectSse(parkingId?: string): void {
+  async connectSse(parkingId?: string): Promise<void> {
     if (this.sseAbortController) {
       this.sseAbortController.abort();
       this.sseAbortController = null;
@@ -142,42 +152,52 @@ export class DashboardFacade {
       ? `/api/v1/dashboard/stream?parkingId=${encodeURIComponent(parkingId)}`
       : `/api/v1/dashboard/stream`;
 
-    fetch(url, {
-      signal: abortController.signal,
-      headers: {
-        Accept: "text/event-stream",
-      },
-    })
-      .then(async (response) => {
-        if (!response.ok || !response.body) {
-          throw new Error(`SSE HTTP error ${response.status}`);
-        }
-        this.retryCount = 0;
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let buffer = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n\n");
-          buffer = lines.pop() || "";
-
-          for (const block of lines) {
-            this.parseSseBlock(block);
-          }
-        }
-      })
-      .catch((err) => {
-        if (err.name === "AbortError") return;
-        const delay = this.calculateBackoffDelay(this.retryCount++);
-        setTimeout(() => {
-          if (!abortController.signal.aborted) {
-            this.connectSse(parkingId);
-          }
-        }, delay);
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Accept: "text/event-stream",
+        },
+        signal: abortController.signal,
       });
+
+      if (!response.ok || !response.body) {
+        throw new Error(`SSE HTTP error ${response.status}`);
+      }
+      this.retryCount = 0;
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+
+      const readStreamChunks = async (): Promise<void> => {
+        const chunk = await reader.read();
+        if (chunk.done) {
+          return;
+        }
+        buffer += decoder.decode(chunk.value, { stream: true });
+        const lines = buffer.split("\n\n");
+        buffer = lines.pop() || "";
+
+        for (const block of lines) {
+          this.parseSseBlock(block);
+        }
+        return readStreamChunks();
+      };
+
+      await readStreamChunks();
+    } catch (error: unknown) {
+      /* SAFETY: error could be an AbortError when manually disconnecting */
+      const err = error as { name?: string };
+      if (err.name === "AbortError") {
+        return;
+      }
+      const delay = this.calculateBackoffDelay(this.retryCount);
+      this.retryCount += 1;
+      setTimeout(() => {
+        if (!abortController.signal.aborted) {
+          void this.connectSse(parkingId);
+        }
+      }, delay);
+    }
   }
 
   private parseSseBlock(block: string): void {
@@ -187,9 +207,9 @@ export class DashboardFacade {
 
     for (const line of lines) {
       if (line.startsWith("event:")) {
-        eventName = line.substring(6).trim();
+        eventName = line.slice(6).trim();
       } else if (line.startsWith("data:")) {
-        data = line.substring(5).trim();
+        data = line.slice(5).trim();
       }
     }
 
@@ -213,26 +233,30 @@ export class DashboardFacade {
   }
 
   loadSummary(): void {
-    const parkingId = this.activeScope().parkingId;
+    const { parkingId } = this.activeScope();
     const url = parkingId
       ? `/api/v1/dashboard/summary?parkingId=${encodeURIComponent(parkingId)}`
       : `/api/v1/dashboard/summary`;
 
     this.http.get<DashboardSummary>(url).subscribe({
+      error: (err: unknown) => {
+        void err;
+      },
       next: (res) => this.summary.set(res),
-      error: () => {},
     });
   }
 
   loadHourlyOccupancy(): void {
-    const parkingId = this.activeScope().parkingId;
+    const { parkingId } = this.activeScope();
     const url = parkingId
       ? `/api/v1/dashboard/occupancy-hourly?parkingId=${encodeURIComponent(parkingId)}`
       : `/api/v1/dashboard/occupancy-hourly`;
 
     this.http.get<HourlyOccupancyPoint[]>(url).subscribe({
+      error: (err: unknown) => {
+        void err;
+      },
       next: (res) => this.hourlyOccupancy.set(res || []),
-      error: () => {},
     });
   }
 
@@ -240,32 +264,40 @@ export class DashboardFacade {
     this.http
       .get<ParkingComparisonItem[]>("/api/v1/dashboard/parkings-comparison")
       .subscribe({
+        error: (err: unknown) => {
+          void err;
+        },
         next: (res) => this.parkingsComparison.set(res || []),
-        error: () => {},
       });
   }
 
   loadReports(page = 0): void {
     this.isLoading.set(true);
-    const parkingId = this.activeScope().parkingId;
+    const { parkingId } = this.activeScope();
     let url = `/api/v1/reports/operational?page=${page}`;
     if (parkingId) {
       url += `&parkingId=${encodeURIComponent(parkingId)}`;
     }
 
-    this.http.get<any>(url).subscribe({
-      next: (res) => {
-        this.reports.set(res.content || res || []);
-        this.reportsPage.set(res.number || page);
-        this.reportsTotalPages.set(res.totalPages || 1);
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false),
-    });
+    this.http
+      .get<{
+        content?: OperationalReportItem[];
+        number?: number;
+        totalPages?: number;
+      }>(url)
+      .subscribe({
+        error: () => this.isLoading.set(false),
+        next: (res) => {
+          this.reports.set(res.content || []);
+          this.reportsPage.set(res.number || page);
+          this.reportsTotalPages.set(res.totalPages || 1);
+          this.isLoading.set(false);
+        },
+      });
   }
 
   exportCsv(): Observable<Blob> {
-    const parkingId = this.activeScope().parkingId;
+    const { parkingId } = this.activeScope();
     const url = parkingId
       ? `/api/v1/reports/operational/csv?parkingId=${encodeURIComponent(parkingId)}`
       : `/api/v1/reports/operational/csv`;

@@ -1,6 +1,8 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { OccupancyTrendChartComponent } from "./occupancy-trend-chart";
+import type { ComponentFixture } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import { vi } from "vitest";
+
+import { OccupancyTrendChartComponent } from "./occupancy-trend-chart";
 
 describe("OccupancyTrendChartComponent", () => {
   let component: OccupancyTrendChartComponent;
@@ -18,18 +20,18 @@ describe("OccupancyTrendChartComponent", () => {
   it("debe instanciar Chart.js y renderizar curva de ocupación por horas", () => {
     fixture.componentRef.setInput("data", [
       {
-        hourBucket: "2026-09-24T08:00:00Z",
         checkins: 12,
         checkouts: 2,
+        estimatedOccupancyRate: 24,
+        hourBucket: "2026-09-24T08:00:00Z",
         totalCapacity: 50,
-        estimatedOccupancyRate: 24.0,
       },
       {
-        hourBucket: "2026-09-24T09:00:00Z",
         checkins: 25,
         checkouts: 10,
+        estimatedOccupancyRate: 54,
+        hourBucket: "2026-09-24T09:00:00Z",
         totalCapacity: 50,
-        estimatedOccupancyRate: 54.0,
       },
     ]);
     fixture.detectChanges();
@@ -47,17 +49,21 @@ describe("OccupancyTrendChartComponent", () => {
   it("debe invocar chart.destroy() al destruir el componente", () => {
     fixture.componentRef.setInput("data", [
       {
-        hourBucket: "2026-09-24T10:00:00Z",
         checkins: 5,
         checkouts: 3,
+        estimatedOccupancyRate: 10,
+        hourBucket: "2026-09-24T10:00:00Z",
         totalCapacity: 20,
-        estimatedOccupancyRate: 10.0,
       },
     ]);
     fixture.detectChanges();
 
-    const destroySpy = vi.spyOn(component.chartInstance!, "destroy");
-    fixture.destroy();
-    expect(destroySpy).toHaveBeenCalled();
+    const instance = component.chartInstance;
+    expect(instance).toBeDefined();
+    if (instance) {
+      const destroySpy = vi.spyOn(instance, "destroy");
+      fixture.destroy();
+      expect(destroySpy).toHaveBeenCalled();
+    }
   });
 });

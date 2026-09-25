@@ -1,6 +1,8 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { SlotDistributionDonutChartComponent } from "./slot-distribution-donut-chart";
+import type { ComponentFixture } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import { vi } from "vitest";
+
+import { SlotDistributionDonutChartComponent } from "./slot-distribution-donut-chart";
 
 describe("SlotDistributionDonutChartComponent", () => {
   let component: SlotDistributionDonutChartComponent;
@@ -21,8 +23,10 @@ describe("SlotDistributionDonutChartComponent", () => {
     fixture.detectChanges();
 
     expect(component.chartInstance).toBeDefined();
-    expect((component.chartInstance?.config as any)?.type).toBe("doughnut");
-    expect(component.chartInstance?.data.datasets[0].data).toEqual([60, 40]);
+    if (component.chartInstance && "type" in component.chartInstance.config) {
+      expect(component.chartInstance.config.type).toBe("doughnut");
+    }
+    expect(component.chartInstance?.data.datasets[0]?.data).toEqual([60, 40]);
   });
 
   it("debe manejar valores en cero sin error", () => {
@@ -36,7 +40,11 @@ describe("SlotDistributionDonutChartComponent", () => {
     fixture.componentRef.setInput("occupiedSlots", 20);
     fixture.detectChanges();
 
-    const destroySpy = vi.spyOn(component.chartInstance!, "destroy");
+    const chart = component.chartInstance;
+    if (!chart) {
+      throw new Error("Expected chartInstance to be present");
+    }
+    const destroySpy = vi.spyOn(chart, "destroy");
     fixture.destroy();
     expect(destroySpy).toHaveBeenCalled();
   });
