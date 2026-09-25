@@ -72,6 +72,7 @@ flowchart TD
 Para garantizar latencias de respuesta inferiores a 200ms en el endpoint público y 500ms en consultas agregadas del dashboard, se introducen tres vistas optimizadas en la migración Flyway `V5__create_dashboard_views_and_analytics.sql`:
 
 ### 2.1 `v_parking_occupancy_hourly`
+
 Calcula la serie temporal horaria de entradas, salidas y ocupación pico por parqueadero y tramo horario:
 
 ```sql
@@ -121,13 +122,14 @@ SELECT
         )), 2
     ) AS estimated_occupancy_rate
 FROM hourly_buckets b
-FULL OUTER JOIN hourly_exits e 
+FULL OUTER JOIN hourly_exits e
     ON b.parking_lot_id = e.parking_lot_id AND b.hour_bucket = e.hour_bucket
-JOIN slot_capacities cap 
+JOIN slot_capacities cap
     ON cap.parking_lot_id = COALESCE(b.parking_lot_id, e.parking_lot_id);
 ```
 
 ### 2.2 `v_parking_daily_summary`
+
 Proporciona KPIs consolidados diarios de volumen vehicular, facturación total recaudada, tiempo promedio de estadía y rotación por sede:
 
 ```sql
@@ -152,6 +154,7 @@ GROUP BY s.parking_lot_id, p.tenant_id, date_trunc('day', t.entry_time)::date, p
 ```
 
 ### 2.3 `v_parking_operational_report`
+
 Vista desnormalizada preparada para listado paginado en tablas web y descarga continua por streaming CSV:
 
 ```sql
@@ -195,19 +198,21 @@ WHERE t.deleted_at IS NULL;
 Se configuran métricas personalizadas en el espacio de nombres `parking.*` accesibles vía `/actuator/prometheus`:
 
 ### 3.1 Catálogo de Métricas
-| Métrica | Tipo | Etiquetas (Tags) | Descripción |
-| :--- | :--- | :--- | :--- |
-| `parking.occupancy.rate` | Gauge | `parkingId`, `tenantId` | Porcentaje actual de ocupación (0.00% a 100.00%). |
-| `parking.slots.total` | Gauge | `parkingId`, `tenantId` | Capacidad total de plazas activas. |
-| `parking.slots.occupied` | Gauge | `parkingId`, `tenantId` | Número de plazas ocupadas o reservadas. |
-| `parking.slots.available` | Gauge | `parkingId`, `tenantId` | Número de plazas libres de inmediato. |
-| `parking.tickets.active` | Gauge | `parkingId`, `tenantId` | Cantidad de tickets en estado `OPEN`. |
-| `parking.revenue.daily` | Counter / Gauge | `parkingId`, `tenantId`, `currency` | Ingresos acumulados en la jornada actual. |
-| `parking.checkin.total` | Counter | `parkingId`, `vehicleType` | Contador de ingresos vehiculares registrados. |
-| `parking.checkout.total` | Counter | `parkingId`, `vehicleType` | Contador de egresos vehiculares procesados. |
-| `parking.public.availability.requests` | Counter | `parkingId`, `status` (200, 429, 404) | Tráfico hacia la API pública de disponibilidad. |
+
+| Métrica                                | Tipo            | Etiquetas (Tags)                      | Descripción                                       |
+| :------------------------------------- | :-------------- | :------------------------------------ | :------------------------------------------------ |
+| `parking.occupancy.rate`               | Gauge           | `parkingId`, `tenantId`               | Porcentaje actual de ocupación (0.00% a 100.00%). |
+| `parking.slots.total`                  | Gauge           | `parkingId`, `tenantId`               | Capacidad total de plazas activas.                |
+| `parking.slots.occupied`               | Gauge           | `parkingId`, `tenantId`               | Número de plazas ocupadas o reservadas.           |
+| `parking.slots.available`              | Gauge           | `parkingId`, `tenantId`               | Número de plazas libres de inmediato.             |
+| `parking.tickets.active`               | Gauge           | `parkingId`, `tenantId`               | Cantidad de tickets en estado `OPEN`.             |
+| `parking.revenue.daily`                | Counter / Gauge | `parkingId`, `tenantId`, `currency`   | Ingresos acumulados en la jornada actual.         |
+| `parking.checkin.total`                | Counter         | `parkingId`, `vehicleType`            | Contador de ingresos vehiculares registrados.     |
+| `parking.checkout.total`               | Counter         | `parkingId`, `vehicleType`            | Contador de egresos vehiculares procesados.       |
+| `parking.public.availability.requests` | Counter         | `parkingId`, `status` (200, 429, 404) | Tráfico hacia la API pública de disponibilidad.   |
 
 ### 3.2 Arquitectura del Servicio de Métricas
+
 - **Clase**: `dev.angelcorzo.nivo.infrastructure.adapter.metrics.ParkingMetricsManager`
 - Mantiene referencias seguras a `AtomicDouble` y contadores registrados dinámicamente en `MeterRegistry`.
 - Se suscribe a los eventos del dominio para refrescar los medidores sin bloquear las transacciones HTTP del check-in o check-out.
@@ -217,6 +222,7 @@ Se configuran métricas personalizadas en el espacio de nombres `parking.*` acce
 ## 4. Endpoints REST WebMVC y Streaming SSE Reactivo
 
 ### 4.1 Endpoints REST del Dashboard
+
 1. `GET /api/v1/parkings/{parkingId}/dashboard/summary`
    - Retorna resumen en tiempo real: ocupación actual, desglose por tipo de vehículo, ingresos del día, comparación porcentual frente al día anterior y tiempo medio de permanencia.
 2. `GET /api/v1/parkings/{parkingId}/dashboard/occupancy-hourly?startDate={iso}&endDate={iso}`
@@ -228,6 +234,7 @@ Se configuran métricas personalizadas en el espacio de nombres `parking.*` acce
    - Utiliza escritura en streaming directo al `OutputStream` del `HttpServletResponse` mediante chunks amortiguados para soportar exportaciones masivas con consumo constante de memoria O(1).
 
 ### 4.2 Stream SSE Reactivo (`/api/v1/parkings/{parkingId}/dashboard/stream`)
+
 - **Controlador**: `DashboardStreamController`
 - **Manejador de Conexiones**: `DashboardSseRegistry`
   - Utiliza `ConcurrentHashMap<UUID, CopyOnWriteArrayList<SseEmitter>>` mapeado por `parkingId`.
@@ -247,9 +254,11 @@ Se configuran métricas personalizadas en el espacio de nombres `parking.*` acce
 ## 5. API Pública de Disponibilidad con Rate Limiting por Token Bucket
 
 ### 5.1 Especificación del Endpoint
+
 - **URL**: `GET /api/v1/public/parkings/{parkingId}/availability`
 - **Autenticación**: Pública (permitida en `SecurityChain`).
 - **Respuesta JSON (200 OK)**:
+
 ```json
 {
   "parkingId": "c8b3687c-3f95-4424-9b5d-9c3f4e1762aa",
@@ -268,6 +277,7 @@ Se configuran métricas personalizadas en el espacio de nombres `parking.*` acce
 ```
 
 ### 5.2 Token Bucket Rate Limiting (60 req/min por IP)
+
 - **Implementación**: Filtro WebMVC `PublicApiRateLimitFilter` utilizando el algoritmo Token Bucket en memoria (o Bucket4j) indexado por IP cliente (analizando cabeceras `X-Forwarded-For` y `RemoteAddr`).
 - **Parámetros**:
   - Capacidad máxima del bucket: 60 tokens.
@@ -280,6 +290,7 @@ Se configuran métricas personalizadas en el espacio de nombres `parking.*` acce
   - Código: `HTTP 429 Too Many Requests`
   - Cabecera: `Retry-After: 26`
   - Body:
+
     ```json
     {
       "status": 429,
@@ -287,6 +298,7 @@ Se configuran métricas personalizadas en el espacio de nombres `parking.*` acce
       "message": "Has excedido el límite de 60 peticiones por minuto. Intenta nuevamente en 26 segundos."
     }
     ```
+
 - **Caché de Corta Duración**:
   - Cache en memoria (Caffeine) con TTL de 30 segundos para evitar saturación de la base de datos ante ráfagas concurrentes.
   - Cabecera de respuesta: `Cache-Control: public, max-age=30`.
@@ -296,9 +308,11 @@ Se configuran métricas personalizadas en el espacio de nombres `parking.*` acce
 ## 6. Scalar Pre-Request Auto-Authentication
 
 ### 6.1 Problema
+
 En la interfaz de documentación interactiva de Scalar (`/scalar`), los desarrolladores deben autenticarse continuamente mediante `POST /api/v1/auth/login`, copiar manualmente el token JWT y pegarlo en el cuadro modal de autorización Bearer.
 
 ### 6.2 Solución Arquitectónica
+
 1. **Extensión OpenAPI**:
    Se enriquece la definición de OpenAPI mediante la configuración de SpringDoc / SwaggerConfiguration inyectando metadatos de extensión pre-request reconocidos por Scalar (`x-scalar-pre-request` o scripting de inicialización).
 2. **Script de Inyección de Credenciales y Token**:
@@ -312,8 +326,10 @@ En la interfaz de documentación interactiva de Scalar (`/scalar`), los desarrol
 ## 7. Arquitectura Frontend en Angular 21+ (`apps/web`)
 
 ### 7.1 `DashboardFacade` (Gestión Reactiva con Signals)
+
 - **Ubicación**: `apps/web/src/app/features/dashboard/facade/dashboard.facade.ts`
 - **Estado Reactivo**:
+
   ```typescript
   export class DashboardFacade {
     readonly summary = signal<DashboardSummary | null>(null);
@@ -328,12 +344,16 @@ En la interfaz de documentación interactiva de Scalar (`/scalar`), los desarrol
     });
 
     // Cómputos reactivos
-    readonly occupancyPercentage = computed(() => this.summary()?.occupancyRate ?? 0);
+    readonly occupancyPercentage = computed(
+      () => this.summary()?.occupancyRate ?? 0,
+    );
     readonly isCapacityAlert = computed(() => this.occupancyPercentage() >= 90);
   }
   ```
+
 - **Consumo SSE con `fetch` y `ReadableStream`**:
   Dado que el API SSE requiere cabecera `Authorization: Bearer <token>`, el navegador nativo `EventSource` es insuficiente. La fachada implementa conexión vía:
+
   ```typescript
   async connectStream(parkingId: string): Promise<void> {
     const token = this.authService.getAccessToken();
@@ -344,9 +364,11 @@ En la interfaz de documentación interactiva de Scalar (`/scalar`), los desarrol
     // Decodificación de chunks de eventos SSE, parseo de JSON y actualización de signals
   }
   ```
+
   Soporta reconexión automática exponencial ante desconexiones accidentales.
 
 ### 7.2 Componentes de Visualización con Chart.js
+
 - Se instala `chart.js` (`^4.4.x`) respetando los estilos globales de Tailwind CSS v4 y el diseño del sistema.
 - **`OccupancyTrendChartComponent`**:
   - Curva de ocupación horaria con `tension: 0.4` (spline suave).
@@ -359,6 +381,7 @@ En la interfaz de documentación interactiva de Scalar (`/scalar`), los desarrol
 - **Componentes OnPush**: Todos los componentes de gráficos son puramente presentacionales, reciben datos vía `input()` y se destruyen limpiamente en `ngOnDestroy` (`chart.destroy()`).
 
 ### 7.3 Reportes Operativos con TanStack Table
+
 - **Ubicación**: `apps/web/src/app/features/dashboard/components/operational-reports-table/`
 - Se utiliza `@tanstack/angular-table` siguiendo las reglas estrictas de `conventions.md`:
   - **Prohibido**: Escaleras de `@if / @else if (column.id === ...)` en el template HTML.
@@ -367,11 +390,13 @@ En la interfaz de documentación interactiva de Scalar (`/scalar`), los desarrol
 - Selector de rango de fechas reactivo integrado con los inputs del diseño del sistema (`nv-input[type="date"]`, `nv-button`).
 
 ### 7.4 Exportación Continua por Streaming CSV
+
 - La interfaz ofrece un botón de descarga (`nv-button` con icono de descarga) conectado a `DashboardFacade.exportOperationalCsv()`.
 - Descarga el reporte sin congelar la interfaz ni agotar memoria en el navegador, mediante stream de descarga y trigger de guardado directo en archivo Blob.
 - Muestra notificación toast reactiva con `@ngxpert/hot-toast`.
 
 ### 7.5 Mandato del Sistema de Diseño (`@nivo-sass/design-system`)
+
 - **Regla Estricta**: No utilizar elementos HTML crudos `<button>` o `<input>`. Se utilizan exclusivamente:
   - `nv-card`, `nv-card-header`, `nv-card-content`, `nv-card-title`, `nv-card-description`
   - `nv-button` (con variantes `primary`, `secondary`, `outline`, `destructive`)
@@ -383,6 +408,7 @@ En la interfaz de documentación interactiva de Scalar (`/scalar`), los desarrol
 ---
 
 ## 8. Casos Borde y Manejo de Errores
+
 1. **Parqueadero sin actividad previa**:
    - Si no existen tickets registrados para un rango de fecha, la vista SQL retorna totales en 0 y las series temporales devuelven arrays vacíos con formato válido. La UI muestra estados vacíos elegantes con `nv-card`.
 2. **Reconexión y Caída de Conexión SSE**:
@@ -396,6 +422,7 @@ En la interfaz de documentación interactiva de Scalar (`/scalar`), los desarrol
 ---
 
 ## 9. Estrategia de Pruebas (Strict TDD & QA)
+
 - **Unitarias Backend**:
   - `PublicAvailabilityControllerTest`: Validación de respuesta 200, 404 ante parqueadero inexistente, y 429 ante violación de rate limit.
   - `DashboardSseManagerTest`: Conexión de clientes, emisión de eventos a múltiples suscriptores de la misma sede y desregistro ante timeout o error.

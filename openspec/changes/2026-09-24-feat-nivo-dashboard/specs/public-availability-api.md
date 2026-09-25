@@ -1,12 +1,15 @@
 <!-- TAG: ADDED -->
+
 # Delta Spec: Public Availability API with Rate Limiting
 
 ## Motivación
+
 Desarrolladores y plataformas de navegación externa (ej. Waze, Google Maps o aplicaciones de movilidad urbana) necesitan consultar la disponibilidad de plazas libres en tiempo real de cualquier parqueadero sin necesidad de autenticarse con una cuenta administrativa de Nivo. Para evitar ataques de denegación de servicio (DoS) o sobrecarga en la base de datos, el endpoint debe estar rigurosamente protegido por un limitador de tasa Token Bucket y respaldado por una capa de caché de corta duración.
 
 ## Requerimientos
 
 ### 1. Endpoint Público Versionado
+
 - **Ruta**: `GET /api/v1/public/parkings/{parkingId}/availability`
 - **Alias de Compatibilidad**: `GET /api/v1/parking/{parkingId}/availability`
 - **Seguridad**: Configurado como `permitAll()` en la cadena de seguridad `SecurityChain`. No exige cabecera `Authorization`.
@@ -14,9 +17,11 @@ Desarrolladores y plataformas de navegación externa (ej. Waze, Google Maps o ap
 ### 2. Estructura de Respuesta (Contrato JSON)
 
 #### Escenario: Consulta exitosa de disponibilidad
+
 - **Dado** un `parkingId` válido y activo
 - **Cuando** un cliente externo realiza una petición GET
 - **Entonces** la API retorna código HTTP `200 OK` con el payload:
+
 ```json
 {
   "parkingId": "c8b3687c-3f95-4424-9b5d-9c3f4e1762aa",
@@ -35,6 +40,7 @@ Desarrolladores y plataformas de navegación externa (ej. Waze, Google Maps o ap
 ```
 
 #### Escenario: Parqueadero inexistente
+
 - **Dado** un `parkingId` inexistente o marcado como eliminado (`deleted_at IS NOT NULL`)
 - **Cuando** un cliente consulta su disponibilidad
 - **Entonces** la API retorna código HTTP `404 Not Found` con mensaje `"Parking lot not found: {parkingId}"`.
@@ -59,6 +65,7 @@ Desarrolladores y plataformas de navegación externa (ej. Waze, Google Maps o ap
      - `X-RateLimit-Limit: 60`
      - `X-RateLimit-Remaining: 0`
    - **Cuerpo JSON**:
+
      ```json
      {
        "status": 429,
@@ -69,11 +76,13 @@ Desarrolladores y plataformas de navegación externa (ej. Waze, Google Maps o ap
      ```
 
 ### 4. Estrategia de Caché de Corta Duración
+
 - Las respuestas se almacenan en una caché en memoria (Caffeine) con un TTL de 30 segundos indexado por `parkingId`.
 - La cabecera HTTP `Cache-Control: public, max-age=30` se incluye en las respuestas 200 OK.
 - Se asegura una latencia inferior a 50ms para peticiones con acierto de caché (cache hit), e inferior a 200ms en cache miss.
 
 ### 5. Documentación OpenAPI / Swagger
+
 - Se documenta en el grupo público de OpenAPI mediante anotaciones `@Operation`, `@ApiResponses`:
   - `200`: Disponibilidad devuelta exitosamente.
   - `404`: Parqueadero no encontrado.

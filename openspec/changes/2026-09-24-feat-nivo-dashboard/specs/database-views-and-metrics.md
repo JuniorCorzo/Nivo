@@ -1,12 +1,15 @@
 <!-- TAG: ADDED -->
+
 # Delta Spec: Database Views & Micrometer Metrics Instrumentation
 
 ## Motivación
+
 El cómputo de métricas analíticas sobre millones de registros históricos en tiempo de consulta degrada el rendimiento de la base de datos PostgreSQL. Se requieren vistas precalculadas/optimizadas y telemetría de negocio instrumentada con Micrometer para monitorear el estado operativo y alimentar el dashboard y los sistemas de observabilidad (Prometheus/Grafana) con latencias mínimas.
 
 ## Requerimientos
 
 ### 1. Migración de Base de Datos (Flyway)
+
 La migración `V5__create_dashboard_views_and_analytics.sql` debe crear las siguientes vistas y sus índices de soporte:
 
 1. **Vista `nivo.v_parking_occupancy_hourly`**:
@@ -38,6 +41,7 @@ La migración `V5__create_dashboard_views_and_analytics.sql` debe crear las sigu
    - `idx_payments_ticket_status`: En `payments (parking_ticket_id, status) WHERE deleted_at IS NULL`.
 
 ### 2. Instrumentación de Métricas de Negocio con Micrometer
+
 Se crea la clase de infraestructura `ParkingMetricsManager` gestionada por Spring e inyectada con `MeterRegistry`:
 
 1. **Gauges de Ocupación por Sede (`parking.occupancy.*`)**:

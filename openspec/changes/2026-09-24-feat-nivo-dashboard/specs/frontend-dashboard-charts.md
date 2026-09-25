@@ -1,12 +1,15 @@
 <!-- TAG: ADDED -->
+
 # Delta Spec: Frontend Dashboard Reactive Stream & Chart.js Visualizations
 
 ## Motivación
+
 Los administradores necesitan comprender el comportamiento vehicular de su parqueadero en tiempo real y a nivel histórico a través de curvas continuas de ocupación por horas y donas de distribución de capacidad. La interfaz debe consumir el stream SSE reactivo con autenticación Bearer y renderizar gráficos fluidos y optimizados con Chart.js respetando la arquitectura de componentes `OnPush` y el sistema de diseño `@nivo-sass/design-system`.
 
 ## Requerimientos
 
 ### 1. `DashboardFacade` (Gestión Centralizada con Signals)
+
 - **Ubicación**: `apps/web/src/app/features/dashboard/facade/dashboard.facade.ts`
 - **Responsabilidad**:
   - Encapsular todo el estado reactivo del dashboard mediante Angular Signals:
@@ -23,6 +26,7 @@ Los administradores necesitan comprender el comportamiento vehicular de su parqu
     - Cerrar el lector y abortar la petición (`AbortController`) cuando se abandone la vista (`ngOnDestroy`).
 
 ### 2. Componente de Curva de Ocupación (`OccupancyTrendChartComponent`)
+
 - **Ubicación**: `apps/web/src/app/features/dashboard/components/occupancy-trend-chart/`
 - **Estrategia de Detección de Cambios**: `ChangeDetectionStrategy.OnPush`.
 - **Inputs Reactivos**:
@@ -37,6 +41,7 @@ Los administradores necesitan comprender el comportamiento vehicular de su parqu
   - Destrucción segura en `ngOnDestroy` (`this.chart?.destroy()`) para prevenir fugas de memoria en el navegador.
 
 ### 3. Componente de Dona de Distribución (`SlotDistributionDonutChartComponent`)
+
 - **Ubicación**: `apps/web/src/app/features/dashboard/components/slot-distribution-donut-chart/`
 - **Estrategia de Detección de Cambios**: `ChangeDetectionStrategy.OnPush`.
 - **Inputs Reactivos**:
@@ -50,6 +55,7 @@ Los administradores necesitan comprender el comportamiento vehicular de su parqu
   - Destrucción segura del objeto gráfico en `ngOnDestroy`.
 
 ### 4. Cumplimiento Mandatorio del Sistema de Diseño (`@nivo-sass/design-system`)
+
 - Los contenedores de los gráficos se envuelven en componentes `nv-card`, con `nv-card-header`, `nv-card-title` y `nv-card-description`.
 - Se emplean `nv-badge` para indicar el estado de conexión en vivo ("En Vivo" verde, "Reconectando" ámbar).
 - Se prohíbe el uso de elementos `<button>` crudos para alternar rangos temporales; se utilizan exclusivamente `nv-button` con variantes del sistema.
