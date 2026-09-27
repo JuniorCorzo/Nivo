@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping({ "/api/v1/dashboard", "/dashboard", "/v1/dashboard" })
+@RequestMapping("/dashboard")
 @Tag(name = "Dashboard", description = "Real-time metrics, summaries and comparative analytics")
 @RequiredArgsConstructor
 public class DashboardController {

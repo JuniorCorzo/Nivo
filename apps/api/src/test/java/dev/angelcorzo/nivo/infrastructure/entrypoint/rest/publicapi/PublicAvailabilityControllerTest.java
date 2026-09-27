@@ -48,7 +48,7 @@ class PublicAvailabilityControllerTest {
 
     when(availabilityUseCase.execute(parkingId)).thenReturn(Optional.of(dto));
 
-    mockMvc.perform(get("/api/v1/public/parkings/" + parkingId + "/availability")
+    mockMvc.perform(get("/public/parkings/" + parkingId + "/availability")
             .with(request -> {
               request.setRemoteAddr("10.0.0.1");
               return request;
@@ -72,7 +72,7 @@ class PublicAvailabilityControllerTest {
     final UUID nonExistent = UUID.randomUUID();
     when(availabilityUseCase.execute(nonExistent)).thenReturn(Optional.empty());
 
-    mockMvc.perform(get("/api/v1/public/parkings/" + nonExistent + "/availability")
+    mockMvc.perform(get("/public/parkings/" + nonExistent + "/availability")
             .with(request -> {
               request.setRemoteAddr("10.0.0.2");
               return request;
@@ -99,7 +99,7 @@ class PublicAvailabilityControllerTest {
 
     // Consumir 60 peticiones
     for (int i = 0; i < 60; i++) {
-      mockMvc.perform(get("/api/v1/public/parkings/" + parkingId + "/availability")
+      mockMvc.perform(get("/public/parkings/" + parkingId + "/availability")
               .with(request -> {
                 request.setRemoteAddr(clientIp);
                 return request;
@@ -108,7 +108,7 @@ class PublicAvailabilityControllerTest {
     }
 
     // Petición 61 debe ser 429
-    mockMvc.perform(get("/api/v1/public/parkings/" + parkingId + "/availability")
+    mockMvc.perform(get("/public/parkings/" + parkingId + "/availability")
             .with(request -> {
               request.setRemoteAddr(clientIp);
               return request;

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping({"/api/v1/public/parkings", "/public/parkings"})
+@RequestMapping("/public/parkings")
 @Tag(
     name = "Public Availability",
     description = "Public parking availability API with rate limiting and caching")
@@ -35,9 +35,9 @@ public class PublicAvailabilityController {
       summary = "Get parking availability",
       description = "Public endpoint returning sanitized slot availability")
   public ResponseEntity<PublicParkingAvailabilityDTO> getAvailability(
-      @PathVariable UUID parkingId) {
-    long now = System.currentTimeMillis();
-    CachedAvailability cached = cache.get(parkingId);
+      @PathVariable final UUID parkingId) {
+    final long now = System.currentTimeMillis();
+    final CachedAvailability cached = cache.get(parkingId);
     if (cached != null && (now - cached.cachedAt()) < 30_000L) {
       metricsManager.recordAvailabilityCacheHit();
       metricsManager.recordPublicAvailabilityRequest(200);
@@ -47,13 +47,13 @@ public class PublicAvailabilityController {
     }
 
     metricsManager.recordAvailabilityCacheMiss();
-    var availabilityOpt = availabilityUseCase.execute(parkingId);
+    final java.util.Optional<PublicParkingAvailabilityDTO> availabilityOpt = availabilityUseCase.execute(parkingId);
     if (availabilityOpt.isEmpty()) {
       metricsManager.recordPublicAvailabilityRequest(404);
       return ResponseEntity.notFound().build();
     }
 
-    PublicParkingAvailabilityDTO dto = availabilityOpt.get();
+    final PublicParkingAvailabilityDTO dto = availabilityOpt.get();
     cache.put(parkingId, new CachedAvailability(dto, now));
     metricsManager.recordPublicAvailabilityRequest(200);
 

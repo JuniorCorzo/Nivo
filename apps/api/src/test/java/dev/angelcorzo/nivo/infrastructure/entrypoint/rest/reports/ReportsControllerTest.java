@@ -49,7 +49,39 @@ class ReportsControllerTest {
   private BackendOperationsMetricsManager metricsManager;
 
   @Test
-  @DisplayName("GET /api/v1/reports/operational/csv debe emitir stream CSV con cabeceras correctas y columnas requeridas")
+  @DisplayName("GET /reports/operational debe retornar página de reporte operacional")
+  void shouldReturnPaginatedOperationalReport() throws Exception {
+    final UUID tenantId = UUID.randomUUID();
+    when(authContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+
+    final OperationalReportDTO sampleReport = OperationalReportDTO.builder()
+        .ticketId(UUID.randomUUID())
+        .licensePlate("ABC-123")
+        .slotNumber("10")
+        .slotType("CAR")
+        .entryTime(OffsetDateTime.now())
+        .durationMinutes(30.0)
+        .ticketStatus("ACTIVE")
+        .parkingName("Sede Centro")
+        .build();
+
+    final dev.angelcorzo.nivo.domain.model.dashboard.PageResult<OperationalReportDTO> pageResult =
+        dev.angelcorzo.nivo.domain.model.dashboard.PageResult.<OperationalReportDTO>builder()
+            .content(List.of(sampleReport))
+            .totalElements(1L)
+            .pageNumber(0)
+            .pageSize(20)
+            .totalPages(1)
+            .build();
+
+    when(reportUseCase.execute(eq(tenantId), any(), eq(0), eq(20))).thenReturn(pageResult);
+
+    mockMvc.perform(get("/reports/operational"))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @DisplayName("GET /reports/operational/csv debe emitir stream CSV con cabeceras correctas y columnas requeridas")
   void shouldStreamCsvWithCorrectHeadersAndFormat() throws Exception {
     final UUID tenantId = UUID.randomUUID();
     when(authContextGateway.getCurrentTenantId()).thenReturn(tenantId);
@@ -70,7 +102,7 @@ class ReportsControllerTest {
 
     when(reportUseCase.executeForExport(eq(tenantId), any())).thenReturn(List.of(sampleReport));
 
-    mockMvc.perform(get("/api/v1/reports/operational/csv"))
+    mockMvc.perform(get("/reports/operational/csv"))
         .andExpect(status().isOk())
         .andExpect(header().string("Content-Type", "text/csv;charset=UTF-8"))
         .andExpect(header().string("Content-Disposition", containsString("attachment; filename=\"operational-report-")))

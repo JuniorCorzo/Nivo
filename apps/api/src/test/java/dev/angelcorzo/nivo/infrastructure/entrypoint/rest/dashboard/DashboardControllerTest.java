@@ -56,7 +56,7 @@ class DashboardControllerTest {
   private BackendOperationsMetricsManager metricsManager;
 
   @Test
-  @DisplayName("GET /api/v1/dashboard/summary con parkingId retorna datos específicos de esa sede")
+  @DisplayName("GET /dashboard/summary con parkingId retorna datos específicos de esa sede")
   void shouldReturnSingleParkingSummaryWhenParkingIdProvided() throws Exception {
     final UUID parkingId = UUID.randomUUID();
 
@@ -73,7 +73,7 @@ class DashboardControllerTest {
 
     when(summaryUseCase.execute(parkingId)).thenReturn(mockSummary);
 
-    mockMvc.perform(get("/api/v1/dashboard/summary").param("parkingId", parkingId.toString()))
+    mockMvc.perform(get("/dashboard/summary").param("parkingId", parkingId.toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.scope").value("SINGLE"))
         .andExpect(jsonPath("$.parkingId").value(parkingId.toString()))
@@ -82,7 +82,7 @@ class DashboardControllerTest {
   }
 
   @Test
-  @DisplayName("GET /api/v1/dashboard/summary sin parkingId retorna el consolidado global del tenant")
+  @DisplayName("GET /dashboard/summary sin parkingId retorna el consolidado global del tenant")
   void shouldReturnGlobalSummaryWhenParkingIdOmitted() throws Exception {
     final DashboardSummaryDTO globalSummary = DashboardSummaryDTO.builder()
         .scope("GLOBAL")
@@ -97,7 +97,7 @@ class DashboardControllerTest {
 
     when(summaryUseCase.execute(null)).thenReturn(globalSummary);
 
-    mockMvc.perform(get("/api/v1/dashboard/summary"))
+    mockMvc.perform(get("/dashboard/summary"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.scope").value("GLOBAL"))
         .andExpect(jsonPath("$.parkingId").doesNotExist())
@@ -106,7 +106,7 @@ class DashboardControllerTest {
   }
 
   @Test
-  @DisplayName("GET /api/v1/dashboard/occupancy-hourly retorna serie de tiempo")
+  @DisplayName("GET /dashboard/occupancy-hourly retorna serie de tiempo")
   void shouldReturnHourlyOccupancySeries() throws Exception {
     final UUID parkingId = UUID.randomUUID();
     final List<HourlyOccupancyDTO> series = List.of(
@@ -121,7 +121,7 @@ class DashboardControllerTest {
 
     when(hourlyUseCase.execute(eq(parkingId), any(), any())).thenReturn(series);
 
-    mockMvc.perform(get("/api/v1/dashboard/occupancy-hourly").param("parkingId", parkingId.toString()))
+    mockMvc.perform(get("/dashboard/occupancy-hourly").param("parkingId", parkingId.toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(1)))
         .andExpect(jsonPath("$[0].checkins").value(10))
@@ -129,7 +129,7 @@ class DashboardControllerTest {
   }
 
   @Test
-  @DisplayName("GET /api/v1/dashboard/parkings-comparison retorna lista ordenada de sedes con sus métricas")
+  @DisplayName("GET /dashboard/parkings-comparison retorna lista ordenada de sedes con sus métricas")
   void shouldReturnParkingsComparisonList() throws Exception {
     final List<ParkingComparisonDTO> comparisonList = List.of(
         ParkingComparisonDTO.builder().parkingId(UUID.randomUUID()).parkingName("Sede Centro").occupancyRate(75.0).todayRevenue(new BigDecimal("300000")).build(),
@@ -138,7 +138,7 @@ class DashboardControllerTest {
 
     when(comparisonUseCase.execute(any(), any())).thenReturn(comparisonList);
 
-    mockMvc.perform(get("/api/v1/dashboard/parkings-comparison"))
+    mockMvc.perform(get("/dashboard/parkings-comparison"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(2)))
         .andExpect(jsonPath("$[0].parkingName").value("Sede Centro"))
@@ -153,7 +153,7 @@ class DashboardControllerTest {
     when(summaryUseCase.execute(foreignParking))
         .thenThrow(new ParkingNotExistsException(foreignParking));
 
-    mockMvc.perform(get("/api/v1/dashboard/summary").param("parkingId", foreignParking.toString()))
+    mockMvc.perform(get("/dashboard/summary").param("parkingId", foreignParking.toString()))
         .andExpect(status().isNotFound());
   }
 }

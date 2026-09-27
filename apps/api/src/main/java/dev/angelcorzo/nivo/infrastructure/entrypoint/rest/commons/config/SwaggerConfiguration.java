@@ -14,17 +14,17 @@ public class SwaggerConfiguration {
 
   @Bean
   public OpenAPI customOpenAPI() {
-    Info info =
+    final Info info =
         new Info()
             .title("Nivo API")
             .version("1.0")
             .description("Multi-tenant Parking Management System API")
             .contact(new Contact().name("Nivo Team"));
 
-    String script =
+    final String script =
         """
         // Auto-login to obtain Bearer token for Scalar
-        const response = await fetch('/api/v1/auth/login', {
+        const response = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: 'admin@nivo.dev', password: 'password123' })

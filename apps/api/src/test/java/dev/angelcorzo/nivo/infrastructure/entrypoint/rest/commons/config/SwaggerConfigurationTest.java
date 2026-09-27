@@ -30,8 +30,9 @@ class SwaggerConfigurationTest {
     assertThat(openAPI.getInfo().getExtensions())
         .containsKey("x-scalar-pre-request");
 
-    String preRequestScript = openAPI.getInfo().getExtensions().get("x-scalar-pre-request").toString();
-    assertThat(preRequestScript).contains("/api/v1/auth/login");
+    final String preRequestScript = openAPI.getInfo().getExtensions().get("x-scalar-pre-request").toString();
+    assertThat(preRequestScript).contains("/api/auth/login");
+    assertThat(preRequestScript).doesNotContain("/api/v1/auth/login");
     assertThat(preRequestScript).contains("Bearer");
   }
 }

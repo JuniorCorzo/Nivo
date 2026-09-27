@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
-@RequestMapping({"/api/v1/dashboard", "/dashboard", "/v1/dashboard"})
+@RequestMapping("/dashboard")
 @Tag(name = "Dashboard Stream", description = "Server-Sent Events reactive metrics streaming")
 @RequiredArgsConstructor
 public class DashboardStreamController {

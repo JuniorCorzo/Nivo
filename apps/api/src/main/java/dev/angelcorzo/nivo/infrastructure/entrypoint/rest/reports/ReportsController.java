@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping({"/api/v1/reports", "/reports", "/v1/reports"})
+@RequestMapping("/reports")
 @Tag(name = "Reports", description = "Operational and financial reports with streaming export")
 @RequiredArgsConstructor
 public class ReportsController {

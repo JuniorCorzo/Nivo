@@ -35,7 +35,7 @@ public class SecurityChain {
 
   @Bean
   @Order(1)
-  public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain publicSecurityFilterChain(final HttpSecurity http) throws Exception {
     return http.securityMatcher(
             "/tenants/register",
             "/users/accept-invitation/**",
@@ -59,7 +59,6 @@ public class SecurityChain {
             "/context-path/**",
             "/auth/**",
             "/public/**",
-            "/api/v1/public/**",
             "/favicon.ico")
         .csrf(AbstractHttpConfigurer::disable)
         .headers(AbstractHttpConfigurer::disable)
@@ -72,7 +71,7 @@ public class SecurityChain {
 
   @Bean
   @Order(2)
-  public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain apiSecurityFilterChain(final HttpSecurity http) throws Exception {
     return http.csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(
             sessionManagement ->
@@ -110,7 +109,7 @@ public class SecurityChain {
 
   @Bean
   public <T> AuthorizationManagerFactory<T> authorizationManagerFactory(
-      RoleHierarchy roleHierarchy) {
+      final RoleHierarchy roleHierarchy) {
     final DefaultAuthorizationManagerFactory<T> factory =
         new DefaultAuthorizationManagerFactory<>();
     factory.setRoleHierarchy(roleHierarchy);
@@ -120,8 +119,8 @@ public class SecurityChain {
 
   @Bean
   public MethodSecurityExpressionHandler methodSecurityExpressionHandler(
-      AuthorizationManagerFactory<MethodInvocation> authorizationManagerFactory) {
-    DefaultMethodSecurityExpressionHandler expressionHandler =
+      final AuthorizationManagerFactory<MethodInvocation> authorizationManagerFactory) {
+    final DefaultMethodSecurityExpressionHandler expressionHandler =
         new DefaultMethodSecurityExpressionHandler();
 
     expressionHandler.setAuthorizationManagerFactory(authorizationManagerFactory);
