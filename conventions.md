@@ -96,3 +96,51 @@
 ### Contratos DTO y Documentación OpenAPI
 
 - **Anotaciones `@Schema` Obligatorias:** Todo DTO expuesto a través de endpoints REST debe estar documentado con `@Schema` (`io.swagger.v3.oas.annotations.media.Schema`) tanto a nivel de clase/record como en cada uno de sus campos, incluyendo `description` y `example`. Esto asegura que herramientas como `ng-openapi-gen` en el frontend generen interfaces TypeScript tipadas y documentadas sin tipos `unknown`.
+
+---
+
+## Frontend Angular, Facades y Servicios
+
+### Delegación Obligatoria a Clientes Generados (`ng-openapi-gen`)
+
+- **Prohibición de `HttpClient` en Facades y Componentes:** Prohibido inyectar `HttpClient` o construir URLs HTTP manualmente en componentes o facades.
+- **Servicios de Dominio Dedicados:** Toda llamada HTTP debe encapsularse en un servicio de dominio (`@core/services/<domain>-api.service.ts`) que inyecte los servicios generados por `ng-openapi-gen` (`@core/api/generated/services/`), aplique `HttpContext` con el token `AUTHORIZED, true` y retorne observables tipados hacia modelos de dominio.
+
+### Aislamiento de Modelos y Mappers
+
+- **Prohibición de Tipos Inline:** Prohibido definir interfaces de datos o DTOs inline en facades o componentes.
+- **Ubicación Canónica de Modelos:** Los modelos residen exclusivamente en `@core/models/<domain>.model.ts`.
+- **Mappers con Validación de Tipos:** Las transformaciones y validaciones de tipos en tiempo de ejecución (type guards con TypeScript) residen en `@core/mappers/<domain>.mapper.ts` y deben contar con cobertura de pruebas unitarias.
+
+### Aislamiento de SSE (Server-Sent Events) y Proxy de Desarrollo
+
+- **Servicio SSE Dedicado:** La lógica de streaming reactivo (EventSource o fetch con ReadableStream, reconexión, backoff y tokens) debe residir en un servicio dedicado (`@core/services/<domain>-sse.service.ts`), manteniendo las facades puramente como orquestadoras de señales.
+- **Construcción de URL de Streaming:** Todo endpoint de streaming o API debe construir su ruta utilizando `ApiConfiguration.rootUrl` (o proxy angular) para evitar peticiones fallidas (404) contra el servidor de desarrollo (`localhost:4200`).
+- **Proxy de Desarrollo:** En `apps/web/angular.json`, la opción `proxyConfig: "proxy.conf.json"` debe estar configurada para redirigir `/api` hacia el backend en desarrollo local.
+
+### Control de Flujo Limpio en Signals (Anti-Nested-Ifs)
+
+- **Eliminación de `if` Anidados:** Prohibidas las escaleras de `if` anidados (`if (a) { if (b) { ... } }`) en facades o señales computadas. Utilizar retornos tempranos (`early returns`), booleanos planos y computeds explícitos de estado (ej. `isGlobalScope = computed(...)`, `isSingleScope = computed(...)`).
+
+### Iconografía Unificada con Lucide
+
+- **Prohibición de Emojis:** Prohibido el uso de emojis planos en plantillas (`.html`) para representar elementos de UI o sedes (ej. `🏢`).
+- **Iconos Lucide:** Utilizar exclusivamente iconos de `@ng-icons/lucide` integrados con `NgIcon` y `provideIcons` en tarjetas KPI, botones y encabezados.
+
+---
+
+## Enrutamiento REST y Documentación OpenAPI
+
+### Sin Versionado `/v1` y Rutas Canónicas Únicas
+
+- **Gestión Centralizada del Prefijo `/api`:** En el backend no se utiliza versionado `/v1`. El prefijo global `/api` es administrado centralmente por el servlet context path (`server.servlet.context-path: /api`).
+- **Ruta Relativa Única:** En los controladores REST (`@RequestMapping`), está prohibido definir arreglos con múltiples rutas alternativas (ej. `@RequestMapping({ "/api/v1/x", "/x", "/v1/x" })`), ya que SpringDoc registra cada variante como una operación separada, duplicando la documentación en Scalar/Swagger. Utilizar una única ruta relativa limpia (ej. `@RequestMapping("/x")`).
+
+---
+
+## Seguridad en Infraestructura y Observabilidad (Grafana / Prometheus)
+
+### Autenticación Obligatoria en Producción para Grafana
+
+- **Aislamiento de Seguridad:** En despliegues de producción (`compose.yaml`), Grafana debe tener acceso anónimo deshabilitado (`GF_AUTH_ANONYMOUS_ENABLED=false`), registro deshabilitado (`GF_USERS_ALLOW_SIGN_UP=false`) y contraseña administrativa configurada obligatoriamente vía variable de entorno (`GF_SECURITY_ADMIN_PASSWORD`).
+- **Acceso Local:** El acceso anónimo de conveniencia queda restringido exclusivamente al entorno local de desarrollo (`compose.dev.yaml`).
