@@ -149,8 +149,8 @@ export class DashboardFacade {
     this.sseAbortController = abortController;
 
     const url = parkingId
-      ? `/api/v1/dashboard/stream?parkingId=${encodeURIComponent(parkingId)}`
-      : `/api/v1/dashboard/stream`;
+      ? `/api/dashboard/stream?parkingId=${encodeURIComponent(parkingId)}`
+      : `/api/dashboard/stream`;
 
     try {
       const response = await fetch(url, {
@@ -235,8 +235,8 @@ export class DashboardFacade {
   loadSummary(): void {
     const { parkingId } = this.activeScope();
     const url = parkingId
-      ? `/api/v1/dashboard/summary?parkingId=${encodeURIComponent(parkingId)}`
-      : `/api/v1/dashboard/summary`;
+      ? `/api/dashboard/summary?parkingId=${encodeURIComponent(parkingId)}`
+      : `/api/dashboard/summary`;
 
     this.http.get<DashboardSummary>(url).subscribe({
       error: (err: unknown) => {
@@ -249,8 +249,8 @@ export class DashboardFacade {
   loadHourlyOccupancy(): void {
     const { parkingId } = this.activeScope();
     const url = parkingId
-      ? `/api/v1/dashboard/occupancy-hourly?parkingId=${encodeURIComponent(parkingId)}`
-      : `/api/v1/dashboard/occupancy-hourly`;
+      ? `/api/dashboard/occupancy-hourly?parkingId=${encodeURIComponent(parkingId)}`
+      : `/api/dashboard/occupancy-hourly`;
 
     this.http.get<HourlyOccupancyPoint[]>(url).subscribe({
       error: (err: unknown) => {
@@ -262,7 +262,7 @@ export class DashboardFacade {
 
   loadParkingsComparison(): void {
     this.http
-      .get<ParkingComparisonItem[]>("/api/v1/dashboard/parkings-comparison")
+      .get<ParkingComparisonItem[]>("/api/dashboard/parkings-comparison")
       .subscribe({
         error: (err: unknown) => {
           void err;
@@ -274,7 +274,7 @@ export class DashboardFacade {
   loadReports(page = 0): void {
     this.isLoading.set(true);
     const { parkingId } = this.activeScope();
-    let url = `/api/v1/reports/operational?page=${page}`;
+    let url = `/api/reports/operational?page=${page}`;
     if (parkingId) {
       url += `&parkingId=${encodeURIComponent(parkingId)}`;
     }
@@ -299,8 +299,8 @@ export class DashboardFacade {
   exportCsv(): Observable<Blob> {
     const { parkingId } = this.activeScope();
     const url = parkingId
-      ? `/api/v1/reports/operational/csv?parkingId=${encodeURIComponent(parkingId)}`
-      : `/api/v1/reports/operational/csv`;
+      ? `/api/reports/operational/csv?parkingId=${encodeURIComponent(parkingId)}`
+      : `/api/reports/operational/csv`;
 
     return this.http.get(url, { responseType: "blob" });
   }
