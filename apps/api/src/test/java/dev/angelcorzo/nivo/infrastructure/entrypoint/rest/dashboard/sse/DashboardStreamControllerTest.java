@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,40 +33,33 @@ class DashboardStreamControllerTest {
   @MockitoBean
   private DashboardSseRegistry sseRegistry;
 
-  @MockitoBean
-  private AuthenticationContextGateway authenticationContext;
-
   @Test
   @DisplayName("GET /dashboard/stream sin parkingId suscribe stream SSE global del tenant")
   void shouldSubscribeGlobalTenantSseStream() throws Exception {
-    final UUID tenantId = UUID.randomUUID();
     final SseEmitter emitter = new SseEmitter();
 
-    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
-    when(sseRegistry.createEmitter(tenantId, null)).thenReturn(emitter);
+    when(sseRegistry.createEmitter((UUID) null)).thenReturn(emitter);
 
     mockMvc.perform(get("/dashboard/stream")
             .accept(MediaType.TEXT_EVENT_STREAM_VALUE))
         .andExpect(status().isOk());
 
-    verify(sseRegistry).createEmitter(tenantId, null);
+    verify(sseRegistry).createEmitter((UUID) null);
   }
 
   @Test
   @DisplayName("GET /dashboard/stream con parkingId suscribe stream SSE de sede puntual")
   void shouldSubscribeSingleParkingSseStream() throws Exception {
-    final UUID tenantId = UUID.randomUUID();
     final UUID parkingId = UUID.randomUUID();
     final SseEmitter emitter = new SseEmitter();
 
-    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
-    when(sseRegistry.createEmitter(tenantId, parkingId)).thenReturn(emitter);
+    when(sseRegistry.createEmitter(parkingId)).thenReturn(emitter);
 
     mockMvc.perform(get("/dashboard/stream")
             .param("parkingId", parkingId.toString())
             .accept(MediaType.TEXT_EVENT_STREAM_VALUE))
         .andExpect(status().isOk());
 
-    verify(sseRegistry).createEmitter(tenantId, parkingId);
+    verify(sseRegistry).createEmitter(parkingId);
   }
 }

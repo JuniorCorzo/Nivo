@@ -1,5 +1,6 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.dashboard.sse;
 
+import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.infrastructure.adapter.metrics.BackendOperationsMetricsManager;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,22 +22,31 @@ public class DashboardSseRegistry {
 
   private static final Long EMITTER_TIMEOUT = 30 * 60 * 1000L; // 30 minutes
   private final BackendOperationsMetricsManager metricsManager;
+  private final AuthenticationContextGateway authenticationContext;
   private final Map<String, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
   private final ScheduledExecutorService heartbeatScheduler;
 
-  public DashboardSseRegistry(BackendOperationsMetricsManager metricsManager) {
+  public DashboardSseRegistry(
+      final BackendOperationsMetricsManager metricsManager,
+      final AuthenticationContextGateway authenticationContext) {
     this.metricsManager = metricsManager;
+    this.authenticationContext = authenticationContext;
     this.heartbeatScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-      Thread t = new Thread(r, "sse-heartbeat");
+      final Thread t = new Thread(r, "sse-heartbeat");
       t.setDaemon(true);
       return t;
     });
     this.heartbeatScheduler.scheduleAtFixedRate(this::sendHeartbeats, 15, 15, TimeUnit.SECONDS);
   }
 
-  public SseEmitter createEmitter(UUID tenantId, UUID parkingId) {
-    SseEmitter emitter = new SseEmitter(EMITTER_TIMEOUT);
-    String key = buildKey(tenantId, parkingId);
+  public SseEmitter createEmitter(final UUID parkingId) {
+    final UUID tenantId = authenticationContext.getCurrentTenantId();
+    return createEmitter(tenantId, parkingId);
+  }
+
+  public SseEmitter createEmitter(final UUID tenantId, final UUID parkingId) {
+    final SseEmitter emitter = new SseEmitter(EMITTER_TIMEOUT);
+    final String key = buildKey(tenantId, parkingId);
 
     emitters.computeIfAbsent(key, k -> new CopyOnWriteArrayList<>()).add(emitter);
     metricsManager.recordSseConnectionOpened();
@@ -57,9 +67,9 @@ public class DashboardSseRegistry {
     return emitter;
   }
 
-  public void removeEmitter(UUID tenantId, UUID parkingId, SseEmitter emitter) {
-    String key = buildKey(tenantId, parkingId);
-    List<SseEmitter> list = emitters.get(key);
+  public void removeEmitter(final UUID tenantId, final UUID parkingId, final SseEmitter emitter) {
+    final String key = buildKey(tenantId, parkingId);
+    final List<SseEmitter> list = emitters.get(key);
     if (list != null && list.remove(emitter)) {
       metricsManager.recordSseDisconnect();
       if (list.isEmpty()) {
@@ -68,21 +78,21 @@ public class DashboardSseRegistry {
     }
   }
 
-  public void broadcast(UUID tenantId, UUID parkingId, String eventName, Object data) {
-    List<SseEmitter> targetEmitters = new ArrayList<>();
+  public void broadcast(final UUID tenantId, final UUID parkingId, final String eventName, final Object data) {
+    final List<SseEmitter> targetEmitters = new ArrayList<>();
 
     // 1. Single facility subscribers
     if (parkingId != null) {
-      String facilityKey = buildKey(tenantId, parkingId);
-      List<SseEmitter> facilityList = emitters.get(facilityKey);
+      final String facilityKey = buildKey(tenantId, parkingId);
+      final List<SseEmitter> facilityList = emitters.get(facilityKey);
       if (facilityList != null) {
         targetEmitters.addAll(facilityList);
       }
     }
 
     // 2. Tenant-wide consolidated subscribers
-    String tenantKey = buildKey(tenantId, null);
-    List<SseEmitter> tenantList = emitters.get(tenantKey);
+    final String tenantKey = buildKey(tenantId, null);
+    final List<SseEmitter> tenantList = emitters.get(tenantKey);
     if (tenantList != null) {
       targetEmitters.addAll(tenantList);
     }
@@ -93,20 +103,20 @@ public class DashboardSseRegistry {
 
     metricsManager.recordSseEventBroadcast();
 
-    for (SseEmitter emitter : targetEmitters) {
+    for (final SseEmitter emitter : targetEmitters) {
       try {
         emitter.send(SseEmitter.event().name(eventName).data(data));
-      } catch (Exception ex) {
+      } catch (final Exception ex) {
         log.debug("Failed to send SSE event to client: {}", ex.getMessage());
         emitter.complete();
       }
     }
   }
 
-  public int getActiveCount(UUID tenantId) {
+  public int getActiveCount(final UUID tenantId) {
     int count = 0;
-    String prefix = tenantId.toString();
-    for (Map.Entry<String, List<SseEmitter>> entry : emitters.entrySet()) {
+    final String prefix = tenantId.toString();
+    for (final Map.Entry<String, List<SseEmitter>> entry : emitters.entrySet()) {
       if (entry.getKey().startsWith(prefix)) {
         count += entry.getValue().size();
       }
@@ -115,18 +125,18 @@ public class DashboardSseRegistry {
   }
 
   private void sendHeartbeats() {
-    for (Map.Entry<String, List<SseEmitter>> entry : emitters.entrySet()) {
-      for (SseEmitter emitter : entry.getValue()) {
+    for (final Map.Entry<String, List<SseEmitter>> entry : emitters.entrySet()) {
+      for (final SseEmitter emitter : entry.getValue()) {
         try {
           emitter.send(SseEmitter.event().name("ping").data("{\"heartbeat\":true}"));
-        } catch (Exception e) {
+        } catch (final Exception e) {
           emitter.complete();
         }
       }
     }
   }
 
-  private String buildKey(UUID tenantId, UUID parkingId) {
+  private String buildKey(final UUID tenantId, final UUID parkingId) {
     if (parkingId != null) {
       return tenantId.toString() + ":" + parkingId.toString();
     }

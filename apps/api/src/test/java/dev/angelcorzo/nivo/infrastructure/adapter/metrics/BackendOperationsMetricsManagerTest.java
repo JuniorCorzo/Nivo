@@ -3,7 +3,9 @@ package dev.angelcorzo.nivo.infrastructure.adapter.metrics;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.micrometer.core.instrument.Meter;
+import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -69,11 +71,11 @@ class BackendOperationsMetricsManagerTest {
       try { Thread.sleep(15); } catch (InterruptedException ignored) {}
     });
 
-    var queryTimer = meterRegistry.get("db.analytics.query.duration").tag("view", "hourly").timer();
+    final Timer queryTimer = meterRegistry.get("db.analytics.query.duration").tag("view", "hourly").timer();
     assertThat(queryTimer.count()).isEqualTo(1);
     assertThat(queryTimer.totalTime(TimeUnit.MILLISECONDS)).isGreaterThanOrEqualTo(9.0);
 
-    var csvTimer = meterRegistry.get("reports.csv.export.duration").timer();
+    final Timer csvTimer = meterRegistry.get("reports.csv.export.duration").timer();
     assertThat(csvTimer.count()).isEqualTo(1);
   }
 
@@ -84,8 +86,8 @@ class BackendOperationsMetricsManagerTest {
     metricsManager.recordPublicAvailabilityRequest(200);
     metricsManager.recordAnalyticsQueryDuration("daily", () -> {});
 
-    for (Meter meter : meterRegistry.getMeters()) {
-      var tagKeys = meter.getId().getTags().stream().map(t -> t.getKey().toLowerCase()).toList();
+    for (final Meter meter : meterRegistry.getMeters()) {
+      final List<String> tagKeys = meter.getId().getTags().stream().map(t -> t.getKey().toLowerCase()).toList();
       assertThat(tagKeys)
           .as("Meter '%s' contains high cardinality tags", meter.getId().getName())
           .doesNotContain("parkingid", "tenantid", "licenseplate", "plate", "userid");

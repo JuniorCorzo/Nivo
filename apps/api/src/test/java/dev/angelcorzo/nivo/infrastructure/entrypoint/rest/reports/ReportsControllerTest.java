@@ -3,13 +3,13 @@ package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.reports;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.usecase.dashboard.GetOperationalReportUseCase;
 import dev.angelcorzo.nivo.domain.usecase.dashboard.dtos.OperationalReportDTO;
 import dev.angelcorzo.nivo.infrastructure.adapter.metrics.BackendOperationsMetricsManager;
@@ -43,17 +43,11 @@ class ReportsControllerTest {
   private GetOperationalReportUseCase reportUseCase;
 
   @MockitoBean
-  private AuthenticationContextGateway authContextGateway;
-
-  @MockitoBean
   private BackendOperationsMetricsManager metricsManager;
 
   @Test
   @DisplayName("GET /reports/operational debe retornar página de reporte operacional")
   void shouldReturnPaginatedOperationalReport() throws Exception {
-    final UUID tenantId = UUID.randomUUID();
-    when(authContextGateway.getCurrentTenantId()).thenReturn(tenantId);
-
     final OperationalReportDTO sampleReport = OperationalReportDTO.builder()
         .ticketId(UUID.randomUUID())
         .licensePlate("ABC-123")
@@ -74,18 +68,17 @@ class ReportsControllerTest {
             .totalPages(1)
             .build();
 
-    when(reportUseCase.execute(eq(tenantId), any(), eq(0), eq(20))).thenReturn(pageResult);
+    when(reportUseCase.execute(any(), eq(0), eq(20))).thenReturn(pageResult);
 
     mockMvc.perform(get("/reports/operational"))
         .andExpect(status().isOk());
+
+    verify(reportUseCase).execute(any(), eq(0), eq(20));
   }
 
   @Test
   @DisplayName("GET /reports/operational/csv debe emitir stream CSV con cabeceras correctas y columnas requeridas")
   void shouldStreamCsvWithCorrectHeadersAndFormat() throws Exception {
-    final UUID tenantId = UUID.randomUUID();
-    when(authContextGateway.getCurrentTenantId()).thenReturn(tenantId);
-
     final OperationalReportDTO sampleReport = OperationalReportDTO.builder()
         .ticketId(UUID.randomUUID())
         .licensePlate("ABC-123")
@@ -100,7 +93,7 @@ class ReportsControllerTest {
         .parkingName("Sede Centro")
         .build();
 
-    when(reportUseCase.executeForExport(eq(tenantId), any())).thenReturn(List.of(sampleReport));
+    when(reportUseCase.executeForExport(any())).thenReturn(List.of(sampleReport));
 
     mockMvc.perform(get("/reports/operational/csv"))
         .andExpect(status().isOk())
@@ -109,5 +102,7 @@ class ReportsControllerTest {
         .andExpect(content().string(containsString("Ticket ID,Placa,Plaza,Tipo,Entrada,Salida,Minutos,Estado,Total,Metodo Pago,Sede")))
         .andExpect(content().string(containsString("ABC-123")))
         .andExpect(content().string(containsString("Sede Centro")));
+
+    verify(reportUseCase).executeForExport(any());
   }
 }

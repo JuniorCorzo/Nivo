@@ -1,6 +1,5 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.dashboard.sse;
 
-import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
@@ -19,12 +18,10 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class DashboardStreamController {
 
   private final DashboardSseRegistry sseRegistry;
-  private final AuthenticationContextGateway authenticationContext;
 
   @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   @Operation(summary = "Subscribe to SSE dashboard updates", description = "Dual-scope SSE streaming: single facility if parkingId provided, else consolidated global tenant stream")
   public SseEmitter subscribe(@RequestParam(required = false) final UUID parkingId) {
-    final UUID tenantId = authenticationContext.getCurrentTenantId();
-    return sseRegistry.createEmitter(tenantId, parkingId);
+    return sseRegistry.createEmitter(parkingId);
   }
 }

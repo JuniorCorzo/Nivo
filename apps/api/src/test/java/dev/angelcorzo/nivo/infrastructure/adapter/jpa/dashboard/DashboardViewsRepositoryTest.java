@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -93,8 +95,8 @@ class DashboardViewsRepositoryTest {
   @Test
   @DisplayName("v_parking_daily_summary: debe calcular ingresos exactos (solo PAID), tickets y duración promedio")
   void shouldCalculateExactDailySummaryMetrics() {
-    LocalDate today = LocalDate.of(2026, 9, 24);
-    var summary = dailyRepository.findByParkingLotIdAndSummaryDate(parkingA1, today)
+    final LocalDate today = LocalDate.of(2026, 9, 24);
+    final DailySummaryViewEntity summary = dailyRepository.findByParkingLotIdAndSummaryDate(parkingA1, today)
         .orElseThrow(() -> new AssertionError("Summary record must exist"));
 
     assertThat(summary.getTotalTickets()).isEqualTo(3);
@@ -110,11 +112,11 @@ class DashboardViewsRepositoryTest {
   @Test
   @DisplayName("v_parking_occupancy_hourly: debe calcular entradas, salidas y tasa de ocupación por hora")
   void shouldCalculateHourlyOccupancyAccurately() {
-    var hourlyList = hourlyRepository.findByParkingLotId(parkingA1);
+    final List<HourlyOccupancyViewEntity> hourlyList = hourlyRepository.findByParkingLotId(parkingA1);
     assertThat(hourlyList).isNotEmpty();
 
     // En la franja de las 08:00 UTC hubo 2 entradas (ticket1 y ticket2)
-    var bucket8am = hourlyList.stream()
+    final HourlyOccupancyViewEntity bucket8am = hourlyList.stream()
         .filter(h -> h.getHourBucket().getHour() == 8)
         .findFirst()
         .orElseThrow();
@@ -126,13 +128,13 @@ class DashboardViewsRepositoryTest {
   @Test
   @DisplayName("Aislamiento multi-tenant: tenantA nunca debe recibir datos pertenecientes a tenantB")
   void shouldStrictlyIsolateTenantsInDailyAndHourlySummaries() {
-    var summariesA = dailyRepository.findAllByTenantId(tenantA);
+    final List<DailySummaryViewEntity> summariesA = dailyRepository.findAllByTenantId(tenantA);
     assertThat(summariesA)
         .isNotEmpty()
         .allMatch(s -> s.getTenantId().equals(tenantA))
         .noneMatch(s -> s.getTenantId().equals(tenantB));
 
-    var reportsA = operationalRepository.findAllByTenantId(tenantA);
+    final List<OperationalReportViewEntity> reportsA = operationalRepository.findAllByTenantId(tenantA);
     assertThat(reportsA)
         .isNotEmpty()
         .allMatch(r -> r.getTenantId().equals(tenantA))
@@ -142,14 +144,14 @@ class DashboardViewsRepositoryTest {
   @Test
   @DisplayName("Parqueadero vacío o sin tickets debe retornar vacío/cero sin NullPointerException")
   void shouldHandleEmptyParkingGracefullyWithoutNpe() {
-    UUID emptyParking = UUID.randomUUID();
+    final UUID emptyParking = UUID.randomUUID();
     insertParkingLot(emptyParking, tenantA, "Sede Nueva Vacía", "COP");
     insertSlot(emptyParking, tenantA, "V-01", "AVAILABLE", "CAR");
 
-    var summary = dailyRepository.findByParkingLotIdAndSummaryDate(emptyParking, LocalDate.of(2026, 9, 24));
+    final Optional<DailySummaryViewEntity> summary = dailyRepository.findByParkingLotIdAndSummaryDate(emptyParking, LocalDate.of(2026, 9, 24));
     assertThat(summary).isEmpty();
 
-    var hourly = hourlyRepository.findByParkingLotId(emptyParking);
+    final List<HourlyOccupancyViewEntity> hourly = hourlyRepository.findByParkingLotId(emptyParking);
     assertThat(hourly).isEmpty();
   }
 

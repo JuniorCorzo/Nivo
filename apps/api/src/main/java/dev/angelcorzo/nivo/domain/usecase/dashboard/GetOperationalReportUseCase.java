@@ -1,5 +1,6 @@
 package dev.angelcorzo.nivo.domain.usecase.dashboard;
 
+import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.model.dashboard.OperationalReportModel;
 import dev.angelcorzo.nivo.domain.model.dashboard.PageResult;
 import dev.angelcorzo.nivo.domain.model.dashboard.gateways.OperationalReportGateway;
@@ -12,6 +13,13 @@ import lombok.RequiredArgsConstructor;
 public class GetOperationalReportUseCase {
 
   private final OperationalReportGateway reportGateway;
+  private final AuthenticationContextGateway authenticationContext;
+
+  public PageResult<OperationalReportDTO> execute(
+      final UUID parkingId, final int page, final int size) {
+    final UUID tenantId = authenticationContext.getCurrentTenantId();
+    return execute(tenantId, parkingId, page, size);
+  }
 
   public PageResult<OperationalReportDTO> execute(
       final UUID tenantId, final UUID parkingId, final int page, final int size) {
@@ -24,6 +32,11 @@ public class GetOperationalReportUseCase {
         .totalElements(pageResult.getTotalElements())
         .totalPages(pageResult.getTotalPages())
         .build();
+  }
+
+  public List<OperationalReportDTO> executeForExport(final UUID parkingId) {
+    final UUID tenantId = authenticationContext.getCurrentTenantId();
+    return executeForExport(tenantId, parkingId);
   }
 
   public List<OperationalReportDTO> executeForExport(final UUID tenantId, final UUID parkingId) {

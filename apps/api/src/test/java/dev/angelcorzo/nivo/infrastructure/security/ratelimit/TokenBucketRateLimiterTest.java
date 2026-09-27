@@ -10,8 +10,8 @@ class TokenBucketRateLimiterTest {
   @Test
   @DisplayName("Token Bucket: 60 peticiones consecutivas pasan, la 61 es rechazada con HTTP 429")
   void shouldAllow60RequestsAndReject61st() {
-    var limiter = new TokenBucketRateLimiter(60, 60);
-    String clientIp = "192.168.1.100";
+    final TokenBucketRateLimiter limiter = new TokenBucketRateLimiter(60, 60);
+    final String clientIp = "192.168.1.100";
 
     for (int i = 0; i < 60; i++) {
       assertThat(limiter.tryConsume(clientIp)).isTrue();

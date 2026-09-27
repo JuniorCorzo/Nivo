@@ -3,7 +3,9 @@ package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.dashboard.sse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.infrastructure.adapter.metrics.BackendOperationsMetricsManager;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,26 +17,47 @@ class DashboardSseRegistryTest {
 
   private DashboardSseRegistry sseRegistry;
   private BackendOperationsMetricsManager metricsManager;
+  private AuthenticationContextGateway authContext;
 
   @BeforeEach
   void setUp() {
     metricsManager = mock(BackendOperationsMetricsManager.class);
-    sseRegistry = new DashboardSseRegistry(metricsManager);
+    authContext = mock(AuthenticationContextGateway.class);
+    sseRegistry = new DashboardSseRegistry(metricsManager, authContext);
+  }
+
+  @Test
+  @DisplayName("createEmitter(parkingId) debe resolver tenantId desde AuthenticationContextGateway")
+  void shouldResolveTenantIdWhenCreatingEmitterWithParkingIdOnly() {
+    final UUID tenantId = UUID.randomUUID();
+    final UUID parkingId = UUID.randomUUID();
+    when(authContext.getCurrentTenantId()).thenReturn(tenantId);
+
+    final SseEmitter emitter = sseRegistry.createEmitter(parkingId);
+
+    assertThat(emitter).isNotNull();
+    assertThat(sseRegistry.getActiveCount(tenantId)).isEqualTo(1);
+    verify(authContext).getCurrentTenantId();
+    verify(metricsManager).recordSseConnectionOpened();
   }
 
   @Test
   @DisplayName("Emisión dual: debe enviar evento a suscriptor de la sede y a suscriptor global del tenant, pero no a sedes ajenas")
   void shouldBroadcastEventToMatchingFacilityAndTenantSubscribersOnly() {
-    UUID tenantA = UUID.randomUUID();
-    UUID tenantB = UUID.randomUUID();
-    UUID parking1 = UUID.randomUUID();
-    UUID parking2 = UUID.randomUUID();
+    final UUID tenantA = UUID.randomUUID();
+    final UUID tenantB = UUID.randomUUID();
+    final UUID parking1 = UUID.randomUUID();
+    final UUID parking2 = UUID.randomUUID();
 
-    var clientFacility1 = sseRegistry.createEmitter(tenantA, parking1);
-    var clientFacility2 = sseRegistry.createEmitter(tenantA, parking2);
-    var clientTenantA = sseRegistry.createEmitter(tenantA, null); // canal consolidado global
-    var clientTenantB = sseRegistry.createEmitter(tenantB, null); // otro tenant
+    final SseEmitter clientFacility1 = sseRegistry.createEmitter(tenantA, parking1);
+    final SseEmitter clientFacility2 = sseRegistry.createEmitter(tenantA, parking2);
+    final SseEmitter clientTenantA = sseRegistry.createEmitter(tenantA, null); // canal consolidado global
+    final SseEmitter clientTenantB = sseRegistry.createEmitter(tenantB, null); // otro tenant
 
+    assertThat(clientFacility1).isNotNull();
+    assertThat(clientFacility2).isNotNull();
+    assertThat(clientTenantA).isNotNull();
+    assertThat(clientTenantB).isNotNull();
     assertThat(sseRegistry.getActiveCount(tenantA)).isEqualTo(3);
 
     // Disparar evento para parking1 de tenantA
@@ -47,10 +70,10 @@ class DashboardSseRegistryTest {
   @Test
   @DisplayName("Ciclo de vida: simular desconexión debe limpiar emitter y decrementar métrica")
   void shouldCleanUpEmitterOnDisconnectWithoutMemoryLeak() {
-    UUID tenantA = UUID.randomUUID();
-    UUID parking1 = UUID.randomUUID();
+    final UUID tenantA = UUID.randomUUID();
+    final UUID parking1 = UUID.randomUUID();
 
-    SseEmitter emitter = sseRegistry.createEmitter(tenantA, parking1);
+    final SseEmitter emitter = sseRegistry.createEmitter(tenantA, parking1);
     assertThat(sseRegistry.getActiveCount(tenantA)).isEqualTo(1);
 
     // Simular evento de desconexión / finalización

@@ -127,7 +127,13 @@ describe("DashboardFacade", () => {
     const req = httpMock.expectOne("/api/dashboard/occupancy-hourly");
     expect(req.request.method).toBe("GET");
     req.flush([
-      { checkins: 5, checkouts: 2, hourBucket: "2026-09-26T10:00:00Z", occupancyRate: 25, totalCapacity: 100 },
+      {
+        checkins: 5,
+        checkouts: 2,
+        hourBucket: "2026-09-26T10:00:00Z",
+        occupancyRate: 25,
+        totalCapacity: 100,
+      },
     ]);
 
     expect(facade.hourlyOccupancy().length).toBe(1);
@@ -139,7 +145,12 @@ describe("DashboardFacade", () => {
     const req = httpMock.expectOne("/api/dashboard/parkings-comparison");
     expect(req.request.method).toBe("GET");
     req.flush([
-      { occupancyRate: 70, parkingId: "p1", parkingName: "Sede 1", todayRevenue: 100000 },
+      {
+        occupancyRate: 70,
+        parkingId: "p1",
+        parkingName: "Sede 1",
+        todayRevenue: 100_000,
+      },
     ]);
 
     expect(facade.parkingsComparison().length).toBe(1);

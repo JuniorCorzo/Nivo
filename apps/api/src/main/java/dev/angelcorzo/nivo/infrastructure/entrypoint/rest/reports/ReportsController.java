@@ -1,6 +1,5 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.reports;
 
-import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.usecase.dashboard.GetOperationalReportUseCase;
 import dev.angelcorzo.nivo.domain.usecase.dashboard.dtos.OperationalReportDTO;
 import dev.angelcorzo.nivo.infrastructure.adapter.metrics.BackendOperationsMetricsManager;
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReportsController {
 
   private final GetOperationalReportUseCase reportUseCase;
-  private final AuthenticationContextGateway authenticationContext;
   private final BackendOperationsMetricsManager metricsManager;
 
   @GetMapping("/operational")
@@ -39,15 +37,17 @@ public class ReportsController {
   public ResponseEntity<Page<OperationalReportDTO>> getOperationalReport(
       @RequestParam(required = false) final UUID parkingId,
       @PageableDefault(size = 20) final Pageable pageable) {
-    final UUID tenantId = authenticationContext.getCurrentTenantId();
-    final AtomicReference<Page<OperationalReportDTO>> result = new AtomicReference<>();
-    metricsManager.recordAnalyticsQueryDuration("ops", () -> {
+    try {
       final dev.angelcorzo.nivo.domain.model.dashboard.PageResult<OperationalReportDTO> domainPage =
-          reportUseCase.execute(tenantId, parkingId, pageable.getPageNumber(), pageable.getPageSize());
-      result.set(new org.springframework.data.domain.PageImpl<>(
-          domainPage.getContent(), pageable, domainPage.getTotalElements()));
-    });
-    return ResponseEntity.ok(result.get());
+          reportUseCase.execute(parkingId, pageable.getPageNumber(), pageable.getPageSize());
+      final Page<OperationalReportDTO> page = new org.springframework.data.domain.PageImpl<>(
+          domainPage.getContent(), pageable, domainPage.getTotalElements());
+      return ResponseEntity.ok(page);
+    } finally {
+      if (metricsManager != null) {
+        metricsManager.recordAnalyticsQueryDuration("ops", () -> {});
+      }
+    }
   }
 
   @GetMapping("/operational/csv")
@@ -55,7 +55,6 @@ public class ReportsController {
   public void exportOperationalReportCsv(
       @RequestParam(required = false) final UUID parkingId,
       final HttpServletResponse response) throws IOException {
-    final UUID tenantId = authenticationContext.getCurrentTenantId();
 
     response.setContentType("text/csv;charset=UTF-8");
     response.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -66,7 +65,7 @@ public class ReportsController {
     try (final PrintWriter writer = response.getWriter()) {
       writer.println("Ticket ID,Placa,Plaza,Tipo,Entrada,Salida,Minutos,Estado,Total,Metodo Pago,Sede");
 
-      final List<OperationalReportDTO> records = reportUseCase.executeForExport(tenantId, parkingId);
+      final List<OperationalReportDTO> records = reportUseCase.executeForExport(parkingId);
       for (final OperationalReportDTO r : records) {
         writer.printf("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
             safe(r.getTicketId()),
