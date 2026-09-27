@@ -69,9 +69,11 @@ export class ParkingComparisonChartComponent implements OnDestroy {
         datasets: [
           {
             backgroundColor: "rgba(59, 130, 246, 0.7)",
+            barPercentage: 0.65,
             borderColor: "rgba(59, 130, 246, 1)",
-            borderRadius: 6,
+            borderRadius: 4,
             borderWidth: 1,
+            categoryPercentage: 0.85,
             data: occupancyRates,
             label: "% Ocupación",
           },
@@ -95,17 +97,30 @@ export class ParkingComparisonChartComponent implements OnDestroy {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (ctx) => `Ocupación: ${ctx.parsed.x}%`,
+              label: (ctx) => {
+                const item = items[ctx.dataIndex];
+                const count = item?.occupiedSlots ?? 0;
+                const total = item?.totalSlots ?? 0;
+                return ` Ocupación: ${ctx.parsed.x}% (${count} de ${total} plazas)`;
+              },
             },
           },
         },
         responsive: true,
         scales: {
           x: {
+            grid: {
+              color: "rgba(156, 163, 175, 0.15)",
+            },
             max: 100,
             min: 0,
             ticks: {
               callback: (value) => `${value}%`,
+            },
+          },
+          y: {
+            grid: {
+              display: false,
             },
           },
         },

@@ -126,4 +126,83 @@ class GetParkingsComparisonUseCaseTest {
     verify(hourlyGateway).findLatestByParkingLotId(parkingIdA);
     verify(hourlyGateway).findLatestByParkingLotId(parkingIdB);
   }
+
+  @Test
+  @DisplayName("Should prioritize ParkingLotListItem occuppationRate when present over hourly gateway")
+  void shouldPrioritizeParkingListItemOccupationRateOverHourlyRate() {
+    final UUID tenantId = UUID.randomUUID();
+    final UUID parkingId = UUID.randomUUID();
+
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
+
+    final ParkingLotListItem parking = ParkingLotListItem.builder()
+        .id(parkingId)
+        .name("Sede Central")
+        .currency("COP")
+        .totalCapacity(100L)
+        .occuppationRate(75.0)
+        .build();
+
+    when(parkingLotsRepository.findByTenantId(tenantId)).thenReturn(List.of(parking));
+
+    final HourlyOccupancyModel hourly = HourlyOccupancyModel.builder()
+        .parkingLotId(parkingId)
+        .hourBucket(OffsetDateTime.now())
+        .totalCapacity(100L)
+        .estimatedOccupancyRate(10.0)
+        .build();
+    when(hourlyGateway.findLatestByParkingLotId(parkingId)).thenReturn(Optional.of(hourly));
+    when(dailyGateway.findByParkingLotIdAndSummaryDate(eq(parkingId), any(LocalDate.class)))
+        .thenReturn(Optional.empty());
+
+    final List<ParkingComparisonDTO> result = useCase.execute(null, null);
+
+    assertThat(result).hasSize(1);
+    final ParkingComparisonDTO dto = result.get(0);
+    assertThat(dto.getOccupancyRate()).isEqualTo(75.0);
+    assertThat(dto.getOccupiedSlots()).isEqualTo(75);
+    assertThat(dto.getTotalSlots()).isEqualTo(100);
+  }
+
+  @Test
+  @DisplayName("Should fallback to ongoing tickets when occuppationRate is null and hourly rate is zero")
+  void shouldFallbackToOngoingTicketsWhenOccupationRateIsNullAndHourlyRateIsZero() {
+    final UUID tenantId = UUID.randomUUID();
+    final UUID parkingId = UUID.randomUUID();
+
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
+
+    final ParkingLotListItem parking = ParkingLotListItem.builder()
+        .id(parkingId)
+        .name("Sede Poniente")
+        .currency("COP")
+        .totalCapacity(50L)
+        .occuppationRate(null)
+        .build();
+
+    when(parkingLotsRepository.findByTenantId(tenantId)).thenReturn(List.of(parking));
+
+    final HourlyOccupancyModel hourly = HourlyOccupancyModel.builder()
+        .parkingLotId(parkingId)
+        .hourBucket(OffsetDateTime.now())
+        .totalCapacity(50L)
+        .estimatedOccupancyRate(0.0)
+        .build();
+    when(hourlyGateway.findLatestByParkingLotId(parkingId)).thenReturn(Optional.of(hourly));
+
+    final DailySummaryModel summary = DailySummaryModel.builder()
+        .parkingLotId(parkingId)
+        .ongoingTickets(25L)
+        .build();
+    when(dailyGateway.findByParkingLotIdAndSummaryDate(eq(parkingId), any(LocalDate.class)))
+        .thenReturn(Optional.of(summary));
+
+    final List<ParkingComparisonDTO> result = useCase.execute(null, null);
+
+    assertThat(result).hasSize(1);
+    final ParkingComparisonDTO dto = result.get(0);
+    assertThat(dto.getOccupancyRate()).isEqualTo(50.0);
+    assertThat(dto.getOccupiedSlots()).isEqualTo(25);
+    assertThat(dto.getTotalSlots()).isEqualTo(50);
+  }
 }

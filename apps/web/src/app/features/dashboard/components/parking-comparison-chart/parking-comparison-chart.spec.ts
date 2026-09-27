@@ -1,5 +1,6 @@
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
+import type { TooltipItem, TooltipModel } from "chart.js";
 import { vi } from "vitest";
 
 import { ParkingComparisonChartComponent } from "./parking-comparison-chart";
@@ -46,6 +47,46 @@ describe("ParkingComparisonChartComponent", () => {
       "Sede Centro",
       "Sede Norte",
     ]);
+  });
+
+  it("debe configurar dataset y tooltip con formato detallado de plazas", () => {
+    fixture.componentRef.setInput("data", [
+      {
+        activeTickets: 75,
+        avgStayMinutes: 60,
+        occupancyRate: 75,
+        occupiedSlots: 75,
+        parkingId: "p1",
+        parkingName: "Sede Centro",
+        todayRevenue: 300_000,
+        totalSlots: 100,
+      },
+    ]);
+    fixture.detectChanges();
+
+    /* SAFETY: Chart dataset is configured as a bar dataset with barPercentage, categoryPercentage, borderRadius */
+    const dataset = component.chartInstance?.data.datasets[0] as
+      | {
+          barPercentage?: number;
+          borderRadius?: number;
+          categoryPercentage?: number;
+        }
+      | undefined;
+    expect(dataset?.barPercentage).toBe(0.65);
+    expect(dataset?.categoryPercentage).toBe(0.85);
+    expect(dataset?.borderRadius).toBe(4);
+
+    const tooltipCallback =
+      component.chartInstance?.options.plugins?.tooltip?.callbacks?.label;
+    /* SAFETY: Mock TooltipItem context containing dataIndex and parsed coordinates for testing label */
+    const mockContext = {
+      dataIndex: 0,
+      parsed: { x: 75 },
+    } as TooltipItem<"bar">;
+    /* SAFETY: Chart.js TooltipModel context is unused in label callback */
+    const mockModel = {} as TooltipModel<"bar">;
+    const tooltipText = tooltipCallback?.call(mockModel, mockContext);
+    expect(tooltipText).toBe(" Ocupación: 75% (75 de 100 plazas)");
   });
 
   it("debe manejar gracefully arrays vacíos mostrando mensaje de estado vacío sin crear instancia de chart", () => {

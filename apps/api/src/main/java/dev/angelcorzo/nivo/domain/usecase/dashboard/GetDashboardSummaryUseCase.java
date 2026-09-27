@@ -5,6 +5,7 @@ import dev.angelcorzo.nivo.domain.model.dashboard.DailySummaryModel;
 import dev.angelcorzo.nivo.domain.model.dashboard.HourlyOccupancyModel;
 import dev.angelcorzo.nivo.domain.model.dashboard.gateways.DailySummaryGateway;
 import dev.angelcorzo.nivo.domain.model.dashboard.gateways.HourlyOccupancyGateway;
+import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLotListItem;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLots;
 import dev.angelcorzo.nivo.domain.model.parkinglots.exceptions.ParkingNotExistsException;
 import dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository;
@@ -46,19 +47,41 @@ public class GetDashboardSummaryUseCase {
     final LocalDate today = LocalDate.now();
     final Optional<DailySummaryModel> dailyOpt = dailyGateway.findByParkingLotIdAndSummaryDate(parkingId, today);
     final Optional<HourlyOccupancyModel> latestHourlyOpt = hourlyGateway.findLatestByParkingLotId(parkingId);
+    final Optional<ParkingLotListItem> parkingItemOpt = parkingLotsRepository.findByTenantId(tenantId).stream()
+        .filter(p -> p.id().equals(parkingId))
+        .findFirst();
 
     final int totalCapacity;
-    final double occupancyRate;
-    if (latestHourlyOpt.isPresent()) {
-      final HourlyOccupancyModel latest = latestHourlyOpt.get();
-      totalCapacity = latest.getTotalCapacity() != null ? latest.getTotalCapacity().intValue() : 0;
-      occupancyRate = latest.getEstimatedOccupancyRate() != null ? latest.getEstimatedOccupancyRate() : 0.0;
+    if (parkingItemOpt.isPresent() && parkingItemOpt.get().totalCapacity() != null && parkingItemOpt.get().totalCapacity() > 0) {
+      totalCapacity = parkingItemOpt.get().totalCapacity().intValue();
+    } else if (latestHourlyOpt.isPresent() && latestHourlyOpt.get().getTotalCapacity() != null && latestHourlyOpt.get().getTotalCapacity() > 0) {
+      totalCapacity = latestHourlyOpt.get().getTotalCapacity().intValue();
     } else {
       totalCapacity = 0;
+    }
+
+    final double occupancyRate;
+    if (parkingItemOpt.isPresent() && parkingItemOpt.get().occuppationRate() != null && parkingItemOpt.get().occuppationRate() > 0.0) {
+      occupancyRate = parkingItemOpt.get().occuppationRate();
+    } else if (latestHourlyOpt.isPresent() && latestHourlyOpt.get().getEstimatedOccupancyRate() != null && latestHourlyOpt.get().getEstimatedOccupancyRate() > 0.0) {
+      occupancyRate = latestHourlyOpt.get().getEstimatedOccupancyRate();
+    } else if (dailyOpt.isPresent() && dailyOpt.get().getOngoingTickets() != null && dailyOpt.get().getOngoingTickets() > 0 && totalCapacity > 0) {
+      occupancyRate = Math.round((dailyOpt.get().getOngoingTickets() * 100.0 / totalCapacity) * 100.0) / 100.0;
+    } else if (parkingItemOpt.isPresent() && parkingItemOpt.get().occuppationRate() != null) {
+      occupancyRate = parkingItemOpt.get().occuppationRate();
+    } else if (latestHourlyOpt.isPresent() && latestHourlyOpt.get().getEstimatedOccupancyRate() != null) {
+      occupancyRate = latestHourlyOpt.get().getEstimatedOccupancyRate();
+    } else {
       occupancyRate = 0.0;
     }
 
-    final int occupied = (int) Math.round(totalCapacity * (occupancyRate / 100.0));
+    final int rawOccupied = (int) Math.round(totalCapacity * (occupancyRate / 100.0));
+    final int occupied;
+    if (rawOccupied == 0 && dailyOpt.isPresent() && dailyOpt.get().getOngoingTickets() != null && dailyOpt.get().getOngoingTickets() > 0) {
+      occupied = (int) Math.min(totalCapacity, dailyOpt.get().getOngoingTickets());
+    } else {
+      occupied = rawOccupied;
+    }
     final int available = Math.max(0, totalCapacity - occupied);
 
     if (dailyOpt.isPresent()) {
@@ -79,6 +102,11 @@ public class GetDashboardSummaryUseCase {
           .build();
     }
 
+    final String fallbackCurrency = parkingItemOpt
+        .map(ParkingLotListItem::currency)
+        .filter(c -> c != null && !c.isBlank())
+        .orElse("COP");
+
     return DashboardSummaryDTO.builder()
         .scope("SINGLE")
         .parkingId(parkingId)
@@ -87,7 +115,7 @@ public class GetDashboardSummaryUseCase {
         .availableSlots(available)
         .occupancyRate(occupancyRate)
         .todayRevenue(BigDecimal.ZERO)
-        .currency("COP")
+        .currency(fallbackCurrency)
         .avgStayMinutes(0.0)
         .totalTickets(0L)
         .activeTickets(0L)
@@ -128,15 +156,36 @@ public class GetDashboardSummaryUseCase {
         .findFirst()
         .orElse("COP");
 
-    final List<HourlyOccupancyModel> hourlyList = hourlyGateway.findByTenantId(tenantId);
-    final int totalCapacity = hourlyList.stream()
-        .mapToInt(h -> h.getTotalCapacity() != null ? h.getTotalCapacity().intValue() : 0)
-        .sum();
+    final List<ParkingLotListItem> parkings = parkingLotsRepository.findByTenantId(tenantId);
+    final int totalCapacity;
+    final int totalOccupied;
 
-    final int totalOccupied = hourlyList.stream()
-        .filter(h -> h.getTotalCapacity() != null && h.getEstimatedOccupancyRate() != null)
-        .mapToInt(h -> (int) Math.round(h.getTotalCapacity() * (h.getEstimatedOccupancyRate() / 100.0)))
-        .sum();
+    if (!parkings.isEmpty()) {
+      totalCapacity = parkings.stream()
+          .mapToInt(p -> p.totalCapacity() != null ? p.totalCapacity().intValue() : 0)
+          .sum();
+
+      final int calculatedOccupied = parkings.stream()
+          .filter(p -> p.totalCapacity() != null && p.occuppationRate() != null)
+          .mapToInt(p -> (int) Math.round(p.totalCapacity() * (p.occuppationRate() / 100.0)))
+          .sum();
+
+      if (calculatedOccupied == 0 && ongoingTickets > 0) {
+        totalOccupied = (int) Math.min(totalCapacity, ongoingTickets);
+      } else {
+        totalOccupied = calculatedOccupied;
+      }
+    } else {
+      final List<HourlyOccupancyModel> hourlyList = hourlyGateway.findByTenantId(tenantId);
+      totalCapacity = hourlyList.stream()
+          .mapToInt(h -> h.getTotalCapacity() != null ? h.getTotalCapacity().intValue() : 0)
+          .sum();
+
+      totalOccupied = hourlyList.stream()
+          .filter(h -> h.getTotalCapacity() != null && h.getEstimatedOccupancyRate() != null)
+          .mapToInt(h -> (int) Math.round(h.getTotalCapacity() * (h.getEstimatedOccupancyRate() / 100.0)))
+          .sum();
+    }
 
     final double globalOccupancyRate = totalCapacity > 0
         ? Math.round((totalOccupied * 100.0 / totalCapacity) * 100.0) / 100.0
@@ -152,7 +201,7 @@ public class GetDashboardSummaryUseCase {
         .occupancyRate(globalOccupancyRate)
         .todayRevenue(totalRevenue)
         .currency(currency)
-        .avgStayMinutes(avgStay)
+        .avgStayMinutes(roundedAvgStay)
         .totalTickets(totalTickets)
         .activeTickets(ongoingTickets)
         .completedTickets(completedTickets)

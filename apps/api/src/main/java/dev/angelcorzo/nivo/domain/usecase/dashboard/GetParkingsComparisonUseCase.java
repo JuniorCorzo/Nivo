@@ -45,19 +45,32 @@ public class GetParkingsComparisonUseCase {
     final Optional<DailySummaryModel> summaryOpt = dailyGateway.findByParkingLotIdAndSummaryDate(parkingId, today);
     final Optional<HourlyOccupancyModel> latestOpt = hourlyGateway.findLatestByParkingLotId(parkingId);
 
-    int totalCapacity = 0;
-    double occupancyRate = 0.0;
-    if (latestOpt.isPresent()) {
-      final HourlyOccupancyModel latest = latestOpt.get();
-      if (latest.getTotalCapacity() != null && latest.getTotalCapacity() > 0) {
-        totalCapacity = latest.getTotalCapacity().intValue();
-      }
-      occupancyRate = latest.getEstimatedOccupancyRate() != null ? latest.getEstimatedOccupancyRate() : 0.0;
-    } else if (p.totalCapacity() != null && p.totalCapacity() > 0) {
+    final int totalCapacity;
+    if (p.totalCapacity() != null && p.totalCapacity() > 0) {
       totalCapacity = p.totalCapacity().intValue();
+    } else if (latestOpt.isPresent() && latestOpt.get().getTotalCapacity() != null && latestOpt.get().getTotalCapacity() > 0) {
+      totalCapacity = latestOpt.get().getTotalCapacity().intValue();
+    } else {
+      totalCapacity = 0;
     }
 
-    final int occupied = (int) Math.round(totalCapacity * (occupancyRate / 100.0));
+    final double occupancyRate;
+    if (p.occuppationRate() != null) {
+      occupancyRate = p.occuppationRate();
+    } else if (latestOpt.isPresent() && latestOpt.get().getEstimatedOccupancyRate() != null && latestOpt.get().getEstimatedOccupancyRate() > 0) {
+      occupancyRate = latestOpt.get().getEstimatedOccupancyRate();
+    } else if (summaryOpt.isPresent() && summaryOpt.get().getOngoingTickets() != null && summaryOpt.get().getOngoingTickets() > 0 && totalCapacity > 0) {
+      occupancyRate = Math.round((summaryOpt.get().getOngoingTickets() * 100.0 / totalCapacity) * 100.0) / 100.0;
+    } else if (latestOpt.isPresent() && latestOpt.get().getEstimatedOccupancyRate() != null) {
+      occupancyRate = latestOpt.get().getEstimatedOccupancyRate();
+    } else {
+      occupancyRate = 0.0;
+    }
+
+    final int rawOccupied = (int) Math.round(totalCapacity * (occupancyRate / 100.0));
+    final int occupied = (rawOccupied == 0 && summaryOpt.isPresent() && summaryOpt.get().getOngoingTickets() != null && summaryOpt.get().getOngoingTickets() > 0)
+        ? summaryOpt.get().getOngoingTickets().intValue()
+        : rawOccupied;
     final BigDecimal revenue = summaryOpt
         .map(DailySummaryModel::getTotalRevenue)
         .filter(r -> r != null)

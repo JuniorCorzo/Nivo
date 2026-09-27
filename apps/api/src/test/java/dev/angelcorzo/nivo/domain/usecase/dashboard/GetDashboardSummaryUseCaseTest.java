@@ -11,6 +11,7 @@ import dev.angelcorzo.nivo.domain.model.dashboard.DailySummaryModel;
 import dev.angelcorzo.nivo.domain.model.dashboard.HourlyOccupancyModel;
 import dev.angelcorzo.nivo.domain.model.dashboard.gateways.DailySummaryGateway;
 import dev.angelcorzo.nivo.domain.model.dashboard.gateways.HourlyOccupancyGateway;
+import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLotListItem;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLots;
 import dev.angelcorzo.nivo.domain.model.parkinglots.exceptions.ParkingNotExistsException;
 import dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository;
@@ -193,5 +194,84 @@ class GetDashboardSummaryUseCaseTest {
 
     assertThatThrownBy(() -> useCase.execute(parkingId))
         .isInstanceOf(ParkingNotExistsException.class);
+  }
+
+  @Test
+  @DisplayName("Should compute global tenant summary from parking lots live occupancy when available")
+  void shouldComputeGlobalSummaryFromParkingLotsWhenAvailable() {
+    final UUID tenantId = UUID.randomUUID();
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
+
+    final ParkingLotListItem parking1 = ParkingLotListItem.builder()
+        .id(UUID.randomUUID())
+        .name("Sede A")
+        .totalCapacity(100L)
+        .occuppationRate(40.0)
+        .build();
+    final ParkingLotListItem parking2 = ParkingLotListItem.builder()
+        .id(UUID.randomUUID())
+        .name("Sede B")
+        .totalCapacity(100L)
+        .occuppationRate(60.0)
+        .build();
+
+    when(parkingLotsRepository.findByTenantId(tenantId)).thenReturn(List.of(parking1, parking2));
+
+    final DailySummaryModel daily = DailySummaryModel.builder()
+        .parkingLotId(parking1.id())
+        .tenantId(tenantId)
+        .summaryDate(LocalDate.now())
+        .totalTickets(50L)
+        .completedTickets(35L)
+        .ongoingTickets(15L)
+        .totalRevenue(new BigDecimal("100000.00"))
+        .avgDurationMinutes(45.0)
+        .currency("COP")
+        .build();
+    when(dailyGateway.findAllByTenantIdAndSummaryDate(eq(tenantId), any(LocalDate.class)))
+        .thenReturn(List.of(daily));
+
+    final DashboardSummaryDTO summary = useCase.execute(null);
+
+    assertThat(summary).isNotNull();
+    assertThat(summary.getScope()).isEqualTo("GLOBAL");
+    assertThat(summary.getTotalCapacity()).isEqualTo(200);
+    assertThat(summary.getOccupiedSlots()).isEqualTo(100);
+    assertThat(summary.getAvailableSlots()).isEqualTo(100);
+    assertThat(summary.getOccupancyRate()).isEqualTo(50.0);
+  }
+
+  @Test
+  @DisplayName("Should compute single parking summary from parking lots live occupancy when available")
+  void shouldComputeSingleParkingSummaryFromParkingLotsWhenAvailable() {
+    final UUID tenantId = UUID.randomUUID();
+    final UUID parkingId = UUID.randomUUID();
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
+
+    final TenantReference tenant = TenantReference.builder().id(tenantId).build();
+    final ParkingLots parkingLot = ParkingLots.builder()
+        .id(parkingId)
+        .name("Sede Express")
+        .tenant(tenant)
+        .build();
+    when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
+
+    final ParkingLotListItem parkingItem = ParkingLotListItem.builder()
+        .id(parkingId)
+        .name("Sede Express")
+        .totalCapacity(80L)
+        .occuppationRate(25.0)
+        .build();
+    when(parkingLotsRepository.findByTenantId(tenantId)).thenReturn(List.of(parkingItem));
+    when(hourlyGateway.findLatestByParkingLotId(parkingId)).thenReturn(Optional.empty());
+
+    final DashboardSummaryDTO summary = useCase.execute(parkingId);
+
+    assertThat(summary).isNotNull();
+    assertThat(summary.getScope()).isEqualTo("SINGLE");
+    assertThat(summary.getTotalCapacity()).isEqualTo(80);
+    assertThat(summary.getOccupiedSlots()).isEqualTo(20);
+    assertThat(summary.getAvailableSlots()).isEqualTo(60);
+    assertThat(summary.getOccupancyRate()).isEqualTo(25.0);
   }
 }
