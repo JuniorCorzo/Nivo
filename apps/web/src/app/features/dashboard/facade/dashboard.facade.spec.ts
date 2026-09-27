@@ -1,30 +1,86 @@
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
+import type { DashboardSummaryModel } from "@core/models/dashboard.model";
+import { DashboardApiService } from "@core/services/dashboard-api.service";
+import { DashboardSseService } from "@core/services/dashboard-sse.service";
+import { of } from "rxjs";
 
 import { DashboardFacade } from "./dashboard.facade";
 
+interface ApiServiceMock {
+  exportOperationalReportCsv: ReturnType<typeof vi.fn>;
+  getHourlyOccupancy: ReturnType<typeof vi.fn>;
+  getOperationalReport: ReturnType<typeof vi.fn>;
+  getParkingsComparison: ReturnType<typeof vi.fn>;
+  getSummary: ReturnType<typeof vi.fn>;
+}
+
+interface SseServiceMock {
+  calculateBackoffDelay: ReturnType<typeof vi.fn>;
+  connect: ReturnType<typeof vi.fn>;
+  disconnect: ReturnType<typeof vi.fn>;
+  handleSseMessage: ReturnType<typeof vi.fn>;
+  updates: ReturnType<typeof signal<DashboardSummaryModel | null>>;
+}
+
 describe("DashboardFacade", () => {
   let facade: DashboardFacade;
-  let httpMock: HttpTestingController;
+  let apiServiceMock: ApiServiceMock;
+  let sseServiceMock: SseServiceMock;
 
   beforeEach(() => {
+    apiServiceMock = {
+      exportOperationalReportCsv: vi
+        .fn()
+        .mockReturnValue(of(new Blob(["mock-csv"], { type: "text/csv" }))),
+      getHourlyOccupancy: vi.fn().mockReturnValue(of([])),
+      getOperationalReport: vi.fn().mockReturnValue(
+        of({
+          items: [],
+          page: 0,
+          totalElements: 0,
+          totalPages: 1,
+        })
+      ),
+      getParkingsComparison: vi.fn().mockReturnValue(of([])),
+      getSummary: vi.fn().mockReturnValue(
+        of({
+          availableSlots: 50,
+          occupancyRate: 50,
+          occupiedSlots: 50,
+          scope: "GLOBAL",
+          todayRevenue: 100_000,
+          totalCapacity: 100,
+        })
+      ),
+    };
+
+    const sseUpdatesSignal = signal<DashboardSummaryModel | null>(null);
+    sseServiceMock = {
+      calculateBackoffDelay: vi
+        .fn()
+        .mockImplementation((count = 0) => Math.min(1000 * 2 ** count, 30_000)),
+      connect: vi.fn().mockReturnValue(Promise.resolve()),
+      disconnect: vi.fn(),
+      handleSseMessage: vi.fn().mockImplementation((_event, data: unknown) => {
+        /* SAFETY: data payload in tests adheres to DashboardSummaryModel contract */
+        sseUpdatesSignal.set(data as DashboardSummaryModel);
+      }),
+      updates: sseUpdatesSignal,
+    };
+
     TestBed.configureTestingModule({
       providers: [
         DashboardFacade,
-        provideHttpClient(),
-        provideHttpClientTesting(),
+        { provide: DashboardApiService, useValue: apiServiceMock },
+        { provide: DashboardSseService, useValue: sseServiceMock },
       ],
     });
+
     facade = TestBed.inject(DashboardFacade);
-    httpMock = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {
-    httpMock.verify();
     facade.disconnect();
     TestBed.resetTestingModule();
   });
@@ -36,12 +92,17 @@ describe("DashboardFacade", () => {
     ]);
     expect(facade.isMultiParkingTenant()).toBe(true);
     expect(facade.activeScope().mode).toBe("GLOBAL");
+    expect(facade.isGlobalScope()).toBe(true);
+    expect(facade.isSingleScope()).toBe(false);
   });
 
   it("debe auto-configurar modo SINGLE si el tenant solo posee 1 sede", () => {
     facade.accessibleParkings.set([{ id: "1", name: "Sede Única" }]);
     expect(facade.isMultiParkingTenant()).toBe(false);
     expect(facade.activeScope().mode).toBe("SINGLE");
+    expect(facade.activeScope().parkingId).toBe("1");
+    expect(facade.isSingleScope()).toBe(true);
+    expect(facade.isGlobalScope()).toBe(false);
   });
 
   it("debe procesar eventos SSE y actualizar Signals reactivamente", () => {
@@ -55,24 +116,23 @@ describe("DashboardFacade", () => {
       totalCapacity: 200,
     });
 
+    expect(sseServiceMock.handleSseMessage).toHaveBeenCalled();
     expect(facade.summary()?.occupancyRate).toBe(50);
     expect(facade.occupancyPercentage()).toBe(50);
   });
 
-  it("debe activar retroceso exponencial en reconexión ante fallo de red SSE", () => {
+  it("debe delegar el cálculo de retroceso exponencial al SSE service", () => {
     const delay1 = facade.calculateBackoffDelay(0);
     const delay2 = facade.calculateBackoffDelay(1);
     const delay3 = facade.calculateBackoffDelay(2);
 
-    /* 1s */
     expect(delay1).toBe(1000);
-    /* 2s */
     expect(delay2).toBe(2000);
-    /* 4s */
     expect(delay3).toBe(4000);
+    expect(sseServiceMock.calculateBackoffDelay).toHaveBeenCalledWith(2);
   });
 
-  it("debe solicitar summary en /api/dashboard/summary para ámbito GLOBAL", () => {
+  it("debe solicitar summary a DashboardApiService para ámbito GLOBAL", () => {
     facade.accessibleParkings.set([
       { id: "p1", name: "Sede 1" },
       { id: "p2", name: "Sede 2" },
@@ -80,135 +140,100 @@ describe("DashboardFacade", () => {
 
     facade.loadSummary();
 
-    const req = httpMock.expectOne("/api/dashboard/summary");
-    expect(req.request.method).toBe("GET");
-    req.flush({
-      availableSlots: 50,
-      currency: "COP",
-      occupancyRate: 75,
-      occupiedSlots: 150,
-      scope: "GLOBAL",
-      todayRevenue: 300_000,
-      totalCapacity: 200,
-    });
-
-    expect(facade.summary()?.totalCapacity).toBe(200);
+    expect(apiServiceMock.getSummary).toHaveBeenCalledWith(undefined);
+    expect(facade.summary()?.totalCapacity).toBe(100);
   });
 
-  it("debe solicitar summary en /api/dashboard/summary?parkingId=... para ámbito SINGLE", () => {
+  it("debe solicitar summary a DashboardApiService con parkingId para ámbito SINGLE", () => {
     facade.accessibleParkings.set([{ id: "p1", name: "Sede Única" }]);
 
     facade.loadSummary();
 
-    const req = httpMock.expectOne("/api/dashboard/summary?parkingId=p1");
-    expect(req.request.method).toBe("GET");
-    req.flush({
-      availableSlots: 20,
-      currency: "COP",
-      occupancyRate: 80,
-      occupiedSlots: 80,
-      parkingId: "p1",
-      scope: "SINGLE",
-      todayRevenue: 120_000,
-      totalCapacity: 100,
-    });
-
-    expect(facade.summary()?.parkingId).toBe("p1");
+    expect(apiServiceMock.getSummary).toHaveBeenCalledWith("p1");
   });
 
-  it("debe solicitar occupancy-hourly en /api/dashboard/occupancy-hourly", () => {
-    facade.accessibleParkings.set([
-      { id: "p1", name: "Sede 1" },
-      { id: "p2", name: "Sede 2" },
-    ]);
+  it("debe solicitar occupancy-hourly a DashboardApiService", () => {
+    apiServiceMock.getHourlyOccupancy.mockReturnValue(
+      of([
+        {
+          checkins: 5,
+          checkouts: 2,
+          estimatedOccupancyRate: 25,
+          hourBucket: "2026-09-26T10:00:00Z",
+          totalCapacity: 100,
+        },
+      ])
+    );
 
     facade.loadHourlyOccupancy();
 
-    const req = httpMock.expectOne("/api/dashboard/occupancy-hourly");
-    expect(req.request.method).toBe("GET");
-    req.flush([
-      {
-        checkins: 5,
-        checkouts: 2,
-        hourBucket: "2026-09-26T10:00:00Z",
-        occupancyRate: 25,
-        totalCapacity: 100,
-      },
-    ]);
-
+    expect(apiServiceMock.getHourlyOccupancy).toHaveBeenCalled();
     expect(facade.hourlyOccupancy().length).toBe(1);
   });
 
-  it("debe solicitar parkings-comparison en /api/dashboard/parkings-comparison", () => {
+  it("debe solicitar parkings-comparison a DashboardApiService", () => {
+    apiServiceMock.getParkingsComparison.mockReturnValue(
+      of([
+        {
+          activeTickets: 5,
+          avgStayMinutes: 30,
+          occupancyRate: 70,
+          occupiedSlots: 70,
+          parkingId: "p1",
+          parkingName: "Sede 1",
+          todayRevenue: 100_000,
+          totalSlots: 100,
+        },
+      ])
+    );
+
     facade.loadParkingsComparison();
 
-    const req = httpMock.expectOne("/api/dashboard/parkings-comparison");
-    expect(req.request.method).toBe("GET");
-    req.flush([
-      {
-        occupancyRate: 70,
-        parkingId: "p1",
-        parkingName: "Sede 1",
-        todayRevenue: 100_000,
-      },
-    ]);
-
+    expect(apiServiceMock.getParkingsComparison).toHaveBeenCalled();
     expect(facade.parkingsComparison().length).toBe(1);
   });
 
-  it("debe solicitar reportes operacionales en /api/reports/operational", () => {
+  it("debe solicitar reportes operacionales a DashboardApiService", () => {
+    apiServiceMock.getOperationalReport.mockReturnValue(
+      of({
+        items: [
+          {
+            entryTime: "2026-09-26T08:00:00Z",
+            licensePlate: "XYZ-789",
+            slotNumber: "A1",
+            slotType: "CAR",
+            ticketId: "t1",
+            ticketStatus: "ACTIVE",
+          },
+        ],
+        page: 0,
+        totalElements: 1,
+        totalPages: 1,
+      })
+    );
+
     facade.loadReports(0);
 
-    const req = httpMock.expectOne("/api/reports/operational?page=0");
-    expect(req.request.method).toBe("GET");
-    req.flush({
-      content: [
-        {
-          entryTime: "2026-09-26T08:00:00Z",
-          licensePlate: "XYZ-789",
-          slotNumber: "A1",
-          slotType: "CAR",
-          ticketId: "t1",
-          ticketStatus: "ACTIVE",
-        },
-      ],
-      number: 0,
-      totalPages: 1,
-    });
-
+    expect(apiServiceMock.getOperationalReport).toHaveBeenCalledWith(
+      0,
+      undefined
+    );
     expect(facade.reports().length).toBe(1);
     expect(facade.reports()[0]?.licensePlate).toBe("XYZ-789");
   });
 
-  it("debe solicitar exportación CSV en /api/reports/operational/csv", () => {
+  it("debe solicitar exportación CSV a DashboardApiService", () => {
     facade.exportCsv().subscribe((blob) => {
       expect(blob.type).toBe("text/csv");
     });
 
-    const req = httpMock.expectOne("/api/reports/operational/csv");
-    expect(req.request.method).toBe("GET");
-    req.flush(new Blob(["Ticket ID,Placa\n"], { type: "text/csv" }));
+    expect(apiServiceMock.exportOperationalReportCsv).toHaveBeenCalledWith(
+      undefined
+    );
   });
 
-  it("debe conectar SSE hacia /api/dashboard/stream", async () => {
-    const originalFetch = window.fetch;
-    let requestedUrl = "";
-
-    window.fetch = vi.fn().mockImplementation((url: string | URL | Request) => {
-      requestedUrl = url.toString();
-      const mockStream = new ReadableStream({
-        start(controller) {
-          controller.close();
-        },
-      });
-      return Promise.resolve(new Response(mockStream, { status: 200 }));
-    });
-
-    try {
-      await facade.connectSse();
-      expect(requestedUrl).toBe("/api/dashboard/stream");
-    } finally {
-      window.fetch = originalFetch;
-    }
+  it("debe delegar conexión SSE hacia DashboardSseService", async () => {
+    await facade.connectSse("p1");
+    expect(sseServiceMock.connect).toHaveBeenCalledWith("p1");
   });
 });

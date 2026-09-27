@@ -6,17 +6,12 @@ import {
   input,
   viewChild,
 } from "@angular/core";
+import type { HourlyOccupancyPointModel } from "@core/models/dashboard.model";
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
 
-export interface HourlyOccupancyPoint {
-  hourBucket: string;
-  checkins: number;
-  checkouts: number;
-  totalCapacity: number;
-  estimatedOccupancyRate: number;
-}
+export type HourlyOccupancyPoint = HourlyOccupancyPointModel;
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

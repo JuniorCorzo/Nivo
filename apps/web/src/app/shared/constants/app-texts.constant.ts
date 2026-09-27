@@ -350,8 +350,8 @@ export const APP_TEXTS = {
     nav: [
       {
         icon: "lucideLayoutDashboard",
-        label: "Overview",
-        url: "",
+        label: "Dashboard",
+        url: APP_ROUTES.app.dashboard,
       },
       {
         icon: "lucideCar",

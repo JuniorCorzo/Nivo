@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import type { OperationalReportItemModel as OperationalReportItem } from "@core/models/dashboard.model";
 import {
   TableBodyComponent,
   TableCellComponent,
@@ -13,8 +14,6 @@ import {
   FlexRender,
   getCoreRowModel,
 } from "@tanstack/angular-table";
-
-import type { OperationalReportItem } from "../../facade/dashboard.facade";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

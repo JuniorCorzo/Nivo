@@ -1,22 +1,35 @@
 import { CommonModule, DecimalPipe } from "@angular/common";
-import type { OnInit, OnDestroy } from "@angular/core";
+import type { OnDestroy, OnInit } from "@angular/core";
 import {
   ChangeDetectionStrategy,
   Component,
-  inject,
   effect,
+  inject,
 } from "@angular/core";
 import { ParkingService } from "@core/services/parking-service";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import {
+  lucideBuilding2,
+  lucideCar,
+  lucideClock,
+  lucideDollarSign,
+  lucideDownload,
+  lucideLayers,
+  lucideLayoutDashboard,
+  lucideTicket,
+  lucideTrendingUp,
+} from "@ng-icons/lucide";
 import {
   ButtonComponent,
   CardComponent,
+  CardContentComponent,
+  CardDescriptionComponent,
   CardHeaderComponent,
   CardTitleComponent,
-  CardDescriptionComponent,
-  CardContentComponent,
 } from "@nivo-sass/design-system";
 import type { PageHeaderBreadcrumbItem } from "@shared/components/page-header/page-header";
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
+import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
 import { OccupancyTrendChartComponent } from "../components/occupancy-trend-chart/occupancy-trend-chart";
 import { OperationalReportsTableComponent } from "../components/operational-reports-table/operational-reports-table";
@@ -29,6 +42,7 @@ import { DashboardFacade } from "../facade/dashboard.facade";
   imports: [
     CommonModule,
     DecimalPipe,
+    NgIcon,
     PageHeaderComponent,
     CardComponent,
     CardHeaderComponent,
@@ -41,6 +55,19 @@ import { DashboardFacade } from "../facade/dashboard.facade";
     ParkingComparisonChartComponent,
     OperationalReportsTableComponent,
   ],
+  providers: [
+    provideIcons({
+      lucideBuilding2,
+      lucideCar,
+      lucideClock,
+      lucideDollarSign,
+      lucideDownload,
+      lucideLayers,
+      lucideLayoutDashboard,
+      lucideTicket,
+      lucideTrendingUp,
+    }),
+  ],
   selector: "app-dashboard-page",
   standalone: true,
   styleUrl: "./dashboard-page.css",
@@ -51,7 +78,7 @@ export class DashboardPage implements OnInit, OnDestroy {
   private readonly parkingService = inject(ParkingService, { optional: true });
 
   readonly breadcrumbs: PageHeaderBreadcrumbItem[] = [
-    { label: "Dashboard", url: "/app" },
+    { label: "Dashboard", url: APP_ROUTES.app.dashboard },
   ];
 
   constructor() {

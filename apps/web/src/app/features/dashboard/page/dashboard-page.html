@@ -15,7 +15,8 @@
       size="sm"
       (click)="facade.setScope('GLOBAL')"
     >
-      🏢 Todas las Sedes (Consolidado Global)
+      <ng-icon name="lucideBuilding2" class="mr-1.5" />
+      Todas las Sedes (Consolidado Global)
     </nv-button>
     @for (parking of facade.accessibleParkings(); track parking.id) {
     <nv-button
@@ -28,6 +29,7 @@
       size="sm"
       (click)="facade.setScope('SINGLE', parking.id)"
     >
+      <ng-icon name="lucideCar" class="mr-1.5" />
       {{ parking.name }}
     </nv-button>
     }
@@ -38,9 +40,15 @@
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <nv-card>
       <nv-card-content class="space-y-1">
-        <span class="text-sm font-medium text-[var(--muted-foreground)]"
-          >Ocupación Actual</span
-        >
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-[var(--muted-foreground)]"
+            >Ocupación Actual</span
+          >
+          <ng-icon
+            name="lucideTrendingUp"
+            class="text-muted-foreground h-4 w-4"
+          />
+        </div>
         <div class="text-2xl font-bold">
           {{ facade.occupancyPercentage() | number: '1.1-1' }}%
         </div>
@@ -53,9 +61,15 @@
 
     <nv-card>
       <nv-card-content class="space-y-1">
-        <span class="text-sm font-medium text-[var(--muted-foreground)]"
-          >Ingresos Hoy</span
-        >
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-[var(--muted-foreground)]"
+            >Ingresos Hoy</span
+          >
+          <ng-icon
+            name="lucideDollarSign"
+            class="text-muted-foreground h-4 w-4"
+          />
+        </div>
         <div class="text-2xl font-bold">
           ${{ (facade.summary()?.todayRevenue ?? 0) | number: '1.0-0' }}
         </div>
@@ -67,9 +81,12 @@
 
     <nv-card>
       <nv-card-content class="space-y-1">
-        <span class="text-sm font-medium text-[var(--muted-foreground)]"
-          >Tickets Activos</span
-        >
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-[var(--muted-foreground)]"
+            >Tickets Activos</span
+          >
+          <ng-icon name="lucideTicket" class="text-muted-foreground h-4 w-4" />
+        </div>
         <div class="text-2xl font-bold">
           {{ facade.summary()?.activeTickets ?? 0 }}
         </div>
@@ -81,9 +98,12 @@
 
     <nv-card>
       <nv-card-content class="space-y-1">
-        <span class="text-sm font-medium text-[var(--muted-foreground)]"
-          >Tiempo Promedio</span
-        >
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-[var(--muted-foreground)]"
+            >Tiempo Promedio</span
+          >
+          <ng-icon name="lucideClock" class="text-muted-foreground h-4 w-4" />
+        </div>
         <div class="text-2xl font-bold">
           {{ facade.summary()?.avgStayMinutes ?? 0 }} min
         </div>
@@ -122,6 +142,7 @@
         >
       </div>
       <nv-button variant="outline" size="sm" (click)="exportCsv()">
+        <ng-icon name="lucideDownload" class="mr-1.5" />
         Descargar CSV
       </nv-button>
     </nv-card-header>

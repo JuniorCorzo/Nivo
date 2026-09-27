@@ -13,7 +13,7 @@ export const routes: Routes = [
   {
     path: "",
     pathMatch: "full",
-    redirectTo: "app/parking-lots",
+    redirectTo: "app/dashboard",
   },
   {
     canActivate: [publicGuard],
@@ -43,7 +43,30 @@ export const routes: Routes = [
   {
     children: [
       {
-        children: [
+        path: "",
+        pathMatch: "full",
+        redirectTo: APP_ROUTE_PATHS.app.dashboard,
+      },
+      {
+        data: {
+          breadcrumb: {
+            icon: "lucideLayoutDashboard",
+            label: "Dashboard",
+          } satisfies RouteBreadcrumb,
+          navContext: {
+            isRoot: true,
+            scope: "tenant",
+            section: "Dashboard",
+            title: "Dashboard",
+          } satisfies RouteNavContext,
+        },
+        loadComponent: async () => {
+          const m = await import("@features/dashboard/page/dashboard-page");
+          return m.DashboardPage;
+        },
+        path: APP_ROUTE_PATHS.app.dashboard,
+        title: "Dashboard",
+      },
           {
             data: {
               breadcrumb: {
@@ -357,13 +380,6 @@ export const routes: Routes = [
             },
             path: APP_ROUTE_PATHS.app.parkingLots,
           },
-        ],
-        loadComponent: async () => {
-          const m = await import("@features/dashboard/page/dashboard-page");
-          return m.DashboardPage;
-        },
-        path: "",
-      },
       {
         loadComponent: async () => {
           const c = await import("@shared/components/sidebar/sidebar/sidebar");

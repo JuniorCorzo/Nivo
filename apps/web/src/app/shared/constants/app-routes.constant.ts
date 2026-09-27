@@ -17,6 +17,7 @@ export const APP_ROUTE_PATHS = {
     parkingLotSlotDetail: `${parkingLotsSegment}/:parkingId/${slotsSegment}/:slotId`,
     parkingLotSlots: `${parkingLotsSegment}/:parkingId/${slotsSegment}`,
     parkingLotTickets: `${parkingLotsSegment}/:parkingId/${ticketsSegment}`,
+    dashboard: "dashboard",
     parkingLots: parkingLotsSegment,
     tickets: ticketsSegment,
   },
@@ -50,6 +51,7 @@ export const APP_ROUTES = {
       `${parkingLotsRoute}/${parkingId}/${slotsSegment}`,
     parkingLotTickets: (parkingId: string) =>
       `${parkingLotsRoute}/${parkingId}/${ticketsSegment}`,
+    dashboard: "/app/dashboard",
     parkingLots: parkingLotsRoute,
     tickets: `/app/${ticketsSegment}`,
   },

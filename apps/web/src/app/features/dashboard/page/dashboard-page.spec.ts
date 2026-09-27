@@ -3,6 +3,7 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
+import { DashboardSseService } from "@core/services/dashboard-sse.service";
 
 import { DashboardFacade } from "../facade/dashboard.facade";
 import { DashboardPage } from "./dashboard-page";
@@ -22,6 +23,9 @@ describe("DashboardPage", () => {
         provideRouter([]),
       ],
     }).compileComponents();
+
+    const sseService = TestBed.inject(DashboardSseService);
+    vi.spyOn(sseService, "connect").mockReturnValue(Promise.resolve());
 
     fixture = TestBed.createComponent(DashboardPage);
     _component = fixture.componentInstance;
@@ -54,6 +58,24 @@ describe("DashboardPage", () => {
       compiled.querySelector('[data-testid="multi-parking-selector"]')
     ).toBeTruthy();
     expect(compiled.querySelector("app-parking-comparison-chart")).toBeTruthy();
+    expect(
+      compiled.querySelector('ng-icon[name="lucideBuilding2"]')
+    ).toBeTruthy();
+  });
+
+  it("debe renderizar iconos Lucide en las tarjetas de KPI", () => {
+    fixture.detectChanges();
+
+    /* SAFETY: Test fixture nativeElement is an HTMLElement */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(
+      compiled.querySelector('ng-icon[name="lucideTrendingUp"]')
+    ).toBeTruthy();
+    expect(
+      compiled.querySelector('ng-icon[name="lucideDollarSign"]')
+    ).toBeTruthy();
+    expect(compiled.querySelector('ng-icon[name="lucideTicket"]')).toBeTruthy();
+    expect(compiled.querySelector('ng-icon[name="lucideClock"]')).toBeTruthy();
   });
 
   it("debe utilizar exclusivamente componentes del @nivo-sass/design-system (cero raw buttons)", () => {

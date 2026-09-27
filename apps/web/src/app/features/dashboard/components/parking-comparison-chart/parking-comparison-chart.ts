@@ -7,20 +7,12 @@ import {
   output,
   viewChild,
 } from "@angular/core";
+import type { ParkingComparisonItemModel } from "@core/models/dashboard.model";
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
 
-export interface ParkingComparisonItem {
-  parkingId: string;
-  parkingName: string;
-  totalSlots: number;
-  occupiedSlots: number;
-  occupancyRate: number;
-  todayRevenue: number;
-  activeTickets: number;
-  avgStayMinutes: number;
-}
+export type ParkingComparisonItem = ParkingComparisonItemModel;
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
