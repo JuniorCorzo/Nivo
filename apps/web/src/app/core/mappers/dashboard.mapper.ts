@@ -14,7 +14,7 @@ import type {
 } from "@core/models/dashboard.model";
 
 export const isDashboardSummaryDto = (
-  val: unknown
+  val?: unknown
 ): val is DashboardSummaryDto => {
   if (!val || typeof val !== "object" || Array.isArray(val)) {
     return false;

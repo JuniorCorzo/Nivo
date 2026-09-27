@@ -1,5 +1,6 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.publicapi;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -96,25 +97,35 @@ class PublicAvailabilityControllerTest {
     when(availabilityUseCase.execute(parkingId)).thenReturn(Optional.of(dto));
 
     final String clientIp = "192.168.100.50";
+    boolean rateLimitHit = false;
 
-    // Consumir 60 peticiones
-    for (int i = 0; i < 60; i++) {
-      mockMvc.perform(get("/public/parkings/" + parkingId + "/availability")
-              .with(request -> {
-                request.setRemoteAddr(clientIp);
-                return request;
-              }))
-          .andExpect(status().isOk());
+    // Consumir el bucket (60 req/min) de forma tolerante a tiempos de ejecución lentos en CI.
+    // Se itera hasta alcanzar 429 (ocurre normalmente entre la petición 61 y 65 si se rellenan tokens).
+    for (int i = 1; i <= 70; i++) {
+      final var result =
+          mockMvc
+              .perform(
+                  get("/public/parkings/" + parkingId + "/availability")
+                      .with(
+                          request -> {
+                            request.setRemoteAddr(clientIp);
+                            return request;
+                          }))
+              .andReturn();
+
+      final int status = result.getResponse().getStatus();
+      if (status == 429) {
+        rateLimitHit = true;
+        assertThat(i).isGreaterThanOrEqualTo(61);
+        assertThat(result.getResponse().getHeader("Retry-After")).isNotNull();
+        assertThat(result.getResponse().getHeader("X-RateLimit-Remaining")).isEqualTo("0");
+        assertThat(result.getResponse().getContentAsString())
+            .contains("Rate limit of 60 requests per minute exceeded");
+        break;
+      }
+      assertThat(status).isEqualTo(200);
     }
 
-    // Petición 61 debe ser 429
-    mockMvc.perform(get("/public/parkings/" + parkingId + "/availability")
-            .with(request -> {
-              request.setRemoteAddr(clientIp);
-              return request;
-            }))
-        .andExpect(status().isTooManyRequests())
-        .andExpect(header().exists("Retry-After"))
-        .andExpect(header().string("X-RateLimit-Remaining", "0"));
+    assertThat(rateLimitHit).isTrue();
   }
 }

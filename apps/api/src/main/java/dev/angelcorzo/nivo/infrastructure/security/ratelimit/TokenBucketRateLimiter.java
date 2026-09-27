@@ -15,23 +15,23 @@ public class TokenBucketRateLimiter {
     this(60, 60);
   }
 
-  public TokenBucketRateLimiter(long capacity, long refillTokensPerMinute) {
+  public TokenBucketRateLimiter(final long capacity, final long refillTokensPerMinute) {
     this.capacity = capacity;
     this.refillTokensPerMinute = refillTokensPerMinute;
   }
 
-  public boolean tryConsume(String key) {
-    Bucket bucket = buckets.computeIfAbsent(key, k -> new Bucket(capacity, refillTokensPerMinute));
+  public boolean tryConsume(final String key) {
+    final Bucket bucket = buckets.computeIfAbsent(key, k -> new Bucket(capacity, refillTokensPerMinute));
     return bucket.tryConsume();
   }
 
-  public long getRemainingTokens(String key) {
-    Bucket bucket = buckets.computeIfAbsent(key, k -> new Bucket(capacity, refillTokensPerMinute));
+  public long getRemainingTokens(final String key) {
+    final Bucket bucket = buckets.computeIfAbsent(key, k -> new Bucket(capacity, refillTokensPerMinute));
     return bucket.getAvailableTokens();
   }
 
-  public long getSecondsUntilRefill(String key) {
-    Bucket bucket = buckets.computeIfAbsent(key, k -> new Bucket(capacity, refillTokensPerMinute));
+  public long getSecondsUntilRefill(final String key) {
+    final Bucket bucket = buckets.computeIfAbsent(key, k -> new Bucket(capacity, refillTokensPerMinute));
     return bucket.getSecondsUntilRefill();
   }
 
@@ -41,7 +41,7 @@ public class TokenBucketRateLimiter {
     private double tokens;
     private long lastRefillTime;
 
-    Bucket(long capacity, long refillTokensPerMinute) {
+    Bucket(final long capacity, final long refillTokensPerMinute) {
       this.capacity = capacity;
       this.refillRatePerMs = (double) refillTokensPerMinute / 60000.0;
       this.tokens = capacity;
@@ -67,14 +67,14 @@ public class TokenBucketRateLimiter {
       if (tokens >= 1.0) {
         return 0;
       }
-      double missing = 1.0 - tokens;
-      long msNeeded = (long) Math.ceil(missing / refillRatePerMs);
+      final double missing = 1.0 - tokens;
+      final long msNeeded = (long) Math.ceil(missing / refillRatePerMs);
       return Math.max(1, (msNeeded + 999) / 1000);
     }
 
     private void refill() {
-      long now = System.currentTimeMillis();
-      long delta = now - lastRefillTime;
+      final long now = System.currentTimeMillis();
+      final long delta = now - lastRefillTime;
       if (delta > 0) {
         tokens = Math.min(capacity, tokens + delta * refillRatePerMs);
         lastRefillTime = now;

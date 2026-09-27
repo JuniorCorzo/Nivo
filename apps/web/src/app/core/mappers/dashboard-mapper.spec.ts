@@ -5,6 +5,7 @@ import type {
   PageOperationalReportDto,
   ParkingComparisonDto,
 } from "@core/api/generated/models";
+
 import {
   isDashboardSummaryDto,
   mapToDashboardSummaryModel,
@@ -31,7 +32,7 @@ describe("DashboardMapper", () => {
 
     it("should return false for null, undefined, primitive, or malformed objects", () => {
       expect(isDashboardSummaryDto(null)).toBe(false);
-      expect(isDashboardSummaryDto(undefined)).toBe(false);
+      expect(isDashboardSummaryDto()).toBe(false);
       expect(isDashboardSummaryDto("a string")).toBe(false);
       expect(isDashboardSummaryDto(123)).toBe(false);
       expect(isDashboardSummaryDto({})).toBe(false);
@@ -47,7 +48,7 @@ describe("DashboardMapper", () => {
         avgStayMinutes: 45.5,
         completedTickets: 30,
         currency: "COP",
-        occupancyRate: 25.0,
+        occupancyRate: 25,
         occupiedSlots: 25,
         parkingId: "pkg-1",
         scope: "SINGLE",
@@ -64,7 +65,7 @@ describe("DashboardMapper", () => {
         avgStayMinutes: 45.5,
         completedTickets: 30,
         currency: "COP",
-        occupancyRate: 25.0,
+        occupancyRate: 25,
         occupiedSlots: 25,
         parkingId: "pkg-1",
         scope: "SINGLE",
@@ -125,9 +126,9 @@ describe("DashboardMapper", () => {
     it("should map ParkingComparisonDto to ParkingComparisonItemModel", () => {
       const dto: ParkingComparisonDto = {
         activeTickets: 40,
-        avgStayMinutes: 62.0,
+        avgStayMinutes: 62,
         currency: "COP",
-        occupancyRate: 80.0,
+        occupancyRate: 80,
         occupiedSlots: 80,
         parkingId: "pkg-1",
         parkingName: "Sede Centro",
@@ -139,8 +140,8 @@ describe("DashboardMapper", () => {
 
       expect(item).toEqual({
         activeTickets: 40,
-        avgStayMinutes: 62.0,
-        occupancyRate: 80.0,
+        avgStayMinutes: 62,
+        occupancyRate: 80,
         occupiedSlots: 80,
         parkingId: "pkg-1",
         parkingName: "Sede Centro",

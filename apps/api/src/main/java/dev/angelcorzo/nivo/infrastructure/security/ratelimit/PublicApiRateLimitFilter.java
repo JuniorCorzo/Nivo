@@ -24,26 +24,26 @@ public class PublicApiRateLimitFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(
-      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      final HttpServletRequest request, final HttpServletResponse response, final FilterChain filterChain)
       throws ServletException, IOException {
 
-    String uri = request.getRequestURI();
+    final String uri = request.getRequestURI();
     if (!isPublicApi(uri)) {
       filterChain.doFilter(request, response);
       return;
     }
 
-    String clientIp = resolveClientIp(request);
-    boolean allowed = rateLimiter.tryConsume(clientIp);
+    final String clientIp = resolveClientIp(request);
+    final boolean allowed = rateLimiter.tryConsume(clientIp);
 
     response.setHeader("X-RateLimit-Limit", "60");
 
     if (allowed) {
-      long remaining = rateLimiter.getRemainingTokens(clientIp);
+      final long remaining = rateLimiter.getRemainingTokens(clientIp);
       response.setHeader("X-RateLimit-Remaining", String.valueOf(remaining));
       filterChain.doFilter(request, response);
     } else {
-      long retryAfter = rateLimiter.getSecondsUntilRefill(clientIp);
+      final long retryAfter = rateLimiter.getSecondsUntilRefill(clientIp);
       response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
       response.setHeader("Retry-After", String.valueOf(retryAfter));
       response.setHeader("X-RateLimit-Remaining", "0");
@@ -61,12 +61,12 @@ public class PublicApiRateLimitFilter extends OncePerRequestFilter {
     }
   }
 
-  private boolean isPublicApi(String uri) {
+  private boolean isPublicApi(final String uri) {
     return uri.contains("/public/parkings/") || uri.startsWith("/public/") || uri.contains("/api/v1/public/");
   }
 
-  private String resolveClientIp(HttpServletRequest request) {
-    String xForwarded = request.getHeader("X-Forwarded-For");
+  private String resolveClientIp(final HttpServletRequest request) {
+    final String xForwarded = request.getHeader("X-Forwarded-For");
     if (xForwarded != null && !xForwarded.isBlank()) {
       return xForwarded.split(",")[0].trim();
     }
