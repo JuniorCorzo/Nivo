@@ -21,6 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -102,7 +103,7 @@ class PublicAvailabilityControllerTest {
     // Consumir el bucket (60 req/min) de forma tolerante a tiempos de ejecución lentos en CI.
     // Se itera hasta alcanzar 429 (ocurre normalmente entre la petición 61 y 65 si se rellenan tokens).
     for (int i = 1; i <= 70; i++) {
-      final var result =
+      final MvcResult result =
           mockMvc
               .perform(
                   get("/public/parkings/" + parkingId + "/availability")

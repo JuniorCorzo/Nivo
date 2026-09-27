@@ -18,10 +18,10 @@ public class DailySummaryId implements Serializable {
   private LocalDate summaryDate;
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    DailySummaryId that = (DailySummaryId) o;
+    final DailySummaryId that = (DailySummaryId) o;
     return Objects.equals(parkingLotId, that.parkingLotId) &&
            Objects.equals(summaryDate, that.summaryDate);
   }

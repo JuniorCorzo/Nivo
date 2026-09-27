@@ -9,6 +9,7 @@ export const APP_ROUTE_PATHS = {
     createParkingLotRate: `${parkingLotsSegment}/:parkingId/${ratesSegment}/new`,
     createParkingLotSlot: `${parkingLotsSegment}/:parkingId/${slotsSegment}/new`,
     createParkingLots: `${parkingLotsSegment}/create`,
+    dashboard: "dashboard",
     editParkingLotRate: `${parkingLotsSegment}/:parkingId/${ratesSegment}/:rateId/edit`,
     editParkingLotSlot: `${parkingLotsSegment}/:parkingId/${slotsSegment}/:slotId/edit`,
     editParkingLots: `${parkingLotsSegment}/:parkingId/edit`,
@@ -17,7 +18,6 @@ export const APP_ROUTE_PATHS = {
     parkingLotSlotDetail: `${parkingLotsSegment}/:parkingId/${slotsSegment}/:slotId`,
     parkingLotSlots: `${parkingLotsSegment}/:parkingId/${slotsSegment}`,
     parkingLotTickets: `${parkingLotsSegment}/:parkingId/${ticketsSegment}`,
-    dashboard: "dashboard",
     parkingLots: parkingLotsSegment,
     tickets: ticketsSegment,
   },
@@ -35,6 +35,7 @@ export const APP_ROUTES = {
     createParkingLotSlot: (parkingId: string) =>
       `${parkingLotsRoute}/${parkingId}/${slotsSegment}/new`,
     createParkingLots: `${parkingLotsRoute}/create`,
+    dashboard: "/app/dashboard",
     editParkingLotRate: (parkingId: string, rateId: string) =>
       `${parkingLotsRoute}/${parkingId}/${ratesSegment}/${rateId}/edit`,
     editParkingLotSlot: (parkingId: string, slotId: string) =>
@@ -51,7 +52,6 @@ export const APP_ROUTES = {
       `${parkingLotsRoute}/${parkingId}/${slotsSegment}`,
     parkingLotTickets: (parkingId: string) =>
       `${parkingLotsRoute}/${parkingId}/${ticketsSegment}`,
-    dashboard: "/app/dashboard",
     parkingLots: parkingLotsRoute,
     tickets: `/app/${ticketsSegment}`,
   },

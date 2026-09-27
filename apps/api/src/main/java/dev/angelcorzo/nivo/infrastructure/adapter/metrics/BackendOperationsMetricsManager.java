@@ -18,7 +18,7 @@ public class BackendOperationsMetricsManager {
   private final Counter cacheMissCounter;
   private final Timer csvExportTimer;
 
-  public BackendOperationsMetricsManager(MeterRegistry meterRegistry) {
+  public BackendOperationsMetricsManager(final MeterRegistry meterRegistry) {
     this.meterRegistry = meterRegistry;
     this.activeSseConnections = new AtomicInteger(0);
     this.meterRegistry.gauge("sse.dashboard.active.connections", activeSseConnections);
@@ -47,7 +47,7 @@ public class BackendOperationsMetricsManager {
     sseBroadcastCounter.increment();
   }
 
-  public void recordPublicAvailabilityRequest(int statusCode) {
+  public void recordPublicAvailabilityRequest(final int statusCode) {
     meterRegistry.counter("public.api.availability.requests.total", "status", String.valueOf(statusCode)).increment();
   }
 
@@ -63,18 +63,18 @@ public class BackendOperationsMetricsManager {
     cacheMissCounter.increment();
   }
 
-  public void recordAnalyticsQueryDuration(String view, Runnable query) {
+  public void recordAnalyticsQueryDuration(final String view, final Runnable query) {
     Timer.builder("db.analytics.query.duration")
         .tag("view", view)
         .register(meterRegistry)
         .record(query);
   }
 
-  public void recordCsvExportDuration(Runnable export) {
+  public void recordCsvExportDuration(final Runnable export) {
     csvExportTimer.record(export);
   }
 
-  public void recordPublicAvailabilityLatency(Runnable task) {
+  public void recordPublicAvailabilityLatency(final Runnable task) {
     meterRegistry.timer("public.api.availability.latency").record(task);
   }
 }

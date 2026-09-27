@@ -155,14 +155,14 @@ class DashboardViewsRepositoryTest {
     assertThat(hourly).isEmpty();
   }
 
-  private void insertTenant(UUID id, String name) {
+  private void insertTenant(final UUID id, final String name) {
     entityManager.createNativeQuery(
         "INSERT INTO nivo.tenants (id, company_name, created_at) VALUES (?, ?, CURRENT_TIMESTAMP)")
         .setParameter(1, id).setParameter(2, name).executeUpdate();
   }
 
-  private void insertParkingLot(UUID id, UUID tenant, String name, String currency) {
-    UUID ownerId = UUID.randomUUID();
+  private void insertParkingLot(final UUID id, final UUID tenant, final String name, final String currency) {
+    final UUID ownerId = UUID.randomUUID();
     entityManager.createNativeQuery(
         "INSERT INTO nivo.users (id, full_name, email, password, role, tenant_id, created_at) VALUES (?, 'Owner', 'owner@test.com', 'pwd', 'OWNER', ?, CURRENT_TIMESTAMP)")
         .setParameter(1, ownerId).setParameter(2, tenant).executeUpdate();
@@ -172,24 +172,24 @@ class DashboardViewsRepositoryTest {
         .setParameter(1, id).setParameter(2, tenant).setParameter(3, ownerId).setParameter(4, name).setParameter(5, currency).executeUpdate();
   }
 
-  private UUID insertSlot(UUID parking, UUID tenant, String number, String status, String type) {
-    UUID id = UUID.randomUUID();
+  private UUID insertSlot(final UUID parking, final UUID tenant, final String number, final String status, final String type) {
+    final UUID id = UUID.randomUUID();
     entityManager.createNativeQuery(
         "INSERT INTO nivo.slots (id, parking_lot_id, tenant_id, slot_number, status, type, created_at) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)")
         .setParameter(1, id).setParameter(2, parking).setParameter(3, tenant).setParameter(4, number).setParameter(5, status).setParameter(6, type).executeUpdate();
     return id;
   }
 
-  private UUID insertTicket(UUID tenant, UUID parking, UUID slot, String plate, OffsetDateTime entry, OffsetDateTime exit, String status, BigDecimal charge) {
-    UUID id = UUID.randomUUID();
+  private UUID insertTicket(final UUID tenant, final UUID parking, final UUID slot, final String plate, final OffsetDateTime entry, final OffsetDateTime exit, final String status, final BigDecimal charge) {
+    final UUID id = UUID.randomUUID();
     entityManager.createNativeQuery(
         "INSERT INTO nivo.parking_tickets (id, tenant_id, slot_id, license_plate, entry_time, exit_time, status, total_to_charge, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)")
         .setParameter(1, id).setParameter(2, tenant).setParameter(3, slot).setParameter(4, plate).setParameter(5, entry).setParameter(6, exit).setParameter(7, status).setParameter(8, charge).executeUpdate();
     return id;
   }
 
-  private void insertPayment(UUID tenant, UUID ticketId, BigDecimal amount, String status) {
-    UUID id = UUID.randomUUID();
+  private void insertPayment(final UUID tenant, final UUID ticketId, final BigDecimal amount, final String status) {
+    final UUID id = UUID.randomUUID();
     entityManager.createNativeQuery(
         "INSERT INTO nivo.payments (id, tenant_id, parking_ticket_id, amount, status, payment_method, created_at) VALUES (?, ?, ?, ?, ?, 'EFFECTIVE', CURRENT_TIMESTAMP)")
         .setParameter(1, id).setParameter(2, tenant).setParameter(3, ticketId).setParameter(4, amount).setParameter(5, status).executeUpdate();
