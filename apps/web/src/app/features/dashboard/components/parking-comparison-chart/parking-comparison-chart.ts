@@ -31,8 +31,15 @@ export class ParkingComparisonChartComponent implements OnDestroy {
     effect(() => {
       const items = this.data();
       const canvasEl = this.canvasRef()?.nativeElement;
+      if (!items || items.length === 0) {
+        if (this.chartInstance) {
+          this.chartInstance.destroy();
+          this.chartInstance = null;
+        }
+        return;
+      }
       if (canvasEl) {
-        this.renderChart(canvasEl, items || []);
+        this.renderChart(canvasEl, items);
       }
     });
   }
@@ -48,6 +55,10 @@ export class ParkingComparisonChartComponent implements OnDestroy {
     if (this.chartInstance) {
       this.chartInstance.destroy();
       this.chartInstance = null;
+    }
+
+    if (!items || items.length === 0) {
+      return;
     }
 
     const labels = items.map((i) => i.parkingName);

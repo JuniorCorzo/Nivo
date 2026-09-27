@@ -114,22 +114,65 @@
     </nv-card>
   </div>
 
-  @if (facade.activeScope().mode === 'GLOBAL') {
-  <app-parking-comparison-chart
-    [data]="facade.parkingsComparison()"
-    (parkingSelected)="onParkingSelected($event)"
-  />
+  @if (facade.isMultiParkingTenant() && facade.isGlobalScope()) {
+  <nv-card>
+    <nv-card-header class="flex flex-row items-center justify-between pb-2">
+      <div>
+        <nv-card-title>Comparativa de Sedes</nv-card-title>
+        <nv-card-description
+          >Ocupación comparativa en tiempo real entre
+          instalaciones</nv-card-description
+        >
+      </div>
+      <ng-icon name="lucideBuilding2" class="text-muted-foreground h-5 w-5" />
+    </nv-card-header>
+    <nv-card-content>
+      <app-parking-comparison-chart
+        [data]="facade.parkingsComparison()"
+        (parkingSelected)="onParkingSelected($event)"
+      />
+    </nv-card-content>
+  </nv-card>
   }
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     <div class="lg:col-span-2">
-      <app-occupancy-trend-chart [data]="facade.hourlyOccupancy()" />
+      <nv-card>
+        <nv-card-header class="flex flex-row items-center justify-between pb-2">
+          <div>
+            <nv-card-title>Tendencia de Ocupación</nv-card-title>
+            <nv-card-description
+              >Comportamiento y afluencia por hora del día</nv-card-description
+            >
+          </div>
+          <ng-icon
+            name="lucideTrendingUp"
+            class="text-muted-foreground h-5 w-5"
+          />
+        </nv-card-header>
+        <nv-card-content>
+          <app-occupancy-trend-chart [data]="facade.hourlyOccupancy()" />
+        </nv-card-content>
+      </nv-card>
     </div>
     <div class="lg:col-span-1">
-      <app-slot-distribution-donut-chart
-        [occupiedSlots]="facade.summary()?.occupiedSlots ?? 0"
-        [availableSlots]="facade.summary()?.availableSlots ?? 0"
-      />
+      <nv-card>
+        <nv-card-header class="flex flex-row items-center justify-between pb-2">
+          <div>
+            <nv-card-title>Distribución de Plazas</nv-card-title>
+            <nv-card-description
+              >Proporción de plazas ocupadas vs disponibles</nv-card-description
+            >
+          </div>
+          <ng-icon name="lucideLayers" class="text-muted-foreground h-5 w-5" />
+        </nv-card-header>
+        <nv-card-content>
+          <app-slot-distribution-donut-chart
+            [occupiedSlots]="facade.summary()?.occupiedSlots ?? 0"
+            [availableSlots]="facade.summary()?.availableSlots ?? 0"
+          />
+        </nv-card-content>
+      </nv-card>
     </div>
   </div>
 

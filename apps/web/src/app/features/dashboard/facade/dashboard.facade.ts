@@ -94,6 +94,12 @@ export class DashboardFacade {
         this.summary.set(update);
       }
     });
+
+    effect(() => {
+      if (this.isMultiParkingTenant() && this.isGlobalScope()) {
+        this.loadParkingsComparison();
+      }
+    });
   }
 
   setScope(mode: "GLOBAL" | "SINGLE", parkingId?: string): void {
@@ -122,7 +128,7 @@ export class DashboardFacade {
   loadAll(): void {
     this.loadSummary();
     this.loadHourlyOccupancy();
-    if (this.isMultiParkingTenant() && this.isGlobalScope()) {
+    if (this.isGlobalScope()) {
       this.loadParkingsComparison();
     }
     this.loadReports();

@@ -48,10 +48,15 @@ describe("ParkingComparisonChartComponent", () => {
     ]);
   });
 
-  it("debe manejar gracefully arrays vacíos sin lanzar errores ni excepciones", () => {
+  it("debe manejar gracefully arrays vacíos mostrando mensaje de estado vacío sin crear instancia de chart", () => {
     fixture.componentRef.setInput("data", []);
-    expect(() => fixture.detectChanges()).not.toThrow();
-    expect(component.chartInstance?.data.datasets[0].data).toEqual([]);
+    fixture.detectChanges();
+    expect(component.chartInstance).toBeNull();
+    /* SAFETY: Test fixture nativeElement is an HTMLElement */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain(
+      "No hay datos disponibles para la comparativa de sedes"
+    );
   });
 
   it("al hacer click en una barra debe emitir evento parkingSelected con el parkingId correspondiente", () => {

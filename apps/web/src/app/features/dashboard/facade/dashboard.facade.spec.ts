@@ -236,4 +236,24 @@ describe("DashboardFacade", () => {
     await facade.connectSse("p1");
     expect(sseServiceMock.connect).toHaveBeenCalledWith("p1");
   });
+
+  it("debe invocar loadParkingsComparison durante loadAll si isGlobalScope es true, incluso con accessibleParkings vacío", () => {
+    facade.accessibleParkings.set([]);
+    apiServiceMock.getParkingsComparison.mockClear();
+
+    facade.loadAll();
+
+    expect(apiServiceMock.getParkingsComparison).toHaveBeenCalledTimes(1);
+  });
+
+  it("debe invocar loadParkingsComparison reactivamente vía effect cuando accessibleParkings se actualiza con múltiples sedes en modo GLOBAL", () => {
+    apiServiceMock.getParkingsComparison.mockClear();
+    facade.accessibleParkings.set([
+      { id: "p1", name: "Sede Centro" },
+      { id: "p2", name: "Sede Norte" },
+    ]);
+    TestBed.flushEffects();
+
+    expect(apiServiceMock.getParkingsComparison).toHaveBeenCalled();
+  });
 });

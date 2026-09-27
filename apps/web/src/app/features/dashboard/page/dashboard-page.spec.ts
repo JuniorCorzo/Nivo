@@ -44,7 +44,7 @@ describe("DashboardPage", () => {
     expect(compiled.querySelector("app-parking-comparison-chart")).toBeNull();
   });
 
-  it("con múltiples sedes debe renderizar selector con opción Todas las Sedes y gráfico comparativo en modo GLOBAL", () => {
+  it("con múltiples sedes debe renderizar selector con opción Todas las Sedes y gráfico comparativo en modo GLOBAL dentro de nv-card", () => {
     facade.accessibleParkings.set([
       { id: "p1", name: "Sede Centro" },
       { id: "p2", name: "Sede Norte" },
@@ -58,9 +58,18 @@ describe("DashboardPage", () => {
       compiled.querySelector('[data-testid="multi-parking-selector"]')
     ).toBeTruthy();
     expect(compiled.querySelector("app-parking-comparison-chart")).toBeTruthy();
+    expect(compiled.textContent).toContain("Comparativa de Sedes");
     expect(
       compiled.querySelector('ng-icon[name="lucideBuilding2"]')
     ).toBeTruthy();
+  });
+
+  it("debe envolver los gráficos de tendencia y distribución en contenedores nv-card con encabezados", () => {
+    fixture.detectChanges();
+    /* SAFETY: Test fixture nativeElement is an HTMLElement */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain("Tendencia de Ocupación");
+    expect(compiled.textContent).toContain("Distribución de Plazas");
   });
 
   it("debe renderizar iconos Lucide en las tarjetas de KPI", () => {
