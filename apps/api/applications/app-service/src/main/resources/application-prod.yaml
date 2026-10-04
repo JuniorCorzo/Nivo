@@ -120,3 +120,9 @@ logging:
     org.hibernate: WARN
     org.flywaydb: INFO
     com.zaxxer.hikari: INFO
+
+sentry:
+  dsn: "${SENTRY_DSN:}"
+  traces-sample-rate: "${SENTRY_TRACES_SAMPLE_RATE:0.2}"
+  send-default-pii: false
+  environment: "${SPRING_PROFILES_ACTIVE:production}"

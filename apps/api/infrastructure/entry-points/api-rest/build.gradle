@@ -16,5 +16,7 @@ dependencies {
 
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation "org.springframework.boot:spring-boot-starter-webmvc-test"
+    compileOnly 'io.sentry:sentry:8.3.0'
+    testImplementation 'io.sentry:sentry:8.3.0'
 }
 

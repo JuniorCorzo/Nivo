@@ -92,6 +92,23 @@ class CustomJwtAuthenticationConverterTest {
       UserAuthentication principal = (UserAuthentication) token.getPrincipal();
       assertThat(principal.role()).isEqualTo(Roles.OWNER);
     }
+
+    @Test
+    @DisplayName("Should configure Sentry scope with tenant_id and user")
+    void shouldConfigureSentryScopeWithTenantIdAndUser() {
+      UUID userId = UUID.randomUUID();
+      UUID tenantId = UUID.randomUUID();
+      Jwt jwt = createJwt("mock-token-value", userId.toString(), tenantId.toString(), "ROLE_MANAGER");
+
+      AbstractAuthenticationToken token = converter.convert(jwt);
+      assertThat(token).isNotNull();
+
+      io.sentry.Sentry.configureScope(scope -> {
+        assertThat(scope.getTags().get("tenant_id")).isEqualTo(tenantId.toString());
+        assertThat(scope.getUser()).isNotNull();
+        assertThat(scope.getUser().getId()).isEqualTo(userId.toString());
+      });
+    }
   }
 
   @Nested
