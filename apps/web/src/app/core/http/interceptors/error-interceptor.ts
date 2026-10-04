@@ -1,6 +1,7 @@
 import type { HttpInterceptorFn } from "@angular/common/http";
 import { inject } from "@angular/core";
 import { mapResponseError } from "@core/mappers/response.mapper";
+import { MetricsService } from "@core/services/metrics.service";
 import { ToastService } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { catchError, throwError } from "rxjs";
@@ -13,10 +14,16 @@ const show = (toastService: ToastService, errorMessage: string) => {
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const toastService = inject(ToastService);
+  const metricsService = inject(MetricsService, { optional: true });
 
   return next(req).pipe(
     catchError((httpError) => {
       const response = httpError.error;
+      metricsService?.recordApiError({
+        errorType: httpError.name === "TimeoutError" ? "timeout" : "",
+        statusCode: httpError.status,
+      });
+
       if (httpError.status === 401) {
         return throwError(() => mapResponseError(response));
       }

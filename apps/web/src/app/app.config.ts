@@ -20,6 +20,7 @@ import {
 import { addWithCredentialsInterceptor } from "@core/http/interceptors/add-with-credentials.interceptor";
 import { authInterceptor } from "@core/http/interceptors/auth-interceptor";
 import { refreshTokenInterceptor } from "@core/http/interceptors/refresh-token-interceptor";
+import { provideSentry } from "@core/monitoring/sentry.config";
 import { AuthService } from "@core/services/auth-service";
 import { AppTitleStrategy } from "@core/title/app-title-strategy";
 import { provideNgIconLoader, withCaching } from "@ng-icons/core";
@@ -36,6 +37,10 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes, withViewTransitions({ skipInitialTransition: true })),
+    ...provideSentry({
+      dsn: "https://308b23ecb1decb4734fb97a295d759b8@o4512166023856128.ingest.us.sentry.io/4512166049284096",
+      tracePropagationTargets: ["localhost", /^\/api/u],
+    }),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideHotToastConfig({
       autoClose: true,
