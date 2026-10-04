@@ -7,6 +7,7 @@ import {
 } from "@core/mappers/dashboard.mapper";
 import type { DashboardSummaryModel } from "@core/models/dashboard.model";
 import { AuthService } from "@core/services/auth-service";
+import { MetricsService } from "@core/services/metrics.service";
 import { Subject } from "rxjs";
 
 const isStringPayload = (val: unknown): val is string =>
@@ -18,6 +19,7 @@ const isStringPayload = (val: unknown): val is string =>
 export class DashboardSseService implements OnDestroy {
   private readonly config = inject(ApiConfiguration);
   private readonly authService = inject(AuthService);
+  private readonly metricsService = inject(MetricsService, { optional: true });
 
   private readonly _updates = signal<DashboardSummaryModel | null>(null);
   readonly updates = this._updates.asReadonly();
@@ -119,6 +121,10 @@ export class DashboardSseService implements OnDestroy {
       if (err.name === "AbortError" || abortController.signal.aborted) {
         return;
       }
+
+      this.metricsService?.recordSseDrop({
+        errorType: err.name || "stream_error",
+      });
 
       const delay = this.calculateBackoffDelay(this.retryCount);
       this.retryCount += 1;

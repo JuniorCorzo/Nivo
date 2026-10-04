@@ -1,199 +1,45 @@
-<div class="flex flex-col gap-6 p-6">
-  <app-page-header
-    title="Dashboard Analítico"
-    subtitle="Métricas operativas y de ocupación en tiempo real"
+<div
+  class="flex max-w-full min-w-0 flex-col gap-4 overflow-x-hidden p-3.5 sm:gap-6 sm:p-4 md:p-6"
+>
+  <app-dashboard-header
     [breadcrumbs]="breadcrumbs"
+    [timeGranularity]="timeGranularity()"
+    [accessibleParkings]="facade.accessibleParkings()"
+    [isMultiParkingTenant]="facade.isMultiParkingTenant()"
+    [activeScope]="facade.activeScope()"
+    (granularityChange)="setTimeGranularity($event)"
+    (refreshTelemetry)="refreshTelemetry()"
+    (scopeChange)="onScopeChange($event)"
   />
 
-  @if (facade.isMultiParkingTenant()) {
-  <div
-    data-testid="multi-parking-selector"
-    class="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 p-2"
-  >
-    <nv-button
-      [variant]="facade.activeScope().mode === 'GLOBAL' ? 'default' : 'outline'"
-      size="sm"
-      (click)="facade.setScope('GLOBAL')"
-    >
-      <ng-icon name="lucideBuilding2" class="mr-1.5" />
-      Todas las Sedes (Consolidado Global)
-    </nv-button>
-    @for (parking of facade.accessibleParkings(); track parking.id) {
-    <nv-button
-      [variant]="
-            facade.activeScope().mode === 'SINGLE' &&
-            facade.activeScope().parkingId === parking.id
-              ? 'default'
-              : 'outline'
-          "
-      size="sm"
-      (click)="facade.setScope('SINGLE', parking.id)"
-    >
-      <ng-icon name="lucideCar" class="mr-1.5" />
-      {{ parking.name }}
-    </nv-button>
-    }
-  </div>
-  }
+  <app-dashboard-kpi-grid
+    [title]="kpiSectionTitle()"
+    [summary]="facade.summary()"
+    [occupancyPercentage]="facade.occupancyPercentage()"
+  />
 
-  <!-- KPI summary cards -->
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <nv-card>
-      <nv-card-content class="space-y-1">
-        <div class="flex items-center justify-between">
-          <span class="text-sm font-medium text-[var(--muted-foreground)]"
-            >Ocupación Actual</span
-          >
-          <ng-icon
-            name="lucideTrendingUp"
-            class="text-muted-foreground h-4 w-4"
-          />
-        </div>
-        <div class="text-2xl font-bold">
-          {{ facade.occupancyPercentage() | number: '1.1-1' }}%
-        </div>
-        <p class="text-xs text-[var(--muted-foreground)]">
-          {{ facade.summary()?.occupiedSlots ?? 0 }} / {{
-          facade.summary()?.totalCapacity ?? 0 }} plazas ocupadas
-        </p>
-      </nv-card-content>
-    </nv-card>
+  <app-dashboard-charts-section
+    [title]="chartTitle()"
+    [subtitle]="chartSubtitle()"
+    [hourlyOccupancy]="facade.hourlyOccupancy()"
+    [timeGranularity]="timeGranularity()"
+    [summary]="facade.summary()"
+  />
 
-    <nv-card>
-      <nv-card-content class="space-y-1">
-        <div class="flex items-center justify-between">
-          <span class="text-sm font-medium text-[var(--muted-foreground)]"
-            >Ingresos Hoy</span
-          >
-          <ng-icon
-            name="lucideDollarSign"
-            class="text-muted-foreground h-4 w-4"
-          />
-        </div>
-        <div class="text-2xl font-bold">
-          ${{ (facade.summary()?.todayRevenue ?? 0) | number: '1.0-0' }}
-        </div>
-        <p class="text-xs text-[var(--muted-foreground)]">
-          Moneda: {{ facade.summary()?.currency ?? 'COP' }}
-        </p>
-      </nv-card-content>
-    </nv-card>
+  <app-dashboard-operations-section
+    [isMultiParkingTenant]="facade.isMultiParkingTenant()"
+    [parkingsComparison]="facade.parkingsComparison()"
+    [accessibleParkingsCount]="facade.accessibleParkings().length"
+    [reports]="facade.reports()"
+    (parkingSelected)="onParkingSelected($event)"
+  />
 
-    <nv-card>
-      <nv-card-content class="space-y-1">
-        <div class="flex items-center justify-between">
-          <span class="text-sm font-medium text-[var(--muted-foreground)]"
-            >Tickets Activos</span
-          >
-          <ng-icon name="lucideTicket" class="text-muted-foreground h-4 w-4" />
-        </div>
-        <div class="text-2xl font-bold">
-          {{ facade.summary()?.activeTickets ?? 0 }}
-        </div>
-        <p class="text-xs text-[var(--muted-foreground)]">
-          Vehículos actualmente en sede
-        </p>
-      </nv-card-content>
-    </nv-card>
-
-    <nv-card>
-      <nv-card-content class="space-y-1">
-        <div class="flex items-center justify-between">
-          <span class="text-sm font-medium text-[var(--muted-foreground)]"
-            >Tiempo Promedio</span
-          >
-          <ng-icon name="lucideClock" class="text-muted-foreground h-4 w-4" />
-        </div>
-        <div class="text-2xl font-bold">
-          {{ facade.summary()?.avgStayMinutes ?? 0 }} min
-        </div>
-        <p class="text-xs text-[var(--muted-foreground)]">
-          Estancia promedio por vehículo
-        </p>
-      </nv-card-content>
-    </nv-card>
-  </div>
-
-  @if (facade.isMultiParkingTenant() && facade.isGlobalScope()) {
-  <nv-card>
-    <nv-card-header class="flex flex-row items-center justify-between pb-2">
-      <div>
-        <nv-card-title>Comparativa de Sedes</nv-card-title>
-        <nv-card-description
-          >Ocupación comparativa en tiempo real entre
-          instalaciones</nv-card-description
-        >
-      </div>
-      <ng-icon name="lucideBuilding2" class="text-muted-foreground h-5 w-5" />
-    </nv-card-header>
-    <nv-card-content>
-      <app-parking-comparison-chart
-        [data]="facade.parkingsComparison()"
-        (parkingSelected)="onParkingSelected($event)"
-      />
-    </nv-card-content>
-  </nv-card>
-  }
-
-  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-    <div class="lg:col-span-2">
-      <nv-card>
-        <nv-card-header class="flex flex-row items-center justify-between pb-2">
-          <div>
-            <nv-card-title>Tendencia de Ocupación</nv-card-title>
-            <nv-card-description
-              >Comportamiento y afluencia por hora del día</nv-card-description
-            >
-          </div>
-          <ng-icon
-            name="lucideTrendingUp"
-            class="text-muted-foreground h-5 w-5"
-          />
-        </nv-card-header>
-        <nv-card-content>
-          <app-occupancy-trend-chart [data]="facade.hourlyOccupancy()" />
-        </nv-card-content>
-      </nv-card>
-    </div>
-    <div class="lg:col-span-1">
-      <nv-card>
-        <nv-card-header class="flex flex-row items-center justify-between pb-2">
-          <div>
-            <nv-card-title>Distribución de Plazas</nv-card-title>
-            <nv-card-description
-              >Proporción de plazas ocupadas vs disponibles</nv-card-description
-            >
-          </div>
-          <ng-icon name="lucideLayers" class="text-muted-foreground h-5 w-5" />
-        </nv-card-header>
-        <nv-card-content>
-          <app-slot-distribution-donut-chart
-            [occupiedSlots]="facade.summary()?.occupiedSlots ?? 0"
-            [availableSlots]="facade.summary()?.availableSlots ?? 0"
-          />
-        </nv-card-content>
-      </nv-card>
-    </div>
-  </div>
-
-  <nv-card>
-    <nv-card-header class="flex flex-row items-center justify-between pb-2">
-      <div>
-        <nv-card-title>Reporte Operativo de Tickets</nv-card-title>
-        <nv-card-description
-          >Detalle de transacciones y estados de tickets</nv-card-description
-        >
-      </div>
-      <nv-button variant="outline" size="sm" (click)="exportCsv()">
-        <ng-icon name="lucideDownload" class="mr-1.5" />
-        Descargar CSV
-      </nv-button>
-    </nv-card-header>
-    <nv-card-content>
-      <app-operational-reports-table
-        [data]="facade.reports()"
-        [isGlobalScope]="facade.activeScope().mode === 'GLOBAL'"
-      />
-    </nv-card-content>
-  </nv-card>
+  <app-dashboard-reports-section
+    [reports]="facade.reports()"
+    [isGlobalScope]="facade.isGlobalScope()"
+    [page]="facade.reportsPage()"
+    [totalPages]="facade.reportsTotalPages()"
+    (pageChange)="onPageChange($event)"
+    (exportCsv)="exportCsv()"
+  />
 </div>

@@ -89,6 +89,69 @@ describe("ParkingComparisonChartComponent", () => {
     expect(tooltipText).toBe(" Ocupación: 75% (75 de 100 plazas)");
   });
 
+  it("debe renderizar tarjetas de ranking de sedes con porcentaje, umbrales y barra de progreso", () => {
+    fixture.componentRef.setInput("data", [
+      {
+        activeTickets: 90,
+        avgStayMinutes: 70,
+        occupancyRate: 92,
+        occupiedSlots: 92,
+        parkingId: "p1",
+        parkingName: "Sede Poblado",
+        todayRevenue: 2_140_000,
+        totalSlots: 100,
+      },
+      {
+        activeTickets: 30,
+        avgStayMinutes: 40,
+        occupancyRate: 65,
+        occupiedSlots: 65,
+        parkingId: "p2",
+        parkingName: "Sede Chapinero",
+        todayRevenue: 850_000,
+        totalSlots: 100,
+      },
+    ]);
+    fixture.detectChanges();
+
+    /* SAFETY: Test fixture nativeElement is an HTMLElement */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(
+      compiled.querySelector('[data-testid="facility-cards-ranking"]')
+    ).toBeTruthy();
+    expect(compiled.textContent).toContain("Sede Poblado");
+    expect(compiled.textContent).toContain("92.0% CRÍTICO");
+    expect(compiled.textContent).toContain("Sede Chapinero");
+    expect(compiled.textContent).toContain("65.0% NORMAL");
+    expect(compiled.textContent).toMatch(/\$2[.,]140[.,]000 COP/u);
+  });
+
+  it("al hacer click en una tarjeta de sede debe emitir parkingSelected", () => {
+    fixture.componentRef.setInput("data", [
+      {
+        activeTickets: 90,
+        avgStayMinutes: 70,
+        occupancyRate: 92,
+        occupiedSlots: 92,
+        parkingId: "p1",
+        parkingName: "Sede Poblado",
+        todayRevenue: 2_140_000,
+        totalSlots: 100,
+      },
+    ]);
+    fixture.detectChanges();
+
+    let selectedId: string | null = null;
+    component.parkingSelected.subscribe((id: string) => (selectedId = id));
+
+    /* SAFETY: Card query returns an HTMLElement */
+    const card = fixture.nativeElement.querySelector(
+      '[data-testid="facility-card-p1"]'
+    ) as HTMLElement;
+    card.click();
+    expect(selectedId).toBe("p1");
+  });
+
   it("debe manejar gracefully arrays vacíos mostrando mensaje de estado vacío sin crear instancia de chart", () => {
     fixture.componentRef.setInput("data", []);
     fixture.detectChanges();

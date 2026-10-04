@@ -1,72 +1,34 @@
-import { CommonModule, DecimalPipe } from "@angular/common";
 import type { OnDestroy, OnInit } from "@angular/core";
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
 } from "@angular/core";
 import { ParkingService } from "@core/services/parking-service";
-import { NgIcon, provideIcons } from "@ng-icons/core";
-import {
-  lucideBuilding2,
-  lucideCar,
-  lucideClock,
-  lucideDollarSign,
-  lucideDownload,
-  lucideLayers,
-  lucideLayoutDashboard,
-  lucideTicket,
-  lucideTrendingUp,
-} from "@ng-icons/lucide";
-import {
-  ButtonComponent,
-  CardComponent,
-  CardContentComponent,
-  CardDescriptionComponent,
-  CardHeaderComponent,
-  CardTitleComponent,
-} from "@nivo-sass/design-system";
 import type { PageHeaderBreadcrumbItem } from "@shared/components/page-header/page-header";
-import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
-import { OccupancyTrendChartComponent } from "../components/occupancy-trend-chart/occupancy-trend-chart";
-import { OperationalReportsTableComponent } from "../components/operational-reports-table/operational-reports-table";
-import { ParkingComparisonChartComponent } from "../components/parking-comparison-chart/parking-comparison-chart";
-import { SlotDistributionDonutChartComponent } from "../components/slot-distribution-donut-chart/slot-distribution-donut-chart";
+import { DashboardChartsSectionComponent } from "../components/dashboard-charts-section/dashboard-charts-section";
+import { DashboardHeaderComponent } from "../components/dashboard-header/dashboard-header";
+import { DashboardKpiGridComponent } from "../components/dashboard-kpi-grid/dashboard-kpi-grid";
+import { DashboardOperationsSectionComponent } from "../components/dashboard-operations-section/dashboard-operations-section";
+import { DashboardReportsSectionComponent } from "../components/dashboard-reports-section/dashboard-reports-section";
+import type { TimeGranularity } from "../facade/dashboard.facade";
 import { DashboardFacade } from "../facade/dashboard.facade";
+
+export type { TimeGranularity } from "../facade/dashboard.facade";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
-    DecimalPipe,
-    NgIcon,
-    PageHeaderComponent,
-    CardComponent,
-    CardHeaderComponent,
-    CardTitleComponent,
-    CardDescriptionComponent,
-    CardContentComponent,
-    ButtonComponent,
-    OccupancyTrendChartComponent,
-    SlotDistributionDonutChartComponent,
-    ParkingComparisonChartComponent,
-    OperationalReportsTableComponent,
-  ],
-  providers: [
-    provideIcons({
-      lucideBuilding2,
-      lucideCar,
-      lucideClock,
-      lucideDollarSign,
-      lucideDownload,
-      lucideLayers,
-      lucideLayoutDashboard,
-      lucideTicket,
-      lucideTrendingUp,
-    }),
+    DashboardHeaderComponent,
+    DashboardKpiGridComponent,
+    DashboardChartsSectionComponent,
+    DashboardOperationsSectionComponent,
+    DashboardReportsSectionComponent,
   ],
   selector: "app-dashboard-page",
   standalone: true,
@@ -76,10 +38,44 @@ import { DashboardFacade } from "../facade/dashboard.facade";
 export class DashboardPage implements OnInit, OnDestroy {
   readonly facade = inject(DashboardFacade);
   private readonly parkingService = inject(ParkingService, { optional: true });
+  protected readonly texts = APP_TEXTS.dashboard;
+
+  readonly timeGranularity = this.facade.timeGranularity;
 
   readonly breadcrumbs: PageHeaderBreadcrumbItem[] = [
     { label: "Dashboard", url: APP_ROUTES.app.dashboard },
   ];
+
+  readonly kpiSectionTitle = computed(() => {
+    const scope = this.facade.activeScope();
+    if (scope.mode === "SINGLE" && scope.parkingId) {
+      const parking = this.facade
+        .accessibleParkings()
+        .find((p) => p.id === scope.parkingId);
+      if (parking) {
+        return parking.name;
+      }
+      return this.texts.kpis.singleTitle;
+    }
+    return this.texts.kpis.title;
+  });
+
+  readonly chartTitle = computed(() =>
+    this.timeGranularity() === "today"
+      ? this.texts.chart.titleHourly
+      : this.texts.chart.titleDaily
+  );
+
+  readonly chartSubtitle = computed(() => {
+    const granularity = this.timeGranularity();
+    if (granularity === "7days") {
+      return this.texts.chart.subtitles.sevenDays;
+    }
+    if (granularity === "30days") {
+      return this.texts.chart.subtitles.thirtyDays;
+    }
+    return this.texts.chart.subtitles.today;
+  });
 
   constructor() {
     effect(() => {
@@ -93,6 +89,9 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    if (this.facade.accessibleParkings().length === 0) {
+      this.parkingService?.refresh?.();
+    }
     this.facade.loadAll();
     this.facade.connectSse();
   }
@@ -101,8 +100,23 @@ export class DashboardPage implements OnInit, OnDestroy {
     this.facade.disconnect();
   }
 
+  setTimeGranularity(granularity: TimeGranularity): void {
+    this.facade.setTimeGranularity(granularity);
+  }
+
+  onScopeChange(scope: {
+    mode: "GLOBAL" | "SINGLE";
+    parkingId?: string;
+  }): void {
+    this.facade.setScope(scope.mode, scope.parkingId);
+  }
+
   onParkingSelected(parkingId: string): void {
     this.facade.setScope("SINGLE", parkingId);
+  }
+
+  onPageChange(page: number): void {
+    this.facade.loadReports(page);
   }
 
   exportCsv(): void {
@@ -119,5 +133,9 @@ export class DashboardPage implements OnInit, OnDestroy {
         window.URL.revokeObjectURL(url);
       },
     });
+  }
+
+  refreshTelemetry(): void {
+    this.facade.refreshTelemetry();
   }
 }

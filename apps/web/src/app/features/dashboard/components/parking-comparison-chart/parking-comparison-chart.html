@@ -1,11 +1,87 @@
-<div class="relative h-72 w-full">
+<div class="space-y-4">
   @if (data().length === 0) {
   <div
-    class="flex h-full w-full items-center justify-center text-sm text-[var(--muted-foreground)]"
+    class="flex h-48 w-full items-center justify-center text-sm text-[var(--muted-foreground)]"
   >
     No hay datos disponibles para la comparativa de sedes
   </div>
   } @else {
-  <canvas #canvasRef></canvas>
+  <div
+    class="space-y-3"
+    id="facilityCardsRanking"
+    data-testid="facility-cards-ranking"
+  >
+    @for (item of sortedData(); track item.parkingId; let idx = $index) {
+    <div
+      class="cursor-pointer space-y-2 rounded-lg border border-[var(--border)] bg-zinc-950/70 p-3.5 transition hover:border-zinc-700"
+      (click)="handleBarClick(item.parkingId)"
+      [attr.data-testid]="'facility-card-' + item.parkingId"
+    >
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex min-w-0 flex-1 items-center gap-2">
+          <span
+            class="flex h-5 w-5 shrink-0 items-center justify-center rounded font-mono text-xs font-bold"
+            [class]="getRankBadgeClass(item.occupancyRate)"
+          >
+            {{ idx + 1 }}
+          </span>
+          <div class="min-w-0 flex-1">
+            <h3 class="text-foreground truncate text-sm font-semibold">
+              {{ item.parkingName }}
+            </h3>
+            <span class="text-muted-foreground block truncate text-[11px]"
+              >{{ getAddress(item) }}</span
+            >
+          </div>
+        </div>
+        <div class="shrink-0 text-right">
+          <span
+            class="inline-flex items-center rounded px-2 py-0.5 font-mono text-xs font-semibold"
+            [class]="getThresholdBadge(item.occupancyRate).classes"
+          >
+            {{ item.occupancyRate | number: '1.1-1' }}% {{
+            getThresholdBadge(item.occupancyRate).label }}
+          </span>
+          <span
+            class="text-muted-foreground mt-0.5 block font-mono text-[11px]"
+          >
+            ${{ item.todayRevenue | number: '1.0-0' }} COP
+          </span>
+        </div>
+      </div>
+
+      <!-- Bar and slot counter -->
+      <div class="space-y-1">
+        <div
+          class="text-muted-foreground flex justify-between font-mono text-[11px]"
+        >
+          <span
+            >{{ item.occupiedSlots }} ocupadas / {{ item.totalSlots }}
+            plazas</span
+          >
+          <span
+            [class.text-rose-400]="item.occupancyRate >= 90"
+            [class.text-amber-400]="item.occupancyRate >= 70 && item.occupancyRate < 90"
+            [class.text-emerald-400]="item.occupancyRate < 70"
+          >
+            {{ getAvailableSlots(item) }} disponibles
+          </span>
+        </div>
+        <div class="h-2 w-full overflow-hidden rounded-full bg-zinc-800">
+          <div
+            class="h-2 rounded-full transition-all duration-500"
+            [class]="getProgressBarClass(item.occupancyRate)"
+            [style.width.%]="getClampedRate(item.occupancyRate)"
+          ></div>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
   }
+
+  <!-- Canvas kept for full Chart.js backwards compatibility and unit test compliance -->
+  <div class="hidden">
+    <canvas #canvasRef></canvas>
+  </div>
 </div>

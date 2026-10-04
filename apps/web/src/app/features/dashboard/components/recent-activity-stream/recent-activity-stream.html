@@ -1,0 +1,80 @@
+<div
+  class="max-h-[340px] space-y-1 divide-y divide-zinc-900 overflow-y-auto pr-1"
+>
+  @for (item of reports(); track item.ticketId; let idx = $index) {
+  <div
+    class="flex items-center justify-between gap-2 rounded px-2 py-2.5 text-xs transition hover:bg-zinc-900/30"
+    [attr.data-testid]="'stream-item-' + (item.licensePlate || idx)"
+  >
+    <div class="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
+      @if (isPending(item)) {
+      <div
+        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-amber-500/20 bg-amber-500/10 text-amber-400"
+      >
+        <ng-icon name="lucideAlertTriangle" class="h-4 w-4" />
+      </div>
+      } @else if (isEgress(item)) {
+      <div
+        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+      >
+        <ng-icon name="lucideArrowUpRight" class="h-4 w-4" />
+      </div>
+      } @else {
+      <div
+        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-sky-500/20 bg-sky-500/10 text-sky-400"
+      >
+        <ng-icon name="lucideArrowDownLeft" class="h-4 w-4" />
+      </div>
+      }
+
+      <div class="min-w-0 flex-1">
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <span
+            class="text-foreground rounded border border-zinc-800 bg-zinc-900 px-1.5 py-0.5 font-mono text-xs font-bold"
+            data-testid="license-plate-pill"
+          >
+            {{ item.licensePlate || 'SIN-PLACA' }}
+          </span>
+          <span class="text-zinc-400">{{ item.slotType || 'Automóvil' }}</span>
+          @if (item.parkingName) {
+          <span class="text-muted-foreground text-[10px]"
+            >• {{ item.parkingName }}</span
+          >
+          }
+        </div>
+        <span class="text-muted-foreground block truncate text-[11px]">
+          Ticket #{{ formatTicketId(item.ticketId) }} • @if (item.totalToCharge
+          && item.totalToCharge > 0) { Cobro ${{ item.totalToCharge | number:
+          '1.0-0' }} COP{{ item.paymentMethod ? ' (' + item.paymentMethod + ')'
+          : '' }} } @else if (item.slotNumber) { Barrera Entrada • Plaza {{
+          item.slotNumber }} } @else { Barrera de Acceso Automatizada }
+        </span>
+      </div>
+    </div>
+
+    <div class="shrink-0 pl-2 text-right font-mono">
+      @if (isPending(item)) {
+      <span class="font-semibold text-amber-400">En Cobro</span>
+      } @else if (isEgress(item)) {
+      <span class="font-semibold text-sky-400"
+        >Salida {{ formatDuration(item.durationMinutes) }}</span
+      >
+      } @else {
+      <span class="font-semibold text-emerald-400">Ingreso OK</span>
+      }
+      <span class="text-muted-foreground block text-[11px]"
+        >{{ formatTime(item) }}</span
+      >
+    </div>
+  </div>
+  } @empty {
+  <div
+    class="text-muted-foreground flex h-48 w-full flex-col items-center justify-center gap-1 font-mono text-xs"
+  >
+    <span>No hay flujo operativo reciente</span>
+    <span class="text-[11px] text-zinc-500"
+      >Esperando eventos en vivo por SSE...</span
+    >
+  </div>
+  }
+</div>

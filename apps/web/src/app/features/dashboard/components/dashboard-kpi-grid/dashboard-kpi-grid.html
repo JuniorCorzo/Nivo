@@ -1,0 +1,231 @@
+<section class="space-y-2">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <h2
+        class="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
+      >
+        {{ title() }}
+      </h2>
+    </div>
+    <span
+      class="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-400"
+    >
+      <span
+        class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500"
+      ></span>
+      {{ texts.kpis.liveStatus }}
+    </span>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <!-- KPI 1: Occupancy Rate -->
+    <nv-card
+      class="group flex flex-col justify-between shadow-xs transition hover:border-zinc-700"
+    >
+      <nv-card-content class="space-y-3 p-4 sm:p-5">
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground text-xs font-medium"
+            >{{ texts.kpis.occupancy.title }}</span
+          >
+          <div
+            class="border-border text-foreground rounded-lg border bg-zinc-900 p-2 transition group-hover:border-zinc-600"
+          >
+            <ng-icon
+              name="lucideTrendingUp"
+              class="h-4 w-4"
+              [class]="occupancyDeltaClass()"
+            />
+          </div>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-2">
+            <span
+              class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
+            >
+              {{ occupancyPercentage() | number: '1.1-1' }}%
+            </span>
+            <span class="text-muted-foreground font-mono text-xs">
+              {{ summary()?.occupiedSlots ?? 0 }} / {{ summary()?.totalCapacity
+              ?? 0 }}
+            </span>
+          </div>
+          <!-- Progress bar colored by threshold -->
+          <div
+            class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-zinc-800"
+          >
+            <div
+              class="h-1.5 rounded-full transition-all duration-500"
+              [class]="occupancyProgressClass()"
+              [style.width.%]="occupancyClampedPercentage()"
+            ></div>
+          </div>
+        </div>
+        <div
+          class="flex flex-wrap items-center justify-between gap-1 border-t border-zinc-900 pt-1 text-xs"
+        >
+          <span
+            class="flex items-center gap-1 font-mono font-medium"
+            [class]="occupancyDeltaClass()"
+          >
+            <ng-icon name="lucideTrendingUp" class="h-3.5 w-3.5" />
+            <span>{{ occupancyDeltaText() }}</span>
+          </span>
+          <span class="text-muted-foreground"
+            >{{ texts.kpis.occupancy.comparison }}</span
+          >
+        </div>
+      </nv-card-content>
+    </nv-card>
+
+    <!-- KPI 2: Revenue Today -->
+    <nv-card
+      class="group flex flex-col justify-between shadow-xs transition hover:border-zinc-700"
+    >
+      <nv-card-content class="space-y-3 p-4 sm:p-5">
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground text-xs font-medium"
+            >{{ texts.kpis.revenue.title }} ($COP)</span
+          >
+          <div
+            class="border-border text-foreground rounded-lg border bg-zinc-900 p-2 transition group-hover:border-zinc-600"
+          >
+            <ng-icon name="lucideDollarSign" class="h-4 w-4 text-emerald-400" />
+          </div>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-2">
+            <span
+              class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
+            >
+              ${{ (summary()?.todayRevenue ?? 0) | number: '1.0-0' }}
+            </span>
+            <span class="text-muted-foreground font-mono text-xs">
+              {{ summary()?.currency ?? 'COP' }}
+            </span>
+          </div>
+          <p
+            class="text-muted-foreground mt-2 flex items-center gap-1.5 text-xs"
+          >
+            <span
+              class="inline-block h-2 w-2 rounded-full bg-emerald-500"
+            ></span>
+            <span>82% {{ texts.kpis.revenue.digitalRatio }}</span>
+          </p>
+        </div>
+        <div
+          class="flex flex-wrap items-center justify-between gap-1 border-t border-zinc-900 pt-1 text-xs"
+        >
+          <span
+            class="flex items-center gap-1 font-mono font-medium text-emerald-400"
+          >
+            <ng-icon name="lucideArrowUpRight" class="h-3.5 w-3.5" />
+            <span>+14.8%</span>
+          </span>
+          <span class="text-muted-foreground"
+            >{{ texts.kpis.revenue.comparison }}</span
+          >
+        </div>
+      </nv-card-content>
+    </nv-card>
+
+    <!-- KPI 3: Active Tickets -->
+    <nv-card
+      class="group flex flex-col justify-between shadow-xs transition hover:border-zinc-700"
+    >
+      <nv-card-content class="space-y-3 p-4 sm:p-5">
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground text-xs font-medium"
+            >{{ texts.kpis.tickets.title }}</span
+          >
+          <div
+            class="border-border text-foreground rounded-lg border bg-zinc-900 p-2 transition group-hover:border-zinc-600"
+          >
+            <ng-icon name="lucideTicket" class="h-4 w-4 text-sky-400" />
+          </div>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-2">
+            <span
+              class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
+            >
+              {{ summary()?.activeTickets ?? 0 }}
+            </span>
+            <span class="text-muted-foreground font-mono text-xs"
+              >{{ texts.kpis.tickets.vehiclesInside }}</span
+            >
+          </div>
+          <p
+            class="text-muted-foreground mt-2 flex items-center justify-between text-xs"
+          >
+            <span>{{ texts.kpis.tickets.rotation }}</span>
+            <span class="text-foreground font-mono font-semibold">
+              {{ totalOrCompletedTickets() | number }} {{ texts.chart.unitVeh }}
+            </span>
+          </p>
+        </div>
+        <div
+          class="flex flex-wrap items-center justify-between gap-1 border-t border-zinc-900 pt-1 text-xs"
+        >
+          <span
+            class="flex items-center gap-1 font-mono font-medium text-sky-400"
+          >
+            <ng-icon name="lucideActivity" class="h-3.5 w-3.5" />
+            <span>{{ netFlowRateText() }}</span>
+          </span>
+          <span class="text-muted-foreground"
+            >{{ texts.kpis.tickets.netFlow }}</span
+          >
+        </div>
+      </nv-card-content>
+    </nv-card>
+
+    <!-- KPI 4: Average Stay -->
+    <nv-card
+      class="group flex flex-col justify-between shadow-xs transition hover:border-zinc-700"
+    >
+      <nv-card-content class="space-y-3 p-4 sm:p-5">
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground text-xs font-medium"
+            >{{ texts.kpis.stay.title }}</span
+          >
+          <div
+            class="border-border text-foreground rounded-lg border bg-zinc-900 p-2 transition group-hover:border-zinc-600"
+          >
+            <ng-icon name="lucideClock" class="h-4 w-4 text-zinc-300" />
+          </div>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-2">
+            <span
+              class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
+            >
+              {{ formattedAvgStayMinutes() }} min
+            </span>
+            <span class="text-muted-foreground font-mono text-xs">
+              {{ formattedAvgStayHours() }}
+            </span>
+          </div>
+          <p
+            class="text-muted-foreground mt-2 flex items-center justify-between text-xs"
+          >
+            <span>{{ texts.kpis.stay.gracePeriod }}</span>
+            <span class="text-foreground font-mono font-semibold">15 min</span>
+          </p>
+        </div>
+        <div
+          class="flex flex-wrap items-center justify-between gap-1 border-t border-zinc-900 pt-1 text-xs"
+        >
+          <span
+            class="flex items-center gap-1 font-mono font-medium text-emerald-400"
+          >
+            <ng-icon name="lucideArrowDownRight" class="h-3.5 w-3.5" />
+            <span>-6 min</span>
+          </span>
+          <span class="text-muted-foreground"
+            >{{ texts.kpis.stay.comparison }}</span
+          >
+        </div>
+      </nv-card-content>
+    </nv-card>
+  </div>
+</section>
