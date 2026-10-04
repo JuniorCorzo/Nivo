@@ -2,9 +2,9 @@
 
 ## Rigor en Pruebas Automatizadas (Anti-Trivial Assertions)
 
-- **Prohibición de Aserciones Pobres:** NUNCA dar por válida una prueba con aserciones triviales como `assertThat(result).isNotNull()`, `expect(result).toBeDefined()` o meras llamadas sin verificación de datos.
+- **Prohibición de Aserciones Pobres:** NUNCA validar prueba con aserciones triviales (`assertThat(result).isNotNull()`, `expect(result).toBeDefined()`) o llamadas sin verificar datos.
 - **Validación de Criterios de Aceptación Reales:**
-  - **Aislamiento Multi-Tenant:** Fixtures con al menos 2 tenants distintos para comprobar que los datos del Tenant A no se filtran al Tenant B.
-  - **Precisión Matemática:** Validar que solo estados completados (ej. `PAID`) sumen a ingresos, descartando transacciones fallidas o pendientes.
-  - **Casos Borde:** Probar comportamiento ante listas vacías, sedes sin movimientos y prevención de división por cero en porcentajes.
-  - **Limpieza de Recursos:** Comprobar el ciclo de vida y destrucción de recursos (invocación de `chart.destroy()`, cierre de `SseEmitter` ante timeout/error).
+  - **Aislamiento Multi-Tenant:** Fixtures con al menos 2 tenants distintos para verificar que datos de Tenant A no filtran a Tenant B.
+  - **Precisión Matemática:** Solo estados completados (ej. `PAID`) suman a ingresos; descartar transacciones fallidas o pendientes.
+  - **Casos Borde:** Probar comportamiento ante listas vacías, sedes sin movimientos, división por cero en porcentajes.
+  - **Limpieza de Recursos:** Verificar ciclo de vida y destrucción de recursos (`chart.destroy()`, cierre de `SseEmitter` ante timeout/error).

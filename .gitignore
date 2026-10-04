@@ -49,3 +49,7 @@ node_modules
 storybook-static
 dist
 .openspec
+.logs
+*.original.md
+mockups/
+.github/skills/

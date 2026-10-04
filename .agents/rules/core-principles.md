@@ -2,13 +2,13 @@
 
 ## SOLID Principles (Angular / TypeScript Context)
 
-- **Single Responsibility Principle (SRP):** Each component, service, or directive should have one, and only one, reason to change. Components focus on UI rendering; state and business logic are delegated to facades or services.
-- **Open/Closed Principle (OCP):** Entities are open for extension via composition, content projection (`<ng-content>`), directives, and dependency injection, but closed for modification.
-- **Liskov Substitution Principle (LSP):** Service implementations and custom controls (e.g. `ControlValueAccessor` / Form controls) must fulfill their contracts without breaking caller expectations.
-- **Interface Segregation Principle (ISP):** Depend on lean interfaces and dedicated InjectionTokens rather than monolithic contracts.
-- **Dependency Inversion Principle (DIP):** Depend on abstractions (interfaces, abstract classes, `InjectionToken`) and inject dependencies via `inject()` rather than concrete tight-coupling.
+- **Single Responsibility Principle (SRP):** One reason to change per component, service, directive. UI in components; state and logic in facades or services.
+- **Open/Closed Principle (OCP):** Extend via composition, content projection (`<ng-content>`), directives, DI; never modify existing entities.
+- **Liskov Substitution Principle (LSP):** Services and controls (e.g. `ControlValueAccessor` / Form controls) must satisfy contracts without breaking caller assumptions.
+- **Interface Segregation Principle (ISP):** Lean interfaces and dedicated InjectionTokens over monolithic contracts.
+- **Dependency Inversion Principle (DIP):** Depend on abstractions (interfaces, abstract classes, `InjectionToken`). Inject via `inject()`; avoid concrete coupling.
 
 ## Simplicity & Pragmatism
 
-- **KISS (Keep It Simple, Stupid):** Prefer simple, declarative, and readable solutions over over-engineered abstractions.
-- **YAGNI (You Aren't Gonna Need It):** Build only what is needed for the current requirements; avoid premature abstractions.
+- **KISS (Keep It Simple, Stupid):** Prefer simple, declarative, readable code over complex abstractions.
+- **YAGNI (You Aren't Gonna Need It):** Build only current requirements. Zero speculative code.
