@@ -98,7 +98,9 @@ describe("SlotGroupState", () => {
   });
 
   it("should block updateSlotGroup if group has occupied slots", () => {
-    const slots = [createSlot({ prefix: "A", status: "OCCUPIED", zone: "NORTE" })];
+    const slots = [
+      createSlot({ prefix: "A", status: "OCCUPIED", zone: "NORTE" }),
+    ];
     state.updateSlotGroup(
       {
         currentPrefix: "A",
@@ -107,19 +109,22 @@ describe("SlotGroupState", () => {
         newZone: "NORTE",
         parkingId: "p-1",
       },
-      slots,
+      slots
     );
 
     expect(slotServiceMock.updateSlotGroup).not.toHaveBeenCalled();
     expect(toastServiceMock.showToast).toHaveBeenCalledWith({
-      message: "No se puede modificar el grupo porque contiene plazas ocupadas o no disponibles.",
+      message:
+        "No se puede modificar el grupo porque contiene plazas ocupadas o no disponibles.",
       type: "error",
     });
   });
 
   it("should successfully update group, close modal, and show toast", () => {
     const onDone = vi.fn();
-    const slots = [createSlot({ prefix: "A", status: "AVAILABLE", zone: "NORTE" })];
+    const slots = [
+      createSlot({ prefix: "A", status: "AVAILABLE", zone: "NORTE" }),
+    ];
     state.openGroupModal([], "NORTE", "A");
     state.updateSlotGroup(
       {
@@ -130,7 +135,7 @@ describe("SlotGroupState", () => {
         parkingId: "p-1",
       },
       slots,
-      onDone,
+      onDone
     );
 
     expect(slotServiceMock.updateSlotGroup).toHaveBeenCalledWith({
@@ -150,16 +155,18 @@ describe("SlotGroupState", () => {
 
   it("should handle service error in updateSlotGroup", () => {
     slotServiceMock.updateSlotGroup.mockReturnValue(
-      throwError(() => ({ error: { message: "Error al cambiar grupo" } })),
+      throwError(() => ({ error: { message: "Error al cambiar grupo" } }))
     );
-    const slots = [createSlot({ prefix: "A", status: "AVAILABLE", zone: "NORTE" })];
+    const slots = [
+      createSlot({ prefix: "A", status: "AVAILABLE", zone: "NORTE" }),
+    ];
     state.updateSlotGroup(
       {
         currentPrefix: "A",
         currentZone: "NORTE",
         parkingId: "p-1",
       },
-      slots,
+      slots
     );
 
     expect(toastServiceMock.showToast).toHaveBeenCalledWith({

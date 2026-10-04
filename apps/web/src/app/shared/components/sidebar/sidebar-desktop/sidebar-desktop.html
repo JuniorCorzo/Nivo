@@ -1,11 +1,11 @@
 <aside
-  class="sidebar bg-background border-border flex h-full max-h-full flex-col gap-6 overflow-hidden border-r py-2 transition-[width] duration-300"
+  class="sidebar bg-background border-border flex h-full max-h-full flex-col gap-4 overflow-hidden border-r py-3 transition-[width] duration-300"
   [class.sidebar--collapsed]="collapsed()"
   [class.px-4]="!collapsed()"
   [class.px-2]="collapsed()"
 >
   <div
-    class="flex w-full items-center"
+    class="flex w-full shrink-0 items-center"
     [class.justify-between]="!collapsed()"
     [class.flex-col]="collapsed()"
     [class.gap-3]="collapsed()"
@@ -37,5 +37,8 @@
       />
     </button>
   </div>
-  <app-sidebar-base [collapsed]="collapsed()" />
+  <app-sidebar-base
+    class="flex min-h-0 flex-1 flex-col justify-between overflow-hidden"
+    [collapsed]="collapsed()"
+  />
 </aside>

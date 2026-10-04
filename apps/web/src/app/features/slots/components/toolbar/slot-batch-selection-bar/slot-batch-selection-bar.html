@@ -4,7 +4,9 @@
 >
   <div class="flex items-center gap-2">
     <span class="bg-primary flex h-2 w-2 animate-pulse rounded-full"></span>
-    <span class="text-xs font-semibold sm:text-sm">{{ selectedCount() }} plazas seleccionadas</span>
+    <span class="text-xs font-semibold sm:text-sm"
+      >{{ selectedCount() }} plazas seleccionadas</span
+    >
   </div>
   <div class="flex items-center gap-2">
     <nv-button variant="outline" size="sm" (click)="editMetadata.emit()">

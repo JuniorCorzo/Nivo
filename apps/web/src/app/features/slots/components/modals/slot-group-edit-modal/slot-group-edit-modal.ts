@@ -33,19 +33,28 @@ export interface UpdateSlotGroupPayload {
   parkingId: string;
 }
 
-export const slotGroupKey = (g: SlotGroupOption): string => `${g.zone}:::${g.prefix}`;
+export const slotGroupKey = (g: SlotGroupOption): string =>
+  `${g.zone}:::${g.prefix}`;
 
 export const displaySlotGroup = (g: SlotGroupOption): string => {
   const zoneLabel = g.zone ? `Zona ${g.zone}` : "Sin zona";
   const prefixLabel = g.prefix ? `Prefijo ${g.prefix}` : "Sin prefijo";
   const occupiedLabel =
-    g.occupiedCount > 0 ? ` · ${g.occupiedCount} ocupada${g.occupiedCount > 1 ? "s" : ""}` : "";
+    g.occupiedCount > 0
+      ? ` · ${g.occupiedCount} ocupada${g.occupiedCount > 1 ? "s" : ""}`
+      : "";
   return `${zoneLabel} · ${prefixLabel} (${g.count} plazas${occupiedLabel})`;
 };
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, InputComponent, SelectComponent, TypographyH3, NgIcon],
+  imports: [
+    ButtonComponent,
+    InputComponent,
+    SelectComponent,
+    TypographyH3,
+    NgIcon,
+  ],
   providers: [provideIcons({ lucideAlertTriangle, lucideLayers, lucideX })],
   selector: "app-slot-group-edit-modal",
   standalone: true,
@@ -91,11 +100,17 @@ export class SlotGroupEditModalComponent {
     return changed && nonEmpty;
   });
 
-  readonly hasOccupiedSlots = computed(() => (this.selectedGroup()?.occupiedCount ?? 0) > 0);
+  readonly hasOccupiedSlots = computed(
+    () => (this.selectedGroup()?.occupiedCount ?? 0) > 0
+  );
 
-  readonly occupiedCount = computed(() => this.selectedGroup()?.occupiedCount ?? 0);
+  readonly occupiedCount = computed(
+    () => this.selectedGroup()?.occupiedCount ?? 0
+  );
 
-  readonly canSubmit = computed(() => this.hasChanges() && !this.hasOccupiedSlots());
+  readonly canSubmit = computed(
+    () => this.hasChanges() && !this.hasOccupiedSlots()
+  );
 
   protected readonly titleId = "slot-group-edit-title";
   protected readonly descriptionId = "slot-group-edit-description";
@@ -114,7 +129,9 @@ export class SlotGroupEditModalComponent {
 
       untracked(() => {
         if (initZ || initP) {
-          const match = groups.find((g) => g.zone === initZ && g.prefix === initP);
+          const match = groups.find(
+            (g) => g.zone === initZ && g.prefix === initP
+          );
           if (match) {
             this.onGroupSelect(this.groupKey(match));
             return;

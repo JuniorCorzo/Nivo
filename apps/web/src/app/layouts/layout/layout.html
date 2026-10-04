@@ -1,6 +1,8 @@
-<main class="flex min-h-dvh flex-col md:flex-row">
+<main
+  class="flex h-dvh max-h-dvh min-h-dvh flex-col overflow-hidden md:flex-row"
+>
   <router-outlet class="max-w-sm" name="sidebar" />
-  <section class="min-w-0 flex-1 overflow-hidden">
+  <section class="h-full min-w-0 flex-1 overflow-y-auto">
     <router-outlet />
   </section>
 </main>

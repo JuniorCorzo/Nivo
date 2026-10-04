@@ -6,8 +6,15 @@
     title="Plazas de Parqueo"
     [subtitle]="texts.list.subtitle"
   >
-    <div actions class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-      <nv-button variant="outline" (click)="facade.openGroupModal()" class="w-full sm:w-auto">
+    <div
+      actions
+      class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"
+    >
+      <nv-button
+        variant="outline"
+        (click)="facade.openGroupModal()"
+        class="w-full sm:w-auto"
+      >
         <ng-icon name="lucidePencil" size="14" />
         Editar grupo
       </nv-button>
@@ -58,13 +65,15 @@
       <div class="border-border overflow-x-auto rounded-xl border">
         <table nv-table class="w-full min-w-190 border-collapse text-left">
           <colgroup>
-            @for ( column of facade.table.getAllLeafColumns(); track column.id ) {
+            @for ( column of facade.table.getAllLeafColumns(); track column.id )
+            {
             <col [style.width.px]="column.getSize()" />
             }
           </colgroup>
 
           <thead nv-table-header class="bg-muted/80 border-border border-b">
-            @for ( headerGroup of facade.table.getHeaderGroups(); track headerGroup.id ) {
+            @for ( headerGroup of facade.table.getHeaderGroups(); track
+            headerGroup.id ) {
             <tr nv-table-row>
               @for (header of headerGroup.headers; track header.id) {
               <th
@@ -189,5 +198,7 @@
   }
 </div>
 } @else {
-<div class="text-muted-foreground p-8 text-center">{{ texts.list.empty.parkingNotFound }}</div>
+<div class="text-muted-foreground p-8 text-center">
+  {{ texts.list.empty.parkingNotFound }}
+</div>
 }

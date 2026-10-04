@@ -20,7 +20,9 @@ describe("SlotEmptyStateComponent", () => {
     fixture.componentRef.setInput("hasSlots", false);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain("No hay plazas configuradas");
+    expect(fixture.nativeElement.textContent).toContain(
+      "No hay plazas configuradas"
+    );
     expect(fixture.nativeElement.textContent).toContain("Crear primer lote");
   });
 
@@ -32,7 +34,9 @@ describe("SlotEmptyStateComponent", () => {
     fixture.detectChanges();
 
     /* SAFETY: The action button is rendered in the template when hasSlots is false */
-    const btn = fixture.nativeElement.querySelector("button") as HTMLButtonElement;
+    const btn = fixture.nativeElement.querySelector(
+      "button"
+    ) as HTMLButtonElement;
     btn.click();
 
     expect(emitted).toBe(true);
@@ -42,7 +46,9 @@ describe("SlotEmptyStateComponent", () => {
     fixture.componentRef.setInput("hasSlots", true);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain("Ninguna plaza coincide");
+    expect(fixture.nativeElement.textContent).toContain(
+      "Ninguna plaza coincide"
+    );
     expect(fixture.nativeElement.textContent).toContain("Limpiar filtros");
   });
 
@@ -54,7 +60,9 @@ describe("SlotEmptyStateComponent", () => {
     fixture.detectChanges();
 
     /* SAFETY: The clear filters button is rendered in the template when hasSlots is true */
-    const btn = fixture.nativeElement.querySelector("button") as HTMLButtonElement;
+    const btn = fixture.nativeElement.querySelector(
+      "button"
+    ) as HTMLButtonElement;
     btn.click();
 
     expect(emitted).toBe(true);

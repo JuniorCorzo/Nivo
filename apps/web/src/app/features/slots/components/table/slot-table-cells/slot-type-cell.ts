@@ -1,9 +1,22 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 import type { SlotType } from "@core/type/slot-distribution.type";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideAccessibility, lucideBike, lucideCar, lucideZap } from "@ng-icons/lucide";
+import {
+  lucideAccessibility,
+  lucideBike,
+  lucideCar,
+  lucideZap,
+} from "@ng-icons/lucide";
 
-import { SLOT_TYPE_ICONS, SLOT_TYPE_LABELS } from "../../../shared/parking-slot-presentations";
+import {
+  SLOT_TYPE_ICONS,
+  SLOT_TYPE_LABELS,
+} from "../../../shared/parking-slot-presentations";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

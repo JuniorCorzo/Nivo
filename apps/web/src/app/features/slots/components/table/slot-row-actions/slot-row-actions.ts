@@ -1,7 +1,17 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
 import type { SlotSummary } from "@core/models/slot.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideEye, lucidePencil, lucideToggleLeft, lucideTrash2 } from "@ng-icons/lucide";
+import {
+  lucideEye,
+  lucidePencil,
+  lucideToggleLeft,
+  lucideTrash2,
+} from "@ng-icons/lucide";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

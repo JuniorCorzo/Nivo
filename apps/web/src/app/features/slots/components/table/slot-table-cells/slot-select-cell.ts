@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
 import { CheckboxComponent } from "@nivo-sass/design-system";
 
 @Component({
@@ -7,7 +12,11 @@ import { CheckboxComponent } from "@nivo-sass/design-system";
   selector: "app-slot-select-cell",
   standalone: true,
   template: `
-    <nv-checkbox [checked]="checked()" (change)="onToggle($event)" aria-label="Seleccionar plaza" />
+    <nv-checkbox
+      [checked]="checked()"
+      (change)="onToggle($event)"
+      aria-label="Seleccionar plaza"
+    />
   `,
 })
 export class SlotSelectCellComponent {

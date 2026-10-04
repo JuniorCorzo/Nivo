@@ -43,14 +43,17 @@ export class SlotMetadataBatchModalComponent implements OnDestroy {
   readonly isActive = signal(true);
 
   readonly hasOccupiedSlots = computed(() =>
-    this.selectedSlots().some((slot) => slot.status === "OCCUPIED"),
+    this.selectedSlots().some((slot) => slot.status === "OCCUPIED")
   );
 
   readonly occupiedCount = computed(
-    () => this.selectedSlots().filter((slot) => slot.status === "OCCUPIED").length,
+    () =>
+      this.selectedSlots().filter((slot) => slot.status === "OCCUPIED").length
   );
 
-  readonly canSubmit = computed(() => !this.hasOccupiedSlots() && this.selectedSlots().length > 0);
+  readonly canSubmit = computed(
+    () => !this.hasOccupiedSlots() && this.selectedSlots().length > 0
+  );
 
   protected readonly titleId = "metadata-batch-title";
   protected readonly descriptionId = "metadata-batch-description";
