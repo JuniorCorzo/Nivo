@@ -274,4 +274,75 @@ class GetDashboardSummaryUseCaseTest {
     assertThat(summary.getAvailableSlots()).isEqualTo(60);
     assertThat(summary.getOccupancyRate()).isEqualTo(25.0);
   }
+
+  @Test
+  @DisplayName("Should fallback to historical summaries when today summary is empty for single parking")
+  void shouldFallbackToHistoricalSummariesWhenTodaySummaryIsEmpty() {
+    final UUID tenantId = UUID.randomUUID();
+    final UUID parkingId = UUID.randomUUID();
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
+
+    final TenantReference tenant = TenantReference.builder().id(tenantId).build();
+    final ParkingLots parkingLot = ParkingLots.builder()
+        .id(parkingId)
+        .name("Sede Fallback")
+        .tenant(tenant)
+        .build();
+    when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
+
+    when(dailyGateway.findByParkingLotIdAndSummaryDate(eq(parkingId), any(LocalDate.class)))
+        .thenReturn(Optional.empty());
+
+    final ParkingLotListItem parkingItem = ParkingLotListItem.builder()
+        .id(parkingId)
+        .name("Sede Fallback")
+        .totalCapacity(50L)
+        .occuppationRate(0.0)
+        .currency("COP")
+        .build();
+    when(parkingLotsRepository.findByTenantId(tenantId)).thenReturn(List.of(parkingItem));
+    when(hourlyGateway.findLatestByParkingLotId(parkingId)).thenReturn(Optional.empty());
+
+    final DailySummaryModel s1 = DailySummaryModel.builder()
+        .parkingLotId(parkingId)
+        .tenantId(tenantId)
+        .summaryDate(LocalDate.now().minusDays(2))
+        .totalRevenue(new BigDecimal("50000.00"))
+        .totalTickets(10L)
+        .ongoingTickets(3L)
+        .completedTickets(7L)
+        .avgDurationMinutes(30.0)
+        .currency("COP")
+        .build();
+
+    final DailySummaryModel s2 = DailySummaryModel.builder()
+        .parkingLotId(parkingId)
+        .tenantId(tenantId)
+        .summaryDate(LocalDate.now().minusDays(1))
+        .totalRevenue(new BigDecimal("70000.00"))
+        .totalTickets(15L)
+        .ongoingTickets(2L)
+        .completedTickets(13L)
+        .avgDurationMinutes(50.0)
+        .currency("COP")
+        .build();
+
+    when(dailyGateway.findAllByTenantIdAndParkingLotId(tenantId, parkingId))
+        .thenReturn(List.of(s1, s2));
+
+    final DashboardSummaryDTO summary = useCase.execute(parkingId);
+
+    assertThat(summary).isNotNull();
+    assertThat(summary.getScope()).isEqualTo("SINGLE");
+    assertThat(summary.getParkingId()).isEqualTo(parkingId);
+    assertThat(summary.getTotalCapacity()).isEqualTo(50);
+    assertThat(summary.getOccupiedSlots()).isEqualTo(5);
+    assertThat(summary.getAvailableSlots()).isEqualTo(45);
+    assertThat(summary.getTodayRevenue()).isEqualByComparingTo(new BigDecimal("120000.00"));
+    assertThat(summary.getTotalTickets()).isEqualTo(25L);
+    assertThat(summary.getActiveTickets()).isEqualTo(5L);
+    assertThat(summary.getCompletedTickets()).isEqualTo(20L);
+    assertThat(summary.getAvgStayMinutes()).isEqualTo(40.0);
+    assertThat(summary.getCurrency()).isEqualTo("COP");
+  }
 }

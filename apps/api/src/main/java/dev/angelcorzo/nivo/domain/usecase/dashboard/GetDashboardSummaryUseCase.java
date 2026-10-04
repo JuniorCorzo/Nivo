@@ -102,10 +102,61 @@ public class GetDashboardSummaryUseCase {
           .build();
     }
 
+    final List<DailySummaryModel> fallbackSummaries =
+        dailyGateway.findAllByTenantIdAndParkingLotId(tenantId, parkingId);
+
     final String fallbackCurrency = parkingItemOpt
         .map(ParkingLotListItem::currency)
         .filter(c -> c != null && !c.isBlank())
         .orElse("COP");
+
+    if (!fallbackSummaries.isEmpty()) {
+      final long totalTickets = fallbackSummaries.stream()
+          .mapToLong(s -> s.getTotalTickets() != null ? s.getTotalTickets() : 0L)
+          .sum();
+      final long completedTickets = fallbackSummaries.stream()
+          .mapToLong(s -> s.getCompletedTickets() != null ? s.getCompletedTickets() : 0L)
+          .sum();
+      final long ongoingTickets = fallbackSummaries.stream()
+          .mapToLong(s -> s.getOngoingTickets() != null ? s.getOngoingTickets() : 0L)
+          .sum();
+      final BigDecimal totalRevenue = fallbackSummaries.stream()
+          .map(s -> s.getTotalRevenue() != null ? s.getTotalRevenue() : BigDecimal.ZERO)
+          .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+      final double avgStay = fallbackSummaries.stream()
+          .filter(s -> s.getAvgDurationMinutes() != null && s.getAvgDurationMinutes() > 0)
+          .mapToDouble(DailySummaryModel::getAvgDurationMinutes)
+          .average()
+          .orElse(0.0);
+      final double roundedAvgStay = Math.round(avgStay * 10.0) / 10.0;
+
+      final String currency = fallbackSummaries.stream()
+          .map(DailySummaryModel::getCurrency)
+          .filter(c -> c != null && !c.isBlank())
+          .findFirst()
+          .orElse(fallbackCurrency);
+
+      final int fallbackOccupied = (occupied == 0 && ongoingTickets > 0)
+          ? (int) Math.min(totalCapacity, ongoingTickets)
+          : occupied;
+      final int fallbackAvailable = Math.max(0, totalCapacity - fallbackOccupied);
+
+      return DashboardSummaryDTO.builder()
+          .scope("SINGLE")
+          .parkingId(parkingId)
+          .totalCapacity(totalCapacity)
+          .occupiedSlots(fallbackOccupied)
+          .availableSlots(fallbackAvailable)
+          .occupancyRate(occupancyRate)
+          .todayRevenue(totalRevenue)
+          .currency(currency)
+          .avgStayMinutes(roundedAvgStay)
+          .totalTickets(totalTickets)
+          .activeTickets(ongoingTickets)
+          .completedTickets(completedTickets)
+          .build();
+    }
 
     return DashboardSummaryDTO.builder()
         .scope("SINGLE")

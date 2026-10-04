@@ -53,6 +53,14 @@ public class DashboardViewsAdapter
   }
 
   @Override
+  public List<DailySummaryModel> findAllByTenantIdAndParkingLotId(
+      final UUID tenantId, final UUID parkingLotId) {
+    return dailySummaryRepository.findAllByTenantIdAndParkingLotId(tenantId, parkingLotId).stream()
+        .map(this::toModel)
+        .toList();
+  }
+
+  @Override
   public List<HourlyOccupancyModel> findByParkingLotId(final UUID parkingLotId) {
     return hourlyOccupancyRepository.findByParkingLotId(parkingLotId).stream()
         .map(this::toModel)

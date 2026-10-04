@@ -10,4 +10,5 @@ public interface DailySummaryGateway {
   Optional<DailySummaryModel> findByParkingLotIdAndSummaryDate(UUID parkingLotId, LocalDate summaryDate);
   List<DailySummaryModel> findAllByTenantIdAndSummaryDate(UUID tenantId, LocalDate summaryDate);
   List<DailySummaryModel> findAllByTenantId(UUID tenantId);
+  List<DailySummaryModel> findAllByTenantIdAndParkingLotId(UUID tenantId, UUID parkingLotId);
 }
