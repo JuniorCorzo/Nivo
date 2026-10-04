@@ -43,11 +43,11 @@ class SecurityChainTest {
   @Test
   @DisplayName("Should configure RoleHierarchy with proper hierarchy levels")
   void shouldConfigureRoleHierarchy() {
-    RoleHierarchy hierarchy = securityChain.roleHierarchy();
+    final RoleHierarchy hierarchy = securityChain.roleHierarchy();
     assertThat(hierarchy).isNotNull();
 
     // SUPERADMIN should imply OWNER, MANAGER, OPERATOR, DRIVER, AUDITOR
-    var reachable = hierarchy.getReachableGrantedAuthorities(
+    final java.util.Collection<? extends org.springframework.security.core.GrantedAuthority> reachable = hierarchy.getReachableGrantedAuthorities(
         java.util.List.of(new SimpleGrantedAuthority("ROLE_" + Roles.SUPERADMIN.name())));
 
     assertThat(reachable)

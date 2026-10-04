@@ -1,36 +1,59 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.config;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.info.Contact;
-import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import io.swagger.v3.oas.annotations.security.SecuritySchemes;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@OpenAPIDefinition(
-    info =
-        @Info(
-            title = "Nivo API",
-            version = "1.0",
-            description = "Multi-tenant Parking Management System API",
-            contact = @Contact(name = "Nivo Team")),
-    security = {@SecurityRequirement(name = "Bearer Authentication")})
-@SecuritySchemes(
-    value = {
-      @SecurityScheme(
-          name = "refreshToken",
-          type = SecuritySchemeType.APIKEY,
-          in = SecuritySchemeIn.COOKIE,
-          paramName = "refreshToken"),
-      @SecurityScheme(
-          name = "Bearer Authentication",
-          type = SecuritySchemeType.HTTP,
-          scheme = "bearer",
-          bearerFormat = "JWT")
-    })
-public class SwaggerConfiguration {}
+public class SwaggerConfiguration {
 
+  @Bean
+  public OpenAPI customOpenAPI() {
+    final Info info =
+        new Info()
+            .title("Nivo API")
+            .version("1.0")
+            .description("Multi-tenant Parking Management System API")
+            .contact(new Contact().name("Nivo Team"));
+
+    final String script =
+        """
+        // Auto-login to obtain Bearer token for Scalar
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: 'admin@nivo.dev', password: 'password123' })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const token = data.token || data.accessToken || data.access_token;
+          context.setToken('Bearer ' + token);
+        }
+        """;
+
+    info.addExtension("x-scalar-pre-request", script);
+
+    return new OpenAPI()
+        .components(
+            new Components()
+                .addSecuritySchemes(
+                    "Bearer Authentication",
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT"))
+                .addSecuritySchemes(
+                    "refreshToken",
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.APIKEY)
+                        .in(SecurityScheme.In.COOKIE)
+                        .name("refreshToken")))
+        .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+        .info(info);
+  }
+}

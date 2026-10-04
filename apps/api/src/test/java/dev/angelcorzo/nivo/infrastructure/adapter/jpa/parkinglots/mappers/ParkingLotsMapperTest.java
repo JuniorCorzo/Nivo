@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.mappers.CoordinatesMapperJpaImpl;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkinglots.ParkingLotSummaryData;
+import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLotListItem;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLotPolicy;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLots;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotType;
@@ -61,7 +62,7 @@ class ParkingLotsMapperTest {
             .ivaRate(new BigDecimal("0.1900"))
             .build();
 
-    var result = parkingLotsMapper.toListItem(summaryData);
+    final ParkingLotListItem result = parkingLotsMapper.toListItem(summaryData);
 
     assertThat(result.id()).isEqualTo(summaryData.id());
     assertThat(result.name()).isEqualTo("Parking Norte");

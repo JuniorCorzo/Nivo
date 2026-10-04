@@ -66,7 +66,11 @@ describe("SlotMetadataBatchState", () => {
   it("should update metadata successfully, close modal, call onDone, and show success toast", () => {
     const onDone = vi.fn();
     state.openMetadataModal(1);
-    state.updateSlotsMetadata({ hasCharger: true, slotIds: ["1"] }, "parking-1", onDone);
+    state.updateSlotsMetadata(
+      { hasCharger: true, slotIds: ["1"] },
+      "parking-1",
+      onDone
+    );
 
     expect(slotServiceMock.updateSlotMetadata).toHaveBeenCalledWith({
       hasCharger: true,
@@ -84,7 +88,7 @@ describe("SlotMetadataBatchState", () => {
     slotServiceMock.updateSlotMetadata.mockReturnValue(
       throwError(() => ({
         error: { message: "Error al actualizar" },
-      })),
+      }))
     );
 
     state.updateSlotsMetadata({ slotIds: ["1"] }, "parking-1");

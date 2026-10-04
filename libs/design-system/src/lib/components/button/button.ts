@@ -18,6 +18,7 @@ import type { LoaderSize, LoaderVariant } from "../loader/index";
   standalone: true,
   template: `
     <button
+      [attr.nv-button]="''"
       [type]="type()"
       [disabled]="isDisabled()"
       [attr.aria-busy]="loading() ? 'true' : null"

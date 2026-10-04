@@ -7,8 +7,12 @@
   (click)="onBackdropClick($event)"
 >
   <div class="slot-dialog__panel">
-    <div class="border-border flex items-center justify-between border-b pb-3.5">
-      <nv-h3 [id]="titleId" class="text-foreground text-base font-bold">{{ title() }}</nv-h3>
+    <div
+      class="border-border flex items-center justify-between border-b pb-3.5"
+    >
+      <nv-h3 [id]="titleId" class="text-foreground text-base font-bold"
+        >{{ title() }}</nv-h3
+      >
       <button
         type="button"
         class="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border transition-colors"
@@ -20,15 +24,23 @@
     </div>
 
     <div class="mt-4 flex flex-col gap-4">
-      <p [id]="descriptionId" class="text-muted-foreground text-xs leading-relaxed">{{ body() }}</p>
+      <p
+        [id]="descriptionId"
+        class="text-muted-foreground text-xs leading-relaxed"
+      >
+        {{ body() }}
+      </p>
 
       @if (target(); as currentTarget) {
-      <div class="bg-muted/50 border-border flex flex-col gap-2.5 rounded-xl border p-3.5">
+      <div
+        class="bg-muted/50 border-border flex flex-col gap-2.5 rounded-xl border p-3.5"
+      >
         <div class="flex items-center justify-between text-xs">
           <span class="text-muted-foreground font-medium">Estado actual:</span>
           <span class="text-foreground font-semibold">
-            {{ currentTarget.status === 'AVAILABLE' ? 'Disponible' : currentTarget.status ===
-            'OCCUPIED' ? 'Ocupada' : currentTarget.status === 'MAINTENANCE' ? 'Mantenimiento' :
+            {{ currentTarget.status === 'AVAILABLE' ? 'Disponible' :
+            currentTarget.status === 'OCCUPIED' ? 'Ocupada' :
+            currentTarget.status === 'MAINTENANCE' ? 'Mantenimiento' :
             'Reservada' }}
           </span>
         </div>
@@ -46,8 +58,9 @@
             [class.text-foreground]="nextStatus() !== option"
             (click)="selectStatusNext.emit(option)"
           >
-            {{ option === 'AVAILABLE' ? 'Disponible' : option === 'OCCUPIED' ? 'Ocupada' : option
-            === 'MAINTENANCE' ? 'Mantenimiento' : 'Reservada' }}
+            {{ option === 'AVAILABLE' ? 'Disponible' : option === 'OCCUPIED' ?
+            'Ocupada' : option === 'MAINTENANCE' ? 'Mantenimiento' : 'Reservada'
+            }}
           </button>
           }
         </div>
@@ -62,13 +75,17 @@
           (change)="onConfirmCheckedChange($event)"
           class="accent-warning mt-0.5 cursor-pointer rounded-sm"
         />
-        <span>Entiendo el riesgo y quiero continuar con el cambio de estado.</span>
+        <span
+          >Entiendo el riesgo y quiero continuar con el cambio de estado.</span
+        >
       </label>
       }
     </div>
 
     <div class="border-border mt-5 flex justify-end gap-2.5 border-t pt-3.5">
-      <nv-button variant="outline" (click)="onCancel($event)">Cancelar</nv-button>
+      <nv-button variant="outline" (click)="onCancel($event)"
+        >Cancelar</nv-button
+      >
       <nv-button
         [disabled]="!nextStatus() || (requiresExtraConfirm() && !confirmChecked())"
         (click)="confirm.emit()"

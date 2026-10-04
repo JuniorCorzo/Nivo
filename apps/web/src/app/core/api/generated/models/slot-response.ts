@@ -20,9 +20,24 @@ export interface SlotResponse {
   deletedAt?: string;
 
   /**
+   * Whether slot has EV charger equipment
+   */
+  hasCharger: boolean;
+
+  /**
    * Slot ID
    */
   id: string;
+
+  /**
+   * Whether slot is PMR / accessible
+   */
+  isAccessible: boolean;
+
+  /**
+   * Whether slot is active and operational
+   */
+  isActive: boolean;
 
   /**
    * Parking lot information
@@ -53,19 +68,4 @@ export interface SlotResponse {
    * Last update timestamp
    */
   updatedAt: string;
-
-  /**
-   * Whether slot has EV charger
-   */
-  hasCharger?: boolean;
-
-  /**
-   * Whether slot is accessible for PRM
-   */
-  isAccessible?: boolean;
-
-  /**
-   * Whether slot is active
-   */
-  isActive?: boolean;
 }

@@ -64,7 +64,9 @@
 </div>
 
 <!-- Batch Generation Preview Card -->
-<div class="border-primary/20 bg-primary/10 flex flex-col gap-1.5 rounded-xl border p-5">
+<div
+  class="border-primary/20 bg-primary/10 flex flex-col gap-1.5 rounded-xl border p-5"
+>
   <div class="flex items-center gap-2">
     <ng-icon name="lucideSparkles" class="text-primary text-base" />
     <span class="text-primary text-xs font-bold tracking-wider uppercase">
@@ -72,12 +74,20 @@
     </span>
   </div>
   <div class="mt-1 flex items-baseline gap-2">
-    <span class="text-foreground font-mono text-3xl font-bold"> {{ facade.previewCount() }} </span>
-    <span class="text-muted-foreground text-xs font-semibold"> plazas a crear </span>
+    <span class="text-foreground font-mono text-3xl font-bold">
+      {{ facade.previewCount() }}
+    </span>
+    <span class="text-muted-foreground text-xs font-semibold">
+      plazas a crear
+    </span>
   </div>
-  <div class="text-muted-foreground font-mono text-xs">{{ facade.previewRange() }}</div>
+  <div class="text-muted-foreground font-mono text-xs">
+    {{ facade.previewRange() }}
+  </div>
   @if (facade.conflictMessage()) {
-  <div class="text-destructive mt-2 flex items-center gap-2 text-xs font-semibold">
+  <div
+    class="text-destructive mt-2 flex items-center gap-2 text-xs font-semibold"
+  >
     <ng-icon name="lucideAlertCircle" size="14" />
     <span>{{ facade.conflictMessage() }}</span>
   </div>

@@ -9,6 +9,7 @@ export const APP_ROUTE_PATHS = {
     createParkingLotRate: `${parkingLotsSegment}/:parkingId/${ratesSegment}/new`,
     createParkingLotSlot: `${parkingLotsSegment}/:parkingId/${slotsSegment}/new`,
     createParkingLots: `${parkingLotsSegment}/create`,
+    dashboard: "dashboard",
     editParkingLotRate: `${parkingLotsSegment}/:parkingId/${ratesSegment}/:rateId/edit`,
     editParkingLotSlot: `${parkingLotsSegment}/:parkingId/${slotsSegment}/:slotId/edit`,
     editParkingLots: `${parkingLotsSegment}/:parkingId/edit`,
@@ -34,6 +35,7 @@ export const APP_ROUTES = {
     createParkingLotSlot: (parkingId: string) =>
       `${parkingLotsRoute}/${parkingId}/${slotsSegment}/new`,
     createParkingLots: `${parkingLotsRoute}/create`,
+    dashboard: "/app/dashboard",
     editParkingLotRate: (parkingId: string, rateId: string) =>
       `${parkingLotsRoute}/${parkingId}/${ratesSegment}/${rateId}/edit`,
     editParkingLotSlot: (parkingId: string, slotId: string) =>

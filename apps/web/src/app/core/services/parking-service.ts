@@ -40,10 +40,19 @@ export class ParkingService {
     this.updateState();
   }
 
+  public refresh(): void {
+    this.updateState();
+  }
+
   private updateState() {
-    this.getAll().subscribe((parkintLotsResponse) =>
-      this._parkingLots.set(parkintLotsResponse)
-    );
+    this.getAll().subscribe({
+      error: (err: unknown) => {
+        void err;
+      },
+      next: (parkintLotsResponse) => {
+        this._parkingLots.set(parkintLotsResponse);
+      },
+    });
   }
 
   /**

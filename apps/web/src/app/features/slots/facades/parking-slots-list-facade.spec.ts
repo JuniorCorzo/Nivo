@@ -33,13 +33,17 @@ describe("ParkingSlotsListFacade pure functions", () => {
     it("should return batch message for batch scope", () => {
       const slot = createSlot();
       const result = getDeleteModalCopy(slot, "batch");
-      expect(result).toBe("Hay plazas seleccionadas. Debés confirmar para continuar.");
+      expect(result).toBe(
+        "Hay plazas seleccionadas. Debés confirmar para continuar."
+      );
     });
 
     it("should return simple delete message when no history", () => {
       const slot = createSlot({ hasHistory: false });
       const result = getDeleteModalCopy(slot, "single");
-      expect(result).toBe("¿Eliminar la plaza 001? Esta acción no se puede deshacer.");
+      expect(result).toBe(
+        "¿Eliminar la plaza 001? Esta acción no se puede deshacer."
+      );
     });
 
     it("should include history warning when slot has history", () => {
@@ -113,7 +117,9 @@ describe("ParkingSlotsListFacade pure functions", () => {
     it("should return normal copy for standard transition", () => {
       const result = getStatusModalCopy("AVAILABLE", "OCCUPIED", false);
       expect(result.title).toBe("Cambiar estado");
-      expect(result.body).toBe("¿Confirmar cambio de estado de AVAILABLE a OCCUPIED?");
+      expect(result.body).toBe(
+        "¿Confirmar cambio de estado de AVAILABLE a OCCUPIED?"
+      );
       expect(result.requiresExtraConfirm).toBe(false);
     });
 

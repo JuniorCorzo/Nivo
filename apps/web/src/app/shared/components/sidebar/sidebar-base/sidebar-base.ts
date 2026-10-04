@@ -21,7 +21,7 @@ import { filter } from "rxjs";
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "h-full flex flex-col",
+    class: "h-full min-h-0 flex flex-col justify-between overflow-hidden",
   },
   imports: [RouterLink, NgIcon, SidebarFooter],
   providers: [

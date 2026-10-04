@@ -89,13 +89,18 @@ describe("ParkingSlotFormPage", () => {
   });
 
   it("should render app-page-header with title, subtitle, icon, and breadcrumbs", () => {
-    const headerDebugEl = fixture.debugElement.query(By.directive(PageHeaderComponent));
+    const headerDebugEl = fixture.debugElement.query(
+      By.directive(PageHeaderComponent)
+    );
     expect(headerDebugEl).toBeTruthy();
 
     // SAFETY: Querying component instance of PageHeaderComponent
-    const headerInstance = headerDebugEl.componentInstance as PageHeaderComponent;
+    const headerInstance =
+      headerDebugEl.componentInstance as PageHeaderComponent;
     expect(headerInstance.title()).toBe("Crear plazas");
-    expect(headerInstance.subtitle()).toBe("Configurá la generación masiva de plazas");
+    expect(headerInstance.subtitle()).toBe(
+      "Configurá la generación masiva de plazas"
+    );
     expect(headerInstance.icon()).toBe("lucideLayers");
     expect(headerInstance.breadcrumbs()).toEqual([
       {
@@ -114,9 +119,11 @@ describe("ParkingSlotFormPage", () => {
   });
 
   it("should project back button into [actions] slot of page-header", () => {
-    const headerDebugEl = fixture.debugElement.query(By.directive(PageHeaderComponent));
+    const headerDebugEl = fixture.debugElement.query(
+      By.directive(PageHeaderComponent)
+    );
     const actionsSlot = headerDebugEl.nativeElement.querySelector(
-      '[data-testid="page-header-actions"]',
+      '[data-testid="page-header-actions"]'
     );
     expect(actionsSlot).toBeTruthy();
     expect(actionsSlot.textContent).toContain("Volver al listado");

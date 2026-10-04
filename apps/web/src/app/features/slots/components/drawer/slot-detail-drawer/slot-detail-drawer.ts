@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
 import type { SlotSummary } from "@core/models/slot.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
@@ -11,7 +16,11 @@ import {
   lucideX,
   lucideZap,
 } from "@ng-icons/lucide";
-import { BadgeComponent, TypographyH3, TypographyMuted } from "@nivo-sass/design-system";
+import {
+  BadgeComponent,
+  TypographyH3,
+  TypographyMuted,
+} from "@nivo-sass/design-system";
 
 import type { DrawerTab } from "../../../facades/parking-slots-list.facade";
 import { getHistoryCopy } from "../../../facades/parking-slots-list.facade";

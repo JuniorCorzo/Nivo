@@ -1,4 +1,11 @@
-import { DestroyRef, Injectable, computed, effect, inject, signal } from "@angular/core";
+import {
+  DestroyRef,
+  Injectable,
+  computed,
+  effect,
+  inject,
+  signal,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ParkingService } from "@core/services/parking-service";
@@ -43,7 +50,10 @@ export class ParkingSlotFormFacade {
     if (!id) {
       return null;
     }
-    return (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ?? null;
+    return (
+      (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ??
+      null
+    );
   });
 
   readonly currentSlot = computed(() => {
@@ -59,16 +69,18 @@ export class ParkingSlotFormFacade {
   readonly title = computed(() =>
     this.mode() === "create"
       ? APP_TEXTS.parking.slots.create.title
-      : APP_TEXTS.parking.slots.edit.title,
+      : APP_TEXTS.parking.slots.edit.title
   );
 
   readonly description = computed(() =>
     this.mode() === "create"
       ? APP_TEXTS.parking.slots.create.subtitle
-      : APP_TEXTS.parking.slots.edit.subtitle,
+      : APP_TEXTS.parking.slots.edit.subtitle
   );
 
-  readonly previewCount = computed(() => Math.max(0, this.form.to() - this.form.from() + 1));
+  readonly previewCount = computed(() =>
+    Math.max(0, this.form.to() - this.form.from() + 1)
+  );
 
   readonly previewRange = computed(() => {
     const prefix = this.form.prefix().trim() || "A";
@@ -80,7 +92,9 @@ export class ParkingSlotFormFacade {
     for (let index = from; index <= Math.min(to, from + 11); index += 1) {
       items.push(`${prefix}-${String(index).padStart(3, "0")}`);
     }
-    return items.length > 0 ? `${items.join(", ")}${count > 12 ? "…" : ""}` : "—";
+    return items.length > 0
+      ? `${items.join(", ")}${count > 12 ? "…" : ""}`
+      : "—";
   });
 
   readonly conflictMessage = computed(() => {
@@ -93,8 +107,9 @@ export class ParkingSlotFormFacade {
     const range = new Set(
       Array.from(
         { length: this.previewCount() },
-        (_, index) => `${prefix}-${String(this.form.from() + index).padStart(3, "0")}`,
-      ),
+        (_, index) =>
+          `${prefix}-${String(this.form.from() + index).padStart(3, "0")}`
+      )
     );
     return existing.some((slot) => range.has(slot.slotNumber))
       ? "Hay plazas existentes en el rango propuesto. Ajustá el prefijo o el rango."
@@ -115,23 +130,33 @@ export class ParkingSlotFormFacade {
     return "";
   });
 
-  readonly isNumberLocked = computed(() => this.currentSlot()?.status === "OCCUPIED");
-  readonly isTypeLocked = computed(() => Boolean(this.currentSlot()?.hasTicket));
+  readonly isNumberLocked = computed(
+    () => this.currentSlot()?.status === "OCCUPIED"
+  );
+  readonly isTypeLocked = computed(() =>
+    Boolean(this.currentSlot()?.hasTicket)
+  );
   readonly isBlocked = computed(
-    () => this.mode() === "create" && (this.previewCount() < 1 || !!this.conflictMessage()),
+    () =>
+      this.mode() === "create" &&
+      (this.previewCount() < 1 || !!this.conflictMessage())
   );
 
   constructor() {
-    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
-      this.parkingId.set(params.get("parkingId"));
-      this.slotId.set(params.get("slotId"));
-      this.mode.set(this.slotId() ? "edit" : "create");
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        this.parkingId.set(params.get("parkingId"));
+        this.slotId.set(params.get("slotId"));
+        this.mode.set(this.slotId() ? "edit" : "create");
 
-      const parkingId = this.parkingId();
-      if (parkingId) {
-        this.slotsService.getAllSlotSummariesByParkingId(parkingId).subscribe();
-      }
-    });
+        const parkingId = this.parkingId();
+        if (parkingId) {
+          this.slotsService
+            .getAllSlotSummariesByParkingId(parkingId)
+            .subscribe();
+        }
+      });
 
     effect(() => {
       const slot = this.currentSlot();
@@ -196,13 +221,16 @@ export class ParkingSlotFormFacade {
               isAccessible: this.form.isAccessible(),
               isActive: this.form.isActive(),
               slotIds: [slot.id],
-            }),
-          ),
+            })
+          )
         )
         .subscribe({
           error: (err) => {
             this.toast.showToast({
-              message: err?.error?.message || err?.message || "Error al actualizar plaza",
+              message:
+                err?.error?.message ||
+                err?.message ||
+                "Error al actualizar plaza",
               type: "error",
             });
           },

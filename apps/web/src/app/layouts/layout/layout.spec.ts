@@ -49,7 +49,7 @@ describe("LayoutComponent", () => {
     expect(sectionEl).toBeTruthy();
     expect(sectionEl.nativeElement.classList.contains("min-w-0")).toBe(true);
     expect(sectionEl.nativeElement.classList.contains("flex-1")).toBe(true);
-    expect(sectionEl.nativeElement.classList.contains("overflow-hidden")).toBe(
+    expect(sectionEl.nativeElement.classList.contains("overflow-y-auto")).toBe(
       true
     );
 

@@ -1,0 +1,56 @@
+<nv-card>
+  <nv-card-header
+    class="flex flex-col justify-between gap-3 pb-3 sm:flex-row sm:items-center"
+  >
+    <div>
+      <nv-card-title>{{ texts.reports.title }}</nv-card-title>
+      <nv-card-description>{{ texts.reports.description }}</nv-card-description>
+    </div>
+    <button
+      nv-button
+      variant="outline"
+      size="sm"
+      class="w-full sm:w-auto"
+      (click)="exportCsv.emit()"
+    >
+      <ng-icon name="lucideDownload" class="mr-1.5" />
+      {{ texts.actions.exportCsv }}
+    </button>
+  </nv-card-header>
+  <nv-card-content class="space-y-4">
+    <app-operational-reports-table
+      [data]="reports()"
+      [isGlobalScope]="isGlobalScope()"
+    />
+
+    @if (totalPages() > 1) {
+    <div
+      class="flex flex-col gap-2.5 border-t border-[var(--border)] pt-3 text-xs sm:flex-row sm:items-center sm:justify-between"
+    >
+      <span class="text-muted-foreground font-mono">
+        {{ dataTableTexts.pagination.pageInfo(page() + 1, totalPages()) }}
+      </span>
+      <div class="flex items-center gap-2">
+        <button
+          nv-button
+          variant="outline"
+          size="sm"
+          [disabled]="page() === 0"
+          (click)="pageChange.emit(page() - 1)"
+        >
+          {{ texts.reports.pagination.previous }}
+        </button>
+        <button
+          nv-button
+          variant="outline"
+          size="sm"
+          [disabled]="page() >= totalPages() - 1"
+          (click)="pageChange.emit(page() + 1)"
+        >
+          {{ texts.reports.pagination.next }}
+        </button>
+      </div>
+    </div>
+    }
+  </nv-card-content>
+</nv-card>

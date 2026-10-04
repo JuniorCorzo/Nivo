@@ -11,4 +11,8 @@ export { PaymentsService } from './services/payments.service';
 export { AuthenticationService } from './services/authentication.service';
 export { NotificationPreferencesService } from './services/notification-preferences.service';
 export { ScalarWebMvcControllerService } from './services/scalar-web-mvc-controller.service';
+export { ReportsService } from './services/reports.service';
+export { PublicAvailabilityService } from './services/public-availability.service';
 export { NotificationLogsService } from './services/notification-logs.service';
+export { DashboardService } from './services/dashboard.service';
+export { DashboardStreamService } from './services/dashboard-stream.service';

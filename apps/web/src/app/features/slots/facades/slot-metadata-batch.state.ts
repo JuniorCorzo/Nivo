@@ -30,7 +30,7 @@ export class SlotMetadataBatchState {
   updateSlotsMetadata(
     payload: UpdateSlotsMetadataPayload,
     parkingId: string | null,
-    onDone?: () => void,
+    onDone?: () => void
   ): void {
     if (!parkingId) {
       return;
@@ -38,7 +38,10 @@ export class SlotMetadataBatchState {
 
     this.slotsService.updateSlotMetadata(payload).subscribe({
       error: (err) => {
-        const msg = err?.error?.message || err?.message || "Error al actualizar equipamiento";
+        const msg =
+          err?.error?.message ||
+          err?.message ||
+          "Error al actualizar equipamiento";
         this.toast?.showToast({
           message: msg,
           type: "error",

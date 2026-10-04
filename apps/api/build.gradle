@@ -14,7 +14,14 @@ java {
 }
 
 tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
     options.compilerArgs << '-parameters'
+    options.incremental = true
+    options.fork = true
+    options.forkOptions.jvmArgs = [
+        '-XX:+TieredCompilation',
+        '-XX:TieredStopAtLevel=1'
+    ]
 }
 
 repositories {
@@ -109,8 +116,24 @@ bootJar {
     archiveFileName = 'Nivo.jar'
 }
 
+bootRun {
+    jvmArgs = [
+        '-XX:+TieredCompilation',
+        '-XX:TieredStopAtLevel=1',
+        '-Dspring.output.ansi.enabled=ALWAYS'
+    ]
+    systemProperty 'spring.profiles.active', findProperty('profile') ?: System.getProperty('spring.profiles.active', 'dev')
+}
+
 test {
     useJUnitPlatform()
+    maxParallelForks = (Runtime.runtime.availableProcessors() / 2).toInteger() ?: 1
+    forkEvery = 100
+    jvmArgs = [
+        '-Xmx2g',
+        '-XX:+TieredCompilation',
+        '-XX:TieredStopAtLevel=1'
+    ]
     finalizedBy jacocoTestReport
 }
 
