@@ -5,6 +5,7 @@ import dev.angelcorzo.nivo.api.rates.dto.RatesDTO;
 import dev.angelcorzo.nivo.api.rates.dto.UpdateRate;
 import dev.angelcorzo.nivo.api.rates.enums.RateMessages;
 import dev.angelcorzo.nivo.api.rates.mappers.RatesMapper;
+import dev.angelcorzo.nivo.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.model.rates.Rates;
 import dev.angelcorzo.nivo.usecase.calculaterate.CalculateRateUseCase;
 import dev.angelcorzo.nivo.usecase.calculaterate.dtos.PriceDetailed;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class RateController {
   private final RatesMapper ratesMapper;
+  private final AuthenticationContextGateway authenticationContext;
 
   private final UpdateRateUseCase updateRateUseCase;
   private final DeleteRateUseCase deleteRateUseCase;
@@ -79,7 +81,11 @@ public class RateController {
   @PreAuthorize("hasRole('OWNER')")
   public Response<Void> deleteRate(
       @Parameter(description = "Rate ID", required = true) @PathVariable java.util.UUID id) {
-    this.deleteRateUseCase.execute(id);
+    this.deleteRateUseCase.execute(id, this.getTenantId());
     return Response.ok(null, RateMessages.DELETE_RATE_SUCCESSFULLY.format());
+  }
+
+  private java.util.UUID getTenantId() {
+    return this.authenticationContext.getCurrentTenantId();
   }
 }

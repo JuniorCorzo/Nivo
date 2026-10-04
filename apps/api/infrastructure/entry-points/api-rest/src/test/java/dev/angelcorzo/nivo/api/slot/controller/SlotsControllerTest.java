@@ -92,14 +92,17 @@ class SlotsControllerTest {
   @Test
   @DisplayName("DELETE /slots/delete/{slotId} - Should delete single slot")
   void shouldDeleteSlot() throws Exception {
+    UUID tenantId = UUID.randomUUID();
     UUID slotId = UUID.randomUUID();
+
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
     mockMvc
         .perform(delete("/slots/delete/{slotId}", slotId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value("Slot deleted successfully"));
 
-    verify(removeSlotUseCase).execute(slotId);
+    verify(removeSlotUseCase).execute(slotId, tenantId);
   }
 
   @Test

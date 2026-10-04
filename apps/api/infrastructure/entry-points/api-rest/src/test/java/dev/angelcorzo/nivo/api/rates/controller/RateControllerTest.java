@@ -11,6 +11,7 @@ import dev.angelcorzo.nivo.api.rates.dto.RatesDTO;
 import dev.angelcorzo.nivo.api.rates.dto.UpdateRate;
 import dev.angelcorzo.nivo.api.rates.enums.RateMessages;
 import dev.angelcorzo.nivo.api.rates.mappers.RatesMapper;
+import dev.angelcorzo.nivo.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.model.rates.Rates;
 import dev.angelcorzo.nivo.model.rates.enums.TimeUnitsRate;
 import dev.angelcorzo.nivo.model.rates.enums.VehicleType;
@@ -46,6 +47,7 @@ class RateControllerTest {
   private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
   @MockitoBean private RatesMapper ratesMapper;
+  @MockitoBean private AuthenticationContextGateway authenticationContext;
   @MockitoBean private UpdateRateUseCase updateRateUseCase;
   @MockitoBean private DeleteRateUseCase deleteRateUseCase;
   @MockitoBean private CalculateRateUseCase calculateRateUseCase;
@@ -99,13 +101,16 @@ class RateControllerTest {
   @Test
   @DisplayName("DELETE /rates/{id}/delete - Should delete rate")
   void shouldDeleteRate() throws Exception {
+    UUID tenantId = UUID.randomUUID();
     UUID rateId = UUID.randomUUID();
+
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
     mockMvc
         .perform(delete("/rates/{id}/delete", rateId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value(RateMessages.DELETE_RATE_SUCCESSFULLY.format()));
 
-    verify(deleteRateUseCase).execute(rateId);
+    verify(deleteRateUseCase).execute(rateId, tenantId);
   }
 }

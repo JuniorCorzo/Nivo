@@ -133,7 +133,7 @@ public class SlotsController {
   @PreAuthorize("hasRole('MANAGER')")
   Response<Void> deleteSlot(
       @Parameter(description = "Slot ID", required = true) @PathVariable UUID slotId) {
-    this.removeSlotUseCase.execute(slotId);
+    this.removeSlotUseCase.execute(slotId, this.getTenantId());
     return Response.ok(null, "Slot deleted successfully");
   }
 

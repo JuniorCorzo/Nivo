@@ -167,7 +167,7 @@ public class ParkingLotsController {
   @Transactional
   public Response<Void> deleteParkingLot(
       @Parameter(description = "Parking lot ID", required = true) @PathVariable UUID parkingId) {
-    this.deleteParkingLotUseCase.execute(parkingId);
+    this.deleteParkingLotUseCase.execute(parkingId, this.getTenantId());
     return Response.ok(null, ParkingLotsMessages.PARKING_LOT_DELETED.format());
   }
 
