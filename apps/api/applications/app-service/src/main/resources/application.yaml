@@ -11,6 +11,9 @@ spring:
     add-properties: false
   datasource:
     driverClassName: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:nivo_db}?currentSchema=nivo&sslmode=${DB_SSL_MODE:require}&channelBinding=${DB_CHANNEL_BINDING:require}}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
   flyway:
     enabled: ${SPRING_FLYWAY_ENABLED:true}
     schemas: nivo
