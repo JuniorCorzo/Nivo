@@ -38,7 +38,6 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes, withViewTransitions({ skipInitialTransition: true })),
     ...provideSentry({
-      dsn: "https://308b23ecb1decb4734fb97a295d759b8@o4512166023856128.ingest.us.sentry.io/4512166049284096",
       tracePropagationTargets: ["localhost", /^\/api/u],
     }),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
