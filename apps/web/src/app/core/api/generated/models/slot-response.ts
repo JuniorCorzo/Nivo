@@ -12,7 +12,7 @@ export interface SlotResponse {
   /**
    * Creation timestamp
    */
-  createdAt?: string;
+  createdAt: string;
 
   /**
    * Deletion timestamp (if deleted)
@@ -20,37 +20,52 @@ export interface SlotResponse {
   deletedAt?: string;
 
   /**
+   * Whether slot has EV charger equipment
+   */
+  hasCharger: boolean;
+
+  /**
    * Slot ID
    */
-  id?: string;
+  id: string;
+
+  /**
+   * Whether slot is PMR / accessible
+   */
+  isAccessible: boolean;
+
+  /**
+   * Whether slot is active and operational
+   */
+  isActive: boolean;
 
   /**
    * Parking lot information
    */
-  parking?: ParkingLotsInfo;
+  parking: ParkingLotsInfo;
 
   /**
    * Slot identifier / number
    */
-  slotNumber?: string;
+  slotNumber: string;
 
   /**
    * Current slot status
    */
-  status?: 'AVAILABLE' | 'OCCUPIED' | 'RESERVED' | 'MAINTENANCE';
+  status: 'AVAILABLE' | 'OCCUPIED' | 'RESERVED' | 'MAINTENANCE';
 
   /**
    * Tenant information
    */
-  tenant?: TenantInfo;
+  tenant: TenantInfo;
 
   /**
    * Vehicle slot type
    */
-  type?: 'CAR' | 'MOTORCYCLE' | 'BIKE' | 'ELECTRIC_VEHICLE' | 'DISABLED';
+  type: 'CAR' | 'MOTORCYCLE' | 'BIKE' | 'ELECTRIC_VEHICLE' | 'DISABLED';
 
   /**
    * Last update timestamp
    */
-  updatedAt?: string;
+  updatedAt: string;
 }

@@ -1,6 +1,6 @@
-export { DataTableComponent } from "./table/data-table.component";
-export { DataTablePaginationComponent } from "./pagination/data-table-pagination.component";
-export { DataTableSearchComponent } from "./search/data-table-search.component";
+export { DataTableComponent } from "./table/data-table";
+export { DataTablePaginationComponent } from "./pagination/data-table-pagination";
+export { DataTableSearchComponent } from "./search/data-table-search";
 export {
   DataTableState,
   type CreateTableOptions,

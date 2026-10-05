@@ -8,32 +8,30 @@ import {
   lucidePencil,
   lucideTrash2,
 } from "@ng-icons/lucide";
-import {
-  ButtonComponent,
-  CardComponent,
-  TypographyH3,
-} from "@nivo-sass/design-system";
+import { CardComponent, TypographyH3 } from "@nivo-sass/design-system";
 import { DeleteParkingModal } from "@shared/components/delete-parking-modal/delete-parking-modal";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
-import { ParkingEmptyState } from "../../components/parking-empty-state/parking-empty-state";
-import { ParkingGeneralInfo } from "../../components/parking-general-info/parking-general-info";
-import { ParkingLotSelector } from "../../components/parking-lot-selector/parking-lot-selector";
-import { ParkingMapComponent } from "../../components/parking-map/parking-map";
-import { ParkingSlotDistribution } from "../../components/parking-slot-distribution/parking-slot-distribution";
-import { ParkingStatsGrid } from "../../components/parking-stats-grid/parking-stats-grid";
+import { ParkingActionButton } from "../../components/controls/parking-action-button/parking-action-button";
+import { ParkingLotSelector } from "../../components/controls/parking-lot-selector/parking-lot-selector";
+import { ParkingGeneralInfo } from "../../components/detail/parking-general-info/parking-general-info";
+import { ParkingMapComponent } from "../../components/detail/parking-map/parking-map";
+import { ParkingSlotDistribution } from "../../components/detail/parking-slot-distribution/parking-slot-distribution";
+import { ParkingStatsGrid } from "../../components/detail/parking-stats-grid/parking-stats-grid";
+import { ParkingEmptyState } from "../../components/empty-state/parking-empty-state/parking-empty-state";
 import { ParkingHomeFacade } from "../../facades/parking-home.facade";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     NgIcon,
-    ButtonComponent,
     CardComponent,
     TypographyH3,
-    ParkingLotSelector,
+    PageHeaderComponent,
     ParkingMapComponent,
     DeleteParkingModal,
+    ParkingActionButton,
     ParkingStatsGrid,
     ParkingGeneralInfo,
     ParkingSlotDistribution,
@@ -57,4 +55,12 @@ import { ParkingHomeFacade } from "../../facades/parking-home.facade";
 export class ParkingHome {
   protected readonly LABELS_DETAIL = APP_TEXTS.parking.detail;
   protected readonly facade = inject(ParkingHomeFacade);
+
+  public activeParkingSubtitle(): string {
+    const lot = this.facade.activeParkingLot();
+    if (!lot) {
+      return "";
+    }
+    return ParkingLotSelector.getFormattedAddress(lot);
+  }
 }

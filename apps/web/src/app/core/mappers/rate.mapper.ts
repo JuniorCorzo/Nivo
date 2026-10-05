@@ -52,7 +52,7 @@ export const mapToRateModel = (data: RatesDto): RateModel => ({
 
 export const mapToCreateRateDto = (model: CreateRateModel): CreateRate => ({
   description: model.description ?? "",
-  minChargeTimeMinutes: (model.minChargeTimeMinutes ?? 0).toString(),
+  minChargeTimeMinutes: model.minChargeTimeMinutes,
   name: model.name,
   parkingLotId: model.parkingId,
   pricePerUnit: model.pricePerUnit,
@@ -64,7 +64,7 @@ export const mapToCreateRateDto = (model: CreateRateModel): CreateRate => ({
 export const mapToUpdateRateDto = (model: UpdateRateModel): UpdateRate => ({
   description: model.description ?? "",
   id: model.id,
-  minChargeTimeMinutes: (model.minChargeTimeMinutes ?? 0).toString(),
+  minChargeTimeMinutes: model.minChargeTimeMinutes ?? 0,
   name: model.name ?? "",
   pricePerUnit: model.pricePerUnit ?? 0,
   timeUnit: model.timeUnit ?? "HOURS",

@@ -15,6 +15,7 @@ interface MockParkingService {
   update: ReturnType<typeof vi.fn>;
   getUpsertById: ReturnType<typeof vi.fn>;
   deleteSlotGroup: ReturnType<typeof vi.fn>;
+  parkingLots: ReturnType<typeof signal<ParkingLotsModel[]>>;
 }
 
 describe("ParkingFormComponent", () => {
@@ -35,7 +36,10 @@ describe("ParkingFormComponent", () => {
     coordinates: { latitude: 4.6, longitude: -74 },
     createdAt: new Date(),
     currency: "COP",
+    gracePeriodMinutes: 0,
+    gracePeriodPrice: 0,
     id: "new-lot",
+    ivaRate: 0.19,
     name: "Nuevo",
     operatingHours: { closeTime: "20:00:00-05:00", openTime: "08:00:00-05:00" },
     owner: {
@@ -65,6 +69,9 @@ describe("ParkingFormComponent", () => {
           },
           coordinates: { latitude: 4.6, longitude: -74 },
           currency: "COP",
+          gracePeriodMinutes: 10,
+          gracePeriodPrice: 200,
+          ivaRate: 0.19,
           name: "Test",
           operatingHours: {
             closeTime: "20:00:00-05:00",
@@ -73,6 +80,7 @@ describe("ParkingFormComponent", () => {
           timezone: "UTC-05:00",
         })
       ),
+      parkingLots: signal([]),
       update: vi.fn(),
     };
 
@@ -115,5 +123,31 @@ describe("ParkingFormComponent", () => {
   it("should navigate back on onCancel", () => {
     component.onCancel();
     expect(router.navigate).toHaveBeenCalledWith(["/app/parking-lots"]);
+  });
+
+  it("should render app-page-header with title and subtitle", () => {
+    const header = fixture.nativeElement.querySelector("app-page-header");
+    expect(header).toBeTruthy();
+    expect(header.textContent).toContain("Crear Parqueadero");
+    expect(header.textContent).toContain(
+      "Configurá los datos de sede, ubicación geográfica, horarios y capacidad"
+    );
+  });
+
+  it("should render cancel and save actions in app-page-header and trigger onCancel", () => {
+    const header = fixture.nativeElement.querySelector("app-page-header");
+    expect(header).toBeTruthy();
+    const cancelBtn: HTMLElement = header.querySelector(
+      '[data-testid="parking-form-header-cancel"]'
+    );
+    const submitBtn: HTMLElement = header.querySelector(
+      '[data-testid="parking-form-header-submit"]'
+    );
+    expect(cancelBtn).toBeTruthy();
+    expect(submitBtn).toBeTruthy();
+
+    vi.spyOn(component, "onCancel");
+    cancelBtn.click();
+    expect(component.onCancel).toHaveBeenCalled();
   });
 });

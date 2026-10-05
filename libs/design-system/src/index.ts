@@ -2,6 +2,9 @@
 
 // Components
 export { ButtonComponent } from "./lib/components/button/button";
+export { CheckboxComponent } from "./lib/components/checkbox/index";
+export { LoaderComponent } from "./lib/components/loader/index";
+export type { LoaderSize, LoaderVariant } from "./lib/components/loader/index";
 export {
   CardComponent,
   CardHeaderComponent,

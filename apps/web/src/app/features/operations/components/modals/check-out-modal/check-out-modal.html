@@ -1,0 +1,372 @@
+@if (isOpen()) {
+<div
+  class="animate-in fade-in fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-xs duration-200 sm:items-center sm:p-4"
+>
+  <div
+    class="border-border bg-card text-card-foreground relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border p-5 shadow-2xl transition-all sm:rounded-2xl sm:p-6"
+  >
+    <!-- Header -->
+    <div class="border-border flex items-center justify-between border-b pb-4">
+      <div class="flex items-center gap-3">
+        <div
+          class="bg-warning/10 text-warning border-warning/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
+        >
+          <ng-icon name="lucideLogOut" class="text-xl" />
+        </div>
+        <div>
+          <h2 class="text-foreground text-base font-bold sm:text-lg">
+            Procesar Salida de Vehículo
+          </h2>
+          <p class="text-muted-foreground text-xs">
+            Liquidación de tarifa y liberación de cupo
+          </p>
+        </div>
+      </div>
+      <nv-button
+        variant="ghost"
+        size="icon"
+        type="button"
+        (click)="onClose()"
+        class="text-muted-foreground"
+      >
+        <ng-icon name="lucideX" class="text-lg" />
+      </nv-button>
+    </div>
+
+    <!-- Error Alert -->
+    @if (facade.errorMessage()) {
+    <div
+      class="border-destructive/20 bg-destructive/10 text-destructive mt-4 flex items-start gap-2.5 rounded-lg border p-3 text-xs"
+    >
+      <ng-icon name="lucideAlertCircle" class="mt-0.5 shrink-0 text-base" />
+      <span>{{ facade.errorMessage() }}</span>
+    </div>
+    }
+
+    <!-- Ticket & Rate Preview Content -->
+    <div class="mt-4 space-y-4">
+      @if (facade.selectedTicket()) {
+      <!-- Ticket Header Card -->
+      <div
+        class="bg-muted/60 border-border flex items-center justify-between rounded-xl border p-3 sm:p-3.5"
+      >
+        <div>
+          <span
+            class="text-muted-foreground block text-[10px] font-medium sm:text-xs"
+            >Placa del Vehículo</span
+          >
+          <span
+            class="text-foreground font-mono text-lg font-black tracking-wider sm:text-xl"
+          >
+            {{ facade.selectedTicket()?.licensePlate }}
+          </span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-right">
+            <span class="text-muted-foreground block text-[10px] sm:text-xs"
+              >Cupo</span
+            >
+            <span
+              class="text-foreground font-mono text-xs font-bold sm:text-sm"
+            >
+              {{ facade.selectedTicket()?.slotNumber || "Asignado" }}
+            </span>
+          </div>
+          <nv-button
+            variant="outline"
+            size="sm"
+            type="button"
+            (click)="facade.clearSelectedTicket()"
+            title="Elegir otro cupo"
+          >
+            Cambiar
+          </nv-button>
+        </div>
+      </div>
+
+      <!-- Live Price Breakdown -->
+      <div
+        class="border-border bg-card space-y-3 rounded-xl border p-3.5 sm:p-4"
+      >
+        <div
+          class="border-border flex items-center justify-between border-b pb-2"
+        >
+          <span
+            class="text-muted-foreground text-xs font-bold tracking-wider uppercase"
+          >
+            Liquidación de Tarifa
+          </span>
+          @if (facade.isLoadingCalculation()) {
+          <div
+            class="text-muted-foreground inline-flex items-center gap-1 text-xs"
+          >
+            <ng-icon name="lucideLoader2" class="animate-spin text-xs" />
+            <span>Calculando...</span>
+          </div>
+          }
+        </div>
+
+        @if (facade.priceCalculation(); as calc) {
+        <!-- Detailed Breakpoint Lines -->
+        @if (calc.breakdown.length > 0) {
+        <div class="text-muted-foreground space-y-1.5 text-xs">
+          @for (line of calc.breakdown; track line.concept) {
+          <div class="flex justify-between">
+            <span class="text-foreground">{{ line.concept }}</span>
+            <span class="text-foreground font-mono"
+              >${{ line.amount | number: "1.0-0" }}</span
+            >
+          </div>
+          }
+        </div>
+        }
+
+        <!-- Subtotal & Taxes -->
+        <div
+          class="border-border text-muted-foreground space-y-1 border-t pt-2 text-xs"
+        >
+          <div class="flex justify-between">
+            <span>Subtotal</span>
+            <span class="font-mono"
+              >${{ calc.subtotal | number: "1.0-0" }}</span
+            >
+          </div>
+          @if (calc.ivaAmount > 0) {
+          <div class="flex justify-between">
+            <span>IVA ({{ calc.ivaRate }}%)</span>
+            <span class="font-mono"
+              >${{ calc.ivaAmount | number: "1.0-0" }}</span
+            >
+          </div>
+          }
+        </div>
+
+        <!-- Total or Zero-Payment Clearance Banner -->
+        <div
+          class="border-border flex items-center justify-between border-t pt-2.5"
+        >
+          <div>
+            <span class="text-foreground block text-xs font-semibold"
+              >Total a Cobrar</span
+            >
+            @if (facade.isZeroPayment()) {
+            <span
+              class="text-success inline-flex items-center gap-1 text-[11px] font-semibold"
+            >
+              <ng-icon name="lucideCheck" class="text-xs" />
+              Período de gracia / Sin cobro
+            </span>
+            }
+          </div>
+          <span
+            class="text-foreground font-mono text-xl font-black sm:text-2xl"
+          >
+            ${{ calc.total | number: "1.0-0" }}
+            <span class="text-muted-foreground text-xs font-normal">COP</span>
+          </span>
+        </div>
+        } @else if (!facade.isLoadingCalculation()) {
+        <div class="text-muted-foreground py-4 text-center text-xs">
+          Tarifa calculada al confirmar salida.
+        </div>
+        }
+      </div>
+
+      <!-- Payment Method (Only if total > 0) -->
+      @if (!facade.isZeroPayment()) {
+      <div>
+        <label
+          class="text-muted-foreground mb-1.5 block text-xs font-semibold tracking-wider uppercase"
+        >
+          Método de Pago
+        </label>
+        <div class="grid grid-cols-1 gap-2">
+          <button
+            type="button"
+            (click)="facade.setPaymentMethod('EFFECTIVE')"
+            [class.border-primary]="
+                    facade.paymentMethod() === 'EFFECTIVE'
+                  "
+            [class.bg-primary/10]="facade.paymentMethod() === 'EFFECTIVE'"
+            [class.text-primary]="facade.paymentMethod() === 'EFFECTIVE'"
+            class="border-border text-foreground hover:bg-accent hover:text-accent-foreground flex cursor-pointer items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-semibold transition-colors"
+          >
+            <ng-icon name="lucideCoins" class="text-base" />
+            <span>Efectivo</span>
+          </button>
+        </div>
+      </div>
+      }
+
+      <!-- Delivery Mode -->
+      <div>
+        <label
+          class="text-muted-foreground mb-1.5 block text-xs font-semibold tracking-wider uppercase"
+        >
+          Envío de Comprobante
+        </label>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            (click)="facade.setSendVia('URL')"
+            [class.bg-primary]="facade.sendVia() === 'URL'"
+            [class.text-primary-foreground]="facade.sendVia() === 'URL'"
+            class="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground flex-1 cursor-pointer rounded-lg border px-3 py-2 text-xs font-semibold transition-colors"
+          >
+            En Pantalla / Impreso
+          </button>
+          <button
+            type="button"
+            (click)="facade.setSendVia('EMAIL')"
+            [class.bg-primary]="facade.sendVia() === 'EMAIL'"
+            [class.text-primary-foreground]="facade.sendVia() === 'EMAIL'"
+            class="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground flex-1 cursor-pointer rounded-lg border px-3 py-2 text-xs font-semibold transition-colors"
+          >
+            Por Correo
+          </button>
+        </div>
+
+        @if (facade.sendVia() === "EMAIL") {
+        <input
+          type="email"
+          [value]="facade.receiptEmail()"
+          (input)="onEmailInput($event)"
+          placeholder="correo@ejemplo.com"
+          class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring mt-2 w-full rounded-lg border px-3 py-2 text-xs focus:outline-hidden"
+        />
+        }
+      </div>
+      } @else {
+      <!-- Occupied Slots Picker -->
+      <div>
+        <div class="mb-2 flex items-center justify-between">
+          <label
+            class="text-muted-foreground block text-xs font-semibold tracking-wider uppercase"
+          >
+            Seleccionar Cupo Ocupado
+          </label>
+          <span class="text-muted-foreground font-mono text-xs">
+            {{ facade.occupiedSlots().length }} vehículos activos
+          </span>
+        </div>
+
+        @if (facade.isLoadingOccupiedSlots() || facade.isLoadingTicket()) {
+        <div
+          class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-10 text-xs"
+        >
+          <ng-icon name="lucideLoader2" class="animate-spin text-2xl" />
+          <span>
+            {{ facade.isLoadingTicket() ? "Cargando liquidación del cupo..." :
+            "Cargando cupos ocupados..." }}
+          </span>
+        </div>
+        } @else if (facade.occupiedSlots().length === 0) {
+        <div
+          class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border p-8 text-center"
+        >
+          <div
+            class="bg-muted text-muted-foreground mb-3 flex h-12 w-12 items-center justify-center rounded-full"
+          >
+            <ng-icon name="lucideParkingSquare" class="text-2xl" />
+          </div>
+          <h3 class="text-foreground text-sm font-semibold">
+            No hay vehículos para retirar
+          </h3>
+          <p class="text-muted-foreground mt-1 max-w-xs text-xs">
+            Actualmente todos los cupos de este parqueadero están disponibles.
+          </p>
+        </div>
+        } @else {
+        <div
+          class="grid max-h-72 grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3"
+        >
+          @for (slot of facade.occupiedSlots(); track slot.id) {
+          <button
+            type="button"
+            (click)="facade.selectSlot(slot)"
+            class="border-border hover:border-primary/60 hover:bg-accent/40 group flex cursor-pointer flex-col justify-between rounded-xl border p-3 text-left transition-all"
+          >
+            <div class="flex w-full items-center justify-between">
+              <span
+                class="text-muted-foreground text-[10px] font-bold tracking-wider uppercase"
+              >
+                {{ slot.zone ? slot.zone : "Cupo" }}
+              </span>
+              <nv-badge variant="info" class="px-1.5 py-0.5 text-[10px]">
+                Ocupado
+              </nv-badge>
+            </div>
+
+            <div class="my-2">
+              <div
+                class="text-foreground group-hover:text-primary font-mono text-base font-bold transition-colors"
+              >
+                {{ slot.prefix ? slot.prefix + "-" : "" }}{{ slot.slotNumber }}
+              </div>
+              <span
+                class="text-muted-foreground text-[10px] font-medium uppercase"
+              >
+                {{ slot.type }}
+              </span>
+            </div>
+
+            <div
+              class="text-primary inline-flex items-center gap-1 text-[11px] font-semibold"
+            >
+              <span>Procesar</span>
+              <span>→</span>
+            </div>
+          </button>
+          }
+        </div>
+        }
+      </div>
+      }
+    </div>
+
+    <!-- Actions -->
+    <div
+      class="border-border mt-6 flex flex-col-reverse items-stretch justify-end gap-2 border-t pt-3 sm:flex-row sm:items-center"
+    >
+      <nv-button
+        type="button"
+        variant="outline"
+        (click)="onClose()"
+        class="w-full sm:w-auto"
+      >
+        {{ facade.selectedTicket() ? "Cancelar" : "Cerrar" }}
+      </nv-button>
+
+      @if (facade.selectedTicket()) {
+      <nv-button
+        type="button"
+        (click)="onConfirmCheckOut()"
+        [disabled]="!facade.canCheckOut()"
+        class="w-full sm:w-auto"
+      >
+        @if (facade.isSubmitting()) {
+        <ng-icon name="lucideLoader2" class="animate-spin text-sm" />
+        <span>Procesando Salida...</span>
+        } @else if (facade.isZeroPayment()) {
+        <ng-icon name="lucideCheck" class="text-sm" />
+        <span>Autorizar Salida Gratuita</span>
+        } @else {
+        <ng-icon name="lucideLogOut" class="text-sm" />
+        <span>Cobrar y Registrar Salida</span>
+        }
+      </nv-button>
+      }
+    </div>
+  </div>
+</div>
+}
+
+<!-- Exit Receipt Modal -->
+<app-ticket-receipt
+  [isOpen]="facade.isReceiptOpen()"
+  [ticket]="facade.lastPaymentRecord()?.ticket || facade.selectedTicket()"
+  [payment]="facade.lastPaymentRecord()"
+  title="Comprobante de Salida"
+  subtitle="Salida registrada y cupo liberado"
+  (closed)="facade.closeReceipt()"
+/>

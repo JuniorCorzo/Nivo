@@ -4,18 +4,74 @@
 import { ParkingLotsInfo } from '../models/parking-lots-info';
 import { SpecialPoliciesInfo } from '../models/special-policies-info';
 import { TenantInfo } from '../models/tenant-info';
+
+/**
+ * Tariff rate details
+ */
 export interface RatesDto {
-  createdAt?: string;
+
+  /**
+   * Creation timestamp
+   */
+  createdAt: string;
+
+  /**
+   * Deletion timestamp (if deleted)
+   */
   deletedAt?: string;
-  description?: string;
-  id?: string;
-  minChargeTimeMinutes?: string;
-  name?: string;
-  parking?: ParkingLotsInfo;
-  pricePerUnit?: number;
+
+  /**
+   * Description of the rate
+   */
+  description: string;
+
+  /**
+   * Rate ID
+   */
+  id: string;
+
+  /**
+   * Minimum charge time in minutes
+   */
+  minChargeTimeMinutes: number;
+
+  /**
+   * Rate name
+   */
+  name: string;
+
+  /**
+   * Parking lot information
+   */
+  parking: ParkingLotsInfo;
+
+  /**
+   * Price per time unit
+   */
+  pricePerUnit: number;
+
+  /**
+   * Special policy applied to rate (if applicable)
+   */
   specialPolicy?: SpecialPoliciesInfo;
-  tenant?: TenantInfo;
-  timeUnit?: 'DAYS' | 'HOURS' | 'MINUTES';
-  updatedAt?: string;
-  vehicleType?: 'CAR' | 'MOTORCYCLE' | 'BIKE';
+
+  /**
+   * Tenant information
+   */
+  tenant: TenantInfo;
+
+  /**
+   * Unit of time (HOUR, DAY, etc.)
+   */
+  timeUnit: 'DAYS' | 'HOURS' | 'MINUTES';
+
+  /**
+   * Last update timestamp
+   */
+  updatedAt: string;
+
+  /**
+   * Vehicle type applicability
+   */
+  vehicleType: 'CAR' | 'MOTORCYCLE' | 'BIKE';
 }

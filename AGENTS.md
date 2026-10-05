@@ -1,6 +1,6 @@
 ## Commit Conventions
 
-Uses Conventional Commits via the `commit-work` skill. When committing in this workspace, use these scopes:
+Conventional Commits via `commit-work` skill. Scopes:
 
 ### App scopes
 
@@ -17,7 +17,7 @@ Uses Conventional Commits via the `commit-work` skill. When committing in this w
 
 ### API internal scopes (Clean Architecture)
 
-When working exclusively inside `apps/api`, prefer these layer scopes:
+Inside `apps/api`, prefer layer scopes:
 
 | Scope | When to use |
 |-------|-------------|
@@ -27,14 +27,14 @@ When working exclusively inside `apps/api`, prefer these layer scopes:
 | `entry-point` | Controllers, listeners, API endpoints |
 | `config` | App configuration, beans, properties |
 
-For the API, also consider functional scopes when clearer: `auth`, `tenant`, `user`, `security`.
+Functional scopes valid when clearer: `auth`, `tenant`, `user`, `security`.
 
 ### Scope selection rules
 
-- Cross-cutting change (web + api) → split into separate commits per app scope
-- Lib + app change → split: one commit for the lib, one for the app
-- Within api only → prefer layer scopes (`domain`, `usecase`, etc.)
-- Within web or design-system → use component/feature name as scope
+- Cross-cutting (`web` + `api`) → split into separate commits per app scope
+- Lib + app → split: commit lib, commit app
+- Inside `api` only → prefer layer scopes (`domain`, `usecase`, etc.)
+- Inside `web` or `design-system` → use component/feature name as scope
 
 ## Skills
 

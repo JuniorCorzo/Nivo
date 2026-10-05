@@ -166,6 +166,9 @@ describe("ParkingFormFacade", () => {
         },
         coordinates: { latitude: 4.6, longitude: -74 },
         currency: "COP",
+        gracePeriodMinutes: 0,
+        gracePeriodPrice: 0,
+        ivaRate: 0.19,
         name: "Test Parking",
         operatingHours: {
           closeTime: "22:00:00-05:00",
@@ -196,6 +199,9 @@ describe("ParkingFormFacade", () => {
       },
       coordinates: { latitude: 4.6097, longitude: -74.0817 },
       currency: "COP",
+      gracePeriodMinutes: 15,
+      gracePeriodPrice: 500,
+      ivaRate: 0.19,
       name: "Parqueadero Central",
       operatingHours: {
         closeTime: "20:00:00-05:00",
@@ -213,6 +219,9 @@ describe("ParkingFormFacade", () => {
       expect(facade.form.address.street().value()).toBe("Calle 100 # 15-20");
       expect(facade.form.operatingHours.openTime().value()).toBe("08:00");
       expect(facade.form.operatingHours.closeTime().value()).toBe("20:00");
+      expect(facade.form.gracePeriodMinutes().value()).toBe(15);
+      expect(facade.form.gracePeriodPrice().value()).toBe(500);
+      expect(facade.form.ivaRate().value()).toBe(0.19);
       expect(facade.selectedCoordinates()).toEqual({
         latitude: 4.6097,
         longitude: -74.0817,
@@ -230,6 +239,9 @@ describe("ParkingFormFacade", () => {
       expect(submitData.name).toBe("Parqueadero Central");
       expect(submitData.operatingHours.openTime).toBe("08:00:00-05:00");
       expect(submitData.operatingHours.closeTime).toBe("20:00:00-05:00");
+      expect(submitData.gracePeriodMinutes).toBe(15);
+      expect(submitData.gracePeriodPrice).toBe(500);
+      expect(submitData.ivaRate).toBe(0.19);
       expect(submitData.coordinates).toEqual({
         latitude: 4.6097,
         longitude: -74.0817,

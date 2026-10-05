@@ -1,0 +1,54 @@
+<div class="space-y-4">
+  @if (data().length === 0) {
+  <div
+    data-testid="chart-empty-state"
+    class="border-border/60 bg-muted/10 flex h-56 w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-6 text-center sm:h-72"
+  >
+    <ng-icon name="lucideTrendingUp" class="text-muted-foreground/60 h-8 w-8" />
+    <h3 class="text-foreground text-sm font-semibold">
+      {{ texts.emptyStateTitle }}
+    </h3>
+    <p class="text-muted-foreground max-w-xs text-xs">
+      {{ texts.emptyStateSubtitle }}
+    </p>
+  </div>
+  } @else {
+  <div class="relative h-56 w-full sm:h-72">
+    <canvas #canvasRef></canvas>
+  </div>
+  <div
+    class="grid grid-cols-1 gap-2 border-t border-[var(--border)] pt-3 text-xs sm:grid-cols-3"
+  >
+    <div
+      class="rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 p-2.5"
+    >
+      <span class="block text-[11px] text-[var(--muted-foreground)]"
+        >{{ peakLabel() }}</span
+      >
+      <span class="text-foreground font-mono font-semibold"
+        >{{ peakIngressValue() }}</span
+      >
+    </div>
+    <div
+      class="rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 p-2.5"
+    >
+      <span class="block text-[11px] text-[var(--muted-foreground)]"
+        >{{ texts.peakMaxOccupancy }}</span
+      >
+      <span class="font-mono font-semibold text-amber-400"
+        >{{ peakOccupancyRate() }}</span
+      >
+    </div>
+    <div
+      class="rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 p-2.5"
+    >
+      <span class="block text-[11px] text-[var(--muted-foreground)]"
+        >{{ texts.totalFlowEntries }}</span
+      >
+      <span class="text-foreground font-mono font-semibold"
+        >{{ totalCheckins() | number }} {{ texts.unitVeh }}</span
+      >
+    </div>
+  </div>
+  }
+</div>

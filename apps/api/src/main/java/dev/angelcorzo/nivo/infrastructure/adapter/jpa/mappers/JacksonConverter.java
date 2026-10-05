@@ -1,0 +1,60 @@
+package dev.angelcorzo.nivo.infrastructure.adapter.jpa.mappers;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.exceptions.JsonConversionException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+public class JacksonConverter {
+  private final ObjectMapper objectMapper;
+
+  public JsonNode toJsonNode(Object object) {
+    return object != null ? objectMapper.valueToTree(object) : null;
+  }
+
+  public Object toObject(JsonNode jsonNode) {
+    if (jsonNode == null || jsonNode.isNull()) return null;
+
+    try {
+      return objectMapper.treeToValue(jsonNode, Object.class);
+    } catch (JsonProcessingException e) {
+      throw new JsonConversionException("Error converting JsonNode to Object", e);
+    }
+  }
+
+  public Object toObject(String str) {
+    if (str == null || str.isBlank()) return null;
+
+    try {
+      return this.objectMapper.readValue(str, Object.class);
+    } catch (JsonProcessingException e) {
+      throw new JsonConversionException("Error parsing JSON string to Object", e);
+    }
+  }
+
+  public String toString(Object object) {
+    if (object == null) return null;
+
+    try {
+      if (object instanceof String) return (String) object;
+
+      return this.objectMapper.writeValueAsString(object);
+    } catch (JsonProcessingException e) {
+      throw new JsonConversionException("Error converting Object to JSON string", e);
+    }
+  }
+
+  public <T> T toTypedObject(JsonNode jsonNode, Class<T> clazz) {
+    if (jsonNode == null || jsonNode.isNull()) return null;
+
+    try {
+      return objectMapper.treeToValue(jsonNode, clazz);
+    } catch (JsonProcessingException e) {
+      throw new JsonConversionException("Error converting JsonNode to typed Object", e);
+    }
+  }
+}

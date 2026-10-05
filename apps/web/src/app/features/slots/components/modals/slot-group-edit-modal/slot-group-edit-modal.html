@@ -1,0 +1,123 @@
+<div
+  class="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs duration-200"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="titleId"
+  [attr.aria-describedby]="descriptionId"
+  (click)="onBackdropClick($event)"
+>
+  <div
+    class="border-border bg-card text-card-foreground relative w-full max-w-md rounded-2xl border p-5 shadow-2xl transition-all"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div
+      class="border-border flex items-center justify-between border-b pb-3.5"
+    >
+      <div class="flex items-center gap-2.5">
+        <div
+          class="bg-primary/10 text-primary grid h-9 w-9 place-items-center rounded-lg"
+        >
+          <ng-icon name="lucideLayers" size="18" />
+        </div>
+        <div>
+          <nv-h3 [id]="titleId" class="text-foreground text-base font-bold">
+            Editar grupo de plazas
+          </nv-h3>
+          <span class="text-muted-foreground text-xs">
+            Modificá la zona o el prefijo de un conjunto de plazas
+          </span>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border transition-colors"
+        (click)="onCancel($event)"
+        aria-label="Cerrar"
+      >
+        <ng-icon name="lucideX" size="16" />
+      </button>
+    </div>
+
+    <!-- Description -->
+    <p
+      [id]="descriptionId"
+      class="text-muted-foreground mt-4 text-xs leading-relaxed"
+    >
+      Modificá la zona o prefijo del grupo. La acción renombrará en serie las
+      plazas pertenecientes a este grupo.
+    </p>
+
+    <!-- Group Selector & Fields -->
+    <div class="mt-4 flex flex-col gap-3.5">
+      <nv-select
+        label="Grupo existente a modificar"
+        placeholder="Seleccioná un grupo..."
+        [items]="groups()"
+        [displayFn]="displayGroup"
+        [valueFn]="groupKey"
+        [value]="selectedGroupKey()"
+        (valueChange)="onGroupSelect($event)"
+        (selectionChange)="onGroupOptionSelect($event)"
+      />
+
+      @if (selectedGroup(); as group) {
+      <div
+        class="bg-muted/50 border-border text-muted-foreground flex items-center justify-between rounded-lg border px-3 py-2 text-xs"
+      >
+        <span>Plazas en este grupo</span>
+        <span class="text-foreground font-semibold"
+          >{{ group.count }} plazas</span
+        >
+      </div>
+
+      @if (hasOccupiedSlots()) {
+      <div
+        class="border-destructive/30 bg-destructive/10 text-destructive mt-3 flex items-start gap-2.5 rounded-xl border p-3 text-xs"
+      >
+        <ng-icon name="lucideAlertTriangle" size="16" class="mt-0.5 shrink-0" />
+        <span>
+          No se puede modificar este grupo porque tiene {{ occupiedCount() }}
+          plaza(s) ocupada(s) o en uso. Todas las plazas deben estar disponibles
+          para renombrar el grupo.
+        </span>
+      </div>
+      }
+
+      <nv-input
+        label="Nueva Zona"
+        placeholder="Ej: NORTE"
+        [value]="newZone()"
+        (input)="onZoneInput($event)"
+      />
+
+      <nv-input
+        label="Nuevo Prefijo"
+        placeholder="Ej: A"
+        [value]="newPrefix()"
+        (input)="onPrefixInput($event)"
+      />
+      } @else {
+      <div
+        class="bg-muted/30 border-border text-muted-foreground rounded-lg border border-dashed p-4 text-center text-xs"
+      >
+        Elegí un grupo en el selector para configurar la nueva zona o prefijo.
+      </div>
+      }
+    </div>
+
+    <!-- Actions -->
+    <div class="border-border mt-5 flex justify-end gap-2.5 border-t pt-3.5">
+      <nv-button variant="outline" (click)="onCancel($event)">
+        Cancelar
+      </nv-button>
+      <nv-button
+        data-testid="submit-group-btn"
+        [disabled]="!canSubmit()"
+        (click)="onSubmit()"
+      >
+        Guardar cambios
+      </nv-button>
+    </div>
+  </div>
+</div>

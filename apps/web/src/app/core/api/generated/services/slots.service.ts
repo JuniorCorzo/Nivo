@@ -27,6 +27,10 @@ import { ResponseSlotResponse } from '../models/response-slot-response';
 import { ResponseVoid } from '../models/response-void';
 import { updateSlot } from '../fn/slots/update-slot';
 import { UpdateSlot$Params } from '../fn/slots/update-slot';
+import { updateSlotGroup } from '../fn/slots/update-slot-group';
+import { UpdateSlotGroup$Params } from '../fn/slots/update-slot-group';
+import { updateSlotMetadata } from '../fn/slots/update-slot-metadata';
+import { UpdateSlotMetadata$Params } from '../fn/slots/update-slot-metadata';
 
 
 /**
@@ -140,6 +144,76 @@ export class SlotsService extends BaseService {
     const resp = this.createSlots$Response(params, context);
     return resp.pipe(
       map((r: StrictHttpResponse<ResponseVoid>): ResponseVoid => r.body)
+    );
+  }
+
+  /** Path part for operation `updateSlotMetadata()` */
+  static readonly UpdateSlotMetadataPath = '/slots/metadata';
+
+  /**
+   * Batch update equipment metadata for selected slots.
+   *
+   * Batch update equipment metadata for selected slots
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `updateSlotMetadata()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  updateSlotMetadata$Response(params: UpdateSlotMetadata$Params, context?: HttpContext): Observable<StrictHttpResponse<ResponseListSlotResponse>> {
+    const obs = updateSlotMetadata(this.http, this.rootUrl, params, context);
+    return obs;
+  }
+
+  /**
+   * Batch update equipment metadata for selected slots.
+   *
+   * Batch update equipment metadata for selected slots
+   *
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `updateSlotMetadata$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  updateSlotMetadata(params: UpdateSlotMetadata$Params, context?: HttpContext): Observable<ResponseListSlotResponse> {
+    const resp = this.updateSlotMetadata$Response(params, context);
+    return resp.pipe(
+      map((r: StrictHttpResponse<ResponseListSlotResponse>): ResponseListSlotResponse => r.body)
+    );
+  }
+
+  /** Path part for operation `updateSlotGroup()` */
+  static readonly UpdateSlotGroupPath = '/slots/groups';
+
+  /**
+   * Rename zone and/or prefix for an entire slot family.
+   *
+   * Rename zone and/or prefix for an entire slot family
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `updateSlotGroup()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  updateSlotGroup$Response(params: UpdateSlotGroup$Params, context?: HttpContext): Observable<StrictHttpResponse<ResponseListSlotResponse>> {
+    const obs = updateSlotGroup(this.http, this.rootUrl, params, context);
+    return obs;
+  }
+
+  /**
+   * Rename zone and/or prefix for an entire slot family.
+   *
+   * Rename zone and/or prefix for an entire slot family
+   *
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `updateSlotGroup$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  updateSlotGroup(params: UpdateSlotGroup$Params, context?: HttpContext): Observable<ResponseListSlotResponse> {
+    const resp = this.updateSlotGroup$Response(params, context);
+    return resp.pipe(
+      map((r: StrictHttpResponse<ResponseListSlotResponse>): ResponseListSlotResponse => r.body)
     );
   }
 

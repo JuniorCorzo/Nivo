@@ -1,0 +1,51 @@
+@if (parking(); as p) {
+<div class="mx-auto flex max-w-7xl flex-col gap-6 p-4 sm:p-6 md:p-8">
+  <app-page-header
+    icon="lucideCoins"
+    title="Tarifas"
+    subtitle="Gestión de esquemas tarifarios, precios base y simulación en tiempo real"
+  >
+    <nv-button actions (click)="createRate()" class="w-full sm:w-auto">
+      <ng-icon name="lucidePlus" size="16" />
+      Nueva tarifa
+    </nv-button>
+  </app-page-header>
+
+  <div
+    class="border-border no-scrollbar scrollbar-none flex gap-2 overflow-x-auto border-b pb-2 text-xs font-medium whitespace-nowrap sm:gap-4 sm:text-sm"
+  >
+    <nv-button
+      type="button"
+      [variant]="activeTab() === 'rates' ? 'default' : 'ghost'"
+      size="sm"
+      (click)="activeTab.set('rates')"
+    >
+      Tarifas activas ({{ allRates().length }})
+    </nv-button>
+    <nv-button
+      type="button"
+      [variant]="activeTab() === 'calculator' ? 'default' : 'ghost'"
+      size="sm"
+      (click)="activeTab.set('calculator')"
+    >
+      Calculadora & simulador
+    </nv-button>
+    <nv-button
+      type="button"
+      [variant]="activeTab() === 'policies' ? 'default' : 'ghost'"
+      size="sm"
+      (click)="activeTab.set('policies')"
+    >
+      Políticas especiales
+    </nv-button>
+  </div>
+
+  @if (activeTab() === "rates") {
+  <app-rates-list [parkingId]="parkingId()" />
+  } @if (activeTab() === "calculator") {
+  <app-rate-calculator />
+  } @if (activeTab() === "policies") {
+  <app-special-policies-config />
+  }
+</div>
+}

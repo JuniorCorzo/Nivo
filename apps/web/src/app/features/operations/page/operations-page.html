@@ -1,9 +1,11 @@
 <div class="mx-auto flex max-w-7xl flex-col gap-4 p-3.5 sm:gap-6 sm:p-6 md:p-8">
   <!-- Top Bar: Navigation, Parking Name & Quick Actions -->
   <app-page-header
+    icon="lucideCar"
     title="Operaciones de Parqueo"
-    [subtitle]="(parking()?.name || 'Cargando parqueadero...') + ' · Control vehicular'"
-    [backLink]="APP_ROUTES.app.parkingLots"
+    [subtitle]="
+      (parking()?.name || 'Cargando parqueadero...') + ' · Control vehicular'
+    "
     badge="En vivo"
     badgeVariant="info"
   >
@@ -262,20 +264,26 @@
           [class.bg-success/10]="slot.status === 'AVAILABLE'"
           [class.border-info/30]="slot.status === 'OCCUPIED'"
           [class.bg-info/10]="slot.status === 'OCCUPIED'"
-          [class.border-border]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
-          [class.bg-muted/40]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+          [class.border-border]="
+                slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'
+              "
+          [class.bg-muted/40]="
+                slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'
+              "
         >
           <div class="flex items-center justify-between">
             <span
               class="text-muted-foreground text-[10px] font-bold tracking-wider uppercase"
             >
-              {{ slot.zone ? slot.zone : 'P' }}
+              {{ slot.zone ? slot.zone : "P" }}
             </span>
             <span
               class="inline-block h-2 w-2 rounded-full"
               [class.bg-success]="slot.status === 'AVAILABLE'"
               [class.bg-info]="slot.status === 'OCCUPIED'"
-              [class.bg-muted-foreground]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+              [class.bg-muted-foreground]="
+                    slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'
+                  "
             ></span>
           </div>
 
@@ -283,7 +291,7 @@
             <div
               class="text-foreground truncate font-mono text-base font-bold sm:text-lg"
             >
-              {{ slot.prefix ? slot.prefix + '-' : '' }}{{ slot.slotNumber }}
+              {{ slot.prefix ? slot.prefix + "-" : "" }}{{ slot.slotNumber }}
             </div>
             <span
               class="text-muted-foreground text-[10px] font-medium uppercase"
@@ -294,7 +302,7 @@
 
           <!-- Quick Slot Action -->
           <div>
-            @if (slot.status === 'AVAILABLE') {
+            @if (slot.status === "AVAILABLE") {
             <button
               type="button"
               (click)="checkInSpecificSlot(slot)"
@@ -302,7 +310,7 @@
             >
               + Ingresar
             </button>
-            } @else if (slot.status === 'OCCUPIED') {
+            } @else if (slot.status === "OCCUPIED") {
             <button
               type="button"
               (click)="checkOutSpecificSlot(slot)"

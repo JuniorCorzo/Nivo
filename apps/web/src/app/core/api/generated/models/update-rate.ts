@@ -20,7 +20,7 @@ export interface UpdateRate {
   /**
    * Minimum charge time in minutes
    */
-  minChargeTimeMinutes: string;
+  minChargeTimeMinutes: number;
 
   /**
    * Rate name

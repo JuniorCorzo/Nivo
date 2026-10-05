@@ -1,0 +1,62 @@
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+  <!-- Left Bento (8 cols): Ingress vs Egress Trend Chart -->
+  <div class="lg:col-span-8">
+    <nv-card class="h-full">
+      <nv-card-header
+        class="flex flex-col justify-between gap-3 pb-2 sm:flex-row sm:items-center"
+      >
+        <div>
+          <nv-card-title>{{ title() }}</nv-card-title>
+          <nv-card-description>{{ subtitle() }}</nv-card-description>
+        </div>
+        <div
+          class="text-muted-foreground flex flex-wrap items-center gap-2.5 font-mono text-xs sm:gap-4"
+        >
+          <div class="flex items-center gap-1.5">
+            <span class="h-0.5 w-3 rounded-full bg-sky-500"></span>
+            <span class="text-zinc-300">{{ texts.chart.entries }}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="h-0.5 w-3 rounded-full bg-zinc-400"></span>
+            <span class="text-zinc-400">{{ texts.chart.exits }}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span
+              class="h-2 w-3 rounded-xs border border-sky-500/40 bg-sky-500/20"
+            ></span>
+            <span class="text-zinc-400">{{ texts.chart.legendOccupancy }}</span>
+          </div>
+        </div>
+      </nv-card-header>
+      <nv-card-content>
+        <app-occupancy-trend-chart
+          [data]="hourlyOccupancy()"
+          [timeGranularity]="timeGranularity()"
+        />
+      </nv-card-content>
+    </nv-card>
+  </div>
+
+  <!-- Right Bento (4 cols): Radial / Donut Distribution -->
+  <div class="lg:col-span-4">
+    <nv-card class="flex h-full flex-col justify-between">
+      <nv-card-header class="pb-2">
+        <div class="flex items-center justify-between">
+          <nv-card-title>{{ texts.distribution.title }}</nv-card-title>
+          <span class="text-muted-foreground font-mono text-xs">
+            {{ texts.distribution.total }} {{ summary()?.totalCapacity ?? 0 }}
+          </span>
+        </div>
+        <nv-card-description>
+          {{ texts.distribution.subtitle }}
+        </nv-card-description>
+      </nv-card-header>
+      <nv-card-content class="flex flex-1 flex-col justify-between">
+        <app-slot-distribution-donut-chart
+          [occupiedSlots]="summary()?.occupiedSlots ?? 0"
+          [availableSlots]="summary()?.availableSlots ?? 0"
+        />
+      </nv-card-content>
+    </nv-card>
+  </div>
+</div>

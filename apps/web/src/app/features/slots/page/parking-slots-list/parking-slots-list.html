@@ -1,0 +1,204 @@
+@if (facade.parking(); as p) {
+<div class="mx-auto flex max-w-7xl flex-col gap-6 p-4 sm:p-6 md:p-8">
+  <!-- Header & Actions -->
+  <app-page-header
+    icon="lucideParkingSquare"
+    title="Plazas de Parqueo"
+    [subtitle]="texts.list.subtitle"
+  >
+    <div
+      actions
+      class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"
+    >
+      <nv-button
+        variant="outline"
+        (click)="facade.openGroupModal()"
+        class="w-full sm:w-auto"
+      >
+        <ng-icon name="lucidePencil" size="14" />
+        Editar grupo
+      </nv-button>
+      <nv-button (click)="facade.onCreate()" class="w-full sm:w-auto">
+        <ng-icon name="lucidePlus" size="16" />
+        Crear plazas
+      </nv-button>
+    </div>
+  </app-page-header>
+
+  <!-- Main Card with Filters and Table -->
+  <div
+    class="bg-card text-card-foreground border-border overflow-hidden rounded-2xl border shadow-xs"
+  >
+    <div class="flex flex-col gap-4 p-4 sm:p-6">
+      <!-- Filter Toolbar -->
+      <app-slot-filter-toolbar
+        [globalFilter]="facade.globalFilter()"
+        [typeFilter]="facade.columnFilterValue('type')"
+        [zoneFilter]="facade.columnFilterValue('zone')"
+        [statusFilter]="facade.columnFilterValue('status')"
+        [isAccessibleFilter]="facade.isAccessibleFilter()"
+        [hasChargerFilter]="facade.hasChargerFilter()"
+        [typeOptions]="facade.typeOptions"
+        [zoneOptions]="facade.zoneOptions()"
+        [statusOptions]="facade.statusOptions"
+        (queryInput)="facade.onQueryInput($event)"
+        (filterChange)="facade.setFilter($event.key, $event.value)"
+        (clearFilters)="facade.clearFilters()"
+      />
+
+      <!-- Batch Selection Bar -->
+      <app-slot-batch-selection-bar
+        [selectedCount]="facade.selectedCount()"
+        (editMetadata)="facade.openMetadataModal()"
+        (deleteBatch)="facade.openBatchDeleteModal()"
+      />
+
+      <!-- Empty State -->
+      @if (facade.filteredSlots().length === 0) {
+      <app-slot-empty-state
+        [hasSlots]="facade.slots().length > 0"
+        (create)="facade.onCreate()"
+        (clearFilters)="facade.clearFilters()"
+      />
+      } @else {
+      <!-- Slots Table -->
+      <div class="border-border overflow-x-auto rounded-xl border">
+        <table nv-table class="w-full min-w-190 border-collapse text-left">
+          <colgroup>
+            @for ( column of facade.table.getAllLeafColumns(); track column.id )
+            {
+            <col [style.width.px]="column.getSize()" />
+            }
+          </colgroup>
+
+          <thead nv-table-header class="bg-muted/80 border-border border-b">
+            @for ( headerGroup of facade.table.getHeaderGroups(); track
+            headerGroup.id ) {
+            <tr nv-table-row>
+              @for (header of headerGroup.headers; track header.id) {
+              <th
+                nv-table-head
+                class="text-muted-foreground px-4 py-3 text-[11px] font-bold tracking-wider uppercase"
+                [class.text-right]="header.column.id === 'actions'"
+              >
+                <ng-container
+                  *flexRender="
+                            header.column.columnDef.header;
+                            props: header.getContext();
+                            let headerRender
+                          "
+                >
+                  <div [innerHTML]="headerRender"></div>
+                </ng-container>
+              </th>
+              }
+            </tr>
+            }
+          </thead>
+
+          <tbody nv-table-body class="divide-border divide-y">
+            @for (row of facade.table.getRowModel().rows; track row.id) {
+            <tr nv-table-row class="hover:bg-muted/40 transition-colors">
+              @for (cell of row.getVisibleCells(); track cell.id) {
+              <td
+                nv-table-cell
+                class="px-4 py-3 text-xs"
+                [class.text-right]="cell.column.id === 'actions'"
+              >
+                <ng-container
+                  *flexRender="
+                            cell.column.columnDef.cell;
+                            props: cell.getContext();
+                            let cellRender
+                          "
+                >
+                  {{ cellRender }}
+                </ng-container>
+              </td>
+              }
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <app-pagination-table
+        [currentItems]="facade.table.getRowModel().rows.length"
+        [countItems]="facade.slots().length"
+        [currentPage]="facade.table.getState().pagination.pageIndex"
+        [countPages]="facade.table.getPageCount()"
+        [getCanPreviousPage]="facade.table.getCanPreviousPage()"
+        [previousPage]="facade.table.previousPage"
+        [getCanNextPage]="facade.table.getCanNextPage()"
+        [nextPage]="facade.table.nextPage"
+      />
+      }
+    </div>
+  </div>
+
+  <!-- Detail Drawer Component -->
+  @if (facade.drawerSlot(); as slot) {
+  <app-slot-detail-drawer
+    [slot]="slot"
+    [drawerTab]="facade.drawerTab()"
+    [slotTypeLabel]="slotTypeLabel"
+    (close)="facade.closeDrawer()"
+    (setTab)="facade.setDrawerTab($event)"
+  />
+  }
+
+  <!-- Status Change Modal Component -->
+  @if (facade.statusModalOpen()) {
+  <app-slot-status-modal
+    [title]="facade.statusModalCopy().title"
+    [body]="facade.statusModalCopy().body"
+    [target]="facade.statusTarget()"
+    [nextStatus]="facade.statusNext()"
+    [transitionOptions]="facade.statusTransitionOptions()"
+    [requiresExtraConfirm]="facade.statusModalCopy().requiresExtraConfirm"
+    [confirmChecked]="facade.statusConfirmChecked()"
+    (cancel)="facade.closeStatusModal()"
+    (selectStatusNext)="facade.selectStatusNext($event)"
+    (confirmCheckedChange)="facade.statusConfirmChecked.set($event)"
+    (confirm)="facade.confirmStatusChange()"
+  />
+  }
+
+  <!-- Delete Modal Component -->
+  @if (facade.deleteModalOpen()) {
+  <app-slot-delete-modal
+    [copy]="facade.deleteModalCopy()"
+    [requiresConfirm]="facade.deleteRequiresConfirm()"
+    [confirmChecked]="facade.deleteConfirmChecked()"
+    (cancel)="facade.closeDeleteModal()"
+    (confirmCheckedChange)="facade.deleteConfirmChecked.set($event)"
+    (confirm)="facade.confirmDelete()"
+  />
+  }
+
+  <!-- Metadata Batch Modal Component -->
+  @if (facade.metadataModalOpen()) {
+  <app-slot-metadata-batch-modal
+    [selectedSlots]="facade.selectedSlots()"
+    (cancel)="facade.closeMetadataModal()"
+    (submitMetadata)="facade.updateSlotsMetadata($event)"
+  />
+  }
+
+  <!-- Group Edit Modal Component -->
+  @if (facade.groupModalOpen()) {
+  <app-slot-group-edit-modal
+    [parkingId]="facade.parking()?.id ?? ''"
+    [groups]="facade.availableGroups()"
+    [initialZone]="facade.groupTarget()?.zone ?? ''"
+    [initialPrefix]="facade.groupTarget()?.prefix ?? ''"
+    (cancel)="facade.closeGroupModal()"
+    (submitGroup)="facade.updateSlotGroup($event)"
+  />
+  }
+</div>
+} @else {
+<div class="text-muted-foreground p-8 text-center">
+  {{ texts.list.empty.parkingNotFound }}
+</div>
+}

@@ -1,0 +1,44 @@
+<aside
+  class="sidebar bg-background border-border flex h-full max-h-full flex-col gap-4 overflow-hidden border-r py-3 transition-[width] duration-300"
+  [class.sidebar--collapsed]="collapsed()"
+  [class.px-4]="!collapsed()"
+  [class.px-2]="collapsed()"
+>
+  <div
+    class="flex w-full shrink-0 items-center"
+    [class.justify-between]="!collapsed()"
+    [class.flex-col]="collapsed()"
+    [class.gap-3]="collapsed()"
+  >
+    <a
+      [routerLink]="homeUrl"
+      aria-label="Nivo"
+      class="flex shrink-0 items-center justify-center rounded transition-opacity hover:opacity-90 focus:outline-none"
+    >
+      @if (!collapsed()) {
+      <ng-icon
+        name="nivo-logo-horizontal"
+        class="text-foreground h-fit! w-28!"
+      />
+      } @else {
+      <ng-icon name="nivo-logo-icon" class="text-foreground h-8! w-8!" />
+      }
+    </a>
+    <button
+      nv-button
+      variant="ghost"
+      size="icon"
+      (click)="toggleCollapsed()"
+      [attr.aria-label]="collapsed() ? 'Expandir sidebar' : 'Colapsar sidebar'"
+    >
+      <ng-icon
+        [name]="collapsed() ? 'lucidePanelLeftOpen' : 'lucidePanelLeftClose'"
+        size="18"
+      />
+    </button>
+  </div>
+  <app-sidebar-base
+    class="flex min-h-0 flex-1 flex-col justify-between overflow-hidden"
+    [collapsed]="collapsed()"
+  />
+</aside>

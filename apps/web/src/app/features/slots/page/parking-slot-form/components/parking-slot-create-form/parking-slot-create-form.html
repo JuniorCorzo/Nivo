@@ -1,0 +1,95 @@
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+  <nv-input label="Parqueadero" [value]="parkingName()" [disabled]="true" />
+
+  <nv-input
+    label="Desde número"
+    type="number"
+    [required]="true"
+    [placeholder]="texts.create.fields.from.placeholder"
+    [value]="'' + facade.form.from()"
+    (input)="facade.form.from.set($any($event.target).valueAsNumber || 1)"
+  />
+
+  <nv-input
+    label="Hasta número"
+    type="number"
+    [required]="true"
+    [placeholder]="texts.create.fields.to.placeholder"
+    [value]="'' + facade.form.to()"
+    (input)="facade.form.to.set($any($event.target).valueAsNumber || 1)"
+  />
+
+  <nv-input
+    label="Prefijo"
+    [placeholder]="texts.create.fields.prefix.placeholder"
+    [value]="facade.form.prefix()"
+    (input)="facade.form.prefix.set($any($event.target).value)"
+  />
+
+  <nv-input
+    label="Zona"
+    [placeholder]="texts.create.fields.zone.placeholder"
+    [value]="facade.form.zone()"
+    (input)="facade.form.zone.set($any($event.target).value)"
+  />
+
+  <label
+    class="text-muted-foreground flex flex-col gap-1.5 text-xs font-semibold tracking-wider uppercase"
+  >
+    <span>Tipo</span>
+    <nv-select
+      class="w-full font-normal"
+      [required]="true"
+      [items]="TYPE_OPTIONS"
+      [displayFn]="displayFn"
+      [valueFn]="valueFn"
+      [value]="facade.form.type()"
+      (valueChange)="facade.form.type.set($any($event))"
+    />
+  </label>
+
+  <label
+    class="text-muted-foreground flex flex-col gap-1.5 text-xs font-semibold tracking-wider uppercase"
+  >
+    <span>Estado</span>
+    <nv-select
+      class="w-full font-normal"
+      [items]="STATUS_OPTIONS"
+      [displayFn]="displayFn"
+      [valueFn]="valueFn"
+      [value]="facade.form.status()"
+      (valueChange)="facade.form.status.set($any($event))"
+    />
+  </label>
+</div>
+
+<!-- Batch Generation Preview Card -->
+<div
+  class="border-primary/20 bg-primary/10 flex flex-col gap-1.5 rounded-xl border p-5"
+>
+  <div class="flex items-center gap-2">
+    <ng-icon name="lucideSparkles" class="text-primary text-base" />
+    <span class="text-primary text-xs font-bold tracking-wider uppercase">
+      Vista previa del lote
+    </span>
+  </div>
+  <div class="mt-1 flex items-baseline gap-2">
+    <span class="text-foreground font-mono text-3xl font-bold">
+      {{ facade.previewCount() }}
+    </span>
+    <span class="text-muted-foreground text-xs font-semibold">
+      plazas a crear
+    </span>
+  </div>
+  <div class="text-muted-foreground font-mono text-xs">
+    {{ facade.previewRange() }}
+  </div>
+  @if (facade.conflictMessage()) {
+  <div
+    class="text-destructive mt-2 flex items-center gap-2 text-xs font-semibold"
+  >
+    <ng-icon name="lucideAlertCircle" size="14" />
+    <span>{{ facade.conflictMessage() }}</span>
+  </div>
+  }
+</div>

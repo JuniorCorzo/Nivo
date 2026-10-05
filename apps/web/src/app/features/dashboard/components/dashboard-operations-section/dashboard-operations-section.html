@@ -1,0 +1,74 @@
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+  @if (isMultiParkingTenant()) {
+  <!-- Left Bento (6 cols): Multi-Facility Comparative Ranking -->
+  <div class="lg:col-span-6">
+    <nv-card class="flex h-full flex-col justify-between">
+      <nv-card-header
+        class="flex flex-col justify-between gap-2 pb-2 sm:flex-row sm:items-center"
+      >
+        <div>
+          <nv-card-title>{{ texts.operations.comparison.title }}</nv-card-title>
+          <nv-card-description>
+            {{ texts.operations.comparison.thresholdsLabel }}
+            <span class="text-emerald-400"
+              >{{ texts.operations.comparison.thresholdNormal }}</span
+            >
+            •
+            <span class="text-amber-400"
+              >{{ texts.operations.comparison.thresholdAlert }}</span
+            >
+            •
+            <span class="text-rose-400"
+              >{{ texts.operations.comparison.thresholdCritical }}</span
+            >
+          </nv-card-description>
+        </div>
+        <span class="text-muted-foreground font-mono text-xs">
+          {{ parkingsComparison().length || accessibleParkingsCount() }} {{
+          texts.operations.comparison.facilitiesSuffix }}
+        </span>
+      </nv-card-header>
+      <nv-card-content class="flex-1">
+        <app-parking-comparison-chart
+          [data]="parkingsComparison()"
+          (parkingSelected)="parkingSelected.emit($event)"
+        />
+      </nv-card-content>
+    </nv-card>
+  </div>
+  }
+
+  <!-- Right Bento (6 cols or 12 cols if single parking): Quick Ticket Activity Stream -->
+  <div
+    [class]="
+      isMultiParkingTenant() ? 'lg:col-span-6' : 'lg:col-span-12'
+    "
+  >
+    <nv-card class="flex h-full flex-col justify-between">
+      <nv-card-header class="flex flex-row items-center justify-between pb-2">
+        <div>
+          <nv-card-title
+            >{{ texts.operations.recentActivity.title }}</nv-card-title
+          >
+          <nv-card-description>
+            {{ texts.operations.recentActivity.subtitle }}
+          </nv-card-description>
+        </div>
+        <div class="flex items-center gap-2">
+          <span
+            class="inline-flex items-center gap-1.5 rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 font-mono text-[11px] text-zinc-300"
+          >
+            <ng-icon
+              name="lucideRadio"
+              class="h-3 w-3 animate-pulse text-emerald-400"
+            />
+            <span>{{ texts.operations.recentActivity.liveBadge }}</span>
+          </span>
+        </div>
+      </nv-card-header>
+      <nv-card-content class="flex-1">
+        <app-recent-activity-stream [reports]="reports()" />
+      </nv-card-content>
+    </nv-card>
+  </div>
+</div>

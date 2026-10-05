@@ -1,0 +1,20 @@
+<div class="relative w-full max-w-sm">
+  <nv-input
+    [placeholder]="placeholder()"
+    startIcon="lucideSearch"
+    [value]="searchValue()"
+    (input)="onInput($event)"
+  />
+  @if (searchValue()) {
+  <nv-button
+    type="button"
+    variant="ghost"
+    size="sm"
+    class="text-muted-foreground hover:text-foreground absolute top-1/2 right-1 h-7 w-7 -translate-y-1/2 p-0"
+    [attr.aria-label]="texts.clear"
+    (click)="clear()"
+  >
+    <ng-icon name="lucideX" size="14" />
+  </nv-button>
+  }
+</div>

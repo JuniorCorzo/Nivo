@@ -4,12 +4,44 @@
 import { AddressDto } from '../models/address-dto';
 import { CoordinatesDto } from '../models/coordinates-dto';
 import { OperatingHoursDto } from '../models/operating-hours-dto';
+
+/**
+ * Parking lot summary reference
+ */
 export interface ParkingLotsInfo {
-  address?: AddressDto;
-  coordinates?: CoordinatesDto;
-  currency?: string;
-  id?: string;
-  name?: string;
-  operatingHours?: OperatingHoursDto;
-  timezone?: string;
+
+  /**
+   * Address
+   */
+  address: AddressDto;
+
+  /**
+   * Coordinates
+   */
+  coordinates: CoordinatesDto;
+
+  /**
+   * Currency
+   */
+  currency: string;
+
+  /**
+   * Parking lot ID
+   */
+  id: string;
+
+  /**
+   * Parking lot name
+   */
+  name: string;
+
+  /**
+   * Operating hours
+   */
+  operatingHours: OperatingHoursDto;
+
+  /**
+   * Timezone
+   */
+  timezone: string;
 }

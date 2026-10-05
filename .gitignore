@@ -31,6 +31,9 @@ node_modules
 .nx/polygraph
 .claude/
 .agents/
+!/.agents/
+/.agents/*
+!/.agents/rules/
 .atl/
 .kiro/
 .codegraph/
@@ -41,6 +44,12 @@ node_modules
 .commandcode/
 .pi/
 .engram/
+.impeccable/
 
 storybook-static
 dist
+.openspec
+.logs
+*.original.md
+mockups/
+.github/skills/

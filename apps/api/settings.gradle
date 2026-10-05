@@ -1,38 +1,23 @@
 pluginManagement {
     repositories {
-        //mavenLocal()
-        //maven { url = '...' }
         gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositories {
+        mavenCentral()
+        maven { url = uri("https://repo.spring.io/snapshot") }
+        maven { url = uri("https://repo.spring.io/milestone") }
     }
 }
 
 buildCache {
     local {
-        directory = new File(rootDir, 'build-cache')
+        enabled = true
     }
 }
 
-rootProject.name = 'api'
-
-include ':app-service'
-include ':model'
-include ':usecase'
-project(':app-service').projectDir = file('./applications/app-service')
-project(':model').projectDir = file('./domain/model')
-project(':usecase').projectDir = file('./domain/usecase')
-include ':jpa-repository'
-project(':jpa-repository').projectDir = file('./infrastructure/driven-adapters/jpa-repository')
-include ':api-rest'
-project(':api-rest').projectDir = file('./infrastructure/entry-points/api-rest')
-include ':security-core'
-project(':security-core').projectDir = file('./infrastructure/helpers/security-core')
-include ':payment-provider'
-project(':payment-provider').projectDir = file('./infrastructure/driven-adapters/payment-provider')
-include ':commons'
-project(':commons').projectDir = file('./infrastructure/helpers/commons')
-include ':websocket'
-project(':websocket').projectDir = file('./infrastructure/entry-points/websocket')
-include ':notifications'
-project(':notifications').projectDir = file('./infrastructure/driven-adapters/notifications')
-include ':event-bus'
-project(':event-bus').projectDir = file('./infrastructure/driven-adapters/event-bus')
+rootProject.name = 'nivo-api'

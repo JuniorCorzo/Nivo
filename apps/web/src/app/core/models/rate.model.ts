@@ -33,7 +33,7 @@ export interface CreateRateModel {
   vehicleType: VehicleType;
   timeUnit: TimeUnit;
   pricePerUnit: number;
-  minChargeTimeMinutes?: number;
+  minChargeTimeMinutes: number;
   specialPolicyId?: string;
 }
 

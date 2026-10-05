@@ -1,3 +1,45 @@
-<div class="max-h-dvh overflow-auto">
-  <router-outlet></router-outlet>
+<div
+  class="flex max-w-full min-w-0 flex-col gap-4 overflow-x-hidden p-3.5 sm:gap-6 sm:p-4 md:p-6"
+>
+  <app-dashboard-header
+    [breadcrumbs]="breadcrumbs"
+    [timeGranularity]="timeGranularity()"
+    [accessibleParkings]="facade.accessibleParkings()"
+    [isMultiParkingTenant]="facade.isMultiParkingTenant()"
+    [activeScope]="facade.activeScope()"
+    (granularityChange)="setTimeGranularity($event)"
+    (refreshTelemetry)="refreshTelemetry()"
+    (scopeChange)="onScopeChange($event)"
+  />
+
+  <app-dashboard-kpi-grid
+    [title]="kpiSectionTitle()"
+    [summary]="facade.summary()"
+    [occupancyPercentage]="facade.occupancyPercentage()"
+  />
+
+  <app-dashboard-charts-section
+    [title]="chartTitle()"
+    [subtitle]="chartSubtitle()"
+    [hourlyOccupancy]="facade.hourlyOccupancy()"
+    [timeGranularity]="timeGranularity()"
+    [summary]="facade.summary()"
+  />
+
+  <app-dashboard-operations-section
+    [isMultiParkingTenant]="facade.isMultiParkingTenant()"
+    [parkingsComparison]="facade.parkingsComparison()"
+    [accessibleParkingsCount]="facade.accessibleParkings().length"
+    [reports]="facade.reports()"
+    (parkingSelected)="onParkingSelected($event)"
+  />
+
+  <app-dashboard-reports-section
+    [reports]="facade.reports()"
+    [isGlobalScope]="facade.isGlobalScope()"
+    [page]="facade.reportsPage()"
+    [totalPages]="facade.reportsTotalPages()"
+    (pageChange)="onPageChange($event)"
+    (exportCsv)="exportCsv()"
+  />
 </div>

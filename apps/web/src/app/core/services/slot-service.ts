@@ -1,6 +1,8 @@
-import { HttpContext } from "@angular/common/http";
+import { HttpClient, HttpContext } from "@angular/common/http";
 import { inject, Injectable, signal } from "@angular/core";
+import { ApiConfiguration } from "@core/api/generated/api-configuration";
 import type {
+  ResponseListSlotResponse,
   ResponseListSlotSummaryResponse,
   ResponseSlotResponse,
   SlotResponse,
@@ -9,10 +11,11 @@ import type {
 import { SlotsService } from "@core/api/generated/services";
 import { AUTHORIZED } from "@core/http/context/auth.token";
 import type {
+  BatchCreateSlotModel,
+  Slot,
   SlotModel,
   SlotSummary,
   UpsertSlotModel,
-  BatchCreateSlotModel,
 } from "@core/models/slot.model";
 import type { Observable } from "rxjs";
 import { Subject } from "rxjs";
@@ -22,9 +25,12 @@ import { map, tap } from "rxjs/operators";
  * Pure function: maps API SlotSummaryResponse to web SlotSummary model.
  */
 export const mapToSlotSummary = (data: SlotSummaryResponse): SlotSummary => ({
+  hasCharger: data.hasCharger ?? false,
   hasHistory: data.hasHistory ?? false,
   hasTicket: data.hasTicket ?? false,
   id: data.id ?? "",
+  isAccessible: data.isAccessible ?? false,
+  isActive: data.isActive ?? true,
   parkingName: data.parkingName ?? "",
   prefix: data.prefix ?? "",
   slotNumber: data.numberSlot ?? "",
@@ -43,6 +49,8 @@ export class SlotService {
   readonly summaries = this.slotSummaries.asReadonly();
 
   private slotsService = inject(SlotsService);
+  private http = inject(HttpClient);
+  private config = inject(ApiConfiguration);
 
   private static httpContext() {
     const context = new HttpContext();
@@ -117,6 +125,49 @@ export class SlotService {
       );
   }
 
+  updateSlotMetadata(payload: {
+    slotIds: string[];
+    hasCharger?: boolean;
+    isAccessible?: boolean;
+    isActive?: boolean;
+  }): Observable<Slot[]> {
+    const rootUrl = this.config.rootUrl.replace(/\/+$/u, "");
+    return this.http
+      .patch<ResponseListSlotResponse>(`${rootUrl}/slots/metadata`, payload, {
+        context: SlotService.httpContext(),
+      })
+      .pipe(
+        map((response: ResponseListSlotResponse) =>
+          (response.data ?? []).map((item) => SlotService.mapToSlotModel(item))
+        ),
+        tap((slots) => {
+          if (slots.length > 0 && slots[0].parkingId) {
+            this.refreshState(slots[0].parkingId);
+          }
+        })
+      );
+  }
+
+  updateSlotGroup(payload: {
+    parkingId: string;
+    currentZone: string;
+    currentPrefix: string;
+    newZone?: string;
+    newPrefix?: string;
+  }): Observable<Slot[]> {
+    const rootUrl = this.config.rootUrl.replace(/\/+$/u, "");
+    return this.http
+      .patch<ResponseListSlotResponse>(`${rootUrl}/slots/groups`, payload, {
+        context: SlotService.httpContext(),
+      })
+      .pipe(
+        map((response: ResponseListSlotResponse) =>
+          (response.data ?? []).map((item) => SlotService.mapToSlotModel(item))
+        ),
+        tap(() => this.refreshState(payload.parkingId))
+      );
+  }
+
   delete(slotId: string, parkingId: string): Observable<void> {
     return this.slotsService
       .deleteSlot({ slotId }, SlotService.httpContext())
@@ -152,10 +203,13 @@ export class SlotService {
     this.getAllSlotSummariesByParkingId(parkingId).subscribe();
   }
 
-  private static mapToSlotModel(data: SlotResponse): SlotModel {
+  private static mapToSlotModel(data: SlotResponse): Slot {
     return {
       createdAt: data.createdAt ?? "",
+      hasCharger: data.hasCharger ?? false,
       id: data.id ?? "",
+      isAccessible: data.isAccessible ?? false,
+      isActive: data.isActive ?? true,
       parkingId: data.parking?.id ?? "",
       slotNumber: data.slotNumber ?? "",
       status: data.status ?? "AVAILABLE",

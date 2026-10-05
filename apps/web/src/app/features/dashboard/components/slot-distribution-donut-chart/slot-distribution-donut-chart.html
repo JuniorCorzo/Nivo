@@ -1,0 +1,57 @@
+<div class="space-y-4">
+  <!-- Donut Chart with Center Counter -->
+  <div class="relative my-1 flex h-48 w-full items-center justify-center">
+    <canvas #canvasRef></canvas>
+    <div
+      class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center"
+    >
+      <span
+        class="text-foreground font-mono text-2xl font-bold tracking-tight"
+        data-testid="donut-center-count"
+      >
+        {{ occupiedSlots() }}
+      </span>
+      <span
+        class="text-muted-foreground text-[11px] font-medium tracking-wider uppercase"
+      >
+        Ocupadas
+      </span>
+    </div>
+  </div>
+
+  <!-- Category Breakdown Rows -->
+  <div
+    class="space-y-2 border-t border-[var(--border)] pt-2 font-mono text-xs"
+    data-testid="category-breakdown-container"
+  >
+    @for (cat of resolvedCategories(); track cat.id) {
+    <div
+      class="flex items-center justify-between rounded p-1.5 transition hover:bg-zinc-900/50"
+      [attr.data-testid]="'cat-row-' + cat.id"
+    >
+      <div class="flex min-w-0 items-center gap-2">
+        <span
+          class="h-2.5 w-2.5 shrink-0 rounded-full"
+          [style.backgroundColor]="cat.color"
+        ></span>
+        <span class="text-foreground truncate font-sans text-xs font-medium"
+          >{{ cat.name }}</span
+        >
+      </div>
+      <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+        <span class="text-muted-foreground"
+          >{{ cat.occupied }} / {{ cat.total }}</span
+        >
+        <span
+          class="font-semibold"
+          [class.text-rose-400]="cat.percentage >= 90"
+          [class.text-amber-400]="cat.percentage >= 70 && cat.percentage < 90"
+          [class.text-emerald-400]="cat.percentage < 70"
+        >
+          {{ cat.percentage | number: '1.1-1' }}%
+        </span>
+      </div>
+    </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nivo - Mockup UI: Vista de Lista de Slots (Design System)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            card: "hsl(var(--card))",
+            "card-foreground": "hsl(var(--card-foreground))",
+            popover: "hsl(var(--popover))",
+            "popover-foreground": "hsl(var(--popover-foreground))",
+            primary: "hsl(var(--primary))",
+            "primary-foreground": "hsl(var(--primary-foreground))",
+            secondary: "hsl(var(--secondary))",
+            "secondary-foreground": "hsl(var(--secondary-foreground))",
+            muted: "hsl(var(--muted))",
+            "muted-foreground": "hsl(var(--muted-foreground))",
+            accent: "hsl(var(--accent))",
+            "accent-foreground": "hsl(var(--accent-foreground))",
+            destructive: "hsl(var(--destructive))",
+            "destructive-foreground": "hsl(var(--destructive-foreground))",
+            success: "hsl(var(--success))",
+            warning: "hsl(var(--warning))",
+            info: "hsl(var(--info))",
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    :root {
+      --background: 0 0% 100%;
+      --foreground: 240 10% 3.9%;
+      --card: 0 0% 100%;
+      --card-foreground: 240 10% 3.9%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 240 10% 3.9%;
+      --primary: 240 5.9% 10%;
+      --primary-foreground: 0 0% 98%;
+      --secondary: 240 4.8% 95.9%;
+      --secondary-foreground: 240 5.9% 10%;
+      --muted: 240 4.8% 95.9%;
+      --muted-foreground: 240 3.8% 46.1%;
+      --accent: 240 4.8% 95.9%;
+      --accent-foreground: 240 5.9% 10%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 0 0% 98%;
+      --success: 142.1 76.2% 36.3%;
+      --warning: 38 92% 50%;
+      --info: 221.2 83.2% 53.3%;
+      --border: 240 5.9% 90%;
+    }
+    .dark {
+      --background: 240 10% 3.9%;
+      --foreground: 0 0% 98%;
+      --card: 240 10% 3.9%;
+      --card-foreground: 0 0% 98%;
+      --popover: 240 10% 3.9%;
+      --popover-foreground: 0 0% 98%;
+      --primary: 0 0% 98%;
+      --primary-foreground: 240 5.9% 10%;
+      --secondary: 240 3.7% 15.9%;
+      --secondary-foreground: 0 0% 98%;
+      --muted: 240 3.7% 15.9%;
+      --muted-foreground: 240 5% 64.9%;
+      --accent: 240 3.7% 15.9%;
+      --accent-foreground: 0 0% 98%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 0 0% 98%;
+      --success: 142.1 70.6% 45.3%;
+      --warning: 48 96% 53%;
+      --info: 217.2 91.2% 59.8%;
+      --border: 240 3.7% 15.9%;
+    }
+
+    /* System Design Badge Classes (matching nv-badge) */
+    .nv-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      border-radius: 9999px;
+      border-width: 1px;
+      padding: 0.125rem 0.625rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      line-height: 1rem;
+      letter-spacing: 0.025em;
+      transition-property: color, background-color, border-color;
+      transition-duration: 150ms;
+      white-space: nowrap;
+    }
+    .nv-badge-success {
+      border-color: rgba(34, 197, 94, 0.3);
+      background-color: rgba(34, 197, 94, 0.12);
+      color: #16a34a;
+    }
+    .dark .nv-badge-success {
+      color: #4ade80;
+    }
+    .nv-badge-destructive {
+      border-color: rgba(239, 68, 68, 0.3);
+      background-color: rgba(239, 68, 68, 0.12);
+      color: #dc2626;
+    }
+    .dark .nv-badge-destructive {
+      color: #f87171;
+    }
+    .nv-badge-warning {
+      border-color: rgba(245, 158, 11, 0.3);
+      background-color: rgba(245, 158, 11, 0.12);
+      color: #d97706;
+    }
+    .dark .nv-badge-warning {
+      color: #fbbf24;
+    }
+    .nv-badge-info {
+      border-color: rgba(59, 130, 246, 0.3);
+      background-color: rgba(59, 130, 246, 0.12);
+      color: #2563eb;
+    }
+    .dark .nv-badge-info {
+      color: #60a5fa;
+    }
+    .nv-badge-secondary {
+      border-color: var(--border);
+      background-color: var(--secondary);
+      color: var(--secondary-foreground);
+    }
+    .nv-badge-outline {
+      border-color: var(--border);
+      background-color: transparent;
+      color: var(--foreground);
+    }
+    .nv-badge-cyan {
+      border-color: rgba(6, 182, 212, 0.3);
+      background-color: rgba(6, 182, 212, 0.12);
+      color: #0891b2;
+    }
+    .dark .nv-badge-cyan {
+      color: #22d3ee;
+    }
+
+    /* System Design Button Classes (matching nv-button) */
+    .nv-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.75rem;
+      line-height: 1rem;
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      user-select: none;
+    }
+    .nv-btn-sm {
+      padding: 0.375rem 0.625rem;
+    }
+    .nv-btn-md {
+      padding: 0.5rem 0.875rem;
+      font-size: 0.8125rem;
+    }
+    .nv-btn-default {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    .nv-btn-default:hover {
+      opacity: 0.9;
+    }
+    .nv-btn-outline {
+      border: 1px solid var(--border);
+      background-color: var(--card);
+      color: var(--foreground);
+    }
+    .nv-btn-outline:hover {
+      background-color: var(--muted);
+    }
+    .nv-btn-ghost {
+      background-color: transparent;
+      color: var(--foreground);
+    }
+    .nv-btn-ghost:hover {
+      background-color: var(--muted);
+    }
+  </style>
+</head>
+<body class="bg-background text-foreground min-h-screen p-3 sm:p-6 transition-colors duration-200 antialiased font-sans">
+
+  <!-- Shell Container -->
+  <div class="mx-auto flex max-w-7xl flex-col gap-6">
+
+    <!-- Top Navigation / Breadcrumbs (matching PageHeader design system) -->
+    <header class="flex flex-col gap-3">
+      <div class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <a href="#" class="hover:text-foreground transition-colors">Parqueaderos</a>
+        <span class="text-border" aria-hidden="true">&gt;</span>
+        <a href="#" class="hover:text-foreground transition-colors">Parqueadero Central</a>
+        <span class="text-border" aria-hidden="true">&gt;</span>
+        <span class="font-semibold text-foreground">Plazas (Mockup Opción 1)</span>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Gestión de Plazas</h1>
+              <span class="nv-badge nv-badge-cyan">Opción 1 con System Design</span>
+            </div>
+            <p class="text-xs sm:text-sm text-muted-foreground">
+              Vista de lista optimizada con tipo de vehículo, zona, estado y equipamiento accesible (sin columna metadata).
+            </p>
+          </div>
+        </div>
+
+        <!-- Controls: Theme & New Slot -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="toggleTheme()" class="nv-btn nv-btn-outline nv-btn-md">
+            <span id="theme-icon">☀️</span>
+            <span id="theme-text">Modo Claro</span>
+          </button>
+          <button onclick="openCreateModal()" class="nv-btn nv-btn-default nv-btn-md">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span>Crear plazas</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Card Container (nv-card) -->
+    <main class="overflow-hidden rounded-2xl border border-border bg-card shadow-xs">
+
+      <!-- Filter Toolbar (Design System SlotFilterToolbar) -->
+      <div class="flex flex-col gap-3 border-b border-border bg-muted/20 p-4 sm:p-5">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+
+          <!-- Búsqueda por Location o ID -->
+          <div class="relative lg:col-span-2">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </span>
+            <input
+              type="text"
+              id="search-input"
+              oninput="applyFilters()"
+              placeholder="Buscar por ID, location o zona..."
+              class="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
+            />
+          </div>
+
+          <!-- Filtro: Tipo de Vehículo -->
+          <div>
+            <select
+              id="filter-vehicle-type"
+              onchange="applyFilters()"
+              class="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition cursor-pointer"
+            >
+              <option value="">Tipo Vehículo: Todos</option>
+              <option value="CAR">🚗 Carro</option>
+              <option value="MOTORCYCLE">🏍️ Moto</option>
+              <option value="BIKE">🚲 Bicicleta</option>
+              <option value="ELECTRIC_VEHICLE">⚡🚗 Eléctrico</option>
+              <option value="DISABLED">♿ Discapacitado</option>
+            </select>
+          </div>
+
+          <!-- Filtro: Zona -->
+          <div>
+            <select
+              id="filter-zone"
+              onchange="applyFilters()"
+              class="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition cursor-pointer"
+            >
+              <option value="">Zona: Todas</option>
+              <option value="Zona Norte">Zona Norte</option>
+              <option value="Zona Sur">Zona Sur</option>
+              <option value="Piso 1">Piso 1</option>
+              <option value="Piso 2">Piso 2</option>
+              <option value="Subterráneo 1">Subterráneo 1</option>
+            </select>
+          </div>
+
+          <!-- Filtro: Estado -->
+          <div>
+            <select
+              id="filter-status"
+              onchange="applyFilters()"
+              class="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition cursor-pointer"
+            >
+              <option value="">Estado: Todos</option>
+              <option value="AVAILABLE">🟢 Disponible</option>
+              <option value="OCCUPIED">🔴 Ocupada</option>
+              <option value="RESERVED">🔵 Reservada</option>
+              <option value="MAINTENANCE">🟡 Mantenimiento</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fila secundaria de filtros rápidos: Discapacitado y Tipo Slot -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-1 text-xs">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-semibold text-muted-foreground text-[11px] uppercase tracking-wider">Filtros rápidos:</span>
+
+            <!-- Toggle Discapacitado -->
+            <button
+              onclick="toggleQuickFilter('disabled')"
+              id="quick-disabled-btn"
+              class="nv-badge nv-badge-outline hover:bg-muted cursor-pointer transition select-none"
+            >
+              ♿ Discapacitado: Todos
+            </button>
+
+            <!-- Toggle Slot Eléctrico -->
+            <button
+              onclick="toggleQuickFilter('electric')"
+              id="quick-electric-btn"
+              class="nv-badge nv-badge-outline hover:bg-muted cursor-pointer transition select-none"
+            >
+              ⚡ Solo Eléctricos
+            </button>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span id="results-count" class="font-medium text-muted-foreground text-xs">Mostrando 6 plazas</span>
+            <button onclick="resetAllFilters()" class="font-semibold text-primary hover:underline cursor-pointer">
+              Limpiar filtros
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Section (TanStack Table Layout with Design System) -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <!-- Encabezados -->
+          <thead class="border-b border-border bg-muted/40 font-semibold text-muted-foreground text-[11px] uppercase tracking-wider select-none">
+            <tr>
+              <th scope="col" class="py-3.5 px-4">ID</th>
+              <th scope="col" class="py-3.5 px-4">Location</th>
+              <th scope="col" class="py-3.5 px-4">Zona</th>
+              <th scope="col" class="py-3.5 px-4">Tipo Vehículo</th>
+              <th scope="col" class="py-3.5 px-4 text-center">Tipo Slot</th>
+              <th scope="col" class="py-3.5 px-4 text-center">Discapacitado</th>
+              <th scope="col" class="py-3.5 px-4 text-center">Estado</th>
+              <th scope="col" class="py-3.5 px-4">Fecha Actualización</th>
+              <th scope="col" class="py-3.5 px-4 text-right">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody id="slots-tbody" class="divide-y divide-border">
+
+            <!-- Fila 1: 001 - Sala A - Zona Norte - Carro - Eléctrico - No - Disponible -->
+            <tr class="slot-row hover:bg-muted/30 transition-colors"
+                data-id="001"
+                data-location="Sala A"
+                data-zone="Zona Norte"
+                data-vehicle="CAR"
+                data-slot-type="ELECTRICO"
+                data-disabled="NO"
+                data-status="AVAILABLE"
+                data-date="2026-09-01">
+              <td class="py-3.5 px-4 font-mono font-bold text-foreground">
+                <span class="rounded-md bg-muted px-2 py-1 border border-border">#001</span>
+              </td>
+              <td class="py-3.5 px-4 font-semibold text-foreground">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-muted-foreground">📍</span>
+                  <span>Sala A</span>
+                </div>
+              </td>
+              <td class="py-3.5 px-4">
+                <span class="font-medium text-foreground">Zona Norte</span>
+              </td>
+              <td class="py-3.5 px-4">
+                <span class="inline-flex items-center gap-1.5 font-medium text-foreground">
+                  <span class="text-base">🚗</span> Carro
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-cyan">
+                  <span>⚡</span> eléctrico
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-success">
+                  <span>🟢</span> No
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-success">
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Disponible
+                </span>
+              </td>
+              <td class="py-3.5 px-4 font-mono text-muted-foreground whitespace-nowrap">
+                <span class="inline-flex items-center gap-1">
+                  🕒 2026-09-01
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                <div class="inline-flex items-center gap-1">
+                  <button onclick="editSlot('001', 'Sala A', 'Zona Norte', 'CAR', 'ELECTRICO', false, 'AVAILABLE')" class="nv-btn nv-btn-outline nv-btn-sm" title="Editar plaza">
+                    ✏️ Editar
+                  </button>
+                  <button onclick="toggleRowMenu('001')" class="nv-btn nv-btn-ghost nv-btn-sm text-muted-foreground hover:text-foreground">
+                    ⋮
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Fila 2: 002 - Pasillo 3 - Piso 1 - Discapacitado - Eléctrico - Sí - Ocupada -->
+            <tr class="slot-row border-l-4 border-l-amber-500 bg-amber-500/5 hover:bg-amber-500/10 transition-colors"
+                data-id="002"
+                data-location="Pasillo 3"
+                data-zone="Piso 1"
+                data-vehicle="DISABLED"
+                data-slot-type="ELECTRICO"
+                data-disabled="YES"
+                data-status="OCCUPIED"
+                data-date="2026-09-10">
+              <td class="py-3.5 px-4 font-mono font-bold text-amber-700 dark:text-amber-400">
+                <span class="rounded-md bg-amber-500/10 px-2 py-1 border border-amber-500/20">#002</span>
+              </td>
+              <td class="py-3.5 px-4 font-semibold text-foreground">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-amber-600 dark:text-amber-400">♿</span>
+                  <span>Pasillo 3</span>
+                </div>
+              </td>
+              <td class="py-3.5 px-4">
+                <span class="font-medium text-foreground">Piso 1</span>
+              </td>
+              <td class="py-3.5 px-4">
+                <span class="inline-flex items-center gap-1.5 font-medium text-amber-700 dark:text-amber-300">
+                  <span class="text-base">♿</span> Discapacitado
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-cyan">
+                  <span>⚡</span> eléctrico
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-destructive">
+                  <span>🔴</span> Sí
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-destructive">
+                  <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                  Ocupada
+                </span>
+              </td>
+              <td class="py-3.5 px-4 font-mono text-muted-foreground whitespace-nowrap">
+                <span class="inline-flex items-center gap-1">
+                  🕒 2026-09-10
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                <div class="inline-flex items-center gap-1">
+                  <button onclick="editSlot('002', 'Pasillo 3', 'Piso 1', 'DISABLED', 'ELECTRICO', true, 'OCCUPIED')" class="nv-btn nv-btn-outline nv-btn-sm" title="Editar plaza">
+                    ✏️ Editar
+                  </button>
+                  <button onclick="toggleRowMenu('002')" class="nv-btn nv-btn-ghost nv-btn-sm text-muted-foreground hover:text-foreground">
+                    ⋮
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Fila 3: 003 - Nivel 1-B - Subterráneo 1 - Moto - Estándar - No - Disponible -->
+            <tr class="slot-row hover:bg-muted/30 transition-colors"
+                data-id="003"
+                data-location="Nivel 1-B"
+                data-zone="Subterráneo 1"
+                data-vehicle="MOTORCYCLE"
+                data-slot-type="ESTANDAR"
+                data-disabled="NO"
+                data-status="AVAILABLE"
+                data-date="2026-09-12">
+              <td class="py-3.5 px-4 font-mono font-bold text-foreground">
+                <span class="rounded-md bg-muted px-2 py-1 border border-border">#003</span>
+              </td>
+              <td class="py-3.5 px-4 font-semibold text-foreground">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-muted-foreground">📍</span>
+                  <span>Nivel 1-B</span>
+                </div>
+              </td>
+              <td class="py-3.5 px-4">
+                <span class="font-medium text-foreground">Subterráneo 1</span>
+              </td>
+              <td class="py-3.5 px-4">
+                <span class="inline-flex items-center gap-1.5 font-medium text-foreground">
+                  <span class="text-base">🏍️</span> Moto
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-outline">
+                  estándar
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-success">
+                  <span>🟢</span> No
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-success">
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Disponible
+                </span>
+              </td>
+              <td class="py-3.5 px-4 font-mono text-muted-foreground whitespace-nowrap">
+                <span class="inline-flex items-center gap-1">
+                  🕒 2026-09-12
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                <div class="inline-flex items-center gap-1">
+                  <button onclick="editSlot('003', 'Nivel 1-B', 'Subterráneo 1', 'MOTORCYCLE', 'ESTANDAR', false, 'AVAILABLE')" class="nv-btn nv-btn-outline nv-btn-sm" title="Editar plaza">
+                    ✏️ Editar
+                  </button>
+                  <button onclick="toggleRowMenu('003')" class="nv-btn nv-btn-ghost nv-btn-sm text-muted-foreground hover:text-foreground">
+                    ⋮
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Fila 4: 004 - Acceso Norte - Zona Norte - Eléctrico - Eléctrico - Sí - Reservada -->
+            <tr class="slot-row border-l-4 border-l-amber-500 bg-amber-500/5 hover:bg-amber-500/10 transition-colors"
+                data-id="004"
+                data-location="Acceso Norte"
+                data-zone="Zona Norte"
+                data-vehicle="ELECTRIC_VEHICLE"
+                data-slot-type="ELECTRICO"
+                data-disabled="YES"
+                data-status="RESERVED"
+                data-date="2026-09-15">
+              <td class="py-3.5 px-4 font-mono font-bold text-amber-700 dark:text-amber-400">
+                <span class="rounded-md bg-amber-500/10 px-2 py-1 border border-amber-500/20">#004</span>
+              </td>
+              <td class="py-3.5 px-4 font-semibold text-foreground">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-amber-600 dark:text-amber-400">♿</span>
+                  <span>Acceso Norte</span>
+                </div>
+              </td>
+              <td class="py-3.5 px-4">
+                <span class="font-medium text-foreground">Zona Norte</span>
+              </td>
+              <td class="py-3.5 px-4">
+                <span class="inline-flex items-center gap-1.5 font-medium text-foreground">
+                  <span class="text-base">⚡🚗</span> Eléctrico
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-cyan">
+                  <span>⚡</span> eléctrico
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-destructive">
+                  <span>🔴</span> Sí
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-secondary">
+                  <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                  Reservada
+                </span>
+              </td>
+              <td class="py-3.5 px-4 font-mono text-muted-foreground whitespace-nowrap">
+                <span class="inline-flex items-center gap-1">
+                  🕒 2026-09-15
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                <div class="inline-flex items-center gap-1">
+                  <button onclick="editSlot('004', 'Acceso Norte', 'Zona Norte', 'ELECTRIC_VEHICLE', 'ELECTRICO', true, 'RESERVED')" class="nv-btn nv-btn-outline nv-btn-sm" title="Editar plaza">
+                    ✏️ Editar
+                  </button>
+                  <button onclick="toggleRowMenu('004')" class="nv-btn nv-btn-ghost nv-btn-sm text-muted-foreground hover:text-foreground">
+                    ⋮
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Fila 5: 005 - Bahía 8 - Zona Sur - Bicicleta - Estándar - No - Mantenimiento -->
+            <tr class="slot-row hover:bg-muted/30 transition-colors"
+                data-id="005"
+                data-location="Bahía 8"
+                data-zone="Zona Sur"
+                data-vehicle="BIKE"
+                data-slot-type="ESTANDAR"
+                data-disabled="NO"
+                data-status="MAINTENANCE"
+                data-date="2026-09-15">
+              <td class="py-3.5 px-4 font-mono font-bold text-foreground">
+                <span class="rounded-md bg-muted px-2 py-1 border border-border">#005</span>
+              </td>
+              <td class="py-3.5 px-4 font-semibold text-foreground">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-muted-foreground">📍</span>
+                  <span>Bahía 8</span>
+                </div>
+              </td>
+              <td class="py-3.5 px-4">
+                <span class="font-medium text-foreground">Zona Sur</span>
+              </td>
+              <td class="py-3.5 px-4">
+                <span class="inline-flex items-center gap-1.5 font-medium text-foreground">
+                  <span class="text-base">🚲</span> Bicicleta
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-outline">
+                  estándar
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-success">
+                  <span>🟢</span> No
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-warning">
+                  <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                  Mantenimiento
+                </span>
+              </td>
+              <td class="py-3.5 px-4 font-mono text-muted-foreground whitespace-nowrap">
+                <span class="inline-flex items-center gap-1">
+                  🕒 2026-09-15
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                <div class="inline-flex items-center gap-1">
+                  <button onclick="editSlot('005', 'Bahía 8', 'Zona Sur', 'BIKE', 'ESTANDAR', false, 'MAINTENANCE')" class="nv-btn nv-btn-outline nv-btn-sm" title="Editar plaza">
+                    ✏️ Editar
+                  </button>
+                  <button onclick="toggleRowMenu('005')" class="nv-btn nv-btn-ghost nv-btn-sm text-muted-foreground hover:text-foreground">
+                    ⋮
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Fila 6: 006 - Pasillo 1 - Piso 2 - Carro - Estándar - No - Disponible -->
+            <tr class="slot-row hover:bg-muted/30 transition-colors"
+                data-id="006"
+                data-location="Pasillo 1"
+                data-zone="Piso 2"
+                data-vehicle="CAR"
+                data-slot-type="ESTANDAR"
+                data-disabled="NO"
+                data-status="AVAILABLE"
+                data-date="2026-09-15">
+              <td class="py-3.5 px-4 font-mono font-bold text-foreground">
+                <span class="rounded-md bg-muted px-2 py-1 border border-border">#006</span>
+              </td>
+              <td class="py-3.5 px-4 font-semibold text-foreground">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-muted-foreground">📍</span>
+                  <span>Pasillo 1</span>
+                </div>
+              </td>
+              <td class="py-3.5 px-4">
+                <span class="font-medium text-foreground">Piso 2</span>
+              </td>
+              <td class="py-3.5 px-4">
+                <span class="inline-flex items-center gap-1.5 font-medium text-foreground">
+                  <span class="text-base">🚗</span> Carro
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-outline">
+                  estándar
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-success">
+                  <span>🟢</span> No
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="nv-badge nv-badge-success">
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Disponible
+                </span>
+              </td>
+              <td class="py-3.5 px-4 font-mono text-muted-foreground whitespace-nowrap">
+                <span class="inline-flex items-center gap-1">
+                  🕒 2026-09-15
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                <div class="inline-flex items-center gap-1">
+                  <button onclick="editSlot('006', 'Pasillo 1', 'Piso 2', 'CAR', 'ESTANDAR', false, 'AVAILABLE')" class="nv-btn nv-btn-outline nv-btn-sm" title="Editar plaza">
+                    ✏️ Editar
+                  </button>
+                  <button onclick="toggleRowMenu('006')" class="nv-btn nv-btn-ghost nv-btn-sm text-muted-foreground hover:text-foreground">
+                    ⋮
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Table Footer / Pagination (Design System DataTablePagination) -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border bg-muted/20 p-4 text-xs text-muted-foreground">
+        <div class="flex items-center gap-2">
+          <span>Filas por página:</span>
+          <select class="rounded-lg border border-border bg-background px-2 py-1 text-xs text-foreground cursor-pointer">
+            <option>10</option>
+            <option>25</option>
+            <option>50</option>
+          </select>
+          <span class="ml-2 font-medium" id="page-info">Página 1 de 1 (6 plazas totales)</span>
+        </div>
+
+        <div class="flex items-center gap-1">
+          <button disabled class="nv-btn nv-btn-outline nv-btn-sm opacity-40 cursor-not-allowed">
+            ‹ Anterior
+          </button>
+          <button class="nv-btn nv-btn-default nv-btn-sm">1</button>
+          <button disabled class="nv-btn nv-btn-outline nv-btn-sm opacity-40 cursor-not-allowed">
+            Siguiente ›
+          </button>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Modal de Edición de Plaza (Design System Dialog) -->
+  <div id="edit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+    <div class="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl flex flex-col gap-5">
+      <div class="flex items-center justify-between border-b border-border pb-3">
+        <div>
+          <h3 class="text-base font-bold text-foreground">Editar Plaza <span id="modal-slot-id" class="font-mono text-cyan-600 dark:text-cyan-400">#001</span></h3>
+          <p class="text-xs text-muted-foreground">Modificá los datos operacionales de la plaza</p>
+        </div>
+        <button onclick="closeEditModal()" class="rounded-lg border border-border p-1 text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition">
+          ✕
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 text-xs">
+        <!-- Ubicación -->
+        <div>
+          <label class="block font-semibold text-muted-foreground mb-1">Ubicación</label>
+          <input type="text" id="modal-location" class="w-full rounded-xl border border-border bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20" />
+        </div>
+
+        <!-- Zona -->
+        <div>
+          <label class="block font-semibold text-muted-foreground mb-1">Zona</label>
+          <select id="modal-zone" class="w-full rounded-xl border border-border bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+            <option value="Zona Norte">Zona Norte</option>
+            <option value="Zona Sur">Zona Sur</option>
+            <option value="Piso 1">Piso 1</option>
+            <option value="Piso 2">Piso 2</option>
+            <option value="Subterráneo 1">Subterráneo 1</option>
+          </select>
+        </div>
+
+        <!-- Tipo de Vehículo -->
+        <div>
+          <label class="block font-semibold text-muted-foreground mb-1">Tipo de Vehículo</label>
+          <select id="modal-vehicle" class="w-full rounded-xl border border-border bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+            <option value="CAR">🚗 Carro</option>
+            <option value="MOTORCYCLE">🏍️ Moto</option>
+            <option value="BIKE">🚲 Bicicleta</option>
+            <option value="ELECTRIC_VEHICLE">⚡🚗 Eléctrico</option>
+            <option value="DISABLED">♿ Discapacitado</option>
+          </select>
+        </div>
+
+        <!-- Estado -->
+        <div>
+          <label class="block font-semibold text-muted-foreground mb-1">Estado Operativo</label>
+          <select id="modal-status" class="w-full rounded-xl border border-border bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+            <option value="AVAILABLE">🟢 Disponible</option>
+            <option value="OCCUPIED">🔴 Ocupada</option>
+            <option value="RESERVED">🔵 Reservada</option>
+            <option value="MAINTENANCE">🟡 Mantenimiento</option>
+          </select>
+        </div>
+
+        <!-- Tipo Slot (Toggle Eléctrico) -->
+        <div class="sm:col-span-2">
+          <label class="flex items-center justify-between rounded-xl border border-border p-3 cursor-pointer hover:bg-muted/40 transition">
+            <div class="flex items-center gap-3">
+              <span class="text-lg">⚡</span>
+              <div class="flex flex-col">
+                <span class="font-semibold text-foreground">Slot eléctrico (Cargador EV)</span>
+                <span class="text-muted-foreground text-[11px]">Habilitar estación de carga eléctrica para vehículos</span>
+              </div>
+            </div>
+            <input type="checkbox" id="modal-slot-electric" class="accent-primary h-4 w-4 rounded cursor-pointer" />
+          </label>
+        </div>
+
+        <!-- Discapacitado (Toggle PMR) -->
+        <div class="sm:col-span-2">
+          <label class="flex items-center justify-between rounded-xl border border-border p-3 cursor-pointer hover:bg-muted/40 transition">
+            <div class="flex items-center gap-3">
+              <span class="text-lg">♿</span>
+              <div class="flex flex-col">
+                <span class="font-semibold text-foreground">Plaza para Discapacitados (PMR)</span>
+                <span class="text-muted-foreground text-[11px]">Reserva prioritaria para personas con movilidad reducida</span>
+              </div>
+            </div>
+            <input type="checkbox" id="modal-disabled" class="accent-primary h-4 w-4 rounded cursor-pointer" />
+          </label>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 border-t border-border pt-4">
+        <button onclick="closeEditModal()" class="nv-btn nv-btn-outline nv-btn-md">Cancelar</button>
+        <button onclick="saveEditModal()" class="nv-btn nv-btn-default nv-btn-md">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Interactivo de Filtrado y Estado -->
+  <script>
+    // Theme Toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.toggle('dark');
+      document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
+      document.getElementById('theme-text').textContent = isDark ? 'Modo Claro' : 'Modo Oscuro';
+    }
+
+    // Quick filter states
+    let quickDisabledState = 'ALL'; // ALL | YES | NO
+    let quickElectricOnly = false;
+
+    function toggleQuickFilter(type) {
+      if (type === 'disabled') {
+        const btn = document.getElementById('quick-disabled-btn');
+        if (quickDisabledState === 'ALL') {
+          quickDisabledState = 'YES';
+          btn.textContent = '♿ Solo Discapacitados (Sí)';
+          btn.className = 'nv-badge nv-badge-destructive cursor-pointer';
+        } else if (quickDisabledState === 'YES') {
+          quickDisabledState = 'NO';
+          btn.textContent = '♿ No Discapacitados (No)';
+          btn.className = 'nv-badge nv-badge-success cursor-pointer';
+        } else {
+          quickDisabledState = 'ALL';
+          btn.textContent = '♿ Discapacitado: Todos';
+          btn.className = 'nv-badge nv-badge-outline cursor-pointer';
+        }
+      } else if (type === 'electric') {
+        quickElectricOnly = !quickElectricOnly;
+        const btn = document.getElementById('quick-electric-btn');
+        if (quickElectricOnly) {
+          btn.textContent = '⚡ Eléctricos: Activado';
+          btn.className = 'nv-badge nv-badge-cyan cursor-pointer';
+        } else {
+          btn.textContent = '⚡ Solo Eléctricos';
+          btn.className = 'nv-badge nv-badge-outline cursor-pointer';
+        }
+      }
+      applyFilters();
+    }
+
+    // Master Filter
+    function applyFilters() {
+      const query = document.getElementById('search-input').value.trim().toLowerCase();
+      const vehicle = document.getElementById('filter-vehicle-type').value;
+      const zone = document.getElementById('filter-zone').value;
+      const status = document.getElementById('filter-status').value;
+
+      const rows = document.querySelectorAll('.slot-row');
+      let visibleCount = 0;
+
+      rows.forEach(row => {
+        const rId = row.dataset.id.toLowerCase();
+        const rLoc = row.dataset.location.toLowerCase();
+        const rZone = row.dataset.zone;
+        const rVeh = row.dataset.vehicle;
+        const rType = row.dataset.slotType;
+        const rDis = row.dataset.disabled;
+        const rStat = row.dataset.status;
+
+        const matchQuery = !query || rId.includes(query) || rLoc.includes(query) || rZone.toLowerCase().includes(query);
+        const matchVeh = !vehicle || rVeh === vehicle;
+        const matchZone = !zone || rZone === zone;
+        const matchStatus = !status || rStat === status;
+        const matchDis = quickDisabledState === 'ALL' || rDis === quickDisabledState;
+        const matchElec = !quickElectricOnly || rType === 'ELECTRICO';
+
+        if (matchQuery && matchVeh && matchZone && matchStatus && matchDis && matchElec) {
+          row.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          row.classList.add('hidden');
+        }
+      });
+
+      document.getElementById('results-count').textContent = `Mostrando ${visibleCount} plazas`;
+      document.getElementById('page-info').textContent = `Página 1 de 1 (${visibleCount} plazas visibles)`;
+    }
+
+    function resetAllFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('filter-vehicle-type').value = '';
+      document.getElementById('filter-zone').value = '';
+      document.getElementById('filter-status').value = '';
+      quickDisabledState = 'ALL';
+      quickElectricOnly = false;
+      document.getElementById('quick-disabled-btn').textContent = '♿ Discapacitado: Todos';
+      document.getElementById('quick-disabled-btn').className = 'nv-badge nv-badge-outline cursor-pointer';
+      document.getElementById('quick-electric-btn').textContent = '⚡ Solo Eléctricos';
+      document.getElementById('quick-electric-btn').className = 'nv-badge nv-badge-outline cursor-pointer';
+      applyFilters();
+    }
+
+    // Modal Edit
+    let activeEditId = null;
+    function editSlot(id, loc, zone, veh, slotType, dis, status) {
+      activeEditId = id;
+      document.getElementById('modal-slot-id').textContent = '#' + id;
+      document.getElementById('modal-location').value = loc;
+      document.getElementById('modal-zone').value = zone;
+      document.getElementById('modal-vehicle').value = veh;
+      document.getElementById('modal-status').value = status;
+      document.getElementById('modal-slot-electric').checked = (slotType === 'ELECTRICO');
+      document.getElementById('modal-disabled').checked = dis;
+      document.getElementById('edit-modal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.add('hidden');
+    }
+
+    function saveEditModal() {
+      const loc = document.getElementById('modal-location').value;
+      const zone = document.getElementById('modal-zone').value;
+      const veh = document.getElementById('modal-vehicle').value;
+      const status = document.getElementById('modal-status').value;
+      const isElectric = document.getElementById('modal-slot-electric').checked;
+      const isDisabled = document.getElementById('modal-disabled').checked;
+
+      // Update row in DOM
+      const row = document.querySelector(`.slot-row[data-id="${activeEditId}"]`);
+      if (row) {
+        row.dataset.location = loc;
+        row.dataset.zone = zone;
+        row.dataset.vehicle = veh;
+        row.dataset.slotType = isElectric ? 'ELECTRICO' : 'ESTANDAR';
+        row.dataset.disabled = isDisabled ? 'YES' : 'NO';
+        row.dataset.status = status;
+
+        // Visual updates
+        row.cells[1].querySelector('span:last-child').textContent = loc;
+        row.cells[2].querySelector('span').textContent = zone;
+
+        // Vehicle badge
+        const vehMap = {
+          CAR: '🚗 Carro',
+          MOTORCYCLE: '🏍️ Moto',
+          BIKE: '🚲 Bicicleta',
+          ELECTRIC_VEHICLE: '⚡🚗 Eléctrico',
+          DISABLED: '♿ Discapacitado'
+        };
+        row.cells[3].innerHTML = `<span class="inline-flex items-center gap-1.5 font-medium text-foreground">${vehMap[veh] || veh}</span>`;
+
+        // Slot type badge
+        row.cells[4].innerHTML = isElectric
+          ? `<span class="nv-badge nv-badge-cyan"><span>⚡</span> eléctrico</span>`
+          : `<span class="nv-badge nv-badge-outline">estándar</span>`;
+
+        // Disabled badge
+        row.cells[5].innerHTML = isDisabled
+          ? `<span class="nv-badge nv-badge-destructive"><span>🔴</span> Sí</span>`
+          : `<span class="nv-badge nv-badge-success"><span>🟢</span> No</span>`;
+
+        // Status badge
+        const statusMap = {
+          AVAILABLE: `<span class="nv-badge nv-badge-success"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Disponible</span>`,
+          OCCUPIED: `<span class="nv-badge nv-badge-destructive"><span class="h-1.5 w-1.5 rounded-full bg-red-500"></span> Ocupada</span>`,
+          RESERVED: `<span class="nv-badge nv-badge-secondary"><span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span> Reservada</span>`,
+          MAINTENANCE: `<span class="nv-badge nv-badge-warning"><span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> Mantenimiento</span>`
+        };
+        row.cells[6].innerHTML = statusMap[status] || status;
+
+        if (isDisabled) {
+          row.classList.add('border-l-4', 'border-l-amber-500', 'bg-amber-500/5');
+        } else {
+          row.classList.remove('border-l-4', 'border-l-amber-500', 'bg-amber-500/5');
+        }
+      }
+
+      closeEditModal();
+    }
+
+    function toggleRowMenu(id) {
+      alert(`Opciones de plaza #${id}:\n- Ver detalle en Drawer\n- Generar código QR\n- Cambiar estado rápido\n- Eliminar plaza`);
+    }
+
+    function openCreateModal() {
+      alert('Abre el formulario de creación en lote (parking-slot-form) con soporte para tipo de vehículo, zona, estado y equipamiento.');
+    }
+  </script>
+</body>
+</html>

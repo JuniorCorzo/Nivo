@@ -1,0 +1,65 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    database-platform: dev.angelcorzo.nivo.infrastructure.adapter.jpa.config.TestH2Dialect
+    databasePlatform: dev.angelcorzo.nivo.infrastructure.adapter.jpa.config.TestH2Dialect
+    properties:
+      hibernate:
+        default_schema: PUBLIC
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+  flyway:
+    enabled: false
+
+security:
+  aes:
+    secret-key: "Sxur6LQBE3ttQG/DzimOK4t+9eGADTCsxHqipLpbGYU="
+
+jwt:
+  issue: "https://api.nivo.dev"
+  access-token-expiration: 900
+  refresh-token-expiration: 604800
+
+sendgrid:
+  api-key: "SG.dummy"
+  from-email: "noreply@nivo.dev"
+
+rsa:
+  public-key: classpath:keys/public.pem
+  private-key: classpath:keys/private.pem
+  key-id: test-key
+
+payment:
+  provider:
+    public-key: "test-pub"
+    private-key: "test-priv"
+    url: "http://localhost:8081"
+    expiration-time: 60
+
+cors:
+  allowed-origins: "http://localhost:4200,http://localhost:8080"
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+scalar:
+  enabled: true
+  url: /api/v3/api-docs
+  path: /scalar
+  theme: moon
+  layout: modern
+  show-sidebar: true
+  dark-mode: true

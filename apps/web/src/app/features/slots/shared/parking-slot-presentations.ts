@@ -20,6 +20,14 @@ export const SLOT_TYPE_LABELS = {
   MOTORCYCLE: "Moto",
 } satisfies Record<SlotType, string>;
 
+export const SLOT_TYPE_ICONS = {
+  BIKE: "lucideBike",
+  CAR: "lucideCar",
+  DISABLED: "lucideAccessibility",
+  ELECTRIC_VEHICLE: "lucideZap",
+  MOTORCYCLE: "lucideBike",
+} satisfies Record<SlotType, string>;
+
 export const SLOT_STATUS_LABELS = {
   AVAILABLE: "Disponible",
   MAINTENANCE: "Mantenimiento",
@@ -40,6 +48,11 @@ export const SLOT_TYPE_OPTIONS: Option[] = [
   { label: "Bicicleta", value: "BIKE" },
   { label: "Eléctrico", value: "ELECTRIC_VEHICLE" },
   { label: "Discapacitado", value: "DISABLED" },
+];
+
+export const SLOT_TYPE_FILTER_OPTIONS: Option[] = [
+  { label: "Tipo Vehículo: Todos", value: "" },
+  ...SLOT_TYPE_OPTIONS,
 ];
 
 export const SLOT_STATUS_OPTIONS: Option[] = [

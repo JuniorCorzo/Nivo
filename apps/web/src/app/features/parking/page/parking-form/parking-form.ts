@@ -1,12 +1,16 @@
 import type { OnDestroy } from "@angular/core";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from "@angular/core";
 import { FormField } from "@angular/forms/signals";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import type { UpsertParkingLotsModel } from "@core/models/parking.model";
 import { ParkingService } from "@core/services/parking-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
-  lucideArrowLeft,
   lucideBuilding2,
   lucideLoader2,
   lucideMapPin,
@@ -16,18 +20,19 @@ import {
   ButtonComponent,
   CardComponent,
   InputComponent,
-  TypographyH1,
   TypographyH2,
   TypographyMuted,
 } from "@nivo-sass/design-system";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { Subject, exhaustMap, firstValueFrom, takeUntil } from "rxjs";
 
-import { ParkingAddressSectionComponent } from "../../components/parking-form/sections/parking-address-section";
-import { ParkingLocationSectionComponent } from "../../components/parking-form/sections/parking-location-section";
-import { ParkingOperatingHoursSectionComponent } from "../../components/parking-form/sections/parking-operating-hours-section";
-import { ParkingSlotGroupsSectionComponent } from "../../components/parking-form/sections/parking-slot-groups-section";
+import { ParkingAddressSectionComponent } from "../../components/form/parking-form/sections/parking-address-section";
+import { ParkingLocationSectionComponent } from "../../components/form/parking-form/sections/parking-location-section";
+import { ParkingOperatingHoursSectionComponent } from "../../components/form/parking-form/sections/parking-operating-hours-section";
+import { ParkingPolicySectionComponent } from "../../components/form/parking-form/sections/parking-policy-section";
+import { ParkingSlotGroupsSectionComponent } from "../../components/form/parking-form/sections/parking-slot-groups-section";
 import { ParkingFormFacade } from "../../facades/parking-form.facade";
 
 @Component({
@@ -36,20 +41,19 @@ import { ParkingFormFacade } from "../../facades/parking-form.facade";
     ButtonComponent,
     CardComponent,
     InputComponent,
-    TypographyH1,
     TypographyH2,
     TypographyMuted,
     FormField,
     NgIcon,
-    RouterLink,
+    PageHeaderComponent,
     ParkingAddressSectionComponent,
     ParkingLocationSectionComponent,
     ParkingOperatingHoursSectionComponent,
+    ParkingPolicySectionComponent,
     ParkingSlotGroupsSectionComponent,
   ],
   providers: [
     provideIcons({
-      lucideArrowLeft,
       lucideBuilding2,
       lucideLoader2,
       lucideMapPin,
@@ -68,9 +72,15 @@ export class ParkingFormComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly parkingService = inject(ParkingService);
 
+  protected readonly APP_ROUTES = APP_ROUTES;
   protected readonly APP_TEXTS = APP_TEXTS;
   protected readonly facade = inject(ParkingFormFacade);
   protected readonly parkingId = this.route.snapshot.paramMap.get("parkingId");
+
+  readonly title = computed(() => this.facade.title());
+  readonly subtitle =
+    "Configurá los datos de sede, ubicación geográfica, horarios y capacidad";
+  readonly backUrl = APP_ROUTES.app.parkingLots;
 
   private readonly submit$ = new Subject<UpsertParkingLotsModel>();
 

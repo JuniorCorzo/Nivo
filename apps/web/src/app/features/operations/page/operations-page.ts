@@ -29,12 +29,12 @@ import {
   DividerComponent,
   ToastService,
 } from "@nivo-sass/design-system";
-import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
+import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
-import { CheckInModalComponent } from "../components/check-in-modal/check-in-modal.component";
-import { CheckOutModalComponent } from "../components/check-out-modal/check-out-modal.component";
+import { CheckInModalComponent } from "../components/modals/check-in-modal/check-in-modal";
+import { CheckOutModalComponent } from "../components/modals/check-out-modal/check-out-modal";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

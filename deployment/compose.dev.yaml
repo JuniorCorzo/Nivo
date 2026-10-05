@@ -21,6 +21,37 @@ services:
     networks:
       - nivo_dev_net
 
+  prometheus:
+    container_name: nivo_dev_prometheus
+    image: prom/prometheus:v2.54.1
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro,z
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - nivo_dev_net
+
+  grafana:
+    container_name: nivo_dev_grafana
+    image: grafana/grafana:11.2.0
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - nivo_dev_net
+
 volumes:
   nivo_dev_postgres_data:
 
