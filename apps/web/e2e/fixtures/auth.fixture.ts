@@ -26,7 +26,7 @@ export interface TenantCredentials {
 export const TENANT_A: TenantCredentials = {
   email: "admin@tenanta.com",
   name: "Tenant A Parking",
-  password: "Password123!",
+  password: process.env.E2E_MOCK_PASSWORD || "e2e-dummy-password",
   profile: {
     email: "admin@tenanta.com",
     fullName: "Admin Tenant A",
@@ -39,7 +39,7 @@ export const TENANT_A: TenantCredentials = {
 export const TENANT_B: TenantCredentials = {
   email: "admin@tenantb.com",
   name: "Tenant B Parking",
-  password: "Password123!",
+  password: process.env.E2E_MOCK_PASSWORD || "e2e-dummy-password",
   profile: {
     email: "admin@tenantb.com",
     fullName: "Admin Tenant B",
