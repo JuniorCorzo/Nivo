@@ -5,6 +5,8 @@
   "scripts": {
     "dev:all": "./start-dev.sh",
     "dev:all:down": "./stop-dev.sh",
+    "dev:api": "bash -c 'set -a; [ -f .env ] && . .env; [ -f deployment/.env ] && . deployment/.env; set +a; cd apps/api && ./gradlew bootRun'",
+    "api:dev": "bun run dev:api",
     "dev:db": "docker compose -f deployment/compose.dev.yaml up -d",
     "dev:db:down": "docker compose -f deployment/compose.dev.yaml down",
     "dev:db:logs": "docker compose -f deployment/compose.dev.yaml logs -f",

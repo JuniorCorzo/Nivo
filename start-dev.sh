@@ -49,7 +49,7 @@ if [ -f .logs/api.pid ] && kill -0 "$(cat .logs/api.pid 2>/dev/null)" 2>/dev/nul
     API_PID=$(cat .logs/api.pid)
     echo -e "      ${YELLOW}API already running with PID ${API_PID}${RESET}"
 else
-    (cd apps/api && ./gradlew bootRun) > .logs/api.log 2>&1 &
+    (set -a; [ -f .env ] && . .env; [ -f deployment/.env ] && . deployment/.env; set +a; cd apps/api && ./gradlew bootRun) > .logs/api.log 2>&1 &
     API_PID=$!
     echo "$API_PID" > .logs/api.pid
     echo -e "      ${GREEN}API launched with PID ${API_PID}${RESET}"
