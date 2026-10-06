@@ -122,7 +122,7 @@ logging:
     com.zaxxer.hikari: INFO
 
 sentry:
-  dsn: "${SENTRY_DSN:}"
-  traces-sample-rate: "${SENTRY_TRACES_SAMPLE_RATE:0.2}"
-  send-default-pii: false
+  dsn: "${SENTRY_DSN:https://fe4e16ef4781a108e0bb26842a75aad7@o4512166023856128.ingest.us.sentry.io/4512207277522944}"
+  traces-sample-rate: "${SENTRY_TRACES_SAMPLE_RATE:1.0}"
+  send-default-pii: ${SENTRY_SEND_DEFAULT_PII:true}
   environment: "${SPRING_PROFILES_ACTIVE:production}"
