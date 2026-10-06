@@ -11,6 +11,9 @@ spring:
     add-properties: false
   datasource:
     driverClassName: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:nivo_db}?currentSchema=nivo&sslmode=${DB_SSL_MODE:require}&channelBinding=${DB_CHANNEL_BINDING:require}}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
   flyway:
     enabled: ${SPRING_FLYWAY_ENABLED:true}
     schemas: nivo
@@ -36,6 +39,8 @@ spring:
     execution:
       thread-name-prefix: virtual-async-
 management:
+  server:
+    port: ${MANAGEMENT_PORT:8081}
   endpoints:
     web:
       exposure:
@@ -67,3 +72,9 @@ scalar:
   layout: modern
   show-sidebar: true
   dark-mode: true
+
+sentry:
+  dsn: "${SENTRY_DSN:}"
+  traces-sample-rate: "${SENTRY_TRACES_SAMPLE_RATE:0.2}"
+  send-default-pii: false
+  environment: "${SPRING_PROFILES_ACTIVE:production}"

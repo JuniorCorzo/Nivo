@@ -13,7 +13,12 @@
     "dev:build": "bun run --cwd libs/design-system build",
     "dev:tokens": "bun run --cwd libs/design-system generate:tokens",
     "docker:build": "docker compose -f deployment/compose.yaml -f deployment/compose.build.yaml build",
-    "docker:up": "docker compose -f deployment/compose.yaml up -d"
+    "docker:up": "docker compose -f deployment/compose.yaml up -d",
+    "e2e:env:up": "docker compose -f deployment/compose.e2e.yaml up -d",
+    "e2e:env:down": "docker compose -f deployment/compose.e2e.yaml down",
+    "test:e2e": "bun run --cwd apps/web test:e2e",
+    "test:e2e:lightpanda": "bun run --cwd apps/web test:e2e:lightpanda",
+    "test:e2e:chromium": "bun run --cwd apps/web test:e2e:chromium"
   },
   "workspaces": [
     "apps/web",

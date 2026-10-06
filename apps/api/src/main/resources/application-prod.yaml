@@ -8,7 +8,7 @@ spring:
     default-schema: nivo
     locations: classpath:db/migration
   datasource:
-    url: ${DB_URL}
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:database}:${DB_PORT:5432}/${DB_NAME:nivo_db}?currentSchema=nivo&sslmode=${DB_SSL_MODE:require}&channelBinding=${DB_CHANNEL_BINDING:require}}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
@@ -120,3 +120,9 @@ logging:
     org.hibernate: WARN
     org.flywaydb: INFO
     com.zaxxer.hikari: INFO
+
+sentry:
+  dsn: "${SENTRY_DSN:}"
+  traces-sample-rate: "${SENTRY_TRACES_SAMPLE_RATE:0.2}"
+  send-default-pii: false
+  environment: "${SPRING_PROFILES_ACTIVE:production}"

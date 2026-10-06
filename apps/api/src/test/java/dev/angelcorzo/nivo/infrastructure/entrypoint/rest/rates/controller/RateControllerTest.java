@@ -7,17 +7,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.rates.dto.RatesDTO;
-import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.rates.dto.UpdateRate;
-import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.rates.enums.RateMessages;
-import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.rates.mappers.RatesMapper;
+import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.model.rates.Rates;
 import dev.angelcorzo.nivo.domain.model.rates.enums.TimeUnitsRate;
 import dev.angelcorzo.nivo.domain.model.rates.enums.VehicleType;
 import dev.angelcorzo.nivo.domain.usecase.rate.CalculateRateUseCase;
-import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
 import dev.angelcorzo.nivo.domain.usecase.rate.DeleteRateUseCase;
 import dev.angelcorzo.nivo.domain.usecase.rate.UpdateRateUseCase;
+import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.dto.Response;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.rates.dto.RatesDTO;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.rates.dto.UpdateRate;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.rates.enums.RateMessages;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.rates.mappers.RatesMapper;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -46,6 +48,7 @@ class RateControllerTest {
   private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
   @MockitoBean private RatesMapper ratesMapper;
+  @MockitoBean private AuthenticationContextGateway authenticationContext;
   @MockitoBean private UpdateRateUseCase updateRateUseCase;
   @MockitoBean private DeleteRateUseCase deleteRateUseCase;
   @MockitoBean private CalculateRateUseCase calculateRateUseCase;
@@ -99,13 +102,16 @@ class RateControllerTest {
   @Test
   @DisplayName("DELETE /rates/{id}/delete - Should delete rate")
   void shouldDeleteRate() throws Exception {
+    UUID tenantId = UUID.randomUUID();
     UUID rateId = UUID.randomUUID();
+
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
     mockMvc
         .perform(delete("/rates/{id}/delete", rateId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value(RateMessages.DELETE_RATE_SUCCESSFULLY.format()));
 
-    verify(deleteRateUseCase).execute(rateId);
+    verify(deleteRateUseCase).execute(rateId, tenantId);
   }
 }

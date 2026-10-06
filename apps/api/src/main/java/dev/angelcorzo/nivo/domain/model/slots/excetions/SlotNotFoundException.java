@@ -10,6 +10,6 @@ public class SlotNotFoundException extends AppException {
   private static final String CODE = "SLOT_NOT_FOUND";
 
   public SlotNotFoundException(UUID id) {
-    super(ErrorMessagesModel.USER_NOT_EXIST_ID.format(id), STATUS, CODE);
+    super(ErrorMessagesModel.SLOT_NOT_EXISTS.format(id), STATUS, CODE);
   }
 }

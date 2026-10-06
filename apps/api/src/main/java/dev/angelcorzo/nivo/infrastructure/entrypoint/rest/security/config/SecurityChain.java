@@ -61,7 +61,6 @@ public class SecurityChain {
             "/public/**",
             "/favicon.ico")
         .csrf(AbstractHttpConfigurer::disable)
-        .headers(AbstractHttpConfigurer::disable)
         .sessionManagement(
             sessionManagement ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

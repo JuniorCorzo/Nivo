@@ -104,14 +104,17 @@ class ParkingLotsControllerTest {
   @Test
   @DisplayName("DELETE /parking-lots/{parkingId} - Should delete parking lot")
   void shouldDeleteParkingLot() throws Exception {
+    UUID tenantId = UUID.randomUUID();
     UUID parkingId = UUID.randomUUID();
+
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
     mockMvc
         .perform(delete("/parking-lots/{parkingId}", parkingId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value(ParkingLotsMessages.PARKING_LOT_DELETED.format()));
 
-    verify(deleteParkingLotUseCase).execute(parkingId);
+    verify(deleteParkingLotUseCase).execute(parkingId, tenantId);
   }
 
   @Test

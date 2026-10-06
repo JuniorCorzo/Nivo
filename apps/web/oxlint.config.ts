@@ -14,4 +14,13 @@ export default defineConfig({
     "anti-slop/no-unknown-parameters": "off",
     "github/filenames-match-regex": ["error", "^[a-z0-9-]+(\\.[a-z0-9-]+)*$"],
   },
+  overrides: [
+    {
+      files: ["e2e/**"],
+      rules: {
+        "github/filenames-match-regex": "off",
+        "unicorn/filename-case": "off",
+      },
+    },
+  ],
 });

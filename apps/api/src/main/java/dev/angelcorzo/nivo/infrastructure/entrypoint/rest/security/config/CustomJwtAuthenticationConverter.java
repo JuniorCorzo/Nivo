@@ -36,6 +36,13 @@ public class CustomJwtAuthenticationConverter
     if (userId == null || tenantId == null || role == null)
       throw new TokenInvalidException(TokenErrorMessages.INVALID_TOKEN.toString());
 
+    io.sentry.Sentry.configureScope(scope -> {
+      scope.setTag("tenant_id", tenantId);
+      io.sentry.protocol.User user = new io.sentry.protocol.User();
+      user.setId(userId);
+      scope.setUser(user);
+    });
+
     List<SimpleGrantedAuthority> authority =
         Collections.singletonList(new SimpleGrantedAuthority(role));
 

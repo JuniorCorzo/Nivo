@@ -12,7 +12,11 @@ x-database-env: &database-env
   POSTGRES_DB: ${POSTGRES_DB:-nivo_db}
 
 x-api-datasource-env: &api-datasource-env
-  DB_URL: ${DB_URL:-jdbc:postgresql://database:5432/${POSTGRES_DB:-nivo_db}?currentSchema=nivo}
+  DB_HOST: ${DB_HOST:-database}
+  DB_PORT: ${DB_PORT:-5432}
+  DB_NAME: ${POSTGRES_DB:-nivo_db}
+  DB_SSL_MODE: ${DB_SSL_MODE:-require}
+  DB_CHANNEL_BINDING: ${DB_CHANNEL_BINDING:-require}
   DB_USERNAME: ${DB_USERNAME:-${POSTGRES_USER:-postgres}}
   DB_PASSWORD: ${DB_PASSWORD:-${POSTGRES_PASSWORD}}
 

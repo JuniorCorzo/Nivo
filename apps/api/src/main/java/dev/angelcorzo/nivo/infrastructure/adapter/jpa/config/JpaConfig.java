@@ -49,10 +49,41 @@ public class JpaConfig {
    */
   @Bean
   public DBSecret dbSecret(Environment env) {
+    String url;
+    try {
+      url = env.getProperty("spring.datasource.url");
+    } catch (Exception ex) {
+      url = null;
+    }
+
+    if (url == null || url.isBlank() || url.contains("${")) {
+      String host = env.getProperty("DB_HOST", "database");
+      String port = env.getProperty("DB_PORT", "5432");
+      String defaultDb = env.getProperty("POSTGRES_DB", "nivo_db");
+      String name = env.getProperty("DB_NAME", defaultDb != null ? defaultDb : "nivo_db");
+      String sslMode = env.getProperty("DB_SSL_MODE", "require");
+      String channelBinding = env.getProperty("DB_CHANNEL_BINDING", "require");
+      url = String.format(
+          "jdbc:postgresql://%s:%s/%s?currentSchema=nivo&sslmode=%s&channelBinding=%s",
+          host, port, name, sslMode, channelBinding);
+    }
+
+    String defaultUser = env.getProperty("DB_USERNAME", "postgres");
+    String username = env.getProperty("spring.datasource.username");
+    if (username == null || username.isBlank()) {
+      username = env.getProperty("spring.datasource.username", defaultUser != null ? defaultUser : "postgres");
+    }
+
+    String defaultPassword = env.getProperty("DB_PASSWORD", "postgres");
+    String password = env.getProperty("spring.datasource.password");
+    if (password == null || password.isBlank()) {
+      password = env.getProperty("spring.datasource.password", defaultPassword != null ? defaultPassword : "postgres");
+    }
+
     return DBSecret.builder()
-        .url(env.getProperty("spring.datasource.url"))
-        .username(env.getProperty("spring.datasource.username"))
-        .password(env.getProperty("spring.datasource.password"))
+        .url(url)
+        .username(username)
+        .password(password)
         .build();
   }
 
