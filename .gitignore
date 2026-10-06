@@ -53,3 +53,13 @@ dist
 *.original.md
 mockups/
 .github/skills/
+
+# Environment and local configurations
+.env
+.env.local
+.env.*
+deployment/.env
+deployment/.env.*
+deployment/.env.local
+!*.env.example
+!**/.env.example
