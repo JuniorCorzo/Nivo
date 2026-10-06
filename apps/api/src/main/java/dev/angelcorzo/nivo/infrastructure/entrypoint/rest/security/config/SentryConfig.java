@@ -19,6 +19,9 @@ public class SentryConfig {
   @Value("${sentry.environment:production}")
   private String environment;
 
+  @Value("${sentry.send-default-pii:true}")
+  private Boolean sendDefaultPii;
+
   @PostConstruct
   public void init() {
     if (dsn != null && !dsn.isBlank()) {
@@ -27,6 +30,7 @@ public class SentryConfig {
         options.setDsn(dsn);
         options.setTracesSampleRate(tracesSampleRate);
         options.setEnvironment(environment);
+        options.setSendDefaultPii(Boolean.TRUE.equals(sendDefaultPii));
       });
     } else {
       log.debug("Sentry DSN is empty, SDK disabled");

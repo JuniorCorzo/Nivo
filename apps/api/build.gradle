@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '4.0.3'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'jacoco'
+    id 'io.sentry.jvm.gradle' version '6.23.0'
 }
 
 group = 'dev.angelcorzo.nivo'
@@ -151,5 +152,22 @@ jacocoTestReport {
         csv.required = false
         html.required = true
         html.outputLocation = layout.buildDirectory.dir("reports/jacocoHtml")
+    }
+}
+
+sentry {
+    includeSourceContext = (System.getenv("SENTRY_AUTH_TOKEN") != null && !System.getenv("SENTRY_AUTH_TOKEN").isBlank())
+    org = "personal-jvo"
+    projectName = "java-spring-boot"
+    authToken = System.getenv("SENTRY_AUTH_TOKEN")
+    autoInstallation {
+        enabled = false // Prevent Gradle plugin from re-adding incompatible Boot 3 starter
+    }
+}
+
+tasks.matching { it.name.startsWith("sentryUploadSourceBundle") }.configureEach {
+    onlyIf {
+        def token = System.getenv("SENTRY_AUTH_TOKEN")
+        return token != null && !token.isBlank()
     }
 }
