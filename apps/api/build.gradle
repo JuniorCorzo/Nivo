@@ -54,8 +54,7 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
 
     // Observability & API Documentation
-    implementation 'io.sentry:sentry-spring-boot-starter-jakarta:8.3.0'
-    implementation 'io.sentry:sentry-log4j2:8.3.0'
+    implementation 'io.sentry:sentry:8.3.0'
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.13'
     implementation 'com.scalar.maven:scalar-webmvc:0.6.63'
