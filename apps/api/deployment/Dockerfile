@@ -25,6 +25,7 @@ WORKDIR /app
 COPY --from=builder /workspace/build/libs/Nivo.jar app.jar
 
 EXPOSE 8080
+EXPOSE 8081
 
 ENV JAVA_OPTS="-XX:+UseContainerSupport \
     -XX:MaxRAMPercentage=75.0 \
