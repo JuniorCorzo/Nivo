@@ -57,6 +57,38 @@ rsa:
   private-key: "${RSA_PRIVATE_KEY_LOCATION:classpath:keys/private.pem}"
   key-id: "${RSA_KEY_ID:nivo-prod-key}"
 
+security:
+  aes:
+    secret-key: "${AES_SECRET_KEY}"
+
+jwt:
+  issue: "${JWT_ISSUE:https://api.nivo.dev}"
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:900}
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800}
+
+sendgrid:
+  api-key: "${SENDGRID_API_KEY:SG.dev_mock}"
+  from-email: "${SENDGRID_FROM_EMAIL:noreply@nivo.dev}"
+
+payment:
+  provider:
+    provider-name: "${PAYMENT_PROVIDER_NAME:epayco}"
+    url: "${PAYMENT_PROVIDER_URL:https://apify.epayco.co}"
+    public-key: "${PAYMENT_PUBLIC_KEY:dev_pub_key}"
+    private-key: "${PAYMENT_PRIVATE_KEY:dev_priv_key}"
+    expiration-time: ${PAYMENT_EXPIRATION_TIME:25}
+    confirmation-url: "${PAYMENT_CONFIRMATION_URL:http://localhost:8080/api/payments/confirm}"
+    confirmation-method: "${PAYMENT_CONFIRMATION_METHOD:POST}"
+
+app:
+  currency: "${APP_CURRENCY:COP}"
+  cta-url: "${APP_CTA_URL:https://nivo.dev/cta}"
+  company-name: "${APP_COMPANY_NAME:Nivo}"
+  support-url: "${APP_SUPPORT_URL:https://nivo.dev/support}"
+  social-url: "${APP_SOCIAL_URL:https://nivo.dev/social}"
+  unsubscribe-url: "${APP_UNSUBSCRIBE_URL:https://nivo.dev/unsubscribe}"
+  address-company: "${APP_ADDRESS_COMPANY:123 Main St, City, Country}"
+
 springdoc:
   api-docs:
     path: /v3/api-docs
