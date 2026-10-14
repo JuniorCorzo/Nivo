@@ -52,6 +52,9 @@ dist
 .logs
 *.original.md
 mockups/
+mockup.html
+.codex/
+.github/hooks/
 .github/skills/
 
 # Environment and local configurations
