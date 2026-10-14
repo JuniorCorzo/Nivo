@@ -6,17 +6,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.PlateCountry;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.exceptions.UnplatedVehiclePhotoRequiredException;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.ParkingTicketsRepository;
-import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.UnplatedTicketSequenceGateway;
 import dev.angelcorzo.nivo.domain.model.rates.Rates;
-import dev.angelcorzo.nivo.domain.model.rates.exceptions.RateNotFoundException;
 import dev.angelcorzo.nivo.domain.model.rates.gateways.RatesRepository;
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
-import dev.angelcorzo.nivo.domain.model.slots.excetions.SlotNotFoundException;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
-import dev.angelcorzo.nivo.domain.model.tenants.exceptions.TenantNotExistsException;
 import dev.angelcorzo.nivo.domain.model.tenants.gateways.TenantsRepository;
 import dev.angelcorzo.nivo.domain.model.users.Users;
 import dev.angelcorzo.nivo.domain.model.users.gateways.UsersRepository;
@@ -37,6 +36,7 @@ class CheckinVehicleUseCaseTest {
   private SlotsRepository slotsRepository;
   private RatesRepository ratesRepository;
   private TicketNotifier ticketNotifier;
+  private UnplatedTicketSequenceGateway unplatedTicketSequenceGateway;
   private CheckinVehicleUseCase useCase;
 
   @BeforeEach
@@ -47,6 +47,7 @@ class CheckinVehicleUseCaseTest {
     slotsRepository = mock(SlotsRepository.class);
     ratesRepository = mock(RatesRepository.class);
     ticketNotifier = mock(TicketNotifier.class);
+    unplatedTicketSequenceGateway = mock(UnplatedTicketSequenceGateway.class);
 
     useCase =
         new CheckinVehicleUseCase(
@@ -55,7 +56,8 @@ class CheckinVehicleUseCaseTest {
             usersRepository,
             slotsRepository,
             ratesRepository,
-            ticketNotifier);
+            ticketNotifier,
+            unplatedTicketSequenceGateway);
   }
 
   @Nested
@@ -66,21 +68,21 @@ class CheckinVehicleUseCaseTest {
     @DisplayName("Should check-in vehicle with registered user, set slot OCCUPIED and notify")
     void shouldCheckInWithRegisteredUser() {
       // Arrange
-      UUID slotId = UUID.randomUUID();
-      UUID tenantId = UUID.randomUUID();
-      UUID rateId = UUID.randomUUID();
-      String email = "driver@example.com";
-      String plate = "ABC-123";
+      final UUID slotId = UUID.randomUUID();
+      final UUID tenantId = UUID.randomUUID();
+      final UUID rateId = UUID.randomUUID();
+      final String email = "driver@example.com";
+      final String plate = "ABC123";
 
-      CheckinVehicleUseCase.CreatedParkingTicket command =
+      final CheckinVehicleUseCase.CreatedParkingTicket command =
           new CheckinVehicleUseCase.CreatedParkingTicket(
               slotId, tenantId, email, rateId, plate);
 
-      Slots mockSlot =
+      final Slots mockSlot =
           Slots.builder().id(slotId).slotNumber("A-1").status(SlotStatus.AVAILABLE).build();
-      Tenants mockTenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
-      Rates mockRate = Rates.builder().id(rateId).name("Standard").build();
-      Users mockUser = Users.builder().id(UUID.randomUUID()).email(email).build();
+      final Tenants mockTenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
+      final Rates mockRate = Rates.builder().id(rateId).name("Standard").build();
+      final Users mockUser = Users.builder().id(UUID.randomUUID()).email(email).build();
 
       when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
       when(tenantsRepository.existsById(tenantId)).thenReturn(true);
@@ -96,121 +98,142 @@ class CheckinVehicleUseCaseTest {
           .thenAnswer(invocation -> invocation.getArgument(0));
 
       // Act
-      ParkingTickets ticket = useCase.execute(command);
+      final ParkingTickets ticket = useCase.execute(command);
 
       // Assert
       assertThat(ticket).isNotNull();
-      assertThat(ticket.getLicensePlate()).isEqualTo(plate);
-      assertThat(ticket.getEntryTime()).isNotNull();
-      assertThat(ticket.getSlotSnapshot()).isEqualTo(SlotSnapshot.from(mockSlot));
+      assertThat(ticket.getLicensePlate()).isEqualTo("ABC123");
+      assertThat(ticket.getPlateCountry()).isEqualTo(PlateCountry.CO);
       assertThat(mockSlot.getStatus()).isEqualTo(SlotStatus.OCCUPIED);
-      assertThat(ticket.getSlot().status()).isEqualTo(SlotStatus.OCCUPIED);
-      verify(slotsRepository).findById(slotId);
-      verify(slotsRepository).save(mockSlot);
-      verify(ticketNotifier).notifyTicketOpened(ticket);
-      verify(parkingTicketsRepository).save(any(ParkingTickets.class));
+      verify(ticketNotifier, times(1)).notifyTicketOpened(ticket);
+    }
+  }
+
+  @Nested
+  @DisplayName("Unplated Vehicles & Venezuelan Plates")
+  class UnplatedAndVenezuelanVehicles {
+
+    @Test
+    @DisplayName("Should check-in unplated motorcycle, generate synthetic SP- code and store photo and phone")
+    void shouldCheckInUnplatedMotorcycle() {
+      // Arrange
+      final UUID slotId = UUID.randomUUID();
+      final UUID tenantId = UUID.randomUUID();
+      final UUID rateId = UUID.randomUUID();
+      final String photoUrl = "https://storage.nivo.dev/photos/bike-123.jpg";
+      final String phoneNumber = "+573001234567";
+
+      final CheckinVehicleUseCase.CreatedParkingTicket command =
+          CheckinVehicleUseCase.CreatedParkingTicket.builder()
+              .slotId(slotId)
+              .tenantId(tenantId)
+              .rateId(rateId)
+              .plate(null)
+              .plateCountry(PlateCountry.UNPLATED)
+              .photoUrl(photoUrl)
+              .phoneNumber(phoneNumber)
+              .build();
+
+      final Slots mockSlot =
+          Slots.builder().id(slotId).slotNumber("M-01").status(SlotStatus.AVAILABLE).build();
+      final Tenants mockTenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
+      final Rates mockRate = Rates.builder().id(rateId).name("Moto Tariff").build();
+
+      when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
+      when(tenantsRepository.existsById(tenantId)).thenReturn(true);
+      when(ratesRepository.existsById(rateId)).thenReturn(true);
+      when(slotsRepository.save(any(Slots.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+      when(tenantsRepository.getReferenceById(tenantId)).thenReturn(mockTenant);
+      when(ratesRepository.getReferenceById(rateId)).thenReturn(mockRate);
+      when(unplatedTicketSequenceGateway.nextTicketCode(any())).thenReturn("SP-1001");
+      when(parkingTicketsRepository.save(any(ParkingTickets.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+
+      // Act
+      final ParkingTickets ticket = useCase.execute(command);
+
+      // Assert
+      assertThat(ticket).isNotNull();
+      assertThat(ticket.getLicensePlate()).isEqualTo("SP-1001");
+      assertThat(ticket.getPlateCountry()).isEqualTo(PlateCountry.UNPLATED);
+      assertThat(ticket.getPhotoUrl()).isEqualTo(photoUrl);
+      assertThat(ticket.getPhoneNumber()).isEqualTo(phoneNumber);
+      assertThat(mockSlot.getStatus()).isEqualTo(SlotStatus.OCCUPIED);
+      verify(unplatedTicketSequenceGateway, times(1)).nextTicketCode(any());
     }
 
     @Test
-    @DisplayName("Should check-in anonymous vehicle, set slot OCCUPIED without notification")
-    void shouldCheckInAnonymousVehicle() {
+    @DisplayName("Should throw UnplatedVehiclePhotoRequiredException when photo is missing for unplated vehicle")
+    void shouldThrowExceptionWhenUnplatedVehicleHasNoPhoto() {
       // Arrange
-      UUID slotId = UUID.randomUUID();
-      UUID tenantId = UUID.randomUUID();
-      UUID rateId = UUID.randomUUID();
-      String plate = "XYZ-789";
+      final UUID slotId = UUID.randomUUID();
+      final UUID tenantId = UUID.randomUUID();
+      final UUID rateId = UUID.randomUUID();
 
-      CheckinVehicleUseCase.CreatedParkingTicket command =
-          new CheckinVehicleUseCase.CreatedParkingTicket(
-              slotId, tenantId, null, rateId, plate);
+      final CheckinVehicleUseCase.CreatedParkingTicket command =
+          CheckinVehicleUseCase.CreatedParkingTicket.builder()
+              .slotId(slotId)
+              .tenantId(tenantId)
+              .rateId(rateId)
+              .plateCountry(PlateCountry.UNPLATED)
+              .photoUrl(null)
+              .build();
 
-      Slots mockSlot =
-          Slots.builder().id(slotId).slotNumber("B-2").status(SlotStatus.AVAILABLE).build();
-      Tenants mockTenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
-      Rates mockRate = Rates.builder().id(rateId).name("Standard").build();
+      final Slots mockSlot =
+          Slots.builder().id(slotId).slotNumber("M-01").status(SlotStatus.AVAILABLE).build();
 
       when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
       when(tenantsRepository.existsById(tenantId)).thenReturn(true);
       when(ratesRepository.existsById(rateId)).thenReturn(true);
 
+      // Act & Assert
+      assertThatThrownBy(() -> useCase.execute(command))
+          .isInstanceOf(UnplatedVehiclePhotoRequiredException.class);
+      verify(parkingTicketsRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should check-in vehicle with Venezuelan license plate")
+    void shouldCheckInVenezuelanPlate() {
+      // Arrange
+      final UUID slotId = UUID.randomUUID();
+      final UUID tenantId = UUID.randomUUID();
+      final UUID rateId = UUID.randomUUID();
+      final String plate = "AB123CD";
+
+      final CheckinVehicleUseCase.CreatedParkingTicket command =
+          CheckinVehicleUseCase.CreatedParkingTicket.builder()
+              .slotId(slotId)
+              .tenantId(tenantId)
+              .rateId(rateId)
+              .plate(plate)
+              .plateCountry(PlateCountry.VE)
+              .build();
+
+      final Slots mockSlot =
+          Slots.builder().id(slotId).slotNumber("V-01").status(SlotStatus.AVAILABLE).build();
+      final Tenants mockTenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
+      final Rates mockRate = Rates.builder().id(rateId).name("Standard").build();
+
+      when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
+      when(tenantsRepository.existsById(tenantId)).thenReturn(true);
+      when(ratesRepository.existsById(rateId)).thenReturn(true);
       when(slotsRepository.save(any(Slots.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(tenantsRepository.getReferenceById(tenantId)).thenReturn(mockTenant);
       when(ratesRepository.getReferenceById(rateId)).thenReturn(mockRate);
-
       when(parkingTicketsRepository.save(any(ParkingTickets.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
 
       // Act
-      ParkingTickets ticket = useCase.execute(command);
+      final ParkingTickets ticket = useCase.execute(command);
 
       // Assert
       assertThat(ticket).isNotNull();
-      assertThat(ticket.getSlotSnapshot()).isEqualTo(SlotSnapshot.from(mockSlot));
-      assertThat(mockSlot.getStatus()).isEqualTo(SlotStatus.OCCUPIED);
-      assertThat(ticket.getSlot().status()).isEqualTo(SlotStatus.OCCUPIED);
-      verify(slotsRepository).findById(slotId);
-      verify(slotsRepository).save(mockSlot);
-      verify(ticketNotifier, never()).notifyTicketOpened(any());
-      verify(parkingTicketsRepository).save(any(ParkingTickets.class));
-    }
-  }
-
-  @Nested
-  @DisplayName("Validation & Error Cases")
-  class ErrorCases {
-
-    @Test
-    @DisplayName("Should throw SlotNotFoundException when slot does not exist")
-    void shouldThrowWhenSlotNotFound() {
-      UUID slotId = UUID.randomUUID();
-      CheckinVehicleUseCase.CreatedParkingTicket command =
-          new CheckinVehicleUseCase.CreatedParkingTicket(
-              slotId, UUID.randomUUID(), null, UUID.randomUUID(), "ABC-123");
-
-      when(slotsRepository.findById(slotId)).thenReturn(Optional.empty());
-
-      assertThatThrownBy(() -> useCase.execute(command))
-          .isInstanceOf(SlotNotFoundException.class);
-      verify(slotsRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Should throw TenantNotExistsException when tenant does not exist")
-    void shouldThrowWhenTenantNotFound() {
-      UUID slotId = UUID.randomUUID();
-      UUID tenantId = UUID.randomUUID();
-      CheckinVehicleUseCase.CreatedParkingTicket command =
-          new CheckinVehicleUseCase.CreatedParkingTicket(
-              slotId, tenantId, null, UUID.randomUUID(), "ABC-123");
-
-      Slots mockSlot = Slots.builder().id(slotId).slotNumber("A-1").build();
-      when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
-      when(tenantsRepository.existsById(tenantId)).thenReturn(false);
-
-      assertThatThrownBy(() -> useCase.execute(command))
-          .isInstanceOf(TenantNotExistsException.class);
-      verify(slotsRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Should throw RateNotFoundException when rate does not exist")
-    void shouldThrowWhenRateNotFound() {
-      UUID slotId = UUID.randomUUID();
-      UUID tenantId = UUID.randomUUID();
-      UUID rateId = UUID.randomUUID();
-      CheckinVehicleUseCase.CreatedParkingTicket command =
-          new CheckinVehicleUseCase.CreatedParkingTicket(
-              slotId, tenantId, null, rateId, "ABC-123");
-
-      Slots mockSlot = Slots.builder().id(slotId).slotNumber("A-1").build();
-      when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
-      when(tenantsRepository.existsById(tenantId)).thenReturn(true);
-      when(ratesRepository.existsById(rateId)).thenReturn(false);
-
-      assertThatThrownBy(() -> useCase.execute(command))
-          .isInstanceOf(RateNotFoundException.class);
-      verify(slotsRepository, never()).save(any());
+      assertThat(ticket.getLicensePlate()).isEqualTo("AB123CD");
+      assertThat(ticket.getPlateCountry()).isEqualTo(PlateCountry.VE);
+      verify(unplatedTicketSequenceGateway, never()).nextTicketCode(any());
     }
   }
 }

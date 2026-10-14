@@ -96,9 +96,9 @@ public class JpaConfig {
    */
   @Bean
   public DataSource datasource(
-      DBSecret secret,
-      @Value("${spring.datasource.driverClassName}") String driverClass,
-      @Value("${spring.jpa.properties.hibernate.default_schema}") String defaultSchema) {
+      final DBSecret secret,
+      @Value("${spring.datasource.driverClassName:${spring.datasource.driver-class-name:org.postgresql.Driver}}") final String driverClass,
+      @Value("${spring.jpa.properties.hibernate.default_schema:${spring.jpa.properties.hibernate.default-schema:nivo}}") final String defaultSchema) {
     HikariConfig config = new HikariConfig();
     String searchPath = defaultSchema + ",public";
     config.setJdbcUrl(secret.getUrl());
@@ -122,10 +122,10 @@ public class JpaConfig {
    */
   @Bean
   public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-      DataSource dataSource,
-      @Value("${spring.jpa.databasePlatform}") String dialect,
-      @Value("${spring.jpa.properties.hibernate.default_schema}") String defaultSchema,
-      ConfigurableListableBeanFactory beanFactory) {
+      final DataSource dataSource,
+      @Value("${spring.jpa.databasePlatform:${spring.jpa.database-platform:org.hibernate.dialect.PostgreSQLDialect}}") final String dialect,
+      @Value("${spring.jpa.properties.hibernate.default_schema:${spring.jpa.properties.hibernate.default-schema:nivo}}") final String defaultSchema,
+      final ConfigurableListableBeanFactory beanFactory) {
     LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
     em.setDataSource(dataSource);
     em.setPackagesToScan("dev.angelcorzo.nivo.infrastructure.adapter.jpa");

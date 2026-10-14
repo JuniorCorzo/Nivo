@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.ParkingTicketsRepository;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.UnplatedTicketSequenceGateway;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot;
 import dev.angelcorzo.nivo.domain.model.rates.Rates;
 import dev.angelcorzo.nivo.domain.model.rates.gateways.RatesRepository;
@@ -33,6 +34,7 @@ class CreateTicketUseCaseTest {
   private SlotsRepository slotsRepository;
   private RatesRepository ratesRepository;
   private TicketNotifier ticketNotifier;
+  private UnplatedTicketSequenceGateway unplatedTicketSequenceGateway;
   private CreateTicketUseCase useCase;
 
   @BeforeEach
@@ -43,6 +45,7 @@ class CreateTicketUseCaseTest {
     slotsRepository = mock(SlotsRepository.class);
     ratesRepository = mock(RatesRepository.class);
     ticketNotifier = mock(TicketNotifier.class);
+    unplatedTicketSequenceGateway = mock(UnplatedTicketSequenceGateway.class);
 
     useCase =
         new CreateTicketUseCase(
@@ -51,7 +54,8 @@ class CreateTicketUseCaseTest {
             usersRepository,
             slotsRepository,
             ratesRepository,
-            ticketNotifier);
+            ticketNotifier,
+            unplatedTicketSequenceGateway);
   }
 
   @Test

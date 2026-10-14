@@ -2,7 +2,11 @@ package dev.angelcorzo.nivo.domain.usecase.ticket;
 
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.ParkingTicketStatus;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.PlateCountry;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.exceptions.UnplatedVehiclePhotoRequiredException;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.ParkingTicketsRepository;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.UnplatedTicketSequenceGateway;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.Plate;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot;
 import dev.angelcorzo.nivo.domain.model.rates.exceptions.RateNotFoundException;
 import dev.angelcorzo.nivo.domain.model.rates.gateways.RatesRepository;
@@ -32,14 +36,31 @@ public class CheckinVehicleUseCase {
   private final SlotsRepository slotsRepository;
   private final RatesRepository ratesRepository;
   private final TicketNotifier ticketNotifier;
+  private final UnplatedTicketSequenceGateway unplatedTicketSequenceGateway;
 
-  public ParkingTickets execute(CreatedParkingTicket command) {
+  public ParkingTickets execute(final CreatedParkingTicket command) {
     final Slots slot =
         this.slotsRepository
             .findById(command.slotId())
             .orElseThrow(() -> new SlotNotFoundException(command.slotId()));
 
     this.validate(command);
+
+    final PlateCountry country =
+        command.plateCountry() != null ? command.plateCountry() : PlateCountry.CO;
+
+    final String resolvedPlate;
+    if (country == PlateCountry.UNPLATED) {
+      if (command.photoUrl() == null || command.photoUrl().isBlank()) {
+        throw new UnplatedVehiclePhotoRequiredException();
+      }
+      final UUID parkingLotId =
+          slot.getParking() != null ? slot.getParking().id() : null;
+      resolvedPlate = this.unplatedTicketSequenceGateway.nextTicketCode(parkingLotId);
+    } else {
+      final Plate plateVo = Plate.of(command.plate(), country);
+      resolvedPlate = plateVo.getValue();
+    }
 
     slot.setStatus(SlotStatus.OCCUPIED);
     final Slots savedSlot = this.slotsRepository.save(slot);
@@ -54,31 +75,57 @@ public class CheckinVehicleUseCase {
             .user(UserReference.of(user))
             .rate(RateReference.of(this.ratesRepository.getReferenceById(command.rateId())))
             .entryTime(OffsetDateTime.now())
-            .licensePlate(command.plate())
+            .licensePlate(resolvedPlate)
+            .plateCountry(country)
+            .photoUrl(command.photoUrl())
+            .phoneNumber(command.phoneNumber())
             .status(ParkingTicketStatus.OPEN)
             .build();
 
     final ParkingTickets ticket = this.parkingTicketsRepository.save(parkingTicket);
 
-    if (user != null) this.ticketNotifier.notifyTicketOpened(ticket);
+    if (user != null) {
+      this.ticketNotifier.notifyTicketOpened(ticket);
+    }
 
     return ticket;
   }
 
-  private void validate(CreatedParkingTicket ticket) {
-    if (!this.tenantsRepository.existsById(ticket.tenantId()))
+  private void validate(final CreatedParkingTicket ticket) {
+    if (!this.tenantsRepository.existsById(ticket.tenantId())) {
       throw new TenantNotExistsException(ticket.tenantId());
-    if (!this.ratesRepository.existsById(ticket.rateId()))
+    }
+    if (!this.ratesRepository.existsById(ticket.rateId())) {
       throw new RateNotFoundException(ticket.rateId());
+    }
   }
 
-  private Users getUser(String email) {
-    if (email == null) return null;
+  private Users getUser(final String email) {
+    if (email == null) {
+      return null;
+    }
 
     return this.usersRepository.findByEmail(email).orElse(null);
   }
 
   @Builder(toBuilder = true)
   public record CreatedParkingTicket(
-      UUID slotId, UUID tenantId, String email, UUID rateId, String plate) {}
+      UUID slotId,
+      UUID tenantId,
+      String email,
+      UUID rateId,
+      String plate,
+      PlateCountry plateCountry,
+      String photoUrl,
+      String phoneNumber) {
+
+    public CreatedParkingTicket(
+        final UUID slotId,
+        final UUID tenantId,
+        final String email,
+        final UUID rateId,
+        final String plate) {
+      this(slotId, tenantId, email, rateId, plate, PlateCountry.CO, null, null);
+    }
+  }
 }
