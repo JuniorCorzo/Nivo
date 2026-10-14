@@ -91,7 +91,11 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   private onHandleSuccess(isLogged: boolean) {
+    this.isLoading.set(false);
     this.invalidCredentials.set(!isLogged);
+    if (!isLogged) {
+      return;
+    }
     this.manageRedirect();
   }
 
