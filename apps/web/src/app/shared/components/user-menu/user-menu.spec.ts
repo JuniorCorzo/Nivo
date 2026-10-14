@@ -3,6 +3,7 @@ import { signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
+import type { UserModel } from "@core/models/user.model";
 import { AuthService } from "@core/services/auth-service";
 import { UserService } from "@core/services/user/user-service";
 
@@ -14,15 +15,24 @@ describe("UserMenu", () => {
   let overlayContainer: OverlayContainer;
   let overlayContainerElement: HTMLElement;
 
-  const mockUser = {
+  const mockUser: UserModel = {
+    contactInfo: "+1234567890",
+    createdAt: "2026-01-01T00:00:00Z",
     email: "john@example.com",
     fullName: "John Doe",
     id: "1",
-    role: "admin",
+    role: "OWNER",
+    tenant: {
+      id: "t-1",
+      name: "Tenant 1",
+    },
+    updatedAt: "2026-01-01T00:00:00Z",
   };
 
+  const currentUserSignal = signal<UserModel | null>(mockUser);
+
   const mockUserService = {
-    currentUser: signal(mockUser),
+    currentUser: currentUserSignal,
   };
 
   const mockAuthService = {
@@ -30,6 +40,8 @@ describe("UserMenu", () => {
   };
 
   beforeEach(async () => {
+    currentUserSignal.set(mockUser);
+
     await TestBed.configureTestingModule({
       imports: [UserMenu],
       providers: [
@@ -123,5 +135,22 @@ describe("UserMenu", () => {
 
     expect(overlayContainerElement.querySelector('[role="menu"]')).toBeFalsy();
     expect(trigger.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("should not display 'Invitado' when user is null or has no name", async () => {
+    currentUserSignal.set(null);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const trigger = fixture.nativeElement.querySelector('[role="button"]');
+    expect(trigger?.textContent).not.toContain("Invitado");
+    expect(trigger?.getAttribute("title") ?? "").not.toContain("Invitado");
+
+    trigger.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const menu = overlayContainerElement.querySelector('[role="menu"]');
+    expect(menu?.textContent).not.toContain("Invitado");
   });
 });
