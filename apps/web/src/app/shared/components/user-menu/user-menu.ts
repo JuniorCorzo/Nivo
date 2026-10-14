@@ -72,7 +72,7 @@ export class UserMenu {
   protected user = inject(UserService).currentUser;
   protected textsSidebar = APP_TEXTS.sidebar;
   protected userProfileImage = computed(() => {
-    const name = this.user()?.fullName ?? "Invitado";
+    const name = this.user()?.fullName ?? "";
     return `https://ui-avatars.com/api/?name=${name.replaceAll(" ", "+")}`;
   });
 

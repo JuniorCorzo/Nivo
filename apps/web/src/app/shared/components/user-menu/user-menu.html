@@ -12,12 +12,12 @@
   class="bg-muted text-foreground focus-visible:ring-ring flex w-full cursor-pointer items-center rounded-lg p-2 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none"
   [class.justify-center]="collapsed()"
   [class.gap-2]="!collapsed()"
-  [attr.title]="collapsed() ? (name || 'Invitado') : null"
+  [attr.title]="collapsed() ? (name || null) : null"
 >
   <img [src]="userProfileImage()" alt="" class="size-8 shrink-0 rounded-full" />
   @if (!collapsed()) {
   <span class="flex min-w-0 flex-1 flex-col overflow-hidden">
-    <span class="truncate text-sm font-medium">{{ name || 'Invitado' }}</span>
+    <span class="truncate text-sm font-medium">{{ name }}</span>
     <span class="text-muted-foreground truncate text-xs">{{ email }}</span>
   </span>
   <ng-icon
@@ -49,7 +49,7 @@
       />
       <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
         <span class="text-foreground truncate text-sm font-semibold">
-          {{ name || 'Invitado' }}
+          {{ name }}
         </span>
         <nv-muted class="truncate text-xs"> {{ email }} </nv-muted>
       </div>

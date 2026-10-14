@@ -1,4 +1,5 @@
 import type { Routes } from "@angular/router";
+import { authGuard } from "@core/guards/auth/auth-guard";
 import { publicGuard } from "@core/guards/auth/public-guard";
 import { LayoutMinimal } from "@layouts/layout-minimal/layout-minimal";
 import { LayoutComponent } from "@layouts/layout/layout";
@@ -41,6 +42,7 @@ export const routes: Routes = [
     path: "auth",
   },
   {
+    canActivate: [authGuard],
     children: [
       {
         path: "",
