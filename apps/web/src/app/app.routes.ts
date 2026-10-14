@@ -41,6 +41,16 @@ export const routes: Routes = [
     path: "auth",
   },
   {
+    loadComponent: async () => {
+      const m = await import(
+        "@features/public-ticket/page/public-ticket-page"
+      );
+      return m.PublicTicketPageComponent;
+    },
+    path: "t/:id",
+    title: "Comprobante de Parqueo",
+  },
+  {
     children: [
       {
         path: "",

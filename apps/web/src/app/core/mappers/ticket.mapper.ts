@@ -11,35 +11,49 @@ import type {
   CheckOutPayload,
   CreateTicketPayload,
   PaymentRecord,
+  PlateCountry,
   PriceDetailedModel,
   PriceLineModel,
   TicketSummary,
 } from "@core/models/ticket.model";
 
-export const mapToTicketSummary = (dto: ParkingTicketsDto): TicketSummary => ({
-  barcode: dto.id ?? "",
-  createdAt: dto.createdAt,
-  entryTime: dto.entryTime ?? dto.createdAt ?? "",
-  exitTime: dto.exitTime,
-  id: dto.id ?? "",
-  licensePlate: dto.licensePlate ?? "",
-  paymentMethod: dto.paymentMethod,
-  rateId: dto.rate?.id,
-  rateName: dto.rate?.name,
-  slotId: dto.slot?.id,
-  slotNumber: dto.slot?.slotNumber,
-  slotType: dto.slot?.type,
-  status: dto.status ?? "OPEN",
-  totalToCharge: dto.totalToCharge,
-  transactionReference: dto.transactionReference,
-  updatedAt: dto.updatedAt,
-});
+export const mapToTicketSummary = (dto: ParkingTicketsDto): TicketSummary => {
+  const raw = dto as unknown as Record<string, unknown>;
+  return {
+    barcode: dto.id ?? "",
+    createdAt: dto.createdAt,
+    entryTime: dto.entryTime ?? dto.createdAt ?? "",
+    exitTime: dto.exitTime,
+    id: dto.id ?? "",
+    licensePlate: dto.licensePlate ?? "",
+    paymentMethod: dto.paymentMethod,
+    phoneNumber: raw["phoneNumber"] as string | undefined,
+    photoUrl: raw["photoUrl"] as string | undefined,
+    plateCountry: raw["plateCountry"] as PlateCountry | undefined,
+    rateId: dto.rate?.id,
+    rateName: dto.rate?.name,
+    slotId: dto.slot?.id,
+    slotNumber: dto.slot?.slotNumber,
+    slotType: dto.slot?.type,
+    status: dto.status ?? "OPEN",
+    totalToCharge: dto.totalToCharge,
+    transactionReference: dto.transactionReference,
+    updatedAt: dto.updatedAt,
+  };
+};
 
 export const mapToCreateTicketDto = (
   payload: CreateTicketPayload
-): CreateTicket => ({
+): CreateTicket & {
+  plateCountry?: PlateCountry;
+  photoUrl?: string;
+  phoneNumber?: string;
+} => ({
   email: payload.email?.trim() || undefined,
+  phoneNumber: payload.phoneNumber?.trim() || undefined,
+  photoUrl: payload.photoUrl || undefined,
   plate: payload.plate.trim().toUpperCase(),
+  plateCountry: payload.plateCountry,
   rateId: payload.rateId,
   slotId: payload.slotId,
 });

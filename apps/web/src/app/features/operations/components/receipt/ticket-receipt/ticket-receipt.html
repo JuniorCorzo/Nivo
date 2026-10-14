@@ -27,101 +27,142 @@
       >
         <span
           class="text-muted-foreground mb-0.5 block text-xs font-semibold tracking-wider uppercase"
-          >Placa del Vehículo</span
         >
+          {{ texts.plateLabel }}
+        </span>
         <span
           class="text-foreground font-mono text-xl font-black tracking-widest sm:text-2xl"
-          >{{ ticket()?.licensePlate }}</span
         >
+          {{ ticket()?.licensePlate || texts.unplatedVehicle }}
+        </span>
       </div>
+
+      <!-- Vehicle Photo Thumbnail (if unplated or photo attached) -->
+      @if (ticket()?.photoUrl) {
+      <div class="relative overflow-hidden rounded-lg border border-zinc-800 bg-black aspect-video flex items-center justify-center">
+        <img
+          [src]="ticket()?.photoUrl"
+          alt="Foto del vehículo"
+          class="w-full h-full object-cover"
+        />
+        <div class="absolute bottom-1.5 left-1.5 bg-black/70 px-2 py-0.5 rounded text-[10px] text-zinc-300 font-medium flex items-center gap-1 backdrop-blur-xs">
+          <ng-icon name="lucideCamera" class="text-xs text-primary" />
+          <span>{{ texts.photoBadge }}</span>
+        </div>
+      </div>
+      }
 
       <!-- Metadata Rows -->
       <div class="grid grid-cols-2 gap-2 text-xs">
         <div class="bg-muted/50 rounded-md p-2.5">
-          <span class="text-muted-foreground block text-[10px] sm:text-xs"
-            >Espacio / Cupo</span
-          >
+          <span class="text-muted-foreground block text-[10px] sm:text-xs">
+            {{ texts.slotLabel }}
+          </span>
           <span class="text-foreground font-mono text-xs font-bold sm:text-sm">
-            {{ ticket()?.slotNumber || "Asignado" }}
+            {{ ticket()?.slotNumber || texts.slotAssignedFallback }}
           </span>
         </div>
         <div class="bg-muted/50 rounded-md p-2.5">
-          <span class="text-muted-foreground block text-[10px] sm:text-xs"
-            >Tarifa Aplicada</span
-          >
+          <span class="text-muted-foreground block text-[10px] sm:text-xs">
+            {{ texts.rateLabel }}
+          </span>
           <span
             class="text-foreground block truncate text-xs font-bold sm:text-sm"
           >
-            {{ ticket()?.rateName || "Estándar" }}
+            {{ ticket()?.rateName || texts.rateStandardFallback }}
           </span>
         </div>
       </div>
 
       <div class="text-muted-foreground space-y-1.5 pt-1 text-xs">
         <div class="border-border flex justify-between border-b py-1">
-          <span class="text-muted-foreground">Hora de Ingreso:</span>
-          <span class="text-foreground font-mono font-medium"
-            >{{ formatDate(ticket()?.entryTime) }}</span
-          >
+          <span class="text-muted-foreground">{{ texts.entryTimeLabel }}</span>
+          <span class="text-foreground font-mono font-medium">
+            {{ formatDate(ticket()?.entryTime) }}
+          </span>
         </div>
 
         @if (ticket()?.exitTime) {
         <div class="border-border flex justify-between border-b py-1">
-          <span class="text-muted-foreground">Hora de Salida:</span>
-          <span class="text-foreground font-mono font-medium"
-            >{{ formatDate(ticket()?.exitTime) }}</span
-          >
+          <span class="text-muted-foreground">{{ texts.exitTimeLabel }}</span>
+          <span class="text-foreground font-mono font-medium">
+            {{ formatDate(ticket()?.exitTime) }}
+          </span>
         </div>
         } @if (payment()) {
         <div class="border-border flex justify-between border-b py-1">
-          <span class="text-muted-foreground">Método de Pago:</span>
-          <span class="text-foreground font-medium uppercase"
-            >{{ payment()?.paymentMethod }}</span
-          >
+          <span class="text-muted-foreground">{{ texts.paymentMethodLabel }}</span>
+          <span class="text-foreground font-medium uppercase">
+            {{ payment()?.paymentMethod }}
+          </span>
         </div>
         <div
           class="border-border text-foreground flex justify-between border-b py-1 font-bold"
         >
-          <span>Total Pagado:</span>
-          <span class="font-mono text-sm"
-            >${{ payment()?.amount | number: "1.0-0" }} COP</span
-          >
+          <span>{{ texts.totalPaidLabel }}</span>
+          <span class="font-mono text-sm">
+            ${{ payment()?.amount | number: "1.0-0" }} COP
+          </span>
         </div>
         }
       </div>
 
-      <!-- Barcode Visual -->
-      <div class="pt-2 text-center">
-        <div
-          class="text-muted-foreground bg-muted border-border rounded border py-1 font-mono text-xs tracking-widest select-all"
-        >
-          ||| | |||| | || ||| || |||| ||
+      <!-- QR Code Visual -->
+      @if (qrDataUrl()) {
+      <div class="flex flex-col items-center justify-center pt-2">
+        <div class="bg-white p-2 rounded-xl shadow-xs border border-zinc-200">
+          <img
+            [src]="qrDataUrl()"
+            alt="Código QR de Ticket"
+            class="w-32 h-32 block"
+          />
         </div>
-        <span class="text-muted-foreground mt-1 block font-mono text-[10px]"
-          >ID: {{ ticket()?.id }}</span
-        >
+        <span class="text-muted-foreground mt-2 text-[10px] text-center max-w-[220px]">
+          {{ texts.qrNotice }}
+        </span>
+      </div>
+      }
+
+      <!-- Barcode / ID Fallback -->
+      <div class="pt-1 text-center">
+        <span class="text-muted-foreground block font-mono text-[10px]">
+          ID: {{ ticket()?.id }}
+        </span>
       </div>
       }
     </div>
 
     <!-- Action Buttons (No Print) -->
-    <div class="no-print border-border flex gap-2 border-t pt-4">
-      <button
-        type="button"
-        (click)="onPrint()"
-        class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-semibold shadow-xs transition-colors"
+    <div class="no-print border-border flex flex-col gap-2 border-t pt-4">
+      @if (whatsAppLink()) {
+      <a
+        [href]="whatsAppLink()"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors"
       >
-        <ng-icon name="lucidePrinter" class="text-sm" />
-        Imprimir
-      </button>
-      <button
-        type="button"
-        (click)="onClose()"
-        class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-semibold transition-colors"
-      >
-        <ng-icon name="lucideX" class="text-sm" />
-        Cerrar
-      </button>
+        <ng-icon name="lucideShare2" class="text-sm text-emerald-400" />
+        {{ texts.shareWhatsApp }}
+      </a>
+      }
+      <div class="flex gap-2">
+        <button
+          type="button"
+          (click)="onPrint()"
+          class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-semibold shadow-xs transition-colors"
+        >
+          <ng-icon name="lucidePrinter" class="text-sm" />
+          {{ texts.printButton }}
+        </button>
+        <button
+          type="button"
+          (click)="onClose()"
+          class="border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground inline-flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-semibold transition-colors"
+        >
+          <ng-icon name="lucideX" class="text-sm" />
+          {{ texts.closeButton }}
+        </button>
+      </div>
     </div>
   </div>
 </div>

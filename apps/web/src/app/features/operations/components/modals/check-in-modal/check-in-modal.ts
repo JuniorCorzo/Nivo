@@ -14,30 +14,43 @@ import {
   lucideAlertCircle,
   lucideAlertTriangle,
   lucideBike,
+  lucideCamera,
   lucideCar,
   lucideCheckCircle2,
   lucideLoader2,
   lucideLogIn,
+  lucidePhone,
   lucideX,
 } from "@ng-icons/lucide";
 import { ButtonComponent } from "@nivo-sass/design-system";
+import type { PlateCountry } from "@core/models/ticket.model";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 import { CheckInFacade } from "../../../facades/check-in.facade";
+import { PhotoCaptureComponent } from "../../photo-capture/photo-capture.component";
 import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-receipt";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, CommonModule, NgIcon, TicketReceiptComponent],
+  imports: [
+    ButtonComponent,
+    CommonModule,
+    NgIcon,
+    PhotoCaptureComponent,
+    TicketReceiptComponent,
+  ],
   providers: [
     CheckInFacade,
     provideIcons({
       lucideAlertCircle,
       lucideAlertTriangle,
       lucideBike,
+      lucideCamera,
       lucideCar,
       lucideCheckCircle2,
       lucideLoader2,
       lucideLogIn,
+      lucidePhone,
       lucideX,
     }),
   ],
@@ -47,6 +60,7 @@ import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-rece
   templateUrl: "./check-in-modal.html",
 })
 export class CheckInModalComponent {
+  readonly texts = APP_TEXTS.checkIn;
   readonly facade = inject(CheckInFacade);
 
   readonly isOpen = input<boolean>(false);
@@ -74,10 +88,28 @@ export class CheckInModalComponent {
     });
   }
 
+  onPlateCountrySelect(country: PlateCountry): void {
+    this.facade.setPlateCountry(country);
+  }
+
   onPlateInput(event: Event): void {
     /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
     this.facade.setPlate(target.value);
+  }
+
+  onPhoneInput(event: Event): void {
+    /* SAFETY: Target is HTMLInputElement */
+    const target = event.target as HTMLInputElement;
+    this.facade.setPhoneNumber(target.value);
+  }
+
+  onPhotoCaptured(photoUrl: string): void {
+    this.facade.setPhotoUrl(photoUrl);
+  }
+
+  onPhotoCleared(): void {
+    this.facade.setPhotoUrl(null);
   }
 
   onEnterKey(event: Event): void {

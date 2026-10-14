@@ -25,6 +25,10 @@
               "@ngxpert/hot-toast/styles.css",
               "leaflet/dist/leaflet.css",
               "src/styles.css"
+            ],
+            "allowedCommonJsDependencies": [
+              "qrcode",
+              "leaflet"
             ]
           },
           "configurations": {

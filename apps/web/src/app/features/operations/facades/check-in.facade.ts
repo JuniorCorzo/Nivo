@@ -9,6 +9,7 @@ import type { RateModel, VehicleType } from "@core/models/rate.model";
 import type { SlotSummary } from "@core/models/slot.model";
 import type {
   CreateTicketPayload,
+  PlateCountry,
   TicketSummary,
 } from "@core/models/ticket.model";
 import { ParkingService } from "@core/services/parking-service";
@@ -16,6 +17,9 @@ import { RateService } from "@core/services/rate-service";
 import { SlotService } from "@core/services/slot-service";
 import { TicketService } from "@core/services/ticket-service";
 import { ToastService } from "@nivo-sass/design-system";
+
+const VE_PLATE_REGEX =
+  /^([A-Z]{2}\d{3}[A-Z]{2}|[A-Z]{4}\d{3}|[A-Z]{3}\d{2}[A-Z]|[A-Z]{2}\d[A-Z]\d{2}[A-Z])$/;
 
 @Injectable()
 export class CheckInFacade {
@@ -32,6 +36,13 @@ export class CheckInFacade {
   readonly vehicleType = signal<VehicleType>("CAR");
   readonly selectedSlotId = signal<string | null>(null);
   readonly selectedRateId = signal<string | null>(null);
+
+  readonly plateCountry = signal<PlateCountry>("CO");
+  readonly photoUrl = signal<string | null>(null);
+  readonly phoneNumber = signal<string>("");
+  readonly isUnplated = computed<boolean>(
+    () => this.plateCountry() === "UNPLATED"
+  );
 
   readonly isSubmitting = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
@@ -94,13 +105,23 @@ export class CheckInFacade {
   );
 
   readonly isValid = computed<boolean>(() => {
-    const normalizedPlate = this.plate().trim();
-    return (
-      normalizedPlate.length >= 3 &&
-      this.selectedSlotId() !== null &&
-      this.selectedRateId() !== null &&
-      !this.isSubmitting()
-    );
+    if (this.isSubmitting()) {
+      return false;
+    }
+    if (this.selectedSlotId() === null || this.selectedRateId() === null) {
+      return false;
+    }
+
+    if (this.isUnplated()) {
+      return Boolean(this.photoUrl());
+    }
+
+    const cleaned = this.plate().replace(/[\s-]/g, "").toUpperCase();
+    if (this.plateCountry() === "VE") {
+      return VE_PLATE_REGEX.test(cleaned);
+    }
+
+    return cleaned.length >= 3;
   });
 
   init(parkingId: string): void {
@@ -144,6 +165,26 @@ export class CheckInFacade {
     this.email.set(email.trim());
   }
 
+  setPlateCountry(country: PlateCountry): void {
+    this.plateCountry.set(country);
+    this.errorMessage.set(null);
+    if (country === "UNPLATED") {
+      const available = this.availableVehicleTypes();
+      if (available.includes("MOTORCYCLE")) {
+        this.setVehicleType("MOTORCYCLE");
+      }
+    }
+  }
+
+  setPhotoUrl(url: string | null): void {
+    this.photoUrl.set(url);
+    this.errorMessage.set(null);
+  }
+
+  setPhoneNumber(phone: string): void {
+    this.phoneNumber.set(phone.trim());
+  }
+
   setVehicleType(type: VehicleType): void {
     this.vehicleType.set(type);
 
@@ -170,9 +211,19 @@ export class CheckInFacade {
     const pId = this.parkingId();
     const slotId = this.selectedSlotId();
     const rateId = this.selectedRateId();
-    const plate = this.plate().trim().toUpperCase();
+    const plate = this.isUnplated()
+      ? (this.plate().trim().toUpperCase() || "SIN PLACA")
+      : this.plate().trim().toUpperCase();
 
-    if (!pId || !slotId || !rateId || !plate) {
+    if (!pId || !slotId || !rateId) {
+      return;
+    }
+
+    if (!this.isUnplated() && !plate) {
+      return;
+    }
+
+    if (this.isUnplated() && !this.photoUrl()) {
       return;
     }
 
@@ -181,7 +232,10 @@ export class CheckInFacade {
 
     const payload: CreateTicketPayload = {
       email: this.email().trim() || undefined,
+      phoneNumber: this.phoneNumber().trim() || undefined,
+      photoUrl: this.photoUrl() || undefined,
       plate,
+      plateCountry: this.plateCountry(),
       rateId,
       slotId,
     };
@@ -208,9 +262,12 @@ export class CheckInFacade {
         // Refresh slots state
         this.slotService.getAllSlotSummariesByParkingId(pId).subscribe();
 
-        // Reset plate & email for next rapid check-in
+        // Reset plate, email, photo, phone, country for next rapid check-in
         this.plate.set("");
         this.email.set("");
+        this.photoUrl.set(null);
+        this.phoneNumber.set("");
+        this.plateCountry.set("CO");
       },
     });
   }
@@ -222,6 +279,9 @@ export class CheckInFacade {
   reset(): void {
     this.plate.set("");
     this.email.set("");
+    this.photoUrl.set(null);
+    this.phoneNumber.set("");
+    this.plateCountry.set("CO");
     this.errorMessage.set(null);
     this.selectedSlotId.set(null);
     this.selectedRateId.set(null);

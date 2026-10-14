@@ -1,6 +1,7 @@
 export type TicketStatus = "OPEN" | "CLOSED" | "LOST" | "ANNULLED";
 export type TicketPaymentMethod = "EFFECTIVE" | "PAY_LINK";
 export type TicketSendVia = "URL" | "EMAIL" | "SMS";
+export type PlateCountry = "CO" | "VE" | "UNPLATED";
 
 export interface PriceLineModel {
   concept: string;
@@ -21,6 +22,9 @@ export interface CreateTicketPayload {
   rateId: string;
   plate: string;
   email?: string;
+  plateCountry?: PlateCountry;
+  photoUrl?: string;
+  phoneNumber?: string;
 }
 
 export interface CheckOutPayload {
@@ -47,6 +51,9 @@ export interface TicketSummary {
   barcode?: string;
   paymentMethod?: string;
   transactionReference?: string;
+  plateCountry?: PlateCountry;
+  photoUrl?: string;
+  phoneNumber?: string;
   createdAt?: string;
   updatedAt?: string;
 }
