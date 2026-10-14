@@ -17,16 +17,16 @@ describe("UserMenu", () => {
 
   const mockUser: UserModel = {
     contactInfo: "+1234567890",
-    createdAt: "2026-01-01T00:00:00Z",
+    createdAt: new Date(),
     email: "john@example.com",
     fullName: "John Doe",
     id: "1",
     role: "OWNER",
     tenant: {
+      companyName: "Tenant 1",
       id: "t-1",
-      name: "Tenant 1",
     },
-    updatedAt: "2026-01-01T00:00:00Z",
+    updatedAt: new Date(),
   };
 
   const currentUserSignal = signal<UserModel | null>(mockUser);
