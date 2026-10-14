@@ -171,7 +171,10 @@ describe("CheckInFacade", () => {
 
     expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith({
       email: "test@email.com",
+      phoneNumber: undefined,
+      photoUrl: undefined,
       plate: "ABC123",
+      plateCountry: "CO",
       rateId: "rate-1",
       slotId: "slot-1",
     });
@@ -202,5 +205,103 @@ describe("CheckInFacade", () => {
   it("should only include vehicle types that have available slots in availableVehicleTypes", () => {
     facade.init("parking-1");
     expect(facade.availableVehicleTypes()).toEqual(["CAR"]);
+  });
+
+  it("should require photoUrl for isValid and auto-select MOTORCYCLE when country is UNPLATED", () => {
+    slotServiceSpy.summaries = () => ({
+      "parking-1": [
+        {
+          id: "slot-moto-1",
+          parkingName: "Central",
+          prefix: "M",
+          slotNumber: "M1",
+          status: "AVAILABLE",
+          type: "MOTORCYCLE",
+          zone: "ZM",
+        },
+      ],
+    });
+    rateServiceSpy.ratesByParking = () => ({
+      "parking-1": [
+        {
+          createdAt: "",
+          description: "Hora Moto",
+          id: "rate-moto-1",
+          minChargeTimeMinutes: 0,
+          name: "Tarifa Motos",
+          parkingId: "parking-1",
+          pricePerUnit: 2000,
+          timeUnit: "HOURS",
+          updatedAt: "",
+          vehicleType: "MOTORCYCLE",
+        },
+      ],
+    });
+
+    facade.init("parking-1");
+    facade.setPlateCountry("UNPLATED");
+
+    expect(facade.plateCountry()).toBe("UNPLATED");
+    expect(facade.isUnplated()).toBe(true);
+    expect(facade.vehicleType()).toBe("MOTORCYCLE");
+    expect(facade.selectedSlotId()).toBe("slot-moto-1");
+    expect(facade.selectedRateId()).toBe("rate-moto-1");
+    expect(facade.isValid()).toBe(false);
+
+    facade.setPhotoUrl("data:image/jpeg;base64,samplephoto");
+    expect(facade.isValid()).toBe(true);
+
+    facade.setPhotoUrl(null);
+    expect(facade.isValid()).toBe(false);
+  });
+
+  it("should validate Venezuelan plate format and set plateCountry to VE", () => {
+    facade.init("parking-1");
+    facade.setVehicleType("CAR");
+    facade.setPlateCountry("VE");
+
+    expect(facade.plateCountry()).toBe("VE");
+
+    facade.setPlate("AB");
+    expect(facade.isValid()).toBe(false);
+
+    facade.setPlate("ABC123");
+    expect(facade.isValid()).toBe(false);
+
+    facade.setPlate("AB123CD");
+    expect(facade.isValid()).toBe(true);
+  });
+
+  it("should submit check-in with UNPLATED, sending plateCountry, photoUrl and phoneNumber", () => {
+    const mockTicket: TicketSummary = {
+      entryTime: "2026-08-27T10:00:00Z",
+      id: "ticket-unplated-1",
+      licensePlate: "SIN PLACA",
+      phoneNumber: "3001234567",
+      photoUrl: "data:image/jpeg;base64,samplephoto",
+      plateCountry: "UNPLATED",
+      status: "OPEN",
+    };
+    ticketServiceSpy.createTicket.mockReturnValue(of(mockTicket));
+
+    facade.init("parking-1");
+    facade.setVehicleType("CAR");
+    facade.setPlateCountry("UNPLATED");
+    facade.setPhotoUrl("data:image/jpeg;base64,samplephoto");
+    facade.setPhoneNumber("3001234567");
+
+    facade.submitCheckIn();
+
+    expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith(
+      expect.objectContaining({
+        phoneNumber: "3001234567",
+        photoUrl: "data:image/jpeg;base64,samplephoto",
+        plateCountry: "UNPLATED",
+      })
+    );
+    expect(facade.lastIssuedTicket()).toEqual(mockTicket);
+    expect(facade.isReceiptOpen()).toBe(true);
+    expect(facade.photoUrl()).toBeNull();
+    expect(facade.phoneNumber()).toBe("");
   });
 });

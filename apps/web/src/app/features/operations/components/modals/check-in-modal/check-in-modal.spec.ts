@@ -90,4 +90,27 @@ describe("CheckInModalComponent", () => {
     component.onPlateInput(event);
     expect(component.facade.plate()).toBe("ABC999");
   });
+
+  it("should update plate country in facade", () => {
+    component.onPlateCountrySelect("UNPLATED");
+    expect(component.facade.plateCountry()).toBe("UNPLATED");
+    expect(component.facade.isUnplated()).toBe(true);
+  });
+
+  it("should update phone number in facade on input event", () => {
+    const input = document.createElement("input");
+    input.value = "3001234567";
+    const event = new Event("input");
+    Object.defineProperty(event, "target", { value: input });
+    component.onPhoneInput(event);
+    expect(component.facade.phoneNumber()).toBe("3001234567");
+  });
+
+  it("should update photoUrl in facade on photoCaptured and photoCleared events", () => {
+    component.onPhotoCaptured("data:image/jpeg;base64,captured");
+    expect(component.facade.photoUrl()).toBe("data:image/jpeg;base64,captured");
+
+    component.onPhotoCleared();
+    expect(component.facade.photoUrl()).toBeNull();
+  });
 });

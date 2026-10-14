@@ -1,6 +1,7 @@
 package dev.angelcorzo.nivo.domain.model.parkingtickets;
 
 import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.ParkingTicketStatus;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.PlateCountry;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot;
 import dev.angelcorzo.nivo.domain.model.rates.valueobject.RateReference;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotsReference;
@@ -27,6 +28,10 @@ public class ParkingTickets {
   private UserReference user;
   private RateReference rate;
   private String licensePlate;
+  @Builder.Default
+  private PlateCountry plateCountry = PlateCountry.CO;
+  private String photoUrl;
+  private String phoneNumber;
   private OffsetDateTime entryTime;
   private OffsetDateTime exitTime;
   private BigDecimal totalToCharge;

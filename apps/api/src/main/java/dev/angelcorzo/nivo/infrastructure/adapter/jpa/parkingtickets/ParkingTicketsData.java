@@ -1,11 +1,12 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets;
 
+import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.ParkingTicketStatus;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.PlateCountry;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.rates.RateData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.SlotsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.TenantsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.UsersData;
-import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.ParkingTicketStatus;
-import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -26,9 +27,13 @@ import org.hibernate.type.SqlTypes;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "parking_tickets", uniqueConstraints = @UniqueConstraint(name = "uq_parking_ticket_tenant_id", columnNames = {
-    "tenant_id", "id" }))
-@Entity()
+@Table(
+    name = "parking_tickets",
+    uniqueConstraints =
+        @UniqueConstraint(
+            name = "uq_parking_ticket_tenant_id",
+            columnNames = {"tenant_id", "id"}))
+@Entity
 public class ParkingTicketsData {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -49,6 +54,18 @@ public class ParkingTicketsData {
 
   @Column(name = "license_plate")
   private String licensePlate;
+
+  @ColumnDefault(value = "'CO'")
+  @Column(name = "plate_country", nullable = false)
+  @Enumerated(EnumType.STRING)
+  @Builder.Default
+  private PlateCountry plateCountry = PlateCountry.CO;
+
+  @Column(name = "photo_url")
+  private String photoUrl;
+
+  @Column(name = "phone_number")
+  private String phoneNumber;
 
   @Column(name = "entry_time", nullable = false, columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime entryTime;

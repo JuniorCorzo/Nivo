@@ -2,30 +2,41 @@ server:
   port: ${API_PORT:8080}
   servlet:
     context-path: /api
+
 spring:
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
   application:
     name: "Nivo"
   devtools:
     add-properties: false
   datasource:
     driverClassName: org.postgresql.Driver
+    driver-class-name: org.postgresql.Driver
     url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:nivo_db}?currentSchema=nivo&sslmode=${DB_SSL_MODE:require}&channelBinding=${DB_CHANNEL_BINDING:require}}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+      idle-timeout: ${DB_POOL_IDLE_TIMEOUT:300000}
+      max-lifetime: ${DB_POOL_MAX_LIFETIME:1800000}
+      connection-timeout: ${DB_POOL_CONNECTION_TIMEOUT:30000}
   flyway:
     enabled: ${SPRING_FLYWAY_ENABLED:true}
-    schemas: nivo
-    default-schema: nivo
-    locations: classpath:db/migration
+    schemas: ${SPRING_FLYWAY_SCHEMAS:nivo}
+    default-schema: ${SPRING_FLYWAY_DEFAULT_SCHEMA:nivo}
+    locations: ${SPRING_FLYWAY_LOCATIONS:classpath:db/migration}
   jpa:
     databasePlatform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
+        format_sql: ${HIBERNATE_FORMAT_SQL:false}
         physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         globally_quoted_identifiers: true
-        default_schema: nivo
+        default_schema: ${JPA_DEFAULT_SCHEMA:nivo}
   security:
     oauth2:
       resourceserver:
@@ -38,6 +49,7 @@ spring:
   task:
     execution:
       thread-name-prefix: virtual-async-
+
 management:
   server:
     port: ${MANAGEMENT_PORT:8081}
@@ -49,6 +61,7 @@ management:
     health:
       probes:
         enabled: true
+
 cors:
   allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080,http://localhost:63342}"
 
@@ -89,6 +102,16 @@ app:
   unsubscribe-url: "${APP_UNSUBSCRIBE_URL:https://nivo.dev/unsubscribe}"
   address-company: "${APP_ADDRESS_COMPANY:123 Main St, City, Country}"
 
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    dev.angelcorzo.nivo: ${LOG_LEVEL_APP:INFO}
+    org.springframework.web: ${LOG_LEVEL_SPRING_WEB:WARN}
+    org.springframework.security: ${LOG_LEVEL_SPRING_SECURITY:WARN}
+    org.hibernate: ${LOG_LEVEL_HIBERNATE:WARN}
+    org.flywaydb: ${LOG_LEVEL_FLYWAY:INFO}
+    com.zaxxer.hikari: ${LOG_LEVEL_HIKARI:INFO}
+
 springdoc:
   api-docs:
     path: /v3/api-docs
@@ -109,4 +132,4 @@ sentry:
   dsn: "${SENTRY_DSN:}"
   traces-sample-rate: "${SENTRY_TRACES_SAMPLE_RATE:0.2}"
   send-default-pii: ${SENTRY_SEND_DEFAULT_PII:true}
-  environment: "${SPRING_PROFILES_ACTIVE:production}"
+  environment: "${SENTRY_ENVIRONMENT:${SPRING_PROFILES_ACTIVE:production}}"

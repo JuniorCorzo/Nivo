@@ -13,17 +13,16 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push:
+  api:
+    name: Build & Deploy API
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout del repositorio
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extraer metadatos de Docker (API)
+      - name: Extract Docker metadata (API)
         id: meta-api
         uses: docker/metadata-action@v5
         with:
@@ -34,21 +33,10 @@ jobs:
             type=semver,pattern={{version}}
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Extraer metadatos de Docker (WEB)
-        id: meta-web
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}-web
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Configurar Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Autenticación en GHCR
+      - name: Authenticate with GHCR
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
@@ -67,6 +55,73 @@ jobs:
           labels: ${{ steps.meta-api.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Check Tailscale Configuration
+        id: check-tailscale
+        if: github.event_name != 'pull_request'
+        env:
+          TS_CLIENT_ID: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+          TS_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
+        run: |
+          if [ -n "$TS_CLIENT_ID" ] || [ -n "$TS_AUTHKEY" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Connect to Tailscale
+        if: steps.check-tailscale.outputs.configured == 'true'
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          tags: tag:ci
+
+      - name: Trigger Dokploy API Deployment
+        if: github.event_name != 'pull_request'
+        env:
+          DOKPLOY_API_WEBHOOK: ${{ secrets.DOKPLOY_API_WEBHOOK || secrets.DOKPLOY_API_WEBHOOK_URL }}
+        run: |
+          if [ -n "$DOKPLOY_API_WEBHOOK" ]; then
+            echo "Triggering Dokploy API deployment webhook for branch $GITHUB_REF_NAME..."
+            curl -f -sS -X POST "$DOKPLOY_API_WEBHOOK" \
+              -H "Content-Type: application/json" \
+              -H "X-GitHub-Event: push" \
+              -d "{\"ref\": \"refs/heads/$GITHUB_REF_NAME\"}"
+            echo "Dokploy API deployment webhook triggered successfully."
+          else
+            echo "DOKPLOY_API_WEBHOOK secret is not configured. Skipping automatic deploy trigger."
+          fi
+
+  web:
+    name: Build & Deploy Web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract Docker metadata (WEB)
+        id: meta-web
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}-web
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Authenticate with GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Compile and push WEB image
         uses: docker/build-push-action@v6
@@ -102,18 +157,18 @@ jobs:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
           tags: tag:ci
 
-      - name: Trigger Dokploy Deployment
+      - name: Trigger Dokploy Web Deployment
         if: github.event_name != 'pull_request'
         env:
-          DOKPLOY_WEBHOOK_URL: ${{ secrets.DOKPLOY_WEBHOOK_URL }}
+          DOKPLOY_WEB_WEBHOOK: ${{ secrets.DOKPLOY_WEB_WEBHOOK || secrets.DOKPLOY_WEB_WEBHOOK_URL }}
         run: |
-          if [ -n "$DOKPLOY_WEBHOOK_URL" ]; then
-            echo "Triggering Dokploy deployment webhook for branch $GITHUB_REF_NAME..."
-            curl -f -sS -X POST "$DOKPLOY_WEBHOOK_URL" \
+          if [ -n "$DOKPLOY_WEB_WEBHOOK" ]; then
+            echo "Triggering Dokploy Web deployment webhook for branch $GITHUB_REF_NAME..."
+            curl -f -sS -X POST "$DOKPLOY_WEB_WEBHOOK" \
               -H "Content-Type: application/json" \
               -H "X-GitHub-Event: push" \
               -d "{\"ref\": \"refs/heads/$GITHUB_REF_NAME\"}"
-            echo "Dokploy deployment webhook triggered successfully."
+            echo "Dokploy Web deployment webhook triggered successfully."
           else
-            echo "DOKPLOY_WEBHOOK_URL secret is not configured. Skipping automatic deploy trigger."
+            echo "DOKPLOY_WEB_WEBHOOK secret is not configured. Skipping automatic deploy trigger."
           fi
