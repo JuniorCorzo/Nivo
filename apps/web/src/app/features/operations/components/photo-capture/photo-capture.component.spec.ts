@@ -8,7 +8,7 @@ describe("PhotoCaptureComponent", () => {
   let component: PhotoCaptureComponent;
   let fixture: ComponentFixture<PhotoCaptureComponent>;
 
-  const mockBase64 = "data:image/jpeg;base64," + "A".repeat(40000); // ~30 KB
+  const mockBase64 = `data:image/jpeg;base64,${  "A".repeat(40000)}`; // ~30 KB
   let mockTracks: { stop: ReturnType<typeof vi.fn>; kind: string }[];
   let mockStream: MediaStream;
 
@@ -30,7 +30,9 @@ describe("PhotoCaptureComponent", () => {
       drawImage: vi.fn(),
     } as unknown as CanvasRenderingContext2D);
 
-    vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockReturnValue(mockBase64);
+    vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockReturnValue(
+      mockBase64
+    );
 
     await TestBed.configureTestingModule({
       imports: [PhotoCaptureComponent],
@@ -98,7 +100,9 @@ describe("PhotoCaptureComponent", () => {
 
   it("5. debe manejar fallback por carga de archivo (input file)", async () => {
     const emitSpy = vi.spyOn(component.photoCaptured, "emit");
-    const file = new File(["dummy content"], "photo.jpg", { type: "image/jpeg" });
+    const file = new File(["dummy content"], "photo.jpg", {
+      type: "image/jpeg",
+    });
 
     const originalFileReader = globalThis.FileReader;
     class MockFileReader {

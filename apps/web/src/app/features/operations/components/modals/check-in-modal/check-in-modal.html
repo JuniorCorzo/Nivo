@@ -17,9 +17,7 @@
           <h2 class="text-foreground text-base font-bold sm:text-lg">
             {{ texts.title }}
           </h2>
-          <p class="text-muted-foreground text-xs">
-            {{ texts.subtitle }}
-          </p>
+          <p class="text-muted-foreground text-xs">{{ texts.subtitle }}</p>
         </div>
       </div>
       <nv-button
@@ -80,8 +78,9 @@
               class="text-lg"
             />
             <span
-              >{{ type === "CAR" ? texts.vehicleAutomobile : type === "MOTORCYCLE" ?
-              texts.vehicleMotorcycle : texts.vehicleBicycle }}</span
+              >{{ type === "CAR" ? texts.vehicleAutomobile : type ===
+              "MOTORCYCLE" ? texts.vehicleMotorcycle : texts.vehicleBicycle
+              }}</span
             >
           </button>
           }
@@ -162,11 +161,13 @@
             id="plate-input"
             #plateInput
             type="text"
+            appPlateMask
+            [country]="facade.plateCountry()"
+            [vehicleType]="facade.vehicleType()"
             [value]="facade.plate()"
             (input)="onPlateInput($event)"
             (keydown.enter)="onEnterKey($event)"
             [placeholder]="facade.plateCountry() === 'VE' ? texts.platePlaceholderVe : texts.platePlaceholderCo"
-            maxlength="10"
             autocomplete="off"
             class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-xl border px-4 py-3 font-mono text-base font-bold tracking-widest uppercase transition-all placeholder:font-normal placeholder:tracking-normal focus:outline-hidden sm:text-lg"
           />

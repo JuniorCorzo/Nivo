@@ -72,11 +72,11 @@ export class TicketReceiptComponent {
     const url = this.publicUrl();
     const plate = t.licensePlate || this.texts.unplatedVehicle;
     const msg = encodeURIComponent(this.texts.whatsAppMessage(plate, url));
-    const rawPhone = t.phoneNumber ? t.phoneNumber.replace(/\D/g, "") : "";
+    const rawPhone = t.phoneNumber ? t.phoneNumber.replaceAll(/\D/g, "") : "";
     const phone = rawPhone
-      ? rawPhone.startsWith("57")
+      ? (rawPhone.startsWith("57")
         ? rawPhone
-        : `57${rawPhone}`
+        : `57${rawPhone}`)
       : "";
 
     return phone

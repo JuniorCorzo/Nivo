@@ -304,4 +304,89 @@ describe("CheckInFacade", () => {
     expect(facade.photoUrl()).toBeNull();
     expect(facade.phoneNumber()).toBe("");
   });
+
+  it("should validate Colombian motorcycle plate with mask format AAA-00A", () => {
+    slotServiceSpy.summaries = () => ({
+      "parking-1": [
+        {
+          id: "slot-moto-1",
+          parkingName: "Central",
+          prefix: "M",
+          slotNumber: "M1",
+          status: "AVAILABLE",
+          type: "MOTORCYCLE",
+          zone: "ZM",
+        },
+      ],
+    });
+    rateServiceSpy.ratesByParking = () => ({
+      "parking-1": [
+        {
+          createdAt: "",
+          description: "Hora Moto",
+          id: "rate-moto-1",
+          minChargeTimeMinutes: 0,
+          name: "Tarifa Motos",
+          parkingId: "parking-1",
+          pricePerUnit: 2000,
+          timeUnit: "HOURS",
+          updatedAt: "",
+          vehicleType: "MOTORCYCLE",
+        },
+      ],
+    });
+
+    facade.init("parking-1");
+    facade.setVehicleType("MOTORCYCLE");
+    facade.setPlateCountry("CO");
+
+    facade.setPlate("ABC-12D");
+    expect(facade.isValid()).toBe(true);
+
+    facade.setPlate("A");
+    expect(facade.isValid()).toBe(false);
+  });
+
+  it("should validate Venezuelan plate with mask format AA-000-AA", () => {
+    facade.init("parking-1");
+    facade.setVehicleType("CAR");
+    facade.setPlateCountry("VE");
+
+    // Incomplete Venezuelan plate
+    facade.setPlate("AB-123");
+    expect(facade.isValid()).toBe(false);
+
+    // Valid Venezuelan plate
+    facade.setPlate("AB-123-CD");
+    expect(facade.isValid()).toBe(true);
+  });
+
+  it("should submit check-in with masked plate successfully", () => {
+    const mockTicket: TicketSummary = {
+      entryTime: "2026-10-16T10:00:00Z",
+      id: "ticket-ve",
+      licensePlate: "AB-123-CD",
+      status: "OPEN",
+    };
+    ticketServiceSpy.createTicket.mockReturnValue(of(mockTicket));
+
+    facade.init("parking-1");
+    facade.setVehicleType("CAR");
+    facade.setPlateCountry("VE");
+    facade.setPlate("AB-123-CD");
+
+    facade.submitCheckIn();
+
+    expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith({
+      email: undefined,
+      phoneNumber: undefined,
+      photoUrl: undefined,
+      plate: "AB-123-CD",
+      plateCountry: "VE",
+      rateId: "rate-1",
+      slotId: "slot-1",
+    });
+    expect(facade.lastIssuedTicket()).toEqual(mockTicket);
+  });
 });
+

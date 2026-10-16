@@ -57,24 +57,24 @@ describe("ActiveParkingService", () => {
 
   let store: Record<string, string> = {};
   const mockLocalStorage = {
-    getItem: (key: string) => store[key] ?? null,
-    setItem: (key: string, value: string) => {
-      store[key] = value;
+    clear: () => {
+      store = {};
     },
+    getItem: (key: string) => store[key] ?? null,
     removeItem: (key: string) => {
       delete store[key];
     },
-    clear: () => {
-      store = {};
+    setItem: (key: string, value: string) => {
+      store[key] = value;
     },
   };
 
   beforeEach(() => {
     store = {};
     Object.defineProperty(window, "localStorage", {
+      configurable: true,
       value: mockLocalStorage,
       writable: true,
-      configurable: true,
     });
     mockParkingLotsSignal = signal<ParkingLotListItemModel[]>(mockLots);
 

@@ -113,4 +113,40 @@ describe("CheckInModalComponent", () => {
     component.onPhotoCleared();
     expect(component.facade.photoUrl()).toBeNull();
   });
+
+  it("should apply plate mask directive formatting on plate input", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+    const input = fixture.nativeElement.querySelector("#plate-input") as HTMLInputElement;
+    input.value = "abc123";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(input.value).toBe("ABC-123");
+    expect(component.facade.plate()).toBe("ABC-123");
+  });
+
+  it("should adapt mask formatting when switching from Colombian to Venezuelan", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+    const input = fixture.nativeElement.querySelector("#plate-input") as HTMLInputElement;
+    input.value = "ab123cd";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    fixture.detectChanges();
+
+    // Default CO automobile masks as ABC-123 (AB1-23C)
+    expect(input.value).toBe("AB1-23C");
+
+    // Switch country to VE
+    component.onPlateCountrySelect("VE");
+    fixture.detectChanges();
+
+    input.value = "ab123cd";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(input.value).toBe("AB-123-CD");
+    expect(component.facade.plate()).toBe("AB-123-CD");
+  });
 });
+

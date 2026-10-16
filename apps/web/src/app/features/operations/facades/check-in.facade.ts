@@ -116,7 +116,7 @@ export class CheckInFacade {
       return Boolean(this.photoUrl());
     }
 
-    const cleaned = this.plate().replace(/[\s-]/g, "").toUpperCase();
+    const cleaned = this.plate().replaceAll(/[\s-]/g, "").toUpperCase();
     if (this.plateCountry() === "VE") {
       return VE_PLATE_REGEX.test(cleaned);
     }
@@ -212,7 +212,7 @@ export class CheckInFacade {
     const slotId = this.selectedSlotId();
     const rateId = this.selectedRateId();
     const plate = this.isUnplated()
-      ? (this.plate().trim().toUpperCase() || "SIN PLACA")
+      ? this.plate().trim().toUpperCase() || "SIN PLACA"
       : this.plate().trim().toUpperCase();
 
     if (!pId || !slotId || !rateId) {
