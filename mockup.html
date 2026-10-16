@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nivo Parking OS · Live Operations & Plate Masks</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            nivo: {
+              bg: '#09090b',
+              card: '#121215',
+              surface: '#18181b',
+              border: '#27272a',
+              text: '#fafafa',
+              muted: '#a1a1aa',
+              primary: '#fafafa',
+              secondary: '#27272a',
+              success: '#22c55e',
+              emerald: '#10b981',
+              amber: '#f59e0b',
+              rose: '#f43f5e',
+              blue: '#3b82f6',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .tnum { font-feature-settings: "tnum"; }
+    /* Crosshair watermark inside camera viewfinder */
+    .viewfinder::before, .viewfinder::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-color: rgba(250, 250, 250, 0.5);
+      pointer-events: none;
+    }
+    .viewfinder::before {
+      top: 12px;
+      left: 12px;
+      border-top: 2px solid;
+      border-left: 2px solid;
+    }
+    .viewfinder::after {
+      bottom: 12px;
+      right: 12px;
+      border-bottom: 2px solid;
+      border-right: 2px solid;
+    }
+    /* 80mm thermal receipt serrated jagged edges */
+    .receipt-sawtooth {
+      background: radial-gradient(circle, transparent, transparent 50%, #ffffff 50%, #ffffff 100%);
+      background-size: 10px 10px;
+    }
+    .thermal-paper {
+      background-color: #fafafa;
+      color: #18181b;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    }
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #09090b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3f3f46;
+    }
+  </style>
+</head>
+<body class="bg-nivo-bg text-nivo-text font-sans antialiased min-h-screen flex flex-col items-center">
+
+  <!-- ================= TOP CONTEXT BAR ================= -->
+  <header class="w-full border-b border-nivo-border bg-nivo-card/90 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
+      <!-- Left: Logo & Location -->
+      <div class="flex items-center gap-3.5 w-full md:w-auto justify-between md:justify-start">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-300 text-zinc-950 font-extrabold flex items-center justify-center font-mono text-lg shadow-md shadow-zinc-900/50">
+            N
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-sm font-bold tracking-tight text-nivo-text">Nivo Parking OS</h1>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">LIVE OPS</span>
+            </div>
+            <p class="text-xs text-nivo-muted flex items-center gap-1.5">
+              <i data-lucide="map-pin" class="w-3 h-3 text-zinc-400"></i>
+              <span>Sede Centro · Cúcuta, Norte de Santander</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Shift badge for mobile -->
+        <div class="md:hidden text-right">
+          <div id="clock-mobile" class="font-mono text-xs font-semibold text-nivo-text tnum">15:42:10</div>
+          <span class="text-[10px] text-nivo-muted">Carlos M.</span>
+        </div>
+      </div>
+
+      <!-- Center: Navigation Tabs -->
+      <nav class="flex items-center p-1 bg-zinc-900 border border-nivo-border rounded-xl shadow-inner text-xs font-semibold">
+        <button id="btn-nav-dashboard" onclick="switchMainTab('dashboard')" class="px-3.5 py-1.5 rounded-lg bg-zinc-800 text-nivo-text shadow-sm transition-all flex items-center gap-2">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+          <span>1. Live Ops Dashboard</span>
+        </button>
+        <button id="btn-nav-checkin" onclick="openCheckInModal()" class="px-3.5 py-1.5 rounded-lg text-nivo-muted hover:text-nivo-text transition-all flex items-center gap-2">
+          <i data-lucide="log-in" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>2. Check-In Taquilla</span>
+          <span class="hidden sm:inline-block font-mono text-[9px] bg-zinc-800 px-1 py-0.2 rounded border border-zinc-700 text-zinc-300">I</span>
+        </button>
+        <button id="btn-nav-checkout" onclick="openCheckOutModal()" class="px-3.5 py-1.5 rounded-lg text-nivo-muted hover:text-nivo-text transition-all flex items-center gap-2">
+          <i data-lucide="log-out" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>3. Check-Out Cobro</span>
+          <span class="hidden sm:inline-block font-mono text-[9px] bg-zinc-800 px-1 py-0.2 rounded border border-zinc-700 text-zinc-300">O</span>
+        </button>
+        <button id="btn-nav-receipt" onclick="switchMainTab('receipt')" class="px-3.5 py-1.5 rounded-lg text-nivo-muted hover:text-nivo-text transition-all flex items-center gap-2">
+          <i data-lucide="receipt" class="w-3.5 h-3.5 text-blue-400"></i>
+          <span>4. Recibo Térmico (80mm)</span>
+        </button>
+      </nav>
+
+      <!-- Right: Shift Info, Real-time Clock, Hotkeys -->
+      <div class="hidden md:flex items-center gap-4 text-xs">
+        <div class="text-right">
+          <div class="flex items-center gap-1.5 justify-end font-mono font-bold text-nivo-text text-sm tnum" id="live-clock">
+            15:42:10
+          </div>
+          <p class="text-[11px] text-nivo-muted">Turno Tarde · Carlos Mendoza</p>
+        </div>
+        <div class="h-8 w-px bg-nivo-border"></div>
+        <div class="flex items-center gap-2">
+          <button onclick="openCheckInModal()" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all">
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+            <span>Ingresar</span>
+            <kbd class="font-mono text-[9px] bg-emerald-600/60 px-1 rounded text-zinc-950">I</kbd>
+          </button>
+          <button onclick="openCheckOutModal()" class="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-nivo-border text-nivo-text font-semibold text-xs flex items-center gap-1.5 transition-all">
+            <i data-lucide="credit-card" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>Cobrar</span>
+            <kbd class="font-mono text-[9px] bg-zinc-700 px-1 rounded text-zinc-300">O</kbd>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 flex flex-col gap-6">
+
+    <!-- VIEW 1: LIVE OPS DASHBOARD -->
+    <div id="view-dashboard" class="flex flex-col gap-6 transition-all duration-300">
+      
+      <!-- 5 REAL-TIME KPI CARDS -->
+      <section class="grid grid-cols-2 md:grid-cols-5 gap-3.5">
+        <!-- KPI 1: Plazas Totales -->
+        <div class="bg-nivo-card border border-nivo-border rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-zinc-600 transition-all">
+          <div class="flex items-center justify-between text-nivo-muted">
+            <span class="text-xs font-semibold uppercase tracking-wider">Plazas Totales</span>
+            <i data-lucide="parking-square" class="w-4 h-4 text-zinc-400"></i>
+          </div>
+          <div class="mt-2 flex items-baseline gap-1.5">
+            <span id="kpi-total-slots" class="text-2xl font-bold font-mono text-nivo-text tnum">120</span>
+            <span class="text-xs text-nivo-muted">cupos</span>
+          </div>
+          <div class="mt-2 text-[11px] text-zinc-400">Capacidad total registrada</div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800"></div>
+        </div>
+
+        <!-- KPI 2: Ocupación Actual -->
+        <div class="bg-nivo-card border border-nivo-border rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-zinc-600 transition-all">
+          <div class="flex items-center justify-between text-nivo-muted">
+            <span class="text-xs font-semibold uppercase tracking-wider">Ocupación</span>
+            <span id="kpi-occupancy-pct" class="text-xs font-mono font-bold text-amber-400">70%</span>
+          </div>
+          <div class="mt-2 flex items-baseline gap-1.5">
+            <span id="kpi-occupied-slots" class="text-2xl font-bold font-mono text-nivo-text tnum">84</span>
+            <span class="text-xs text-nivo-muted">/ 120 ocupados</span>
+          </div>
+          <!-- Visual progress bar -->
+          <div class="mt-2 w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+            <div id="kpi-occupancy-bar" class="bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500 h-1.5 rounded-full transition-all duration-500" style="width: 70%"></div>
+          </div>
+        </div>
+
+        <!-- KPI 3: Cupos Libres -->
+        <div class="bg-nivo-card border border-nivo-border rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-zinc-600 transition-all">
+          <div class="flex items-center justify-between text-nivo-muted">
+            <span class="text-xs font-semibold uppercase tracking-wider">Cupos Libres</span>
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+          </div>
+          <div class="mt-2 flex items-baseline gap-1.5">
+            <span id="kpi-free-slots" class="text-2xl font-bold font-mono text-emerald-400 tnum">36</span>
+            <span class="text-xs text-nivo-muted">disponibles</span>
+          </div>
+          <div class="mt-2 text-[11px] text-zinc-400 flex items-center justify-between">
+            <span>Autos: <b class="text-nivo-text font-mono" id="kpi-free-cars">22</b></span>
+            <span>Motos: <b class="text-nivo-text font-mono" id="kpi-free-motos">14</b></span>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500/40"></div>
+        </div>
+
+        <!-- KPI 4: Recaudación del Turno -->
+        <div class="bg-nivo-card border border-nivo-border rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-zinc-600 transition-all">
+          <div class="flex items-center justify-between text-nivo-muted">
+            <span class="text-xs font-semibold uppercase tracking-wider">Recaudación</span>
+            <i data-lucide="circle-dollar-sign" class="w-4 h-4 text-emerald-400"></i>
+          </div>
+          <div class="mt-2">
+            <div id="kpi-revenue-total" class="text-2xl font-bold font-mono text-nivo-text tnum">$482.000</div>
+          </div>
+          <div class="mt-2 text-[10px] text-zinc-400 flex items-center justify-between font-mono">
+            <span>Efvo: $340k</span>
+            <span>Wompi: $142k</span>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-blue-500/40"></div>
+        </div>
+
+        <!-- KPI 5: Tiempo Promedio Estadía -->
+        <div class="bg-nivo-card border border-nivo-border rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-zinc-600 transition-all col-span-2 md:col-span-1">
+          <div class="flex items-center justify-between text-nivo-muted">
+            <span class="text-xs font-semibold uppercase tracking-wider">Tiempo Promedio</span>
+            <i data-lucide="clock" class="w-4 h-4 text-zinc-400"></i>
+          </div>
+          <div class="mt-2 flex items-baseline gap-1.5">
+            <span class="text-2xl font-bold font-mono text-nivo-text tnum">1h 18m</span>
+            <span class="text-xs text-nivo-muted">rotación</span>
+          </div>
+          <div class="mt-2 text-[11px] text-emerald-400 flex items-center gap-1">
+            <i data-lucide="trending-up" class="w-3 h-3"></i>
+            <span>Alta eficiencia</span>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-amber-500/40"></div>
+        </div>
+      </section>
+
+      <!-- ================= SLOT VISUALIZER MATRIX ================= -->
+      <section class="bg-nivo-card border border-nivo-border rounded-xl p-5 shadow-sm">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-nivo-border">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-sm font-bold text-nivo-text tracking-tight flex items-center gap-2">
+                <i data-lucide="grid" class="w-4 h-4 text-zinc-400"></i>
+                <span>Matriz Visual de Cupos en Vivo (Bahías A & B)</span>
+              </h2>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-nivo-border">24 cupos renderizados</span>
+            </div>
+            <p class="text-xs text-nivo-muted mt-0.5">Haz clic en un cupo <b>LIBRE</b> para ingresar vehículo o en uno <b>OCUPADO</b> para liquidar salida.</p>
+          </div>
+
+          <!-- Filter Pills for Matrix -->
+          <div class="flex flex-wrap items-center gap-1.5 bg-zinc-900 p-1 border border-nivo-border rounded-lg text-xs font-medium">
+            <button onclick="filterMatrix('ALL')" id="flt-all" class="px-2.5 py-1 rounded-md bg-zinc-800 text-nivo-text font-semibold transition-all">Todos</button>
+            <button onclick="filterMatrix('CAR')" id="flt-car" class="px-2.5 py-1 rounded-md text-nivo-muted hover:text-nivo-text transition-all flex items-center gap-1">
+              <i data-lucide="car" class="w-3 h-3"></i>
+              <span>Zona A (Autos)</span>
+            </button>
+            <button onclick="filterMatrix('MOTO')" id="flt-moto" class="px-2.5 py-1 rounded-md text-nivo-muted hover:text-nivo-text transition-all flex items-center gap-1">
+              <i data-lucide="bike" class="w-3 h-3"></i>
+              <span>Zona B (Motos)</span>
+            </button>
+            <button onclick="filterMatrix('FREE')" id="flt-free" class="px-2.5 py-1 rounded-md text-emerald-400 hover:text-emerald-300 transition-all flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>Libres</span>
+            </button>
+            <button onclick="filterMatrix('OCCUPIED')" id="flt-occupied" class="px-2.5 py-1 rounded-md text-amber-400 hover:text-amber-300 transition-all flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              <span>Ocupados</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Matrix Grid -->
+        <div id="slots-matrix-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 pt-4">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Matrix Legend -->
+        <div class="mt-4 pt-3 border-t border-nivo-border/60 flex flex-wrap items-center justify-between gap-3 text-[11px] text-nivo-muted">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs shadow-emerald-500/50"></span>
+              <span>Libre / Disponible (+ Asignar)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              <span>Ocupado (Cobro en marcha)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+              <span>Gracia Activa (&le; 15 min)</span>
+            </div>
+          </div>
+          <div class="font-mono text-zinc-500">
+            Tarifas: Auto $4.500/h · Moto $2.500/h · Bici $1.000/h
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= REAL-TIME ACTIVE VEHICLES TABLE ================= -->
+      <section class="bg-nivo-card border border-nivo-border rounded-xl p-5 shadow-sm">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-nivo-border">
+          <div>
+            <h2 class="text-sm font-bold text-nivo-text tracking-tight flex items-center gap-2">
+              <i data-lucide="list" class="w-4 h-4 text-zinc-400"></i>
+              <span>Vehículos Activos en Taquilla</span>
+              <span id="active-count-badge" class="font-mono text-xs px-2 py-0.5 rounded-full bg-zinc-800 text-nivo-text border border-nivo-border">14 activos</span>
+            </h2>
+            <p class="text-xs text-nivo-muted">Registro en vivo con reloj cronómetro y cálculo de gracia / cobro en tiempo real.</p>
+          </div>
+
+          <!-- Search & Filter Controls -->
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <div class="relative w-full sm:w-64">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input 
+                id="search-table-input" 
+                type="text" 
+                oninput="handleTableSearch()" 
+                placeholder="Buscar por placa, bahía o tipo..." 
+                class="w-full bg-zinc-900 border border-nivo-border rounded-lg pl-8 pr-3 py-1.5 text-xs text-nivo-text placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 font-mono transition-all"
+              >
+            </div>
+            <button onclick="openCheckInModal()" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-bold text-xs flex items-center gap-1.5 shrink-0 transition-all">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>Nuevo</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="overflow-x-auto mt-3">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-nivo-border text-zinc-400 font-semibold uppercase text-[10px] tracking-wider">
+                <th class="py-2.5 px-3">Placa / Matrícula</th>
+                <th class="py-2.5 px-3">Vehículo</th>
+                <th class="py-2.5 px-3">Bahía</th>
+                <th class="py-2.5 px-3">Hora Ingreso</th>
+                <th class="py-2.5 px-3">Tiempo Transcurrido</th>
+                <th class="py-2.5 px-3">Estado / Cobro</th>
+                <th class="py-2.5 px-3 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="active-vehicles-table-body" class="divide-y divide-nivo-border/40 font-mono">
+              <!-- Dynamically populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div><!-- END VIEW 1 -->
+
+    <!-- VIEW 4: DIGITAL 80MM THERMAL RECEIPT (DEDICATED FULL VIEW) -->
+    <div id="view-receipt" class="hidden flex-col items-center justify-center py-6 transition-all duration-300">
+      
+      <div class="mb-4 flex items-center gap-3">
+        <button onclick="switchMainTab('dashboard')" class="px-3 py-1.5 rounded-lg bg-zinc-900 border border-nivo-border text-xs text-nivo-muted hover:text-nivo-text flex items-center gap-1.5 transition-all">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Volver al Dashboard</span>
+        </button>
+        <span class="text-xs text-zinc-500">|</span>
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-nivo-text flex items-center gap-1.5 transition-all">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>Imprimir POS (80mm)</span>
+        </button>
+        <button onclick="shareReceiptWhatsApp()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white flex items-center gap-1.5 transition-all">
+          <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+          <span>Enviar WhatsApp</span>
+        </button>
+      </div>
+
+      <!-- 80mm THERMAL RECEIPT CARD -->
+      <div id="thermal-receipt-card" class="thermal-paper w-full max-w-[360px] rounded-sm p-6 text-zinc-950 font-mono text-xs flex flex-col items-center border border-zinc-300 shadow-2xl relative">
+        
+        <!-- Header -->
+        <div class="text-center w-full pb-3 border-b border-dashed border-zinc-400">
+          <div class="text-base font-extrabold tracking-wider">*** NIVO PARKING OS ***</div>
+          <div class="text-[11px] font-semibold mt-0.5">SEDE CENTRO - CÚCUTA</div>
+          <div class="text-[10px] text-zinc-700">NIT: 901.849.201-4 · RÉGIMEN COMÚN</div>
+          <div class="text-[10px] text-zinc-600">Av. 0 #11-42, Cúcuta, Norte de Santander</div>
+          <div class="text-[10px] text-zinc-600">Tel: +57 (607) 583-9200</div>
+        </div>
+
+        <!-- Ticket Body Meta -->
+        <div class="w-full py-3 space-y-1 text-[11px] border-b border-dashed border-zinc-400">
+          <div class="flex justify-between">
+            <span class="font-bold">TICKET #:</span>
+            <span id="rcpt-ticket-id" class="font-extrabold">TK-2026-8921</span>
+          </div>
+          <div class="flex justify-between">
+            <span>FECHA:</span>
+            <span id="rcpt-date">16/10/2026</span>
+          </div>
+          <div class="flex justify-between">
+            <span>INGRESO:</span>
+            <span id="rcpt-entry-time">14:15:20</span>
+          </div>
+          <div class="flex justify-between">
+            <span>SALIDA / EMISIÓN:</span>
+            <span id="rcpt-exit-time">15:42:10</span>
+          </div>
+          <div class="flex justify-between">
+            <span>TIEMPO TOTAL:</span>
+            <span id="rcpt-duration" class="font-bold">1h 26m (2 hrs fact.)</span>
+          </div>
+          <div class="flex justify-between items-center pt-1">
+            <span class="font-bold">PLACA / CÓDIGO:</span>
+            <span id="rcpt-plate" class="text-sm font-extrabold px-1.5 py-0.5 bg-zinc-200 rounded">FXZ-812</span>
+          </div>
+          <div class="flex justify-between">
+            <span>ORIGEN / PAÍS:</span>
+            <span id="rcpt-country">COLOMBIA 🇨🇴</span>
+          </div>
+          <div class="flex justify-between">
+            <span>VEHÍCULO:</span>
+            <span id="rcpt-vehicle-type">AUTOMÓVIL</span>
+          </div>
+          <div class="flex justify-between">
+            <span>BAHÍA ASIGNADA:</span>
+            <span id="rcpt-slot" class="font-bold">A-01</span>
+          </div>
+          <div class="flex justify-between">
+            <span>TARIFA APLICADA:</span>
+            <span id="rcpt-rate-desc">$4.500 COP / hora</span>
+          </div>
+        </div>
+
+        <!-- Financial Breakdown -->
+        <div class="w-full py-3 space-y-1.5 text-[11px] border-b border-dashed border-zinc-400">
+          <div class="flex justify-between">
+            <span>SUBTOTAL:</span>
+            <span id="rcpt-subtotal" class="font-bold">$9.000 COP</span>
+          </div>
+          <div class="flex justify-between text-zinc-600">
+            <span>IVA (0% / Exento):</span>
+            <span>$0 COP</span>
+          </div>
+          <div class="flex justify-between text-sm font-extrabold pt-1 border-t border-zinc-300">
+            <span>TOTAL PAGADO:</span>
+            <span id="rcpt-total">$9.000 COP</span>
+          </div>
+          <div class="flex justify-between text-[10px] text-zinc-700">
+            <span>MÉTODO:</span>
+            <span id="rcpt-payment-method">EFECTIVO</span>
+          </div>
+        </div>
+
+        <!-- Grace Period or Unplated Photo Notice -->
+        <div id="rcpt-notice-box" class="w-full my-2 p-2 bg-zinc-100 border border-zinc-300 rounded text-[10px] text-center hidden">
+          <span id="rcpt-notice-text">Período de gracia aplicado</span>
+        </div>
+
+        <!-- Photo preview for Unplated Vehicles -->
+        <div id="rcpt-photo-container" class="w-full my-2 flex flex-col items-center hidden">
+          <div class="text-[10px] text-zinc-500 mb-1">REGISTRO FOTOGRÁFICO DE INGRESO:</div>
+          <img id="rcpt-vehicle-photo" src="" alt="Foto vehículo" class="w-40 h-24 object-cover rounded border border-zinc-300">
+        </div>
+
+        <!-- Dynamic QR Code -->
+        <div class="my-4 flex flex-col items-center">
+          <div id="receipt-qrcode" class="p-2 bg-white rounded border border-zinc-300 shadow-xs"></div>
+          <div class="text-[9px] text-zinc-500 mt-1.5 text-center">
+            Escanea para consultar comprobante digital y tarifa en vivo<br>
+            <span class="font-bold text-zinc-700" id="rcpt-qr-link">app.nivo.dev/t/TK-2026-8921</span>
+          </div>
+        </div>
+
+        <!-- Barcode representation -->
+        <div class="w-full flex flex-col items-center my-1">
+          <div class="flex items-center gap-[2px] h-8 w-48 justify-center bg-zinc-900/5 p-1 rounded">
+            <div class="w-[2px] h-full bg-zinc-950"></div>
+            <div class="w-[1px] h-full bg-zinc-950"></div>
+            <div class="w-[3px] h-full bg-zinc-950"></div>
+            <div class="w-[1px] h-full bg-zinc-950"></div>
+            <div class="w-[2px] h-full bg-zinc-950"></div>
+            <div class="w-[4px] h-full bg-zinc-950"></div>
+            <div class="w-[1px] h-full bg-zinc-950"></div>
+            <div class="w-[2px] h-full bg-zinc-950"></div>
+            <div class="w-[1px] h-full bg-zinc-950"></div>
+            <div class="w-[3px] h-full bg-zinc-950"></div>
+            <div class="w-[2px] h-full bg-zinc-950"></div>
+            <div class="w-[1px] h-full bg-zinc-950"></div>
+            <div class="w-[4px] h-full bg-zinc-950"></div>
+            <div class="w-[2px] h-full bg-zinc-950"></div>
+            <div class="w-[1px] h-full bg-zinc-950"></div>
+            <div class="w-[3px] h-full bg-zinc-950"></div>
+          </div>
+          <span class="text-[9px] tracking-widest mt-0.5 text-zinc-600 font-bold" id="rcpt-barcode-text">*TK20268921*</span>
+        </div>
+
+        <!-- Footer -->
+        <div class="w-full text-center text-[10px] text-zinc-600 pt-3 border-t border-dashed border-zinc-400 mt-2 space-y-1">
+          <div class="font-bold">¡GRACIAS POR SU VISITA!</div>
+          <div>CONSERVE ESTE TICKET HASTA SU SALIDA</div>
+          <div class="text-[9px] text-zinc-400">Software Operacional Nivo Parking OS v2.4</div>
+        </div>
+
+      </div><!-- End Thermal Paper -->
+
+    </div><!-- END VIEW 4 -->
+
+  </main>
+
+  <!-- ================= MODAL 1: CHECK-IN TAQUILLA ================= -->
+  <div id="modal-checkin" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 hidden animate-in fade-in duration-150">
+    <div class="bg-nivo-card border border-nivo-border rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 border-b border-nivo-border flex items-center justify-between bg-zinc-900/50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <i data-lucide="log-in" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-nivo-text">Registrar Ingreso de Vehículo</h3>
+            <p class="text-xs text-nivo-muted">Asignar cupo, formatear placa y emitir ticket</p>
+          </div>
+        </div>
+        <button onclick="closeCheckInModal()" class="w-7 h-7 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-nivo-text flex items-center justify-center transition-all">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 overflow-y-auto space-y-4 text-xs">
+
+        <!-- Vehicle Type Selector -->
+        <div>
+          <label class="block text-zinc-400 font-semibold mb-1.5 uppercase text-[11px] tracking-wider">
+            Tipo de Vehículo
+          </label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="setCheckInVehicleType('CAR')" id="ci-type-car" class="p-2.5 rounded-xl border border-nivo-border bg-zinc-900 hover:bg-zinc-800/80 text-nivo-text flex flex-col items-center gap-1 transition-all">
+              <i data-lucide="car" class="w-5 h-5 text-zinc-300"></i>
+              <span class="font-semibold text-xs">Automóvil</span>
+              <span class="text-[10px] text-zinc-400 font-mono">$4.500 / hr</span>
+            </button>
+            <button type="button" onclick="setCheckInVehicleType('MOTORCYCLE')" id="ci-type-moto" class="p-2.5 rounded-xl border border-nivo-border bg-zinc-900 hover:bg-zinc-800/80 text-nivo-text flex flex-col items-center gap-1 transition-all">
+              <i data-lucide="bike" class="w-5 h-5 text-zinc-300"></i>
+              <span class="font-semibold text-xs">Motocicleta</span>
+              <span class="text-[10px] text-zinc-400 font-mono">$2.500 / hr</span>
+            </button>
+            <button type="button" onclick="setCheckInVehicleType('BIKE')" id="ci-type-bike" class="p-2.5 rounded-xl border border-nivo-border bg-zinc-900 hover:bg-zinc-800/80 text-nivo-text flex flex-col items-center gap-1 transition-all">
+              <i data-lucide="footprints" class="w-5 h-5 text-zinc-300"></i>
+              <span class="font-semibold text-xs">Bicicleta</span>
+              <span class="text-[10px] text-zinc-400 font-mono">$1.000 / hr</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Plate Country Tabs -->
+        <div>
+          <label class="block text-zinc-400 font-semibold mb-1.5 uppercase text-[11px] tracking-wider">
+            Origen / Tipo de Placa
+          </label>
+          <div class="grid grid-cols-3 gap-1.5 p-1 bg-zinc-900 border border-nivo-border rounded-xl">
+            <button type="button" onclick="setCheckInCountry('CO')" id="ci-tab-co" class="py-1.5 text-xs font-semibold rounded-lg bg-zinc-800 text-nivo-text shadow-sm flex items-center justify-center gap-1.5 transition-all">
+              <span>🇨🇴 Colombia</span>
+            </button>
+            <button type="button" onclick="setCheckInCountry('VE')" id="ci-tab-ve" class="py-1.5 text-xs font-medium rounded-lg text-nivo-muted hover:text-nivo-text flex items-center justify-center gap-1.5 transition-all">
+              <span>🇻🇪 Venezuela</span>
+            </button>
+            <button type="button" onclick="setCheckInCountry('UNPLATED')" id="ci-tab-unplated" class="py-1.5 text-xs font-medium rounded-lg text-nivo-muted hover:text-nivo-text flex items-center justify-center gap-1.5 transition-all">
+              <span>🚫 Sin Placa</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic License Plate Input Section (CO / VE) -->
+        <div id="ci-platable-section">
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="ci-plate-input" class="text-zinc-400 font-semibold uppercase text-[11px] tracking-wider">
+              Placa / Matrícula <span class="text-rose-500">*</span>
+            </label>
+            <span id="ci-plate-hint" class="text-[11px] text-zinc-400 font-mono">Ej: ABC-123 (Auto)</span>
+          </div>
+
+          <div class="relative">
+            <input 
+              id="ci-plate-input" 
+              type="text" 
+              autocomplete="off" 
+              placeholder="Ej: ABC-123" 
+              class="w-full bg-zinc-900 border border-nivo-border rounded-xl px-4 py-3 font-mono text-lg font-bold tracking-widest uppercase text-nivo-text focus:outline-none focus:border-zinc-400 transition-all placeholder:text-zinc-600 placeholder:font-normal placeholder:tracking-normal placeholder:text-sm"
+            >
+            <div class="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-[10px] text-zinc-500 pointer-events-none">
+              ENTER ↵
+            </div>
+          </div>
+
+          <!-- Dynamic Validation Indicator Badge -->
+          <div class="mt-2 flex items-center gap-2">
+            <div id="ci-validation-pill" class="text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 bg-zinc-900 text-zinc-400 border-nivo-border">
+              <i data-lucide="info" class="w-3.5 h-3.5"></i>
+              <span id="ci-validation-msg">Escribe la placa para formatear en tiempo real</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sin Placa Camera & Synthetic Badge Section -->
+        <div id="ci-unplated-section" class="hidden space-y-3">
+          <div class="p-3 bg-zinc-900 border border-nivo-border rounded-xl flex items-center justify-between">
+            <div>
+              <span class="text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">Código Sintético Generado</span>
+              <div class="font-mono text-base font-extrabold text-emerald-400 flex items-center gap-1.5">
+                <span id="ci-synthetic-plate">SP-7823</span>
+                <span class="text-[10px] font-normal px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Identificador Único</span>
+              </div>
+            </div>
+            <button type="button" onclick="regenerateSyntheticPlateCheckIn()" class="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs flex items-center gap-1 transition-all">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              <span>Regenerar</span>
+            </button>
+          </div>
+
+          <!-- Camera Frame -->
+          <div>
+            <label class="block text-zinc-400 font-semibold mb-1 uppercase text-[11px] tracking-wider">
+              Fotografía de la Motocicleta <span class="text-rose-500">*</span>
+            </label>
+            <div class="relative w-full h-44 rounded-xl border-2 border-dashed border-zinc-700 bg-zinc-950 flex flex-col items-center justify-center overflow-hidden viewfinder">
+              <video id="ci-webcam" autoplay playsinline class="w-full h-full object-cover hidden"></video>
+              <img id="ci-captured-photo" class="w-full h-full object-cover hidden" alt="Foto capturada">
+              
+              <div id="ci-camera-placeholder" class="flex flex-col items-center gap-2 text-zinc-500 text-center p-4">
+                <i data-lucide="camera" class="w-8 h-8 text-zinc-600"></i>
+                <span class="text-xs">Usa la cámara WebRTC o sube una imagen de referencia</span>
+                <span class="text-[10px] text-zinc-600">Compresión automática JPG &lt; 100 KB</span>
+              </div>
+
+              <!-- Size badge -->
+              <div id="ci-photo-badge" class="absolute bottom-2 left-2 hidden px-2 py-0.5 rounded bg-zinc-900/80 backdrop-blur-xs text-[10px] font-mono text-emerald-400 border border-zinc-700">
+                <span id="ci-photo-kb">64.2</span> KB · Comprimido
+              </div>
+            </div>
+
+            <!-- Camera Controls -->
+            <div class="mt-2 flex items-center gap-2">
+              <button type="button" onclick="toggleWebcamCheckIn()" class="flex-1 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-nivo-text text-xs font-semibold flex items-center justify-center gap-1.5 transition-all">
+                <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                <span id="ci-cam-btn-text">Abrir Cámara</span>
+              </button>
+              <label class="flex-1 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-nivo-border text-zinc-300 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all">
+                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                <span>Subir Archivo</span>
+                <input type="file" accept="image/*" onchange="handleFileUploadCheckIn(event)" class="hidden">
+              </label>
+            </div>
+            <canvas id="ci-compression-canvas" class="hidden"></canvas>
+          </div>
+        </div>
+
+        <!-- Slot Assignment Picker -->
+        <div>
+          <label for="ci-slot-select" class="block text-zinc-400 font-semibold mb-1.5 uppercase text-[11px] tracking-wider">
+            Cupo / Bahía Asignada <span class="text-rose-500">*</span>
+          </label>
+          <select id="ci-slot-select" class="w-full bg-zinc-900 border border-nivo-border rounded-xl px-3.5 py-2.5 font-mono text-xs text-nivo-text focus:outline-none focus:border-zinc-400 transition-all">
+            <!-- Dynamically populated with free slots -->
+          </select>
+        </div>
+
+        <!-- Optional Phone for Digital WhatsApp Ticket -->
+        <div>
+          <label for="ci-phone-input" class="block text-zinc-400 font-semibold mb-1 uppercase text-[11px] tracking-wider flex items-center justify-between">
+            <span>Teléfono Móvil</span>
+            <span class="text-zinc-500 font-normal lowercase">(opcional para ticket WhatsApp)</span>
+          </label>
+          <div class="relative">
+            <i data-lucide="phone" class="w-3.5 h-3.5 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input 
+              id="ci-phone-input" 
+              type="tel" 
+              placeholder="Ej: 300 123 4567" 
+              class="w-full bg-zinc-900 border border-nivo-border rounded-xl pl-9 pr-3 py-2 text-xs font-mono text-nivo-text focus:outline-none focus:border-zinc-400 transition-all placeholder:text-zinc-600"
+            >
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-5 py-3.5 border-t border-nivo-border bg-zinc-900/50 flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeCheckInModal()" class="px-4 py-2 rounded-xl border border-nivo-border text-zinc-400 hover:text-nivo-text text-xs font-semibold transition-all">
+          Cancelar
+        </button>
+        <button type="button" onclick="submitCheckInModal()" id="ci-btn-submit" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          <span>Emitir Ticket e Ingresar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MODAL 2: CHECK-OUT COBRO & GRACIA ================= -->
+  <div id="modal-checkout" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 hidden animate-in fade-in duration-150">
+    <div class="bg-nivo-card border border-nivo-border rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 border-b border-nivo-border flex items-center justify-between bg-zinc-900/50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+            <i data-lucide="credit-card" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-nivo-text">Liquidación de Salida y Cobro</h3>
+            <p class="text-xs text-nivo-muted">Cálculo de estadía, período de gracia y liberación de cupo</p>
+          </div>
+        </div>
+        <button onclick="closeCheckOutModal()" class="w-7 h-7 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-nivo-text flex items-center justify-center transition-all">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 overflow-y-auto space-y-4 text-xs">
+
+        <!-- Select Active Vehicle -->
+        <div>
+          <label for="co-vehicle-select" class="block text-zinc-400 font-semibold mb-1.5 uppercase text-[11px] tracking-wider">
+            Seleccionar Vehículo a Cobrar
+          </label>
+          <select id="co-vehicle-select" onchange="handleCheckOutVehicleSelected()" class="w-full bg-zinc-900 border border-nivo-border rounded-xl px-3.5 py-2.5 font-mono text-xs text-nivo-text focus:outline-none focus:border-zinc-400 transition-all">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+
+        <!-- Vehicle Details Card -->
+        <div class="p-4 bg-zinc-900/70 border border-nivo-border rounded-xl space-y-2 font-mono">
+          <div class="flex items-center justify-between pb-2 border-b border-nivo-border">
+            <div class="flex items-center gap-2">
+              <span id="co-plate-display" class="text-base font-extrabold text-nivo-text px-2 py-0.5 bg-zinc-800 rounded border border-zinc-700">FXZ-812</span>
+              <span id="co-country-display" class="text-xs text-zinc-400 font-sans">🇨🇴 Colombia</span>
+            </div>
+            <div id="co-slot-display" class="text-xs font-bold text-zinc-300">Bahía A-01</div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
+            <div>
+              <span class="text-zinc-500">Hora Ingreso:</span>
+              <div id="co-entry-display" class="font-bold text-nivo-text">14:15:20</div>
+            </div>
+            <div>
+              <span class="text-zinc-500">Hora Actual (Salida):</span>
+              <div id="co-exit-display" class="font-bold text-nivo-text tnum">15:42:10</div>
+            </div>
+            <div>
+              <span class="text-zinc-500">Tiempo Transcurrido:</span>
+              <div id="co-duration-display" class="font-bold text-amber-400">1h 26m 50s</div>
+            </div>
+            <div>
+              <span class="text-zinc-500">Tarifa Base:</span>
+              <div id="co-rate-display" class="font-bold text-nivo-text">$4.500 / hr</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 15-MINUTE GRACE PERIOD BANNER -->
+        <div id="co-grace-banner" class="hidden p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-start gap-3">
+          <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5"></i>
+          <div>
+            <div class="text-xs font-bold text-emerald-300">¡Período de Gracia Activo (&le; 15 min)!</div>
+            <p class="text-[11px] text-emerald-400/90 mt-0.5">
+              El vehículo ha permanecido menos de 15 minutos en el establecimiento. Salida exenta sin costo: <b class="font-mono text-xs">$0 COP</b>.
+            </p>
+          </div>
+        </div>
+
+        <!-- BILLING BREAKDOWN (When > 15 min) -->
+        <div id="co-billing-section" class="p-3.5 bg-zinc-900 border border-nivo-border rounded-xl space-y-2 font-mono">
+          <div class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider font-sans">Desglose de Liquidación</div>
+          <div class="flex justify-between text-[11px]">
+            <span class="text-zinc-400">Horas facturables:</span>
+            <span id="co-hours-billed" class="font-bold">2 hrs</span>
+          </div>
+          <div class="flex justify-between text-[11px]">
+            <span class="text-zinc-400">Subtotal:</span>
+            <span id="co-subtotal-display" class="font-bold">$9.000 COP</span>
+          </div>
+          <div class="flex justify-between text-[11px] text-zinc-500">
+            <span>IVA (0% / Exento):</span>
+            <span>$0 COP</span>
+          </div>
+          <div class="pt-2 border-t border-zinc-800 flex justify-between items-center text-sm font-extrabold text-nivo-text font-mono">
+            <span>TOTAL A COBRAR:</span>
+            <span id="co-total-display" class="text-base text-emerald-400">$9.000 COP</span>
+          </div>
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div>
+          <label class="block text-zinc-400 font-semibold mb-1.5 uppercase text-[11px] tracking-wider">
+            Método de Pago
+          </label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="setPaymentMethod('CASH')" id="pm-cash" class="p-2.5 rounded-xl border border-nivo-border bg-zinc-900 hover:bg-zinc-800 text-nivo-text flex flex-col items-center gap-1 transition-all">
+              <i data-lucide="banknote" class="w-4 h-4 text-emerald-400"></i>
+              <span class="font-semibold text-xs">Efectivo</span>
+            </button>
+            <button type="button" onclick="setPaymentMethod('WOMPI')" id="pm-wompi" class="p-2.5 rounded-xl border border-nivo-border bg-zinc-900 hover:bg-zinc-800 text-nivo-text flex flex-col items-center gap-1 transition-all">
+              <i data-lucide="qr-code" class="w-4 h-4 text-blue-400"></i>
+              <span class="font-semibold text-xs">Wompi QR / Transf</span>
+            </button>
+            <button type="button" onclick="setPaymentMethod('GRACE')" id="pm-grace" class="p-2.5 rounded-xl border border-nivo-border bg-zinc-900 hover:bg-zinc-800 text-nivo-text flex flex-col items-center gap-1 transition-all">
+              <i data-lucide="gift" class="w-4 h-4 text-amber-400"></i>
+              <span class="font-semibold text-xs">Gracia / Exento</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-5 py-3.5 border-t border-nivo-border bg-zinc-900/50 flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeCheckOutModal()" class="px-4 py-2 rounded-xl border border-nivo-border text-zinc-400 hover:text-nivo-text text-xs font-semibold transition-all">
+          Cancelar
+        </button>
+        <button type="button" onclick="submitCheckOutModal()" id="co-btn-submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all">
+          <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
+          <span>Registrar Salida y Liberar Cupo</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= FLOATING TOAST NOTIFICATION ================= -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ================= JAVASCRIPT APPLICATION LOGIC ================= -->
+  <script>
+    // --- 1. INITIAL STATE & DATA STORES ---
+    const APP_STATE = {
+      slots: [
+        // Zone A: Cars (12 slots)
+        { id: 'A-01', zone: 'A', type: 'CAR', status: 'OCCUPIED', plate: 'FXZ-812', country: 'CO', entrySecondsAgo: 5200 },
+        { id: 'A-02', zone: 'A', type: 'CAR', status: 'OCCUPIED', plate: 'AB-492-MK', country: 'VE', entrySecondsAgo: 2540 },
+        { id: 'A-03', zone: 'A', type: 'CAR', status: 'OCCUPIED', plate: 'KLM-345', country: 'CO', entrySecondsAgo: 7800 },
+        { id: 'A-04', zone: 'A', type: 'CAR', status: 'OCCUPIED', plate: 'RST-901', country: 'CO', entrySecondsAgo: 480 }, // Grace period! (8 min)
+        { id: 'A-05', zone: 'A', type: 'CAR', status: 'OCCUPIED', plate: 'CD-781-XY', country: 'VE', entrySecondsAgo: 4500 },
+        { id: 'A-06', zone: 'A', type: 'CAR', status: 'OCCUPIED', plate: 'WXY-234', country: 'CO', entrySecondsAgo: 11100 },
+        { id: 'A-07', zone: 'A', type: 'CAR', status: 'OCCUPIED', plate: 'BHT-567', country: 'CO', entrySecondsAgo: 1500 },
+        { id: 'A-08', zone: 'A', type: 'CAR', status: 'OCCUPIED', plate: 'EF-129-PQ', country: 'VE', entrySecondsAgo: 3300 },
+        { id: 'A-09', zone: 'A', type: 'CAR', status: 'AVAILABLE', plate: null, country: null, entrySecondsAgo: 0 },
+        { id: 'A-10', zone: 'A', type: 'CAR', status: 'AVAILABLE', plate: null, country: null, entrySecondsAgo: 0 },
+        { id: 'A-11', zone: 'A', type: 'CAR', status: 'AVAILABLE', plate: null, country: null, entrySecondsAgo: 0 },
+        { id: 'A-12', zone: 'A', type: 'CAR', status: 'AVAILABLE', plate: null, country: null, entrySecondsAgo: 0 },
+
+        // Zone B: Motorcycles (12 slots)
+        { id: 'B-01', zone: 'B', type: 'MOTORCYCLE', status: 'OCCUPIED', plate: 'TRX-91E', country: 'CO', entrySecondsAgo: 5400 },
+        { id: 'B-02', zone: 'B', type: 'MOTORCYCLE', status: 'OCCUPIED', plate: 'MKO-22B', country: 'CO', entrySecondsAgo: 720 }, // Grace period! (12 min)
+        { id: 'B-03', zone: 'B', type: 'MOTORCYCLE', status: 'OCCUPIED', plate: 'SP-7821', country: 'UNPLATED', entrySecondsAgo: 3000, photo: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=400&auto=format&fit=crop&q=80' },
+        { id: 'B-04', zone: 'B', type: 'MOTORCYCLE', status: 'OCCUPIED', plate: 'GH-654-JK', country: 'VE', entrySecondsAgo: 7200 },
+        { id: 'B-05', zone: 'B', type: 'MOTORCYCLE', status: 'OCCUPIED', plate: 'PLM-84A', country: 'CO', entrySecondsAgo: 2100 },
+        { id: 'B-06', zone: 'B', type: 'MOTORCYCLE', status: 'OCCUPIED', plate: 'SP-7822', country: 'UNPLATED', entrySecondsAgo: 3900, photo: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=400&auto=format&fit=crop&q=80' },
+        { id: 'B-07', zone: 'B', type: 'MOTORCYCLE', status: 'AVAILABLE', plate: null, country: null, entrySecondsAgo: 0 },
+        { id: 'B-08', zone: 'B', type: 'MOTORCYCLE', status: 'AVAILABLE', plate: null, country: null, entrySecondsAgo: 0 },
+        { id: 'B-09', zone: 'B', type: 'MOTORCYCLE', status: 'AVAILABLE', plate: null, country: null, entrySecondsAgo: 0 },
+        { id: 'B-10', zone: 'B', type: 'MOTORCYCLE', status: 'AVAILABLE', plate: null, country: null, entrySecondsAgo: 0 },
+        { id: 'B-11', zone: 'B', type: 'MOTORCYCLE', status: 'AVAILABLE', plate: null, country: null, entrySecondsAgo: 0 },
+        { id: 'B-12', zone: 'B', type: 'MOTORCYCLE', status: 'AVAILABLE', plate: null, country: null, entrySecondsAgo: 0 },
+      ],
+      rates: {
+        CAR: 4500,
+        MOTORCYCLE: 2500,
+        BIKE: 1000,
+      },
+      revenueShift: 482000,
+      matrixFilter: 'ALL',
+      activeSearchQuery: '',
+      currentCheckIn: {
+        country: 'CO',
+        vehicleType: 'CAR',
+        slotId: 'A-09',
+        photoDataUrl: null,
+        syntheticCounter: 7823,
+      },
+      currentCheckOut: {
+        selectedSlotId: null,
+        paymentMethod: 'CASH',
+      },
+      lastReceiptData: null,
+    };
+
+    // --- 2. CLOCK & TICKER INTERVAL ---
+    setInterval(() => {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+      const clockEl = document.getElementById('live-clock');
+      const clockMob = document.getElementById('clock-mobile');
+      if (clockEl) clockEl.innerText = timeStr;
+      if (clockMob) clockMob.innerText = timeStr;
+
+      // Increment elapsed time for all occupied slots
+      APP_STATE.slots.forEach(slot => {
+        if (slot.status === 'OCCUPIED') {
+          slot.entrySecondsAgo++;
+        }
+      });
+
+      // Periodic light update of table tickers and matrix
+      updateActiveVehiclesTable(false);
+      updateMatrixVisualizer(false);
+    }, 1000);
+
+    // --- 3. FORMATTERS & CALCULATORS ---
+    function formatSeconds(seconds) {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = seconds % 60;
+      if (h > 0) return `${h}h ${m}m ${s}s`;
+      return `${m}m ${s}s`;
+    }
+
+    function calculateBilling(seconds, vehicleType) {
+      const minutes = Math.floor(seconds / 60);
+      const ratePerHour = APP_STATE.rates[vehicleType] || 4500;
+      if (minutes <= 15) {
+        return { isGrace: true, minutes, hoursBilled: 0, total: 0, subtotal: 0 };
+      }
+      const hoursBilled = Math.max(1, Math.ceil(seconds / 3600));
+      const total = hoursBilled * ratePerHour;
+      return { isGrace: false, minutes, hoursBilled, total, subtotal: total };
+    }
+
+    // --- 4. PLATE MASKING ENGINE (REPLICATING PlateMaskDirective) ---
+    const plateInput = document.getElementById('ci-plate-input');
+    let isDeletingDelimiter = false;
+
+    plateInput.addEventListener('keydown', (e) => {
+      if (APP_STATE.currentCheckIn.country === 'UNPLATED') return;
+      const { selectionStart, selectionEnd, value } = plateInput;
+      if (e.key === 'Backspace' && selectionStart !== null && selectionStart === selectionEnd && selectionStart > 0) {
+        if (value[selectionStart - 1] === '-') {
+          isDeletingDelimiter = true;
+        }
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitCheckInModal();
+      }
+    });
+
+    plateInput.addEventListener('input', () => {
+      if (APP_STATE.currentCheckIn.country === 'UNPLATED') return;
+      const originalValue = plateInput.value;
+      const caretPos = plateInput.selectionStart || originalValue.length;
+
+      const textBeforeCursor = originalValue.slice(0, caretPos);
+      let rawCharsBefore = textBeforeCursor.replace(/[^A-Za-z0-9]/g, '').length;
+
+      if (isDeletingDelimiter && rawCharsBefore > 0) {
+        rawCharsBefore -= 1;
+        isDeletingDelimiter = false;
+      }
+
+      const sanitized = originalValue.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+      const country = APP_STATE.currentCheckIn.country;
+      const vehicleType = APP_STATE.currentCheckIn.vehicleType;
+
+      const formatted = formatPlateClient(sanitized, country, vehicleType);
+      plateInput.value = formatted;
+
+      // Caret repositioning
+      let newCaret = 0;
+      let counted = 0;
+      for (let i = 0; i < formatted.length; i++) {
+        if (counted === rawCharsBefore) {
+          newCaret = i;
+          break;
+        }
+        if (/[A-Za-z0-9]/.test(formatted[i])) {
+          counted++;
+        }
+        newCaret = i + 1;
+      }
+      plateInput.setSelectionRange(newCaret, newCaret);
+
+      validatePlateInput(formatted, country, vehicleType);
+    });
+
+    function formatPlateClient(raw, country, vehicleType) {
+      if (country === 'CO') {
+        const truncated = raw.slice(0, 6);
+        if (truncated.length <= 3) return truncated;
+        return `${truncated.slice(0, 3)}-${truncated.slice(3)}`;
+      } else if (country === 'VE') {
+        const truncated = raw.slice(0, 7);
+        if (truncated.length <= 2) return truncated;
+        if (truncated.length <= 5) return `${truncated.slice(0, 2)}-${truncated.slice(2)}`;
+        return `${truncated.slice(0, 2)}-${truncated.slice(2, 5)}-${truncated.slice(5)}`;
+      }
+      return raw;
+    }
+
+    function validatePlateInput(formatted, country, vehicleType) {
+      const pill = document.getElementById('ci-validation-pill');
+      const msg = document.getElementById('ci-validation-msg');
+
+      if (!formatted) {
+        pill.className = "text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 bg-zinc-900 text-zinc-400 border-nivo-border";
+        msg.innerText = "Escribe la placa para formatear en tiempo real";
+        return false;
+      }
+
+      if (country === 'CO') {
+        if (vehicleType === 'CAR') {
+          // AAA-000
+          if (/^[A-Z]{3}-\d{3}$/.test(formatted)) {
+            pill.className = "text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+            msg.innerText = "✓ Formato Válido · Automóvil Colombia (AAA-000)";
+            return true;
+          }
+        } else {
+          // AAA-00A
+          if (/^[A-Z]{3}-\d{2}[A-Z]$/.test(formatted)) {
+            pill.className = "text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+            msg.innerText = "✓ Formato Válido · Motocicleta Colombia (AAA-00A)";
+            return true;
+          }
+        }
+        pill.className = "text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 bg-amber-500/10 text-amber-400 border-amber-500/30";
+        msg.innerText = `⏳ Formato incompleto (${formatted.length < 7 ? 'Completando...' : 'Revisar caracteres'})`;
+        return false;
+      } else if (country === 'VE') {
+        // AA-000-AA
+        if (/^[A-Z]{2}-\d{3}-[A-Z]{2}$/.test(formatted)) {
+          pill.className = "text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+          msg.innerText = "✓ Formato Válido · Vehículo Venezuela (AA-000-AA)";
+          return true;
+        }
+        pill.className = "text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 bg-amber-500/10 text-amber-400 border-amber-500/30";
+        msg.innerText = "⏳ Formato venezolano ej: AB-123-CD";
+        return false;
+      }
+      return true;
+    }
+
+    // --- 5. CHECK-IN CONTROLS & CAMERA SIMULATION ---
+    function setCheckInVehicleType(type) {
+      APP_STATE.currentCheckIn.vehicleType = type;
+      ['CAR', 'MOTORCYCLE', 'BIKE'].forEach(t => {
+        const btn = document.getElementById(`ci-type-${t.toLowerCase()}`);
+        if (t === type) {
+          btn.className = "p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-nivo-text flex flex-col items-center gap-1 transition-all shadow-sm";
+        } else {
+          btn.className = "p-2.5 rounded-xl border border-nivo-border bg-zinc-900 hover:bg-zinc-800/80 text-nivo-text flex flex-col items-center gap-1 transition-all";
+        }
+      });
+
+      // Update hint
+      const hint = document.getElementById('ci-plate-hint');
+      if (APP_STATE.currentCheckIn.country === 'CO') {
+        hint.innerText = type === 'CAR' ? 'Ej: ABC-123 (Auto)' : 'Ej: ABC-12D (Moto)';
+      }
+      // Re-trigger masking
+      plateInput.dispatchEvent(new Event('input'));
+      refreshCheckInSlotOptions();
+    }
+
+    function setCheckInCountry(country) {
+      APP_STATE.currentCheckIn.country = country;
+      ['CO', 'VE', 'UNPLATED'].forEach(c => {
+        const btn = document.getElementById(`ci-tab-${c.toLowerCase()}`);
+        if (c === country) {
+          btn.className = "py-1.5 text-xs font-semibold rounded-lg bg-zinc-800 text-nivo-text shadow-sm flex items-center justify-center gap-1.5 transition-all";
+        } else {
+          btn.className = "py-1.5 text-xs font-medium rounded-lg text-nivo-muted hover:text-nivo-text flex items-center justify-center gap-1.5 transition-all";
+        }
+      });
+
+      const platableSec = document.getElementById('ci-platable-section');
+      const unplatedSec = document.getElementById('ci-unplated-section');
+      const hint = document.getElementById('ci-plate-hint');
+
+      if (country === 'UNPLATED') {
+        platableSec.classList.add('hidden');
+        unplatedSec.classList.remove('hidden');
+        setCheckInVehicleType('MOTORCYCLE');
+      } else {
+        platableSec.classList.remove('hidden');
+        unplatedSec.classList.add('hidden');
+        if (country === 'CO') {
+          hint.innerText = APP_STATE.currentCheckIn.vehicleType === 'CAR' ? 'Ej: ABC-123 (Auto)' : 'Ej: ABC-12D (Moto)';
+          plateInput.placeholder = "Ej: ABC-123";
+        } else {
+          hint.innerText = 'Formato venezolano ej: AB-123-CD';
+          plateInput.placeholder = "Ej: AB-123-CD";
+        }
+        plateInput.dispatchEvent(new Event('input'));
+        plateInput.focus();
+      }
+      refreshCheckInSlotOptions();
+      lucide.createIcons();
+    }
+
+    function regenerateSyntheticPlateCheckIn() {
+      APP_STATE.currentCheckIn.syntheticCounter++;
+      const plate = `SP-${APP_STATE.currentCheckIn.syntheticCounter}`;
+      document.getElementById('ci-synthetic-plate').innerText = plate;
+    }
+
+    let checkInMediaStream = null;
+    async function toggleWebcamCheckIn() {
+      const video = document.getElementById('ci-webcam');
+      const photo = document.getElementById('ci-captured-photo');
+      const placeholder = document.getElementById('ci-camera-placeholder');
+      const btnText = document.getElementById('ci-cam-btn-text');
+      const badge = document.getElementById('ci-photo-badge');
+
+      if (video.classList.contains('hidden') && photo.classList.contains('hidden')) {
+        try {
+          checkInMediaStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }
+          });
+          video.srcObject = checkInMediaStream;
+          video.classList.remove('hidden');
+          placeholder.classList.add('hidden');
+          btnText.innerText = "Tomar Captura";
+        } catch (e) {
+          // Fallback to high resolution motorbike simulation photo
+          simulateCapturedPhoto();
+        }
+      } else if (!video.classList.contains('hidden')) {
+        // Capture frame to canvas
+        const canvas = document.getElementById('ci-compression-canvas');
+        canvas.width = 640;
+        canvas.height = 480;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, 640, 480);
+        const compressed = canvas.toDataURL('image/jpeg', 0.65);
+        
+        photo.src = compressed;
+        APP_STATE.currentCheckIn.photoDataUrl = compressed;
+
+        if (checkInMediaStream) {
+          checkInMediaStream.getTracks().forEach(t => t.stop());
+          checkInMediaStream = null;
+        }
+        video.classList.add('hidden');
+        photo.classList.remove('hidden');
+        badge.classList.remove('hidden');
+        btnText.innerText = "Tomar Otra Foto";
+        showToast("Fotografía capturada y comprimida exitosamente (< 100 KB)");
+      } else {
+        // Reset and retake
+        photo.classList.add('hidden');
+        badge.classList.add('hidden');
+        APP_STATE.currentCheckIn.photoDataUrl = null;
+        toggleWebcamCheckIn();
+      }
+    }
+
+    function simulateCapturedPhoto() {
+      const photo = document.getElementById('ci-captured-photo');
+      const placeholder = document.getElementById('ci-camera-placeholder');
+      const badge = document.getElementById('ci-photo-badge');
+      const btnText = document.getElementById('ci-cam-btn-text');
+
+      const simUrl = 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=600&auto=format&fit=crop&q=80';
+      photo.src = simUrl;
+      APP_STATE.currentCheckIn.photoDataUrl = simUrl;
+      placeholder.classList.add('hidden');
+      photo.classList.remove('hidden');
+      badge.classList.remove('hidden');
+      btnText.innerText = "Repetir Foto";
+      showToast("Cámara no disponible. Fotografía de referencia cargada con éxito");
+    }
+
+    function handleFileUploadCheckIn(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const photo = document.getElementById('ci-captured-photo');
+        const placeholder = document.getElementById('ci-camera-placeholder');
+        const badge = document.getElementById('ci-photo-badge');
+        photo.src = evt.target.result;
+        APP_STATE.currentCheckIn.photoDataUrl = evt.target.result;
+        placeholder.classList.add('hidden');
+        photo.classList.remove('hidden');
+        badge.classList.remove('hidden');
+        showToast(`Archivo ${file.name} cargado correctamente`);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function refreshCheckInSlotOptions() {
+      const select = document.getElementById('ci-slot-select');
+      select.innerHTML = '';
+      const targetType = APP_STATE.currentCheckIn.vehicleType;
+      const freeSlots = APP_STATE.slots.filter(s => s.status === 'AVAILABLE' && (targetType === 'BIKE' ? true : s.type === targetType));
+
+      if (freeSlots.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = "";
+        opt.innerText = "Sin cupos disponibles para esta categoría";
+        select.appendChild(opt);
+        return;
+      }
+
+      freeSlots.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.innerText = `Bahía ${s.id} (Zona ${s.zone} · ${s.type === 'CAR' ? 'Automóviles' : 'Motos'})`;
+        if (s.id === APP_STATE.currentCheckIn.slotId) {
+          opt.selected = true;
+        }
+        select.appendChild(opt);
+      });
+    }
+
+    function openCheckInModal(preselectedSlotId) {
+      const modal = document.getElementById('modal-checkin');
+      modal.classList.remove('hidden');
+
+      if (preselectedSlotId) {
+        const slot = APP_STATE.slots.find(s => s.id === preselectedSlotId);
+        if (slot) {
+          APP_STATE.currentCheckIn.slotId = slot.id;
+          setCheckInVehicleType(slot.type);
+        }
+      } else {
+        // Auto pick first available slot
+        const firstFree = APP_STATE.slots.find(s => s.status === 'AVAILABLE' && s.type === APP_STATE.currentCheckIn.vehicleType);
+        if (firstFree) APP_STATE.currentCheckIn.slotId = firstFree.id;
+      }
+
+      refreshCheckInSlotOptions();
+      setCheckInCountry(APP_STATE.currentCheckIn.country);
+      lucide.createIcons();
+    }
+
+    function closeCheckInModal() {
+      document.getElementById('modal-checkin').classList.add('hidden');
+      if (checkInMediaStream) {
+        checkInMediaStream.getTracks().forEach(t => t.stop());
+        checkInMediaStream = null;
+      }
+    }
+
+    function submitCheckInModal() {
+      const country = APP_STATE.currentCheckIn.country;
+      const type = APP_STATE.currentCheckIn.vehicleType;
+      const slotId = document.getElementById('ci-slot-select').value;
+      const phone = document.getElementById('ci-phone-input').value.trim();
+
+      if (!slotId) {
+        alert("Por favor selecciona una bahía de parqueo disponible.");
+        return;
+      }
+
+      let plate = "";
+      let photo = null;
+
+      if (country === 'UNPLATED') {
+        plate = document.getElementById('ci-synthetic-plate').innerText;
+        photo = APP_STATE.currentCheckIn.photoDataUrl || 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=400&auto=format&fit=crop&q=80';
+      } else {
+        plate = plateInput.value.trim();
+        if (!plate || plate.length < 5) {
+          alert("Ingresa una placa válida para continuar.");
+          plateInput.focus();
+          return;
+        }
+      }
+
+      // Update slot in state
+      const slot = APP_STATE.slots.find(s => s.id === slotId);
+      if (slot) {
+        slot.status = 'OCCUPIED';
+        slot.plate = plate;
+        slot.country = country;
+        slot.entrySecondsAgo = 0;
+        slot.photo = photo;
+        slot.phoneNumber = phone;
+      }
+
+      // Create receipt object
+      const ticketId = `TK-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      const now = new Date();
+      APP_STATE.lastReceiptData = {
+        ticketId,
+        plate,
+        country,
+        vehicleType: type,
+        slotId,
+        entryTime: now.toTimeString().split(' ')[0],
+        exitTime: now.toTimeString().split(' ')[0],
+        durationText: "0m 10s (Recién ingresado)",
+        rateText: `$${APP_STATE.rates[type].toLocaleString('es-CO')} COP / hora`,
+        subtotalText: `$0 COP`,
+        totalText: `$0 COP`,
+        paymentMethod: "INGRESO REGISTRADO",
+        photo,
+        isExit: false,
+      };
+
+      closeCheckInModal();
+      plateInput.value = "";
+      document.getElementById('ci-phone-input').value = "";
+      regenerateSyntheticPlateCheckIn();
+
+      updateMatrixVisualizer(true);
+      updateActiveVehiclesTable(true);
+      updateKPICounters();
+      showToast(`¡Check-In Exitoso! Vehículo ${plate} asignado a Bahía ${slotId}`);
+
+      // Open receipt view
+      renderThermalReceipt(APP_STATE.lastReceiptData);
+      switchMainTab('receipt');
+    }
+
+    // --- 6. CHECK-OUT CONTROLS & GRACE PERIOD ---
+    function openCheckOutModal(preselectedSlotId) {
+      const modal = document.getElementById('modal-checkout');
+      modal.classList.remove('hidden');
+
+      const select = document.getElementById('co-vehicle-select');
+      select.innerHTML = '';
+
+      const occupied = APP_STATE.slots.filter(s => s.status === 'OCCUPIED');
+      if (occupied.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = "";
+        opt.innerText = "No hay vehículos en parqueadero actualmente";
+        select.appendChild(opt);
+        return;
+      }
+
+      occupied.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        const dur = formatSeconds(s.entrySecondsAgo);
+        opt.innerText = `${s.plate} (${s.country}) · Bahía ${s.id} · ${dur}`;
+        if (preselectedSlotId && s.id === preselectedSlotId) {
+          opt.selected = true;
+        }
+        select.appendChild(opt);
+      });
+
+      handleCheckOutVehicleSelected();
+      lucide.createIcons();
+    }
+
+    function closeCheckOutModal() {
+      document.getElementById('modal-checkout').classList.add('hidden');
+    }
+
+    function handleCheckOutVehicleSelected() {
+      const slotId = document.getElementById('co-vehicle-select').value;
+      if (!slotId) return;
+
+      const slot = APP_STATE.slots.find(s => s.id === slotId);
+      if (!slot) return;
+
+      APP_STATE.currentCheckOut.selectedSlotId = slot.id;
+
+      // Populate view
+      document.getElementById('co-plate-display').innerText = slot.plate;
+      document.getElementById('co-country-display').innerText = slot.country === 'CO' ? '🇨🇴 Colombia' : slot.country === 'VE' ? '🇻🇪 Venezuela' : '🚫 Sin Placa';
+      document.getElementById('co-slot-display').innerText = `Bahía ${slot.id} (${slot.type === 'CAR' ? 'Automóvil' : 'Moto'})`;
+      
+      const now = new Date();
+      const entryDate = new Date(now.getTime() - slot.entrySecondsAgo * 1000);
+      document.getElementById('co-entry-display').innerText = entryDate.toTimeString().split(' ')[0];
+      document.getElementById('co-exit-display').innerText = now.toTimeString().split(' ')[0];
+      document.getElementById('co-duration-display').innerText = formatSeconds(slot.entrySecondsAgo);
+
+      const ratePerHour = APP_STATE.rates[slot.type] || 4500;
+      document.getElementById('co-rate-display').innerText = `$${ratePerHour.toLocaleString('es-CO')} / hr`;
+
+      // 15-Minute Grace Period check
+      const billing = calculateBilling(slot.entrySecondsAgo, slot.type);
+      const graceBanner = document.getElementById('co-grace-banner');
+      const billingSection = document.getElementById('co-billing-section');
+
+      if (billing.isGrace) {
+        graceBanner.classList.remove('hidden');
+        billingSection.classList.add('hidden');
+        setPaymentMethod('GRACE');
+      } else {
+        graceBanner.classList.add('hidden');
+        billingSection.classList.remove('hidden');
+        document.getElementById('co-hours-billed').innerText = `${billing.hoursBilled} hr${billing.hoursBilled > 1 ? 's' : ''}`;
+        document.getElementById('co-subtotal-display').innerText = `$${billing.subtotal.toLocaleString('es-CO')} COP`;
+        document.getElementById('co-total-display').innerText = `$${billing.total.toLocaleString('es-CO')} COP`;
+        setPaymentMethod('CASH');
+      }
+      lucide.createIcons();
+    }
+
+    function setPaymentMethod(pm) {
+      APP_STATE.currentCheckOut.paymentMethod = pm;
+      ['CASH', 'WOMPI', 'GRACE'].forEach(m => {
+        const btn = document.getElementById(`pm-${m.toLowerCase()}`);
+        if (m === pm) {
+          btn.className = "p-2.5 rounded-xl border-2 border-amber-500 bg-amber-500/10 text-nivo-text flex flex-col items-center gap-1 transition-all shadow-sm";
+        } else {
+          btn.className = "p-2.5 rounded-xl border border-nivo-border bg-zinc-900 hover:bg-zinc-800 text-nivo-text flex flex-col items-center gap-1 transition-all";
+        }
+      });
+    }
+
+    function submitCheckOutModal() {
+      const slotId = APP_STATE.currentCheckOut.selectedSlotId;
+      if (!slotId) return;
+
+      const slot = APP_STATE.slots.find(s => s.id === slotId);
+      if (!slot) return;
+
+      const billing = calculateBilling(slot.entrySecondsAgo, slot.type);
+      const now = new Date();
+      const entryDate = new Date(now.getTime() - slot.entrySecondsAgo * 1000);
+
+      const ticketId = `TK-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      APP_STATE.lastReceiptData = {
+        ticketId,
+        plate: slot.plate,
+        country: slot.country,
+        vehicleType: slot.type,
+        slotId: slot.id,
+        entryTime: entryDate.toTimeString().split(' ')[0],
+        exitTime: now.toTimeString().split(' ')[0],
+        durationText: `${formatSeconds(slot.entrySecondsAgo)} (${billing.hoursBilled} hr fact.)`,
+        rateText: `$${APP_STATE.rates[slot.type].toLocaleString('es-CO')} COP / hora`,
+        subtotalText: `$${billing.subtotal.toLocaleString('es-CO')} COP`,
+        totalText: `$${billing.total.toLocaleString('es-CO')} COP`,
+        paymentMethod: APP_STATE.currentCheckOut.paymentMethod === 'GRACE' ? 'SALIDA EXENTA (GRACIA)' : APP_STATE.currentCheckOut.paymentMethod === 'WOMPI' ? 'WOMPI QR / TRANSFERENCIA' : 'EFECTIVO',
+        photo: slot.photo,
+        isExit: true,
+        isGrace: billing.isGrace,
+      };
+
+      // Add to shift revenue
+      APP_STATE.revenueShift += billing.total;
+
+      // Release slot
+      slot.status = 'AVAILABLE';
+      slot.plate = null;
+      slot.country = null;
+      slot.entrySecondsAgo = 0;
+      slot.photo = null;
+
+      closeCheckOutModal();
+      updateMatrixVisualizer(true);
+      updateActiveVehiclesTable(true);
+      updateKPICounters();
+      showToast(`¡Salida Exitosa! Bahía ${slotId} liberada. Total cobrado: $${billing.total.toLocaleString('es-CO')} COP`);
+
+      renderThermalReceipt(APP_STATE.lastReceiptData);
+      switchMainTab('receipt');
+    }
+
+    // --- 7. MATRIX VISUALIZER RENDERING ---
+    function filterMatrix(filter) {
+      APP_STATE.matrixFilter = filter;
+      ['ALL', 'CAR', 'MOTO', 'FREE', 'OCCUPIED'].forEach(f => {
+        const btn = document.getElementById(`flt-${f.toLowerCase()}`);
+        if (f === filter) {
+          btn.className = "px-2.5 py-1 rounded-md bg-zinc-800 text-nivo-text font-semibold transition-all";
+        } else {
+          btn.className = "px-2.5 py-1 rounded-md text-nivo-muted hover:text-nivo-text transition-all";
+        }
+      });
+      updateMatrixVisualizer(true);
+    }
+
+    function updateMatrixVisualizer(fullRerender = false) {
+      const container = document.getElementById('slots-matrix-grid');
+      if (!container) return;
+
+      const filtered = APP_STATE.slots.filter(s => {
+        if (APP_STATE.matrixFilter === 'CAR') return s.type === 'CAR';
+        if (APP_STATE.matrixFilter === 'MOTO') return s.type === 'MOTORCYCLE';
+        if (APP_STATE.matrixFilter === 'FREE') return s.status === 'AVAILABLE';
+        if (APP_STATE.matrixFilter === 'OCCUPIED') return s.status === 'OCCUPIED';
+        return true;
+      });
+
+      if (fullRerender) {
+        container.innerHTML = '';
+        filtered.forEach(slot => {
+          const card = document.createElement('div');
+          card.id = `slot-card-${slot.id}`;
+          card.className = getSlotCardClass(slot);
+          card.innerHTML = getSlotCardHTML(slot);
+          container.appendChild(card);
+        });
+        lucide.createIcons();
+      } else {
+        filtered.forEach(slot => {
+          const card = document.getElementById(`slot-card-${slot.id}`);
+          if (card) {
+            // Update elapsed time live
+            if (slot.status === 'OCCUPIED') {
+              const timer = card.querySelector('.slot-timer');
+              if (timer) timer.innerText = formatSeconds(slot.entrySecondsAgo);
+            }
+          }
+        });
+      }
+    }
+
+    function getSlotCardClass(slot) {
+      if (slot.status === 'AVAILABLE') {
+        return "border border-dashed border-emerald-500/30 hover:border-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10 rounded-xl p-3 flex flex-col justify-between cursor-pointer transition-all duration-150 group";
+      }
+      const isGrace = Math.floor(slot.entrySecondsAgo / 60) <= 15;
+      if (isGrace) {
+        return "border border-rose-500/30 hover:border-rose-400 bg-rose-500/5 rounded-xl p-3 flex flex-col justify-between cursor-pointer transition-all duration-150 group shadow-xs";
+      }
+      return "border border-amber-500/30 hover:border-amber-400 bg-amber-500/5 rounded-xl p-3 flex flex-col justify-between cursor-pointer transition-all duration-150 group shadow-xs";
+    }
+
+    function getSlotCardHTML(slot) {
+      if (slot.status === 'AVAILABLE') {
+        return `
+          <div onclick="openCheckInModal('${slot.id}')" class="w-full h-full flex flex-col justify-between gap-2">
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-nivo-text">${slot.id}</span>
+              <i data-lucide="${slot.type === 'CAR' ? 'car' : 'bike'}" class="w-3.5 h-3.5 text-zinc-500"></i>
+            </div>
+            <div class="my-1 flex items-center justify-center py-2 text-emerald-400 group-hover:scale-105 transition-transform">
+              <span class="text-[11px] font-bold flex items-center gap-1">+ Ingresar</span>
+            </div>
+            <div class="text-[10px] text-emerald-400/80 font-mono text-center">LIBRE</div>
+          </div>
+        `;
+      }
+
+      const isGrace = Math.floor(slot.entrySecondsAgo / 60) <= 15;
+      const flag = slot.country === 'CO' ? '🇨🇴' : slot.country === 'VE' ? '🇻🇪' : '🚫';
+      return `
+        <div onclick="openCheckOutModal('${slot.id}')" class="w-full h-full flex flex-col justify-between gap-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-bold text-nivo-text">${slot.id}</span>
+            <span class="text-[10px] font-mono font-extrabold px-1 rounded ${isGrace ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300'}">
+              ${isGrace ? 'GRACIA' : 'OCUPADO'}
+            </span>
+          </div>
+          <div class="font-mono text-xs font-extrabold text-nivo-text tracking-wider truncate py-1">
+            <span>${flag}</span> ${slot.plate}
+          </div>
+          <div class="flex items-center justify-between text-[10px] text-zinc-400 font-mono border-t border-zinc-800/80 pt-1">
+            <span class="slot-timer text-amber-300">${formatSeconds(slot.entrySecondsAgo)}</span>
+            <span class="text-[9px] text-zinc-500">Cobrar</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- 8. ACTIVE VEHICLES TABLE RENDERING ---
+    function handleTableSearch() {
+      APP_STATE.activeSearchQuery = document.getElementById('search-table-input').value.toLowerCase().trim();
+      updateActiveVehiclesTable(true);
+    }
+
+    function updateActiveVehiclesTable(fullRerender = false) {
+      const tbody = document.getElementById('active-vehicles-table-body');
+      if (!tbody) return;
+
+      const q = APP_STATE.activeSearchQuery;
+      const active = APP_STATE.slots.filter(s => s.status === 'OCCUPIED' && (
+        !q || s.plate.toLowerCase().includes(q) || s.id.toLowerCase().includes(q) || s.country.toLowerCase().includes(q)
+      ));
+
+      document.getElementById('active-count-badge').innerText = `${active.length} activos`;
+
+      if (fullRerender) {
+        tbody.innerHTML = '';
+        if (active.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="py-8 text-center text-zinc-500 text-xs font-sans">
+                No se encontraron vehículos activos coincidentes
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        active.forEach(s => {
+          const tr = document.createElement('tr');
+          tr.id = `table-row-${s.id}`;
+          tr.className = "hover:bg-zinc-900/60 transition-colors";
+          tr.innerHTML = getTableRowHTML(s);
+          tbody.appendChild(tr);
+        });
+        lucide.createIcons();
+      } else {
+        active.forEach(s => {
+          const row = document.getElementById(`table-row-${s.id}`);
+          if (row) {
+            const timeEl = row.querySelector('.tbl-time');
+            if (timeEl) timeEl.innerText = formatSeconds(s.entrySecondsAgo);
+
+            const billing = calculateBilling(s.entrySecondsAgo, s.type);
+            const costEl = row.querySelector('.tbl-cost');
+            if (costEl) {
+              if (billing.isGrace) {
+                costEl.innerHTML = `<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">Gracia ($0)</span>`;
+              } else {
+                costEl.innerText = `$${billing.total.toLocaleString('es-CO')} COP`;
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function getTableRowHTML(s) {
+      const flag = s.country === 'CO' ? '🇨🇴 CO' : s.country === 'VE' ? '🇻🇪 VE' : '🚫 SP';
+      const now = new Date();
+      const entryDate = new Date(now.getTime() - s.entrySecondsAgo * 1000);
+      const billing = calculateBilling(s.entrySecondsAgo, s.type);
+
+      return `
+        <td class="py-3 px-3">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-sans border border-zinc-700">${flag}</span>
+            <span class="font-extrabold text-sm text-nivo-text tracking-wide">${s.plate}</span>
+          </div>
+        </td>
+        <td class="py-3 px-3 font-sans text-xs">
+          <span class="inline-flex items-center gap-1.5 text-zinc-300">
+            <i data-lucide="${s.type === 'CAR' ? 'car' : 'bike'}" class="w-3.5 h-3.5 text-zinc-400"></i>
+            <span>${s.type === 'CAR' ? 'Auto' : 'Moto'}</span>
+          </span>
+        </td>
+        <td class="py-3 px-3 font-bold text-nivo-text">${s.id}</td>
+        <td class="py-3 px-3 text-zinc-400">${entryDate.toTimeString().split(' ')[0]}</td>
+        <td class="py-3 px-3 text-amber-300 tbl-time">${formatSeconds(s.entrySecondsAgo)}</td>
+        <td class="py-3 px-3 tbl-cost">
+          ${billing.isGrace ? '<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">Gracia ($0)</span>' : `$${billing.total.toLocaleString('es-CO')} COP`}
+        </td>
+        <td class="py-3 px-3 text-right">
+          <button onclick="openCheckOutModal('${s.id}')" class="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-nivo-text text-[11px] font-sans font-semibold border border-nivo-border inline-flex items-center gap-1 transition-all">
+            <i data-lucide="log-out" class="w-3 h-3 text-amber-400"></i>
+            <span>Cobrar</span>
+          </button>
+        </td>
+      `;
+    }
+
+    // --- 9. KPI COUNTERS UPDATE ---
+    function updateKPICounters() {
+      const total = 120;
+      const occupied = APP_STATE.slots.filter(s => s.status === 'OCCUPIED').length;
+      // Real-time simulated multiplier based on 24 rendered slots
+      const scaledOccupied = Math.min(120, 72 + occupied);
+      const free = total - scaledOccupied;
+      const pct = Math.round((scaledOccupied / total) * 100);
+
+      document.getElementById('kpi-occupied-slots').innerText = scaledOccupied;
+      document.getElementById('kpi-occupancy-pct').innerText = `${pct}%`;
+      document.getElementById('kpi-occupancy-bar').style.width = `${pct}%`;
+      document.getElementById('kpi-free-slots').innerText = free;
+      document.getElementById('kpi-free-cars').innerText = Math.round(free * 0.6);
+      document.getElementById('kpi-free-motos').innerText = Math.round(free * 0.4);
+      document.getElementById('kpi-revenue-total').innerText = `$${APP_STATE.revenueShift.toLocaleString('es-CO')}`;
+    }
+
+    // --- 10. THERMAL RECEIPT RENDERING ---
+    let qrCodeInstance = null;
+
+    function renderThermalReceipt(data) {
+      if (!data) return;
+      document.getElementById('rcpt-ticket-id').innerText = data.ticketId;
+      document.getElementById('rcpt-barcode-text').innerText = `*${data.ticketId.replace(/[^A-Za-z0-9]/g, '')}*`;
+      document.getElementById('rcpt-date').innerText = new Date().toLocaleDateString('es-CO');
+      document.getElementById('rcpt-entry-time').innerText = data.entryTime;
+      document.getElementById('rcpt-exit-time').innerText = data.exitTime;
+      document.getElementById('rcpt-duration').innerText = data.durationText;
+      document.getElementById('rcpt-plate').innerText = data.plate;
+      document.getElementById('rcpt-country').innerText = data.country === 'CO' ? 'COLOMBIA 🇨🇴' : data.country === 'VE' ? 'VENEZUELA 🇻🇪' : 'SIN PLACA 🚫';
+      document.getElementById('rcpt-vehicle-type').innerText = data.vehicleType === 'CAR' ? 'AUTOMÓVIL' : data.vehicleType === 'MOTORCYCLE' ? 'MOTOCICLETA' : 'BICICLETA';
+      document.getElementById('rcpt-slot').innerText = data.slotId;
+      document.getElementById('rcpt-rate-desc').innerText = data.rateText;
+      document.getElementById('rcpt-subtotal').innerText = data.subtotalText;
+      document.getElementById('rcpt-total').innerText = data.totalText;
+      document.getElementById('rcpt-payment-method').innerText = data.paymentMethod;
+
+      const noticeBox = document.getElementById('rcpt-notice-box');
+      if (data.isGrace) {
+        noticeBox.classList.remove('hidden');
+        document.getElementById('rcpt-notice-text').innerText = "✓ PERÍODO DE GRACIA MENOR A 15 MIN (SALIDA EXENTA $0 COP)";
+      } else {
+        noticeBox.classList.add('hidden');
+      }
+
+      const photoBox = document.getElementById('rcpt-photo-container');
+      const photoImg = document.getElementById('rcpt-vehicle-photo');
+      if (data.photo) {
+        photoBox.classList.remove('hidden');
+        photoImg.src = data.photo;
+      } else {
+        photoBox.classList.add('hidden');
+      }
+
+      // Generate QR Code with QRCode.js
+      const qrContainer = document.getElementById('receipt-qrcode');
+      qrContainer.innerHTML = '';
+      const qrUrl = `https://app.nivo.dev/t/${data.ticketId}`;
+      document.getElementById('rcpt-qr-link').innerText = qrUrl;
+
+      qrCodeInstance = new QRCode(qrContainer, {
+        text: qrUrl,
+        width: 140,
+        height: 140,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M,
+      });
+    }
+
+    function shareReceiptWhatsApp() {
+      if (!APP_STATE.lastReceiptData) return;
+      const d = APP_STATE.lastReceiptData;
+      const text = `¡Hola! Aquí tienes tu comprobante digital de parqueo Nivo Parking:
+Ticket: ${d.ticketId}
+Vehículo: ${d.plate} (${d.country})
+Bahía: ${d.slotId}
+Total: ${d.totalText}
+Consulta tu estancia en vivo: https://app.nivo.dev/t/${d.ticketId}`;
+      const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+    }
+
+    // --- 11. NAVIGATION & TAB SWITCHING ---
+    function switchMainTab(tab) {
+      const vDash = document.getElementById('view-dashboard');
+      const vRcpt = document.getElementById('view-receipt');
+      const btnDash = document.getElementById('btn-nav-dashboard');
+      const btnRcpt = document.getElementById('btn-nav-receipt');
+
+      if (tab === 'dashboard') {
+        vDash.classList.remove('hidden');
+        vRcpt.classList.add('hidden');
+        vRcpt.classList.remove('flex');
+        btnDash.className = "px-3.5 py-1.5 rounded-lg bg-zinc-800 text-nivo-text shadow-sm transition-all flex items-center gap-2";
+        btnRcpt.className = "px-3.5 py-1.5 rounded-lg text-nivo-muted hover:text-nivo-text transition-all flex items-center gap-2";
+      } else if (tab === 'receipt') {
+        if (!APP_STATE.lastReceiptData) {
+          // Default mock receipt if none emitted yet
+          const slot = APP_STATE.slots[0];
+          APP_STATE.lastReceiptData = {
+            ticketId: 'TK-2026-8921',
+            plate: slot.plate,
+            country: slot.country,
+            vehicleType: slot.type,
+            slotId: slot.id,
+            entryTime: '14:15:20',
+            exitTime: '15:42:10',
+            durationText: '1h 26m (2 hrs fact.)',
+            rateText: '$4.500 COP / hora',
+            subtotalText: '$9.000 COP',
+            totalText: '$9.000 COP',
+            paymentMethod: 'EFECTIVO / WOMPI QR',
+            photo: null,
+            isExit: true,
+            isGrace: false,
+          };
+        }
+        renderThermalReceipt(APP_STATE.lastReceiptData);
+        vDash.classList.add('hidden');
+        vRcpt.classList.remove('hidden');
+        vRcpt.classList.add('flex');
+        btnRcpt.className = "px-3.5 py-1.5 rounded-lg bg-zinc-800 text-nivo-text shadow-sm transition-all flex items-center gap-2";
+        btnDash.className = "px-3.5 py-1.5 rounded-lg text-nivo-muted hover:text-nivo-text transition-all flex items-center gap-2";
+      }
+      lucide.createIcons();
+    }
+
+    // --- 12. HOTKEYS & GLOBAL LISTENERS ---
+    window.addEventListener('keydown', (e) => {
+      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) {
+        if (e.key === 'Escape') {
+          closeCheckInModal();
+          closeCheckOutModal();
+        }
+        return;
+      }
+      if (e.key === 'i' || e.key === 'I') {
+        e.preventDefault();
+        openCheckInModal();
+      } else if (e.key === 'o' || e.key === 'O') {
+        e.preventDefault();
+        openCheckOutModal();
+      } else if (e.key === 'Escape') {
+        closeCheckInModal();
+        closeCheckOutModal();
+      }
+    });
+
+    // --- 13. TOAST NOTIFICATION SYSTEM ---
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = "px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-nivo-text text-xs font-semibold shadow-2xl flex items-center gap-2 animate-in slide-in-from-bottom duration-200 pointer-events-auto";
+      toast.innerHTML = `
+        <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.remove();
+      }, 4000);
+    }
+
+    // --- 14. INITIALIZE APP ON LOAD ---
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      updateMatrixVisualizer(true);
+      updateActiveVehiclesTable(true);
+      updateKPICounters();
+    });
+  </script>
+</body>
+</html>
