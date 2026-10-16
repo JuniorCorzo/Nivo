@@ -12,6 +12,7 @@ import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.userinvitations.mapper
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.dto.CreatedUserDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.dto.DeactivateUserDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.dto.ModifyRolDTO;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.dto.UserDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.enums.UserMessages;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.mappers.UserMapper;
 import dev.angelcorzo.nivo.domain.model.userinvitations.UserInvitations;
@@ -21,8 +22,10 @@ import dev.angelcorzo.nivo.domain.usecase.user.AcceptInvitationUseCase;
 import dev.angelcorzo.nivo.domain.usecase.user.DeactivateUserUseCase;
 import dev.angelcorzo.nivo.domain.usecase.user.GetCurrentUserUseCase;
 import dev.angelcorzo.nivo.domain.usecase.user.InviteUserWithRolUseCase;
+import dev.angelcorzo.nivo.domain.usecase.user.ListUsersByTenantUseCase;
 import dev.angelcorzo.nivo.domain.usecase.user.ModifyUserRoleUseCase;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -56,6 +59,7 @@ class UserControllerTest {
   @MockitoBean private ModifyUserRoleUseCase modifyUserRoleUseCase;
   @MockitoBean private DeactivateUserUseCase deactivateUserUseCase;
   @MockitoBean private GetCurrentUserUseCase getCurrentUserUseCase;
+  @MockitoBean private ListUsersByTenantUseCase listUsersByTenantUseCase;
 
   @Test
   @DisplayName("POST /users/invite-user - Should return 201 Created for valid invitation")
@@ -235,5 +239,23 @@ class UserControllerTest {
         .andExpect(jsonPath("$.data.fullName").value("Test User"))
         .andExpect(jsonPath("$.data.email").value("test@example.com"))
         .andExpect(jsonPath("$.data.role").value("MANAGER"));
+  }
+
+  @Test
+  @DisplayName("GET /users - Should return 200 OK and list of users for tenant")
+  void getUsers_shouldReturn200AndUserList() throws Exception {
+    final UUID userId = UUID.randomUUID();
+    final Users domainUser = Users.builder().id(userId).fullName("Carlos Manager").build();
+    final UserDTO userDto = UserDTO.builder().id(userId).fullName("Carlos Manager").build();
+
+    when(listUsersByTenantUseCase.execute()).thenReturn(List.of(domainUser));
+    when(userMapper.toDTO(domainUser)).thenReturn(userDto);
+
+    mockMvc
+        .perform(get("/users").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value(UserMessages.USERS_RETRIEVED.toString()))
+        .andExpect(jsonPath("$.data[0].id").value(userId.toString()))
+        .andExpect(jsonPath("$.data[0].fullName").value("Carlos Manager"));
   }
 }

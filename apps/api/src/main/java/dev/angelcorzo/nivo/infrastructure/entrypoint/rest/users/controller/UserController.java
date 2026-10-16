@@ -16,6 +16,7 @@ import dev.angelcorzo.nivo.domain.usecase.user.AcceptInvitationUseCase;
 import dev.angelcorzo.nivo.domain.usecase.user.DeactivateUserUseCase;
 import dev.angelcorzo.nivo.domain.usecase.user.GetCurrentUserUseCase;
 import dev.angelcorzo.nivo.domain.usecase.user.InviteUserWithRolUseCase;
+import dev.angelcorzo.nivo.domain.usecase.user.ListUsersByTenantUseCase;
 import dev.angelcorzo.nivo.domain.usecase.user.ModifyUserRoleUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,6 +25,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -43,6 +45,7 @@ public class UserController {
   private final ModifyUserRoleUseCase modifyUserRoleUseCase;
   private final DeactivateUserUseCase deactivateUserUseCase;
   private final GetCurrentUserUseCase getCurrentUserUseCase;
+  private final ListUsersByTenantUseCase listUsersByTenantUseCase;
 
   @Operation(
       summary = "Invite a user with a role",
@@ -134,5 +137,21 @@ public class UserController {
     Users currentUser = this.getCurrentUserUseCase.execute();
     return Response.ok(
         this.userMapper.toDTO(currentUser), UserMessages.USER_PROFILE_RETRIEVED.toString());
+  }
+
+  @Operation(
+      summary = "List users by tenant",
+      description = "Retrieves all internal users belonging to the authenticated tenant")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")
+  })
+  @GetMapping
+  @PreAuthorize("hasRole('MANAGER')")
+  public Response<List<UserDTO>> getUsers() {
+    final List<Users> users = this.listUsersByTenantUseCase.execute();
+    return Response.ok(
+        users.stream().map(this.userMapper::toDTO).toList(),
+        UserMessages.USERS_RETRIEVED.toString());
   }
 }
