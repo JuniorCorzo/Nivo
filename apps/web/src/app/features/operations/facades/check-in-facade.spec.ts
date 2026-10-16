@@ -149,8 +149,25 @@ describe("CheckInFacade", () => {
     facade.setPlate("AB");
     expect(facade.isValid()).toBe(false);
 
+    facade.setPlate("ABC12");
+    expect(facade.isValid()).toBe(false);
+
     facade.setPlate("ABC-123");
     expect(facade.isValid()).toBe(true);
+
+    facade.setPlate("ABC123");
+    expect(facade.isValid()).toBe(true);
+  });
+
+  it("should enforce plate length limits according to country", () => {
+    facade.init("parking-1");
+    facade.setPlateCountry("CO");
+    facade.setPlate("ABC12345");
+    expect(facade.plate()).toBe("ABC1234");
+
+    facade.setPlateCountry("VE");
+    facade.setPlate("AB123CD999");
+    expect(facade.plate()).toBe("AB123CD99");
   });
 
   it("should submit check-in, set issued ticket and open receipt on success", () => {

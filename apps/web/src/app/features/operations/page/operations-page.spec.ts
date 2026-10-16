@@ -42,6 +42,7 @@ interface MockTicketService {
   getActiveTicketBySlot: ReturnType<typeof vi.fn>;
   calculatePrice: ReturnType<typeof vi.fn>;
   checkOutVehicle: ReturnType<typeof vi.fn>;
+  listTicketsByParkingLot: ReturnType<typeof vi.fn>;
 }
 
 interface MockToastService {
@@ -150,6 +151,7 @@ describe("OperationsPageComponent", () => {
       checkOutVehicle: vi.fn(),
       createTicket: vi.fn(),
       getActiveTicketBySlot: vi.fn(),
+      listTicketsByParkingLot: vi.fn().mockReturnValue(of([])),
     };
     toastSpy = { showToast: vi.fn() };
 
@@ -346,6 +348,154 @@ describe("OperationsPageComponent", () => {
     expect(toastSpy.showToast).toHaveBeenCalledWith({
       message: "No se encontró un ticket activo para este cupo.",
       type: "error",
+    });
+  });
+
+  describe("Active Tickets Table & Operations", () => {
+    const mockActiveTickets = [
+      {
+        entryTime: "2026-10-16T10:00:00Z",
+        id: "t-1",
+        licensePlate: "ABC-123",
+        plateCountry: "CO" as const,
+        slotNumber: "101",
+        status: "OPEN" as const,
+      },
+      {
+        entryTime: "2026-10-16T10:30:00Z",
+        id: "t-2",
+        licensePlate: "VE-789-XY",
+        plateCountry: "VE" as const,
+        slotNumber: "102",
+        status: "OPEN" as const,
+      },
+      {
+        entryTime: "2026-10-16T09:00:00Z",
+        id: "t-3",
+        licensePlate: "OLD-000",
+        slotNumber: "103",
+        status: "CLOSED" as const,
+      },
+    ];
+
+    it("should load active tickets on init and filter only OPEN status", () => {
+      ticketServiceSpy.listTicketsByParkingLot.mockReturnValue(
+        of(mockActiveTickets)
+      );
+
+      component.refreshActiveTickets();
+
+      expect(ticketServiceSpy.listTicketsByParkingLot).toHaveBeenCalledWith("p-1");
+      expect(component.activeTickets().length).toBe(2);
+      expect(component.activeTickets().map((t) => t.id)).toEqual(["t-1", "t-2"]);
+    });
+
+    it("should filter active tickets by search query against plate and slot number", () => {
+      component.activeTickets.set([mockActiveTickets[0], mockActiveTickets[1]]);
+
+      // No query
+      component.setSearchTicketQuery("");
+      expect(component.filteredActiveTickets().length).toBe(2);
+
+      // Search by plate
+      component.setSearchTicketQuery("abc");
+      expect(component.filteredActiveTickets().length).toBe(1);
+      expect(component.filteredActiveTickets()[0].id).toBe("t-1");
+
+      // Search by slot
+      component.setSearchTicketQuery("102");
+      expect(component.filteredActiveTickets().length).toBe(1);
+      expect(component.filteredActiveTickets()[0].id).toBe("t-2");
+
+      // No match
+      component.setSearchTicketQuery("nonexistent");
+      expect(component.filteredActiveTickets().length).toBe(0);
+    });
+
+    it("should update search ticket query via onSearchQueryChange", () => {
+      const mockEvent = {
+        target: { value: "ABC" } as unknown as HTMLInputElement,
+      } as unknown as Event;
+
+      component.onSearchQueryChange(mockEvent);
+      expect(component.searchTicketQuery()).toBe("ABC");
+    });
+
+    it("should open checkout modal with preselected ticket when checkOutWithTicket is called", () => {
+      const ticket = mockActiveTickets[0];
+      component.checkOutWithTicket(ticket);
+
+      expect(component.selectedCheckoutTicket()).toEqual(ticket);
+      expect(component.isCheckOutModalOpen()).toBe(true);
+    });
+
+    it("should refresh active tickets and slots when check-in or check-out modal closes", () => {
+      const refreshSpy = vi.spyOn(component, "refreshActiveTickets");
+
+      component.closeCheckInModal();
+      expect(refreshSpy).toHaveBeenCalledTimes(1);
+
+      component.closeCheckOutModal();
+      expect(refreshSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it("should render active tickets and handle Cobrar action in template", () => {
+      component.activeTickets.set([mockActiveTickets[0]]);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain("Vehículos Activos en Taquilla");
+      expect(compiled.textContent).toContain("ABC-123");
+      expect(compiled.textContent).toContain("Bahía 101");
+
+      const cobrarButton = fixture.debugElement
+        .queryAll(By.directive(ButtonComponent))
+        .find((btn) => btn.nativeElement.textContent.includes("Cobrar"));
+      expect(cobrarButton).toBeDefined();
+
+      cobrarButton?.nativeElement.click();
+      expect(component.selectedCheckoutTicket()).toEqual(mockActiveTickets[0]);
+      expect(component.isCheckOutModalOpen()).toBe(true);
+    });
+
+    it("should render empty state when no active tickets exist", () => {
+      component.activeTickets.set([]);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain("No hay vehículos activos en este momento.");
+    });
+
+    it("should trigger hotkeys I and O to open modals when target is not an input", () => {
+      const checkInSpy = vi.spyOn(component, "openCheckInModal");
+      const checkOutSpy = vi.spyOn(component, "openDirectCheckOutModal");
+
+      // Press I
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "i" }));
+      expect(checkInSpy).toHaveBeenCalledTimes(1);
+
+      // Press O
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "o" }));
+      expect(checkOutSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should ignore hotkeys when typing in input or textarea", () => {
+      const checkInSpy = vi.spyOn(component, "openCheckInModal");
+
+      const input = document.createElement("input");
+      document.body.appendChild(input);
+
+      const event = new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        key: "i",
+      });
+      Object.defineProperty(event, "target", { value: input, writable: false });
+
+      component.handleKeyboardShortcuts(event);
+      expect(checkInSpy).not.toHaveBeenCalled();
+
+      input.remove();
     });
   });
 });

@@ -19,7 +19,7 @@ import { TicketService } from "@core/services/ticket-service";
 import { ToastService } from "@nivo-sass/design-system";
 
 const VE_PLATE_REGEX =
-  /^([A-Z]{2}\d{3}[A-Z]{2}|[A-Z]{4}\d{3}|[A-Z]{3}\d{2}[A-Z]|[A-Z]{2}\d[A-Z]\d{2}[A-Z])$/;
+  /^(?<vePlate>[A-Z]{2}\d{3}[A-Z]{2}|[A-Z]{4}\d{3}|[A-Z]{3}\d{2}[A-Z]|[A-Z]{2}\d[A-Z]\d{2}[A-Z])$/u;
 
 @Injectable()
 export class CheckInFacade {
@@ -116,12 +116,12 @@ export class CheckInFacade {
       return Boolean(this.photoUrl());
     }
 
-    const cleaned = this.plate().replaceAll(/[\s-]/g, "").toUpperCase();
+    const cleaned = this.plate().replaceAll(/[\s-]/gu, "").toUpperCase();
     if (this.plateCountry() === "VE") {
       return VE_PLATE_REGEX.test(cleaned);
     }
 
-    return cleaned.length >= 3;
+    return cleaned.length === 6;
   });
 
   init(parkingId: string): void {
@@ -157,7 +157,8 @@ export class CheckInFacade {
   }
 
   setPlate(plate: string): void {
-    this.plate.set(plate.toUpperCase().trim());
+    const maxLen = this.plateCountry() === "VE" ? 9 : 7;
+    this.plate.set(plate.toUpperCase().trim().slice(0, maxLen));
     this.errorMessage.set(null);
   }
 

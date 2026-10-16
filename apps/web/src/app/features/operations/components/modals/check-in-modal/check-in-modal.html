@@ -165,6 +165,7 @@
             [country]="facade.plateCountry()"
             [vehicleType]="facade.vehicleType()"
             [value]="facade.plate()"
+            [attr.maxlength]="facade.plateCountry() === 'VE' ? 9 : 7"
             (input)="onPlateInput($event)"
             (keydown.enter)="onEnterKey($event)"
             [placeholder]="facade.plateCountry() === 'VE' ? texts.platePlaceholderVe : texts.platePlaceholderCo"

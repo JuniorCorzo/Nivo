@@ -89,14 +89,12 @@ export class PlateMaskDirective {
       ""
     ).length;
 
-    // 2. Extract sanitized alphanumeric content, keeping full buffer if switching country
+    // 2. Extract sanitized alphanumeric content and enforce strict country limits
     let raw = originalValue.replaceAll(/[^A-Za-z0-9]/gu, "").toUpperCase();
-    if (
-      this.lastRawValue &&
-      this.lastRawValue.startsWith(raw) &&
-      this.lastRawValue.length > raw.length
-    ) {
-      raw = this.lastRawValue;
+    if (this.country() === "CO") {
+      raw = raw.slice(0, 6);
+    } else if (this.country() === "VE") {
+      raw = raw.slice(0, 7);
     }
 
     // If backspacing on a delimiter, adjust raw character and caret tracking

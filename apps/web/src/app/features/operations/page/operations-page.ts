@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import {
   Component,
   ChangeDetectionStrategy,
+  HostListener,
   computed,
   inject,
   signal,
@@ -23,9 +24,11 @@ import {
   lucideLogIn,
   lucideLogOut,
   lucideParkingSquare,
+  lucideSearch,
   lucideTicket,
 } from "@ng-icons/lucide";
 import {
+  BadgeComponent,
   ButtonComponent,
   DividerComponent,
   ToastService,
@@ -43,6 +46,7 @@ import { CheckOutModalComponent } from "../components/modals/check-out-modal/che
     CommonModule,
     RouterLink,
     NgIcon,
+    BadgeComponent,
     ButtonComponent,
     DividerComponent,
     PageHeaderComponent,
@@ -58,6 +62,7 @@ import { CheckOutModalComponent } from "../components/modals/check-out-modal/che
       lucideLogIn,
       lucideLogOut,
       lucideParkingSquare,
+      lucideSearch,
       lucideTicket,
     }),
   ],
@@ -82,6 +87,9 @@ export class OperationsPageComponent {
   readonly isCheckInModalOpen = signal<boolean>(false);
   readonly isCheckOutModalOpen = signal<boolean>(false);
   readonly selectedCheckoutTicket = signal<TicketSummary | null>(null);
+
+  readonly activeTickets = signal<TicketSummary[]>([]);
+  readonly searchTicketQuery = signal<string>("");
 
   readonly vehicleFilter = signal<string>("ALL");
   readonly statusFilter = signal<string>("ALL");
@@ -171,6 +179,19 @@ export class OperationsPageComponent {
     return list;
   });
 
+  readonly filteredActiveTickets = computed(() => {
+    const tickets = this.activeTickets();
+    const query = this.searchTicketQuery().trim().toLowerCase();
+    if (!query) {
+      return tickets;
+    }
+    return tickets.filter((t) => {
+      const plate = (t.licensePlate ?? "").toLowerCase();
+      const slot = (t.slotNumber ?? "").toLowerCase();
+      return plate.includes(query) || slot.includes(query);
+    });
+  });
+
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       const id = params.get("parkingId");
@@ -178,7 +199,33 @@ export class OperationsPageComponent {
       if (id) {
         this.slotService.getAllSlotSummariesByParkingId(id).subscribe();
         this.rateService.getRatesByParkingId(id).subscribe();
+        this.ticketService.listTicketsByParkingLot(id).subscribe({
+          error: () => this.activeTickets.set([]),
+          next: (tickets) => {
+            this.activeTickets.set(
+              (tickets ?? []).filter((t) => t.status === "OPEN")
+            );
+          },
+        });
+      } else {
+        this.activeTickets.set([]);
       }
+    });
+  }
+
+  refreshActiveTickets(): void {
+    const id = this.parkingId();
+    if (!id) {
+      return;
+    }
+    this.slotService.getAllSlotSummariesByParkingId(id).subscribe();
+    this.ticketService.listTicketsByParkingLot(id).subscribe({
+      error: () => this.activeTickets.set([]),
+      next: (tickets) => {
+        this.activeTickets.set(
+          (tickets ?? []).filter((t) => t.status === "OPEN")
+        );
+      },
     });
   }
 
@@ -190,12 +237,23 @@ export class OperationsPageComponent {
     this.statusFilter.set(val);
   }
 
+  setSearchTicketQuery(query: string): void {
+    this.searchTicketQuery.set(query);
+  }
+
+  onSearchQueryChange(event: Event): void {
+    /* SAFETY: event.target is HTMLInputElement from input element */
+    const input = event.target as HTMLInputElement;
+    this.searchTicketQuery.set(input?.value ?? "");
+  }
+
   openCheckInModal(): void {
     this.isCheckInModalOpen.set(true);
   }
 
   closeCheckInModal(): void {
     this.isCheckInModalOpen.set(false);
+    this.refreshActiveTickets();
   }
 
   checkInSpecificSlot(_slot: SlotSummary): void {
@@ -204,6 +262,11 @@ export class OperationsPageComponent {
 
   openDirectCheckOutModal(): void {
     this.selectedCheckoutTicket.set(null);
+    this.isCheckOutModalOpen.set(true);
+  }
+
+  checkOutWithTicket(ticket: TicketSummary): void {
+    this.selectedCheckoutTicket.set(ticket);
     this.isCheckOutModalOpen.set(true);
   }
 
@@ -225,5 +288,29 @@ export class OperationsPageComponent {
   closeCheckOutModal(): void {
     this.isCheckOutModalOpen.set(false);
     this.selectedCheckoutTicket.set(null);
+    this.refreshActiveTickets();
+  }
+
+  @HostListener("window:keydown", ["$event"])
+  handleKeyboardShortcuts(event: KeyboardEvent): void {
+    /* SAFETY: event.target is HTMLElement or null on window keyboard event */
+    const target = event.target as HTMLElement | null;
+    const tagName = target?.tagName?.toUpperCase();
+    if (
+      tagName === "INPUT" ||
+      tagName === "TEXTAREA" ||
+      tagName === "SELECT" ||
+      target?.isContentEditable
+    ) {
+      return;
+    }
+
+    if (event.key === "i" || event.key === "I") {
+      event.preventDefault();
+      this.openCheckInModal();
+    } else if (event.key === "o" || event.key === "O") {
+      event.preventDefault();
+      this.openDirectCheckOutModal();
+    }
   }
 }

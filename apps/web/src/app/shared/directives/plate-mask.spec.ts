@@ -93,6 +93,11 @@ describe("PlateMaskDirective", () => {
       setInputValue("abc12345");
       expect(inputEl.value).toBe("ABC-123");
     });
+
+    it("should strictly truncate to 6 alphanumeric characters when typing 7 or more characters", () => {
+      setInputValue("ABC123XYZ");
+      expect(inputEl.value).toBe("ABC-123");
+    });
   });
 
   describe("Colombian Motorcycle (CO + MOTORCYCLE: AAA-00A)", () => {
@@ -212,6 +217,35 @@ describe("PlateMaskDirective", () => {
       setInputValue("AB123", 2);
       expect(inputEl.value).toBe("AB-123");
     });
+
+    it("should smoothly support backspacing character by character without reverting", () => {
+      setInputValue("ABC123");
+      expect(inputEl.value).toBe("ABC-123");
+
+      // Backspacing '3'
+      setInputValue("ABC-12");
+      expect(inputEl.value).toBe("ABC-12");
+
+      // Backspacing '2'
+      setInputValue("ABC-1");
+      expect(inputEl.value).toBe("ABC-1");
+
+      // Backspacing '1'
+      setInputValue("ABC-");
+      expect(inputEl.value).toBe("ABC");
+
+      // Backspacing 'C'
+      setInputValue("AB");
+      expect(inputEl.value).toBe("AB");
+
+      // Backspacing 'B'
+      setInputValue("A");
+      expect(inputEl.value).toBe("A");
+
+      // Backspacing 'A'
+      setInputValue("");
+      expect(inputEl.value).toBe("");
+    });
   });
 
   describe("Dynamic Signal Changes", () => {
@@ -220,8 +254,8 @@ describe("PlateMaskDirective", () => {
       host.vehicleType.set("CAR");
       fixture.detectChanges();
 
-      setInputValue("AB123CD");
-      // In CO car, 6 chars max -> ABC-123 format (AB123C)
+      setInputValue("AB123C");
+      // In CO car, 6 chars max -> formatted AB1-23C
       expect(inputEl.value).toBe("AB1-23C");
 
       // Switch to VE
@@ -230,6 +264,10 @@ describe("PlateMaskDirective", () => {
 
       // Trigger directive refresh
       inputEl.dispatchEvent(new Event("input", { bubbles: true }));
+      expect(inputEl.value).toBe("AB-123-C");
+
+      // Now with VE active, typing 7th character formats to AA-000-AA
+      setInputValue("AB123CD");
       expect(inputEl.value).toBe("AB-123-CD");
     });
   });
