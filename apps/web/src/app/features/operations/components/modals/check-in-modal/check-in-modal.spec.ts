@@ -117,7 +117,12 @@ describe("CheckInModalComponent", () => {
   it("should apply plate mask directive formatting on plate input", () => {
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
-    const input = fixture.nativeElement.querySelector("#plate-input") as HTMLInputElement;
+    const input: HTMLInputElement | null =
+      fixture.nativeElement.querySelector("#plate-input");
+    expect(input).not.toBeNull();
+    if (!input) {
+      return;
+    }
     input.value = "abc123";
     input.dispatchEvent(new Event("input", { bubbles: true }));
     fixture.detectChanges();
@@ -129,7 +134,12 @@ describe("CheckInModalComponent", () => {
   it("should adapt mask formatting when switching from Colombian to Venezuelan", () => {
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
-    const input = fixture.nativeElement.querySelector("#plate-input") as HTMLInputElement;
+    const input: HTMLInputElement | null =
+      fixture.nativeElement.querySelector("#plate-input");
+    expect(input).not.toBeNull();
+    if (!input) {
+      return;
+    }
     input.value = "ab123cd";
     input.dispatchEvent(new Event("input", { bubbles: true }));
     fixture.detectChanges();
