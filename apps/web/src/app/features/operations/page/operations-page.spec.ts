@@ -104,6 +104,24 @@ describe("OperationsPageComponent", () => {
             type: "CAR",
             zone: "Z1",
           },
+          {
+            id: "s-3",
+            parkingName: "Central",
+            prefix: "B",
+            slotNumber: "201",
+            status: "AVAILABLE",
+            type: "MOTORCYCLE",
+            zone: "Z2",
+          },
+          {
+            id: "s-4",
+            parkingName: "Central",
+            prefix: "B",
+            slotNumber: "202",
+            status: "OCCUPIED",
+            type: "MOTORCYCLE",
+            zone: "Z2",
+          },
         ],
       }),
     };
@@ -162,9 +180,13 @@ describe("OperationsPageComponent", () => {
   });
 
   it("should compute metrics accurately for slots and occupation", () => {
-    expect(component.totalSlotsCount()).toBe(2);
-    expect(component.availableSlotsCount()).toBe(1);
-    expect(component.occupiedSlotsCount()).toBe(1);
+    expect(component.totalSlotsCount()).toBe(4);
+    expect(component.availableSlotsCount()).toBe(2);
+    expect(component.availableCarSlotsCount()).toBe(1);
+    expect(component.totalCarSlotsCount()).toBe(2);
+    expect(component.availableMotoSlotsCount()).toBe(1);
+    expect(component.totalMotoSlotsCount()).toBe(2);
+    expect(component.occupiedSlotsCount()).toBe(2);
     expect(component.occupationPercentage()).toBe(50);
   });
 
@@ -220,6 +242,17 @@ describe("OperationsPageComponent", () => {
     const ticketLink = fixture.debugElement.query(By.css("a[nv-button]"));
     expect(ticketLink).toBeTruthy();
     expect(ticketLink.nativeElement.textContent).toContain("Ver Tickets");
+  });
+
+  it("should render 4 operational booth cards in summary grid", () => {
+    fixture.detectChanges();
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain("Cupos Carros");
+    expect(compiled.textContent).toContain("Cupos Motos");
+    expect(compiled.textContent).toContain("Vehículos Dentro");
+    expect(compiled.textContent).toContain("Nivel Ocupación");
+    expect(compiled.textContent).not.toContain("Tarifas Activas");
   });
 
   it("should filter slots by vehicle type and status", () => {

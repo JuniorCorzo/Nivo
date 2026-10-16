@@ -16,6 +16,7 @@ import { SlotService } from "@core/services/slot-service";
 import { TicketService } from "@core/services/ticket-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
+  lucideBike,
   lucideCar,
   lucideCoins,
   lucideGauge,
@@ -50,6 +51,7 @@ import { CheckOutModalComponent } from "../components/modals/check-out-modal/che
   ],
   providers: [
     provideIcons({
+      lucideBike,
       lucideCar,
       lucideCoins,
       lucideGauge,
@@ -115,6 +117,28 @@ export class OperationsPageComponent {
 
   readonly availableSlotsCount = computed(
     () => this.slots().filter((s) => s.status === "AVAILABLE").length
+  );
+
+  readonly availableCarSlotsCount = computed(
+    () =>
+      this.slots().filter(
+        (s) => s.status === "AVAILABLE" && s.type === "CAR"
+      ).length
+  );
+
+  readonly totalCarSlotsCount = computed(
+    () => this.slots().filter((s) => s.type === "CAR").length
+  );
+
+  readonly availableMotoSlotsCount = computed(
+    () =>
+      this.slots().filter(
+        (s) => s.status === "AVAILABLE" && s.type === "MOTORCYCLE"
+      ).length
+  );
+
+  readonly totalMotoSlotsCount = computed(
+    () => this.slots().filter((s) => s.type === "MOTORCYCLE").length
   );
 
   readonly occupiedSlotsCount = computed(

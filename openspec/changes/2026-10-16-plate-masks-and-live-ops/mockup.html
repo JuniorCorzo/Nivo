@@ -173,86 +173,63 @@
     <!-- VIEW 1: LIVE OPS DASHBOARD -->
     <div id="view-dashboard" class="flex flex-col gap-6 transition-all duration-300">
       
-      <!-- 5 REAL-TIME KPI CARDS -->
-      <section class="grid grid-cols-2 md:grid-cols-5 gap-3.5">
-        <!-- KPI 1: Plazas Totales -->
+      <!-- 4 REAL-TIME OPERATIONAL KPI CARDS -->
+      <section class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+        <!-- KPI 1: Cupos Carros -->
         <div class="bg-nivo-card border border-nivo-border rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-zinc-600 transition-all">
           <div class="flex items-center justify-between text-nivo-muted">
-            <span class="text-xs font-semibold uppercase tracking-wider">Plazas Totales</span>
-            <i data-lucide="parking-square" class="w-4 h-4 text-zinc-400"></i>
+            <span class="text-xs font-semibold uppercase tracking-wider">Cupos Carros</span>
+            <i data-lucide="car" class="w-4 h-4 text-emerald-400"></i>
           </div>
           <div class="mt-2 flex items-baseline gap-1.5">
-            <span id="kpi-total-slots" class="text-2xl font-bold font-mono text-nivo-text tnum">120</span>
-            <span class="text-xs text-nivo-muted">cupos</span>
+            <span id="kpi-free-cars" class="text-2xl font-bold font-mono text-emerald-400 tnum">18</span>
+            <span class="text-xs text-nivo-muted font-mono">/ 24 libres</span>
           </div>
-          <div class="mt-2 text-[11px] text-zinc-400">Capacidad total registrada</div>
-          <div class="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800"></div>
-        </div>
-
-        <!-- KPI 2: Ocupación Actual -->
-        <div class="bg-nivo-card border border-nivo-border rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-zinc-600 transition-all">
-          <div class="flex items-center justify-between text-nivo-muted">
-            <span class="text-xs font-semibold uppercase tracking-wider">Ocupación</span>
-            <span id="kpi-occupancy-pct" class="text-xs font-mono font-bold text-amber-400">70%</span>
-          </div>
-          <div class="mt-2 flex items-baseline gap-1.5">
-            <span id="kpi-occupied-slots" class="text-2xl font-bold font-mono text-nivo-text tnum">84</span>
-            <span class="text-xs text-nivo-muted">/ 120 ocupados</span>
-          </div>
-          <!-- Visual progress bar -->
-          <div class="mt-2 w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden">
-            <div id="kpi-occupancy-bar" class="bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500 h-1.5 rounded-full transition-all duration-500" style="width: 70%"></div>
-          </div>
-        </div>
-
-        <!-- KPI 3: Cupos Libres -->
-        <div class="bg-nivo-card border border-nivo-border rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-zinc-600 transition-all">
-          <div class="flex items-center justify-between text-nivo-muted">
-            <span class="text-xs font-semibold uppercase tracking-wider">Cupos Libres</span>
-            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
-          </div>
-          <div class="mt-2 flex items-baseline gap-1.5">
-            <span id="kpi-free-slots" class="text-2xl font-bold font-mono text-emerald-400 tnum">36</span>
-            <span class="text-xs text-nivo-muted">disponibles</span>
-          </div>
-          <div class="mt-2 text-[11px] text-zinc-400 flex items-center justify-between">
-            <span>Autos: <b class="text-nivo-text font-mono" id="kpi-free-cars">22</b></span>
-            <span>Motos: <b class="text-nivo-text font-mono" id="kpi-free-motos">14</b></span>
-          </div>
+          <div class="mt-2 text-[11px] text-zinc-400">Bahía A · Automóviles</div>
           <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500/40"></div>
         </div>
 
-        <!-- KPI 4: Recaudación del Turno -->
+        <!-- KPI 2: Cupos Motos -->
         <div class="bg-nivo-card border border-nivo-border rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-zinc-600 transition-all">
           <div class="flex items-center justify-between text-nivo-muted">
-            <span class="text-xs font-semibold uppercase tracking-wider">Recaudación</span>
-            <i data-lucide="circle-dollar-sign" class="w-4 h-4 text-emerald-400"></i>
+            <span class="text-xs font-semibold uppercase tracking-wider">Cupos Motos</span>
+            <i data-lucide="bike" class="w-4 h-4 text-zinc-300"></i>
           </div>
-          <div class="mt-2">
-            <div id="kpi-revenue-total" class="text-2xl font-bold font-mono text-nivo-text tnum">$482.000</div>
+          <div class="mt-2 flex items-baseline gap-1.5">
+            <span id="kpi-free-motos" class="text-2xl font-bold font-mono text-nivo-text tnum">12</span>
+            <span class="text-xs text-nivo-muted font-mono">/ 16 libres</span>
           </div>
-          <div class="mt-2 text-[10px] text-zinc-400 flex items-center justify-between font-mono">
-            <span>Efvo: $340k</span>
-            <span>Wompi: $142k</span>
+          <div class="mt-2 text-[11px] text-zinc-400">Bahía B · Motocicletas</div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-zinc-400/40"></div>
+        </div>
+
+        <!-- KPI 3: Vehículos Dentro -->
+        <div class="bg-nivo-card border border-nivo-border rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-zinc-600 transition-all">
+          <div class="flex items-center justify-between text-nivo-muted">
+            <span class="text-xs font-semibold uppercase tracking-wider">Vehículos Dentro</span>
+            <i data-lucide="car" class="w-4 h-4 text-blue-400"></i>
           </div>
+          <div class="mt-2 flex items-baseline gap-1.5">
+            <span id="kpi-occupied-slots" class="text-2xl font-bold font-mono text-nivo-text tnum">28</span>
+            <span class="text-xs text-nivo-muted font-mono">activos</span>
+          </div>
+          <div class="mt-2 text-[11px] text-zinc-400">En patio de estacionamiento</div>
           <div class="absolute bottom-0 left-0 right-0 h-1 bg-blue-500/40"></div>
         </div>
 
-        <!-- KPI 5: Tiempo Promedio Estadía -->
-        <div class="bg-nivo-card border border-nivo-border rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-zinc-600 transition-all col-span-2 md:col-span-1">
+        <!-- KPI 4: Nivel de Ocupación -->
+        <div class="bg-nivo-card border border-nivo-border rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-zinc-600 transition-all">
           <div class="flex items-center justify-between text-nivo-muted">
-            <span class="text-xs font-semibold uppercase tracking-wider">Tiempo Promedio</span>
-            <i data-lucide="clock" class="w-4 h-4 text-zinc-400"></i>
+            <span class="text-xs font-semibold uppercase tracking-wider">Nivel de Ocupación</span>
+            <i data-lucide="gauge" class="w-4 h-4 text-amber-400"></i>
           </div>
           <div class="mt-2 flex items-baseline gap-1.5">
-            <span class="text-2xl font-bold font-mono text-nivo-text tnum">1h 18m</span>
-            <span class="text-xs text-nivo-muted">rotación</span>
+            <span id="kpi-occupancy-pct" class="text-2xl font-bold font-mono text-amber-400 tnum">70%</span>
+            <span class="text-xs text-nivo-muted">capacidad</span>
           </div>
-          <div class="mt-2 text-[11px] text-emerald-400 flex items-center gap-1">
-            <i data-lucide="trending-up" class="w-3 h-3"></i>
-            <span>Alta eficiencia</span>
+          <div class="mt-2 w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+            <div id="kpi-occupancy-bar" class="bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500 h-1.5 rounded-full transition-all duration-500" style="width: 70%"></div>
           </div>
-          <div class="absolute bottom-0 left-0 right-0 h-1 bg-amber-500/40"></div>
         </div>
       </section>
 
@@ -1670,20 +1647,31 @@
 
     // --- 9. KPI COUNTERS UPDATE ---
     function updateKPICounters() {
-      const total = 120;
-      const occupied = APP_STATE.slots.filter(s => s.status === 'OCCUPIED').length;
-      // Real-time simulated multiplier based on 24 rendered slots
-      const scaledOccupied = Math.min(120, 72 + occupied);
-      const free = total - scaledOccupied;
-      const pct = Math.round((scaledOccupied / total) * 100);
+      const occupiedRendered = APP_STATE.slots.filter(s => s.status === 'OCCUPIED').length;
+      const delta = occupiedRendered - 14;
+      const totalOccupied = Math.max(0, 28 + delta);
+      const pct = Math.min(100, Math.round((totalOccupied / 40) * 100));
 
-      document.getElementById('kpi-occupied-slots').innerText = scaledOccupied;
-      document.getElementById('kpi-occupancy-pct').innerText = `${pct}%`;
-      document.getElementById('kpi-occupancy-bar').style.width = `${pct}%`;
-      document.getElementById('kpi-free-slots').innerText = free;
-      document.getElementById('kpi-free-cars').innerText = Math.round(free * 0.6);
-      document.getElementById('kpi-free-motos').innerText = Math.round(free * 0.4);
-      document.getElementById('kpi-revenue-total').innerText = `$${APP_STATE.revenueShift.toLocaleString('es-CO')}`;
+      const freeCars = Math.max(0, 18 - Math.round(delta * 0.6));
+      const freeMotos = Math.max(0, 12 - Math.round(delta * 0.4));
+
+      const occSlotsEl = document.getElementById('kpi-occupied-slots');
+      if (occSlotsEl) occSlotsEl.innerText = totalOccupied;
+
+      const occPctEl = document.getElementById('kpi-occupancy-pct');
+      if (occPctEl) occPctEl.innerText = `${pct}%`;
+
+      const occBarEl = document.getElementById('kpi-occupancy-bar');
+      if (occBarEl) occBarEl.style.width = `${pct}%`;
+
+      const freeCarsEl = document.getElementById('kpi-free-cars');
+      if (freeCarsEl) freeCarsEl.innerText = freeCars;
+
+      const freeMotosEl = document.getElementById('kpi-free-motos');
+      if (freeMotosEl) freeMotosEl.innerText = freeMotos;
+
+      const revEl = document.getElementById('kpi-revenue-total');
+      if (revEl) revEl.innerText = `$${APP_STATE.revenueShift.toLocaleString('es-CO')}`;
     }
 
     // --- 10. THERMAL RECEIPT RENDERING ---

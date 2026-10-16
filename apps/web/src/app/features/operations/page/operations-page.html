@@ -51,32 +51,57 @@
 
   <!-- Summary Cards Grid -->
   <div class="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-    <!-- Available Slots -->
+    <!-- Cupos Carros -->
     <div
       class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
     >
       <div class="flex items-center justify-between">
         <span
           class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
-          >Cupos Disponibles</span
+          >Cupos Carros</span
         >
         <div
           class="bg-success/10 text-success border-success/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
         >
-          <ng-icon name="lucideParkingSquare" size="18" class="shrink-0" />
+          <ng-icon name="lucideCar" size="18" class="shrink-0" />
         </div>
       </div>
       <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
         <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
-          >{{ availableSlotsCount() }}</span
+          >{{ availableCarSlotsCount() }}</span
         >
         <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
-          >/ {{ totalSlotsCount() }}</span
+          >/ {{ totalCarSlotsCount() }}</span
         >
       </div>
     </div>
 
-    <!-- Occupied Slots -->
+    <!-- Cupos Motos -->
+    <div
+      class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
+    >
+      <div class="flex items-center justify-between">
+        <span
+          class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
+          >Cupos Motos</span
+        >
+        <div
+          class="bg-primary/10 text-primary border-primary/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
+        >
+          <ng-icon name="lucideBike" size="18" class="shrink-0" />
+        </div>
+      </div>
+      <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
+        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
+          >{{ availableMotoSlotsCount() }}</span
+        >
+        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
+          >/ {{ totalMotoSlotsCount() }}</span
+        >
+      </div>
+    </div>
+
+    <!-- Vehículos Dentro -->
     <div
       class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
     >
@@ -101,39 +126,14 @@
       </div>
     </div>
 
-    <!-- Active Rates -->
+    <!-- Nivel Ocupación -->
     <div
       class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
     >
       <div class="flex items-center justify-between">
         <span
           class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
-          >Tarifas Activas</span
-        >
-        <div
-          class="bg-primary/10 text-primary border-primary/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
-        >
-          <ng-icon name="lucideCoins" size="18" class="shrink-0" />
-        </div>
-      </div>
-      <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
-        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
-          >{{ ratesCount() }}</span
-        >
-        <span class="text-muted-foreground text-[10px] sm:text-xs"
-          >activas</span
-        >
-      </div>
-    </div>
-
-    <!-- Occupation Percentage -->
-    <div
-      class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
-    >
-      <div class="flex items-center justify-between">
-        <span
-          class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
-          >Ocupación</span
+          >Nivel Ocupación</span
         >
         <div
           class="bg-warning/10 text-warning border-warning/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
@@ -145,7 +145,7 @@
         <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
           >{{ occupationPercentage() }}%</span
         >
-        <span class="text-muted-foreground text-[10px] sm:text-xs"
+        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
           >capacidad</span
         >
       </div>
