@@ -413,16 +413,17 @@ describe("OperationsPageComponent", () => {
     });
 
     it("should update search ticket query via onSearchQueryChange", () => {
-      const mockEvent = {
-        target: { value: "ABC" } as unknown as HTMLInputElement,
-      } as unknown as Event;
+      const input = document.createElement("input");
+      input.value = "ABC";
+      const event = new Event("input");
+      Object.defineProperty(event, "target", { value: input, writable: false });
 
-      component.onSearchQueryChange(mockEvent);
+      component.onSearchQueryChange(event);
       expect(component.searchTicketQuery()).toBe("ABC");
     });
 
     it("should open checkout modal with preselected ticket when checkOutWithTicket is called", () => {
-      const ticket = mockActiveTickets[0];
+      const [ticket] = mockActiveTickets;
       component.checkOutWithTicket(ticket);
 
       expect(component.selectedCheckoutTicket()).toEqual(ticket);
@@ -443,7 +444,7 @@ describe("OperationsPageComponent", () => {
       component.activeTickets.set([mockActiveTickets[0]]);
       fixture.detectChanges();
 
-      const compiled = fixture.nativeElement as HTMLElement;
+      const compiled: HTMLElement = fixture.nativeElement;
       expect(compiled.textContent).toContain("Vehículos Activos en Taquilla");
       expect(compiled.textContent).toContain("ABC-123");
       expect(compiled.textContent).toContain("Bahía 101");
@@ -462,7 +463,7 @@ describe("OperationsPageComponent", () => {
       component.activeTickets.set([]);
       fixture.detectChanges();
 
-      const compiled = fixture.nativeElement as HTMLElement;
+      const compiled: HTMLElement = fixture.nativeElement;
       expect(compiled.textContent).toContain("No hay vehículos activos en este momento.");
     });
 
@@ -483,7 +484,7 @@ describe("OperationsPageComponent", () => {
       const checkInSpy = vi.spyOn(component, "openCheckInModal");
 
       const input = document.createElement("input");
-      document.body.appendChild(input);
+      document.body.append(input);
 
       const event = new KeyboardEvent("keydown", {
         bubbles: true,
