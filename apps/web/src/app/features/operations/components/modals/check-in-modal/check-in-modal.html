@@ -59,6 +59,8 @@
         </div>
         } @else {
         <div
+          role="group"
+          aria-label="Seleccionar tipo de vehículo"
           class="grid gap-1.5 sm:gap-2"
           [class.grid-cols-1]="facade.availableVehicleTypes().length === 1"
           [class.grid-cols-2]="facade.availableVehicleTypes().length === 2"
@@ -71,7 +73,7 @@
             [class.border-primary]="facade.vehicleType() === type"
             [class.bg-primary/10]="facade.vehicleType() === type"
             [class.text-primary]="facade.vehicleType() === type"
-            class="border-border text-foreground hover:bg-accent hover:text-accent-foreground flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border p-2.5 text-xs font-medium transition-colors sm:p-3"
+            class="border-border text-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border p-2.5 text-xs font-medium transition-colors sm:p-3"
           >
             <ng-icon
               [name]="type === 'CAR' ? 'lucideCar' : 'lucideBike'"
@@ -88,43 +90,37 @@
         }
       </div>
 
-      <!-- Plate Country / Origin Tabs -->
+      <!-- Registration Modality Selector -->
       <div>
         <label
           class="text-muted-foreground mb-1.5 block text-xs font-semibold tracking-wider uppercase"
         >
-          {{ texts.originLabel }}
+          Modalidad
         </label>
-        <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
+        <div
+          role="group"
+          aria-label="Modalidad de registro"
+          class="grid grid-cols-2 gap-1.5 sm:gap-2"
+        >
           <button
             type="button"
-            (click)="onPlateCountrySelect('CO')"
-            [class.border-primary]="facade.plateCountry() === 'CO'"
-            [class.bg-primary/10]="facade.plateCountry() === 'CO'"
-            [class.text-primary]="facade.plateCountry() === 'CO'"
-            class="border-border text-foreground hover:bg-accent hover:text-accent-foreground flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border p-2 text-xs font-medium transition-colors"
+            (click)="facade.setIsUnplated(false)"
+            [class.border-primary]="!facade.isUnplated()"
+            [class.bg-primary/10]="!facade.isUnplated()"
+            [class.text-primary]="!facade.isUnplated()"
+            class="border-border text-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border p-2 text-xs font-medium transition-colors"
           >
-            <span>{{ texts.countryCo }}</span>
+            <span>Con Placa</span>
           </button>
           <button
             type="button"
-            (click)="onPlateCountrySelect('VE')"
-            [class.border-primary]="facade.plateCountry() === 'VE'"
-            [class.bg-primary/10]="facade.plateCountry() === 'VE'"
-            [class.text-primary]="facade.plateCountry() === 'VE'"
-            class="border-border text-foreground hover:bg-accent hover:text-accent-foreground flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border p-2 text-xs font-medium transition-colors"
+            (click)="facade.setIsUnplated(true)"
+            [class.border-primary]="facade.isUnplated()"
+            [class.bg-primary/10]="facade.isUnplated()"
+            [class.text-primary]="facade.isUnplated()"
+            class="border-border text-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border p-2 text-xs font-medium transition-colors"
           >
-            <span>{{ texts.countryVe }}</span>
-          </button>
-          <button
-            type="button"
-            (click)="onPlateCountrySelect('UNPLATED')"
-            [class.border-primary]="facade.plateCountry() === 'UNPLATED'"
-            [class.bg-primary/10]="facade.plateCountry() === 'UNPLATED'"
-            [class.text-primary]="facade.plateCountry() === 'UNPLATED'"
-            class="border-border text-foreground hover:bg-accent hover:text-accent-foreground flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border p-2 text-xs font-medium transition-colors"
-          >
-            <span>{{ texts.countryUnplated }}</span>
+            <span>Sin Placa (Foto)</span>
           </button>
         </div>
       </div>
@@ -150,11 +146,6 @@
           class="text-muted-foreground mb-1.5 block text-xs font-semibold tracking-wider uppercase"
         >
           {{ texts.plateLabel }} <span class="text-destructive">*</span>
-          @if (facade.plateCountry() === 'VE') {
-          <span class="text-muted-foreground font-normal normal-case">
-            ({{ texts.plateHintVe }})
-          </span>
-          }
         </label>
         <div class="relative">
           <input
@@ -162,16 +153,25 @@
             #plateInput
             type="text"
             appPlateMask
-            [country]="facade.plateCountry()"
+            [country]="facade.isUnplated() ? 'UNPLATED' : 'AUTO'"
             [vehicleType]="facade.vehicleType()"
             [value]="facade.plate()"
             [attr.maxlength]="facade.plateCountry() === 'VE' ? 9 : 7"
+            (countryChange)="onCountryChange($event)"
             (input)="onPlateInput($event)"
             (keydown.enter)="onEnterKey($event)"
-            [placeholder]="facade.plateCountry() === 'VE' ? texts.platePlaceholderVe : texts.platePlaceholderCo"
+            placeholder="Ej: ABC-123 o AB-123-CD"
             autocomplete="off"
             class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-xl border px-4 py-3 font-mono text-base font-bold tracking-widest uppercase transition-all placeholder:font-normal placeholder:tracking-normal focus:outline-hidden sm:text-lg"
           />
+          @if (!facade.isUnplated() && facade.plate().length >= 3) {
+          <span
+            class="border-border bg-muted/80 text-foreground pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[10px] font-bold shadow-xs sm:right-16"
+          >
+            <span>{{ facade.plateCountry() === 'VE' ? '🇻🇪' : '🇨🇴' }}</span>
+            <span>{{ facade.plateCountry() }}</span>
+          </span>
+          }
           <div
             class="text-muted-foreground absolute top-1/2 right-3 hidden -translate-y-1/2 font-mono text-xs sm:block"
           >
@@ -205,7 +205,7 @@
             id="slot-select"
             [value]="facade.selectedSlotId() || ''"
             (change)="onSlotChange($event)"
-            class="border-input bg-background text-foreground focus:border-ring w-full cursor-pointer rounded-lg border px-3 py-2 text-xs font-medium focus:outline-hidden"
+            class="border-input bg-background text-foreground focus:border-ring focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none w-full cursor-pointer rounded-lg border px-3 py-2 text-xs font-medium focus:outline-hidden"
           >
             @if (facade.availableSlots().length === 0) {
             <option value="" disabled>{{ texts.slotNoSlots }}</option>
@@ -230,7 +230,7 @@
             id="rate-select"
             [value]="facade.selectedRateId() || ''"
             (change)="onRateChange($event)"
-            class="border-input bg-background text-foreground focus:border-ring w-full cursor-pointer rounded-lg border px-3 py-2 text-xs font-medium focus:outline-hidden"
+            class="border-input bg-background text-foreground focus:border-ring focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none w-full cursor-pointer rounded-lg border px-3 py-2 text-xs font-medium focus:outline-hidden"
           >
             @if (facade.availableRates().length === 0) {
             <option value="" disabled>{{ texts.rateNoRates }}</option>

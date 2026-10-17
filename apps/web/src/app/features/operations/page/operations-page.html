@@ -181,6 +181,8 @@
       >
         <!-- Filter by Type -->
         <div
+          role="group"
+          aria-label="Filtro de tipo de vehículo"
           class="border-border bg-muted flex shrink-0 rounded-lg border p-0.5 text-xs"
         >
           <button
@@ -217,6 +219,8 @@
 
         <!-- Filter by Status -->
         <div
+          role="group"
+          aria-label="Filtro de estado de cupo"
           class="border-border bg-muted flex shrink-0 rounded-lg border p-0.5 text-xs"
         >
           <button
@@ -312,7 +316,7 @@
             <button
               type="button"
               (click)="checkInSpecificSlot(slot)"
-              class="bg-success text-primary-foreground hover:bg-success/90 w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors"
+              class="bg-success text-primary-foreground hover:bg-success/90 focus-visible:ring-ring w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors focus-visible:ring-2 focus-visible:outline-none"
             >
               + Ingresar
             </button>
@@ -320,7 +324,7 @@
             <button
               type="button"
               (click)="checkOutSpecificSlot(slot)"
-              class="bg-info text-primary-foreground hover:bg-info/90 w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors"
+              class="bg-info text-primary-foreground hover:bg-info/90 focus-visible:ring-ring w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors focus-visible:ring-2 focus-visible:outline-none"
             >
               Salida
             </button>
@@ -365,6 +369,7 @@
         />
         <input
           type="text"
+          aria-label="Buscar placa o bahía"
           [value]="searchTicketQuery()"
           (input)="onSearchQueryChange($event)"
           placeholder="Buscar placa o bahía..."

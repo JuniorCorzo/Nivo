@@ -156,9 +156,26 @@ export class CheckInFacade {
     });
   }
 
-  setPlate(plate: string): void {
+  setPlate(plate: string, detectedCountry?: PlateCountry): void {
+    if (detectedCountry && detectedCountry !== "UNPLATED") {
+      this.plateCountry.set(detectedCountry);
+    }
     const maxLen = this.plateCountry() === "VE" ? 9 : 7;
     this.plate.set(plate.toUpperCase().trim().slice(0, maxLen));
+    this.errorMessage.set(null);
+  }
+
+  setIsUnplated(unplated: boolean): void {
+    if (unplated) {
+      this.plateCountry.set("UNPLATED");
+      this.plate.set("");
+      const available = this.availableVehicleTypes();
+      if (available.includes("MOTORCYCLE")) {
+        this.setVehicleType("MOTORCYCLE");
+      }
+    } else if (this.plateCountry() === "UNPLATED") {
+      this.plateCountry.set("CO");
+    }
     this.errorMessage.set(null);
   }
 

@@ -2,6 +2,8 @@ import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import type { TicketSummary } from "@core/models/ticket.model";
 
+import { setTimeout as sleep } from "node:timers/promises";
+
 import { TicketReceiptComponent } from "./ticket-receipt";
 
 describe("TicketReceiptComponent", () => {
@@ -93,7 +95,7 @@ describe("TicketReceiptComponent", () => {
     fixture.componentRef.setInput("ticket", mockTicket);
     fixture.detectChanges();
     await fixture.whenStable();
-    await new Promise((r) => setTimeout(r, 50));
+    await sleep(50);
     fixture.detectChanges();
 
     expect(component.qrDataUrl()).toBeTruthy();

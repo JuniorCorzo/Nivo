@@ -16,12 +16,18 @@ import { PlateMaskDirective } from "./plate-mask";
       appPlateMask
       [country]="country()"
       [vehicleType]="vehicleType()"
+      (countryChange)="onCountryChange($event)"
     />
   `,
 })
 class TestHostComponent {
-  readonly country = signal<PlateCountry>("CO");
+  readonly country = signal<PlateCountry | "AUTO">("CO");
   readonly vehicleType = signal<VehicleType>("CAR");
+  readonly detectedCountry = signal<PlateCountry | null>(null);
+
+  onCountryChange(c: PlateCountry): void {
+    this.detectedCountry.set(c);
+  }
 }
 
 describe("PlateMaskDirective", () => {
@@ -269,6 +275,50 @@ describe("PlateMaskDirective", () => {
       // Now with VE active, typing 7th character formats to AA-000-AA
       setInputValue("AB123CD");
       expect(inputEl.value).toBe("AB-123-CD");
+    });
+  });
+
+  describe("Automatic Country Detection (AUTO)", () => {
+    beforeEach(() => {
+      host.country.set("AUTO");
+      host.vehicleType.set("CAR");
+      fixture.detectChanges();
+    });
+
+    it("should format abc123 as ABC-123 and detect CO", () => {
+      setInputValue("abc123");
+      expect(inputEl.value).toBe("ABC-123");
+      expect(host.detectedCountry()).toBe("CO");
+    });
+
+    it("should format ab123cd as AB-123-CD and detect VE", () => {
+      setInputValue("ab123cd");
+      expect(inputEl.value).toBe("AB-123-CD");
+      expect(host.detectedCountry()).toBe("VE");
+    });
+
+    it("should default to CO when typing fewer than 3 characters", () => {
+      setInputValue("ab");
+      expect(inputEl.value).toBe("AB");
+      expect(host.detectedCountry()).toBe("CO");
+    });
+
+    it("should format Colombian motorcycle correctly in AUTO mode", () => {
+      host.vehicleType.set("MOTORCYCLE");
+      fixture.detectChanges();
+      setInputValue("abc12d");
+      expect(inputEl.value).toBe("ABC-12D");
+      expect(host.detectedCountry()).toBe("CO");
+    });
+
+    it("should switch detection when changing plate input in AUTO mode", () => {
+      setInputValue("abc123");
+      expect(inputEl.value).toBe("ABC-123");
+      expect(host.detectedCountry()).toBe("CO");
+
+      setInputValue("ab123cd");
+      expect(inputEl.value).toBe("AB-123-CD");
+      expect(host.detectedCountry()).toBe("VE");
     });
   });
 });

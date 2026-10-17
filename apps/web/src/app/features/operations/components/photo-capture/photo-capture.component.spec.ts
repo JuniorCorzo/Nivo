@@ -1,22 +1,28 @@
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
+import { setTimeout as sleep } from "node:timers/promises";
 
 import { PhotoCaptureComponent } from "./photo-capture.component";
+
+interface MockStream {
+  getTracks: ReturnType<typeof vi.fn>;
+}
 
 describe("PhotoCaptureComponent", () => {
   let component: PhotoCaptureComponent;
   let fixture: ComponentFixture<PhotoCaptureComponent>;
 
-  const mockBase64 = `data:image/jpeg;base64,${  "A".repeat(40000)}`; // ~30 KB
-  let mockTracks: { stop: ReturnType<typeof vi.fn>; kind: string }[];
-  let mockStream: MediaStream;
+  // ~30 KB
+  const mockBase64 = `data:image/jpeg;base64,${"A".repeat(40_000)}`;
+  let mockTracks: { kind: string; stop: ReturnType<typeof vi.fn> }[];
+  let mockStream: MockStream;
 
   beforeEach(async () => {
     mockTracks = [{ kind: "video", stop: vi.fn() }];
     mockStream = {
       getTracks: vi.fn().mockReturnValue(mockTracks),
-    } as unknown as MediaStream;
+    };
 
     Object.defineProperty(navigator, "mediaDevices", {
       configurable: true,
@@ -26,9 +32,13 @@ describe("PhotoCaptureComponent", () => {
       writable: true,
     });
 
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+    const mockCtx: Partial<CanvasRenderingContext2D> = {
       drawImage: vi.fn(),
-    } as unknown as CanvasRenderingContext2D);
+    };
+    /* SAFETY: Partial canvas context satisfies drawImage in test environment */
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
+      mockCtx as CanvasRenderingContext2D
+    );
 
     vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockReturnValue(
       mockBase64
@@ -45,6 +55,7 @@ describe("PhotoCaptureComponent", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it("1. debe inicializar en estado inactivo sin foto", () => {
@@ -104,34 +115,56 @@ describe("PhotoCaptureComponent", () => {
       type: "image/jpeg",
     });
 
-    const originalFileReader = globalThis.FileReader;
     class MockFileReader {
       onload: ((e: ProgressEvent<FileReader>) => void) | null = null;
       onerror: ((e: ProgressEvent<FileReader>) => void) | null = null;
+      private listeners: Record<string, ((e: ProgressEvent<FileReader>) => void)[]> = {};
+
+      addEventListener(event: string, listener: (e: ProgressEvent<FileReader>) => void) {
+        (this.listeners[event] ??= []).push(listener);
+      }
+
       readAsDataURL() {
         setTimeout(() => {
-          this.onload?.({
-            target: { result: mockBase64 },
-          } as unknown as ProgressEvent<FileReader>);
+          const mockResult: Partial<FileReader> = { result: mockBase64 };
+          /* SAFETY: Mock ProgressEvent for file reader */
+          const event = {
+            target: mockResult as FileReader,
+          } as ProgressEvent<FileReader>;
+          this.onload?.(event);
+          for (const listener of this.listeners["load"] ?? []) {
+            listener(event);
+          }
         }, 10);
       }
     }
-    // SAFETY: Mocking FileReader for testing
-    globalThis.FileReader = MockFileReader as unknown as typeof FileReader;
+    vi.stubGlobal("FileReader", MockFileReader);
 
-    const originalImage = globalThis.Image;
-    class MockImage {
-      width = 800;
-      height = 600;
-      onload: (() => void) | null = null;
-      set src(_val: string) {
-        setTimeout(() => {
-          this.onload?.();
-        }, 10);
-      }
-    }
-    // SAFETY: Mocking Image for testing
-    globalThis.Image = MockImage as unknown as typeof Image;
+    const MockImage = vi.fn().mockImplementation(() => {
+      const listeners: Record<string, (() => void)[]> = {};
+      let currentSrc = "";
+      return {
+        addEventListener(event: string, listener: () => void) {
+          (listeners[event] ??= []).push(listener);
+        },
+        height: 600,
+        onload: null,
+        get src(): string {
+          return currentSrc;
+        },
+        set src(val: string) {
+          currentSrc = val;
+          setTimeout(() => {
+            this.onload?.();
+            for (const listener of listeners["load"] ?? []) {
+              listener();
+            }
+          }, 10);
+        },
+        width: 800,
+      };
+    });
+    vi.stubGlobal("Image", MockImage);
 
     const input = document.createElement("input");
     input.type = "file";
@@ -139,16 +172,14 @@ describe("PhotoCaptureComponent", () => {
       value: [file],
     });
 
-    const event = { target: input } as unknown as Event;
+    const event = new Event("change");
+    Object.defineProperty(event, "target", { value: input });
     component.onFileSelected(event);
 
-    await new Promise((r) => setTimeout(r, 50));
+    await sleep(50);
 
     expect(emitSpy).toHaveBeenCalledWith(mockBase64);
     expect(component.photoDataUrl()).toBe(mockBase64);
-
-    globalThis.FileReader = originalFileReader;
-    globalThis.Image = originalImage;
   });
 
   it("6. debe manejar error al acceder a la cámara y asignar mensaje", async () => {

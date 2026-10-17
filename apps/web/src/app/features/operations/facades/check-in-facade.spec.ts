@@ -405,5 +405,48 @@ describe("CheckInFacade", () => {
     });
     expect(facade.lastIssuedTicket()).toEqual(mockTicket);
   });
+
+  describe("setIsUnplated and detected country handling", () => {
+    it("should toggle unplated modality correctly", () => {
+      facade.init("parking-1");
+      facade.setPlate("ABC123");
+
+      facade.setIsUnplated(true);
+      expect(facade.plateCountry()).toBe("UNPLATED");
+      expect(facade.isUnplated()).toBe(true);
+      expect(facade.plate()).toBe("");
+      expect(facade.errorMessage()).toBeNull();
+
+      facade.setIsUnplated(false);
+      expect(facade.plateCountry()).toBe("CO");
+      expect(facade.isUnplated()).toBe(false);
+      expect(facade.errorMessage()).toBeNull();
+    });
+
+    it("should preserve existing country when setIsUnplated(false) called on non-UNPLATED", () => {
+      facade.init("parking-1");
+      facade.setPlateCountry("VE");
+
+      facade.setIsUnplated(false);
+      expect(facade.plateCountry()).toBe("VE");
+    });
+
+    it("should update plateCountry when detectedCountry is provided to setPlate", () => {
+      facade.init("parking-1");
+      facade.setPlate("AB-123-CD", "VE");
+
+      expect(facade.plateCountry()).toBe("VE");
+      expect(facade.plate()).toBe("AB-123-CD");
+    });
+
+    it("should not override plateCountry if detectedCountry is UNPLATED", () => {
+      facade.init("parking-1");
+      facade.setPlateCountry("CO");
+      facade.setPlate("ABC-123", "UNPLATED");
+
+      expect(facade.plateCountry()).toBe("CO");
+      expect(facade.plate()).toBe("ABC-123");
+    });
+  });
 });
 

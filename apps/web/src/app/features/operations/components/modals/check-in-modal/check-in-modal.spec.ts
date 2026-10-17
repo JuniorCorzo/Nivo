@@ -131,7 +131,7 @@ describe("CheckInModalComponent", () => {
     expect(component.facade.plate()).toBe("ABC-123");
   });
 
-  it("should adapt mask formatting when switching from Colombian to Venezuelan", () => {
+  it("should auto-detect Venezuelan plate and update facade plate and country", () => {
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
     const input: HTMLInputElement | null =
@@ -144,19 +144,55 @@ describe("CheckInModalComponent", () => {
     input.dispatchEvent(new Event("input", { bubbles: true }));
     fixture.detectChanges();
 
-    // Default CO automobile masks as ABC-123 (AB1-23C)
-    expect(input.value).toBe("AB1-23C");
+    expect(input.value).toBe("AB-123-CD");
+    expect(component.facade.plate()).toBe("AB-123-CD");
+    expect(component.facade.plateCountry()).toBe("VE");
+  });
 
-    // Switch country to VE
-    component.onPlateCountrySelect("VE");
+  it("should auto-detect Colombian plate and update facade plate and country", () => {
+    fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
-
-    input.value = "ab123cd";
+    const input: HTMLInputElement | null =
+      fixture.nativeElement.querySelector("#plate-input");
+    expect(input).not.toBeNull();
+    if (!input) {
+      return;
+    }
+    input.value = "abc123";
     input.dispatchEvent(new Event("input", { bubbles: true }));
     fixture.detectChanges();
 
-    expect(input.value).toBe("AB-123-CD");
-    expect(component.facade.plate()).toBe("AB-123-CD");
+    expect(input.value).toBe("ABC-123");
+    expect(component.facade.plate()).toBe("ABC-123");
+    expect(component.facade.plateCountry()).toBe("CO");
+  });
+
+  it("should toggle modality between plated and unplated", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    component.facade.setIsUnplated(true);
+    fixture.detectChanges();
+
+    expect(component.facade.isUnplated()).toBe(true);
+    const photoCapture =
+      fixture.nativeElement.querySelector("app-photo-capture");
+    expect(photoCapture).not.toBeNull();
+
+    component.facade.setIsUnplated(false);
+    fixture.detectChanges();
+
+    expect(component.facade.isUnplated()).toBe(false);
+    const plateInput = fixture.nativeElement.querySelector("#plate-input");
+    expect(plateInput).not.toBeNull();
+  });
+
+  it("should update country on onCountryChange", () => {
+    component.onCountryChange("VE");
+    expect(component.facade.plateCountry()).toBe("VE");
+
+    component.onCountryChange("CO");
+    expect(component.facade.plateCountry()).toBe("CO");
   });
 });
 

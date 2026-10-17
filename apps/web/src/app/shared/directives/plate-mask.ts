@@ -10,6 +10,11 @@ import {
 import type { VehicleType } from "@core/models/rate.model";
 import type { PlateCountry } from "@core/models/ticket.model";
 
+interface DelimiterBackspaceResult {
+  readonly updatedCaretCount: number;
+  readonly updatedRaw: string;
+}
+
 @Directive({
   selector: "input[appPlateMask]",
   standalone: true,
@@ -18,8 +23,8 @@ export class PlateMaskDirective {
   private readonly elementRef =
     inject<ElementRef<HTMLInputElement>>(ElementRef);
 
-  /** Target registration country: 'CO' | 'VE' | 'UNPLATED' */
-  readonly country = input<PlateCountry>("CO");
+  /** Target registration country: 'CO' | 'VE' | 'UNPLATED' | 'AUTO' */
+  readonly country = input<PlateCountry | "AUTO">("AUTO");
 
   /** Vehicle type for specialized sub-masks (e.g. Colombian motorcycles): 'CAR' | 'MOTORCYCLE' | 'BIKE' */
   readonly vehicleType = input<VehicleType>("CAR");
@@ -27,8 +32,12 @@ export class PlateMaskDirective {
   /** Optional output emitting raw alphanumeric string (e.g., 'ABC123') */
   readonly rawPlateChange = output<string>();
 
+  /** Output emitting detected or effective plate country */
+  readonly countryChange = output<PlateCountry>();
+
   private isDeletingDelimiter = false;
   private lastRawValue = "";
+  private lastEmittedCountry: PlateCountry | null = null;
 
   constructor() {
     effect(() => {
@@ -79,6 +88,9 @@ export class PlateMaskDirective {
 
   private applyMask(triggerEvent?: Event): void {
     const inputEl = this.elementRef.nativeElement;
+    if (!inputEl || this.country() === "UNPLATED") {
+      return;
+    }
     const originalValue = inputEl.value;
     const caretPos = inputEl.selectionStart ?? originalValue.length;
 
@@ -89,34 +101,24 @@ export class PlateMaskDirective {
       ""
     ).length;
 
-    // 2. Extract sanitized alphanumeric content and enforce strict country limits
+    // 2. Extract sanitized alphanumeric content and determine effective country
     let raw = originalValue.replaceAll(/[^A-Za-z0-9]/gu, "").toUpperCase();
-    if (this.country() === "CO") {
-      raw = raw.slice(0, 6);
-    } else if (this.country() === "VE") {
-      raw = raw.slice(0, 7);
-    }
+    const effectiveCountry = this.resolveEffectiveCountry(raw);
+    const maxRawLength = effectiveCountry === "VE" ? 7 : 6;
+    raw = raw.slice(0, maxRawLength);
 
-    // If backspacing on a delimiter, adjust raw character and caret tracking
-    if (this.isDeletingDelimiter) {
-      this.isDeletingDelimiter = false;
-      if (raw.length === this.lastRawValue.length && rawCharsBeforeCursor > 0) {
-        // Native browser backspace only deleted '-', delete preceding character as well
-        raw =
-          raw.slice(0, rawCharsBeforeCursor - 1) +
-          raw.slice(rawCharsBeforeCursor);
-      }
-      if (rawCharsBeforeCursor > 0) {
-        rawCharsBeforeCursor -= 1;
-      }
-    }
-
+    const backspaceResult = this.handleDelimiterBackspace(
+      raw,
+      rawCharsBeforeCursor
+    );
+    raw = backspaceResult.updatedRaw;
+    rawCharsBeforeCursor = backspaceResult.updatedCaretCount;
     this.lastRawValue = raw;
 
     // 3. Format according to country and vehicle type
     const formatted = PlateMaskDirective.formatPlate(
       raw,
-      this.country(),
+      effectiveCountry,
       this.vehicleType()
     );
     const rawPlate = formatted.replaceAll(/[^A-Za-z0-9]/gu, "");
@@ -133,20 +135,68 @@ export class PlateMaskDirective {
     }
 
     // 5. Calculate new caret position matching rawCharsBeforeCursor
-    let newCaretPos = 0;
+    const newCaretPos = PlateMaskDirective.calculateCaretPosition(
+      formatted,
+      rawCharsBeforeCursor
+    );
+    inputEl.setSelectionRange(newCaretPos, newCaretPos);
+
+    if (Boolean(triggerEvent) || this.lastEmittedCountry !== effectiveCountry) {
+      this.lastEmittedCountry = effectiveCountry;
+      this.countryChange.emit(effectiveCountry);
+    }
+  }
+
+  private resolveEffectiveCountry(raw: string): PlateCountry {
+    const currentCountry = this.country();
+    if (currentCountry === "CO" || currentCountry === "VE") {
+      return currentCountry;
+    }
+    if (currentCountry === "AUTO" && raw.length >= 3) {
+      if (/\d/u.test(raw[2])) {
+        return "VE";
+      }
+      if (/[A-Z]/u.test(raw[2])) {
+        return "CO";
+      }
+    }
+    return "CO";
+  }
+
+  private handleDelimiterBackspace(
+    raw: string,
+    rawCharsBeforeCursor: number
+  ): DelimiterBackspaceResult {
+    if (!this.isDeletingDelimiter) {
+      return { updatedCaretCount: rawCharsBeforeCursor, updatedRaw: raw };
+    }
+    this.isDeletingDelimiter = false;
+    let updatedRaw = raw;
+    let updatedCaretCount = rawCharsBeforeCursor;
+    if (raw.length === this.lastRawValue.length && rawCharsBeforeCursor > 0) {
+      updatedRaw =
+        raw.slice(0, rawCharsBeforeCursor - 1) + raw.slice(rawCharsBeforeCursor);
+    }
+    if (rawCharsBeforeCursor > 0) {
+      updatedCaretCount -= 1;
+    }
+    return { updatedCaretCount, updatedRaw };
+  }
+
+  private static calculateCaretPosition(
+    formatted: string,
+    rawCharsBeforeCursor: number
+  ): number {
     let countedRaw = 0;
     for (let i = 0; i < formatted.length; i += 1) {
       if (countedRaw === rawCharsBeforeCursor) {
-        newCaretPos = i;
-        break;
+        return i;
       }
       if (/[A-Za-z0-9]/u.test(formatted[i])) {
         countedRaw += 1;
       }
-      newCaretPos = i + 1;
     }
-
-    inputEl.setSelectionRange(newCaretPos, newCaretPos);
+    return formatted.length;
   }
 
   private static formatPlate(

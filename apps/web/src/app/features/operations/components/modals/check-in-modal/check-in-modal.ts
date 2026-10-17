@@ -94,6 +94,10 @@ export class CheckInModalComponent {
     this.facade.setPlateCountry(country);
   }
 
+  onCountryChange(country: PlateCountry): void {
+    this.facade.setPlateCountry(country);
+  }
+
   onPlateInput(event: Event): void {
     /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;

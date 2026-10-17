@@ -19,6 +19,11 @@ import {
 import { BadgeComponent, ButtonComponent } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
+interface Dimensions {
+  targetHeight: number;
+  targetWidth: number;
+}
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BadgeComponent, ButtonComponent, CommonModule, NgIcon],
@@ -181,7 +186,7 @@ export class PhotoCaptureComponent implements OnDestroy {
   readonly initialPhoto = input<string | null>(null);
 
   readonly photoCaptured = output<string>();
-  readonly photoCleared = output<void>();
+  readonly photoCleared = output();
 
   readonly photoDataUrl = signal<string | null>(null);
   readonly photoSizeKb = signal<number>(0);
@@ -257,19 +262,17 @@ export class PhotoCaptureComponent implements OnDestroy {
 
     if (ctx && video) {
       ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
-      const dataUrl = canvas.toDataURL("image/jpeg", this.QUALITY);
-      this.setPhoto(dataUrl);
-    } else {
-      const dataUrl = canvas.toDataURL("image/jpeg", this.QUALITY);
-      this.setPhoto(dataUrl);
     }
+    const dataUrl = canvas.toDataURL("image/jpeg", this.QUALITY);
+    this.setPhoto(dataUrl);
 
     this.stopCamera();
   }
 
   onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
+    /* SAFETY: event.target is HTMLInputElement emitting change event */
+    const fileInput = event.target as HTMLInputElement;
+    const file = fileInput.files?.[0];
     if (!file) {
       return;
     }
@@ -280,14 +283,15 @@ export class PhotoCaptureComponent implements OnDestroy {
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.addEventListener("load", (e) => {
+      /* SAFETY: FileReader result is data URL string on load event */
       const rawDataUrl = e.target?.result as string;
       if (!rawDataUrl) {
         return;
       }
 
       const img = new Image();
-      img.onload = () => {
+      img.addEventListener("load", () => {
         const { targetHeight, targetWidth } = this.calculateDimensions(
           img.width,
           img.height
@@ -301,24 +305,24 @@ export class PhotoCaptureComponent implements OnDestroy {
           const compressed = canvas.toDataURL("image/jpeg", this.QUALITY);
           this.setPhoto(compressed);
         }
-        input.value = "";
-      };
-      img.onerror = () => {
+        fileInput.value = "";
+      });
+      img.addEventListener("error", () => {
         this.errorMessage.set(this.texts.loadError);
-        input.value = "";
-      };
+        fileInput.value = "";
+      });
       img.src = rawDataUrl;
-    };
-    reader.onerror = () => {
+    });
+    reader.addEventListener("error", () => {
       this.errorMessage.set(this.texts.loadError);
-      input.value = "";
-    };
+      fileInput.value = "";
+    });
     reader.readAsDataURL(file);
   }
 
   setPhoto(dataUrl: string): void {
     this.photoDataUrl.set(dataUrl);
-    const sizeKb = this.calculateSizeKb(dataUrl);
+    const sizeKb = PhotoCaptureComponent.calculateSizeKb(dataUrl);
     this.photoSizeKb.set(sizeKb);
     this.errorMessage.set(null);
     this.photoCaptured.emit(dataUrl);
@@ -331,7 +335,7 @@ export class PhotoCaptureComponent implements OnDestroy {
     this.photoCleared.emit();
   }
 
-  calculateSizeKb(dataUrl: string): number {
+  static calculateSizeKb(dataUrl: string): number {
     const base64Data = dataUrl.includes(",")
       ? (dataUrl.split(",")[1] ?? "")
       : dataUrl;
@@ -339,10 +343,12 @@ export class PhotoCaptureComponent implements OnDestroy {
     return Math.round((bytes / 1024) * 10) / 10;
   }
 
+  readonly calculateSizeKb = PhotoCaptureComponent.calculateSizeKb;
+
   private calculateDimensions(
     sourceWidth: number,
     sourceHeight: number
-  ): { targetHeight: number; targetWidth: number } {
+  ): Dimensions {
     let targetWidth = sourceWidth;
     let targetHeight = sourceHeight;
 
@@ -355,6 +361,6 @@ export class PhotoCaptureComponent implements OnDestroy {
       targetHeight = Math.round(targetHeight * ratio);
     }
 
-    return { targetHeight, targetWidth };
+    return { targetHeight, targetWidth } satisfies Dimensions;
   }
 }
