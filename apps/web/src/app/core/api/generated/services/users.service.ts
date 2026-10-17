@@ -16,10 +16,13 @@ import { deactivateUser } from '../fn/users/deactivate-user';
 import { DeactivateUser$Params } from '../fn/users/deactivate-user';
 import { getCurrentUser } from '../fn/users/get-current-user';
 import { GetCurrentUser$Params } from '../fn/users/get-current-user';
+import { getUsers } from '../fn/users/get-users';
+import { GetUsers$Params } from '../fn/users/get-users';
 import { inviteUserWithRol } from '../fn/users/invite-user-with-rol';
 import { InviteUserWithRol$Params } from '../fn/users/invite-user-with-rol';
 import { modifyRol } from '../fn/users/modify-rol';
 import { ModifyRol$Params } from '../fn/users/modify-rol';
+import { ResponseListUserDto } from '../models/response-list-user-dto';
 import { ResponseUserDto } from '../models/response-user-dto';
 import { ResponseUserInvitationsDto } from '../models/response-user-invitations-dto';
 import { ResponseVoid } from '../models/response-void';
@@ -206,6 +209,41 @@ export class UsersService extends BaseService {
     const resp = this.deactivateUser$Response(params, context);
     return resp.pipe(
       map((r: StrictHttpResponse<ResponseVoid>): ResponseVoid => r.body)
+    );
+  }
+
+  /** Path part for operation `getUsers()` */
+  static readonly GetUsersPath = '/users';
+
+  /**
+   * List users by tenant.
+   *
+   * Retrieves all internal users belonging to the authenticated tenant
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getUsers()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getUsers$Response(params?: GetUsers$Params, context?: HttpContext): Observable<StrictHttpResponse<ResponseListUserDto>> {
+    const obs = getUsers(this.http, this.rootUrl, params, context);
+    return obs;
+  }
+
+  /**
+   * List users by tenant.
+   *
+   * Retrieves all internal users belonging to the authenticated tenant
+   *
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getUsers$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getUsers(params?: GetUsers$Params, context?: HttpContext): Observable<ResponseListUserDto> {
+    const resp = this.getUsers$Response(params, context);
+    return resp.pipe(
+      map((r: StrictHttpResponse<ResponseListUserDto>): ResponseListUserDto => r.body)
     );
   }
 
