@@ -1,10 +1,16 @@
 import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
-import type { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
+import type {
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+  UrlTree,
+} from "@angular/router";
 import type { UserModel } from "@core/models/user.model";
 import { UserService } from "@core/services/user/user-service";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
+import { firstValueFrom, map, of, timer } from "rxjs";
+import type { Observable } from "rxjs";
 import { roleGuard } from "./role.guard";
 
 describe("roleGuard", () => {
@@ -25,6 +31,7 @@ describe("roleGuard", () => {
           provide: UserService,
           useValue: {
             currentUser: currentUserSignal,
+            loadCurrentUser: vi.fn(() => of(currentUserSignal())),
           },
         },
         {
@@ -41,7 +48,7 @@ describe("roleGuard", () => {
     router = TestBed.inject(Router);
   });
 
-  it("should allow access if user has allowed role", () => {
+  it("should allow access if user has allowed role", async () => {
     currentUserSignal.set({
       contactInfo: "",
       createdAt: new Date(),
@@ -54,14 +61,16 @@ describe("roleGuard", () => {
     });
 
     const guard = roleGuard(["MANAGER", "OWNER"]);
-    const result = TestBed.runInInjectionContext(() =>
+    /* SAFETY: roleGuard returns Observable<boolean | UrlTree> */
+    const result$ = TestBed.runInInjectionContext(() =>
       guard(mockRoute, mockState)
-    );
+    ) as Observable<boolean | UrlTree>;
+    const result = await firstValueFrom(result$);
 
     expect(result).toBe(true);
   });
 
-  it("should redirect to parkingLots if user does not have allowed role", () => {
+  it("should redirect to parkingLots if user does not have allowed role", async () => {
     currentUserSignal.set({
       contactInfo: "",
       createdAt: new Date(),
@@ -74,23 +83,59 @@ describe("roleGuard", () => {
     });
 
     const guard = roleGuard(["MANAGER", "OWNER"]);
-    const result = TestBed.runInInjectionContext(() =>
+    /* SAFETY: roleGuard returns Observable<boolean | UrlTree> */
+    const result$ = TestBed.runInInjectionContext(() =>
       guard(mockRoute, mockState)
-    );
+    ) as Observable<boolean | UrlTree>;
+    const result = await firstValueFrom(result$);
 
-    expect(router.createUrlTree).toHaveBeenCalledWith([APP_ROUTES.app.parkingLots]);
+    expect(router.createUrlTree).toHaveBeenCalledWith([
+      APP_ROUTES.app.parkingLots,
+    ]);
     expect(result).not.toBe(true);
   });
 
-  it("should redirect to parkingLots if user is not logged in (null)", () => {
+  it("should redirect to parkingLots if user is not logged in (null)", async () => {
     currentUserSignal.set(null);
 
     const guard = roleGuard(["MANAGER", "OWNER"]);
-    const result = TestBed.runInInjectionContext(() =>
+    /* SAFETY: roleGuard returns Observable<boolean | UrlTree> */
+    const result$ = TestBed.runInInjectionContext(() =>
       guard(mockRoute, mockState)
-    );
+    ) as Observable<boolean | UrlTree>;
+    const result = await firstValueFrom(result$);
 
-    expect(router.createUrlTree).toHaveBeenCalledWith([APP_ROUTES.app.parkingLots]);
+    expect(router.createUrlTree).toHaveBeenCalledWith([
+      APP_ROUTES.app.parkingLots,
+    ]);
     expect(result).not.toBe(true);
   });
+
+  it("should wait for asynchronous loadCurrentUser to resolve and allow access if role matches", async () => {
+    const delayedUser: UserModel = {
+      contactInfo: "",
+      createdAt: new Date(),
+      email: "async@test.com",
+      fullName: "Async Manager",
+      id: "3",
+      role: "MANAGER",
+      tenant: { companyName: "Co", id: "t1" },
+      updatedAt: new Date(),
+    };
+
+    const userServiceMock = TestBed.inject(UserService);
+    vi.mocked(userServiceMock.loadCurrentUser).mockReturnValue(
+      timer(20).pipe(map(() => delayedUser))
+    );
+
+    const guard = roleGuard(["MANAGER"]);
+    /* SAFETY: roleGuard returns Observable<boolean | UrlTree> */
+    const result$ = TestBed.runInInjectionContext(() =>
+      guard(mockRoute, mockState)
+    ) as Observable<boolean | UrlTree>;
+    const result = await firstValueFrom(result$);
+
+    expect(result).toBe(true);
+  });
 });
+

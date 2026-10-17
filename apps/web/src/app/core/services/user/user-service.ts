@@ -3,7 +3,7 @@ import { UsersService } from "@core/api/generated/services";
 import { mapToUserModel } from "@core/mappers/user.mapper";
 import type { UserModel } from "@core/models/user.model";
 import type { Role } from "@core/type/role.type";
-import { map, tap } from "rxjs";
+import { catchError, map, of, shareReplay, tap } from "rxjs";
 import type { Observable } from "rxjs";
 
 @Injectable({
@@ -13,24 +13,37 @@ export class UserService {
   private currentUserSignal = signal<UserModel | null>(null);
   public currentUser = this.currentUserSignal.asReadonly();
 
+  private currentUserRequest$: Observable<UserModel | null> | null = null;
+
   private usersSignal = signal<UserModel[]>([]);
   public users = this.usersSignal.asReadonly();
 
   private usersService = inject(UsersService);
 
   constructor() {
-    this.getCurrentUser();
+    this.loadCurrentUser().subscribe();
   }
 
-  private getCurrentUser() {
-    this.usersService
-      .getCurrentUser()
-      .pipe(
+  public loadCurrentUser(): Observable<UserModel | null> {
+    if (this.currentUserSignal() !== null) {
+      return of(this.currentUserSignal());
+    }
+
+    if (!this.currentUserRequest$) {
+      this.currentUserRequest$ = this.usersService.getCurrentUser().pipe(
         map((response) =>
           response.data ? mapToUserModel(response.data) : null
-        )
-      )
-      .subscribe((user) => this.currentUserSignal.set(user));
+        ),
+        tap((user) => this.currentUserSignal.set(user)),
+        catchError(() => {
+          this.currentUserSignal.set(null);
+          return of(null);
+        }),
+        shareReplay(1)
+      );
+    }
+
+    return this.currentUserRequest$;
   }
 
   public listUsers(): Observable<UserModel[]> {

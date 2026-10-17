@@ -6,7 +6,8 @@ import type {
   UserDto,
 } from "@core/api/generated/models";
 import { UsersService } from "@core/api/generated/services";
-import { of } from "rxjs";
+import type { UserModel } from "@core/models/user.model";
+import { of, Subject, throwError } from "rxjs";
 
 import { UserService } from "./user-service";
 
@@ -208,5 +209,70 @@ describe("UserService", () => {
     });
     expect(deactivated).toBe(true);
     expect(service.users().find((u) => u.id === "user-2")).toBeUndefined();
+  });
+
+  describe("loadCurrentUser", () => {
+    it("should return cached user if currentUserSignal is already set", () => {
+      expect(service.currentUser()?.id).toBe("user-1");
+      expect(usersServiceSpy.getCurrentUser).toHaveBeenCalledTimes(1);
+
+      let cachedUser: UserModel | null | undefined;
+      service.loadCurrentUser().subscribe((user) => {
+        cachedUser = user;
+      });
+
+      expect(cachedUser?.id).toBe("user-1");
+      expect(usersServiceSpy.getCurrentUser).toHaveBeenCalledTimes(1);
+    });
+
+    it("should share in-flight request and update currentUser signal", () => {
+      const subject = new Subject<ResponseUserDto>();
+      usersServiceSpy.getCurrentUser.mockReset();
+      usersServiceSpy.getCurrentUser.mockReturnValue(subject.asObservable());
+
+      const newService = TestBed.runInInjectionContext(() => new UserService());
+      expect(newService.currentUser()).toBeNull();
+
+      let user1: UserModel | null | undefined;
+      let user2: UserModel | null | undefined;
+      newService.loadCurrentUser().subscribe((u) => {
+        user1 = u;
+      });
+      newService.loadCurrentUser().subscribe((u) => {
+        user2 = u;
+      });
+
+      expect(usersServiceSpy.getCurrentUser).toHaveBeenCalledTimes(1);
+
+      subject.next({
+        data: mockUserDto,
+        message: "OK",
+        status: "200",
+        timestamp: "2026-01-01T00:00:00.000Z",
+      });
+      subject.complete();
+
+      expect(user1?.id).toBe("user-1");
+      expect(user2?.id).toBe("user-1");
+      expect(newService.currentUser()?.id).toBe("user-1");
+    });
+
+    it("should handle error by setting signal to null and returning of(null)", () => {
+      usersServiceSpy.getCurrentUser.mockReset();
+      usersServiceSpy.getCurrentUser.mockReturnValue(
+        throwError(() => new Error("Network error"))
+      );
+
+      const newService = TestBed.runInInjectionContext(() => new UserService());
+      expect(newService.currentUser()).toBeNull();
+
+      let emitted: UserModel | null | undefined;
+      newService.loadCurrentUser().subscribe((u) => {
+        emitted = u;
+      });
+
+      expect(emitted).toBeNull();
+      expect(newService.currentUser()).toBeNull();
+    });
   });
 });
