@@ -3,11 +3,13 @@ import type { BaseModel } from "./base.model";
 import type { TenantInfoModel } from "./tenants.model";
 
 export type UserModel = BaseModel & {
-  fullName: string;
-  tenant: TenantInfoModel;
-  role: Role;
   contactInfo: string;
+  deletedAt?: Date | null;
+  deletedBy?: string | null;
   email: string;
+  fullName: string;
+  role: Role;
+  tenant: TenantInfoModel;
 };
 
 export interface UserInfoModel {

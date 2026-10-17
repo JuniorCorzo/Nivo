@@ -1,0 +1,82 @@
+@if (isOpen() && user(); as targetUser) {
+  <div
+    class="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs duration-200"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modify-role-title"
+    aria-describedby="modify-role-description"
+    (click)="onBackdropClick($event)"
+  >
+    <div
+      class="relative w-full max-w-md rounded-2xl border border-border bg-card p-5 text-card-foreground shadow-2xl transition-all"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Header -->
+      <div
+        class="flex items-center justify-between border-b border-border pb-3.5"
+      >
+        <div class="flex items-center gap-2.5">
+          <div
+            class="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary"
+          >
+            <ng-icon name="lucideShieldCheck" size="18" />
+          </div>
+          <div>
+            <nv-h3 id="modify-role-title" class="text-base font-bold text-foreground">
+              {{ texts.title }}
+            </nv-h3>
+            <span id="modify-role-description" class="text-xs text-muted-foreground">
+              {{ texts.subtitle }}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          (click)="onCancel()"
+          aria-label="Cerrar"
+        >
+          <ng-icon name="lucideX" size="16" />
+        </button>
+      </div>
+
+      <!-- User summary card -->
+      <div class="mt-4 rounded-xl border border-border bg-muted/40 p-3.5">
+        <div class="text-xs text-muted-foreground">{{ texts.userLabel }}</div>
+        <div class="text-sm font-semibold text-foreground">{{ targetUser.fullName }}</div>
+        <div class="text-xs text-muted-foreground">{{ targetUser.email }}</div>
+      </div>
+
+      <!-- Role Selector -->
+      <div class="mt-4 flex flex-col gap-3.5">
+        <nv-select
+          [label]="texts.form.role.label"
+          [placeholder]="texts.form.role.placeholder"
+          [items]="roleOptions"
+          [displayFn]="displayRole"
+          [valueFn]="roleValue"
+          [value]="selectedRole()"
+          (valueChange)="onRoleChange($event)"
+        />
+      </div>
+
+      <!-- Actions -->
+      <div class="mt-5 flex justify-end gap-2.5 border-t border-border pt-3.5">
+        <nv-button
+          type="button"
+          variant="outline"
+          (click)="onCancel()"
+        >
+          {{ texts.actions.cancel }}
+        </nv-button>
+        <nv-button
+          type="button"
+          [disabled]="isSubmitting()"
+          (click)="onSubmit()"
+        >
+          {{ texts.actions.submit }}
+        </nv-button>
+      </div>
+    </div>
+  </div>
+}

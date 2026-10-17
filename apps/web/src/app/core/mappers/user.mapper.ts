@@ -4,6 +4,8 @@ import type { RegisterUserModel, UserModel } from "../models/user.model";
 export const mapToUserModel = (data: UserDto): UserModel => ({
   contactInfo: data.contactInfo ?? "",
   createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+  deletedAt: data.deletedAt ? new Date(data.deletedAt) : null,
+  deletedBy: data.deletedBy ?? null,
   email: data.email ?? "",
   fullName: data.fullName ?? "",
   id: data.id ?? "",
