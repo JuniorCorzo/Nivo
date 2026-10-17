@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.mapper.UserMapper;
 import dev.angelcorzo.nivo.domain.model.users.Users;
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -115,5 +116,23 @@ class UserRepositoryAdapterTest {
     adapter.deleteById(userId);
 
     verify(repository).deleteById(userId);
+  }
+
+  @Test
+  @DisplayName("Should find all users by tenant ID and return mapped domain entities")
+  void shouldFindAllByTenantId() {
+    UUID tenantId = UUID.randomUUID();
+    UsersData userData = UsersData.builder().id(UUID.randomUUID()).email("staff@tenant.com").build();
+    Users userEntity = Users.builder().id(userData.getId()).email(userData.getEmail()).build();
+
+    when(repository.findAllByTenantId(tenantId)).thenReturn(List.of(userData));
+    when(mapper.toEntity(userData)).thenReturn(userEntity);
+
+    List<Users> result = adapter.findAllByTenantId(tenantId);
+
+    assertThat(result).isNotNull();
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getEmail()).isEqualTo("staff@tenant.com");
+    verify(repository, times(1)).findAllByTenantId(tenantId);
   }
 }

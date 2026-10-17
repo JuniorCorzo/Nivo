@@ -5,6 +5,7 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.mapper.UserMapper;
 import dev.angelcorzo.nivo.domain.model.users.Users;
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
 import dev.angelcorzo.nivo.domain.model.users.gateways.UsersRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Example;
@@ -176,5 +177,11 @@ public class UserRepositoryAdapter
   @Override
   public void deleteById(UUID id) {
     this.repository.deleteById(id);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<Users> findAllByTenantId(UUID tenantId) {
+    return toList(this.repository.findAllByTenantId(tenantId));
   }
 }

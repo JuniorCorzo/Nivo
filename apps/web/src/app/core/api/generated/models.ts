@@ -60,6 +60,7 @@ export type { ResponsePriceDetailed } from './models/response-price-detailed';
 export type { ResponseRatesDto } from './models/response-rates-dto';
 export type { ResponseSlotResponse } from './models/response-slot-response';
 export type { ResponseSpecialPoliciesDto } from './models/response-special-policies-dto';
+export type { ResponseListUserDto } from './models/response-list-user-dto';
 export type { ResponseUserDto } from './models/response-user-dto';
 export type { ResponseUserInvitationsDto } from './models/response-user-invitations-dto';
 export type { ResponseVoid } from './models/response-void';

@@ -1,4 +1,36 @@
+import type { Role } from "@core/type/role.type";
 import { APP_ROUTES } from "./app-routes.constant";
+
+export interface SidebarNavItem {
+  icon: string;
+  label: string;
+  roles?: Role[];
+  url: string;
+}
+
+const sidebarNav: SidebarNavItem[] = [
+  {
+    icon: "lucideLayoutDashboard",
+    label: "Dashboard",
+    url: APP_ROUTES.app.dashboard,
+  },
+  {
+    icon: "lucideCar",
+    label: "Parqueaderos",
+    url: APP_ROUTES.app.parkingLots,
+  },
+  {
+    icon: "lucideTicket",
+    label: "Tickets",
+    url: APP_ROUTES.app.tickets,
+  },
+  {
+    icon: "lucideUsers",
+    label: "Usuarios",
+    roles: ["SUPERADMIN", "OWNER", "MANAGER"],
+    url: APP_ROUTES.app.users,
+  },
+];
 
 export const APP_TEXTS = {
   auth: {
@@ -97,6 +129,39 @@ export const APP_TEXTS = {
       },
       title: "Crear una cuenta",
     },
+  },
+  checkIn: {
+    cancel: "Cancelar",
+    capacityWarning: "No hay cupos disponibles para esta categoría en este momento.",
+    countryCo: "Colombia",
+    countryUnplated: "Sin Placa",
+    countryVe: "Venezuela",
+    emailHint: "(Opcional para recibo digital)",
+    emailLabel: "Correo Electrónico",
+    emailPlaceholder: "cliente@ejemplo.com",
+    enterKey: "↵ Enter",
+    issuing: "Registrando...",
+    noVehicleTypes: "No hay tipos de vehículo con cupos disponibles en este momento.",
+    originLabel: "Origen / Tipo de Placa",
+    phoneHint: "Opcional para recibo móvil",
+    phoneLabel: "Teléfono Móvil",
+    phonePlaceholder: "Ej: 300 123 4567",
+    photoLabel: "Fotografía del Vehículo",
+    plateHintVe: "Formato venezolano ej: AB123CD",
+    plateLabel: "Placa / Matrícula",
+    platePlaceholderCo: "Ej: ABC123",
+    platePlaceholderVe: "Ej: AB123CD",
+    rateLabel: "Tarifa",
+    rateNoRates: "Sin tarifas configuradas",
+    slotLabel: "Cupo / Espacio",
+    slotNoSlots: "Sin cupos disponibles",
+    submitButton: "Emitir Ticket",
+    subtitle: "Asignar cupo y emitir ticket de parqueo",
+    title: "Registrar Ingreso de Vehículo",
+    vehicleAutomobile: "Automóvil",
+    vehicleBicycle: "Bicicleta",
+    vehicleMotorcycle: "Motocicleta",
+    vehicleTypeLabel: "Tipo de Vehículo",
   },
   dashboard: {
     actions: {
@@ -432,6 +497,49 @@ export const APP_TEXTS = {
       },
     },
   },
+  photoCapture: {
+    badgeSize: (kb: number) => `${kb} KB`,
+    cameraError: "No se pudo acceder a la cámara. Usa la opción de subir archivo.",
+    capture: "Capturar",
+    clearPhoto: "Eliminar foto",
+    hint: "JPG comprimido (< 100 KB) para registro de motocicleta",
+    invalidType: "El archivo seleccionado debe ser una imagen válida.",
+    loadError: "Error al procesar la imagen.",
+    noPhoto: "Sin fotografía registrada",
+    retake: "Tomar otra",
+    startCamera: "Abrir cámara",
+    stopCamera: "Cancelar",
+    uploadFallback: "Subir archivo",
+  },
+  publicTicket: {
+    accumulatedCostLabel: "Cobro Acumulado Estimado",
+    activeStatus: "En Estancia",
+    closedStatus: "Finalizado",
+    cop: "COP",
+    elapsedTimeLabel: "Tiempo Transcurrido",
+    entryTimeLabel: "Hora de Ingreso",
+    exitTimeLabel: "Hora de Salida",
+    loading: "Cargando comprobante...",
+    notFoundDescription:
+      "El comprobante solicitado no existe, ha expirado o el enlace es incorrecto.",
+    notFoundTitle: "Ticket No Encontrado",
+    originCo: "Colombia",
+    originUnplated: "Sin Placa",
+    originVe: "Venezuela",
+    parkingLotDefault: "Nivo Parking",
+    photoBadge: "Foto Registrada al Ingreso",
+    plateLabel: "Placa / Código",
+    qrNotice:
+      "Muestra este código QR en la taquilla al momento de salir para liquidar y validar tu salida.",
+    rateLabel: "Tarifa",
+    refreshButton: "Actualizar Cobro en Vivo",
+    shareWhatsApp: "Compartir por WhatsApp",
+    slotLabel: "Bahía / Espacio",
+    statusLabel: "Estado del Ticket",
+    subtitle: "Consulta en tiempo real de tu estancia y tarifa",
+    title: "Comprobante Digital de Parqueo",
+    unplatedVehicle: "Vehículo Sin Placa",
+  },
   server: {
     errors: {
       404: "Recurso no encontrado. La página o recurso que busca no existe.",
@@ -446,23 +554,7 @@ export const APP_TEXTS = {
   sidebar: {
     logo: "Nivo",
     logout: "Cerrar sesión",
-    nav: [
-      {
-        icon: "lucideLayoutDashboard",
-        label: "Dashboard",
-        url: APP_ROUTES.app.dashboard,
-      },
-      {
-        icon: "lucideCar",
-        label: "Parqueaderos",
-        url: APP_ROUTES.app.parkingLots,
-      },
-      {
-        icon: "lucideTicket",
-        label: "Tickets",
-        url: APP_ROUTES.app.tickets,
-      },
-    ],
+    nav: sidebarNav,
     theme: {
       label: "Tema",
     },
@@ -652,6 +744,25 @@ export const APP_TEXTS = {
         "La plaza tiene un ticket activo. Cambiar a disponible liberará el ticket actual. Esta acción puede generar inconsistencias.",
     },
   },
+  ticketReceipt: {
+    closeButton: "Cerrar",
+    entryTimeLabel: "Hora de Ingreso:",
+    exitTimeLabel: "Hora de Salida:",
+    paymentMethodLabel: "Método de Pago:",
+    photoBadge: "Foto de Ingreso",
+    plateLabel: "Placa del Vehículo",
+    printButton: "Imprimir",
+    qrNotice: "Escanea para ver recibo digital y estado en vivo",
+    rateLabel: "Tarifa Aplicada",
+    rateStandardFallback: "Estándar",
+    shareWhatsApp: "Enviar por WhatsApp",
+    slotAssignedFallback: "Asignado",
+    slotLabel: "Espacio / Cupo",
+    totalPaidLabel: "Total Pagado:",
+    unplatedVehicle: "Vehículo Sin Placa",
+    whatsAppMessage: (plate: string, url: string) =>
+      `¡Hola! Aquí tienes tu comprobante digital de parqueo para el vehículo ${plate}: ${url}`,
+  },
   tickets: {
     actions: {
       backToOperations: "Volver a Operaciones",
@@ -761,99 +872,143 @@ export const APP_TEXTS = {
       },
     },
   },
-  checkIn: {
-    cancel: "Cancelar",
-    capacityWarning: "No hay cupos disponibles para esta categoría en este momento.",
-    countryCo: "Colombia",
-    countryUnplated: "Sin Placa",
-    countryVe: "Venezuela",
-    emailHint: "(Opcional para recibo digital)",
-    emailLabel: "Correo Electrónico",
-    emailPlaceholder: "cliente@ejemplo.com",
-    enterKey: "↵ Enter",
-    issuing: "Registrando...",
-    noVehicleTypes: "No hay tipos de vehículo con cupos disponibles en este momento.",
-    originLabel: "Origen / Tipo de Placa",
-    phoneHint: "Opcional para recibo móvil",
-    phoneLabel: "Teléfono Móvil",
-    phonePlaceholder: "Ej: 300 123 4567",
-    photoLabel: "Fotografía del Vehículo",
-    plateHintVe: "Formato venezolano ej: AB123CD",
-    plateLabel: "Placa / Matrícula",
-    platePlaceholderCo: "Ej: ABC123",
-    platePlaceholderVe: "Ej: AB123CD",
-    rateLabel: "Tarifa",
-    rateNoRates: "Sin tarifas configuradas",
-    slotLabel: "Cupo / Espacio",
-    slotNoSlots: "Sin cupos disponibles",
-    submitButton: "Emitir Ticket",
-    subtitle: "Asignar cupo y emitir ticket de parqueo",
-    title: "Registrar Ingreso de Vehículo",
-    vehicleAutomobile: "Automóvil",
-    vehicleBicycle: "Bicicleta",
-    vehicleMotorcycle: "Motocicleta",
-    vehicleTypeLabel: "Tipo de Vehículo",
-  },
-  photoCapture: {
-    badgeSize: (kb: number) => `${kb} KB`,
-    cameraError: "No se pudo acceder a la cámara. Usa la opción de subir archivo.",
-    capture: "Capturar",
-    clearPhoto: "Eliminar foto",
-    hint: "JPG comprimido (< 100 KB) para registro de motocicleta",
-    invalidType: "El archivo seleccionado debe ser una imagen válida.",
-    loadError: "Error al procesar la imagen.",
-    noPhoto: "Sin fotografía registrada",
-    retake: "Tomar otra",
-    startCamera: "Abrir cámara",
-    stopCamera: "Cancelar",
-    uploadFallback: "Subir archivo",
-  },
-  ticketReceipt: {
-    closeButton: "Cerrar",
-    entryTimeLabel: "Hora de Ingreso:",
-    exitTimeLabel: "Hora de Salida:",
-    paymentMethodLabel: "Método de Pago:",
-    photoBadge: "Foto de Ingreso",
-    plateLabel: "Placa del Vehículo",
-    printButton: "Imprimir",
-    qrNotice: "Escanea para ver recibo digital y estado en vivo",
-    rateLabel: "Tarifa Aplicada",
-    rateStandardFallback: "Estándar",
-    shareWhatsApp: "Enviar por WhatsApp",
-    slotAssignedFallback: "Asignado",
-    slotLabel: "Espacio / Cupo",
-    totalPaidLabel: "Total Pagado:",
-    unplatedVehicle: "Vehículo Sin Placa",
-    whatsAppMessage: (plate: string, url: string) =>
-      `¡Hola! Aquí tienes tu comprobante digital de parqueo para el vehículo ${plate}: ${url}`,
-  },
-  publicTicket: {
-    accumulatedCostLabel: "Cobro Acumulado Estimado",
-    activeStatus: "En Estancia",
-    closedStatus: "Finalizado",
-    cop: "COP",
-    elapsedTimeLabel: "Tiempo Transcurrido",
-    entryTimeLabel: "Hora de Ingreso",
-    exitTimeLabel: "Hora de Salida",
-    loading: "Cargando comprobante...",
-    notFoundDescription:
-      "El comprobante solicitado no existe, ha expirado o el enlace es incorrecto.",
-    notFoundTitle: "Ticket No Encontrado",
-    originCo: "Colombia",
-    originUnplated: "Sin Placa",
-    originVe: "Venezuela",
-    parkingLotDefault: "Nivo Parking",
-    photoBadge: "Foto Registrada al Ingreso",
-    plateLabel: "Placa / Código",
-    qrNotice:
-      "Muestra este código QR en la taquilla al momento de salir para liquidar y validar tu salida.",
-    rateLabel: "Tarifa",
-    refreshButton: "Actualizar Cobro en Vivo",
-    shareWhatsApp: "Compartir por WhatsApp",
-    slotLabel: "Bahía / Espacio",
-    statusLabel: "Estado del Ticket",
-    subtitle: "Consulta en tiempo real de tu estancia y tarifa",
-    title: "Comprobante Digital de Parqueo",
-    unplatedVehicle: "Vehículo Sin Placa",
+  users: {
+    actions: {
+      allRolesFilter: "Todos los roles",
+      changeRole: "Cambiar Rol",
+      deactivate: "Desactivar Usuario",
+      invite: "Invitar Usuario",
+      resetFilters: "Limpiar Filtros",
+      searchPlaceholder: "Buscar por nombre o correo...",
+    },
+    kpis: {
+      activeOperators: "Operadores Activos",
+      deactivated: "Usuarios Inactivos",
+      managers: "Administradores",
+      totalUsers: "Total Usuarios",
+    },
+    modals: {
+      deactivate: {
+        actions: {
+          cancel: "Cancelar",
+          confirm: "Desactivar",
+        },
+        description:
+          "Esta acción revocará el acceso al sistema para este usuario. Podrás reactivarlo posteriormente si es necesario.",
+        selfDeactivationWarning:
+          "No puedes desactivar tu propia cuenta mientras estés en sesión activa.",
+        singleOwnerWarning:
+          "No se puede desactivar al único propietario activo del parqueadero.",
+        title: "¿Desactivar usuario?",
+      },
+      invite: {
+        actions: {
+          cancel: "Cancelar",
+          submit: "Enviar Invitación",
+        },
+        form: {
+          contactInfo: {
+            errors: {
+              invalid: "Ingresa un número de contacto válido",
+            },
+            label: "Teléfono de Contacto",
+            placeholder: "Ej: +57 300 123 4567",
+          },
+          email: {
+            errors: {
+              invalid: "Ingresa un correo electrónico válido",
+              required: "El correo electrónico es requerido",
+            },
+            label: "Correo Electrónico",
+            placeholder: "ejemplo@correo.com",
+          },
+          fullName: {
+            errors: {
+              minLength: "El nombre debe tener al menos 3 caracteres",
+              required: "El nombre completo es requerido",
+            },
+            label: "Nombre Completo",
+            placeholder: "Ej: Carlos Gómez",
+          },
+          role: {
+            errors: {
+              required: "Debes seleccionar un rol para el usuario",
+            },
+            label: "Rol Asignado",
+            placeholder: "Selecciona un rol...",
+          },
+        },
+        subtitle:
+          "Envía una invitación por correo para sumar un miembro al equipo de tu parqueadero.",
+        title: "Invitar Usuario",
+      },
+      modifyRole: {
+        actions: {
+          cancel: "Cancelar",
+          submit: "Guardar Rol",
+        },
+        currentRoleLabel: "Rol Actual",
+        form: {
+          role: {
+            errors: {
+              required: "Debes seleccionar un rol válido",
+            },
+            label: "Nuevo Rol",
+            placeholder: "Selecciona el nuevo rol...",
+          },
+        },
+        ownerRoleNotice:
+          "El rol de Propietario no puede ser modificado.",
+        subtitle:
+          "Modifica el nivel de acceso y permisos del usuario en la plataforma.",
+        title: "Modificar Rol de Usuario",
+        userLabel: "Usuario",
+      },
+    },
+    table: {
+      actions: {
+        changeRole: "Cambiar Rol",
+        deactivate: "Desactivar",
+      },
+      emptyState: {
+        description:
+          "No hay usuarios registrados que coincidan con los criterios de búsqueda o filtros aplicados.",
+        resetFilters: "Limpiar Filtros",
+        title: "No se encontraron usuarios",
+      },
+      headers: {
+        actions: "Acciones",
+        contact: "Contacto",
+        createdAt: "Fecha de Registro",
+        role: "Rol",
+        status: "Estado",
+        user: "Usuario",
+      },
+      roles: {
+        auditor: "Auditor",
+        driver: "Conductor",
+        manager: "Administrador",
+        operator: "Operador",
+        owner: "Propietario",
+        superadmin: "Super Admin",
+      },
+      status: {
+        active: "Activo",
+        inactive: "Inactivo",
+      },
+    },
+    titles: {
+      page: "Gestión de Usuarios",
+      subtitle:
+        "Administra el equipo de tu parqueadero, asigna roles y controla accesos.",
+    },
+    toasts: {
+      deactivateError: "Ocurrió un error al desactivar el usuario",
+      deactivateSuccess: "Usuario desactivado correctamente",
+      inviteError: "Ocurrió un error al enviar la invitación",
+      inviteSuccess: "Invitación enviada con éxito",
+      modifyRoleError: "Ocurrió un error al actualizar el rol",
+      modifyRoleSuccess: "Rol actualizado exitosamente",
+    },
   },
 } as const;

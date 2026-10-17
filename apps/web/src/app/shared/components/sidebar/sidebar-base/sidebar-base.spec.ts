@@ -1,21 +1,37 @@
 import { signal } from "@angular/core";
+import type { WritableSignal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NavigationEnd, Router, provideRouter } from "@angular/router";
+import type { UserModel } from "@core/models/user.model";
 import { UserService } from "@core/services/user/user-service";
+import type { Role } from "@core/type/role.type";
 import { SidebarFooter } from "@shared/components/sidebar-footer/sidebar-footer";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { Subject } from "rxjs";
 
 import { SidebarBase } from "./sidebar-base";
 
+const createMockUser = (role: Role): UserModel => ({
+  contactInfo: "",
+  createdAt: new Date(),
+  email: "test@example.com",
+  fullName: "Test User",
+  id: "u1",
+  role,
+  tenant: { companyName: "Co", id: "t1" },
+  updatedAt: new Date(),
+});
+
 describe("SidebarBase", () => {
   let component: SidebarBase;
+  let currentUserSignal: WritableSignal<UserModel | null>;
   let fixture: ComponentFixture<SidebarBase>;
   let routerEventsSubject: Subject<unknown>;
 
   beforeEach(async () => {
+    currentUserSignal = signal<UserModel | null>(null);
     routerEventsSubject = new Subject<unknown>();
 
     await TestBed.configureTestingModule({
@@ -24,7 +40,7 @@ describe("SidebarBase", () => {
         provideRouter([]),
         {
           provide: UserService,
-          useValue: { currentUser: signal(null) },
+          useValue: { currentUser: currentUserSignal },
         },
       ],
     }).compileComponents();
@@ -95,5 +111,45 @@ describe("SidebarBase", () => {
     /* SAFETY: By.directive(SidebarFooter) ensures componentInstance is SidebarFooter */
     const footerComponent = footer.componentInstance as SidebarFooter;
     expect(footerComponent.collapsed()).toBe(true);
+  });
+
+  it("should hide 'Usuarios' nav item when user is null", () => {
+    currentUserSignal.set(null);
+    fixture.detectChanges();
+
+    const hasUsersItem = component
+      .navItems()
+      .some((item) => item.label === "Usuarios");
+    expect(hasUsersItem).toBe(false);
+  });
+
+  it("should hide 'Usuarios' nav item when user role is OPERATOR", () => {
+    currentUserSignal.set(createMockUser("OPERATOR"));
+    fixture.detectChanges();
+
+    const hasUsersItem = component
+      .navItems()
+      .some((item) => item.label === "Usuarios");
+    expect(hasUsersItem).toBe(false);
+  });
+
+  it("should show 'Usuarios' nav item when user role is MANAGER", () => {
+    currentUserSignal.set(createMockUser("MANAGER"));
+    fixture.detectChanges();
+
+    const hasUsersItem = component
+      .navItems()
+      .some((item) => item.label === "Usuarios");
+    expect(hasUsersItem).toBe(true);
+  });
+
+  it("should show 'Usuarios' nav item when user role is OWNER", () => {
+    currentUserSignal.set(createMockUser("OWNER"));
+    fixture.detectChanges();
+
+    const hasUsersItem = component
+      .navItems()
+      .some((item) => item.label === "Usuarios");
+    expect(hasUsersItem).toBe(true);
   });
 });
