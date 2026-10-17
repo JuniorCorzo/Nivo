@@ -145,10 +145,10 @@ bootRun {
 
 test {
     useJUnitPlatform()
-    maxParallelForks = (Runtime.runtime.availableProcessors() / 2).toInteger() ?: 1
+    maxParallelForks = 1
     forkEvery = 100
     jvmArgs = [
-        '-Xmx2g',
+        '-Xmx1g',
         '-XX:+TieredCompilation',
         '-XX:TieredStopAtLevel=1'
     ]

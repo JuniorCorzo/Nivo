@@ -19,7 +19,7 @@ import { TicketService } from "@core/services/ticket-service";
 import { ToastService } from "@nivo-sass/design-system";
 
 const VE_PLATE_REGEX =
-  /^([A-Z]{2}\d{3}[A-Z]{2}|[A-Z]{4}\d{3}|[A-Z]{3}\d{2}[A-Z]|[A-Z]{2}\d[A-Z]\d{2}[A-Z])$/;
+  /^(?<vePlate>[A-Z]{2}\d{3}[A-Z]{2}|[A-Z]{4}\d{3}|[A-Z]{3}\d{2}[A-Z]|[A-Z]{2}\d[A-Z]\d{2}[A-Z])$/u;
 
 @Injectable()
 export class CheckInFacade {
@@ -116,12 +116,12 @@ export class CheckInFacade {
       return Boolean(this.photoUrl());
     }
 
-    const cleaned = this.plate().replace(/[\s-]/g, "").toUpperCase();
+    const cleaned = this.plate().replaceAll(/[\s-]/gu, "").toUpperCase();
     if (this.plateCountry() === "VE") {
       return VE_PLATE_REGEX.test(cleaned);
     }
 
-    return cleaned.length >= 3;
+    return cleaned.length === 6;
   });
 
   init(parkingId: string): void {
@@ -156,8 +156,26 @@ export class CheckInFacade {
     });
   }
 
-  setPlate(plate: string): void {
-    this.plate.set(plate.toUpperCase().trim());
+  setPlate(plate: string, detectedCountry?: PlateCountry): void {
+    if (detectedCountry && detectedCountry !== "UNPLATED") {
+      this.plateCountry.set(detectedCountry);
+    }
+    const maxLen = this.plateCountry() === "VE" ? 9 : 7;
+    this.plate.set(plate.toUpperCase().trim().slice(0, maxLen));
+    this.errorMessage.set(null);
+  }
+
+  setIsUnplated(unplated: boolean): void {
+    if (unplated) {
+      this.plateCountry.set("UNPLATED");
+      this.plate.set("");
+      const available = this.availableVehicleTypes();
+      if (available.includes("MOTORCYCLE")) {
+        this.setVehicleType("MOTORCYCLE");
+      }
+    } else if (this.plateCountry() === "UNPLATED") {
+      this.plateCountry.set("CO");
+    }
     this.errorMessage.set(null);
   }
 
@@ -212,7 +230,7 @@ export class CheckInFacade {
     const slotId = this.selectedSlotId();
     const rateId = this.selectedRateId();
     const plate = this.isUnplated()
-      ? (this.plate().trim().toUpperCase() || "SIN PLACA")
+      ? this.plate().trim().toUpperCase() || "SIN PLACA"
       : this.plate().trim().toUpperCase();
 
     if (!pId || !slotId || !rateId) {

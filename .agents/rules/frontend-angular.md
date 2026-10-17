@@ -69,3 +69,17 @@
 - Endpoints expecting `LocalDate` (e.g. `/dashboard/parkings-comparison`) accept `YYYY-MM-DD`. Do not send ISO DateTime with `T` or timezone offset.
 - Endpoints expecting `OffsetDateTime` (e.g. `/dashboard/occupancy-hourly`) accept full ISO DateTime string.
 - API client services must implement defensive parameter sanitization (`toLocalDateString`).
+
+## Impeccable & Plantillas Angular (Anti-Patrones y Detección)
+
+- **Prohibición de `src=""` Vacío en Etiquetas `<img>`:** NUNCA añadir `src=""` como placeholder o para apaciguar linters en plantillas con binding dinámico `[src]`. Provoca que el navegador emita una petición espuria `GET /` al documento raíz antes de la evaluación de Angular.
+- **Configuración de Detector Impeccable:** En proyectos Angular, registrar `broken-image` en `.impeccable/config.json` (`detector.ignoreRules = ["broken-image"]`) para evitar falsos positivos causados por bindings `[src]`.
+- **Alcance Específico de Escaneo:** Escanear siempre subdirectorios específicos (`impeccable detect src/app/features/...`) para prevenir pausas interactivas bloqueantes (`Continue? [Y/n]`).
+
+## Autodetección de Placas Binarias (Con Placa vs Sin Placa)
+
+- **Simplificación de Modalidad:** Reducir selectores de origen vehicular en taquilla a dos opciones mutuamente excluyentes: **Con Placa** y **Sin Placa (Foto obligatoria)**.
+- **Autodetección Disjunta por Máscara:**
+  - El 3er carácter determina inequívocamente el país: si es letra $\rightarrow$ **Colombia (`CO`)** (`ABC-123` / `ABC-12D`, máx 6); si es dígito $\rightarrow$ **Venezuela (`VE`)** (`AB-123-CD`, máx 7).
+  - La directiva de máscara (`PlateMaskDirective`) debe conmutar el formato y emitir reactivamente el `PlateCountry` hacia el facade sin requerir intervención manual del operador.
+  - Proveer retroalimentación visual inmediata con badge de país (`🇨🇴 CO` o `🇻🇪 VE`) dentro del campo al superar los 3 caracteres.
