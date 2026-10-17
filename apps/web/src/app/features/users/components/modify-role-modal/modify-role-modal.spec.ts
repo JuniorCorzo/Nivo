@@ -124,4 +124,76 @@ describe("ModifyRoleModalComponent", () => {
     component.onCancel();
     expect(closedCalled).toBe(true);
   });
+
+  it("should render role badge for the user", () => {
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain("Rol Actual");
+    expect(compiled.textContent).toContain("Operador");
+  });
+
+  it("should initialize selectedRole to AUDITOR when user has AUDITOR role", () => {
+    const auditorUser: UserModel = {
+      ...mockUser,
+      id: "user-aud-1",
+      role: "AUDITOR",
+    };
+    fixture.componentRef.setInput("user", auditorUser);
+    fixture.detectChanges();
+
+    expect(component.selectedRole()).toBe("AUDITOR");
+  });
+
+  it("should allow selecting AUDITOR and call modifyRole with AUDITOR", () => {
+    component.onRoleChange("AUDITOR");
+    component.onSubmit();
+
+    expect(userServiceMock.modifyRole).toHaveBeenCalledWith(
+      "user-op-1",
+      "AUDITOR"
+    );
+    expect(toastServiceMock.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "success" })
+    );
+  });
+
+  describe("OWNER protection", () => {
+    const ownerUser: UserModel = {
+      ...mockUser,
+      id: "user-owner-1",
+      role: "OWNER",
+    };
+
+    beforeEach(() => {
+      fixture.componentRef.setInput("user", ownerUser);
+      fixture.detectChanges();
+    });
+
+    it("should recognize user as OWNER", () => {
+      expect(component.isOwner()).toBe(true);
+    });
+
+    it("should display notice that owner role cannot be modified", () => {
+      /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain(
+        "El rol de Propietario no puede ser modificado"
+      );
+    });
+
+    it("should disable submit button and prevent submission for OWNER", () => {
+      /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+      const compiled = fixture.nativeElement as HTMLElement;
+      /* SAFETY: nv-button contains native button element in DOM */
+      const submitBtn = compiled.querySelector(
+        "nv-button:last-of-type button"
+      ) as HTMLButtonElement | null;
+      expect(submitBtn?.disabled).toBe(true);
+
+      // Verify onSubmit does not invoke modifyRole
+      component.onSubmit();
+      expect(userServiceMock.modifyRole).not.toHaveBeenCalled();
+    });
+  });
 });
+

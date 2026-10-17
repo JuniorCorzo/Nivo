@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   HostListener,
   inject,
@@ -13,7 +14,12 @@ import type { UserModel } from "@core/models/user.model";
 import { UserService } from "@core/services/user/user-service";
 import type { Role } from "@core/type/role.type";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideShieldCheck, lucideUser, lucideX } from "@ng-icons/lucide";
+import {
+  lucideAlertTriangle,
+  lucideShieldCheck,
+  lucideUser,
+  lucideX,
+} from "@ng-icons/lucide";
 import {
   ButtonComponent,
   SelectComponent,
@@ -21,6 +27,7 @@ import {
   TypographyH3,
 } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
+import { UserRoleBadgeComponent } from "../users-table/user-role-badge";
 
 export interface RoleOption {
   label: string;
@@ -32,9 +39,16 @@ const roleOptionValue = (item: RoleOption): string => item.value;
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, NgIcon, SelectComponent, TypographyH3],
+  imports: [
+    ButtonComponent,
+    NgIcon,
+    SelectComponent,
+    TypographyH3,
+    UserRoleBadgeComponent,
+  ],
   providers: [
     provideIcons({
+      lucideAlertTriangle,
       lucideShieldCheck,
       lucideUser,
       lucideX,
@@ -58,9 +72,12 @@ export class ModifyRoleModalComponent {
   readonly selectedRole = signal<Role>("OPERATOR");
   readonly texts = APP_TEXTS.users.modals.modifyRole;
 
+  readonly isOwner = computed(() => this.user()?.role === "OWNER");
+
   readonly roleOptions: RoleOption[] = [
     { label: APP_TEXTS.users.table.roles.operator, value: "OPERATOR" },
     { label: APP_TEXTS.users.table.roles.manager, value: "MANAGER" },
+    { label: APP_TEXTS.users.table.roles.auditor, value: "AUDITOR" },
   ];
 
   readonly displayRole = displayRoleOption;
@@ -71,8 +88,11 @@ export class ModifyRoleModalComponent {
       const u = this.user();
       untracked(() => {
         if (u) {
-          const currentRole = u.role === "MANAGER" ? "MANAGER" : "OPERATOR";
-          this.selectedRole.set(currentRole);
+          if (u.role === "MANAGER" || u.role === "AUDITOR") {
+            this.selectedRole.set(u.role);
+          } else {
+            this.selectedRole.set("OPERATOR");
+          }
         }
       });
     });
@@ -103,7 +123,7 @@ export class ModifyRoleModalComponent {
 
   onSubmit(): void {
     const targetUser = this.user();
-    if (!targetUser) {
+    if (!targetUser || this.isOwner()) {
       return;
     }
 

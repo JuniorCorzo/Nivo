@@ -77,6 +77,7 @@ export class InviteUserModalComponent {
   readonly roleOptions: RoleOption[] = [
     { label: APP_TEXTS.users.table.roles.operator, value: "OPERATOR" },
     { label: APP_TEXTS.users.table.roles.manager, value: "MANAGER" },
+    { label: APP_TEXTS.users.table.roles.auditor, value: "AUDITOR" },
   ];
 
   readonly displayRole = displayRoleOption;

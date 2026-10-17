@@ -41,11 +41,28 @@
       </div>
 
       <!-- User summary card -->
-      <div class="mt-4 rounded-xl border border-border bg-muted/40 p-3.5">
-        <div class="text-xs text-muted-foreground">{{ texts.userLabel }}</div>
-        <div class="text-sm font-semibold text-foreground">{{ targetUser.fullName }}</div>
-        <div class="text-xs text-muted-foreground">{{ targetUser.email }}</div>
+      <div class="mt-4 flex items-center justify-between rounded-xl border border-border bg-muted/40 p-3.5">
+        <div>
+          <div class="text-xs text-muted-foreground">{{ texts.userLabel }}</div>
+          <div class="text-sm font-semibold text-foreground">{{ targetUser.fullName }}</div>
+          <div class="text-xs text-muted-foreground">{{ targetUser.email }}</div>
+        </div>
+        <div class="flex flex-col items-end gap-1">
+          <span class="text-xs text-muted-foreground">{{ texts.currentRoleLabel }}</span>
+          <app-user-role-badge [role]="targetUser.role" />
+        </div>
       </div>
+
+      <!-- Owner protection notice -->
+      @if (isOwner()) {
+        <div
+          class="mt-4 flex items-start gap-2.5 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-400"
+          role="alert"
+        >
+          <ng-icon name="lucideAlertTriangle" size="16" class="mt-0.5 shrink-0" />
+          <span>{{ texts.ownerRoleNotice }}</span>
+        </div>
+      }
 
       <!-- Role Selector -->
       <div class="mt-4 flex flex-col gap-3.5">
@@ -56,6 +73,7 @@
           [displayFn]="displayRole"
           [valueFn]="roleValue"
           [value]="selectedRole()"
+          [disabled]="isOwner()"
           (valueChange)="onRoleChange($event)"
         />
       </div>
@@ -71,7 +89,7 @@
         </nv-button>
         <nv-button
           type="button"
-          [disabled]="isSubmitting()"
+          [disabled]="isSubmitting() || isOwner()"
           (click)="onSubmit()"
         >
           {{ texts.actions.submit }}

@@ -126,4 +126,16 @@ describe("InviteUserModalComponent", () => {
     expect(closedCalled).toBe(true);
     expect(component.form.controls.fullName.value).toBe("");
   });
+
+  it("should include AUDITOR in roleOptions and allow selecting it", () => {
+    const auditorOption = component.roleOptions.find(
+      (opt) => opt.value === "AUDITOR"
+    );
+    expect(auditorOption).toBeDefined();
+    expect(auditorOption?.label).toBe("Auditor");
+
+    component.onRoleChange("AUDITOR");
+    expect(component.form.controls.role.value).toBe("AUDITOR");
+  });
 });
+

@@ -143,4 +143,25 @@ describe("UsersTableComponent", () => {
 
     expect(resetCalled).toBe(true);
   });
+
+  it("should disable change role button for OWNER users in the table", () => {
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const rows = compiled.querySelectorAll("tbody tr");
+    expect(rows.length).toBe(2);
+
+    // Row 0 is OWNER
+    /* SAFETY: nv-button contains native button element in DOM */
+    const ownerChangeRoleBtn = rows[0].querySelector(
+      'nv-button[aria-label="Cambiar Rol"] button'
+    ) as HTMLButtonElement | null;
+    expect(ownerChangeRoleBtn?.disabled).toBe(true);
+
+    // Row 1 is OPERATOR
+    /* SAFETY: nv-button contains native button element in DOM */
+    const operatorChangeRoleBtn = rows[1].querySelector(
+      'nv-button[aria-label="Cambiar Rol"] button'
+    ) as HTMLButtonElement | null;
+    expect(operatorChangeRoleBtn?.disabled).toBe(false);
+  });
 });

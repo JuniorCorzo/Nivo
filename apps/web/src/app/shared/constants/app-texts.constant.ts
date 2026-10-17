@@ -957,6 +957,8 @@ export const APP_TEXTS = {
             placeholder: "Selecciona el nuevo rol...",
           },
         },
+        ownerRoleNotice:
+          "El rol de Propietario no puede ser modificado.",
         subtitle:
           "Modifica el nivel de acceso y permisos del usuario en la plataforma.",
         title: "Modificar Rol de Usuario",

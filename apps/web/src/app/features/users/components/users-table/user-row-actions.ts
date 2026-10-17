@@ -28,9 +28,10 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
         type="button"
         variant="ghost"
         size="sm"
-        [title]="texts.changeRole"
+        [disabled]="isOwner()"
+        [title]="isOwner() ? ownerRoleDisabledText : texts.changeRole"
         [attr.aria-label]="texts.changeRole"
-        (click)="changeRole.emit(user())"
+        (click)="onChangeRole()"
       >
         <ng-icon name="lucideUserCog" size="15" />
         <span class="hidden sm:inline">{{ texts.changeRole }}</span>
@@ -55,12 +56,21 @@ export class UserRowActionsComponent {
   readonly texts = APP_TEXTS.users.table.actions;
   readonly deactivateSelfDisabledText =
     APP_TEXTS.users.modals.deactivate.selfDeactivationWarning;
+  readonly ownerRoleDisabledText =
+    APP_TEXTS.users.modals.modifyRole.ownerRoleNotice;
 
   readonly isSelf = input<boolean>(false);
   readonly user = input.required<UserModel>();
 
+  readonly isOwner = computed(() => this.user().role === "OWNER");
   readonly isInactive = computed(() => Boolean(this.user().deletedAt));
 
   readonly changeRole = output<UserModel>();
   readonly deactivate = output<UserModel>();
+
+  onChangeRole(): void {
+    if (!this.isOwner()) {
+      this.changeRole.emit(this.user());
+    }
+  }
 }
