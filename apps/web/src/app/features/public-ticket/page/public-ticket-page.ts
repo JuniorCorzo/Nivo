@@ -205,7 +205,7 @@ export class PublicTicketPageComponent {
     }
 
     if (timeUnit === "DAYS") {
-      const daysBilled = Math.max(1, Math.ceil(seconds / 86400));
+      const daysBilled = Math.max(1, Math.ceil(seconds / 86_400));
       return daysBilled * unitPrice;
     }
 
