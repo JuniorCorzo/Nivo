@@ -37,6 +37,7 @@ Unlike legacy, hardware-locked parking management systems that require proprieta
 - **Design System Mandate:** All UI surfaces MUST exclusively use `@nivo-sass/design-system` components (`nv-button`, `nv-card`, `nv-badge`, `nv-input`, `nv-typography`, etc.) with `ChangeDetectionStrategy.OnPush`. Raw HTML buttons/inputs are strictly prohibited.
 - **Iconography:** Standardized on `@ng-icons/lucide` (`provideIcons`, `NgIcon`); emojis in templates are forbidden.
 - **TanStack Table:** Purely declarative table templates without `@if/@else if` column branching ladders.
+- **Unplated Vehicle & Public Digital Tickets:** Hardware-agnostic photo capture protocol for unplated vehicles (`SP-xxxx`) with public digital voucher web pages accessible via QR and WhatsApp.
 
 ## Brand Commitments
 
