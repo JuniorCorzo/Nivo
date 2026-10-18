@@ -58,9 +58,7 @@ export class TicketReceiptComponent {
       return "";
     }
     const origin =
-      typeof window !== "undefined" && window.location.origin
-        ? window.location.origin
-        : "https://app.nivo.dev";
+      globalThis.window?.location?.origin ?? "https://app.nivo.dev";
     return `${origin}/t/${t.id}`;
   });
 
@@ -72,40 +70,39 @@ export class TicketReceiptComponent {
     const url = this.publicUrl();
     const plate = t.licensePlate || this.texts.unplatedVehicle;
     const msg = encodeURIComponent(this.texts.whatsAppMessage(plate, url));
-    const rawPhone = t.phoneNumber ? t.phoneNumber.replace(/\D/g, "") : "";
-    const phone = rawPhone
-      ? rawPhone.startsWith("57")
-        ? rawPhone
-        : `57${rawPhone}`
-      : "";
+    const rawPhone = t.phoneNumber ? t.phoneNumber.replaceAll(/\D/gu, "") : "";
+    let phone = "";
+    if (rawPhone) {
+      phone = rawPhone.startsWith("57") ? rawPhone : `57${rawPhone}`;
+    }
 
-    return phone
-      ? `https://wa.me/${phone}?text=${msg}`
-      : `https://wa.me/?text=${msg}`;
+    if (phone) {
+      return `https://wa.me/${phone}?text=${msg}`;
+    }
+    return `https://wa.me/?text=${msg}`;
   });
 
   constructor() {
-    effect(() => {
+    effect(async () => {
       const url = this.publicUrl();
       if (!url) {
         this.qrDataUrl.set("");
         return;
       }
 
-      QRCode.toString(url, {
-        errorCorrectionLevel: "M",
-        margin: 1,
-        type: "svg",
-        width: 160,
-      })
-        .then((svg) => {
-          this.qrDataUrl.set(
-            `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
-          );
-        })
-        .catch(() => {
-          this.qrDataUrl.set("");
+      try {
+        const svg = await QRCode.toString(url, {
+          errorCorrectionLevel: "M",
+          margin: 1,
+          type: "svg",
+          width: 160,
         });
+        this.qrDataUrl.set(
+          `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+        );
+      } catch {
+        this.qrDataUrl.set("");
+      }
     });
   }
 

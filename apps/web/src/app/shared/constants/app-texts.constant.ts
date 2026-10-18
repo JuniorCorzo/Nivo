@@ -147,10 +147,10 @@ export const APP_TEXTS = {
     phoneLabel: "Teléfono Móvil",
     phonePlaceholder: "Ej: 300 123 4567",
     photoLabel: "Fotografía del Vehículo",
-    plateHintVe: "Formato venezolano ej: AB123CD",
+    plateHintVe: "Formato venezolano ej: AB-123-CD",
     plateLabel: "Placa / Matrícula",
-    platePlaceholderCo: "Ej: ABC123",
-    platePlaceholderVe: "Ej: AB123CD",
+    platePlaceholderCo: "Ej: ABC-123",
+    platePlaceholderVe: "Ej: AB-123-CD",
     rateLabel: "Tarifa",
     rateNoRates: "Sin tarifas configuradas",
     slotLabel: "Cupo / Espacio",
@@ -499,7 +499,8 @@ export const APP_TEXTS = {
   },
   photoCapture: {
     badgeSize: (kb: number) => `${kb} KB`,
-    cameraError: "No se pudo acceder a la cámara. Usa la opción de subir archivo.",
+    cameraError:
+      "No se pudo acceder a la cámara. Usa la opción de subir archivo.",
     capture: "Capturar",
     clearPhoto: "Eliminar foto",
     hint: "JPG comprimido (< 100 KB) para registro de motocicleta",

@@ -35,6 +35,9 @@
       >
         <ng-icon name="lucideLogIn" size="16" class="shrink-0" />
         <span>Registrar Ingreso</span>
+        <kbd
+          class="border-primary-foreground/30 bg-primary-foreground/20 text-primary-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+        >I</kbd>
       </nv-button>
 
       <nv-button
@@ -45,38 +48,66 @@
       >
         <ng-icon name="lucideLogOut" size="16" class="shrink-0" />
         <span>Procesar Salida</span>
+        <kbd
+          class="border-border bg-background text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+        >O</kbd>
       </nv-button>
     </div>
   </app-page-header>
 
   <!-- Summary Cards Grid -->
   <div class="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-    <!-- Available Slots -->
+    <!-- Cupos Carros -->
     <div
       class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
     >
       <div class="flex items-center justify-between">
         <span
           class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
-          >Cupos Disponibles</span
+          >Cupos Carros</span
         >
         <div
           class="bg-success/10 text-success border-success/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
         >
-          <ng-icon name="lucideParkingSquare" size="18" class="shrink-0" />
+          <ng-icon name="lucideCar" size="18" class="shrink-0" />
         </div>
       </div>
       <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
         <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
-          >{{ availableSlotsCount() }}</span
+          >{{ availableCarSlotsCount() }}</span
         >
         <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
-          >/ {{ totalSlotsCount() }}</span
+          >/ {{ totalCarSlotsCount() }}</span
         >
       </div>
     </div>
 
-    <!-- Occupied Slots -->
+    <!-- Cupos Motos -->
+    <div
+      class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
+    >
+      <div class="flex items-center justify-between">
+        <span
+          class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
+          >Cupos Motos</span
+        >
+        <div
+          class="bg-primary/10 text-primary border-primary/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
+        >
+          <ng-icon name="lucideBike" size="18" class="shrink-0" />
+        </div>
+      </div>
+      <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
+        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
+          >{{ availableMotoSlotsCount() }}</span
+        >
+        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
+          >/ {{ totalMotoSlotsCount() }}</span
+        >
+      </div>
+    </div>
+
+    <!-- Vehículos Dentro -->
     <div
       class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
     >
@@ -101,39 +132,14 @@
       </div>
     </div>
 
-    <!-- Active Rates -->
+    <!-- Nivel Ocupación -->
     <div
       class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
     >
       <div class="flex items-center justify-between">
         <span
           class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
-          >Tarifas Activas</span
-        >
-        <div
-          class="bg-primary/10 text-primary border-primary/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
-        >
-          <ng-icon name="lucideCoins" size="18" class="shrink-0" />
-        </div>
-      </div>
-      <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
-        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
-          >{{ ratesCount() }}</span
-        >
-        <span class="text-muted-foreground text-[10px] sm:text-xs"
-          >activas</span
-        >
-      </div>
-    </div>
-
-    <!-- Occupation Percentage -->
-    <div
-      class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
-    >
-      <div class="flex items-center justify-between">
-        <span
-          class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
-          >Ocupación</span
+          >Nivel Ocupación</span
         >
         <div
           class="bg-warning/10 text-warning border-warning/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
@@ -145,7 +151,7 @@
         <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
           >{{ occupationPercentage() }}%</span
         >
-        <span class="text-muted-foreground text-[10px] sm:text-xs"
+        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
           >capacidad</span
         >
       </div>
@@ -175,6 +181,8 @@
       >
         <!-- Filter by Type -->
         <div
+          role="group"
+          aria-label="Filtro de tipo de vehículo"
           class="border-border bg-muted flex shrink-0 rounded-lg border p-0.5 text-xs"
         >
           <button
@@ -211,6 +219,8 @@
 
         <!-- Filter by Status -->
         <div
+          role="group"
+          aria-label="Filtro de estado de cupo"
           class="border-border bg-muted flex shrink-0 rounded-lg border p-0.5 text-xs"
         >
           <button
@@ -306,7 +316,7 @@
             <button
               type="button"
               (click)="checkInSpecificSlot(slot)"
-              class="bg-success text-primary-foreground hover:bg-success/90 w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors"
+              class="bg-success text-primary-foreground hover:bg-success/90 focus-visible:ring-ring w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors focus-visible:ring-2 focus-visible:outline-none"
             >
               + Ingresar
             </button>
@@ -314,7 +324,7 @@
             <button
               type="button"
               (click)="checkOutSpecificSlot(slot)"
-              class="bg-info text-primary-foreground hover:bg-info/90 w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors"
+              class="bg-info text-primary-foreground hover:bg-info/90 focus-visible:ring-ring w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors focus-visible:ring-2 focus-visible:outline-none"
             >
               Salida
             </button>
@@ -329,6 +339,132 @@
         </div>
         }
       </div>
+      }
+    </div>
+  </div>
+
+  <!-- Live Operations Table: Vehículos Activos en Taquilla -->
+  <div
+    class="bg-card text-card-foreground border-border overflow-hidden rounded-2xl border shadow-xs"
+  >
+    <!-- Section Header & Search -->
+    <div
+      class="border-border flex flex-col justify-between gap-3 border-b p-3.5 sm:flex-row sm:items-center sm:p-5"
+    >
+      <div class="flex items-center gap-2">
+        <h2 class="text-foreground text-sm font-bold sm:text-base">
+          Vehículos Activos en Taquilla
+        </h2>
+        <nv-badge variant="secondary" class="font-mono text-xs">
+          {{ filteredActiveTickets().length }}
+        </nv-badge>
+      </div>
+
+      <!-- Search input -->
+      <div class="relative w-full sm:w-64">
+        <ng-icon
+          name="lucideSearch"
+          size="16"
+          class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+        />
+        <input
+          type="text"
+          aria-label="Buscar placa o bahía"
+          [value]="searchTicketQuery()"
+          (input)="onSearchQueryChange($event)"
+          placeholder="Buscar placa o bahía..."
+          class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-lg border py-1.5 pr-3 pl-9 text-xs focus:outline-hidden"
+        />
+      </div>
+    </div>
+
+    <!-- Active Tickets Table -->
+    <div class="overflow-x-auto">
+      @if (filteredActiveTickets().length === 0) {
+      <div
+        class="text-muted-foreground flex flex-col items-center justify-center py-12 text-center text-xs"
+      >
+        <ng-icon
+          name="lucideTicket"
+          size="32"
+          class="text-muted-foreground/60 mb-2"
+        />
+        <p class="font-medium">No hay vehículos activos en este momento.</p>
+        <span class="text-muted-foreground/80 text-[11px]">
+          Los vehículos registrados aparecerán aquí para cobro y salida rápida.
+        </span>
+      </div>
+      } @else {
+      <table class="w-full text-left text-xs">
+        <thead
+          class="border-border bg-muted/50 text-muted-foreground border-b text-[11px] font-semibold tracking-wider uppercase"
+        >
+          <tr>
+            <th class="px-4 py-3 sm:px-6">Placa / Matrícula</th>
+            <th class="px-4 py-3 sm:px-6">Bahía / Cupo</th>
+            <th class="px-4 py-3 sm:px-6">Hora de Ingreso</th>
+            <th class="px-4 py-3 text-right sm:px-6">Acción</th>
+          </tr>
+        </thead>
+        <tbody class="divide-border divide-y">
+          @for (ticket of filteredActiveTickets(); track ticket.id) {
+          <tr class="hover:bg-accent/40 transition-colors">
+            <td class="px-4 py-3 sm:px-6">
+              <div class="flex items-center gap-2">
+                <span
+                  class="text-foreground font-mono text-sm font-bold tracking-wider"
+                >
+                  {{ ticket.licensePlate }}
+                </span>
+                <nv-badge
+                  [variant]="
+                    ticket.plateCountry === 'VE'
+                      ? 'info'
+                      : ticket.plateCountry === 'UNPLATED'
+                      ? 'warning'
+                      : 'outline'
+                  "
+                  class="px-1.5 py-0.5 font-mono text-[10px] font-bold"
+                >
+                  {{
+                    ticket.plateCountry === "UNPLATED"
+                      ? "SP"
+                      : ticket.plateCountry || "CO"
+                  }}
+                </nv-badge>
+              </div>
+            </td>
+            <td class="px-4 py-3 sm:px-6">
+              <div class="text-foreground font-medium">
+                {{ ticket.slotNumber ? "Bahía " + ticket.slotNumber : "—" }}
+              </div>
+              @if (ticket.slotType) {
+              <span class="text-muted-foreground text-[10px] uppercase">
+                {{ ticket.slotType }}
+              </span>
+              }
+            </td>
+            <td class="px-4 py-3 sm:px-6">
+              <div class="text-foreground font-mono text-xs">
+                {{ ticket.entryTime | date : "dd/MM/yyyy HH:mm" }}
+              </div>
+            </td>
+            <td class="px-4 py-3 text-right sm:px-6">
+              <nv-button
+                size="sm"
+                variant="default"
+                type="button"
+                (click)="checkOutWithTicket(ticket)"
+                class="cursor-pointer"
+              >
+                <ng-icon name="lucideLogOut" size="14" class="mr-1" />
+                <span>Cobrar</span>
+              </nv-button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
       }
     </div>
   </div>

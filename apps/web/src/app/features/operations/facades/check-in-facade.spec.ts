@@ -149,8 +149,25 @@ describe("CheckInFacade", () => {
     facade.setPlate("AB");
     expect(facade.isValid()).toBe(false);
 
+    facade.setPlate("ABC12");
+    expect(facade.isValid()).toBe(false);
+
     facade.setPlate("ABC-123");
     expect(facade.isValid()).toBe(true);
+
+    facade.setPlate("ABC123");
+    expect(facade.isValid()).toBe(true);
+  });
+
+  it("should enforce plate length limits according to country", () => {
+    facade.init("parking-1");
+    facade.setPlateCountry("CO");
+    facade.setPlate("ABC12345");
+    expect(facade.plate()).toBe("ABC1234");
+
+    facade.setPlateCountry("VE");
+    facade.setPlate("AB123CD999");
+    expect(facade.plate()).toBe("AB123CD99");
   });
 
   it("should submit check-in, set issued ticket and open receipt on success", () => {
@@ -304,4 +321,132 @@ describe("CheckInFacade", () => {
     expect(facade.photoUrl()).toBeNull();
     expect(facade.phoneNumber()).toBe("");
   });
+
+  it("should validate Colombian motorcycle plate with mask format AAA-00A", () => {
+    slotServiceSpy.summaries = () => ({
+      "parking-1": [
+        {
+          id: "slot-moto-1",
+          parkingName: "Central",
+          prefix: "M",
+          slotNumber: "M1",
+          status: "AVAILABLE",
+          type: "MOTORCYCLE",
+          zone: "ZM",
+        },
+      ],
+    });
+    rateServiceSpy.ratesByParking = () => ({
+      "parking-1": [
+        {
+          createdAt: "",
+          description: "Hora Moto",
+          id: "rate-moto-1",
+          minChargeTimeMinutes: 0,
+          name: "Tarifa Motos",
+          parkingId: "parking-1",
+          pricePerUnit: 2000,
+          timeUnit: "HOURS",
+          updatedAt: "",
+          vehicleType: "MOTORCYCLE",
+        },
+      ],
+    });
+
+    facade.init("parking-1");
+    facade.setVehicleType("MOTORCYCLE");
+    facade.setPlateCountry("CO");
+
+    facade.setPlate("ABC-12D");
+    expect(facade.isValid()).toBe(true);
+
+    facade.setPlate("A");
+    expect(facade.isValid()).toBe(false);
+  });
+
+  it("should validate Venezuelan plate with mask format AA-000-AA", () => {
+    facade.init("parking-1");
+    facade.setVehicleType("CAR");
+    facade.setPlateCountry("VE");
+
+    // Incomplete Venezuelan plate
+    facade.setPlate("AB-123");
+    expect(facade.isValid()).toBe(false);
+
+    // Valid Venezuelan plate
+    facade.setPlate("AB-123-CD");
+    expect(facade.isValid()).toBe(true);
+  });
+
+  it("should submit check-in with masked plate successfully", () => {
+    const mockTicket: TicketSummary = {
+      entryTime: "2026-10-16T10:00:00Z",
+      id: "ticket-ve",
+      licensePlate: "AB-123-CD",
+      status: "OPEN",
+    };
+    ticketServiceSpy.createTicket.mockReturnValue(of(mockTicket));
+
+    facade.init("parking-1");
+    facade.setVehicleType("CAR");
+    facade.setPlateCountry("VE");
+    facade.setPlate("AB-123-CD");
+
+    facade.submitCheckIn();
+
+    expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith({
+      email: undefined,
+      phoneNumber: undefined,
+      photoUrl: undefined,
+      plate: "AB-123-CD",
+      plateCountry: "VE",
+      rateId: "rate-1",
+      slotId: "slot-1",
+    });
+    expect(facade.lastIssuedTicket()).toEqual(mockTicket);
+  });
+
+  describe("setIsUnplated and detected country handling", () => {
+    it("should toggle unplated modality correctly", () => {
+      facade.init("parking-1");
+      facade.setPlate("ABC123");
+
+      facade.setIsUnplated(true);
+      expect(facade.plateCountry()).toBe("UNPLATED");
+      expect(facade.isUnplated()).toBe(true);
+      expect(facade.plate()).toBe("");
+      expect(facade.errorMessage()).toBeNull();
+
+      facade.setIsUnplated(false);
+      expect(facade.plateCountry()).toBe("CO");
+      expect(facade.isUnplated()).toBe(false);
+      expect(facade.errorMessage()).toBeNull();
+    });
+
+    it("should preserve existing country when setIsUnplated(false) called on non-UNPLATED", () => {
+      facade.init("parking-1");
+      facade.setPlateCountry("VE");
+
+      facade.setIsUnplated(false);
+      expect(facade.plateCountry()).toBe("VE");
+    });
+
+    it("should update plateCountry when detectedCountry is provided to setPlate", () => {
+      facade.init("parking-1");
+      facade.setPlate("AB-123-CD", "VE");
+
+      expect(facade.plateCountry()).toBe("VE");
+      expect(facade.plate()).toBe("AB-123-CD");
+    });
+
+    it("should not override plateCountry if detectedCountry is UNPLATED", () => {
+      facade.init("parking-1");
+      facade.setPlateCountry("CO");
+      facade.setPlate("ABC-123", "UNPLATED");
+
+      expect(facade.plateCountry()).toBe("CO");
+      expect(facade.plate()).toBe("ABC-123");
+    });
+  });
 });
+

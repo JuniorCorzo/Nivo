@@ -9,6 +9,7 @@ import {
   input,
   output,
 } from "@angular/core";
+import type { PlateCountry } from "@core/models/ticket.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideAlertCircle,
@@ -23,8 +24,8 @@ import {
   lucideX,
 } from "@ng-icons/lucide";
 import { ButtonComponent } from "@nivo-sass/design-system";
-import type { PlateCountry } from "@core/models/ticket.model";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
+import { PlateMaskDirective } from "@shared/directives/plate-mask";
 
 import { CheckInFacade } from "../../../facades/check-in.facade";
 import { PhotoCaptureComponent } from "../../photo-capture/photo-capture.component";
@@ -37,6 +38,7 @@ import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-rece
     CommonModule,
     NgIcon,
     PhotoCaptureComponent,
+    PlateMaskDirective,
     TicketReceiptComponent,
   ],
   providers: [
@@ -89,6 +91,10 @@ export class CheckInModalComponent {
   }
 
   onPlateCountrySelect(country: PlateCountry): void {
+    this.facade.setPlateCountry(country);
+  }
+
+  onCountryChange(country: PlateCountry): void {
     this.facade.setPlateCountry(country);
   }
 
