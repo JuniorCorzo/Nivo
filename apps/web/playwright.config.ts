@@ -17,6 +17,9 @@ export default defineConfig({
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
+        launchOptions: {
+          args: ["--disable-gpu", "--disable-dev-shm-usage", "--no-sandbox"],
+        },
       },
     },
   ],
@@ -29,5 +32,5 @@ export default defineConfig({
     trace: "retain-on-failure",
     video: "retain-on-failure",
   },
-  workers: process.env["CI"] ? 1 : undefined,
+  workers: 1,
 });
