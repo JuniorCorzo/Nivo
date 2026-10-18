@@ -41,6 +41,14 @@ Functional scopes valid when clearer: `auth`, `tenant`, `user`, `security`.
 | Skill | Description | Link |
 |-------|-------------|------|
 | `nivo-brand-design` | Brand design system (colors, typography, logo, voice) for Nivo web | [SKILL.md](libs/design-system/skills/nivo-brand-design/SKILL.md) |
+| `angular-developer` | Angular architecture, signals reactivity, forms, routing, and testing guidelines | [SKILL.md](.agents/skills/angular-developer/SKILL.md) |
+| `nivo-api` | Nivo Spring Boot 4, Java 25 Clean Architecture guidelines, coding conventions, and test standards | [SKILL.md](.agents/skills/nivo-api/SKILL.md) |
+| `angular-testing` | Modern Angular testing patterns, component fixtures, signals testing | [SKILL.md](.agents/skills/angular-testing/SKILL.md) |
+| `vitest` | Vitest testing patterns, mocks, snapshots, performance configuration | [SKILL.md](.agents/skills/vitest/SKILL.md) |
+| `playwright-best-practices` | Resilient E2E testing locators, fixtures, isolation, and anti-patterns | [SKILL.md](.agents/skills/playwright-best-practices/SKILL.md) |
+| `playwright-cli` | Playwright CLI integration and browser automation commands | [SKILL.md](.agents/skills/playwright-cli/SKILL.md) |
+| `springboot-tdd` | Spring Boot TDD with JUnit 5, Mockito, MockMvc, and Testcontainers | [SKILL.md](.agents/skills/springboot-tdd/SKILL.md) |
+| `tdd` | Strict test-driven development workflow (Red-Green-Refactor) | [SKILL.md](.agents/skills/tdd/SKILL.md) |
 
 Respond terse like smart caveman. All technical substance stay. Only fluff die.
 

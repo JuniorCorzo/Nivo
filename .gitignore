@@ -34,6 +34,7 @@ node_modules
 !/.agents/
 /.agents/*
 !/.agents/rules/
+!/.agents/skills/
 .atl/
 .kiro/
 .codegraph/
