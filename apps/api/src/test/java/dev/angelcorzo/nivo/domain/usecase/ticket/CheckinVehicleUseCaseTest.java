@@ -14,6 +14,7 @@ import dev.angelcorzo.nivo.domain.model.rates.Rates;
 import dev.angelcorzo.nivo.domain.model.rates.gateways.RatesRepository;
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
+import dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.model.tenants.gateways.TenantsRepository;
@@ -234,6 +235,36 @@ class CheckinVehicleUseCaseTest {
       assertThat(ticket.getLicensePlate()).isEqualTo("AB123CD");
       assertThat(ticket.getPlateCountry()).isEqualTo(PlateCountry.VE);
       verify(unplatedTicketSequenceGateway, never()).nextTicketCode(any());
+    }
+  }
+
+  @Nested
+  @DisplayName("Slot Availability Validation")
+  class SlotAvailabilityValidation {
+
+    @Test
+    @DisplayName("Should throw SlotCannotBeModifiedException when slot is not available")
+    void shouldThrowSlotCannotBeModifiedExceptionWhenSlotNotAvailable() {
+      // Arrange
+      final UUID slotId = UUID.randomUUID();
+      final UUID tenantId = UUID.randomUUID();
+      final UUID rateId = UUID.randomUUID();
+      final CheckinVehicleUseCase.CreatedParkingTicket command =
+          new CheckinVehicleUseCase.CreatedParkingTicket(
+              slotId, tenantId, "driver@example.com", rateId, "ABC123");
+
+      final Slots mockSlot =
+          Slots.builder().id(slotId).slotNumber("A-1").status(SlotStatus.OCCUPIED).build();
+
+      when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
+
+      // Act & Assert
+      assertThatThrownBy(() -> useCase.execute(command))
+          .isInstanceOf(SlotCannotBeModifiedException.class)
+          .hasMessageContaining("Slot cannot be used for check-in because it is not available: " + slotId);
+
+      verify(parkingTicketsRepository, never()).save(any());
+      verify(slotsRepository, never()).save(any());
     }
   }
 }
