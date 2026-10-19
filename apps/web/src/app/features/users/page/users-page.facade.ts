@@ -3,7 +3,7 @@ import type { UserModel } from "@core/models/user.model";
 import { UserService } from "@core/services/user/user-service";
 import { DataTableState } from "@shared/components/data-table";
 
-import { createUserColumns } from "../components/users-table/user-columns-definition";
+import { createUserColumns } from "../components/users-table";
 
 @Injectable()
 export class UsersPageFacade {

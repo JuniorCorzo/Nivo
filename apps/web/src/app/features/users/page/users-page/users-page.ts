@@ -27,7 +27,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { DeactivateUserModalComponent } from "../../components/deactivate-user-modal/deactivate-user-modal";
 import { InviteUserModalComponent } from "../../components/invite-user-modal/invite-user-modal";
 import { ModifyRoleModalComponent } from "../../components/modify-role-modal/modify-role-modal";
-import { UsersTableComponent } from "../../components/users-table/users-table";
+import { UsersTableComponent } from "../../components/users-table";
 import { UsersPageFacade } from "../users-page.facade";
 
 @Component({

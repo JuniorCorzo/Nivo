@@ -6,10 +6,12 @@ import {
   flexRenderComponent,
 } from "@tanstack/angular-table";
 
-import { UserInfoCellComponent } from "./user-info-cell";
-import { UserRoleBadgeComponent } from "./user-role-badge";
-import { UserRowActionsComponent } from "./user-row-actions";
-import { UserStatusBadgeComponent } from "./user-status-badge";
+import {
+  UserInfoCellComponent,
+  UserRoleBadgeComponent,
+  UserRowActionsComponent,
+  UserStatusBadgeComponent,
+} from "../cells";
 
 export const formatUserDate = (date?: Date | string | null): string => {
   if (!date) {

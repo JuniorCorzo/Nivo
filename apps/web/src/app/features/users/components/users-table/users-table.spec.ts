@@ -5,7 +5,7 @@ import type { UserModel } from "@core/models/user.model";
 import { DataTableState } from "@shared/components/data-table";
 import { describe, expect, it } from "vitest";
 
-import { createUserColumns } from "./user-columns-definition";
+import { createUserColumns } from "./columns";
 import { UsersTableComponent } from "./users-table";
 
 describe("UsersTableComponent", () => {
