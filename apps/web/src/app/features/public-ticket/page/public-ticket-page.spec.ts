@@ -1,7 +1,8 @@
 import { provideLocationMocks } from "@angular/common/testing";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
-import { provideRouter, type ActivatedRoute } from "@angular/router";
+import { provideRouter } from '@angular/router';
+import type { ActivatedRoute } from '@angular/router';
 import type { PublicTicketModel } from "@core/models/public-ticket.model";
 import { PublicTicketService } from "@core/services/public-ticket.service";
 import { of, throwError } from "rxjs";
@@ -89,11 +90,19 @@ describe("PublicTicketPageComponent", () => {
 
   it("should calculate estimated fee correctly for hourly rate", () => {
     // 3665 seconds is > 1 hour -> 2 billed hours * $2000 = $4000
-    const fee = PublicTicketPageComponent.calculateEstimatedFee(3665, 2000, "HOURS");
+    const fee = PublicTicketPageComponent.calculateEstimatedFee(
+      3665,
+      2000,
+      "HOURS"
+    );
     expect(fee).toBe(4000);
 
     // 1800 seconds is <= 1 hour -> 1 billed hour * $2000 = $2000
-    const feeFirstHour = PublicTicketPageComponent.calculateEstimatedFee(1800, 2000, "HOURS");
+    const feeFirstHour = PublicTicketPageComponent.calculateEstimatedFee(
+      1800,
+      2000,
+      "HOURS"
+    );
     expect(feeFirstHour).toBe(2000);
   });
 
@@ -111,7 +120,7 @@ describe("PublicTicketPageComponent", () => {
   it("should increment elapsed seconds reactively with live timer interval", async () => {
     vi.useFakeTimers();
     try {
-      const entryTime = new Date(Date.now() - 60000).toISOString(); // 1 minute ago
+      const entryTime = new Date(Date.now() - 60_000).toISOString(); // 1 minute ago
       const ticketWithRecentEntry: PublicTicketModel = {
         ...mockTicket,
         entryTime,

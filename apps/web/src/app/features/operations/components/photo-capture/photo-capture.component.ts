@@ -19,6 +19,11 @@ import {
 import { BadgeComponent, ButtonComponent } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
+interface Dimensions {
+  targetHeight: number;
+  targetWidth: number;
+}
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BadgeComponent, ButtonComponent, CommonModule, NgIcon],
@@ -34,16 +39,18 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
   selector: "app-photo-capture",
   standalone: true,
   template: `
-    <div class="flex flex-col gap-3 w-full">
+    <div class="flex w-full flex-col gap-3">
       @if (isCameraActive()) {
         <!-- Vista en vivo de cámara WebRTC -->
-        <div class="relative w-full overflow-hidden rounded-xl border border-zinc-800 bg-black aspect-video flex items-center justify-center">
+        <div
+          class="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl border border-zinc-800 bg-black"
+        >
           <video
             #videoElement
             autoplay
             playsinline
             muted
-            class="w-full h-full object-cover"
+            class="h-full w-full object-cover"
           ></video>
         </div>
 
@@ -69,15 +76,23 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
         </div>
       } @else if (photoDataUrl()) {
         <!-- Vista previa de foto capturada / subida -->
-        <div class="relative w-full overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 aspect-video flex items-center justify-center">
+        <div
+          class="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950"
+        >
           <img
             [src]="photoDataUrl()"
             alt="Preview motocicleta"
-            class="w-full h-full object-contain"
+            class="h-full w-full object-contain"
           />
           <div class="absolute top-2 right-2">
-            <nv-badge variant="outline" class="bg-zinc-900/90 border-zinc-700 backdrop-blur-xs text-xs font-mono">
-              <ng-icon name="lucideCheck" class="text-xs mr-1 text-emerald-400" />
+            <nv-badge
+              variant="outline"
+              class="border-zinc-700 bg-zinc-900/90 font-mono text-xs backdrop-blur-xs"
+            >
+              <ng-icon
+                name="lucideCheck"
+                class="mr-1 text-xs text-emerald-400"
+              />
               <span>{{ texts.badgeSize(photoSizeKb()) }}</span>
             </nv-badge>
           </div>
@@ -107,12 +122,18 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
         </div>
       } @else {
         <!-- Estado inactivo / placeholder -->
-        <div class="flex flex-col items-center justify-center gap-2.5 rounded-xl border-2 border-dashed border-zinc-800 bg-zinc-900/40 p-6 text-center">
-          <div class="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-800 text-zinc-400">
+        <div
+          class="flex flex-col items-center justify-center gap-2.5 rounded-xl border-2 border-dashed border-zinc-800 bg-zinc-900/40 p-6 text-center"
+        >
+          <div
+            class="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-800 text-zinc-400"
+          >
             <ng-icon name="lucideCamera" class="text-xl" />
           </div>
           <div class="flex flex-col gap-0.5">
-            <span class="text-xs font-semibold text-zinc-200">{{ texts.noPhoto }}</span>
+            <span class="text-xs font-semibold text-zinc-200">{{
+              texts.noPhoto
+            }}</span>
             <span class="text-[11px] text-zinc-400">{{ texts.hint }}</span>
           </div>
 
@@ -149,7 +170,9 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       }
 
       @if (errorMessage()) {
-        <div class="rounded-lg border border-red-500/20 bg-red-500/10 p-2.5 text-xs text-red-400">
+        <div
+          class="rounded-lg border border-red-500/20 bg-red-500/10 p-2.5 text-xs text-red-400"
+        >
           <span>{{ errorMessage() }}</span>
         </div>
       }
@@ -163,7 +186,7 @@ export class PhotoCaptureComponent implements OnDestroy {
   readonly initialPhoto = input<string | null>(null);
 
   readonly photoCaptured = output<string>();
-  readonly photoCleared = output<void>();
+  readonly photoCleared = output();
 
   readonly photoDataUrl = signal<string | null>(null);
   readonly photoSizeKb = signal<number>(0);
@@ -239,19 +262,17 @@ export class PhotoCaptureComponent implements OnDestroy {
 
     if (ctx && video) {
       ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
-      const dataUrl = canvas.toDataURL("image/jpeg", this.QUALITY);
-      this.setPhoto(dataUrl);
-    } else {
-      const dataUrl = canvas.toDataURL("image/jpeg", this.QUALITY);
-      this.setPhoto(dataUrl);
     }
+    const dataUrl = canvas.toDataURL("image/jpeg", this.QUALITY);
+    this.setPhoto(dataUrl);
 
     this.stopCamera();
   }
 
   onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
+    /* SAFETY: event.target is HTMLInputElement emitting change event */
+    const fileInput = event.target as HTMLInputElement;
+    const file = fileInput.files?.[0];
     if (!file) {
       return;
     }
@@ -262,14 +283,15 @@ export class PhotoCaptureComponent implements OnDestroy {
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.addEventListener("load", (e) => {
+      /* SAFETY: FileReader result is data URL string on load event */
       const rawDataUrl = e.target?.result as string;
       if (!rawDataUrl) {
         return;
       }
 
       const img = new Image();
-      img.onload = () => {
+      img.addEventListener("load", () => {
         const { targetHeight, targetWidth } = this.calculateDimensions(
           img.width,
           img.height
@@ -283,24 +305,24 @@ export class PhotoCaptureComponent implements OnDestroy {
           const compressed = canvas.toDataURL("image/jpeg", this.QUALITY);
           this.setPhoto(compressed);
         }
-        input.value = "";
-      };
-      img.onerror = () => {
+        fileInput.value = "";
+      });
+      img.addEventListener("error", () => {
         this.errorMessage.set(this.texts.loadError);
-        input.value = "";
-      };
+        fileInput.value = "";
+      });
       img.src = rawDataUrl;
-    };
-    reader.onerror = () => {
+    });
+    reader.addEventListener("error", () => {
       this.errorMessage.set(this.texts.loadError);
-      input.value = "";
-    };
+      fileInput.value = "";
+    });
     reader.readAsDataURL(file);
   }
 
   setPhoto(dataUrl: string): void {
     this.photoDataUrl.set(dataUrl);
-    const sizeKb = this.calculateSizeKb(dataUrl);
+    const sizeKb = PhotoCaptureComponent.calculateSizeKb(dataUrl);
     this.photoSizeKb.set(sizeKb);
     this.errorMessage.set(null);
     this.photoCaptured.emit(dataUrl);
@@ -313,16 +335,20 @@ export class PhotoCaptureComponent implements OnDestroy {
     this.photoCleared.emit();
   }
 
-  calculateSizeKb(dataUrl: string): number {
-    const base64Data = dataUrl.includes(",") ? dataUrl.split(",")[1] ?? "" : dataUrl;
+  static calculateSizeKb(dataUrl: string): number {
+    const base64Data = dataUrl.includes(",")
+      ? (dataUrl.split(",")[1] ?? "")
+      : dataUrl;
     const bytes = (base64Data.length * 3) / 4;
     return Math.round((bytes / 1024) * 10) / 10;
   }
 
+  readonly calculateSizeKb = PhotoCaptureComponent.calculateSizeKb;
+
   private calculateDimensions(
     sourceWidth: number,
     sourceHeight: number
-  ): { targetHeight: number; targetWidth: number } {
+  ): Dimensions {
     let targetWidth = sourceWidth;
     let targetHeight = sourceHeight;
 
@@ -335,6 +361,6 @@ export class PhotoCaptureComponent implements OnDestroy {
       targetHeight = Math.round(targetHeight * ratio);
     }
 
-    return { targetHeight, targetWidth };
+    return { targetHeight, targetWidth } satisfies Dimensions;
   }
 }
