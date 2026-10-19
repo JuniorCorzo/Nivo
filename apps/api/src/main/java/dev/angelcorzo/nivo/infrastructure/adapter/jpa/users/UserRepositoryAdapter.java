@@ -100,6 +100,9 @@ public class UserRepositoryAdapter
   @Override
   public Users save(Users entity) {
     final Users userCreated = super.save(entity);
+    if (entity.getDeletedAt() != null) {
+      return userCreated;
+    }
     return findById(userCreated.getId()).orElseThrow();
   }
 

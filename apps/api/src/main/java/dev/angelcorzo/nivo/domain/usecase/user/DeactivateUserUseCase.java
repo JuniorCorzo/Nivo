@@ -1,9 +1,10 @@
 package dev.angelcorzo.nivo.domain.usecase.user;
 
-import dev.angelcorzo.nivo.domain.model.tenants.gateways.TenantsRepository;
+import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.model.users.Users;
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
 import dev.angelcorzo.nivo.domain.model.users.exceptions.LastOwnerCannotBeDeactivatedException;
+import dev.angelcorzo.nivo.domain.model.users.exceptions.SelfDeactivationNotAllowedException;
 import dev.angelcorzo.nivo.domain.model.users.exceptions.UserAlreadyDeactivatedException;
 import dev.angelcorzo.nivo.domain.model.users.exceptions.UserNotExistsInTenantException;
 import dev.angelcorzo.nivo.domain.model.users.gateways.UsersRepository;
@@ -16,7 +17,7 @@ import lombok.RequiredArgsConstructor;
  * Use case for deactivating a user within a specific tenant.
  *
  * <p>This class handles the business logic for marking a user as inactive, including validations to
- * prevent deactivating the last owner of a tenant.
+ * prevent deactivating the last owner of a tenant and self-deactivation.
  *
  * <p><strong>Layer:</strong> Application (Use Case)
  *
@@ -29,27 +30,35 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DeactivateUserUseCase {
   private final UsersRepository usersRepository;
-  private final TenantsRepository tenantsRepository;
+  private final AuthenticationContextGateway authenticationContextGateway;
 
   /**
    * Deactivates a user.
    *
    * @param command The command containing details for the deactivation.
    * @return The deactivated {@link Users} object.
+   * @throws SelfDeactivationNotAllowedException if the target user is the authenticated user.
    * @throws UserNotExistsInTenantException if the user does not exist within the specified tenant.
    * @throws UserAlreadyDeactivatedException if the user is already deactivated.
    * @throws LastOwnerCannotBeDeactivatedException if the user is the last owner of the tenant.
    */
   public Users deactivate(final DeactivateUserCommand command) {
+    final UUID tenantId = this.authenticationContextGateway.getCurrentTenantId();
+    final UUID currentUserId = this.authenticationContextGateway.getCurrentUserId();
+
+    if (command.userIdToDeactivate().equals(currentUserId)) {
+      throw new SelfDeactivationNotAllowedException();
+    }
+
     final Users user =
         this.usersRepository
-            .findByIdAndTenantId(command.userIdToDeactivate(), command.tenantId())
+            .findByIdAndTenantId(command.userIdToDeactivate(), tenantId)
             .orElseThrow(UserNotExistsInTenantException::new);
 
-    this.validateDeactivation(user, command.tenantId());
+    this.validateDeactivation(user, tenantId);
 
     user.setDeletedAt(OffsetDateTime.now());
-    user.setDeletedBy(command.deactivatedBy());
+    user.setDeletedBy(currentUserId);
 
     return this.usersRepository.save(user);
   }

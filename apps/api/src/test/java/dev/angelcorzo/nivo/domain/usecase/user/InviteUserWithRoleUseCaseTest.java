@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.model.commons.exceptions.ErrorMessagesModel;
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.model.tenants.exceptions.TenantNotExistsException;
@@ -16,6 +17,7 @@ import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
 import dev.angelcorzo.nivo.domain.model.users.exceptions.UserAlreadyExistsInTenantException;
 import dev.angelcorzo.nivo.domain.model.users.exceptions.UserNotExistsException;
 import dev.angelcorzo.nivo.domain.model.users.gateways.UsersRepository;
+import dev.angelcorzo.nivo.domain.usecase.notification.notifier.UserNotifier;
 import dev.angelcorzo.nivo.domain.usecase.user.exceptions.InvalidRoleException;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -33,7 +35,8 @@ class InviteUserWithRoleUseCaseTest {
   @Mock private UsersRepository usersRepository;
   @Mock private UserInvitationsRepository userInvitationsRepository;
   @Mock private TenantsRepository tenantsRepository;
-  @Mock private dev.angelcorzo.nivo.domain.usecase.notification.notifier.UserNotifier userNotifier;
+  @Mock private UserNotifier userNotifier;
+  @Mock private AuthenticationContextGateway authenticationContextGateway;
 
   @InjectMocks private InviteUserWithRolUseCase inviteUserWithRoleUseCase;
 
@@ -61,6 +64,8 @@ class InviteUserWithRoleUseCaseTest {
             .inviteBy(inviteBy)
             .build();
 
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(inviteBy);
     when(usersRepository.existsByEmailAndTenantId(email, tenantId)).thenReturn(false);
     when(tenantsRepository.findById(tenantId)).thenReturn(Optional.of(tenant));
     when(usersRepository.findById(inviteBy)).thenReturn(Optional.of(invitedByUser));
@@ -106,6 +111,7 @@ class InviteUserWithRoleUseCaseTest {
   void shouldThrowException_whenEmailAlreadyExistsInTenant() {
     // Given
     final UUID tenantId = UUID.randomUUID();
+    final UUID inviteBy = UUID.randomUUID();
     final String email = "existing.user@example.com";
     InviteUserWithRolUseCase.InviteUserWithRole inviteUserWithRole =
         InviteUserWithRolUseCase.InviteUserWithRole.builder()
@@ -115,15 +121,15 @@ class InviteUserWithRoleUseCaseTest {
             .inviteBy(UUID.randomUUID())
             .build();
 
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(inviteBy);
     when(usersRepository.existsByEmailAndTenantId(email, tenantId)).thenReturn(true);
 
     // When & Then
     UserAlreadyExistsInTenantException exception =
         assertThrows(
             UserAlreadyExistsInTenantException.class,
-            () -> {
-              inviteUserWithRoleUseCase.registerInvitation(inviteUserWithRole);
-            });
+            () -> inviteUserWithRoleUseCase.registerInvitation(inviteUserWithRole));
 
     assertEquals(
         String.format("El usuario %s ya existe en el tenant", email), exception.getMessage());
@@ -137,6 +143,7 @@ class InviteUserWithRoleUseCaseTest {
   void shouldThrowException_whenRoleIsNotAllowed() {
     // Given
     final UUID tenantId = UUID.randomUUID();
+    final UUID inviteBy = UUID.randomUUID();
     final String email = "example@email.com";
     final Roles notAllowedRole = Roles.OWNER;
 
@@ -148,15 +155,15 @@ class InviteUserWithRoleUseCaseTest {
             .inviteBy(UUID.randomUUID())
             .build();
 
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(inviteBy);
     when(usersRepository.existsByEmailAndTenantId(email, tenantId)).thenReturn(false);
 
     // When & Then
     InvalidRoleException exception =
         assertThrows(
             InvalidRoleException.class,
-            () -> {
-              inviteUserWithRoleUseCase.registerInvitation(inviteUserWithRole);
-            });
+            () -> inviteUserWithRoleUseCase.registerInvitation(inviteUserWithRole));
 
     assertEquals(
         String.format(
@@ -186,6 +193,8 @@ class InviteUserWithRoleUseCaseTest {
             .inviteBy(nonExistentInviteBy)
             .build();
 
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(nonExistentInviteBy);
     when(usersRepository.existsByEmailAndTenantId(email, tenantId)).thenReturn(false);
     when(tenantsRepository.findById(tenantId)).thenReturn(Optional.of(tenant));
     when(usersRepository.findById(nonExistentInviteBy)).thenReturn(Optional.empty());
@@ -194,9 +203,7 @@ class InviteUserWithRoleUseCaseTest {
     UserNotExistsException exception =
         assertThrows(
             UserNotExistsException.class,
-            () -> {
-              inviteUserWithRoleUseCase.registerInvitation(inviteUserWithRole);
-            });
+            () -> inviteUserWithRoleUseCase.registerInvitation(inviteUserWithRole));
 
     assertEquals(
         String.format("El usuario con ID %s no existe", nonExistentInviteBy),
@@ -223,6 +230,8 @@ class InviteUserWithRoleUseCaseTest {
             .inviteBy(inviteBy)
             .build();
 
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(inviteBy);
     when(usersRepository.existsByEmailAndTenantId(email, tenantId)).thenReturn(false);
     when(tenantsRepository.findById(tenantId)).thenReturn(Optional.empty());
 
@@ -234,5 +243,49 @@ class InviteUserWithRoleUseCaseTest {
 
     assertEquals(ErrorMessagesModel.TENANT_NOT_EXISTS.format(tenantId), exception.getMessage());
     verify(userInvitationsRepository, never()).save(any(UserInvitations.class));
+  }
+
+  @Test
+  @DisplayName("Should use tenantId and inviteBy from AuthenticationContextGateway, ignoring command values")
+  void shouldUseTenantAndInviterFromGateway_ignoringPayloadValues() {
+    // Given
+    final UUID contextTenantId = UUID.randomUUID();
+    final UUID forgedTenantId = UUID.randomUUID();
+    final UUID contextInviteBy = UUID.randomUUID();
+    final UUID forgedInviteBy = UUID.randomUUID();
+    final String email = "verified@example.com";
+    final Roles role = Roles.OPERATOR;
+
+    final Tenants tenant = Tenants.builder().id(contextTenantId).companyName("Context Company").build();
+    final Users contextUser = Users.builder().id(contextInviteBy).fullName("Context User").email("ctx@test.com").build();
+
+    InviteUserWithRolUseCase.InviteUserWithRole command =
+        InviteUserWithRolUseCase.InviteUserWithRole.builder()
+            .tenantId(forgedTenantId)
+            .inviteBy(forgedInviteBy)
+            .email(email)
+            .role(role)
+            .build();
+
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(contextTenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(contextInviteBy);
+    when(usersRepository.existsByEmailAndTenantId(email, contextTenantId)).thenReturn(false);
+    when(tenantsRepository.findById(contextTenantId)).thenReturn(Optional.of(tenant));
+    when(usersRepository.findById(contextInviteBy)).thenReturn(Optional.of(contextUser));
+    when(userInvitationsRepository.save(any(UserInvitations.class))).thenAnswer(i -> i.getArgument(0));
+
+    // When
+    UserInvitations result = inviteUserWithRoleUseCase.registerInvitation(command);
+
+    // Then
+    assertNotNull(result);
+    assertEquals(contextTenantId, result.getTenant().getId());
+    assertEquals(contextInviteBy, result.getInvitedBy().id());
+    verify(usersRepository).existsByEmailAndTenantId(email, contextTenantId);
+    verify(usersRepository, never()).existsByEmailAndTenantId(email, forgedTenantId);
+    verify(tenantsRepository).findById(contextTenantId);
+    verify(tenantsRepository, never()).findById(forgedTenantId);
+    verify(usersRepository).findById(contextInviteBy);
+    verify(usersRepository, never()).findById(forgedInviteBy);
   }
 }

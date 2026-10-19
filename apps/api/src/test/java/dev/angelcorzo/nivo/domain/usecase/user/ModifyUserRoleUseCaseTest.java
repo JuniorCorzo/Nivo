@@ -4,12 +4,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.model.commons.exceptions.ErrorMessagesModel;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
 import dev.angelcorzo.nivo.domain.model.users.Users;
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
+import dev.angelcorzo.nivo.domain.model.users.exceptions.CannotModifyOwnerRoleException;
+import dev.angelcorzo.nivo.domain.model.users.exceptions.SelfRoleModificationNotAllowedException;
 import dev.angelcorzo.nivo.domain.model.users.exceptions.UserNotExistsInTenantException;
 import dev.angelcorzo.nivo.domain.model.users.gateways.UsersRepository;
+import dev.angelcorzo.nivo.domain.usecase.notification.notifier.UserNotifier;
 import dev.angelcorzo.nivo.domain.usecase.user.exceptions.InvalidRoleException;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -25,7 +29,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ModifyUserRoleUseCaseTest {
   @Mock private UsersRepository usersRepository;
-  @Mock private dev.angelcorzo.nivo.domain.usecase.notification.notifier.UserNotifier userNotifier;
+  @Mock private UserNotifier userNotifier;
+  @Mock private AuthenticationContextGateway authenticationContextGateway;
 
   @InjectMocks private ModifyUserRoleUseCase modifyUserRoleUseCase;
 
@@ -36,6 +41,7 @@ class ModifyUserRoleUseCaseTest {
   void shouldModifyRole_whenDataIsValidAndUserExists() {
     // Given
     final UUID userId = UUID.randomUUID();
+    final UUID actorId = UUID.randomUUID();
     final UUID tenantId = UUID.randomUUID();
     final Roles currentRole = Roles.OPERATOR;
     final Roles newRole = Roles.MANAGER;
@@ -60,6 +66,8 @@ class ModifyUserRoleUseCaseTest {
             .tenantId(tenantId)
             .build();
 
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
     when(usersRepository.findByIdAndTenantId(userId, tenantId))
         .thenReturn(Optional.of(existingUser));
     when(usersRepository.save(any(Users.class)))
@@ -90,6 +98,7 @@ class ModifyUserRoleUseCaseTest {
   void shouldThrowException_whenUserDoesNotExist() {
     // Given
     final UUID nonExistentUserId = UUID.randomUUID();
+    final UUID actorId = UUID.randomUUID();
     final UUID tenantId = UUID.randomUUID();
 
     ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
@@ -99,6 +108,8 @@ class ModifyUserRoleUseCaseTest {
             .tenantId(tenantId)
             .build();
 
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
     when(usersRepository.findByIdAndTenantId(nonExistentUserId, tenantId))
         .thenReturn(Optional.empty());
 
@@ -106,9 +117,7 @@ class ModifyUserRoleUseCaseTest {
     UserNotExistsInTenantException exception =
         assertThrows(
             UserNotExistsInTenantException.class,
-            () -> {
-              modifyUserRoleUseCase.modifyRole(modifyUserRole);
-            });
+            () -> modifyUserRoleUseCase.modifyRole(modifyUserRole));
 
     assertEquals(ErrorMessagesModel.USER_NOT_EXIST_IN_TENANT.toString(), exception.getMessage());
     verify(usersRepository, never()).save(any(Users.class));
@@ -121,6 +130,7 @@ class ModifyUserRoleUseCaseTest {
   void shouldThrowException_whenRoleIsNotAllowed() {
     // Given
     final UUID userId = UUID.randomUUID();
+    final UUID actorId = UUID.randomUUID();
     final UUID tenantId = UUID.randomUUID();
     final Roles notAllowedRole = Roles.OWNER;
 
@@ -142,6 +152,8 @@ class ModifyUserRoleUseCaseTest {
             .tenantId(tenantId)
             .build();
 
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
     when(usersRepository.findByIdAndTenantId(userId, tenantId))
         .thenReturn(Optional.of(existingUser));
 
@@ -149,9 +161,7 @@ class ModifyUserRoleUseCaseTest {
     InvalidRoleException exception =
         assertThrows(
             InvalidRoleException.class,
-            () -> {
-              modifyUserRoleUseCase.modifyRole(modifyUserRole);
-            });
+            () -> modifyUserRoleUseCase.modifyRole(modifyUserRole));
 
     assertEquals(
         String.format(
@@ -168,6 +178,7 @@ class ModifyUserRoleUseCaseTest {
   void shouldThrowException_whenRoleIsSuperadmin() {
     // Given
     final UUID userId = UUID.randomUUID();
+    final UUID actorId = UUID.randomUUID();
     final UUID tenantId = UUID.randomUUID();
     final Roles notAllowedRole = Roles.SUPERADMIN;
 
@@ -189,6 +200,8 @@ class ModifyUserRoleUseCaseTest {
             .tenantId(tenantId)
             .build();
 
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
     when(usersRepository.findByIdAndTenantId(userId, tenantId))
         .thenReturn(Optional.of(existingUser));
 
@@ -196,9 +209,7 @@ class ModifyUserRoleUseCaseTest {
     InvalidRoleException exception =
         assertThrows(
             InvalidRoleException.class,
-            () -> {
-              modifyUserRoleUseCase.modifyRole(modifyUserRole);
-            });
+            () -> modifyUserRoleUseCase.modifyRole(modifyUserRole));
 
     assertEquals(
         String.format(
@@ -215,6 +226,7 @@ class ModifyUserRoleUseCaseTest {
   void shouldModifyRole_whenChangingFromDriverToAuditor() {
     // Given
     final UUID userId = UUID.randomUUID();
+    final UUID actorId = UUID.randomUUID();
     final UUID tenantId = UUID.randomUUID();
 
     TenantReference tenant =
@@ -235,6 +247,8 @@ class ModifyUserRoleUseCaseTest {
             .tenantId(tenantId)
             .build();
 
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
     when(usersRepository.findByIdAndTenantId(userId, tenantId))
         .thenReturn(Optional.of(existingUser));
     when(usersRepository.save(any(Users.class)))
@@ -246,5 +260,151 @@ class ModifyUserRoleUseCaseTest {
     // Then
     assertEquals(Roles.AUDITOR, result.getRole());
     verify(usersRepository, times(1)).save(any(Users.class));
+  }
+
+  @Test
+  @DisplayName("Should throw SelfRoleModificationNotAllowedException when user attempts to modify their own role")
+  void shouldThrowException_whenModifyingOwnRole() {
+    // Given
+    final UUID currentUserId = UUID.randomUUID();
+    final UUID tenantId = UUID.randomUUID();
+
+    ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
+        ModifyUserRoleUseCase.ModifyUserRole.builder()
+            .userId(currentUserId)
+            .newRole(Roles.OPERATOR)
+            .tenantId(tenantId)
+            .build();
+
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(currentUserId);
+
+    // When & Then
+    assertThrows(
+        SelfRoleModificationNotAllowedException.class,
+        () -> modifyUserRoleUseCase.modifyRole(modifyUserRole));
+
+    verify(usersRepository, never()).findByIdAndTenantId(any(), any());
+    verify(usersRepository, never()).save(any(Users.class));
+  }
+
+  @Test
+  @DisplayName("Should throw CannotModifyOwnerRoleException when target user is an OWNER")
+  void shouldThrowException_whenTargetUserIsOwner() {
+    // Given
+    final UUID userId = UUID.randomUUID();
+    final UUID actorId = UUID.randomUUID();
+    final UUID tenantId = UUID.randomUUID();
+
+    TenantReference tenant =
+        TenantReference.builder().id(tenantId).companyName("Test Company").build();
+
+    Users ownerUser =
+        Users.builder()
+            .id(userId)
+            .email("owner@example.com")
+            .role(Roles.OWNER)
+            .tenant(tenant)
+            .build();
+
+    ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
+        ModifyUserRoleUseCase.ModifyUserRole.builder()
+            .userId(userId)
+            .newRole(Roles.MANAGER)
+            .tenantId(tenantId)
+            .build();
+
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
+    when(usersRepository.findByIdAndTenantId(userId, tenantId))
+        .thenReturn(Optional.of(ownerUser));
+
+    // When & Then
+    assertThrows(
+        CannotModifyOwnerRoleException.class,
+        () -> modifyUserRoleUseCase.modifyRole(modifyUserRole));
+
+    verify(usersRepository, never()).save(any(Users.class));
+  }
+
+  @Test
+  @DisplayName("Should throw CannotModifyOwnerRoleException when target user is a SUPERADMIN")
+  void shouldThrowException_whenTargetUserIsSuperadmin() {
+    // Given
+    final UUID userId = UUID.randomUUID();
+    final UUID actorId = UUID.randomUUID();
+    final UUID tenantId = UUID.randomUUID();
+
+    TenantReference tenant =
+        TenantReference.builder().id(tenantId).companyName("Test Company").build();
+
+    Users superadminUser =
+        Users.builder()
+            .id(userId)
+            .email("superadmin@example.com")
+            .role(Roles.SUPERADMIN)
+            .tenant(tenant)
+            .build();
+
+    ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
+        ModifyUserRoleUseCase.ModifyUserRole.builder()
+            .userId(userId)
+            .newRole(Roles.MANAGER)
+            .tenantId(tenantId)
+            .build();
+
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
+    when(usersRepository.findByIdAndTenantId(userId, tenantId))
+        .thenReturn(Optional.of(superadminUser));
+
+    // When & Then
+    assertThrows(
+        CannotModifyOwnerRoleException.class,
+        () -> modifyUserRoleUseCase.modifyRole(modifyUserRole));
+
+    verify(usersRepository, never()).save(any(Users.class));
+  }
+
+  @Test
+  @DisplayName("Should use tenantId from AuthenticationContextGateway instead of command")
+  void shouldUseTenantFromAuthenticationGateway() {
+    // Given
+    final UUID userId = UUID.randomUUID();
+    final UUID actorId = UUID.randomUUID();
+    final UUID contextTenantId = UUID.randomUUID();
+    final UUID forgedTenantId = UUID.randomUUID();
+
+    TenantReference tenant =
+        TenantReference.builder().id(contextTenantId).companyName("Test Company").build();
+
+    Users existingUser =
+        Users.builder()
+            .id(userId)
+            .email("operator@example.com")
+            .role(Roles.OPERATOR)
+            .tenant(tenant)
+            .build();
+
+    ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
+        ModifyUserRoleUseCase.ModifyUserRole.builder()
+            .userId(userId)
+            .newRole(Roles.MANAGER)
+            .tenantId(forgedTenantId)
+            .build();
+
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(contextTenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
+    when(usersRepository.findByIdAndTenantId(userId, contextTenantId))
+        .thenReturn(Optional.of(existingUser));
+    when(usersRepository.save(any(Users.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
+    // When
+    modifyUserRoleUseCase.modifyRole(modifyUserRole);
+
+    // Then
+    verify(usersRepository, times(1)).findByIdAndTenantId(userId, contextTenantId);
+    verify(usersRepository, never()).findByIdAndTenantId(userId, forgedTenantId);
   }
 }

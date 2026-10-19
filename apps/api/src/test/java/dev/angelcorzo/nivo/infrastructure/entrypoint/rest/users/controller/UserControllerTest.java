@@ -7,6 +7,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.angelcorzo.nivo.domain.model.userinvitations.UserInvitations;
+import dev.angelcorzo.nivo.domain.model.users.Users;
+import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
+import dev.angelcorzo.nivo.domain.model.users.exceptions.CannotModifyOwnerRoleException;
+import dev.angelcorzo.nivo.domain.model.users.exceptions.SelfDeactivationNotAllowedException;
+import dev.angelcorzo.nivo.domain.model.users.exceptions.SelfRoleModificationNotAllowedException;
+import dev.angelcorzo.nivo.domain.usecase.user.AcceptInvitationUseCase;
+import dev.angelcorzo.nivo.domain.usecase.user.DeactivateUserUseCase;
+import dev.angelcorzo.nivo.domain.usecase.user.GetCurrentUserUseCase;
+import dev.angelcorzo.nivo.domain.usecase.user.InviteUserWithRolUseCase;
+import dev.angelcorzo.nivo.domain.usecase.user.ListUsersByTenantUseCase;
+import dev.angelcorzo.nivo.domain.usecase.user.ModifyUserRoleUseCase;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.exception.ExceptionHandlerController;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.userinvitations.dto.InviteUserDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.userinvitations.mapper.UserInvitationsMapper;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.dto.CreatedUserDTO;
@@ -15,15 +28,6 @@ import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.dto.ModifyRolDTO
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.dto.UserDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.enums.UserMessages;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.mappers.UserMapper;
-import dev.angelcorzo.nivo.domain.model.userinvitations.UserInvitations;
-import dev.angelcorzo.nivo.domain.model.users.Users;
-import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
-import dev.angelcorzo.nivo.domain.usecase.user.AcceptInvitationUseCase;
-import dev.angelcorzo.nivo.domain.usecase.user.DeactivateUserUseCase;
-import dev.angelcorzo.nivo.domain.usecase.user.GetCurrentUserUseCase;
-import dev.angelcorzo.nivo.domain.usecase.user.InviteUserWithRolUseCase;
-import dev.angelcorzo.nivo.domain.usecase.user.ListUsersByTenantUseCase;
-import dev.angelcorzo.nivo.domain.usecase.user.ModifyUserRoleUseCase;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +36,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -44,7 +47,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @ActiveProfiles("test")
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@ContextConfiguration(classes = UserController.class)
+@ContextConfiguration(classes = {UserController.class, ExceptionHandlerController.class})
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
 
@@ -129,7 +132,6 @@ class UserControllerTest {
     ModifyRolDTO requestDto = new ModifyRolDTO(UUID.randomUUID(), Roles.MANAGER, UUID.randomUUID());
     Users userModel = Users.builder().id(requestDto.userId()).build();
 
-    // Mapper debe devolver el comando de use case (ModifyUserRole)
     ModifyUserRoleUseCase.ModifyUserRole modifyCommand =
         ModifyUserRoleUseCase.ModifyUserRole.builder()
             .userId(requestDto.userId())
@@ -152,6 +154,58 @@ class UserControllerTest {
   }
 
   @Test
+  @DisplayName("PATCH /users/modify-rol - Should return 403 Forbidden when modifying OWNER or SUPERADMIN role")
+  void modifyRol_shouldReturn403_whenModifyingOwnerRole() throws Exception {
+    // Arrange
+    ModifyRolDTO requestDto = new ModifyRolDTO(UUID.randomUUID(), Roles.MANAGER, UUID.randomUUID());
+    ModifyUserRoleUseCase.ModifyUserRole modifyCommand =
+        ModifyUserRoleUseCase.ModifyUserRole.builder()
+            .userId(requestDto.userId())
+            .newRole(requestDto.newRole())
+            .tenantId(requestDto.tenantId())
+            .build();
+
+    when(userMapper.toModel(any(ModifyRolDTO.class))).thenReturn(modifyCommand);
+    when(modifyUserRoleUseCase.modifyRole(any(ModifyUserRoleUseCase.ModifyUserRole.class)))
+        .thenThrow(new CannotModifyOwnerRoleException());
+
+    // Act & Assert
+    mockMvc
+        .perform(
+            patch("/users/modify-rol")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("CANNOT_MODIFY_OWNER_ROLE"));
+  }
+
+  @Test
+  @DisplayName("PATCH /users/modify-rol - Should return 403 Forbidden when self-demoting / modifying own role")
+  void modifyRol_shouldReturn403_whenSelfDemotionAttempted() throws Exception {
+    // Arrange
+    ModifyRolDTO requestDto = new ModifyRolDTO(UUID.randomUUID(), Roles.OPERATOR, UUID.randomUUID());
+    ModifyUserRoleUseCase.ModifyUserRole modifyCommand =
+        ModifyUserRoleUseCase.ModifyUserRole.builder()
+            .userId(requestDto.userId())
+            .newRole(requestDto.newRole())
+            .tenantId(requestDto.tenantId())
+            .build();
+
+    when(userMapper.toModel(any(ModifyRolDTO.class))).thenReturn(modifyCommand);
+    when(modifyUserRoleUseCase.modifyRole(any(ModifyUserRoleUseCase.ModifyUserRole.class)))
+        .thenThrow(new SelfRoleModificationNotAllowedException());
+
+    // Act & Assert
+    mockMvc
+        .perform(
+            patch("/users/modify-rol")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("SELF_ROLE_MODIFICATION_NOT_ALLOWED"));
+  }
+
+  @Test
   @DisplayName("DELETE /users/deactivate-user - Should return 200 OK when user is deactivated")
   void deactivateUser_shouldReturn200() throws Exception {
     // Arrange
@@ -159,7 +213,6 @@ class UserControllerTest {
         new DeactivateUserDTO(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "no-reason");
     Users userModel = Users.builder().id(requestDto.userId()).build();
 
-    // Mapper debe devolver el comando de use case
     DeactivateUserUseCase.DeactivateUserCommand deactivateCommand =
         DeactivateUserUseCase.DeactivateUserCommand.builder()
             .userIdToDeactivate(requestDto.userId())
@@ -186,6 +239,34 @@ class UserControllerTest {
                 .content(objectMapper.writeValueAsString(requestDto)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value(UserMessages.USER_DEACTIVATED.toString()));
+  }
+
+  @Test
+  @DisplayName("DELETE /users/deactivate-user - Should return 403 Forbidden when self-deactivation is attempted")
+  void deactivateUser_shouldReturn403_whenSelfDeactivationAttempted() throws Exception {
+    // Arrange
+    DeactivateUserDTO requestDto =
+        new DeactivateUserDTO(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "leaving");
+    DeactivateUserUseCase.DeactivateUserCommand deactivateCommand =
+        DeactivateUserUseCase.DeactivateUserCommand.builder()
+            .userIdToDeactivate(requestDto.userId())
+            .deactivatedBy(requestDto.deactivatedBy())
+            .tenantId(requestDto.tenantId())
+            .reason(requestDto.reason())
+            .build();
+
+    when(userMapper.toModel(any(DeactivateUserDTO.class))).thenReturn(deactivateCommand);
+    when(deactivateUserUseCase.deactivate(any(DeactivateUserUseCase.DeactivateUserCommand.class)))
+        .thenThrow(new SelfDeactivationNotAllowedException());
+
+    // Act & Assert
+    mockMvc
+        .perform(
+            delete("/users/deactivate-user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("SELF_DEACTIVATION_NOT_ALLOWED"));
   }
 
   @Test

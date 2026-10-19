@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.mapper.UserMapper;
 import dev.angelcorzo.nivo.domain.model.users.Users;
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -134,5 +135,48 @@ class UserRepositoryAdapterTest {
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getEmail()).isEqualTo("staff@tenant.com");
     verify(repository, times(1)).findAllByTenantId(tenantId);
+  }
+
+  @Test
+  @DisplayName("Should save and refetch active user with tenant loaded")
+  void shouldSaveAndRefetchUser_whenNotDeleted() {
+    UUID userId = UUID.randomUUID();
+    Users activeUser = Users.builder().id(userId).email("active@test.com").build();
+    UsersData activeUserData = UsersData.builder().id(userId).email("active@test.com").build();
+
+    when(mapper.toData(activeUser)).thenReturn(activeUserData);
+    when(repository.saveAndFlush(activeUserData)).thenReturn(activeUserData);
+    when(mapper.toEntity(activeUserData)).thenReturn(activeUser);
+    when(repository.findByIdFetchTenant(userId)).thenReturn(Optional.of(activeUserData));
+
+    Users result = adapter.save(activeUser);
+
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(userId);
+    verify(repository).saveAndFlush(activeUserData);
+    verify(repository).findByIdFetchTenant(userId);
+  }
+
+  @Test
+  @DisplayName("Should return saved user directly without refetching when user is soft-deleted")
+  void shouldReturnSavedUserDirectly_whenSoftDeleted() {
+    UUID userId = UUID.randomUUID();
+    OffsetDateTime now = OffsetDateTime.now();
+    Users deletedUser =
+        Users.builder().id(userId).email("deleted@test.com").deletedAt(now).deletedBy(UUID.randomUUID()).build();
+    UsersData deletedUserData =
+        UsersData.builder().id(userId).email("deleted@test.com").deletedAt(now).build();
+
+    when(mapper.toData(deletedUser)).thenReturn(deletedUserData);
+    when(repository.saveAndFlush(deletedUserData)).thenReturn(deletedUserData);
+    when(mapper.toEntity(deletedUserData)).thenReturn(deletedUser);
+
+    Users result = adapter.save(deletedUser);
+
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(userId);
+    assertThat(result.getDeletedAt()).isEqualTo(now);
+    verify(repository).saveAndFlush(deletedUserData);
+    verify(repository, never()).findByIdFetchTenant(any());
   }
 }
