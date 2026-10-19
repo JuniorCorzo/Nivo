@@ -5,7 +5,7 @@ import type { UserModel } from "@core/models/user.model";
 import { UserService } from "@core/services/user/user-service";
 import { ToastService } from "@nivo-sass/design-system";
 import { of, throwError } from "rxjs";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DeactivateUserModalComponent } from "./deactivate-user-modal";
 
@@ -58,6 +58,19 @@ describe("DeactivateUserModalComponent", () => {
     updatedAt: new Date(),
   };
 
+  beforeAll(() => {
+    HTMLDialogElement.prototype.showModal = vi.fn(
+      function mockShowModal(this: HTMLDialogElement) {
+        this.open = true;
+      }
+    );
+    HTMLDialogElement.prototype.close = vi.fn(
+      function mockClose(this: HTMLDialogElement) {
+        this.open = false;
+      }
+    );
+  });
+
   beforeEach(async () => {
     userServiceMock = {
       currentUser: signal<UserModel | null>(currentManagerUser),
@@ -87,12 +100,27 @@ describe("DeactivateUserModalComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should render modal with target user info", () => {
+  it("should render dialog with target user info and alertdialog role", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('[role="dialog"]')).not.toBeNull();
+    /* SAFETY: Dialog element is guaranteed to be an HTMLDialogElement in test environment */
+    const dialog = compiled.querySelector("dialog") as HTMLDialogElement;
+    expect(dialog).not.toBeNull();
+    expect(dialog.open).toBe(true);
+    expect(compiled.querySelector('[role="alertdialog"]')).not.toBeNull();
     expect(compiled.textContent).toContain("Operator User");
     expect(compiled.textContent).toContain("operator@nivo.com");
+  });
+
+  it("should close dialog when isOpen is false", () => {
+    fixture.componentRef.setInput("isOpen", false);
+    fixture.detectChanges();
+
+    /* SAFETY: Dialog element is guaranteed to be an HTMLDialogElement in test environment */
+    const dialog = fixture.nativeElement.querySelector(
+      "dialog"
+    ) as HTMLDialogElement;
+    expect(dialog.open).toBe(false);
   });
 
   it("should block and show warning on self-deactivation attempt", () => {
@@ -170,5 +198,30 @@ describe("DeactivateUserModalComponent", () => {
 
     component.onCancel();
     expect(closedCalled).toBe(true);
+  });
+
+  it("should emit closed on backdrop click", () => {
+    let closedCalled = false;
+    component.closed.subscribe(() => {
+      closedCalled = true;
+    });
+
+    /* SAFETY: Dialog element is guaranteed to be an HTMLDialogElement in test environment */
+    const dialog = fixture.nativeElement.querySelector(
+      "dialog"
+    ) as HTMLDialogElement;
+    dialog.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(closedCalled).toBe(true);
+  });
+
+  it("should close dialog on ngOnDestroy if open", () => {
+    /* SAFETY: Dialog element is guaranteed to be an HTMLDialogElement in test environment */
+    const dialog = fixture.nativeElement.querySelector(
+      "dialog"
+    ) as HTMLDialogElement;
+    expect(dialog.open).toBe(true);
+
+    fixture.destroy();
+    expect(dialog.open).toBe(false);
   });
 });

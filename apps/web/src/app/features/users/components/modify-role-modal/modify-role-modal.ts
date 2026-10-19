@@ -1,14 +1,15 @@
+import type { ElementRef, OnDestroy } from "@angular/core";
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   effect,
-  HostListener,
   inject,
   input,
   output,
   signal,
   untracked,
+  viewChild,
 } from "@angular/core";
 import type { UserModel } from "@core/models/user.model";
 import { UserService } from "@core/services/user/user-service";
@@ -27,7 +28,8 @@ import {
   TypographyH3,
 } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
-import { UserRoleBadgeComponent } from "../users-table/user-role-badge";
+
+import { UserRoleBadgeComponent } from "../users-table";
 
 export interface RoleOption {
   label: string;
@@ -56,9 +58,10 @@ const roleOptionValue = (item: RoleOption): string => item.value;
   ],
   selector: "app-modify-role-modal",
   standalone: true,
+  styleUrl: "./modify-role-modal.css",
   templateUrl: "./modify-role-modal.html",
 })
-export class ModifyRoleModalComponent {
+export class ModifyRoleModalComponent implements OnDestroy {
   private readonly userService = inject(UserService);
   private readonly toastService = inject(ToastService);
 
@@ -71,6 +74,11 @@ export class ModifyRoleModalComponent {
   readonly isSubmitting = signal<boolean>(false);
   readonly selectedRole = signal<Role>("OPERATOR");
   readonly texts = APP_TEXTS.users.modals.modifyRole;
+
+  protected readonly titleId = "modify-role-title";
+  protected readonly descriptionId = "modify-role-description";
+
+  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>("dialog");
 
   readonly isOwner = computed(() => this.user()?.role === "OWNER");
 
@@ -85,6 +93,19 @@ export class ModifyRoleModalComponent {
 
   constructor() {
     effect(() => {
+      const open = this.isOpen();
+      const dialogEl = this.dialog()?.nativeElement;
+      if (!dialogEl) {
+        return;
+      }
+      if (open && !dialogEl.open) {
+        dialogEl.showModal();
+      } else if (!open && dialogEl.open) {
+        dialogEl.close();
+      }
+    });
+
+    effect(() => {
       const u = this.user();
       untracked(() => {
         if (u) {
@@ -98,25 +119,18 @@ export class ModifyRoleModalComponent {
     });
   }
 
-  @HostListener("document:keydown.escape", ["$event"])
-  onKeydownEscape(event: Event): void {
-    if (this.isOpen()) {
-      event.stopPropagation();
-      this.onCancel();
-    }
-  }
-
   onRoleChange(newRole: string): void {
     /* SAFETY: SelectComponent emits string, typed as Role */
     this.selectedRole.set(newRole as Role);
   }
 
-  onCancel(): void {
+  onCancel(event?: Event): void {
+    event?.preventDefault();
     this.closed.emit();
   }
 
   protected onBackdropClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) {
+    if (event.target === this.dialog()?.nativeElement) {
       this.onCancel();
     }
   }
@@ -147,5 +161,12 @@ export class ModifyRoleModalComponent {
         this.closed.emit();
       },
     });
+  }
+
+  ngOnDestroy(): void {
+    const dialogEl = this.dialog()?.nativeElement;
+    if (dialogEl?.open) {
+      dialogEl.close();
+    }
   }
 }

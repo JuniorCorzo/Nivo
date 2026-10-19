@@ -1,12 +1,14 @@
+import type { ElementRef, OnDestroy } from "@angular/core";
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  HostListener,
+  effect,
   inject,
   input,
   output,
   signal,
+  viewChild,
 } from "@angular/core";
 import type { UserModel } from "@core/models/user.model";
 import { UserService } from "@core/services/user/user-service";
@@ -31,9 +33,10 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
   ],
   selector: "app-deactivate-user-modal",
   standalone: true,
+  styleUrl: "./deactivate-user-modal.css",
   templateUrl: "./deactivate-user-modal.html",
 })
-export class DeactivateUserModalComponent {
+export class DeactivateUserModalComponent implements OnDestroy {
   private readonly userService = inject(UserService);
   private readonly toastService = inject(ToastService);
 
@@ -48,6 +51,11 @@ export class DeactivateUserModalComponent {
 
   readonly currentUser = this.userService.currentUser;
   readonly users = this.userService.users;
+
+  protected readonly titleId = "deactivate-user-title";
+  protected readonly descriptionId = "deactivate-user-description";
+
+  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>("dialog");
 
   readonly isSelfDeactivation = computed(() => {
     const current = this.currentUser();
@@ -70,20 +78,28 @@ export class DeactivateUserModalComponent {
     () => !this.isSelfDeactivation() && !this.isSoleOwner()
   );
 
-  @HostListener("document:keydown.escape", ["$event"])
-  onKeydownEscape(event: Event): void {
-    if (this.isOpen()) {
-      event.stopPropagation();
-      this.onCancel();
-    }
+  constructor() {
+    effect(() => {
+      const open = this.isOpen();
+      const dialogEl = this.dialog()?.nativeElement;
+      if (!dialogEl) {
+        return;
+      }
+      if (open && !dialogEl.open) {
+        dialogEl.showModal();
+      } else if (!open && dialogEl.open) {
+        dialogEl.close();
+      }
+    });
   }
 
-  onCancel(): void {
+  onCancel(event?: Event): void {
+    event?.preventDefault();
     this.closed.emit();
   }
 
   protected onBackdropClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) {
+    if (event.target === this.dialog()?.nativeElement) {
       this.onCancel();
     }
   }
@@ -114,5 +130,12 @@ export class DeactivateUserModalComponent {
         this.closed.emit();
       },
     });
+  }
+
+  ngOnDestroy(): void {
+    const dialogEl = this.dialog()?.nativeElement;
+    if (dialogEl?.open) {
+      dialogEl.close();
+    }
   }
 }
