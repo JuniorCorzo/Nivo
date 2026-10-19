@@ -13,6 +13,7 @@ import dev.angelcorzo.nivo.domain.model.rates.gateways.RatesRepository;
 import dev.angelcorzo.nivo.domain.model.rates.valueobject.RateReference;
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
+import dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException;
 import dev.angelcorzo.nivo.domain.model.slots.excetions.SlotNotFoundException;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotsReference;
@@ -43,6 +44,12 @@ public class CheckinVehicleUseCase {
         this.slotsRepository
             .findById(command.slotId())
             .orElseThrow(() -> new SlotNotFoundException(command.slotId()));
+
+    if (slot.getStatus() != SlotStatus.AVAILABLE) {
+      throw new SlotCannotBeModifiedException(
+          "Slot cannot be used for check-in because it is not available: " + slot.getId(),
+          java.util.List.of(slot.getId()));
+    }
 
     this.validate(command);
 

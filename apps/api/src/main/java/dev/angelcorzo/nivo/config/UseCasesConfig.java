@@ -79,8 +79,6 @@ public class UseCasesConfig {
         new GracePeriodStage(),
         new BaseRateStage(),
         new SpecialPolicyStage(),
-        new SubscriberStage(),
-        new StampsStage(),
         new DayCapStage()
     ));
   }
