@@ -5,6 +5,7 @@ import dev.angelcorzo.nivo.domain.model.commons.notifications.gateway.Notificati
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.cache.NotificationTemplateCache;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.context.NotificationExecutionContext;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.context.NotificationExecutionContextHolder;
+import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.NotificationDeliveryException;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.SendGridRequestBuildException;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.retrypredicates.EmailExceptionPredicate;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.utils.EmailMaskUtils;
@@ -25,8 +26,13 @@ public class NotificationProcessor {
   private final NotificationTemplateCache notificationTemplatesCache;
   private final NotificationExecutionContextHolder executionContextHolder;
 
-  @Retryable(maxRetries = 5, includes = {
-    SendGridRequestBuildException.class}, predicate = EmailExceptionPredicate.class, delay = RETRY_INITIAL_DELAY_MILLIS, multiplier = RETRY_DELAY_MULTIPLIER, maxDelay = RETRY_MAX_DELAY_MILLIS)
+  @Retryable(
+      maxRetries = 5,
+      includes = {SendGridRequestBuildException.class, NotificationDeliveryException.class},
+      predicate = EmailExceptionPredicate.class,
+      delay = RETRY_INITIAL_DELAY_MILLIS,
+      multiplier = RETRY_DELAY_MULTIPLIER,
+      maxDelay = RETRY_MAX_DELAY_MILLIS)
   public void processEvent(SendNotificationEvent event) {
     if (event.tenantId() == null || event.actorUserId() == null) {
       throw new IllegalStateException("Notification event missing execution context ids");

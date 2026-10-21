@@ -2,6 +2,7 @@ package dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.retr
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.NotificationDeliveryException;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.SendGridApiException;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.SendGridRequestBuildException;
 import java.lang.reflect.Method;
@@ -53,6 +54,30 @@ class EmailExceptionPredicateTest {
   @DisplayName("Should not retry on generic RuntimeException")
   void shouldNotRetryOnGenericException() {
     RuntimeException exception = new RuntimeException("Other error");
+
+    boolean result = predicate.shouldRetry(dummyMethod, exception);
+
+    assertThat(result).isFalse();
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = {429, 500, 502, 503, 504})
+  @DisplayName("Should retry on NotificationDeliveryException with retryable status codes")
+  void shouldRetryOnNotificationDeliveryExceptionRetryable(int statusCode) {
+    NotificationDeliveryException exception =
+        new NotificationDeliveryException(statusCode, "brevo", "Delivery error");
+
+    boolean result = predicate.shouldRetry(dummyMethod, exception);
+
+    assertThat(result).isTrue();
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = {400, 401, 403, 404, 422})
+  @DisplayName("Should not retry on NotificationDeliveryException with non-retryable status codes")
+  void shouldNotRetryOnNotificationDeliveryExceptionNonRetryable(int statusCode) {
+    NotificationDeliveryException exception =
+        new NotificationDeliveryException(statusCode, "brevo", "Client error");
 
     boolean result = predicate.shouldRetry(dummyMethod, exception);
 
