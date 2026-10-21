@@ -34,7 +34,10 @@ jobs:
           openssl genrsa -out apps/api/src/main/resources/keys/private.pem 2048
           openssl rsa -in apps/api/src/main/resources/keys/private.pem -pubout -out apps/api/src/main/resources/keys/public.pem
 
-      - name: Run Backend Unit Tests
+      - name: Pre-pull PostgreSQL Testcontainers image
+        run: docker pull postgis/postgis:16-3.4
+
+      - name: Run Backend Tests
         run: ./apps/api/gradlew -p apps/api test --no-daemon
 
   test-frontend:
