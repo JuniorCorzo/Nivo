@@ -1,5 +1,6 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.notifications.adapters;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -12,10 +13,10 @@ import dev.angelcorzo.nivo.domain.model.commons.notifications.enums.Notification
 import dev.angelcorzo.nivo.domain.model.commons.notifications.enums.NotificationsChannel;
 import dev.angelcorzo.nivo.domain.model.commons.notifications.valueobjects.UserInvitedData;
 import dev.angelcorzo.nivo.domain.model.notificationtemplates.NotificationTemplates;
+import dev.angelcorzo.nivo.infrastructure.adapter.notifications.enums.EmailProviderType;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.SendGridApiException;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.SendGridRequestBuildException;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.factories.SendGridMailFactory;
-import dev.angelcorzo.nivo.infrastructure.adapter.notifications.services.NotificationsLoggerService;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.utils.SendGridErrorMessageFormatter;
 import java.io.IOException;
 import java.util.Map;
@@ -32,20 +33,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("SendGridNotificationAdapter Unit Tests")
 class SendGridNotificationAdapterTest {
 
-  @Mock
-  private SendGrid sendGrid;
+  @Mock private SendGrid sendGrid;
+  @Mock private SendGridMailFactory sendGridMailFactory;
+  @Mock private SendGridErrorMessageFormatter sendGridErrorMessageFormatter;
 
-  @Mock
-  private SendGridMailFactory sendGridMailFactory;
-
-  @Mock
-  private NotificationsLoggerService notificationsLoggerService;
-
-  @Mock
-  private SendGridErrorMessageFormatter sendGridErrorMessageFormatter;
-
-  @InjectMocks
-  private SendGridNotificationAdapter adapter;
+  @InjectMocks private SendGridNotificationAdapter adapter;
 
   private NotificationTemplates template;
   private NotificationsData content;
@@ -54,12 +46,13 @@ class SendGridNotificationAdapterTest {
 
   @BeforeEach
   void setUp() {
-    template = NotificationTemplates.builder()
-      .id(UUID.randomUUID())
-      .templateReference("d-12345")
-      .eventType(NotificationEvents.USER_INVITED)
-      .channel(NotificationsChannel.EMAIL)
-      .build();
+    template =
+        NotificationTemplates.builder()
+            .id(UUID.randomUUID())
+            .templateReference("d-12345")
+            .eventType(NotificationEvents.USER_INVITED)
+            .channel(NotificationsChannel.EMAIL)
+            .build();
 
     content = UserInvitedData.builder().userName("John Doe").build();
     mail = new Mail();
@@ -77,44 +70,42 @@ class SendGridNotificationAdapterTest {
 
     adapter.sendEmail(template, "user@test.com", content);
 
-    verify(notificationsLoggerService).registerLog(template, "user@test.com");
+    verify(sendGrid).api(request);
   }
 
   @Test
-  @DisplayName("Should log error and throw SendGridApiException on non-2xx response")
+  @DisplayName("Should throw SendGridApiException on non-2xx response")
   void shouldThrowSendGridApiExceptionOnNon2xxResponse() throws IOException {
     when(sendGridMailFactory.buildMail(template, "user@test.com", content)).thenReturn(mail);
     when(sendGridMailFactory.buildRequest(mail)).thenReturn(request);
 
     Response response = new Response(400, "Bad Request", Map.of());
     when(sendGrid.api(request)).thenReturn(response);
-    when(sendGridErrorMessageFormatter.formatProviderError(400, "Bad Request")).thenReturn("Formatted Error");
+    when(sendGridErrorMessageFormatter.formatProviderError(400, "Bad Request"))
+        .thenReturn("Formatted Error");
 
     assertThatThrownBy(() -> adapter.sendEmail(template, "user@test.com", content))
-      .isInstanceOf(SendGridApiException.class);
-
-    verify(notificationsLoggerService).registerLog(template, "user@test.com", "Formatted Error");
+        .isInstanceOf(SendGridApiException.class);
   }
 
   @Test
-  @DisplayName("Should log IO error and throw SendGridRequestBuildException on IOException")
+  @DisplayName("Should throw SendGridRequestBuildException on IOException")
   void shouldThrowSendGridRequestBuildExceptionOnIOException() throws IOException {
     when(sendGridMailFactory.buildMail(template, "user@test.com", content)).thenReturn(mail);
     when(sendGridMailFactory.buildRequest(mail)).thenReturn(request);
 
     when(sendGrid.api(request)).thenThrow(new IOException("Network error"));
-    when(sendGridErrorMessageFormatter.formatIoError("Network error")).thenReturn("Formatted IO Error");
+    when(sendGridErrorMessageFormatter.formatIoError("Network error"))
+        .thenReturn("Formatted IO Error");
 
     assertThatThrownBy(() -> adapter.sendEmail(template, "user@test.com", content))
-      .isInstanceOf(SendGridRequestBuildException.class);
-
-    verify(notificationsLoggerService).registerLog(template, "user@test.com", "Formatted IO Error");
+        .isInstanceOf(SendGridRequestBuildException.class);
   }
 
   @Test
   @DisplayName("Should return SENDGRID provider type")
   void shouldReturnSendGridProviderType() {
-    org.assertj.core.api.Assertions.assertThat(adapter.getProviderType())
-      .isEqualTo(dev.angelcorzo.nivo.infrastructure.adapter.notifications.enums.EmailProviderType.SENDGRID);
+    assertThat(adapter.getProviderType())
+        .isEqualTo(EmailProviderType.SENDGRID);
   }
 }
