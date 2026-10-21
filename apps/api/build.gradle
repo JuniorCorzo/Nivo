@@ -193,6 +193,7 @@ spotless {
     java {
         target 'src/*/java/**/*.java'
         eclipse().configFile('config/spotless/eclipse-formatter.xml')
+            .withP2Mirrors(['https://download.eclipse.org/eclipse/updates/': 'https://ftp.fau.de/eclipse/eclipse/updates/'])
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()
