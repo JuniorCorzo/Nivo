@@ -23,7 +23,13 @@
     "e2e:env:down": "docker compose -f deployment/compose.e2e.yaml down",
     "test:e2e": "bun run --cwd apps/web test:e2e",
     "test:e2e:lightpanda": "bun run --cwd apps/web test:e2e:lightpanda",
-    "test:e2e:chromium": "bun run --cwd apps/web test:e2e:chromium"
+    "test:e2e:chromium": "bun run --cwd apps/web test:e2e:chromium",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "format:api:check": "./apps/api/gradlew -p apps/api spotlessCheck",
+    "format:api:fix": "./apps/api/gradlew -p apps/api spotlessApply",
+    "format:all:check": "bun run format:api:check && bun run format:check",
+    "format:all:fix": "bun run format:api:fix && bun run format:fix"
   },
   "workspaces": [
     "apps/web",

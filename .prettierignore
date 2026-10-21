@@ -1,0 +1,17 @@
+node_modules
+.angular
+dist
+.cache
+apps/api
+.gradle
+build
+**/build
+target
+**/target
+.git
+.env*
+deployment/.env*
+bun.lock
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
