@@ -12,26 +12,27 @@ import org.testcontainers.utility.DockerImageName;
 /**
  * Base abstract class for JPA tests requiring a real PostgreSQL instance via Testcontainers.
  *
- * <p>Uses the official PostGIS/PostgreSQL 16 image by default to match production and Docker Compose,
- * supports overriding via `testcontainers.postgres.image` system property, and configures PostgreSQL
- * dialect, schema, Flyway migrations, and disables H2 schema initialization.
+ * <p>
+ * Uses the official PostGIS/PostgreSQL 16 image by default to match production and Docker Compose, supports overriding
+ * via `testcontainers.postgres.image` system property, and configures PostgreSQL dialect, schema, Flyway migrations,
+ * and disables H2 schema initialization.
  */
 @Import(FlywayConfig.class)
 public abstract class AbstractPostgresIntegrationTest {
 
-  @MockitoBean protected EncryptionGateway encryptionGateway;
+  @MockitoBean
+  protected EncryptionGateway encryptionGateway;
 
-  public static final String POSTGRES_IMAGE =
-      System.getProperty("testcontainers.postgres.image", "postgis/postgis:16-3.4");
+  public static final String POSTGRES_IMAGE = System.getProperty("testcontainers.postgres.image",
+    "postgis/postgis:16-3.4");
 
   @ServiceConnection
-  protected static final PostgreSQLContainer<?> postgres =
-      new PostgreSQLContainer<>(
-              DockerImageName.parse(POSTGRES_IMAGE).asCompatibleSubstituteFor("postgres"))
-          .withDatabaseName("nivo_db")
-          .withUsername("postgres")
-          .withPassword("postgres")
-          .withUrlParam("currentSchema", "nivo,public");
+  protected static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
+    DockerImageName.parse(POSTGRES_IMAGE).asCompatibleSubstituteFor("postgres"))
+    .withDatabaseName("nivo_db")
+    .withUsername("postgres")
+    .withPassword("postgres")
+    .withUrlParam("currentSchema", "nivo,public");
 
   static {
     postgres.start();

@@ -33,25 +33,25 @@ import org.springframework.test.context.ActiveProfiles;
 @DisplayName("UserRepositoryAdapter Integration Tests (PostgreSQL Testcontainers)")
 class UserRepositoryAdapterTest extends AbstractPostgresIntegrationTest {
 
-  @Autowired private EntityManager entityManager;
+  @Autowired
+  private EntityManager entityManager;
 
-  @Autowired private UserRepositoryAdapter adapter;
+  @Autowired
+  private UserRepositoryAdapter adapter;
 
   private TenantsData tenantA;
   private TenantsData tenantB;
 
   @BeforeEach
   void setUp() {
-    tenantA =
-        TenantsData.builder()
-            .companyName("Tenant Alpha")
-            .build();
+    tenantA = TenantsData.builder()
+      .companyName("Tenant Alpha")
+      .build();
     entityManager.persist(tenantA);
 
-    tenantB =
-        TenantsData.builder()
-            .companyName("Tenant Beta")
-            .build();
+    tenantB = TenantsData.builder()
+      .companyName("Tenant Beta")
+      .build();
     entityManager.persist(tenantB);
 
     entityManager.flush();
@@ -59,16 +59,15 @@ class UserRepositoryAdapterTest extends AbstractPostgresIntegrationTest {
   }
 
   private UsersData createPersistedUser(
-      String fullName, String email, Roles role, TenantsData tenant) {
-    UsersData user =
-        UsersData.builder()
-            .fullName(fullName)
-            .email(email)
-            .password("hashed_password_123")
-            .role(role)
-            .tenant(tenant)
-            .contactInfo("+123456789")
-            .build();
+    String fullName, String email, Roles role, TenantsData tenant) {
+    UsersData user = UsersData.builder()
+      .fullName(fullName)
+      .email(email)
+      .password("hashed_password_123")
+      .role(role)
+      .tenant(tenant)
+      .contactInfo("+123456789")
+      .build();
     entityManager.persist(user);
     entityManager.flush();
     return user;
@@ -77,8 +76,7 @@ class UserRepositoryAdapterTest extends AbstractPostgresIntegrationTest {
   @Test
   @DisplayName("Should find user by email from real PostgreSQL database")
   void shouldFindByEmail() {
-    UsersData created =
-        createPersistedUser("John Doe", "john@alpha.com", Roles.OWNER, tenantA);
+    UsersData created = createPersistedUser("John Doe", "john@alpha.com", Roles.OWNER, tenantA);
     entityManager.clear();
 
     Optional<Users> found = adapter.findByEmail("john@alpha.com");
@@ -96,23 +94,19 @@ class UserRepositoryAdapterTest extends AbstractPostgresIntegrationTest {
   @Test
   @DisplayName("Should find user by ID and tenant ID with multi-tenant isolation")
   void shouldFindByIdAndTenantId() {
-    UsersData userInA =
-        createPersistedUser("Alice Alpha", "alice@alpha.com", Roles.MANAGER, tenantA);
+    UsersData userInA = createPersistedUser("Alice Alpha", "alice@alpha.com", Roles.MANAGER, tenantA);
     entityManager.clear();
 
-    Optional<Users> foundInCorrectTenant =
-        adapter.findByIdAndTenantId(userInA.getId(), tenantA.getId());
+    Optional<Users> foundInCorrectTenant = adapter.findByIdAndTenantId(userInA.getId(), tenantA.getId());
     assertThat(foundInCorrectTenant).isPresent();
     assertThat(foundInCorrectTenant.get().getId()).isEqualTo(userInA.getId());
     assertThat(foundInCorrectTenant.get().getEmail()).isEqualTo("alice@alpha.com");
 
     // Multi-tenant check: should not find user with different tenant ID
-    Optional<Users> foundInWrongTenant =
-        adapter.findByIdAndTenantId(userInA.getId(), tenantB.getId());
+    Optional<Users> foundInWrongTenant = adapter.findByIdAndTenantId(userInA.getId(), tenantB.getId());
     assertThat(foundInWrongTenant).isEmpty();
 
-    Optional<Users> nonExistent =
-        adapter.findByIdAndTenantId(UUID.randomUUID(), tenantA.getId());
+    Optional<Users> nonExistent = adapter.findByIdAndTenantId(UUID.randomUUID(), tenantA.getId());
     assertThat(nonExistent).isEmpty();
   }
 
@@ -159,8 +153,7 @@ class UserRepositoryAdapterTest extends AbstractPostgresIntegrationTest {
   @Test
   @DisplayName("Should assign tenant to user and persist change in PostgreSQL")
   void shouldAssignTenant() {
-    UsersData user =
-        createPersistedUser("Unassigned Staff", "staff@migrate.com", Roles.OPERATOR, tenantA);
+    UsersData user = createPersistedUser("Unassigned Staff", "staff@migrate.com", Roles.OPERATOR, tenantA);
     entityManager.clear();
 
     int updatedRows = adapter.assignTenant(user.getId(), tenantB.getId());
@@ -179,8 +172,7 @@ class UserRepositoryAdapterTest extends AbstractPostgresIntegrationTest {
   @Test
   @DisplayName("Should delete user by ID respecting soft delete in PostgreSQL")
   void shouldDeleteById() {
-    UsersData user =
-        createPersistedUser("To Delete", "delete_me@alpha.com", Roles.DRIVER, tenantA);
+    UsersData user = createPersistedUser("To Delete", "delete_me@alpha.com", Roles.DRIVER, tenantA);
     entityManager.clear();
 
     adapter.deleteById(user.getId());
@@ -192,11 +184,10 @@ class UserRepositoryAdapterTest extends AbstractPostgresIntegrationTest {
     assertThat(deletedUser).isEmpty();
 
     // Verify raw database record still exists but deleted_at is set
-    Object deletedAt =
-        entityManager
-            .createNativeQuery("SELECT deleted_at FROM nivo.users WHERE id = :id")
-            .setParameter("id", user.getId())
-            .getSingleResult();
+    Object deletedAt = entityManager
+      .createNativeQuery("SELECT deleted_at FROM nivo.users WHERE id = :id")
+      .setParameter("id", user.getId())
+      .getSingleResult();
     assertThat(deletedAt).isNotNull();
   }
 
@@ -212,8 +203,8 @@ class UserRepositoryAdapterTest extends AbstractPostgresIntegrationTest {
 
     assertThat(alphaUsers).hasSize(2);
     assertThat(alphaUsers)
-        .extracting(Users::getEmail)
-        .containsExactlyInAnyOrder("u1@alpha.com", "u2@alpha.com");
+      .extracting(Users::getEmail)
+      .containsExactlyInAnyOrder("u1@alpha.com", "u2@alpha.com");
     // Verify eager tenant loading
     assertThat(alphaUsers.get(0).getTenant()).isNotNull();
     assertThat(alphaUsers.get(0).getTenant().id()).isEqualTo(tenantA.getId());
@@ -222,15 +213,14 @@ class UserRepositoryAdapterTest extends AbstractPostgresIntegrationTest {
   @Test
   @DisplayName("Should save user via adapter and persist to PostgreSQL")
   void shouldSaveUser() {
-    Users newUser =
-        Users.builder()
-            .fullName("Saved User")
-            .email("saved@alpha.com")
-            .password("plain_or_hash")
-            .role(Roles.MANAGER)
-            .tenant(TenantReference.builder().id(tenantA.getId()).build())
-            .contactInfo("555-0100")
-            .build();
+    Users newUser = Users.builder()
+      .fullName("Saved User")
+      .email("saved@alpha.com")
+      .password("plain_or_hash")
+      .role(Roles.MANAGER)
+      .tenant(TenantReference.builder().id(tenantA.getId()).build())
+      .contactInfo("555-0100")
+      .build();
 
     Users saved = adapter.save(newUser);
 
@@ -248,8 +238,7 @@ class UserRepositoryAdapterTest extends AbstractPostgresIntegrationTest {
   @Test
   @DisplayName("Should check existence by ID and by ID with tenant ID")
   void shouldCheckExistsByIdAndTenantId() {
-    UsersData user =
-        createPersistedUser("Checked User", "check@alpha.com", Roles.AUDITOR, tenantA);
+    UsersData user = createPersistedUser("Checked User", "check@alpha.com", Roles.AUDITOR, tenantA);
     entityManager.clear();
 
     assertThat(adapter.existsById(user.getId())).isTrue();
@@ -268,11 +257,10 @@ class UserRepositoryAdapterTest extends AbstractPostgresIntegrationTest {
 
     Users domainUser = adapter.findById(user.getId()).orElseThrow();
     OffsetDateTime now = OffsetDateTime.now();
-    Users softDeleted =
-        domainUser.toBuilder()
-            .deletedAt(now)
-            .deletedBy(actor.getId())
-            .build();
+    Users softDeleted = domainUser.toBuilder()
+      .deletedAt(now)
+      .deletedBy(actor.getId())
+      .build();
 
     Users result = adapter.save(softDeleted);
 
