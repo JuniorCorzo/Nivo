@@ -46,10 +46,10 @@ class ModifyUserRoleUseCaseTest {
     final Roles currentRole = Roles.OPERATOR;
     final Roles newRole = Roles.MANAGER;
 
-    TenantReference tenant =
+    final TenantReference tenant =
         TenantReference.builder().id(tenantId).companyName("Test Company").build();
 
-    Users existingUser =
+    final Users existingUser =
         Users.builder()
             .id(userId)
             .email("user@example.com")
@@ -59,11 +59,10 @@ class ModifyUserRoleUseCaseTest {
             .createdAt(OffsetDateTime.now())
             .build();
 
-    ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
+    final ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
         ModifyUserRoleUseCase.ModifyUserRole.builder()
             .userId(userId)
             .newRole(newRole)
-            .tenantId(tenantId)
             .build();
 
     when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
@@ -77,9 +76,9 @@ class ModifyUserRoleUseCaseTest {
     modifyUserRoleUseCase.modifyRole(modifyUserRole);
 
     // Then
-    ArgumentCaptor<Users> userCaptor = ArgumentCaptor.forClass(Users.class);
+    final ArgumentCaptor<Users> userCaptor = ArgumentCaptor.forClass(Users.class);
     verify(usersRepository).save(userCaptor.capture());
-    Users capturedUser = userCaptor.getValue();
+    final Users capturedUser = userCaptor.getValue();
 
     assertNotNull(capturedUser);
     assertEquals(newRole, capturedUser.getRole());
@@ -87,6 +86,8 @@ class ModifyUserRoleUseCaseTest {
     assertEquals(tenant, capturedUser.getTenant());
     assertEquals(tenantId, capturedUser.getTenant().id());
 
+    verify(authenticationContextGateway, times(1)).getCurrentTenantId();
+    verify(authenticationContextGateway, times(1)).getCurrentUserId();
     verify(usersRepository, times(1)).findByIdAndTenantId(userId, tenantId);
     verify(usersRepository, times(1)).save(any(Users.class));
   }
@@ -101,11 +102,10 @@ class ModifyUserRoleUseCaseTest {
     final UUID actorId = UUID.randomUUID();
     final UUID tenantId = UUID.randomUUID();
 
-    ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
+    final ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
         ModifyUserRoleUseCase.ModifyUserRole.builder()
             .userId(nonExistentUserId)
             .newRole(Roles.MANAGER)
-            .tenantId(tenantId)
             .build();
 
     when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
@@ -114,7 +114,7 @@ class ModifyUserRoleUseCaseTest {
         .thenReturn(Optional.empty());
 
     // When & Then
-    UserNotExistsInTenantException exception =
+    final UserNotExistsInTenantException exception =
         assertThrows(
             UserNotExistsInTenantException.class,
             () -> modifyUserRoleUseCase.modifyRole(modifyUserRole));
@@ -134,10 +134,10 @@ class ModifyUserRoleUseCaseTest {
     final UUID tenantId = UUID.randomUUID();
     final Roles notAllowedRole = Roles.OWNER;
 
-    TenantReference tenant =
+    final TenantReference tenant =
         TenantReference.builder().id(tenantId).companyName("Test Company").build();
 
-    Users existingUser =
+    final Users existingUser =
         Users.builder()
             .id(userId)
             .email("user@example.com")
@@ -145,11 +145,10 @@ class ModifyUserRoleUseCaseTest {
             .tenant(tenant)
             .build();
 
-    ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
+    final ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
         ModifyUserRoleUseCase.ModifyUserRole.builder()
             .userId(userId)
             .newRole(notAllowedRole)
-            .tenantId(tenantId)
             .build();
 
     when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
@@ -158,7 +157,7 @@ class ModifyUserRoleUseCaseTest {
         .thenReturn(Optional.of(existingUser));
 
     // When & Then
-    InvalidRoleException exception =
+    final InvalidRoleException exception =
         assertThrows(
             InvalidRoleException.class,
             () -> modifyUserRoleUseCase.modifyRole(modifyUserRole));
@@ -182,10 +181,10 @@ class ModifyUserRoleUseCaseTest {
     final UUID tenantId = UUID.randomUUID();
     final Roles notAllowedRole = Roles.SUPERADMIN;
 
-    TenantReference tenant =
+    final TenantReference tenant =
         TenantReference.builder().id(tenantId).companyName("Test Company").build();
 
-    Users existingUser =
+    final Users existingUser =
         Users.builder()
             .id(userId)
             .email("user@example.com")
@@ -193,11 +192,10 @@ class ModifyUserRoleUseCaseTest {
             .tenant(tenant)
             .build();
 
-    ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
+    final ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
         ModifyUserRoleUseCase.ModifyUserRole.builder()
             .userId(userId)
             .newRole(notAllowedRole)
-            .tenantId(tenantId)
             .build();
 
     when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
@@ -206,7 +204,7 @@ class ModifyUserRoleUseCaseTest {
         .thenReturn(Optional.of(existingUser));
 
     // When & Then
-    InvalidRoleException exception =
+    final InvalidRoleException exception =
         assertThrows(
             InvalidRoleException.class,
             () -> modifyUserRoleUseCase.modifyRole(modifyUserRole));
@@ -229,10 +227,10 @@ class ModifyUserRoleUseCaseTest {
     final UUID actorId = UUID.randomUUID();
     final UUID tenantId = UUID.randomUUID();
 
-    TenantReference tenant =
+    final TenantReference tenant =
         TenantReference.builder().id(tenantId).companyName("Test Company").build();
 
-    Users existingUser =
+    final Users existingUser =
         Users.builder()
             .id(userId)
             .email("driver@example.com")
@@ -240,11 +238,10 @@ class ModifyUserRoleUseCaseTest {
             .tenant(tenant)
             .build();
 
-    ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
+    final ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
         ModifyUserRoleUseCase.ModifyUserRole.builder()
             .userId(userId)
             .newRole(Roles.AUDITOR)
-            .tenantId(tenantId)
             .build();
 
     when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
@@ -255,7 +252,7 @@ class ModifyUserRoleUseCaseTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // When
-    Users result = modifyUserRoleUseCase.modifyRole(modifyUserRole);
+    final Users result = modifyUserRoleUseCase.modifyRole(modifyUserRole);
 
     // Then
     assertEquals(Roles.AUDITOR, result.getRole());
@@ -269,11 +266,10 @@ class ModifyUserRoleUseCaseTest {
     final UUID currentUserId = UUID.randomUUID();
     final UUID tenantId = UUID.randomUUID();
 
-    ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
+    final ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
         ModifyUserRoleUseCase.ModifyUserRole.builder()
             .userId(currentUserId)
             .newRole(Roles.OPERATOR)
-            .tenantId(tenantId)
             .build();
 
     when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
@@ -296,10 +292,10 @@ class ModifyUserRoleUseCaseTest {
     final UUID actorId = UUID.randomUUID();
     final UUID tenantId = UUID.randomUUID();
 
-    TenantReference tenant =
+    final TenantReference tenant =
         TenantReference.builder().id(tenantId).companyName("Test Company").build();
 
-    Users ownerUser =
+    final Users ownerUser =
         Users.builder()
             .id(userId)
             .email("owner@example.com")
@@ -307,11 +303,10 @@ class ModifyUserRoleUseCaseTest {
             .tenant(tenant)
             .build();
 
-    ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
+    final ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
         ModifyUserRoleUseCase.ModifyUserRole.builder()
             .userId(userId)
             .newRole(Roles.MANAGER)
-            .tenantId(tenantId)
             .build();
 
     when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
@@ -335,10 +330,10 @@ class ModifyUserRoleUseCaseTest {
     final UUID actorId = UUID.randomUUID();
     final UUID tenantId = UUID.randomUUID();
 
-    TenantReference tenant =
+    final TenantReference tenant =
         TenantReference.builder().id(tenantId).companyName("Test Company").build();
 
-    Users superadminUser =
+    final Users superadminUser =
         Users.builder()
             .id(userId)
             .email("superadmin@example.com")
@@ -346,11 +341,10 @@ class ModifyUserRoleUseCaseTest {
             .tenant(tenant)
             .build();
 
-    ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
+    final ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
         ModifyUserRoleUseCase.ModifyUserRole.builder()
             .userId(userId)
             .newRole(Roles.MANAGER)
-            .tenantId(tenantId)
             .build();
 
     when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
@@ -367,18 +361,17 @@ class ModifyUserRoleUseCaseTest {
   }
 
   @Test
-  @DisplayName("Should use tenantId from AuthenticationContextGateway instead of command")
-  void shouldUseTenantFromAuthenticationGateway() {
+  @DisplayName("Should resolve tenantId and actorId from AuthenticationContextGateway")
+  void shouldResolveTenantAndActorFromGateway() {
     // Given
     final UUID userId = UUID.randomUUID();
     final UUID actorId = UUID.randomUUID();
     final UUID contextTenantId = UUID.randomUUID();
-    final UUID forgedTenantId = UUID.randomUUID();
 
-    TenantReference tenant =
+    final TenantReference tenant =
         TenantReference.builder().id(contextTenantId).companyName("Test Company").build();
 
-    Users existingUser =
+    final Users existingUser =
         Users.builder()
             .id(userId)
             .email("operator@example.com")
@@ -386,11 +379,10 @@ class ModifyUserRoleUseCaseTest {
             .tenant(tenant)
             .build();
 
-    ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
+    final ModifyUserRoleUseCase.ModifyUserRole modifyUserRole =
         ModifyUserRoleUseCase.ModifyUserRole.builder()
             .userId(userId)
             .newRole(Roles.MANAGER)
-            .tenantId(forgedTenantId)
             .build();
 
     when(authenticationContextGateway.getCurrentTenantId()).thenReturn(contextTenantId);
@@ -404,7 +396,8 @@ class ModifyUserRoleUseCaseTest {
     modifyUserRoleUseCase.modifyRole(modifyUserRole);
 
     // Then
+    verify(authenticationContextGateway, times(1)).getCurrentTenantId();
+    verify(authenticationContextGateway, times(1)).getCurrentUserId();
     verify(usersRepository, times(1)).findByIdAndTenantId(userId, contextTenantId);
-    verify(usersRepository, never()).findByIdAndTenantId(userId, forgedTenantId);
   }
 }

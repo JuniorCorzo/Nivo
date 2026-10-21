@@ -62,7 +62,7 @@ class CheckinVehicleUseCaseTest {
   }
 
   @Nested
-  @DisplayName("Happy Path")
+  @DisplayName("Successful Vehicle Check-in Scenarios")
   class HappyPath {
 
     @Test

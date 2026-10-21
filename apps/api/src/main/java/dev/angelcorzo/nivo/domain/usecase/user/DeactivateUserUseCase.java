@@ -88,11 +88,8 @@ public class DeactivateUserUseCase {
    * Command object for the {@link DeactivateUserUseCase}.
    *
    * @param userIdToDeactivate The ID of the user to be deactivated.
-   * @param deactivatedBy The ID of the user performing the deactivation.
-   * @param tenantId The ID of the tenant where the user belongs.
    * @param reason An optional reason for the deactivation.
    */
   @Builder(toBuilder = true)
-  public record DeactivateUserCommand(
-      UUID userIdToDeactivate, UUID deactivatedBy, UUID tenantId, String reason) {}
+  public record DeactivateUserCommand(UUID userIdToDeactivate, String reason) {}
 }

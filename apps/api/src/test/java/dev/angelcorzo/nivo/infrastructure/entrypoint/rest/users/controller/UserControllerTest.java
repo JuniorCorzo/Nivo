@@ -70,7 +70,7 @@ class UserControllerTest {
     // Arrange
     final UUID tenantId = UUID.randomUUID();
 
-    InviteUserDTO requestDto =
+    final InviteUserDTO requestDto =
         InviteUserDTO.builder()
             .tenantId(tenantId)
             .inviteBy(UUID.randomUUID())
@@ -78,7 +78,7 @@ class UserControllerTest {
             .role(Roles.MANAGER)
             .build();
 
-    InviteUserWithRolUseCase.InviteUserWithRole inviteModel =
+    final InviteUserWithRolUseCase.InviteUserWithRole inviteModel =
         InviteUserWithRolUseCase.InviteUserWithRole.builder()
             .tenantId(requestDto.tenantId())
             .inviteBy(requestDto.inviteBy())
@@ -86,7 +86,7 @@ class UserControllerTest {
             .role(requestDto.role())
             .build();
 
-    UserInvitations invitationModel = UserInvitations.builder().id(UUID.randomUUID()).build();
+    final UserInvitations invitationModel = UserInvitations.builder().id(UUID.randomUUID()).build();
 
     when(userInvitationsMapper.toModel(any(InviteUserDTO.class))).thenReturn(inviteModel);
     when(inviteUserWithRolUseCase.registerInvitation(
@@ -107,10 +107,10 @@ class UserControllerTest {
   @DisplayName("PATCH /users/accept-invitation/{token} - Should return 200 OK when accepted")
   void acceptInvitation_shouldReturn200() throws Exception {
     // Arrange
-    UUID token = UUID.randomUUID();
-    CreatedUserDTO userDto =
+    final UUID token = UUID.randomUUID();
+    final CreatedUserDTO userDto =
         new CreatedUserDTO("New User", "new@user.com", "password", "contact-info");
-    UserInvitations invitationAccepted = UserInvitations.builder().id(UUID.randomUUID()).build();
+    final UserInvitations invitationAccepted = UserInvitations.builder().id(UUID.randomUUID()).build();
 
     when(acceptInvitationUseCase.accept(any(AcceptInvitationUseCase.Accept.class)))
         .thenReturn(invitationAccepted);
@@ -129,14 +129,13 @@ class UserControllerTest {
   @DisplayName("PATCH /users/modify-rol - Should return 200 OK when role is modified")
   void modifyRol_shouldReturn200() throws Exception {
     // Arrange
-    ModifyRolDTO requestDto = new ModifyRolDTO(UUID.randomUUID(), Roles.MANAGER, UUID.randomUUID());
-    Users userModel = Users.builder().id(requestDto.userId()).build();
+    final ModifyRolDTO requestDto = new ModifyRolDTO(UUID.randomUUID(), Roles.MANAGER, UUID.randomUUID());
+    final Users userModel = Users.builder().id(requestDto.userId()).build();
 
-    ModifyUserRoleUseCase.ModifyUserRole modifyCommand =
+    final ModifyUserRoleUseCase.ModifyUserRole modifyCommand =
         ModifyUserRoleUseCase.ModifyUserRole.builder()
             .userId(requestDto.userId())
             .newRole(requestDto.newRole())
-            .tenantId(requestDto.tenantId())
             .build();
 
     when(userMapper.toModel(any(ModifyRolDTO.class))).thenReturn(modifyCommand);
@@ -157,12 +156,11 @@ class UserControllerTest {
   @DisplayName("PATCH /users/modify-rol - Should return 403 Forbidden when modifying OWNER or SUPERADMIN role")
   void modifyRol_shouldReturn403_whenModifyingOwnerRole() throws Exception {
     // Arrange
-    ModifyRolDTO requestDto = new ModifyRolDTO(UUID.randomUUID(), Roles.MANAGER, UUID.randomUUID());
-    ModifyUserRoleUseCase.ModifyUserRole modifyCommand =
+    final ModifyRolDTO requestDto = new ModifyRolDTO(UUID.randomUUID(), Roles.MANAGER, UUID.randomUUID());
+    final ModifyUserRoleUseCase.ModifyUserRole modifyCommand =
         ModifyUserRoleUseCase.ModifyUserRole.builder()
             .userId(requestDto.userId())
             .newRole(requestDto.newRole())
-            .tenantId(requestDto.tenantId())
             .build();
 
     when(userMapper.toModel(any(ModifyRolDTO.class))).thenReturn(modifyCommand);
@@ -183,12 +181,11 @@ class UserControllerTest {
   @DisplayName("PATCH /users/modify-rol - Should return 403 Forbidden when self-demoting / modifying own role")
   void modifyRol_shouldReturn403_whenSelfDemotionAttempted() throws Exception {
     // Arrange
-    ModifyRolDTO requestDto = new ModifyRolDTO(UUID.randomUUID(), Roles.OPERATOR, UUID.randomUUID());
-    ModifyUserRoleUseCase.ModifyUserRole modifyCommand =
+    final ModifyRolDTO requestDto = new ModifyRolDTO(UUID.randomUUID(), Roles.OPERATOR, UUID.randomUUID());
+    final ModifyUserRoleUseCase.ModifyUserRole modifyCommand =
         ModifyUserRoleUseCase.ModifyUserRole.builder()
             .userId(requestDto.userId())
             .newRole(requestDto.newRole())
-            .tenantId(requestDto.tenantId())
             .build();
 
     when(userMapper.toModel(any(ModifyRolDTO.class))).thenReturn(modifyCommand);
@@ -209,19 +206,17 @@ class UserControllerTest {
   @DisplayName("DELETE /users/deactivate-user - Should return 200 OK when user is deactivated")
   void deactivateUser_shouldReturn200() throws Exception {
     // Arrange
-    DeactivateUserDTO requestDto =
+    final DeactivateUserDTO requestDto =
         new DeactivateUserDTO(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "no-reason");
-    Users userModel = Users.builder().id(requestDto.userId()).build();
+    final Users userModel = Users.builder().id(requestDto.userId()).build();
 
-    DeactivateUserUseCase.DeactivateUserCommand deactivateCommand =
+    final DeactivateUserUseCase.DeactivateUserCommand deactivateCommand =
         DeactivateUserUseCase.DeactivateUserCommand.builder()
             .userIdToDeactivate(requestDto.userId())
-            .deactivatedBy(requestDto.deactivatedBy())
-            .tenantId(requestDto.tenantId())
             .reason(requestDto.reason())
             .build();
 
-    Users deactivatedUser = Users.builder()
+    final Users deactivatedUser = Users.builder()
         .id(userModel.getId())
         .deletedBy(requestDto.deactivatedBy())
         .deletedAt(OffsetDateTime.now())
@@ -245,13 +240,11 @@ class UserControllerTest {
   @DisplayName("DELETE /users/deactivate-user - Should return 403 Forbidden when self-deactivation is attempted")
   void deactivateUser_shouldReturn403_whenSelfDeactivationAttempted() throws Exception {
     // Arrange
-    DeactivateUserDTO requestDto =
+    final DeactivateUserDTO requestDto =
         new DeactivateUserDTO(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "leaving");
-    DeactivateUserUseCase.DeactivateUserCommand deactivateCommand =
+    final DeactivateUserUseCase.DeactivateUserCommand deactivateCommand =
         DeactivateUserUseCase.DeactivateUserCommand.builder()
             .userIdToDeactivate(requestDto.userId())
-            .deactivatedBy(requestDto.deactivatedBy())
-            .tenantId(requestDto.tenantId())
             .reason(requestDto.reason())
             .build();
 
@@ -273,11 +266,11 @@ class UserControllerTest {
   @DisplayName("GET /users/me - Should return 200 OK with current user profile")
   void getCurrentUser_shouldReturn200() throws Exception {
     // Arrange
-    UUID userId = UUID.randomUUID();
-    UUID tenantId = UUID.randomUUID();
-    OffsetDateTime now = OffsetDateTime.now();
+    final UUID userId = UUID.randomUUID();
+    final UUID tenantId = UUID.randomUUID();
+    final OffsetDateTime now = OffsetDateTime.now();
 
-    Users currentUser =
+    final Users currentUser =
         Users.builder()
             .id(userId)
             .fullName("Test User")

@@ -55,7 +55,7 @@ public class ModifyUserRoleUseCase {
       throw new SelfRoleModificationNotAllowedException();
     }
 
-    Users user =
+    final Users user =
         this.usersRepository
             .findByIdAndTenantId(modifyUserRole.userId(), tenantId)
             .orElseThrow(UserNotExistsInTenantException::new);
@@ -67,9 +67,9 @@ public class ModifyUserRoleUseCase {
     this.validateRolePermitted(modifyUserRole.newRole());
     user.setRole(modifyUserRole.newRole());
 
-    user = this.usersRepository.save(user);
-    this.userNotifier.notifyUserRoleAssigned(user);
-    return user;
+    final Users savedUser = this.usersRepository.save(user);
+    this.userNotifier.notifyUserRoleAssigned(savedUser);
+    return savedUser;
   }
 
   /**
@@ -79,8 +79,8 @@ public class ModifyUserRoleUseCase {
    * @param role The role to validate.
    * @throws InvalidRoleException if the role is not permitted.
    */
-  private void validateRolePermitted(Roles role) {
-    Set<Roles> rolesNotPermitted = Set.of(Roles.OWNER, Roles.SUPERADMIN);
+  private void validateRolePermitted(final Roles role) {
+    final Set<Roles> rolesNotPermitted = Set.of(Roles.OWNER, Roles.SUPERADMIN);
     if (rolesNotPermitted.contains(role)) {
       throw new InvalidRoleException(role);
     }
@@ -91,8 +91,7 @@ public class ModifyUserRoleUseCase {
    *
    * @param userId The ID of the user whose role is to be modified.
    * @param newRole The new role to assign to the user.
-   * @param tenantId The ID of the tenant where the user belongs.
    */
   @Builder(toBuilder = true)
-  public record ModifyUserRole(UUID userId, Roles newRole, UUID tenantId) {}
+  public record ModifyUserRole(UUID userId, Roles newRole) {}
 }

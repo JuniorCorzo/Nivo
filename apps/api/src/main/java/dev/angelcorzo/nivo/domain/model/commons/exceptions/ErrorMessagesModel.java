@@ -29,7 +29,11 @@ public enum ErrorMessagesModel {
   PARKING_TICKET_NOT_FOUND("La reserva con ID %s no está registrada"),
   RATE_NOT_FOUND("La tarifa con ID %s no está registrada"),
   PAYMENT_NOT_FOUND_BY_TRANSACTION_ID("El pago con ID de transacción %s no está registrado"),
-  NO_OWNER_IN_TENANT("No se encontró un usuario con rol OWNER en el tenant %s");
+  NO_OWNER_IN_TENANT("No se encontró un usuario con rol OWNER en el tenant %s"),
+  SELF_DEACTIVATION_NOT_ALLOWED("Un usuario no puede desactivarse a sí mismo"),
+  CANNOT_MODIFY_OWNER_ROLE("El rol de un usuario OWNER no puede ser modificado"),
+  SELF_ROLE_MODIFICATION_NOT_ALLOWED("Un usuario no puede modificar su propio rol"),
+  USER_ALREADY_EXISTS_IN_TENANT("El usuario %s ya existe en el tenant");
 
   private final String template;
 

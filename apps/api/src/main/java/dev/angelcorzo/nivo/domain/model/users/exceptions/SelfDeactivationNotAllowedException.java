@@ -1,6 +1,7 @@
 package dev.angelcorzo.nivo.domain.model.users.exceptions;
 
 import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
+import dev.angelcorzo.nivo.domain.model.commons.exceptions.ErrorMessagesModel;
 
 /**
  * Thrown when a user attempts to deactivate their own account.
@@ -15,10 +16,10 @@ public class SelfDeactivationNotAllowedException extends AppException {
   private static final String CODE = "SELF_DEACTIVATION_NOT_ALLOWED";
 
   public SelfDeactivationNotAllowedException() {
-    super("Un usuario no puede desactivarse a sí mismo", STATUS, CODE);
+    super(ErrorMessagesModel.SELF_DEACTIVATION_NOT_ALLOWED.toString(), STATUS, CODE);
   }
 
-  public SelfDeactivationNotAllowedException(String message) {
+  public SelfDeactivationNotAllowedException(final String message) {
     super(message, STATUS, CODE);
   }
 }

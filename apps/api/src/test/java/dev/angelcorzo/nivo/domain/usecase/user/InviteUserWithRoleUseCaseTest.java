@@ -56,7 +56,7 @@ class InviteUserWithRoleUseCaseTest {
     final Users invitedByUser =
         Users.builder().id(inviteBy).fullName("Inviter User").email("inviter@example.com").build();
 
-    InviteUserWithRolUseCase.InviteUserWithRole inviteUserWithRole =
+    final InviteUserWithRolUseCase.InviteUserWithRole inviteUserWithRole =
         InviteUserWithRolUseCase.InviteUserWithRole.builder()
             .tenantId(tenantId)
             .role(role)
@@ -76,10 +76,10 @@ class InviteUserWithRoleUseCaseTest {
     inviteUserWithRoleUseCase.registerInvitation(inviteUserWithRole);
 
     // Then
-    ArgumentCaptor<UserInvitations> invitationCaptor =
+    final ArgumentCaptor<UserInvitations> invitationCaptor =
         ArgumentCaptor.forClass(UserInvitations.class);
     verify(userInvitationsRepository).save(invitationCaptor.capture());
-    UserInvitations capturedInvitation = invitationCaptor.getValue();
+    final UserInvitations capturedInvitation = invitationCaptor.getValue();
 
     assertNotNull(capturedInvitation);
     assertEquals(tenant, capturedInvitation.getTenant());
@@ -92,11 +92,13 @@ class InviteUserWithRoleUseCaseTest {
     assertNotNull(capturedInvitation.getCreatedAt());
     assertNotNull(capturedInvitation.getExpiredAt());
 
-    long daysBetween =
+    final long daysBetween =
         ChronoUnit.DAYS.between(
             capturedInvitation.getCreatedAt(), capturedInvitation.getExpiredAt());
     assertEquals(3, daysBetween);
 
+    verify(authenticationContextGateway, times(1)).getCurrentTenantId();
+    verify(authenticationContextGateway, times(1)).getCurrentUserId();
     verify(usersRepository, times(1)).existsByEmailAndTenantId(email, tenantId);
     verify(tenantsRepository, times(1)).findById(tenantId);
     verify(usersRepository, times(1)).findById(inviteBy);
@@ -113,7 +115,7 @@ class InviteUserWithRoleUseCaseTest {
     final UUID tenantId = UUID.randomUUID();
     final UUID inviteBy = UUID.randomUUID();
     final String email = "existing.user@example.com";
-    InviteUserWithRolUseCase.InviteUserWithRole inviteUserWithRole =
+    final InviteUserWithRolUseCase.InviteUserWithRole inviteUserWithRole =
         InviteUserWithRolUseCase.InviteUserWithRole.builder()
             .tenantId(tenantId)
             .role(Roles.MANAGER)
@@ -126,13 +128,13 @@ class InviteUserWithRoleUseCaseTest {
     when(usersRepository.existsByEmailAndTenantId(email, tenantId)).thenReturn(true);
 
     // When & Then
-    UserAlreadyExistsInTenantException exception =
+    final UserAlreadyExistsInTenantException exception =
         assertThrows(
             UserAlreadyExistsInTenantException.class,
             () -> inviteUserWithRoleUseCase.registerInvitation(inviteUserWithRole));
 
     assertEquals(
-        String.format("El usuario %s ya existe en el tenant", email), exception.getMessage());
+        ErrorMessagesModel.USER_ALREADY_EXISTS_IN_TENANT.format(email), exception.getMessage());
     verify(userInvitationsRepository, never()).save(any());
   }
 
@@ -147,7 +149,7 @@ class InviteUserWithRoleUseCaseTest {
     final String email = "example@email.com";
     final Roles notAllowedRole = Roles.OWNER;
 
-    InviteUserWithRolUseCase.InviteUserWithRole inviteUserWithRole =
+    final InviteUserWithRolUseCase.InviteUserWithRole inviteUserWithRole =
         InviteUserWithRolUseCase.InviteUserWithRole.builder()
             .tenantId(tenantId)
             .role(notAllowedRole)
@@ -160,7 +162,7 @@ class InviteUserWithRoleUseCaseTest {
     when(usersRepository.existsByEmailAndTenantId(email, tenantId)).thenReturn(false);
 
     // When & Then
-    InvalidRoleException exception =
+    final InvalidRoleException exception =
         assertThrows(
             InvalidRoleException.class,
             () -> inviteUserWithRoleUseCase.registerInvitation(inviteUserWithRole));
@@ -185,7 +187,7 @@ class InviteUserWithRoleUseCaseTest {
     final Roles role = Roles.MANAGER;
     final Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-    InviteUserWithRolUseCase.InviteUserWithRole inviteUserWithRole =
+    final InviteUserWithRolUseCase.InviteUserWithRole inviteUserWithRole =
         InviteUserWithRolUseCase.InviteUserWithRole.builder()
             .tenantId(tenantId)
             .role(role)
@@ -200,7 +202,7 @@ class InviteUserWithRoleUseCaseTest {
     when(usersRepository.findById(nonExistentInviteBy)).thenReturn(Optional.empty());
 
     // When & Then
-    UserNotExistsException exception =
+    final UserNotExistsException exception =
         assertThrows(
             UserNotExistsException.class,
             () -> inviteUserWithRoleUseCase.registerInvitation(inviteUserWithRole));
@@ -222,7 +224,7 @@ class InviteUserWithRoleUseCaseTest {
     final String email = "new.user@example.com";
     final Roles role = Roles.MANAGER;
 
-    InviteUserWithRolUseCase.InviteUserWithRole inviteUserWithRole =
+    final InviteUserWithRolUseCase.InviteUserWithRole inviteUserWithRole =
         InviteUserWithRolUseCase.InviteUserWithRole.builder()
             .tenantId(tenantId)
             .role(role)
@@ -236,7 +238,47 @@ class InviteUserWithRoleUseCaseTest {
     when(tenantsRepository.findById(tenantId)).thenReturn(Optional.empty());
 
     // When & Then
-    TenantNotExistsException exception =
+    final TenantNotExistsException exception =
+        assertThrows(
+            TenantNotExistsException.class,
+            () -> inviteUserWithRoleUseCase.registerInvitation(inviteUserWithRole));
+
+    assertEquals(ErrorMessagesModel.TENANT_NOT_EXISTS.format(tenantId), exception.getMessage());
+    verify(userInvitationsRepository, never()).save(any(UserInvitations.class));
+  }
+
+  @Test
+  @DisplayName(
+      "Given a soft-deleted tenant, when registerInvitation is called, then"
+          + " TenantNotExistsException should be thrown")
+  void shouldThrowException_whenTenantIsSoftDeleted() {
+    // Given
+    final UUID tenantId = UUID.randomUUID();
+    final UUID inviteBy = UUID.randomUUID();
+    final String email = "new.user@example.com";
+    final Roles role = Roles.MANAGER;
+    final Tenants softDeletedTenant =
+        Tenants.builder()
+            .id(tenantId)
+            .companyName("Deleted Company")
+            .deletedAt(java.time.OffsetDateTime.now())
+            .build();
+
+    final InviteUserWithRolUseCase.InviteUserWithRole inviteUserWithRole =
+        InviteUserWithRolUseCase.InviteUserWithRole.builder()
+            .tenantId(tenantId)
+            .role(role)
+            .email(email)
+            .inviteBy(inviteBy)
+            .build();
+
+    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(inviteBy);
+    when(usersRepository.existsByEmailAndTenantId(email, tenantId)).thenReturn(false);
+    when(tenantsRepository.findById(tenantId)).thenReturn(Optional.of(softDeletedTenant));
+
+    // When & Then
+    final TenantNotExistsException exception =
         assertThrows(
             TenantNotExistsException.class,
             () -> inviteUserWithRoleUseCase.registerInvitation(inviteUserWithRole));
@@ -259,7 +301,7 @@ class InviteUserWithRoleUseCaseTest {
     final Tenants tenant = Tenants.builder().id(contextTenantId).companyName("Context Company").build();
     final Users contextUser = Users.builder().id(contextInviteBy).fullName("Context User").email("ctx@test.com").build();
 
-    InviteUserWithRolUseCase.InviteUserWithRole command =
+    final InviteUserWithRolUseCase.InviteUserWithRole command =
         InviteUserWithRolUseCase.InviteUserWithRole.builder()
             .tenantId(forgedTenantId)
             .inviteBy(forgedInviteBy)
@@ -275,12 +317,14 @@ class InviteUserWithRoleUseCaseTest {
     when(userInvitationsRepository.save(any(UserInvitations.class))).thenAnswer(i -> i.getArgument(0));
 
     // When
-    UserInvitations result = inviteUserWithRoleUseCase.registerInvitation(command);
+    final UserInvitations result = inviteUserWithRoleUseCase.registerInvitation(command);
 
     // Then
     assertNotNull(result);
     assertEquals(contextTenantId, result.getTenant().getId());
     assertEquals(contextInviteBy, result.getInvitedBy().id());
+    verify(authenticationContextGateway, times(1)).getCurrentTenantId();
+    verify(authenticationContextGateway, times(1)).getCurrentUserId();
     verify(usersRepository).existsByEmailAndTenantId(email, contextTenantId);
     verify(usersRepository, never()).existsByEmailAndTenantId(email, forgedTenantId);
     verify(tenantsRepository).findById(contextTenantId);

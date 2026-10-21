@@ -58,7 +58,8 @@ public class UserController {
   @PostMapping("/invite-user")
   @PreAuthorize("hasRole('MANAGER')")
   @ResponseStatus(HttpStatus.CREATED)
-  Response<UserInvitationsDTO> inviteUserWithRol(@RequestBody @Valid InviteUserDTO inviteUser) {
+  Response<UserInvitationsDTO> inviteUserWithRol(
+      @RequestBody @Valid final InviteUserDTO inviteUser) {
     final UserInvitations invitationRegistered =
         this.inviteUserWithRolUseCase.registerInvitation(
             this.userInvitationsMapper.toModel(inviteUser));
@@ -78,8 +79,9 @@ public class UserController {
   })
   @PatchMapping("/accept-invitation/{token}")
   Response<UserInvitationsDTO> acceptInvitation(
-      @Parameter(description = "Invitation token", required = true) @PathVariable("token") UUID token,
-      @RequestBody @Valid CreatedUserDTO user) {
+      @Parameter(description = "Invitation token", required = true) @PathVariable("token")
+          final UUID token,
+      @RequestBody @Valid final CreatedUserDTO user) {
     final UserInvitations invitationAccepted =
         this.acceptInvitationUseCase.accept(
             AcceptInvitationUseCase.Accept.builder()
@@ -102,8 +104,8 @@ public class UserController {
   })
   @PatchMapping("/modify-rol")
   @PreAuthorize("hasRole('MANAGER')")
-  Response<UserDTO> modifyRol(@RequestBody @Valid ModifyRolDTO modifyRol) {
-    Users userWithRolUpdate =
+  Response<UserDTO> modifyRol(@RequestBody @Valid final ModifyRolDTO modifyRol) {
+    final Users userWithRolUpdate =
         this.modifyUserRoleUseCase.modifyRole(this.userMapper.toModel(modifyRol));
 
     return Response.ok(
@@ -120,7 +122,7 @@ public class UserController {
   })
   @DeleteMapping("/deactivate-user")
   @PreAuthorize("hasRole('MANAGER')")
-  Response<Void> deactivateUser(@RequestBody @Valid DeactivateUserDTO deactivateUser) {
+  Response<Void> deactivateUser(@RequestBody @Valid final DeactivateUserDTO deactivateUser) {
     this.deactivateUserUseCase.deactivate(this.userMapper.toModel(deactivateUser));
     return Response.ok(null, UserMessages.USER_DEACTIVATED.toString());
   }
@@ -134,7 +136,7 @@ public class UserController {
   })
   @GetMapping("/me")
   Response<UserDTO> getCurrentUser() {
-    Users currentUser = this.getCurrentUserUseCase.execute();
+    final Users currentUser = this.getCurrentUserUseCase.execute();
     return Response.ok(
         this.userMapper.toDTO(currentUser), UserMessages.USER_PROFILE_RETRIEVED.toString());
   }

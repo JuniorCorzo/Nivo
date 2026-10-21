@@ -16,6 +16,9 @@ import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.ParkingTicketsRe
 import dev.angelcorzo.nivo.domain.model.rates.enums.TimeUnitsRate;
 import dev.angelcorzo.nivo.domain.model.rates.enums.VehicleType;
 import dev.angelcorzo.nivo.domain.model.rates.valueobject.RateReference;
+import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.ModifiesTypes;
+import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.OperationsTypes;
+import dev.angelcorzo.nivo.domain.model.specialpolicies.valueobjects.SpecialPoliciesReference;
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
 import dev.angelcorzo.nivo.domain.usecase.rate.engine.PricingEngine;
@@ -65,23 +68,31 @@ class CalculateRateUseCaseTest {
     );
   }
 
-  @Test
-  @DisplayName("Should return 0 total when stay is within free grace window")
-  void shouldReturnZeroForFreeGrace() {
-    UUID ticketId = UUID.randomUUID();
-    UUID parkingId = UUID.randomUUID();
+  private RateReference createRateReference() {
+    return createRateReference(BigDecimal.valueOf(5000));
+  }
 
-    ParkingLotPolicy policy = new ParkingLotPolicy(15, BigDecimal.ZERO, new BigDecimal("0.19"));
-    ParkingLots parking = ParkingLots.builder().id(parkingId).policy(policy).build();
-
-    RateReference rate = RateReference.builder()
-        .pricePerUnit(BigDecimal.valueOf(5000))
+  private RateReference createRateReference(final BigDecimal pricePerUnit) {
+    return RateReference.builder()
+        .pricePerUnit(pricePerUnit)
         .timeUnit(TimeUnitsRate.HOURS)
         .minChargeTimeMinutes(0)
         .vehicleType(VehicleType.CAR)
         .build();
+  }
 
-    ParkingTickets ticket = ParkingTickets.builder()
+  @Test
+  @DisplayName("Should return 0 total when stay is within free grace window")
+  void shouldReturnZeroForFreeGrace() {
+    final UUID ticketId = UUID.randomUUID();
+    final UUID parkingId = UUID.randomUUID();
+
+    final ParkingLotPolicy policy = new ParkingLotPolicy(15, BigDecimal.ZERO, new BigDecimal("0.19"));
+    final ParkingLots parking = ParkingLots.builder().id(parkingId).policy(policy).build();
+
+    final RateReference rate = createRateReference();
+
+    final ParkingTickets ticket = ParkingTickets.builder()
         .id(ticketId)
         .rate(rate)
         .entryTime(OffsetDateTime.parse("2026-09-07T11:50:00Z")) // 10 min stay <= 15 min grace
@@ -91,7 +102,7 @@ class CalculateRateUseCaseTest {
     when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parking));
     when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
-    PriceDetailed price = calculateRateUseCase.execute(ticketId, parkingId);
+    final PriceDetailed price = calculateRateUseCase.execute(ticketId, parkingId);
 
     assertThat(price.getTotal()).isEqualByComparingTo(BigDecimal.ZERO);
     assertThat(price.getBreakpoint()).isEmpty();
@@ -100,20 +111,15 @@ class CalculateRateUseCaseTest {
   @Test
   @DisplayName("Should return flat price when stay is within priced grace window")
   void shouldReturnFlatPriceForPricedGrace() {
-    UUID ticketId = UUID.randomUUID();
-    UUID parkingId = UUID.randomUUID();
+    final UUID ticketId = UUID.randomUUID();
+    final UUID parkingId = UUID.randomUUID();
 
-    ParkingLotPolicy policy = new ParkingLotPolicy(15, new BigDecimal("500.00"), new BigDecimal("0.19"));
-    ParkingLots parking = ParkingLots.builder().id(parkingId).policy(policy).build();
+    final ParkingLotPolicy policy = new ParkingLotPolicy(15, new BigDecimal("500.00"), new BigDecimal("0.19"));
+    final ParkingLots parking = ParkingLots.builder().id(parkingId).policy(policy).build();
 
-    RateReference rate = RateReference.builder()
-        .pricePerUnit(BigDecimal.valueOf(5000))
-        .timeUnit(TimeUnitsRate.HOURS)
-        .minChargeTimeMinutes(0)
-        .vehicleType(VehicleType.CAR)
-        .build();
+    final RateReference rate = createRateReference();
 
-    ParkingTickets ticket = ParkingTickets.builder()
+    final ParkingTickets ticket = ParkingTickets.builder()
         .id(ticketId)
         .rate(rate)
         .entryTime(OffsetDateTime.parse("2026-09-07T11:50:00Z")) // 10 min stay <= 15 min grace
@@ -123,7 +129,7 @@ class CalculateRateUseCaseTest {
     when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parking));
     when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
-    PriceDetailed price = calculateRateUseCase.execute(ticketId, parkingId);
+    final PriceDetailed price = calculateRateUseCase.execute(ticketId, parkingId);
 
     assertThat(price.getSubtotal()).isEqualByComparingTo(new BigDecimal("500.00"));
     assertThat(price.getTotal()).isEqualByComparingTo(new BigDecimal("595.00"));
@@ -132,8 +138,8 @@ class CalculateRateUseCaseTest {
   @Test
   @DisplayName("Should throw ParkingTicketNotFound when ticket does not exist")
   void shouldThrowWhenTicketNotFound() {
-    UUID ticketId = UUID.randomUUID();
-    UUID parkingId = UUID.randomUUID();
+    final UUID ticketId = UUID.randomUUID();
+    final UUID parkingId = UUID.randomUUID();
 
     when(ticketsRepository.findById(ticketId)).thenReturn(Optional.empty());
 
@@ -144,16 +150,11 @@ class CalculateRateUseCaseTest {
   @Test
   @DisplayName("Should calculate rate with execute(UUID ticketId) single parameter")
   void shouldCalculateRateWithSingleParameter() {
-    UUID ticketId = UUID.randomUUID();
+    final UUID ticketId = UUID.randomUUID();
 
-    RateReference rate = RateReference.builder()
-        .pricePerUnit(BigDecimal.valueOf(5000))
-        .timeUnit(TimeUnitsRate.HOURS)
-        .minChargeTimeMinutes(0)
-        .vehicleType(VehicleType.CAR)
-        .build();
+    final RateReference rate = createRateReference();
 
-    ParkingTickets ticket = ParkingTickets.builder()
+    final ParkingTickets ticket = ParkingTickets.builder()
         .id(ticketId)
         .rate(rate)
         .entryTime(OffsetDateTime.parse("2026-09-07T10:00:00Z")) // 2 hours stay
@@ -162,7 +163,7 @@ class CalculateRateUseCaseTest {
     when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
     when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
-    PriceDetailed price = calculateRateUseCase.execute(ticketId);
+    final PriceDetailed price = calculateRateUseCase.execute(ticketId);
 
     assertThat(price).isNotNull();
     assertThat(price.getSubtotal()).isEqualByComparingTo(new BigDecimal("10000.00"));
@@ -306,20 +307,20 @@ class CalculateRateUseCaseTest {
     @Test
     @DisplayName("TIME SUBTRACT policy: 4 hours stay with 1 hour free subtracts time and recalculates fee with pricePerUnit")
     void shouldApplyTimeSubtractSpecialPolicyEndToEnd() {
-      UUID ticketId = UUID.randomUUID();
+      final UUID ticketId = UUID.randomUUID();
       // fixedClock is 12:00:00Z, entryTime 08:00:00Z -> exactly 4 hours stay
-      OffsetDateTime entryTime = OffsetDateTime.parse("2026-09-07T08:00:00Z");
+      final OffsetDateTime entryTime = OffsetDateTime.parse("2026-09-07T08:00:00Z");
 
-      dev.angelcorzo.nivo.domain.model.specialpolicies.valueobjects.SpecialPoliciesReference policy =
-          dev.angelcorzo.nivo.domain.model.specialpolicies.valueobjects.SpecialPoliciesReference.builder()
+      final SpecialPoliciesReference policy =
+          SpecialPoliciesReference.builder()
               .name("First Hour Free")
-              .modifies(dev.angelcorzo.nivo.domain.model.specialpolicies.enums.ModifiesTypes.TIME)
-              .operation(dev.angelcorzo.nivo.domain.model.specialpolicies.enums.OperationsTypes.SUBTRACT)
+              .modifies(ModifiesTypes.TIME)
+              .operation(OperationsTypes.SUBTRACT)
               .valueToModify(BigDecimal.valueOf(1)) // minus 1 hour
               .active(true)
               .build();
 
-      RateReference rate = RateReference.builder()
+      final RateReference rate = RateReference.builder()
           .name("Downtown Parking")
           .pricePerUnit(BigDecimal.valueOf(5000))
           .timeUnit(TimeUnitsRate.HOURS)
@@ -328,7 +329,7 @@ class CalculateRateUseCaseTest {
           .specialPolicy(policy)
           .build();
 
-      ParkingTickets ticket = ParkingTickets.builder()
+      final ParkingTickets ticket = ParkingTickets.builder()
           .id(ticketId)
           .rate(rate)
           .entryTime(entryTime)
@@ -337,7 +338,7 @@ class CalculateRateUseCaseTest {
       when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
       when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
-      PriceDetailed price = calculateRateUseCase.execute(ticketId);
+      final PriceDetailed price = calculateRateUseCase.execute(ticketId);
 
       // Base: 4h * 5000 = 20000.
       // Special policy: (4h - 1h) * 5000 = 15000. Delta = -5000.
@@ -355,20 +356,20 @@ class CalculateRateUseCaseTest {
     @Test
     @DisplayName("SURCHARGE PERCENTAGE policy: 2 hours stay with 20% night surcharge increases subtotal and records delta")
     void shouldApplySurchargeSpecialPolicyEndToEnd() {
-      UUID ticketId = UUID.randomUUID();
+      final UUID ticketId = UUID.randomUUID();
       // fixedClock is 12:00:00Z, entryTime 10:00:00Z -> 2 hours stay
-      OffsetDateTime entryTime = OffsetDateTime.parse("2026-09-07T10:00:00Z");
+      final OffsetDateTime entryTime = OffsetDateTime.parse("2026-09-07T10:00:00Z");
 
-      dev.angelcorzo.nivo.domain.model.specialpolicies.valueobjects.SpecialPoliciesReference policy =
-          dev.angelcorzo.nivo.domain.model.specialpolicies.valueobjects.SpecialPoliciesReference.builder()
+      final SpecialPoliciesReference policy =
+          SpecialPoliciesReference.builder()
               .name("Night Shift Surcharge")
-              .modifies(dev.angelcorzo.nivo.domain.model.specialpolicies.enums.ModifiesTypes.SURCHARGE)
-              .operation(dev.angelcorzo.nivo.domain.model.specialpolicies.enums.OperationsTypes.PERCENTAGE)
+              .modifies(ModifiesTypes.SURCHARGE)
+              .operation(OperationsTypes.PERCENTAGE)
               .valueToModify(BigDecimal.valueOf(20)) // +20%
               .active(true)
               .build();
 
-      RateReference rate = RateReference.builder()
+      final RateReference rate = RateReference.builder()
           .name("Night Rate")
           .pricePerUnit(BigDecimal.valueOf(4000))
           .timeUnit(TimeUnitsRate.HOURS)
@@ -377,7 +378,7 @@ class CalculateRateUseCaseTest {
           .specialPolicy(policy)
           .build();
 
-      ParkingTickets ticket = ParkingTickets.builder()
+      final ParkingTickets ticket = ParkingTickets.builder()
           .id(ticketId)
           .rate(rate)
           .entryTime(entryTime)
@@ -386,7 +387,7 @@ class CalculateRateUseCaseTest {
       when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
       when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
-      PriceDetailed price = calculateRateUseCase.execute(ticketId);
+      final PriceDetailed price = calculateRateUseCase.execute(ticketId);
 
       // Base: 2h * 4000 = 8000.
       // Surcharge 20% on 8000 = +1600.
@@ -402,20 +403,20 @@ class CalculateRateUseCaseTest {
     @Test
     @DisplayName("PRICE SUBTRACT policy exceeding base price floors at zero and taxes zero")
     void shouldFloorDiscountAtZeroWhenExceedingTotal() {
-      UUID ticketId = UUID.randomUUID();
+      final UUID ticketId = UUID.randomUUID();
       // fixedClock is 12:00:00Z, entryTime 11:00:00Z -> 1 hour stay
-      OffsetDateTime entryTime = OffsetDateTime.parse("2026-09-07T11:00:00Z");
+      final OffsetDateTime entryTime = OffsetDateTime.parse("2026-09-07T11:00:00Z");
 
-      dev.angelcorzo.nivo.domain.model.specialpolicies.valueobjects.SpecialPoliciesReference policy =
-          dev.angelcorzo.nivo.domain.model.specialpolicies.valueobjects.SpecialPoliciesReference.builder()
+      final SpecialPoliciesReference policy =
+          SpecialPoliciesReference.builder()
               .name("Big Welcome Coupon")
-              .modifies(dev.angelcorzo.nivo.domain.model.specialpolicies.enums.ModifiesTypes.PRICE)
-              .operation(dev.angelcorzo.nivo.domain.model.specialpolicies.enums.OperationsTypes.SUBTRACT)
+              .modifies(ModifiesTypes.PRICE)
+              .operation(OperationsTypes.SUBTRACT)
               .valueToModify(BigDecimal.valueOf(10000)) // $10,000 off
               .active(true)
               .build();
 
-      RateReference rate = RateReference.builder()
+      final RateReference rate = RateReference.builder()
           .name("Hourly")
           .pricePerUnit(BigDecimal.valueOf(3000)) // $3,000 base
           .timeUnit(TimeUnitsRate.HOURS)
@@ -424,7 +425,7 @@ class CalculateRateUseCaseTest {
           .specialPolicy(policy)
           .build();
 
-      ParkingTickets ticket = ParkingTickets.builder()
+      final ParkingTickets ticket = ParkingTickets.builder()
           .id(ticketId)
           .rate(rate)
           .entryTime(entryTime)
@@ -433,7 +434,7 @@ class CalculateRateUseCaseTest {
       when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
       when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
-      PriceDetailed price = calculateRateUseCase.execute(ticketId);
+      final PriceDetailed price = calculateRateUseCase.execute(ticketId);
 
       // Base: 1h * 3000 = 3000.
       // Coupon: 3000 - 10000 -> floors at 0. Delta = -3000.
