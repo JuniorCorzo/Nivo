@@ -7,7 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import dev.angelcorzo.nivo.domain.usecase.rate.SimulateRateUseCase;
@@ -28,8 +31,12 @@ public class PublicSimulatorController {
   @Operation(
       summary = "Simulate rate calculation",
       description = "Calculates parking fee based on vehicle type and duration")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Fee simulated successfully"),
+      @ApiResponse(responseCode = "400", description = "Invalid simulation payload")
+  })
   public ResponseEntity<SimulateRateResponse> calculate(
-      @RequestBody final SimulateRateRequest request
+      @Valid @RequestBody final SimulateRateRequest request
   ) {
     final SimulateRateCommand command = request != null ? request.toCommand() : null;
     final PriceDetailed priceDetailed = this.simulateRateUseCase.execute(command);
