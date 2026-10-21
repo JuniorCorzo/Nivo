@@ -3,16 +3,11 @@ import { Injector, runInInjectionContext, signal } from "@angular/core";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import { ParkingService } from "@core/services/parking-service";
 
-import {
-  ACTIVE_PARKING_STORAGE_KEY,
-  ActiveParkingService,
-} from "./active-parking.service";
+import { ACTIVE_PARKING_STORAGE_KEY, ActiveParkingService } from "./active-parking.service";
 
 describe("ActiveParkingService", () => {
   let service: ActiveParkingService;
-  let mockParkingLotsSignal: ReturnType<
-    typeof signal<ParkingLotListItemModel[]>
-  >;
+  let mockParkingLotsSignal: ReturnType<typeof signal<ParkingLotListItemModel[]>>;
 
   const mockLots: ParkingLotListItemModel[] = [
     {
@@ -116,9 +111,7 @@ describe("ActiveParkingService", () => {
     expect(service.activeParkingId()).toBe("parking-2");
     expect(service.activeParkingLot()).toEqual(mockLots[1]);
     expect(service.activeParkingName()).toBe("Parqueadero Sur");
-    expect(window.localStorage.getItem(ACTIVE_PARKING_STORAGE_KEY)).toBe(
-      "parking-2"
-    );
+    expect(window.localStorage.getItem(ACTIVE_PARKING_STORAGE_KEY)).toBe("parking-2");
   });
 
   it("should set active parking by model object", () => {
@@ -136,9 +129,7 @@ describe("ActiveParkingService", () => {
 
   it("should clear active parking and remove from localStorage", () => {
     service.setActiveParkingId("parking-2");
-    expect(window.localStorage.getItem(ACTIVE_PARKING_STORAGE_KEY)).toBe(
-      "parking-2"
-    );
+    expect(window.localStorage.getItem(ACTIVE_PARKING_STORAGE_KEY)).toBe("parking-2");
 
     service.clearActiveParking();
     expect(service.activeParkingId()).toBeNull();
@@ -157,10 +148,7 @@ describe("ActiveParkingService", () => {
       ],
     });
 
-    const storedService = runInInjectionContext(
-      injector,
-      () => new ActiveParkingService()
-    );
+    const storedService = runInInjectionContext(injector, () => new ActiveParkingService());
     expect(storedService.activeParkingId()).toBe("parking-2");
     expect(storedService.activeParkingLot()).toEqual(mockLots[1]);
   });
@@ -177,10 +165,7 @@ describe("ActiveParkingService", () => {
       ],
     });
 
-    const fallbackService = runInInjectionContext(
-      injector,
-      () => new ActiveParkingService()
-    );
+    const fallbackService = runInInjectionContext(injector, () => new ActiveParkingService());
     expect(fallbackService.activeParkingLot()).toEqual(mockLots[0]);
   });
 });

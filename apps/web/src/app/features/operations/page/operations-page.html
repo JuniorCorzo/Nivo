@@ -3,29 +3,24 @@
   <app-page-header
     icon="lucideCar"
     title="Operaciones de Parqueo"
-    [subtitle]="
-      (parking()?.name || 'Cargando parqueadero...') + ' · Control vehicular'
-    "
+    [subtitle]="(parking()?.name || 'Cargando parqueadero...') + ' · Control vehicular'"
     badge="En vivo"
     badgeVariant="info"
   >
-    <div
-      actions
-      class="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center"
-    >
+    <div actions class="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center">
       @if (parkingId(); as pId) {
-      <a
-        nv-button
-        variant="outline"
-        [routerLink]="APP_ROUTES.app.parkingLotTickets(pId)"
-        class="col-span-2 w-full justify-center text-nowrap sm:w-auto"
-      >
-        <ng-icon name="lucideTicket" size="16" class="shrink-0" />
-        <span>{{ ticketTexts.viewTickets }}</span>
-      </a>
+        <a
+          nv-button
+          variant="outline"
+          [routerLink]="APP_ROUTES.app.parkingLotTickets(pId)"
+          class="col-span-2 w-full justify-center text-nowrap sm:w-auto"
+        >
+          <ng-icon name="lucideTicket" size="16" class="shrink-0" />
+          <span>{{ ticketTexts.viewTickets }}</span>
+        </a>
 
-      <nv-divider orientation="vertical" class="mx-2 hidden h-7 sm:block" />
-      <nv-divider class="col-span-2 my-2 sm:hidden" />
+        <nv-divider orientation="vertical" class="mx-2 hidden h-7 sm:block" />
+        <nv-divider class="col-span-2 my-2 sm:hidden" />
       }
 
       <nv-button
@@ -37,7 +32,8 @@
         <span>Registrar Ingreso</span>
         <kbd
           class="border-primary-foreground/30 bg-primary-foreground/20 text-primary-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
-        >I</kbd>
+          >I</kbd
+        >
       </nv-button>
 
       <nv-button
@@ -50,7 +46,8 @@
         <span>Procesar Salida</span>
         <kbd
           class="border-border bg-background text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
-        >O</kbd>
+          >O</kbd
+        >
       </nv-button>
     </div>
   </app-page-header>
@@ -73,9 +70,9 @@
         </div>
       </div>
       <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
-        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
-          >{{ availableCarSlotsCount() }}</span
-        >
+        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl">{{
+          availableCarSlotsCount()
+        }}</span>
         <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
           >/ {{ totalCarSlotsCount() }}</span
         >
@@ -98,9 +95,9 @@
         </div>
       </div>
       <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
-        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
-          >{{ availableMotoSlotsCount() }}</span
-        >
+        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl">{{
+          availableMotoSlotsCount()
+        }}</span>
         <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
           >/ {{ totalMotoSlotsCount() }}</span
         >
@@ -123,12 +120,10 @@
         </div>
       </div>
       <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
-        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
-          >{{ occupiedSlotsCount() }}</span
-        >
-        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
-          >activos</span
-        >
+        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl">{{
+          occupiedSlotsCount()
+        }}</span>
+        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs">activos</span>
       </div>
     </div>
 
@@ -151,9 +146,7 @@
         <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
           >{{ occupationPercentage() }}%</span
         >
-        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
-          >capacidad</span
-        >
+        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs">capacidad</span>
       </div>
     </div>
   </div>
@@ -167,18 +160,12 @@
       class="border-border flex flex-col justify-between gap-3 border-b p-3.5 sm:flex-row sm:items-center sm:p-5"
     >
       <div class="flex items-center gap-2">
-        <h2 class="text-foreground text-sm font-bold sm:text-base">
-          Estado de Cupos y Ocupación
-        </h2>
-        <span class="text-muted-foreground font-mono text-xs"
-          >({{ filteredSlots().length }})</span
-        >
+        <h2 class="text-foreground text-sm font-bold sm:text-base">Estado de Cupos y Ocupación</h2>
+        <span class="text-muted-foreground font-mono text-xs">({{ filteredSlots().length }})</span>
       </div>
 
       <!-- Search & Filters -->
-      <div
-        class="flex w-full items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:pb-0"
-      >
+      <div class="flex w-full items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:pb-0">
         <!-- Filter by Type -->
         <div
           role="group"
@@ -260,85 +247,73 @@
     <!-- Slots Grid Visualizer -->
     <div class="p-3.5 sm:p-5">
       @if (filteredSlots().length === 0) {
-      <div class="text-muted-foreground py-12 text-center text-xs">
-        No se encontraron cupos con los filtros seleccionados.
-      </div>
+        <div class="text-muted-foreground py-12 text-center text-xs">
+          No se encontraron cupos con los filtros seleccionados.
+        </div>
       } @else {
-      <div
-        class="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-6"
-      >
-        @for (slot of filteredSlots(); track slot.id) {
-        <div
-          class="relative flex flex-col justify-between rounded-xl border p-2.5 transition-all sm:p-3"
-          [class.border-success/30]="slot.status === 'AVAILABLE'"
-          [class.bg-success/10]="slot.status === 'AVAILABLE'"
-          [class.border-info/30]="slot.status === 'OCCUPIED'"
-          [class.bg-info/10]="slot.status === 'OCCUPIED'"
-          [class.border-border]="
-                slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'
-              "
-          [class.bg-muted/40]="
-                slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'
-              "
-        >
-          <div class="flex items-center justify-between">
-            <span
-              class="text-muted-foreground text-[10px] font-bold tracking-wider uppercase"
+        <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-6">
+          @for (slot of filteredSlots(); track slot.id) {
+            <div
+              class="relative flex flex-col justify-between rounded-xl border p-2.5 transition-all sm:p-3"
+              [class.border-success/30]="slot.status === 'AVAILABLE'"
+              [class.bg-success/10]="slot.status === 'AVAILABLE'"
+              [class.border-info/30]="slot.status === 'OCCUPIED'"
+              [class.bg-info/10]="slot.status === 'OCCUPIED'"
+              [class.border-border]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+              [class.bg-muted/40]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
             >
-              {{ slot.zone ? slot.zone : "P" }}
-            </span>
-            <span
-              class="inline-block h-2 w-2 rounded-full"
-              [class.bg-success]="slot.status === 'AVAILABLE'"
-              [class.bg-info]="slot.status === 'OCCUPIED'"
-              [class.bg-muted-foreground]="
+              <div class="flex items-center justify-between">
+                <span class="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
+                  {{ slot.zone ? slot.zone : "P" }}
+                </span>
+                <span
+                  class="inline-block h-2 w-2 rounded-full"
+                  [class.bg-success]="slot.status === 'AVAILABLE'"
+                  [class.bg-info]="slot.status === 'OCCUPIED'"
+                  [class.bg-muted-foreground]="
                     slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'
                   "
-            ></span>
-          </div>
+                ></span>
+              </div>
 
-          <div class="my-2">
-            <div
-              class="text-foreground truncate font-mono text-base font-bold sm:text-lg"
-            >
-              {{ slot.prefix ? slot.prefix + "-" : "" }}{{ slot.slotNumber }}
+              <div class="my-2">
+                <div class="text-foreground truncate font-mono text-base font-bold sm:text-lg">
+                  {{ slot.prefix ? slot.prefix + "-" : "" }}{{ slot.slotNumber }}
+                </div>
+                <span class="text-muted-foreground text-[10px] font-medium uppercase">
+                  {{ slot.type }}
+                </span>
+              </div>
+
+              <!-- Quick Slot Action -->
+              <div>
+                @if (slot.status === "AVAILABLE") {
+                  <button
+                    type="button"
+                    (click)="checkInSpecificSlot(slot)"
+                    class="bg-success text-primary-foreground hover:bg-success/90 focus-visible:ring-ring w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                  >
+                    + Ingresar
+                  </button>
+                } @else if (slot.status === "OCCUPIED") {
+                  <button
+                    type="button"
+                    (click)="checkOutSpecificSlot(slot)"
+                    class="bg-info text-primary-foreground hover:bg-info/90 focus-visible:ring-ring w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                  >
+                    Salida
+                  </button>
+                } @else {
+                  <span
+                    class="text-muted-foreground block py-1.5 text-center text-[10px] font-medium"
+                  >
+                    {{ slot.status }}
+                  </span>
+                }
+              </div>
             </div>
-            <span
-              class="text-muted-foreground text-[10px] font-medium uppercase"
-            >
-              {{ slot.type }}
-            </span>
-          </div>
-
-          <!-- Quick Slot Action -->
-          <div>
-            @if (slot.status === "AVAILABLE") {
-            <button
-              type="button"
-              (click)="checkInSpecificSlot(slot)"
-              class="bg-success text-primary-foreground hover:bg-success/90 focus-visible:ring-ring w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors focus-visible:ring-2 focus-visible:outline-none"
-            >
-              + Ingresar
-            </button>
-            } @else if (slot.status === "OCCUPIED") {
-            <button
-              type="button"
-              (click)="checkOutSpecificSlot(slot)"
-              class="bg-info text-primary-foreground hover:bg-info/90 focus-visible:ring-ring w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors focus-visible:ring-2 focus-visible:outline-none"
-            >
-              Salida
-            </button>
-            } @else {
-            <span
-              class="text-muted-foreground block py-1.5 text-center text-[10px] font-medium"
-            >
-              {{ slot.status }}
-            </span>
-            }
-          </div>
+          }
         </div>
-        }
-      </div>
       }
     </div>
   </div>
@@ -381,90 +356,80 @@
     <!-- Active Tickets Table -->
     <div class="overflow-x-auto">
       @if (filteredActiveTickets().length === 0) {
-      <div
-        class="text-muted-foreground flex flex-col items-center justify-center py-12 text-center text-xs"
-      >
-        <ng-icon
-          name="lucideTicket"
-          size="32"
-          class="text-muted-foreground/60 mb-2"
-        />
-        <p class="font-medium">No hay vehículos activos en este momento.</p>
-        <span class="text-muted-foreground/80 text-[11px]">
-          Los vehículos registrados aparecerán aquí para cobro y salida rápida.
-        </span>
-      </div>
-      } @else {
-      <table class="w-full text-left text-xs">
-        <thead
-          class="border-border bg-muted/50 text-muted-foreground border-b text-[11px] font-semibold tracking-wider uppercase"
+        <div
+          class="text-muted-foreground flex flex-col items-center justify-center py-12 text-center text-xs"
         >
-          <tr>
-            <th class="px-4 py-3 sm:px-6">Placa / Matrícula</th>
-            <th class="px-4 py-3 sm:px-6">Bahía / Cupo</th>
-            <th class="px-4 py-3 sm:px-6">Hora de Ingreso</th>
-            <th class="px-4 py-3 text-right sm:px-6">Acción</th>
-          </tr>
-        </thead>
-        <tbody class="divide-border divide-y">
-          @for (ticket of filteredActiveTickets(); track ticket.id) {
-          <tr class="hover:bg-accent/40 transition-colors">
-            <td class="px-4 py-3 sm:px-6">
-              <div class="flex items-center gap-2">
-                <span
-                  class="text-foreground font-mono text-sm font-bold tracking-wider"
-                >
-                  {{ ticket.licensePlate }}
-                </span>
-                <nv-badge
-                  [variant]="
-                    ticket.plateCountry === 'VE'
-                      ? 'info'
-                      : ticket.plateCountry === 'UNPLATED'
-                      ? 'warning'
-                      : 'outline'
-                  "
-                  class="px-1.5 py-0.5 font-mono text-[10px] font-bold"
-                >
-                  {{
-                    ticket.plateCountry === "UNPLATED"
-                      ? "SP"
-                      : ticket.plateCountry || "CO"
-                  }}
-                </nv-badge>
-              </div>
-            </td>
-            <td class="px-4 py-3 sm:px-6">
-              <div class="text-foreground font-medium">
-                {{ ticket.slotNumber ? "Bahía " + ticket.slotNumber : "—" }}
-              </div>
-              @if (ticket.slotType) {
-              <span class="text-muted-foreground text-[10px] uppercase">
-                {{ ticket.slotType }}
-              </span>
-              }
-            </td>
-            <td class="px-4 py-3 sm:px-6">
-              <div class="text-foreground font-mono text-xs">
-                {{ ticket.entryTime | date : "dd/MM/yyyy HH:mm" }}
-              </div>
-            </td>
-            <td class="px-4 py-3 text-right sm:px-6">
-              <nv-button
-                size="sm"
-                variant="default"
-                type="button"
-                (click)="checkOutWithTicket(ticket)"
-                class="cursor-pointer"
-              >
-                <ng-icon name="lucideLogOut" size="14" class="mr-1" />
-                <span>Cobrar</span>
-              </nv-button>
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
+          <ng-icon name="lucideTicket" size="32" class="text-muted-foreground/60 mb-2" />
+          <p class="font-medium">No hay vehículos activos en este momento.</p>
+          <span class="text-muted-foreground/80 text-[11px]">
+            Los vehículos registrados aparecerán aquí para cobro y salida rápida.
+          </span>
+        </div>
+      } @else {
+        <table class="w-full text-left text-xs">
+          <thead
+            class="border-border bg-muted/50 text-muted-foreground border-b text-[11px] font-semibold tracking-wider uppercase"
+          >
+            <tr>
+              <th class="px-4 py-3 sm:px-6">Placa / Matrícula</th>
+              <th class="px-4 py-3 sm:px-6">Bahía / Cupo</th>
+              <th class="px-4 py-3 sm:px-6">Hora de Ingreso</th>
+              <th class="px-4 py-3 text-right sm:px-6">Acción</th>
+            </tr>
+          </thead>
+          <tbody class="divide-border divide-y">
+            @for (ticket of filteredActiveTickets(); track ticket.id) {
+              <tr class="hover:bg-accent/40 transition-colors">
+                <td class="px-4 py-3 sm:px-6">
+                  <div class="flex items-center gap-2">
+                    <span class="text-foreground font-mono text-sm font-bold tracking-wider">
+                      {{ ticket.licensePlate }}
+                    </span>
+                    <nv-badge
+                      [variant]="
+                        ticket.plateCountry === 'VE'
+                          ? 'info'
+                          : ticket.plateCountry === 'UNPLATED'
+                            ? 'warning'
+                            : 'outline'
+                      "
+                      class="px-1.5 py-0.5 font-mono text-[10px] font-bold"
+                    >
+                      {{ ticket.plateCountry === "UNPLATED" ? "SP" : ticket.plateCountry || "CO" }}
+                    </nv-badge>
+                  </div>
+                </td>
+                <td class="px-4 py-3 sm:px-6">
+                  <div class="text-foreground font-medium">
+                    {{ ticket.slotNumber ? "Bahía " + ticket.slotNumber : "—" }}
+                  </div>
+                  @if (ticket.slotType) {
+                    <span class="text-muted-foreground text-[10px] uppercase">
+                      {{ ticket.slotType }}
+                    </span>
+                  }
+                </td>
+                <td class="px-4 py-3 sm:px-6">
+                  <div class="text-foreground font-mono text-xs">
+                    {{ ticket.entryTime | date: "dd/MM/yyyy HH:mm" }}
+                  </div>
+                </td>
+                <td class="px-4 py-3 text-right sm:px-6">
+                  <nv-button
+                    size="sm"
+                    variant="default"
+                    type="button"
+                    (click)="checkOutWithTicket(ticket)"
+                    class="cursor-pointer"
+                  >
+                    <ng-icon name="lucideLogOut" size="14" class="mr-1" />
+                    <span>Cobrar</span>
+                  </nv-button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       }
     </div>
   </div>

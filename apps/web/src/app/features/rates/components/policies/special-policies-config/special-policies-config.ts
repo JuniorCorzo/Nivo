@@ -21,12 +21,9 @@ import { lucideShieldCheck, lucidePercent } from "@ng-icons/lucide";
           <ng-icon name="lucideShieldCheck" class="text-base" />
         </div>
         <div>
-          <h3 class="text-foreground text-base font-bold">
-            Políticas y zonas especiales
-          </h3>
+          <h3 class="text-foreground text-base font-bold">Políticas y zonas especiales</h3>
           <p class="text-muted-foreground text-xs">
-            Reglas de recargo o descuento para zonas o condiciones específicas
-            del tenant
+            Reglas de recargo o descuento para zonas o condiciones específicas del tenant
           </p>
         </div>
       </div>
@@ -37,9 +34,7 @@ import { lucideShieldCheck, lucidePercent } from "@ng-icons/lucide";
             class="border-border bg-card hover:border-border flex flex-col justify-between rounded-2xl border p-5 transition-all"
           >
             <div class="flex items-center justify-between gap-2">
-              <span class="text-foreground text-sm font-bold">{{
-                policy.name
-              }}</span>
+              <span class="text-foreground text-sm font-bold">{{ policy.name }}</span>
               <span
                 class="inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold"
                 [class.bg-success/10]="policy.active"
@@ -52,9 +47,7 @@ import { lucideShieldCheck, lucidePercent } from "@ng-icons/lucide";
                 {{ policy.active ? "Activa" : "Inactiva" }}
               </span>
             </div>
-            <div
-              class="border-border mt-4 flex items-center justify-between border-t pt-3 text-xs"
-            >
+            <div class="border-border mt-4 flex items-center justify-between border-t pt-3 text-xs">
               <span class="text-muted-foreground">Efecto aplicado:</span>
               <span class="text-foreground font-mono font-bold">
                 {{

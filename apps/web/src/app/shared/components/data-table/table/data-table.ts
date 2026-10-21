@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  contentChild,
-  input,
-  output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, contentChild, input, output } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideChevronDown, lucideChevronUp } from "@ng-icons/lucide";
 import {
@@ -48,9 +42,7 @@ export class DataTableComponent<TData extends RowData> {
 
   readonly table = input.required<Table<TData>>();
   readonly isLoading = input<boolean>(false);
-  readonly emptyMessage = input<string>(
-    APP_TEXTS.dataTable.empty.defaultMessage
-  );
+  readonly emptyMessage = input<string>(APP_TEXTS.dataTable.empty.defaultMessage);
   readonly rowClickable = input<boolean>(false);
 
   readonly rowClick = output<TData>();

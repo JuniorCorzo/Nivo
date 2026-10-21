@@ -51,14 +51,7 @@ export const USER_MENU_OVERLAY_POSITIONS: ConnectedPosition[] = [
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    OverlayModule,
-    NgIcon,
-    ThemeButton,
-    LogoutButton,
-    DividerComponent,
-    TypographyMuted,
-  ],
+  imports: [OverlayModule, NgIcon, ThemeButton, LogoutButton, DividerComponent, TypographyMuted],
   providers: [provideIcons({ lucideChevronsUpDown })],
   selector: "app-user-menu",
   standalone: true,

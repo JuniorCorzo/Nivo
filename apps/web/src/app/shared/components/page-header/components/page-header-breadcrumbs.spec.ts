@@ -72,9 +72,7 @@ describe("PageHeaderBreadcrumbsComponent", () => {
     ]);
     fixture.detectChanges();
 
-    const nav = fixture.nativeElement.querySelector(
-      '[data-testid="page-header-breadcrumb"]'
-    );
+    const nav = fixture.nativeElement.querySelector('[data-testid="page-header-breadcrumb"]');
     expect(nav).toBeTruthy();
     expect(nav.getAttribute("aria-label")).toBe("Ruta de navegación");
   });
@@ -94,7 +92,7 @@ describe("PageHeaderBreadcrumbsComponent", () => {
     const spans = fixture.nativeElement.querySelectorAll("span");
     /* SAFETY: Querying span elements from fixture nativeElement guaranteed to be HTMLElement */
     const labelSpan = [...spans].find(
-      (s: unknown) => (s as HTMLElement).textContent?.trim() === "Ajustes"
+      (s: unknown) => (s as HTMLElement).textContent?.trim() === "Ajustes",
     );
     expect(labelSpan).toBeTruthy();
   });
@@ -120,7 +118,7 @@ describe("PageHeaderBreadcrumbsComponent", () => {
     fixture.detectChanges();
 
     const iconElements = fixture.nativeElement.querySelectorAll(
-      '[data-testid="page-header-breadcrumb"] ng-icon'
+      '[data-testid="page-header-breadcrumb"] ng-icon',
     );
     // 4 item icons + 3 separator icons = 7
     expect(iconElements.length).toBe(7);
@@ -134,9 +132,7 @@ describe("PageHeaderBreadcrumbsComponent", () => {
     ]);
     fixture.detectChanges();
 
-    const separators = fixture.nativeElement.querySelectorAll(
-      'ng-icon[name="lucideChevronRight"]'
-    );
+    const separators = fixture.nativeElement.querySelectorAll('ng-icon[name="lucideChevronRight"]');
     expect(separators.length).toBe(2);
   });
 
@@ -153,9 +149,7 @@ describe("PageHeaderBreadcrumbsComponent", () => {
     ]);
     fixture.detectChanges();
 
-    const selector = fixture.nativeElement.querySelector(
-      "app-parking-lot-selector"
-    );
+    const selector = fixture.nativeElement.querySelector("app-parking-lot-selector");
     expect(selector).toBeNull();
 
     const links = fixture.nativeElement.querySelectorAll("a");

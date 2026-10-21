@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideChevronLeft } from "@ng-icons/lucide";
 import { BadgeComponent, ButtonComponent } from "@nivo-sass/design-system";
@@ -13,8 +8,7 @@ import type { PageHeaderBadgeVariant } from "../page-header";
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      "page-header-mobile flex items-center justify-between gap-2 @sm:hidden",
+    class: "page-header-mobile flex items-center justify-between gap-2 @sm:hidden",
   },
   imports: [BadgeComponent, ButtonComponent, NgIcon],
   providers: [

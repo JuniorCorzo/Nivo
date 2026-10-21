@@ -22,14 +22,10 @@ describe("PageHeaderHistoryComponent", () => {
   });
 
   it("should render history container and back/forward buttons", () => {
-    const container = fixture.nativeElement.querySelector(
-      '[data-testid="page-header-history"]'
-    );
-    const backBtn = fixture.nativeElement.querySelector(
-      '[data-testid="page-header-back-btn"]'
-    );
+    const container = fixture.nativeElement.querySelector('[data-testid="page-header-history"]');
+    const backBtn = fixture.nativeElement.querySelector('[data-testid="page-header-back-btn"]');
     const forwardBtn = fixture.nativeElement.querySelector(
-      '[data-testid="page-header-forward-btn"]'
+      '[data-testid="page-header-forward-btn"]',
     );
 
     expect(container).toBeTruthy();
@@ -42,7 +38,7 @@ describe("PageHeaderHistoryComponent", () => {
     component.back.subscribe(backSpy);
 
     const backBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
-      '[data-testid="page-header-back-btn"]'
+      '[data-testid="page-header-back-btn"]',
     );
     backBtn.click();
 
@@ -54,7 +50,7 @@ describe("PageHeaderHistoryComponent", () => {
     component.forward.subscribe(forwardSpy);
 
     const forwardBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
-      '[data-testid="page-header-forward-btn"]'
+      '[data-testid="page-header-forward-btn"]',
     );
     forwardBtn.click();
 

@@ -1,17 +1,12 @@
 import { expect, setupMockTenantApi, test } from "../fixtures/auth.fixture";
 
 test.describe("CUJ 01: Tenant Authentication & Session Management", () => {
-  test("should display login form controls correctly", async ({
-    loginPage,
-  }) => {
+  test("should display login form controls correctly", async ({ loginPage }) => {
     await loginPage.goto();
     await loginPage.expectLoaded();
   });
 
-  test("should show error alert on invalid credentials", async ({
-    loginPage,
-    page,
-  }) => {
+  test("should show error alert on invalid credentials", async ({ loginPage, page }) => {
     await page.route("**/api/v1/auth/login", async (route) => {
       await route.fulfill({
         contentType: "application/json",

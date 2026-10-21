@@ -1,21 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  signal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterLink } from "@angular/router";
 import { UserService } from "@core/services/user/user-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import {
-  lucideCar,
-  lucideLayoutDashboard,
-  lucideTicket,
-  lucideUsers,
-} from "@ng-icons/lucide";
+import { lucideCar, lucideLayoutDashboard, lucideTicket, lucideUsers } from "@ng-icons/lucide";
 import { SidebarFooter } from "@shared/components/sidebar-footer/sidebar-footer";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
@@ -67,10 +55,8 @@ export class SidebarBase {
   constructor() {
     this.router.events
       .pipe(
-        filter(
-          (event): event is NavigationEnd => event instanceof NavigationEnd
-        ),
-        takeUntilDestroyed()
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
       )
       .subscribe((event) => {
         this.currentUrl.set(event.urlAfterRedirects);

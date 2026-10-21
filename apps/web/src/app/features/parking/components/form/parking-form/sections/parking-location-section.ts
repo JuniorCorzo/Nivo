@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import type { Coordinates } from "@core/type/coordinates.type";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideMapPin } from "@ng-icons/lucide";
@@ -54,9 +49,7 @@ export interface CoordinateSummary {
         <ng-icon name="lucideMapPin" class="text-base" />
       </div>
       <div>
-        <nv-h3 class="text-foreground text-base font-bold"
-          >Ubicación en el mapa</nv-h3
-        >
+        <nv-h3 class="text-foreground text-base font-bold">Ubicación en el mapa</nv-h3>
         <nv-muted class="text-muted-foreground text-xs">
           Haz clic o arrastra en el mapa para fijar las coordenadas GPS
         </nv-muted>
@@ -85,9 +78,7 @@ export interface CoordinateSummary {
               class="bg-muted border-border flex items-center justify-between rounded-lg border p-2"
             >
               <span class="text-muted-foreground">{{ coordinate.label }}:</span>
-              <span class="text-foreground font-bold">{{
-                coordinate.coordinates
-              }}</span>
+              <span class="text-foreground font-bold">{{ coordinate.coordinates }}</span>
             </div>
           }
         </div>
@@ -100,9 +91,7 @@ export class ParkingLocationSectionComponent {
   readonly coordinates = input<CoordinateSummary[]>([]);
   readonly hasCoordinates = input<boolean>(false);
   readonly showPlaceholder = input<boolean>(true);
-  readonly placeholderText = input<string>(
-    APP_TEXTS.parking.actions.placeholderMap
-  );
+  readonly placeholderText = input<string>(APP_TEXTS.parking.actions.placeholderMap);
 
   readonly positionChange = output<Coordinates>();
   readonly mapInteracted = output();

@@ -21,8 +21,7 @@ const TILE_ATTRIBUTION =
 /* SAFETY: Deleting internal Leaflet prototype method to allow custom marker icons */
 delete (L.Icon.Default.prototype as { _getIconUrl?: unknown })._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
@@ -34,8 +33,7 @@ L.Icon.Default.mergeOptions({
   templateUrl: "./parking-map.html",
 })
 export class ParkingMapComponent implements OnDestroy {
-  private readonly mapContainer =
-    viewChild<ElementRef<HTMLDivElement>>("mapContainer");
+  private readonly mapContainer = viewChild<ElementRef<HTMLDivElement>>("mapContainer");
 
   readonly initialPosition = input<Coordinates | null | undefined>(null);
   readonly readonly = input<boolean>(false);
@@ -66,9 +64,7 @@ export class ParkingMapComponent implements OnDestroy {
     }
 
     const initialPos = this.initialPosition();
-    const center: L.LatLngExpression = ParkingMapComponent.isValidCoordinates(
-      initialPos
-    )
+    const center: L.LatLngExpression = ParkingMapComponent.isValidCoordinates(initialPos)
       ? [initialPos.latitude, initialPos.longitude]
       : DEFAULT_CENTER;
 
@@ -115,7 +111,7 @@ export class ParkingMapComponent implements OnDestroy {
   }
 
   private static isValidCoordinates(
-    coordinates: Coordinates | null | undefined
+    coordinates: Coordinates | null | undefined,
   ): coordinates is Coordinates {
     return (
       !!coordinates &&

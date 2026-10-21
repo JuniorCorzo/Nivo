@@ -1,11 +1,5 @@
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ParkingService } from "@core/services/parking-service";
@@ -57,10 +51,7 @@ export class RatesPageComponent {
     if (!id) {
       return null;
     }
-    return (
-      (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ??
-      null
-    );
+    return (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ?? null;
   });
 
   readonly allRates = computed(() => {

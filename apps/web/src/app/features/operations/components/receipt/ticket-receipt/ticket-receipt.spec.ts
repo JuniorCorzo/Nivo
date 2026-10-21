@@ -116,7 +116,7 @@ describe("TicketReceiptComponent", () => {
     fixture.detectChanges();
 
     const imgEl: HTMLImageElement | null = fixture.nativeElement.querySelector(
-      'img[alt="Foto del vehículo"]'
+      'img[alt="Foto del vehículo"]',
     );
     expect(imgEl).toBeTruthy();
     expect(imgEl?.src).toContain("data:image/jpeg;base64,mockphotodata");

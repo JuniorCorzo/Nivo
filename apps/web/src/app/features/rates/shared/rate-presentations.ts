@@ -20,7 +20,5 @@ export const TIME_UNIT_OPTIONS: Option[] = [
   { label: "Por Día", value: "DAYS" },
 ];
 
-export const displayOptionFn = (item: Option | null | undefined): string =>
-  item?.label ?? "";
-export const valueOptionFn = (item: Option | null | undefined): string =>
-  item?.value ?? "";
+export const displayOptionFn = (item: Option | null | undefined): string => item?.label ?? "";
+export const valueOptionFn = (item: Option | null | undefined): string => item?.value ?? "";

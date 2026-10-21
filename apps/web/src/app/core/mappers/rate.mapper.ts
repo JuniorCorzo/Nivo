@@ -13,7 +13,7 @@ import type {
 } from "@core/models/rate.model";
 
 export const mapToSpecialPolicyModel = (
-  data?: SpecialPoliciesInfo | SpecialPoliciesDto | null
+  data?: SpecialPoliciesInfo | SpecialPoliciesDto | null,
 ): SpecialPolicyModel | undefined => {
   if (!data) {
     return undefined;
@@ -21,8 +21,7 @@ export const mapToSpecialPolicyModel = (
   /* SAFETY: Backend enum values for modifies match SpecialPolicyModel */
   const modifies = (data.modifies as SpecialPolicyModel["modifies"]) ?? "PRICE";
   /* SAFETY: Backend enum values for operation match SpecialPolicyModel */
-  const operation =
-    (data.operation as SpecialPolicyModel["operation"]) ?? "PERCENTAGE";
+  const operation = (data.operation as SpecialPolicyModel["operation"]) ?? "PERCENTAGE";
 
   return {
     active: data.active ?? true,
@@ -83,7 +82,7 @@ export interface RateFormData {
 
 export const mapFormToCreateRateModel = (
   form: RateFormData,
-  parkingId: string
+  parkingId: string,
 ): CreateRateModel => ({
   description: form.description.trim(),
   minChargeTimeMinutes: form.minChargeTimeMinutes,
@@ -95,10 +94,7 @@ export const mapFormToCreateRateModel = (
   vehicleType: form.vehicleType,
 });
 
-export const mapFormToUpdateRateModel = (
-  form: RateFormData,
-  id: string
-): UpdateRateModel => ({
+export const mapFormToUpdateRateModel = (form: RateFormData, id: string): UpdateRateModel => ({
   description: form.description.trim(),
   id,
   minChargeTimeMinutes: form.minChargeTimeMinutes,

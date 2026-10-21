@@ -31,9 +31,7 @@ export class OccuppationMeter {
   protected ratio = computed(() => {
     const maxVal = Number(this.max()) || 100;
     const computedRatio = Math.round((Number(this.value()) * 100) / maxVal);
-    return Number.isNaN(computedRatio)
-      ? 0
-      : Math.min(100, Math.max(0, computedRatio));
+    return Number.isNaN(computedRatio) ? 0 : Math.min(100, Math.max(0, computedRatio));
   });
 
   protected occupied = computed(() => {
@@ -49,18 +47,14 @@ export class OccuppationMeter {
     return Math.round((total * rate) / 100);
   });
 
-  private occuppationMeter =
-    viewChild<ElementRef<HTMLDivElement>>("occuppation_meter");
+  private occuppationMeter = viewChild<ElementRef<HTMLDivElement>>("occuppation_meter");
 
   constructor() {
     effect(() => {
-      this.occuppationMeter()?.nativeElement.style.setProperty(
-        "--bar-width",
-        `${this.ratio()}%`
-      );
+      this.occuppationMeter()?.nativeElement.style.setProperty("--bar-width", `${this.ratio()}%`);
       this.occuppationMeter()?.nativeElement.style.setProperty(
         "--bar-background",
-        this.getBarBackground()
+        this.getBarBackground(),
       );
     });
   }
@@ -68,8 +62,7 @@ export class OccuppationMeter {
   private getBarBackground() {
     const ratio = this.ratio();
     switch (true) {
-      case ratio > Math.trunc(Number(this.optimum())) &&
-        ratio < Math.trunc(Number(this.high())): {
+      case ratio > Math.trunc(Number(this.optimum())) && ratio < Math.trunc(Number(this.high())): {
         return "var(--color-warning)";
       }
       case ratio > Math.trunc(Number(this.high())): {

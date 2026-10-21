@@ -1,21 +1,13 @@
 import "@angular/compiler";
 import type { HttpEvent, HttpHandlerFn } from "@angular/common/http";
-import {
-  HttpContext,
-  HttpErrorResponse,
-  HttpRequest,
-  HttpResponse,
-} from "@angular/common/http";
+import { HttpContext, HttpErrorResponse, HttpRequest, HttpResponse } from "@angular/common/http";
 import { Injector, runInInjectionContext } from "@angular/core";
 import { AuthService } from "@core/services/auth-service";
 import type { Observable } from "rxjs";
 import { Subject, firstValueFrom, of, throwError } from "rxjs";
 
 import { AUTHORIZED } from "../context/auth.token";
-import {
-  refreshTokenInterceptor,
-  _resetRefreshTokenState,
-} from "./refresh-token-interceptor";
+import { refreshTokenInterceptor, _resetRefreshTokenState } from "./refresh-token-interceptor";
 
 interface AuthServiceMock {
   logout: ReturnType<typeof vi.fn>;
@@ -28,7 +20,7 @@ describe("refreshTokenInterceptor", () => {
 
   const runInterceptor = (
     req: HttpRequest<unknown>,
-    next: HttpHandlerFn
+    next: HttpHandlerFn,
   ): Observable<HttpEvent<unknown>> =>
     runInInjectionContext(injector, () => refreshTokenInterceptor(req, next));
 
@@ -82,13 +74,9 @@ describe("refreshTokenInterceptor", () => {
       status: 500,
       statusText: "Server Error",
     });
-    const next: HttpHandlerFn = vi
-      .fn()
-      .mockReturnValue(throwError(() => error500));
+    const next: HttpHandlerFn = vi.fn().mockReturnValue(throwError(() => error500));
 
-    await expect(firstValueFrom(runInterceptor(req, next))).rejects.toBe(
-      error500
-    );
+    await expect(firstValueFrom(runInterceptor(req, next))).rejects.toBe(error500);
     expect(authServiceMock.refreshSession).not.toHaveBeenCalled();
     expect(authServiceMock.logout).not.toHaveBeenCalled();
   });
@@ -122,9 +110,7 @@ describe("refreshTokenInterceptor", () => {
     expect(authServiceMock.refreshSession).toHaveBeenCalledTimes(1);
     expect(callCount).toBe(2);
     const secondCallReq = next.mock.calls[1]?.[0];
-    expect(secondCallReq?.headers.get("Authorization")).toBe(
-      "Bearer fresh-jwt-token-123"
-    );
+    expect(secondCallReq?.headers.get("Authorization")).toBe("Bearer fresh-jwt-token-123");
   });
 
   it("should queue concurrent 401 requests and retry them all with the new Bearer token", async () => {
@@ -140,9 +126,7 @@ describe("refreshTokenInterceptor", () => {
       statusText: "Unauthorized",
     });
     const refreshSubject = new Subject<string>();
-    authServiceMock.refreshSession.mockReturnValue(
-      refreshSubject.asObservable()
-    );
+    authServiceMock.refreshSession.mockReturnValue(refreshSubject.asObservable());
 
     let req1Calls = 0;
     let req2Calls = 0;
@@ -179,12 +163,8 @@ describe("refreshTokenInterceptor", () => {
     const retriedReq1 = next1.mock.calls[1]?.[0];
     const retriedReq2 = next2.mock.calls[1]?.[0];
 
-    expect(retriedReq1?.headers.get("Authorization")).toBe(
-      "Bearer queued-token-xyz"
-    );
-    expect(retriedReq2?.headers.get("Authorization")).toBe(
-      "Bearer queued-token-xyz"
-    );
+    expect(retriedReq1?.headers.get("Authorization")).toBe("Bearer queued-token-xyz");
+    expect(retriedReq2?.headers.get("Authorization")).toBe("Bearer queued-token-xyz");
   });
 
   it("should handle refresh failure by resetting isRefresh, calling authService.logout(), and rethrowing error", async () => {
@@ -200,16 +180,10 @@ describe("refreshTokenInterceptor", () => {
       statusText: "Refresh Expired",
     });
 
-    const next: HttpHandlerFn = vi
-      .fn()
-      .mockReturnValue(throwError(() => error401));
-    authServiceMock.refreshSession.mockReturnValue(
-      throwError(() => refreshError)
-    );
+    const next: HttpHandlerFn = vi.fn().mockReturnValue(throwError(() => error401));
+    authServiceMock.refreshSession.mockReturnValue(throwError(() => refreshError));
 
-    await expect(firstValueFrom(runInterceptor(req, next))).rejects.toBe(
-      refreshError
-    );
+    await expect(firstValueFrom(runInterceptor(req, next))).rejects.toBe(refreshError);
     expect(authServiceMock.refreshSession).toHaveBeenCalledTimes(1);
     expect(authServiceMock.logout).toHaveBeenCalledTimes(1);
   });

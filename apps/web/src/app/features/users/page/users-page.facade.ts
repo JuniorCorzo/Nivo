@@ -23,17 +23,15 @@ export class UsersPageFacade {
 
   readonly totalUsers = computed(() => this.users().length);
   readonly activeOperators = computed(
-    () =>
-      this.users().filter((u) => u.role === "OPERATOR" && !u.deletedAt).length
+    () => this.users().filter((u) => u.role === "OPERATOR" && !u.deletedAt).length,
   );
   readonly managers = computed(
     () =>
-      this.users().filter(
-        (u) => (u.role === "MANAGER" || u.role === "OWNER") && !u.deletedAt
-      ).length
+      this.users().filter((u) => (u.role === "MANAGER" || u.role === "OWNER") && !u.deletedAt)
+        .length,
   );
   readonly deactivatedUsers = computed(
-    () => this.users().filter((u) => Boolean(u.deletedAt)).length
+    () => this.users().filter((u) => Boolean(u.deletedAt)).length,
   );
 
   readonly columns = computed(() =>
@@ -41,7 +39,7 @@ export class UsersPageFacade {
       currentUserId: this.userService.currentUser()?.id,
       onChangeRole: (user) => this.openModifyRoleModal(user),
       onDeactivate: (user) => this.openDeactivateModal(user),
-    })
+    }),
   );
 
   readonly table = this.tableState.createTable({

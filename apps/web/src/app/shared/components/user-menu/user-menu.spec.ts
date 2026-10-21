@@ -96,12 +96,10 @@ describe("UserMenu", () => {
     expect(menu?.textContent).toContain("John Doe");
     expect(menu?.textContent).toContain("john@example.com");
 
-    const themeButton =
-      overlayContainerElement.querySelector("app-theme-button");
+    const themeButton = overlayContainerElement.querySelector("app-theme-button");
     expect(themeButton).toBeTruthy();
 
-    const logoutButton =
-      overlayContainerElement.querySelector("app-logout-button");
+    const logoutButton = overlayContainerElement.querySelector("app-logout-button");
     expect(logoutButton).toBeTruthy();
   });
 

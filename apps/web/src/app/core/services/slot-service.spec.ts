@@ -1,14 +1,8 @@
 import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { ApiConfiguration } from "@core/api/generated/api-configuration";
-import type {
-  ResponseListSlotResponse,
-  SlotSummaryResponse,
-} from "@core/api/generated/models";
+import type { ResponseListSlotResponse, SlotSummaryResponse } from "@core/api/generated/models";
 import { SlotsService } from "@core/api/generated/services";
 import type { Slot } from "@core/models/slot.model";
 import { of } from "rxjs";
@@ -172,8 +166,7 @@ describe("SlotService metadata and group operations", () => {
     });
 
     const req = httpTesting.expectOne(
-      (request) =>
-        request.url.endsWith("/slots/metadata") && request.method === "PATCH"
+      (request) => request.url.endsWith("/slots/metadata") && request.method === "PATCH",
     );
 
     expect(req.request.body).toEqual(mockPayload);
@@ -222,8 +215,7 @@ describe("SlotService metadata and group operations", () => {
     });
 
     const req = httpTesting.expectOne(
-      (request) =>
-        request.url.endsWith("/slots/groups") && request.method === "PATCH"
+      (request) => request.url.endsWith("/slots/groups") && request.method === "PATCH",
     );
 
     expect(req.request.body).toEqual(mockPayload);

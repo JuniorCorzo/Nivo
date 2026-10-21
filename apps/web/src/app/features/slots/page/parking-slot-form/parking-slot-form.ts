@@ -1,17 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { RouterLink } from "@angular/router";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import {
-  lucideArrowLeft,
-  lucidePlus,
-  lucideSave,
-  lucideLayers,
-} from "@ng-icons/lucide";
+import { lucideArrowLeft, lucidePlus, lucideSave, lucideLayers } from "@ng-icons/lucide";
 import { ButtonComponent } from "@nivo-sass/design-system";
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import type { PageHeaderBreadcrumbItem } from "@shared/components/page-header/page-header";
@@ -53,10 +43,8 @@ export class ParkingSlotFormPage {
 
   readonly breadcrumbs = computed<PageHeaderBreadcrumbItem[]>(() => {
     const p = this.facade.parking();
-    const modeLabel =
-      this.facade.mode() === "create" ? "Crear plazas" : "Editar plaza";
-    const modeIcon =
-      this.facade.mode() === "create" ? "lucidePlus" : "lucideEdit";
+    const modeLabel = this.facade.mode() === "create" ? "Crear plazas" : "Editar plaza";
+    const modeIcon = this.facade.mode() === "create" ? "lucidePlus" : "lucideEdit";
     if (!p) {
       return [
         {

@@ -1,10 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import type { ResponseIterableRatesDto } from "@core/api/generated/models";
-import {
-  ParkingLotsService,
-  RatesService,
-  TenantsService,
-} from "@core/api/generated/services";
+import { ParkingLotsService, RatesService, TenantsService } from "@core/api/generated/services";
 import type { SpecialPolicyModel } from "@core/models/rate.model";
 import { firstValueFrom, of } from "rxjs";
 
@@ -152,13 +148,9 @@ describe("RateService", () => {
         timestamp: "2024-01-01T00:00:00Z",
       };
 
-      parkingLotsServiceSpy.showRatesByParkingId.mockReturnValue(
-        of(mockResponse)
-      );
+      parkingLotsServiceSpy.showRatesByParkingId.mockReturnValue(of(mockResponse));
 
-      const rates = await firstValueFrom(
-        service.getRatesByParkingId("parking-123")
-      );
+      const rates = await firstValueFrom(service.getRatesByParkingId("parking-123"));
       expect(rates.length).toBe(1);
       expect(rates[0].name).toBe("Standard Car");
       expect(rates[0].pricePerUnit).toBe(4000);

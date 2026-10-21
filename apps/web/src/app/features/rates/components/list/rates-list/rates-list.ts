@@ -1,12 +1,5 @@
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  signal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import type { RateModel } from "@core/models/rate.model";
@@ -71,9 +64,7 @@ export class RateListComponent {
   readonly parkingIdInput = input<string | null>(null, { alias: "parkingId" });
   readonly routeParkingId = signal<string | null>(null);
 
-  readonly effectiveParkingId = computed(
-    () => this.parkingIdInput() ?? this.routeParkingId()
-  );
+  readonly effectiveParkingId = computed(() => this.parkingIdInput() ?? this.routeParkingId());
 
   readonly searchQuery = signal("");
   readonly vehicleFilter = signal<string>("ALL");
@@ -90,10 +81,7 @@ export class RateListComponent {
     if (!id) {
       return null;
     }
-    return (
-      (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ??
-      null
-    );
+    return (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ?? null;
   });
 
   readonly allRates = computed(() => {
@@ -114,7 +102,7 @@ export class RateListComponent {
         (r) =>
           r.name.toLowerCase().includes(query) ||
           r.description.toLowerCase().includes(query) ||
-          r.vehicleType.toLowerCase().includes(query)
+          r.vehicleType.toLowerCase().includes(query),
       );
     }
 

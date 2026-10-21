@@ -41,18 +41,14 @@ export const APP_ROUTES = {
       `${parkingLotsRoute}/${parkingId}/${ratesSegment}/${rateId}/edit`,
     editParkingLotSlot: (parkingId: string, slotId: string) =>
       `${parkingLotsRoute}/${parkingId}/${slotsSegment}/${slotId}/edit`,
-    editParkingLots: (parkingId: string) =>
-      `${parkingLotsRoute}/${parkingId}/edit`,
+    editParkingLots: (parkingId: string) => `${parkingLotsRoute}/${parkingId}/edit`,
     parkingLotOperations: (parkingId: string) =>
       `${parkingLotsRoute}/${parkingId}/${operationsSegment}`,
-    parkingLotRates: (parkingId: string) =>
-      `${parkingLotsRoute}/${parkingId}/${ratesSegment}`,
+    parkingLotRates: (parkingId: string) => `${parkingLotsRoute}/${parkingId}/${ratesSegment}`,
     parkingLotSlotDetail: (parkingId: string, slotId: string) =>
       `${parkingLotsRoute}/${parkingId}/${slotsSegment}/${slotId}`,
-    parkingLotSlots: (parkingId: string) =>
-      `${parkingLotsRoute}/${parkingId}/${slotsSegment}`,
-    parkingLotTickets: (parkingId: string) =>
-      `${parkingLotsRoute}/${parkingId}/${ticketsSegment}`,
+    parkingLotSlots: (parkingId: string) => `${parkingLotsRoute}/${parkingId}/${slotsSegment}`,
+    parkingLotTickets: (parkingId: string) => `${parkingLotsRoute}/${parkingId}/${ticketsSegment}`,
     parkingLots: parkingLotsRoute,
     tickets: `/app/${ticketsSegment}`,
     users: "/app/users",

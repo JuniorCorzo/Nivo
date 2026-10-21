@@ -1,10 +1,5 @@
 import { BreakpointObserver } from "@angular/cdk/layout";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  linkedSignal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, linkedSignal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -38,7 +33,7 @@ export class SidebarDesktop {
       .pipe(map((result) => result.matches)),
     {
       initialValue: false,
-    }
+    },
   );
 
   public readonly collapsed = linkedSignal(() => this.isTablet() ?? false);

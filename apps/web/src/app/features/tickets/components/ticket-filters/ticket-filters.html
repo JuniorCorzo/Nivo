@@ -21,18 +21,18 @@
 
     <!-- Parking Lot Selector -->
     @if (showParkingLotFilter()) {
-    <div class="w-full">
-      <nv-select
-        id="ticket-filter-parking-lot"
-        [label]="texts.parkingLot.label"
-        [placeholder]="texts.parkingLot.placeholder"
-        [items]="parkingLotOptions()"
-        [displayFn]="displayOptionFn"
-        [valueFn]="valueOptionFn"
-        [value]="filters().parkingLotId"
-        (valueChange)="onParkingLotChange($event)"
-      />
-    </div>
+      <div class="w-full">
+        <nv-select
+          id="ticket-filter-parking-lot"
+          [label]="texts.parkingLot.label"
+          [placeholder]="texts.parkingLot.placeholder"
+          [items]="parkingLotOptions()"
+          [displayFn]="displayOptionFn"
+          [valueFn]="valueOptionFn"
+          [value]="filters().parkingLotId"
+          (valueChange)="onParkingLotChange($event)"
+        />
+      </div>
     }
 
     <!-- Status Selector -->

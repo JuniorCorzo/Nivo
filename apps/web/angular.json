@@ -26,10 +26,7 @@
               "leaflet/dist/leaflet.css",
               "src/styles.css"
             ],
-            "allowedCommonJsDependencies": [
-              "qrcode",
-              "leaflet"
-            ]
+            "allowedCommonJsDependencies": ["qrcode", "leaflet"]
           },
           "configurations": {
             "production": {

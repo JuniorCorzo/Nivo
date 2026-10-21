@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import type { ParkingItem, ScopeState } from "@core/models/dashboard.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideBuilding2, lucideCar, lucideRefreshCw } from "@ng-icons/lucide";

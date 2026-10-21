@@ -162,12 +162,8 @@ describe("OccuppationMeter", () => {
       fixture.detectChanges();
 
       /* SAFETY: Querying rendered meter element */
-      const meterEl = fixture.nativeElement.querySelector(
-        '[role="meter"]'
-      ) as HTMLElement;
-      expect(meterEl.style.getPropertyValue("--bar-background")).toBe(
-        "var(--color-success)"
-      );
+      const meterEl = fixture.nativeElement.querySelector('[role="meter"]') as HTMLElement;
+      expect(meterEl.style.getPropertyValue("--bar-background")).toBe("var(--color-success)");
       expect(meterEl.style.getPropertyValue("--bar-width")).toBe("50%");
     });
 
@@ -178,12 +174,8 @@ describe("OccuppationMeter", () => {
       fixture.detectChanges();
 
       /* SAFETY: Querying rendered meter element */
-      const meterEl = fixture.nativeElement.querySelector(
-        '[role="meter"]'
-      ) as HTMLElement;
-      expect(meterEl.style.getPropertyValue("--bar-background")).toBe(
-        "var(--color-warning)"
-      );
+      const meterEl = fixture.nativeElement.querySelector('[role="meter"]') as HTMLElement;
+      expect(meterEl.style.getPropertyValue("--bar-background")).toBe("var(--color-warning)");
       expect(meterEl.style.getPropertyValue("--bar-width")).toBe("80%");
     });
 
@@ -194,12 +186,8 @@ describe("OccuppationMeter", () => {
       fixture.detectChanges();
 
       /* SAFETY: Querying rendered meter element */
-      const meterEl = fixture.nativeElement.querySelector(
-        '[role="meter"]'
-      ) as HTMLElement;
-      expect(meterEl.style.getPropertyValue("--bar-background")).toBe(
-        "var(--color-error)"
-      );
+      const meterEl = fixture.nativeElement.querySelector('[role="meter"]') as HTMLElement;
+      expect(meterEl.style.getPropertyValue("--bar-background")).toBe("var(--color-error)");
       expect(meterEl.style.getPropertyValue("--bar-width")).toBe("95%");
     });
 
@@ -210,12 +198,8 @@ describe("OccuppationMeter", () => {
       fixture.detectChanges();
 
       /* SAFETY: Querying rendered meter element */
-      const meterEl = fixture.nativeElement.querySelector(
-        '[role="meter"]'
-      ) as HTMLElement;
-      expect(meterEl.style.getPropertyValue("--bar-background")).toBe(
-        "var(--color-success)"
-      );
+      const meterEl = fixture.nativeElement.querySelector('[role="meter"]') as HTMLElement;
+      expect(meterEl.style.getPropertyValue("--bar-background")).toBe("var(--color-success)");
     });
   });
 
@@ -246,9 +230,7 @@ describe("OccuppationMeter", () => {
       fixture.detectChanges();
 
       /* SAFETY: Querying rendered meter element */
-      const meterEl = fixture.nativeElement.querySelector(
-        '[role="meter"]'
-      ) as HTMLElement;
+      const meterEl = fixture.nativeElement.querySelector('[role="meter"]') as HTMLElement;
       expect(meterEl.getAttribute("aria-valuenow")).toBe("75");
       expect(meterEl.getAttribute("aria-valuemin")).toBe("10");
       expect(meterEl.getAttribute("aria-valuemax")).toBe("200");

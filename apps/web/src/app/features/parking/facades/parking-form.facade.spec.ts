@@ -19,10 +19,7 @@ describe("ParkingFormFacade", () => {
   let mockColombiaService: Partial<ColombiaService>;
   let mockParkingService: MockParkingService;
 
-  const mockDepartamentsSignal = signal<string[]>([
-    "Antioquia",
-    "Cundinamarca",
-  ]);
+  const mockDepartamentsSignal = signal<string[]>(["Antioquia", "Cundinamarca"]);
 
   beforeEach(() => {
     mockColombiaService = {
@@ -181,10 +178,7 @@ describe("ParkingFormFacade", () => {
 
       facade.removeSlot(0);
       expect(facade.slots().length).toBe(0);
-      expect(mockParkingService.deleteSlotGroup).toHaveBeenCalledWith(
-        "lot-1",
-        initialSlot
-      );
+      expect(mockParkingService.deleteSlotGroup).toHaveBeenCalledWith("lot-1", initialSlot);
     });
   });
 

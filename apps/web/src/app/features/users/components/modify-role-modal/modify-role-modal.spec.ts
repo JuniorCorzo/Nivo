@@ -35,16 +35,12 @@ describe("ModifyRoleModalComponent", () => {
   };
 
   beforeAll(() => {
-    HTMLDialogElement.prototype.showModal = vi.fn(
-      function mockShowModal(this: HTMLDialogElement) {
-        this.open = true;
-      }
-    );
-    HTMLDialogElement.prototype.close = vi.fn(
-      function mockClose(this: HTMLDialogElement) {
-        this.open = false;
-      }
-    );
+    HTMLDialogElement.prototype.showModal = vi.fn(function mockShowModal(this: HTMLDialogElement) {
+      this.open = true;
+    });
+    HTMLDialogElement.prototype.close = vi.fn(function mockClose(this: HTMLDialogElement) {
+      this.open = false;
+    });
   });
 
   beforeEach(async () => {
@@ -78,9 +74,7 @@ describe("ModifyRoleModalComponent", () => {
     expect(dialog).not.toBeNull();
     expect(dialog.open).toBe(true);
     expect(compiled.querySelector('[role="dialog"]')).not.toBeNull();
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.users.modals.modifyRole.title
-    );
+    expect(compiled.textContent).toContain(APP_TEXTS.users.modals.modifyRole.title);
     expect(compiled.textContent).toContain("Pedro Operador");
     expect(compiled.textContent).toContain("operator@nivo.com");
   });
@@ -90,9 +84,7 @@ describe("ModifyRoleModalComponent", () => {
     fixture.detectChanges();
 
     /* SAFETY: Dialog element is guaranteed to be an HTMLDialogElement in test environment */
-    const dialog = fixture.nativeElement.querySelector(
-      "dialog"
-    ) as HTMLDialogElement;
+    const dialog = fixture.nativeElement.querySelector("dialog") as HTMLDialogElement;
     expect(dialog.open).toBe(false);
   });
 
@@ -113,26 +105,21 @@ describe("ModifyRoleModalComponent", () => {
     component.onRoleChange("MANAGER");
     component.onSubmit();
 
-    expect(userServiceMock.modifyRole).toHaveBeenCalledWith(
-      "user-op-1",
-      "MANAGER"
-    );
+    expect(userServiceMock.modifyRole).toHaveBeenCalledWith("user-op-1", "MANAGER");
     expect(toastServiceMock.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "success" })
+      expect.objectContaining({ type: "success" }),
     );
     expect(updatedCalled).toBe(true);
     expect(closedCalled).toBe(true);
   });
 
   it("should handle error when modifyRole fails", () => {
-    userServiceMock.modifyRole.mockReturnValue(
-      throwError(() => new Error("Update role failed"))
-    );
+    userServiceMock.modifyRole.mockReturnValue(throwError(() => new Error("Update role failed")));
 
     component.onSubmit();
 
     expect(toastServiceMock.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "error" })
+      expect.objectContaining({ type: "error" }),
     );
     expect(component.isSubmitting()).toBe(false);
   });
@@ -150,12 +137,8 @@ describe("ModifyRoleModalComponent", () => {
   it("should render role badge for the user", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.users.modals.modifyRole.currentRoleLabel
-    );
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.users.table.roles.operator
-    );
+    expect(compiled.textContent).toContain(APP_TEXTS.users.modals.modifyRole.currentRoleLabel);
+    expect(compiled.textContent).toContain(APP_TEXTS.users.table.roles.operator);
   });
 
   it("should initialize selectedRole to AUDITOR when user has AUDITOR role", () => {
@@ -182,10 +165,7 @@ describe("ModifyRoleModalComponent", () => {
       expect(component.selectedRole()).toBe(option.value);
 
       component.onSubmit();
-      expect(userServiceMock.modifyRole).toHaveBeenCalledWith(
-        "user-op-1",
-        option.value
-      );
+      expect(userServiceMock.modifyRole).toHaveBeenCalledWith("user-op-1", option.value);
     }
   });
 
@@ -202,18 +182,14 @@ describe("ModifyRoleModalComponent", () => {
     });
 
     /* SAFETY: Dialog element is guaranteed to be an HTMLDialogElement in test environment */
-    const dialog = fixture.nativeElement.querySelector(
-      "dialog"
-    ) as HTMLDialogElement;
+    const dialog = fixture.nativeElement.querySelector("dialog") as HTMLDialogElement;
     dialog.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(closedCalled).toBe(true);
   });
 
   it("should close dialog on ngOnDestroy if open", () => {
     /* SAFETY: Dialog element is guaranteed to be an HTMLDialogElement in test environment */
-    const dialog = fixture.nativeElement.querySelector(
-      "dialog"
-    ) as HTMLDialogElement;
+    const dialog = fixture.nativeElement.querySelector("dialog") as HTMLDialogElement;
     expect(dialog.open).toBe(true);
 
     fixture.destroy();
@@ -239,9 +215,7 @@ describe("ModifyRoleModalComponent", () => {
     it("should display notice that owner role cannot be modified", () => {
       /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
       const compiled = fixture.nativeElement as HTMLElement;
-      expect(compiled.textContent).toContain(
-        APP_TEXTS.users.modals.modifyRole.ownerRoleNotice
-      );
+      expect(compiled.textContent).toContain(APP_TEXTS.users.modals.modifyRole.ownerRoleNotice);
     });
 
     it("should disable submit button and prevent submission for OWNER", () => {
@@ -249,7 +223,7 @@ describe("ModifyRoleModalComponent", () => {
       const compiled = fixture.nativeElement as HTMLElement;
       /* SAFETY: nv-button contains native button element in DOM */
       const submitBtn = compiled.querySelector(
-        "nv-button:last-of-type button"
+        "nv-button:last-of-type button",
       ) as HTMLButtonElement | null;
       expect(submitBtn?.disabled).toBe(true);
 

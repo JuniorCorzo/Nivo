@@ -1,24 +1,9 @@
-import {
-  DestroyRef,
-  Injectable,
-  computed,
-  effect,
-  inject,
-  signal,
-} from "@angular/core";
+import { DestroyRef, Injectable, computed, effect, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import type { RateFormData } from "@core/mappers/rate.mapper";
-import {
-  mapFormToCreateRateModel,
-  mapFormToUpdateRateModel,
-} from "@core/mappers/rate.mapper";
-import type {
-  RateModel,
-  SpecialPolicyModel,
-  TimeUnit,
-  VehicleType,
-} from "@core/models/rate.model";
+import { mapFormToCreateRateModel, mapFormToUpdateRateModel } from "@core/mappers/rate.mapper";
+import type { RateModel, SpecialPolicyModel, TimeUnit, VehicleType } from "@core/models/rate.model";
 import { ParkingService } from "@core/services/parking-service";
 import { RateService } from "@core/services/rate-service";
 import { ToastService } from "@nivo-sass/design-system";
@@ -56,10 +41,7 @@ export class RateFormFacade {
     if (!id) {
       return null;
     }
-    return (
-      (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ??
-      null
-    );
+    return (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ?? null;
   });
 
   readonly currentRate = computed<RateModel | null>(() => {
@@ -74,15 +56,13 @@ export class RateFormFacade {
 
   readonly specialPolicies = this.rateService.specialPolicies;
 
-  readonly selectedSpecialPolicy = computed<SpecialPolicyModel | undefined>(
-    () => {
-      const spId = this.form.specialPolicyId();
-      if (!spId) {
-        return;
-      }
-      return this.specialPolicies().find((p) => p.id === spId);
+  readonly selectedSpecialPolicy = computed<SpecialPolicyModel | undefined>(() => {
+    const spId = this.form.specialPolicyId();
+    if (!spId) {
+      return;
     }
-  );
+    return this.specialPolicies().find((p) => p.id === spId);
+  });
 
   readonly simulation = computed(() =>
     RateService.simulateCalculation({
@@ -90,7 +70,7 @@ export class RateFormFacade {
       durationInMinutes: this.previewDurationMinutes() || 0,
       specialPolicy: this.selectedSpecialPolicy(),
       timeUnit: this.form.timeUnit(),
-    })
+    }),
   );
 
   readonly isValid = computed(
@@ -100,7 +80,7 @@ export class RateFormFacade {
       Boolean(this.form.vehicleType()) &&
       Boolean(this.form.timeUnit()) &&
       this.form.pricePerUnit() > 0 &&
-      this.form.minChargeTimeMinutes() >= 0
+      this.form.minChargeTimeMinutes() >= 0,
   );
 
   constructor() {
@@ -109,19 +89,17 @@ export class RateFormFacade {
   }
 
   private listenRouteParams(): void {
-    this.route.paramMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((params) => {
-        const pId = params.get("parkingId");
-        const rId = params.get("rateId");
-        this.parkingId.set(pId);
-        this.rateId.set(rId);
-        this.mode.set(rId ? "edit" : "create");
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const pId = params.get("parkingId");
+      const rId = params.get("rateId");
+      this.parkingId.set(pId);
+      this.rateId.set(rId);
+      this.mode.set(rId ? "edit" : "create");
 
-        if (pId) {
-          this.loadRateData(pId);
-        }
-      });
+      if (pId) {
+        this.loadRateData(pId);
+      }
+    });
   }
 
   private loadRateData(parkingId: string): void {

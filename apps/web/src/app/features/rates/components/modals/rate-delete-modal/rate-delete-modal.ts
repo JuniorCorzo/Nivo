@@ -1,12 +1,6 @@
 import { CommonModule } from "@angular/common";
 import type { ElementRef, OnDestroy } from "@angular/core";
-import {
-  afterNextRender,
-  Component,
-  input,
-  output,
-  viewChild,
-} from "@angular/core";
+import { afterNextRender, Component, input, output, viewChild } from "@angular/core";
 import type { RateModel } from "@core/models/rate.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideTrash2, lucideX } from "@ng-icons/lucide";

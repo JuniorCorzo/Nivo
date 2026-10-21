@@ -57,8 +57,7 @@ export class TicketReceiptComponent {
     if (!t?.id) {
       return "";
     }
-    const origin =
-      globalThis.window?.location?.origin ?? "https://app.nivo.dev";
+    const origin = globalThis.window?.location?.origin ?? "https://app.nivo.dev";
     return `${origin}/t/${t.id}`;
   });
 
@@ -97,9 +96,7 @@ export class TicketReceiptComponent {
           type: "svg",
           width: 160,
         });
-        this.qrDataUrl.set(
-          `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
-        );
+        this.qrDataUrl.set(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
       } catch {
         this.qrDataUrl.set("");
       }

@@ -5,10 +5,7 @@ import { roleGuard } from "@core/guards/auth/role.guard";
 import { LayoutMinimal } from "@layouts/layout-minimal/layout-minimal";
 import { LayoutComponent } from "@layouts/layout/layout";
 
-import type {
-  RouteBreadcrumb,
-  RouteNavContext,
-} from "./core/services/navigation-context.service";
+import type { RouteBreadcrumb, RouteNavContext } from "./core/services/navigation-context.service";
 import { APP_ROUTE_PATHS } from "./shared/constants/app-routes.constant";
 
 export const routes: Routes = [
@@ -22,8 +19,7 @@ export const routes: Routes = [
     children: [
       {
         loadComponent: async () => {
-          const m =
-            await import("@features/auth/login/page/login-page/login-page");
+          const m = await import("@features/auth/login/page/login-page/login-page");
           return m.LoginPage;
         },
         path: APP_ROUTE_PATHS.auth.login,
@@ -31,8 +27,7 @@ export const routes: Routes = [
       },
       {
         loadComponent: async () => {
-          const m =
-            await import("@features/auth/register/page/register-page/register-page");
+          const m = await import("@features/auth/register/page/register-page/register-page");
           return m.RegisterPage;
         },
         path: APP_ROUTE_PATHS.auth.register,
@@ -123,8 +118,7 @@ export const routes: Routes = [
         children: [
           {
             loadComponent: async () => {
-              const c =
-                await import("@features/parking/page/parking-home/parking-home");
+              const c = await import("@features/parking/page/parking-home/parking-home");
               return c.ParkingHome;
             },
             path: "",
@@ -144,8 +138,7 @@ export const routes: Routes = [
               } satisfies RouteNavContext,
             },
             loadComponent: async () => {
-              const c =
-                await import("@features/parking/page/parking-form/parking-form");
+              const c = await import("@features/parking/page/parking-form/parking-form");
               return c.ParkingFormComponent;
             },
             path: "create",
@@ -167,8 +160,7 @@ export const routes: Routes = [
                   } satisfies RouteNavContext,
                 },
                 loadComponent: async () => {
-                  const c =
-                    await import("@features/parking/page/parking-form/parking-form");
+                  const c = await import("@features/parking/page/parking-form/parking-form");
                   return c.ParkingFormComponent;
                 },
                 path: "edit",
@@ -286,8 +278,7 @@ export const routes: Routes = [
                       } satisfies RouteNavContext,
                     },
                     loadComponent: async () => {
-                      const c =
-                        await import("@features/rates/page/rates-page/rates-page");
+                      const c = await import("@features/rates/page/rates-page/rates-page");
                       return c.RatesPageComponent;
                     },
                     path: "",
@@ -307,8 +298,7 @@ export const routes: Routes = [
                       } satisfies RouteNavContext,
                     },
                     loadComponent: async () => {
-                      const c =
-                        await import("@features/rates/components/form/rate-form/rate-form");
+                      const c = await import("@features/rates/components/form/rate-form/rate-form");
                       return c.RateFormComponent;
                     },
                     path: "new",
@@ -328,8 +318,7 @@ export const routes: Routes = [
                       } satisfies RouteNavContext,
                     },
                     loadComponent: async () => {
-                      const c =
-                        await import("@features/rates/components/form/rate-form/rate-form");
+                      const c = await import("@features/rates/components/form/rate-form/rate-form");
                       return c.RateFormComponent;
                     },
                     path: ":rateId/edit",
@@ -358,8 +347,7 @@ export const routes: Routes = [
                   } satisfies RouteNavContext,
                 },
                 loadComponent: async () => {
-                  const c =
-                    await import("@features/operations/page/operations-page");
+                  const c = await import("@features/operations/page/operations-page");
                   return c.OperationsPageComponent;
                 },
                 path: "operations",

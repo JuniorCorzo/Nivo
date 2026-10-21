@@ -36,10 +36,7 @@ describe("SlotMetadataBatchModalComponent", () => {
   });
 
   it("should render modal title and count of selected slots", () => {
-    fixture.componentRef.setInput("selectedSlots", [
-      mockSlot({ id: "1" }),
-      mockSlot({ id: "2" }),
-    ]);
+    fixture.componentRef.setInput("selectedSlots", [mockSlot({ id: "1" }), mockSlot({ id: "2" })]);
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent ?? "";
@@ -62,7 +59,7 @@ describe("SlotMetadataBatchModalComponent", () => {
     expect(warning.textContent).toContain("ocupada");
 
     const submitBtn = fixture.nativeElement.querySelector(
-      '[data-testid="submit-metadata-btn"] button'
+      '[data-testid="submit-metadata-btn"] button',
     );
     expect(submitBtn?.hasAttribute("disabled")).toBe(true);
   });
@@ -78,17 +75,14 @@ describe("SlotMetadataBatchModalComponent", () => {
     expect(component.canSubmit()).toBe(true);
 
     const submitBtn = fixture.nativeElement.querySelector(
-      '[data-testid="submit-metadata-btn"] button'
+      '[data-testid="submit-metadata-btn"] button',
     );
     expect(submitBtn?.hasAttribute("disabled")).toBe(false);
   });
 
   it("should emit submitMetadata with updated flags on submit", () => {
     const spy = vi.spyOn(component.submitMetadata, "emit");
-    fixture.componentRef.setInput("selectedSlots", [
-      mockSlot({ id: "1" }),
-      mockSlot({ id: "2" }),
-    ]);
+    fixture.componentRef.setInput("selectedSlots", [mockSlot({ id: "1" }), mockSlot({ id: "2" })]);
     fixture.detectChanges();
 
     component.hasCharger.set(true);

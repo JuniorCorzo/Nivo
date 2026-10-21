@@ -1,11 +1,6 @@
 import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
-import {
-  ActivatedRoute,
-  convertToParamMap,
-  provideRouter,
-  Router,
-} from "@angular/router";
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from "@angular/router";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import type { SlotSummary } from "@core/models/slot.model";
 import { ParkingService } from "@core/services/parking-service";
@@ -143,9 +138,7 @@ describe("ParkingSlotFormFacade", () => {
         message: "Cambios guardados",
         type: "success",
       });
-      expect(router.navigate).toHaveBeenCalledWith([
-        "/app/parking-lots/parking-1/slots",
-      ]);
+      expect(router.navigate).toHaveBeenCalledWith(["/app/parking-lots/parking-1/slots"]);
     });
   });
 });

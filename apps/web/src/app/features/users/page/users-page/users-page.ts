@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import type { OnInit } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideUserPlus, lucideUsers } from "@ng-icons/lucide";

@@ -110,25 +110,17 @@ describe("duration.utils", () => {
     });
 
     it("should perform lossless roundtrip for standard whole units", () => {
-      expect(
-        DurationConverter.fromMinutes(DurationConverter.toMinutes(3, "DAYS"))
-      ).toEqual({
+      expect(DurationConverter.fromMinutes(DurationConverter.toMinutes(3, "DAYS"))).toEqual({
         amount: 3,
         unit: "DAYS",
       });
 
-      expect(
-        DurationConverter.fromMinutes(DurationConverter.toMinutes(4, "HOURS"))
-      ).toEqual({
+      expect(DurationConverter.fromMinutes(DurationConverter.toMinutes(4, "HOURS"))).toEqual({
         amount: 4,
         unit: "HOURS",
       });
 
-      expect(
-        DurationConverter.fromMinutes(
-          DurationConverter.toMinutes(25, "MINUTES")
-        )
-      ).toEqual({
+      expect(DurationConverter.fromMinutes(DurationConverter.toMinutes(25, "MINUTES"))).toEqual({
         amount: 25,
         unit: "MINUTES",
       });

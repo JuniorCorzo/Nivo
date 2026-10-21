@@ -39,9 +39,7 @@ export class SlotDistributionDonutChartComponent implements OnDestroy {
   readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>("canvasRef");
   chartInstance: Chart | null = null;
 
-  readonly totalSlots = computed(
-    () => this.occupiedSlots() + this.availableSlots()
-  );
+  readonly totalSlots = computed(() => this.occupiedSlots() + this.availableSlots());
 
   readonly resolvedCategories = computed<SlotCategoryItem[]>(() => {
     const inputCats = this.categories();
@@ -97,10 +95,7 @@ export class SlotDistributionDonutChartComponent implements OnDestroy {
     const carOcc = Math.min(Math.round(occupied * (260 / 392)), carTotal);
     const motoOcc = Math.min(Math.round(occupied * (95 / 392)), motoTotal);
     const bikeOcc = Math.min(Math.round(occupied * (22 / 392)), bikeTotal);
-    const evOcc = Math.min(
-      Math.max(occupied - carOcc - motoOcc - bikeOcc, 0),
-      evTotal
-    );
+    const evOcc = Math.min(Math.max(occupied - carOcc - motoOcc - bikeOcc, 0), evTotal);
 
     return [
       {
@@ -148,10 +143,7 @@ export class SlotDistributionDonutChartComponent implements OnDestroy {
     });
   }
 
-  private renderChart(
-    canvas: HTMLCanvasElement,
-    categories: SlotCategoryItem[]
-  ): void {
+  private renderChart(canvas: HTMLCanvasElement, categories: SlotCategoryItem[]): void {
     if (this.chartInstance) {
       this.chartInstance.destroy();
       this.chartInstance = null;

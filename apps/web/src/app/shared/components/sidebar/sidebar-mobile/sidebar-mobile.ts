@@ -39,16 +39,14 @@ export class SidebarMobile {
   public readonly mobileDrawerOpen = signal(false);
 
   protected readonly activeParkingName = computed(
-    () => this.activeParkingService?.activeParkingName() ?? ""
+    () => this.activeParkingService?.activeParkingName() ?? "",
   );
 
   constructor() {
     this.router.events
       .pipe(
-        filter(
-          (event): event is NavigationEnd => event instanceof NavigationEnd
-        ),
-        takeUntilDestroyed()
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
       )
       .subscribe(() => {
         this.closeDrawer();

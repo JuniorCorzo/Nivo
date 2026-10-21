@@ -1,11 +1,5 @@
 import type { WritableSignal } from "@angular/core";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-  signal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideMoon, lucideSun } from "@ng-icons/lucide";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
@@ -22,7 +16,7 @@ export class ThemeButton {
   readonly collapsed = input(false);
   private currentTheme = signal<"light" | "dark">("dark");
   protected currentIcon = computed(() =>
-    this.currentTheme() === "dark" ? "lucideMoon" : "lucideSun"
+    this.currentTheme() === "dark" ? "lucideMoon" : "lucideSun",
   );
   protected themeLabel = APP_TEXTS.sidebar.theme.label;
 

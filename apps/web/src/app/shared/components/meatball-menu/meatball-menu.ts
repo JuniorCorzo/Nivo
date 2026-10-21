@@ -1,12 +1,6 @@
 import type { ConnectedPosition } from "@angular/cdk/overlay";
 import { OverlayModule } from "@angular/cdk/overlay";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  HostListener,
-  input,
-  signal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, HostListener, input, signal } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideEllipsis } from "@ng-icons/lucide";
 import { ButtonComponent } from "@nivo-sass/design-system";
@@ -30,9 +24,7 @@ export interface MeatballMenuItem {
 })
 export class MeatballMenu {
   readonly items = input<MeatballMenuItem[]>();
-  readonly variant = input<"default" | "secondary" | "outline" | "ghost">(
-    "outline"
-  );
+  readonly variant = input<"default" | "secondary" | "outline" | "ghost">("outline");
   readonly size = input<"sm" | "md" | "lg" | "icon">("icon");
   readonly ariaLabel = input<string>("Más opciones");
 

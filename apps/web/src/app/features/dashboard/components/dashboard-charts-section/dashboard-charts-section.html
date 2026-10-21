@@ -2,9 +2,7 @@
   <!-- Left Bento (8 cols): Ingress vs Egress Trend Chart -->
   <div class="lg:col-span-8">
     <nv-card class="h-full">
-      <nv-card-header
-        class="flex flex-col justify-between gap-3 pb-2 sm:flex-row sm:items-center"
-      >
+      <nv-card-header class="flex flex-col justify-between gap-3 pb-2 sm:flex-row sm:items-center">
         <div>
           <nv-card-title>{{ title() }}</nv-card-title>
           <nv-card-description>{{ subtitle() }}</nv-card-description>
@@ -21,9 +19,7 @@
             <span class="text-zinc-400">{{ texts.chart.exits }}</span>
           </div>
           <div class="flex items-center gap-1.5">
-            <span
-              class="h-2 w-3 rounded-xs border border-sky-500/40 bg-sky-500/20"
-            ></span>
+            <span class="h-2 w-3 rounded-xs border border-sky-500/40 bg-sky-500/20"></span>
             <span class="text-zinc-400">{{ texts.chart.legendOccupancy }}</span>
           </div>
         </div>

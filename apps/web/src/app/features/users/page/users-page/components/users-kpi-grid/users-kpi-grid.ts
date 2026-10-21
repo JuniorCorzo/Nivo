@@ -1,16 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import {
-  lucideShield,
-  lucideShieldCheck,
-  lucideUserX,
-  lucideUsers,
-} from "@ng-icons/lucide";
-import {
-  CardComponent,
-  CardContentComponent,
-  TypographyMuted,
-} from "@nivo-sass/design-system";
+import { lucideShield, lucideShieldCheck, lucideUserX, lucideUsers } from "@ng-icons/lucide";
+import { CardComponent, CardContentComponent, TypographyMuted } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({

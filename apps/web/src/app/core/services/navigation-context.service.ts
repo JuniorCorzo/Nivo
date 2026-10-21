@@ -38,26 +38,17 @@ export class NavigationContextService {
 
   private readonly _routeBreadcrumbs = signal<RouteBreadcrumb[]>([]);
 
-  public readonly scope = computed<NavigationScope>(
-    () => this.navContext()?.scope ?? "parking"
-  );
+  public readonly scope = computed<NavigationScope>(() => this.navContext()?.scope ?? "parking");
 
-  public readonly isRoot = computed<boolean>(
-    () => this.navContext()?.isRoot ?? false
-  );
+  public readonly isRoot = computed<boolean>(() => this.navContext()?.isRoot ?? false);
 
-  public readonly backLink = computed<string | null>(
-    () => this.navContext()?.backLink ?? null
-  );
+  public readonly backLink = computed<string | null>(() => this.navContext()?.backLink ?? null);
 
   public readonly breadcrumbs = computed<PageHeaderBreadcrumbItem[]>(() => {
     const rawCrumbs = this._routeBreadcrumbs();
-    const activeParkingName =
-      this.activeParkingService?.activeParkingName()?.trim() ?? "";
+    const activeParkingName = this.activeParkingService?.activeParkingName()?.trim() ?? "";
 
-    const items: PageHeaderBreadcrumbItem[] = [
-      { icon: "lucideHome", label: "Home", url: "/app" },
-    ];
+    const items: PageHeaderBreadcrumbItem[] = [{ icon: "lucideHome", label: "Home", url: "/app" }];
 
     const seenLabels = new Set<string>(["Home"]);
 
@@ -85,26 +76,21 @@ export class NavigationContextService {
     this.breadcrumbs()
       .map((b) => b.label)
       .filter(Boolean)
-      .join(" / ")
+      .join(" / "),
   );
 
   constructor() {
     this.extractAndSetNavContext();
 
     this.router.events
-      .pipe(
-        filter(
-          (event): event is NavigationEnd => event instanceof NavigationEnd
-        )
-      )
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(() => {
         this.extractAndSetNavContext();
       });
   }
 
   private extractAndSetNavContext(): void {
-    let currentRoute: ActivatedRouteSnapshot | null =
-      this.router.routerState.snapshot.root;
+    let currentRoute: ActivatedRouteSnapshot | null = this.router.routerState.snapshot.root;
 
     let foundContext: RouteNavContext | null = null;
     const breadcrumbsStack: RouteBreadcrumb[] = [];
@@ -116,9 +102,7 @@ export class NavigationContextService {
       }
       if (currentRoute.data && currentRoute.data["breadcrumb"]) {
         /* SAFETY: route data['breadcrumb'] adheres to RouteBreadcrumb contract when declared */
-        breadcrumbsStack.push(
-          currentRoute.data["breadcrumb"] as RouteBreadcrumb
-        );
+        breadcrumbsStack.push(currentRoute.data["breadcrumb"] as RouteBreadcrumb);
       }
       currentRoute = currentRoute.firstChild;
     }

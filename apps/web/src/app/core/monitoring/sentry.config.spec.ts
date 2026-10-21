@@ -33,15 +33,13 @@ describe("sentry.config", () => {
         shouldInitializeSentry({
           dsn: "https://test@sentry.io/1",
           enabled: false,
-        })
+        }),
       ).toBe(false);
       expect(shouldInitializeSentry({ enabled: true })).toBe(true);
     });
 
     it("should return true when dsn is explicitly provided", () => {
-      expect(shouldInitializeSentry({ dsn: "https://test@sentry.io/1" })).toBe(
-        true
-      );
+      expect(shouldInitializeSentry({ dsn: "https://test@sentry.io/1" })).toBe(true);
     });
 
     it("should return false when no dsn is provided and in dev mode", () => {
@@ -68,7 +66,7 @@ describe("sentry.config", () => {
         expect.objectContaining({
           dsn,
           tracePropagationTargets: ["localhost", /^\/api/u],
-        })
+        }),
       );
     });
 
@@ -76,17 +74,14 @@ describe("sentry.config", () => {
       const mockInit = vi.fn();
       const dsn = "https://example@sentry.io/123";
       const customTargets = ["https://api.example.com", /^\/v1/u];
-      const result = initSentry(
-        { dsn, tracePropagationTargets: customTargets },
-        mockInit
-      );
+      const result = initSentry({ dsn, tracePropagationTargets: customTargets }, mockInit);
 
       expect(result).toBe(true);
       expect(mockInit).toHaveBeenCalledWith(
         expect.objectContaining({
           dsn,
           tracePropagationTargets: customTargets,
-        })
+        }),
       );
     });
   });

@@ -43,7 +43,7 @@ export const mapToTicketSummary = (dto: ParkingTicketsDto): TicketSummary => {
 };
 
 export const mapToCreateTicketDto = (
-  payload: CreateTicketPayload
+  payload: CreateTicketPayload,
 ): CreateTicket & {
   plateCountry?: PlateCountry;
   photoUrl?: string;
@@ -59,7 +59,7 @@ export const mapToCreateTicketDto = (
 });
 
 export const mapToCheckOutCommand = (
-  payload: CheckOutPayload
+  payload: CheckOutPayload,
 ): NoSendCheckOutCommand | EmailCheckOutCommand => {
   const paymentMethod = payload.paymentMethod ?? "EFFECTIVE";
   if (payload.sendVia === "EMAIL" && payload.email) {
@@ -83,9 +83,7 @@ export const mapPriceLine = (dto: PriceLine): PriceLineModel => ({
   concept: dto.concept ?? "",
 });
 
-export const mapToPriceDetailedModel = (
-  dto: PriceDetailed
-): PriceDetailedModel => ({
+export const mapToPriceDetailedModel = (dto: PriceDetailed): PriceDetailedModel => ({
   breakdown: (dto.breakpoint ?? []).map((line) => mapPriceLine(line)),
   ivaAmount: dto.ivaAmount ?? 0,
   ivaRate: dto.ivaRate ?? 0,

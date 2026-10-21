@@ -46,12 +46,7 @@ export class DataTableState<TData extends RowData> {
   setColumnFilter(id: string, value: unknown): void {
     this.columnFilters.update((filters) => {
       const remaining = filters.filter((f) => f.id !== id);
-      if (
-        value === undefined ||
-        value === null ||
-        value === "" ||
-        value === "ALL"
-      ) {
+      if (value === undefined || value === null || value === "" || value === "ALL") {
         return remaining;
       }
       return [...remaining, { id, value }];
@@ -59,9 +54,7 @@ export class DataTableState<TData extends RowData> {
     this.pagination.update((prev) => ({ ...prev, pageIndex: 0 }));
   }
 
-  getColumnFilterValue<TFilterValue = string>(
-    id: string
-  ): TFilterValue | undefined {
+  getColumnFilterValue<TFilterValue = string>(id: string): TFilterValue | undefined {
     const filter = this.columnFilters().find((f) => f.id === id);
     if (!filter) {
       return undefined;
@@ -82,9 +75,7 @@ export class DataTableState<TData extends RowData> {
     }
 
     return createAngularTable(() => {
-      const resolvedColumns = Array.isArray(options.columns)
-        ? options.columns
-        : options.columns();
+      const resolvedColumns = Array.isArray(options.columns) ? options.columns : options.columns();
 
       return {
         columns: resolvedColumns,
@@ -99,9 +90,7 @@ export class DataTableState<TData extends RowData> {
           this.columnFilters.update((prev) => functionalUpdate(updater, prev));
         },
         onColumnVisibilityChange: (updater) => {
-          this.columnVisibility.update((prev) =>
-            functionalUpdate(updater, prev)
-          );
+          this.columnVisibility.update((prev) => functionalUpdate(updater, prev));
         },
         onGlobalFilterChange: (updater) => {
           this.globalFilter.update((prev) => functionalUpdate(updater, prev));

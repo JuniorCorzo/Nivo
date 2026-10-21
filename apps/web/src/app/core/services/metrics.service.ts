@@ -64,8 +64,7 @@ const isString = (val: unknown): val is string =>
   Object.prototype.toString.call(val) === "[object String]";
 
 const isNumber = (val: unknown): val is number =>
-  Object.prototype.toString.call(val) === "[object Number]" &&
-  !Number.isNaN(val);
+  Object.prototype.toString.call(val) === "[object Number]" && !Number.isNaN(val);
 
 /**
  * Sanitizes a URL path into a strict low-cardinality route template.
@@ -86,7 +85,7 @@ export const sanitizeRoutePath = (rawPath?: string | null): string => {
   // 1. UUIDs (8-4-4-4-12 hex format)
   path = path.replaceAll(
     /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/gu,
-    ":id"
+    ":id",
   );
 
   // 2. 24-character hexadecimal IDs (MongoDB / ObjectIDs)
@@ -96,7 +95,7 @@ export const sanitizeRoutePath = (rawPath?: string | null): string => {
   // Note: Avoid matching structural route segments like 'parking-lots'
   path = path.replaceAll(
     /\b(?:parking|tenant|slot|user|rate|ticket)-(?!lots\b)[a-zA-Z0-9_-]+\b/gu,
-    ":id"
+    ":id",
   );
 
   // 4. Vehicle license plate formats (e.g., ABC123, ABC-123, ABC12D)
@@ -135,10 +134,7 @@ export const categorizeHttpStatus = (statusCode?: number): string => {
 /**
  * Normalizes error type token.
  */
-export const normalizeErrorType = (
-  errorType?: string,
-  statusCategory?: string
-): string => {
+export const normalizeErrorType = (errorType?: string, statusCategory?: string): string => {
   if (errorType && errorType.trim().length > 0) {
     return errorType.trim().toLowerCase();
   }
@@ -162,10 +158,7 @@ export const filterLowCardinalityLabels = (labels: Record<string, string>) => {
     if (FORBIDDEN_LABEL_KEYS.has(normalizedKey)) {
       continue;
     }
-    result[key] =
-      key === "route"
-        ? sanitizeRoutePath(value)
-        : value.replaceAll(/[\r\n]/gu, "");
+    result[key] = key === "route" ? sanitizeRoutePath(value) : value.replaceAll(/[\r\n]/gu, "");
   }
 
   return result;
@@ -206,25 +199,14 @@ export class MetricsService implements OnDestroy {
   /**
    * Tracks Core Web Vitals (LCP, CLS, INP, FID).
    */
-  recordWebVital(
-    metric: WebVitalMetric,
-    value: number,
-    targetRoute?: string
-  ): void {
-    const route = sanitizeRoutePath(
-      targetRoute ?? this.getCurrentRouteTemplate()
-    );
+  recordWebVital(metric: WebVitalMetric, value: number, targetRoute?: string): void {
+    const route = sanitizeRoutePath(targetRoute ?? this.getCurrentRouteTemplate());
     const labels = filterLowCardinalityLabels({
       metric,
       route,
     });
 
-    this.setGauge(
-      "nivo_frontend_web_vitals",
-      "Core Web Vitals measurement values",
-      labels,
-      value
-    );
+    this.setGauge("nivo_frontend_web_vitals", "Core Web Vitals measurement values", labels, value);
   }
 
   /**
@@ -240,7 +222,7 @@ export class MetricsService implements OnDestroy {
       "nivo_frontend_route_navigation_duration_seconds",
       "Navigation duration between routes in seconds",
       labels,
-      durationSeconds
+      durationSeconds,
     );
   }
 
@@ -248,12 +230,9 @@ export class MetricsService implements OnDestroy {
    * Tracks frontend API errors categorized into low-cardinality status tags (4xx, 5xx).
    */
   recordApiError(params: ApiErrorMetricParams): void {
-    const statusCategory =
-      params.statusCategory ?? categorizeHttpStatus(params.statusCode);
+    const statusCategory = params.statusCategory ?? categorizeHttpStatus(params.statusCode);
     const errorType = normalizeErrorType(params.errorType, statusCategory);
-    const route = sanitizeRoutePath(
-      params.route ?? this.getCurrentRouteTemplate()
-    );
+    const route = sanitizeRoutePath(params.route ?? this.getCurrentRouteTemplate());
 
     const labels = filterLowCardinalityLabels({
       error_type: errorType,
@@ -264,7 +243,7 @@ export class MetricsService implements OnDestroy {
     this.incrementCounter(
       "nivo_frontend_api_errors_total",
       "Count of frontend API errors partitioned by status category",
-      labels
+      labels,
     );
   }
 
@@ -273,9 +252,7 @@ export class MetricsService implements OnDestroy {
    */
   recordSseDrop(params?: SseDropMetricParams): void {
     const errorType = normalizeErrorType(params?.errorType, "stream_drop");
-    const route = sanitizeRoutePath(
-      params?.route ?? this.getCurrentRouteTemplate()
-    );
+    const route = sanitizeRoutePath(params?.route ?? this.getCurrentRouteTemplate());
 
     const labels = filterLowCardinalityLabels({
       error_type: errorType,
@@ -285,7 +262,7 @@ export class MetricsService implements OnDestroy {
     this.incrementCounter(
       "nivo_frontend_sse_connection_drops_total",
       "Count of Server-Sent Events connection drops",
-      labels
+      labels,
     );
   }
 
@@ -297,8 +274,7 @@ export class MetricsService implements OnDestroy {
       return "/";
     }
 
-    let snapshot: ActivatedRouteSnapshot | null =
-      this.router.routerState.snapshot.root;
+    let snapshot: ActivatedRouteSnapshot | null = this.router.routerState.snapshot.root;
     const segments: string[] = [];
 
     while (snapshot) {
@@ -338,10 +314,7 @@ export class MetricsService implements OnDestroy {
         continue;
       }
 
-      lines.push(
-        `# HELP ${first.name} ${first.help}`,
-        `# TYPE ${first.name} ${first.type}`
-      );
+      lines.push(`# HELP ${first.name} ${first.help}`, `# TYPE ${first.name} ${first.type}`);
 
       for (const item of seriesList) {
         const serializedLabels = MetricsService.serializeLabels(item.labels);
@@ -440,7 +413,7 @@ export class MetricsService implements OnDestroy {
     name: string,
     help: string,
     labels: Record<string, string>,
-    incrementBy = 1
+    incrementBy = 1,
   ): void {
     const key = MetricsService.createSeriesKey(name, labels);
     const existing = this.seriesMap.get(key);
@@ -459,7 +432,7 @@ export class MetricsService implements OnDestroy {
     name: string,
     help: string,
     labels: Record<string, string>,
-    value: number
+    value: number,
   ): void {
     const key = MetricsService.createSeriesKey(name, labels);
 
@@ -472,10 +445,7 @@ export class MetricsService implements OnDestroy {
     });
   }
 
-  private static createSeriesKey(
-    name: string,
-    labels: Record<string, string>
-  ): string {
+  private static createSeriesKey(name: string, labels: Record<string, string>): string {
     const serializedLabels = MetricsService.serializeLabels(labels);
     return `${name}${serializedLabels}`;
   }
@@ -490,19 +460,12 @@ export class MetricsService implements OnDestroy {
         this.navStartTime = performance.now();
       } else if (event instanceof NavigationEnd) {
         if (this.navStartTime !== null) {
-          const durationSeconds =
-            (performance.now() - this.navStartTime) / 1000;
+          const durationSeconds = (performance.now() - this.navStartTime) / 1000;
           this.navStartTime = null;
           const route = this.getCurrentRouteTemplate();
-          this.recordNavigationDuration(
-            route,
-            Number(durationSeconds.toFixed(3))
-          );
+          this.recordNavigationDuration(route, Number(durationSeconds.toFixed(3)));
         }
-      } else if (
-        event instanceof NavigationCancel ||
-        event instanceof NavigationError
-      ) {
+      } else if (event instanceof NavigationCancel || event instanceof NavigationError) {
         this.navStartTime = null;
       }
     });
@@ -562,8 +525,7 @@ export class MetricsService implements OnDestroy {
             startTime: number;
           };
           if (isNumber(fidEntry.processingStart)) {
-            const fidSeconds =
-              (fidEntry.processingStart - fidEntry.startTime) / 1000;
+            const fidSeconds = (fidEntry.processingStart - fidEntry.startTime) / 1000;
             this.recordWebVital("fid", Number(fidSeconds.toFixed(3)));
           }
         }
@@ -581,15 +543,9 @@ export class MetricsService implements OnDestroy {
         for (const entry of entryList.getEntries()) {
           /* SAFETY: event PerformanceEntry contains duration in milliseconds */
           const eventEntry = entry as { duration?: number };
-          if (
-            isNumber(eventEntry.duration) &&
-            eventEntry.duration > maxInteractionDuration
-          ) {
+          if (isNumber(eventEntry.duration) && eventEntry.duration > maxInteractionDuration) {
             maxInteractionDuration = eventEntry.duration;
-            this.recordWebVital(
-              "inp",
-              Number((maxInteractionDuration / 1000).toFixed(3))
-            );
+            this.recordWebVital("inp", Number((maxInteractionDuration / 1000).toFixed(3)));
           }
         }
       });

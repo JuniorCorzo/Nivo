@@ -1,9 +1,6 @@
 import { HttpContext } from "@angular/common/http";
 import { inject, Injectable, signal } from "@angular/core";
-import {
-  ParkingTicketsService,
-  RatesService,
-} from "@core/api/generated/services";
+import { ParkingTicketsService, RatesService } from "@core/api/generated/services";
 import { AUTHORIZED } from "@core/http/context/auth.token";
 import {
   mapToCheckOutCommand,
@@ -47,20 +44,16 @@ export class TicketService {
   createTicket(payload: CreateTicketPayload): Observable<TicketSummary> {
     const dto = mapToCreateTicketDto(payload);
 
-    return this.parkingTicketsService
-      .createTicket({ body: dto }, TicketService.httpContext())
-      .pipe(
-        map((response) => {
-          /* SAFETY: Created ticket response data is defined */
-          const data = response.data as Parameters<
-            typeof mapToTicketSummary
-          >[0];
-          return mapToTicketSummary(data);
-        }),
-        tap((newTicket) => {
-          this._activeTickets.update((tickets) => [newTicket, ...tickets]);
-        })
-      );
+    return this.parkingTicketsService.createTicket({ body: dto }, TicketService.httpContext()).pipe(
+      map((response) => {
+        /* SAFETY: Created ticket response data is defined */
+        const data = response.data as Parameters<typeof mapToTicketSummary>[0];
+        return mapToTicketSummary(data);
+      }),
+      tap((newTicket) => {
+        this._activeTickets.update((tickets) => [newTicket, ...tickets]);
+      }),
+    );
   }
 
   /**
@@ -72,11 +65,9 @@ export class TicketService {
       .pipe(
         map((response) => {
           /* SAFETY: Active ticket response data is defined */
-          const data = response.data as Parameters<
-            typeof mapToTicketSummary
-          >[0];
+          const data = response.data as Parameters<typeof mapToTicketSummary>[0];
           return mapToTicketSummary(data);
-        })
+        }),
       );
   }
 
@@ -84,17 +75,13 @@ export class TicketService {
    * Calculate live price breakdown for a ticket before exit
    */
   calculatePrice(ticketId: string): Observable<PriceDetailedModel> {
-    return this.ratesService
-      .calculatePrice({ ticketId }, TicketService.httpContext())
-      .pipe(
-        map((response) => {
-          /* SAFETY: Calculate price response data is defined */
-          const data = response.data as Parameters<
-            typeof mapToPriceDetailedModel
-          >[0];
-          return mapToPriceDetailedModel(data);
-        })
-      );
+    return this.ratesService.calculatePrice({ ticketId }, TicketService.httpContext()).pipe(
+      map((response) => {
+        /* SAFETY: Calculate price response data is defined */
+        const data = response.data as Parameters<typeof mapToPriceDetailedModel>[0];
+        return mapToPriceDetailedModel(data);
+      }),
+    );
   }
 
   /**
@@ -108,16 +95,12 @@ export class TicketService {
       .pipe(
         map((response) => {
           /* SAFETY: Check-out response data is defined */
-          const data = response.data as Parameters<
-            typeof mapToPaymentRecord
-          >[0];
+          const data = response.data as Parameters<typeof mapToPaymentRecord>[0];
           return mapToPaymentRecord(data);
         }),
         tap(() => {
-          this._activeTickets.update((tickets) =>
-            tickets.filter((t) => t.id !== payload.ticketId)
-          );
-        })
+          this._activeTickets.update((tickets) => tickets.filter((t) => t.id !== payload.ticketId));
+        }),
       );
   }
 
@@ -130,10 +113,10 @@ export class TicketService {
       .pipe(
         map((response) =>
           /* SAFETY: list tickets response data is an array */
-          (
-            (response.data ?? []) as Parameters<typeof mapToTicketSummary>[0][]
-          ).map((dto) => mapToTicketSummary(dto))
-        )
+          ((response.data ?? []) as Parameters<typeof mapToTicketSummary>[0][]).map((dto) =>
+            mapToTicketSummary(dto),
+          ),
+        ),
       );
   }
 
@@ -156,10 +139,10 @@ export class TicketService {
                   ...t,
                   parkingLotId: lot.id,
                   parkingLotName: lot.name,
-                }))
-              )
-            )
-          )
+                })),
+              ),
+            ),
+          ),
         ).pipe(
           map((ticketArrays) => {
             const flattened: TicketSummary[] = ticketArrays.flat();
@@ -168,9 +151,9 @@ export class TicketService {
               const timeB = new Date(b.entryTime || b.createdAt || 0).getTime();
               return timeB - timeA;
             });
-          })
+          }),
         );
-      })
+      }),
     );
   }
 
@@ -185,8 +168,6 @@ export class TicketService {
    * Helper to remove closed ticket from local active list
    */
   removeActiveTicket(ticketId: string): void {
-    this._activeTickets.update((tickets) =>
-      tickets.filter((t) => t.id !== ticketId)
-    );
+    this._activeTickets.update((tickets) => tickets.filter((t) => t.id !== ticketId));
   }
 }

@@ -49,18 +49,14 @@ export const TENANT_B: TenantCredentials = {
   tenantId: "22222222-2222-2222-2222-222222222222",
 };
 
-export const setupMockTenantApi = async (
-  page: Page,
-  tenant: TenantCredentials
-): Promise<void> => {
+export const setupMockTenantApi = async (page: Page, tenant: TenantCredentials): Promise<void> => {
   await page.route("**/api/v1/auth/login", async (route) => {
     /* SAFETY: postDataJSON parses request body into an object with email and password */
     const postData = route.request().postDataJSON() as {
       email?: string;
       password?: string;
     } | null;
-    const isValid =
-      postData?.email === tenant.email && postData.password === tenant.password;
+    const isValid = postData?.email === tenant.email && postData.password === tenant.password;
 
     await route.fulfill(
       isValid
@@ -83,7 +79,7 @@ export const setupMockTenantApi = async (
               status: 401,
             },
             status: 401,
-          }
+          },
     );
   });
 

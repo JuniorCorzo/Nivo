@@ -119,47 +119,38 @@ test.describe("CUJ 03: Vehicle Operations Check-In & Check-Out", () => {
       });
     });
 
-    await page.route(
-      `**/api/v1/slots/summary?parking=${parkingId}`,
-      async (route) => {
-        await route.fulfill({
-          contentType: "application/json",
-          json: {
-            data: [getMockSlot("AVAILABLE")],
-            status: 200,
-          },
+    await page.route(`**/api/v1/slots/summary?parking=${parkingId}`, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          data: [getMockSlot("AVAILABLE")],
           status: 200,
-        });
-      }
-    );
+        },
+        status: 200,
+      });
+    });
 
-    await page.route(
-      `**/api/v1/parking-lots/${parkingId}/rates`,
-      async (route) => {
-        await route.fulfill({
-          contentType: "application/json",
-          json: {
-            data: [mockRate],
-            status: 200,
-          },
+    await page.route(`**/api/v1/parking-lots/${parkingId}/rates`, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          data: [mockRate],
           status: 200,
-        });
-      }
-    );
+        },
+        status: 200,
+      });
+    });
 
-    await page.route(
-      `**/api/v1/tickets?parking=${parkingId}`,
-      async (route) => {
-        await route.fulfill({
-          contentType: "application/json",
-          json: {
-            data: [],
-            status: 200,
-          },
+    await page.route(`**/api/v1/tickets?parking=${parkingId}`, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          data: [],
           status: 200,
-        });
-      }
-    );
+        },
+        status: 200,
+      });
+    });
 
     await checkInPage.goto(parkingId);
     await checkInPage.expectLoaded();
@@ -187,47 +178,38 @@ test.describe("CUJ 03: Vehicle Operations Check-In & Check-Out", () => {
       });
     });
 
-    await page.route(
-      `**/api/v1/slots/summary?parking=${parkingId}`,
-      async (route) => {
-        await route.fulfill({
-          contentType: "application/json",
-          json: {
-            data: [getMockSlot(isOccupied ? "OCCUPIED" : "AVAILABLE")],
-            status: 200,
-          },
+    await page.route(`**/api/v1/slots/summary?parking=${parkingId}`, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          data: [getMockSlot(isOccupied ? "OCCUPIED" : "AVAILABLE")],
           status: 200,
-        });
-      }
-    );
+        },
+        status: 200,
+      });
+    });
 
-    await page.route(
-      `**/api/v1/parking-lots/${parkingId}/rates`,
-      async (route) => {
-        await route.fulfill({
-          contentType: "application/json",
-          json: {
-            data: [mockRate],
-            status: 200,
-          },
+    await page.route(`**/api/v1/parking-lots/${parkingId}/rates`, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          data: [mockRate],
           status: 200,
-        });
-      }
-    );
+        },
+        status: 200,
+      });
+    });
 
-    await page.route(
-      `**/api/v1/tickets?parking=${parkingId}`,
-      async (route) => {
-        await route.fulfill({
-          contentType: "application/json",
-          json: {
-            data: isOccupied ? [mockTicket] : [],
-            status: 200,
-          },
+    await page.route(`**/api/v1/tickets?parking=${parkingId}`, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          data: isOccupied ? [mockTicket] : [],
           status: 200,
-        });
-      }
-    );
+        },
+        status: 200,
+      });
+    });
 
     await page.route("**/api/v1/tickets", async (route) => {
       isOccupied = true;
@@ -274,73 +256,61 @@ test.describe("CUJ 03: Vehicle Operations Check-In & Check-Out", () => {
       });
     });
 
-    await page.route(
-      `**/api/v1/slots/summary?parking=${parkingId}`,
-      async (route) => {
-        await route.fulfill({
-          contentType: "application/json",
-          json: {
-            data: [getMockSlot(isCheckedOut ? "AVAILABLE" : "OCCUPIED")],
-            status: 200,
-          },
+    await page.route(`**/api/v1/slots/summary?parking=${parkingId}`, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          data: [getMockSlot(isCheckedOut ? "AVAILABLE" : "OCCUPIED")],
           status: 200,
-        });
-      }
-    );
+        },
+        status: 200,
+      });
+    });
 
-    await page.route(
-      `**/api/v1/parking-lots/${parkingId}/rates`,
-      async (route) => {
-        await route.fulfill({
-          contentType: "application/json",
-          json: {
-            data: [mockRate],
-            status: 200,
-          },
+    await page.route(`**/api/v1/parking-lots/${parkingId}/rates`, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          data: [mockRate],
           status: 200,
-        });
-      }
-    );
+        },
+        status: 200,
+      });
+    });
 
-    await page.route(
-      `**/api/v1/tickets?parking=${parkingId}`,
-      async (route) => {
-        await route.fulfill({
-          contentType: "application/json",
-          json: {
-            data: isCheckedOut ? [] : [mockTicket],
-            status: 200,
-          },
+    await page.route(`**/api/v1/tickets?parking=${parkingId}`, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          data: isCheckedOut ? [] : [mockTicket],
           status: 200,
-        });
-      }
-    );
+        },
+        status: 200,
+      });
+    });
 
-    await page.route(
-      `**/api/v1/tickets/${ticketId}/calculate-fee`,
-      async (route) => {
-        await route.fulfill({
-          contentType: "application/json",
-          json: {
-            data: {
-              breakpoint: [
-                {
-                  amount: 5000,
-                  concept: "1 Hora de estancia",
-                },
-              ],
-              ivaAmount: 950,
-              ivaRate: 19,
-              name: "Tarifa Carro Estándar",
-              subtotal: 5000,
-              total: 5950,
-            },
-            status: 200,
+    await page.route(`**/api/v1/tickets/${ticketId}/calculate-fee`, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          data: {
+            breakpoint: [
+              {
+                amount: 5000,
+                concept: "1 Hora de estancia",
+              },
+            ],
+            ivaAmount: 950,
+            ivaRate: 19,
+            name: "Tarifa Carro Estándar",
+            subtotal: 5000,
+            total: 5950,
           },
           status: 200,
-        });
-      }
-    );
+        },
+        status: 200,
+      });
+    });
 
     await page.route("**/api/v1/tickets/checkout", async (route) => {
       isCheckedOut = true;

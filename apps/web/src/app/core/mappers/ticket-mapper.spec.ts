@@ -4,10 +4,7 @@ import type {
   PaymentsDto,
   PriceDetailed,
 } from "@core/api/generated/models";
-import type {
-  CheckOutPayload,
-  CreateTicketPayload,
-} from "@core/models/ticket.model";
+import type { CheckOutPayload, CreateTicketPayload } from "@core/models/ticket.model";
 
 import {
   mapToCheckOutCommand,

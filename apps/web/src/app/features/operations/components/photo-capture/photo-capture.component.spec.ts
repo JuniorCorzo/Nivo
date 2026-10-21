@@ -37,12 +37,10 @@ describe("PhotoCaptureComponent", () => {
     };
     /* SAFETY: Partial canvas context satisfies drawImage in test environment */
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
-      mockCtx as CanvasRenderingContext2D
+      mockCtx as CanvasRenderingContext2D,
     );
 
-    vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockReturnValue(
-      mockBase64
-    );
+    vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockReturnValue(mockBase64);
 
     await TestBed.configureTestingModule({
       imports: [PhotoCaptureComponent],

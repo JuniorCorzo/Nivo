@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-  output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
 import type { UserModel } from "@core/models/user.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideUserCog, lucideUserX } from "@ng-icons/lucide";
@@ -53,8 +47,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 })
 export class UserRowActionsComponent {
   readonly texts = APP_TEXTS.users.table.actions;
-  readonly deactivateSelfDisabledText =
-    APP_TEXTS.users.modals.deactivate.selfDeactivationWarning;
+  readonly deactivateSelfDisabledText = APP_TEXTS.users.modals.deactivate.selfDeactivationWarning;
   readonly isSelf = input<boolean>(false);
   readonly user = input.required<UserModel>();
 

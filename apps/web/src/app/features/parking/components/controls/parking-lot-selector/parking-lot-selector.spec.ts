@@ -17,12 +17,8 @@ interface MockRouter {
 describe("ParkingLotSelector", () => {
   let component: ParkingLotSelector;
   let fixture: ComponentFixture<ParkingLotSelector>;
-  let mockParkingLotsSignal: ReturnType<
-    typeof signal<ParkingLotListItemModel[]>
-  >;
-  let mockActiveParkingLotSignal: ReturnType<
-    typeof signal<ParkingLotListItemModel | null>
-  >;
+  let mockParkingLotsSignal: ReturnType<typeof signal<ParkingLotListItemModel[]>>;
+  let mockActiveParkingLotSignal: ReturnType<typeof signal<ParkingLotListItemModel | null>>;
   let setActiveParkingSpy: ReturnType<typeof vi.fn>;
   let mockRouter: MockRouter;
 
@@ -69,9 +65,7 @@ describe("ParkingLotSelector", () => {
 
   beforeEach(async () => {
     mockParkingLotsSignal = signal<ParkingLotListItemModel[]>(mockLots);
-    mockActiveParkingLotSignal = signal<ParkingLotListItemModel | null>(
-      mockLots[0]
-    );
+    mockActiveParkingLotSignal = signal<ParkingLotListItemModel | null>(mockLots[0]);
     setActiveParkingSpy = vi.fn();
     mockRouter = { navigate: vi.fn() };
 
@@ -157,9 +151,7 @@ describe("ParkingLotSelector", () => {
   });
 
   it("should format address properly", () => {
-    expect(component.getFormattedAddress(mockLots[0])).toBe(
-      "Calle 100 # 15-20, Bogotá"
-    );
+    expect(component.getFormattedAddress(mockLots[0])).toBe("Calle 100 # 15-20, Bogotá");
   });
 
   it("should compute activeAddress based on activeLot", () => {
@@ -210,8 +202,6 @@ describe("ParkingLotSelector", () => {
     component.onCreateParking();
 
     expect(component.isOpen()).toBe(false);
-    expect(mockRouter.navigate).toHaveBeenCalledWith([
-      APP_ROUTES.app.createParkingLots,
-    ]);
+    expect(mockRouter.navigate).toHaveBeenCalledWith([APP_ROUTES.app.createParkingLots]);
   });
 });

@@ -1,13 +1,9 @@
 <div class="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
   <!-- Total Capacity & Plazas Ocupadas -->
-  <nv-card
-    class="flex h-full min-h-[110px] flex-col justify-between rounded-xl shadow-xs"
-  >
+  <nv-card class="flex h-full min-h-[110px] flex-col justify-between rounded-xl shadow-xs">
     <div class="p-4">
       <div class="flex items-center justify-between gap-1">
-        <nv-muted
-          class="block truncate text-[11px] font-semibold tracking-wider uppercase"
-        >
+        <nv-muted class="block truncate text-[11px] font-semibold tracking-wider uppercase">
           Plazas Ocupadas
         </nv-muted>
         <div
@@ -30,14 +26,10 @@
   </nv-card>
 
   <!-- Occupancy Rate -->
-  <nv-card
-    class="flex h-full min-h-[110px] flex-col justify-between rounded-xl shadow-xs"
-  >
+  <nv-card class="flex h-full min-h-[110px] flex-col justify-between rounded-xl shadow-xs">
     <div class="p-4">
       <div class="flex items-center justify-between gap-1">
-        <nv-muted
-          class="block truncate text-[11px] font-semibold tracking-wider uppercase"
-        >
+        <nv-muted class="block truncate text-[11px] font-semibold tracking-wider uppercase">
           Ocupación
         </nv-muted>
         <div
@@ -68,14 +60,10 @@
   </nv-card>
 
   <!-- Currency & Billing -->
-  <nv-card
-    class="flex h-full min-h-12 flex-col justify-between rounded-xl shadow-xs"
-  >
+  <nv-card class="flex h-full min-h-12 flex-col justify-between rounded-xl shadow-xs">
     <div class="p-4">
       <div class="flex items-center justify-between gap-1">
-        <nv-muted
-          class="block truncate text-[11px] font-semibold tracking-wider uppercase"
-        >
+        <nv-muted class="block truncate text-[11px] font-semibold tracking-wider uppercase">
           Moneda Base
         </nv-muted>
         <div
@@ -90,22 +78,16 @@
             {{ currency() }}
           </nv-mono>
         </div>
-        <nv-muted class="mt-0.5 block truncate text-[11px]">
-          facturación
-        </nv-muted>
+        <nv-muted class="mt-0.5 block truncate text-[11px]"> facturación </nv-muted>
       </div>
     </div>
   </nv-card>
 
   <!-- Coordenadas -->
-  <nv-card
-    class="flex h-full min-h-[110px] flex-col justify-between rounded-xl shadow-xs"
-  >
+  <nv-card class="flex h-full min-h-[110px] flex-col justify-between rounded-xl shadow-xs">
     <div class="p-4">
       <div class="flex items-center justify-between gap-1">
-        <nv-muted
-          class="block truncate text-[11px] font-semibold tracking-wider uppercase"
-        >
+        <nv-muted class="block truncate text-[11px] font-semibold tracking-wider uppercase">
           Coordenadas
         </nv-muted>
         <div
@@ -116,9 +98,7 @@
       </div>
       <div class="mt-2 flex flex-col">
         <div class="flex items-baseline gap-2">
-          <nv-mono
-            class="text-foreground block truncate font-mono text-xs font-bold sm:text-sm"
-          >
+          <nv-mono class="text-foreground block truncate font-mono text-xs font-bold sm:text-sm">
             {{ formattedCoords() }}
           </nv-mono>
         </div>

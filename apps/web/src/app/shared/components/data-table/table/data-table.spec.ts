@@ -25,9 +25,7 @@ interface SampleUser {
       (rowClick)="onRowClick($event)"
     >
       @if (useCustomEmpty()) {
-        <div emptyState data-testid="custom-empty">
-          Estado vacío personalizado
-        </div>
+        <div emptyState data-testid="custom-empty">Estado vacío personalizado</div>
       }
     </app-data-table>
   `,

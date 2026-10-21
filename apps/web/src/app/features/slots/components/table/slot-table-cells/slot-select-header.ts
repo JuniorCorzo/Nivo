@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import { CheckboxComponent } from "@nivo-sass/design-system";
 
 @Component({

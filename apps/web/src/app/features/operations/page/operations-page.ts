@@ -99,10 +99,7 @@ export class OperationsPageComponent {
     if (!id) {
       return null;
     }
-    return (
-      (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ??
-      null
-    );
+    return (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ?? null;
   });
 
   readonly slots = computed<SlotSummary[]>(() => {
@@ -124,33 +121,25 @@ export class OperationsPageComponent {
   readonly totalSlotsCount = computed(() => this.slots().length);
 
   readonly availableSlotsCount = computed(
-    () => this.slots().filter((s) => s.status === "AVAILABLE").length
+    () => this.slots().filter((s) => s.status === "AVAILABLE").length,
   );
 
   readonly availableCarSlotsCount = computed(
-    () =>
-      this.slots().filter(
-        (s) => s.status === "AVAILABLE" && s.type === "CAR"
-      ).length
+    () => this.slots().filter((s) => s.status === "AVAILABLE" && s.type === "CAR").length,
   );
 
-  readonly totalCarSlotsCount = computed(
-    () => this.slots().filter((s) => s.type === "CAR").length
-  );
+  readonly totalCarSlotsCount = computed(() => this.slots().filter((s) => s.type === "CAR").length);
 
   readonly availableMotoSlotsCount = computed(
-    () =>
-      this.slots().filter(
-        (s) => s.status === "AVAILABLE" && s.type === "MOTORCYCLE"
-      ).length
+    () => this.slots().filter((s) => s.status === "AVAILABLE" && s.type === "MOTORCYCLE").length,
   );
 
   readonly totalMotoSlotsCount = computed(
-    () => this.slots().filter((s) => s.type === "MOTORCYCLE").length
+    () => this.slots().filter((s) => s.type === "MOTORCYCLE").length,
   );
 
   readonly occupiedSlotsCount = computed(
-    () => this.slots().filter((s) => s.status === "OCCUPIED").length
+    () => this.slots().filter((s) => s.status === "OCCUPIED").length,
   );
 
   readonly ratesCount = computed(() => this.rates().length);
@@ -202,9 +191,7 @@ export class OperationsPageComponent {
         this.ticketService.listTicketsByParkingLot(id).subscribe({
           error: () => this.activeTickets.set([]),
           next: (tickets) => {
-            this.activeTickets.set(
-              (tickets ?? []).filter((t) => t.status === "OPEN")
-            );
+            this.activeTickets.set((tickets ?? []).filter((t) => t.status === "OPEN"));
           },
         });
       } else {
@@ -222,9 +209,7 @@ export class OperationsPageComponent {
     this.ticketService.listTicketsByParkingLot(id).subscribe({
       error: () => this.activeTickets.set([]),
       next: (tickets) => {
-        this.activeTickets.set(
-          (tickets ?? []).filter((t) => t.status === "OPEN")
-        );
+        this.activeTickets.set((tickets ?? []).filter((t) => t.status === "OPEN"));
       },
     });
   }
@@ -273,9 +258,7 @@ export class OperationsPageComponent {
   checkOutSpecificSlot(slot: SlotSummary): void {
     this.ticketService.getActiveTicketBySlot(slot.id).subscribe({
       error: (err) => {
-        const msg =
-          err?.error?.message ||
-          "No se encontró un ticket activo para este cupo.";
+        const msg = err?.error?.message || "No se encontró un ticket activo para este cupo.";
         this.toast.showToast({ message: msg, type: "error" });
       },
       next: (ticket) => {

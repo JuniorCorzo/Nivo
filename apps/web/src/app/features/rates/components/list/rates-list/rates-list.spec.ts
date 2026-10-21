@@ -2,12 +2,7 @@ import "@angular/compiler";
 import { signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
-import {
-  ActivatedRoute,
-  convertToParamMap,
-  provideRouter,
-  Router,
-} from "@angular/router";
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from "@angular/router";
 import type { RateModel, SpecialPolicyModel } from "@core/models/rate.model";
 import { ParkingService } from "@core/services/parking-service";
 import { RateService } from "@core/services/rate-service";
@@ -135,8 +130,6 @@ describe("RateListComponent", () => {
 
   it("should navigate to edit rate", () => {
     component.editRate("rate-1");
-    expect(router.navigate).toHaveBeenCalledWith([
-      "/app/parking-lots/parking-1/rates/rate-1/edit",
-    ]);
+    expect(router.navigate).toHaveBeenCalledWith(["/app/parking-lots/parking-1/rates/rate-1/edit"]);
   });
 });

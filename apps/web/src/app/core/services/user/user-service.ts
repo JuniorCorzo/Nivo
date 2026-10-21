@@ -31,15 +31,13 @@ export class UserService {
 
     if (!this.currentUserRequest$) {
       this.currentUserRequest$ = this.usersService.getCurrentUser().pipe(
-        map((response) =>
-          response.data ? mapToUserModel(response.data) : null
-        ),
+        map((response) => (response.data ? mapToUserModel(response.data) : null)),
         tap((user) => this.currentUserSignal.set(user)),
         catchError(() => {
           this.currentUserSignal.set(null);
           return of(null);
         }),
-        shareReplay(1)
+        shareReplay(1),
       );
     }
 
@@ -49,15 +47,11 @@ export class UserService {
   public listUsers(): Observable<UserModel[]> {
     return this.usersService.getUsers().pipe(
       map((response) => (response.data ?? []).map(mapToUserModel)),
-      tap((users) => this.usersSignal.set(users))
+      tap((users) => this.usersSignal.set(users)),
     );
   }
 
-  public inviteUser(
-    email: string,
-    role: Role,
-    _fullName?: string
-  ): Observable<unknown> {
+  public inviteUser(email: string, role: Role, _fullName?: string): Observable<unknown> {
     const tenantId = this.currentUser()?.tenant?.id ?? "";
     const inviteBy = this.currentUser()?.id ?? "";
     return this.usersService.inviteUserWithRol({
@@ -83,10 +77,8 @@ export class UserService {
       .pipe(
         map((response) => mapToUserModel(response.data)),
         tap((updatedUser) => {
-          this.usersSignal.update((users) =>
-            users.map((u) => (u.id === userId ? updatedUser : u))
-          );
-        })
+          this.usersSignal.update((users) => users.map((u) => (u.id === userId ? updatedUser : u)));
+        }),
       );
   }
 
@@ -103,13 +95,11 @@ export class UserService {
       })
       .pipe(
         tap(() => {
-          this.usersSignal.update((users) =>
-            users.filter((u) => u.id !== userId)
-          );
+          this.usersSignal.update((users) => users.filter((u) => u.id !== userId));
         }),
         map(() => {
           // void
-        })
+        }),
       );
   }
 }

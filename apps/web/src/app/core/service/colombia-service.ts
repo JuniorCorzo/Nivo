@@ -10,7 +10,7 @@ export class ColombiaService {
   private httpClient = inject(HttpClient);
   private colombiaUbication = signal<ColombiaUbicationsModel[]>([]);
   public departaments = computed(() =>
-    this.colombiaUbication().map(({ department }) => department)
+    this.colombiaUbication().map(({ department }) => department),
   );
 
   constructor() {
@@ -27,9 +27,7 @@ export class ColombiaService {
 
   public getCitiesByDepartmentName(departmentName: string): string[] {
     return (
-      this.colombiaUbication().find(
-        ({ department }) => department === departmentName
-      )?.cities ?? []
+      this.colombiaUbication().find(({ department }) => department === departmentName)?.cities ?? []
     );
   }
 }

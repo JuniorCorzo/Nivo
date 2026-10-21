@@ -1,19 +1,10 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 import type { ValidationError, FieldTree } from "@angular/forms/signals";
 import { FormField } from "@angular/forms/signals";
 import type { OperatingHours } from "@core/type/operating-hours.type";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideClock } from "@ng-icons/lucide";
-import {
-  InputComponent,
-  TypographyH3,
-  TypographyMuted,
-} from "@nivo-sass/design-system";
+import { InputComponent, TypographyH3, TypographyMuted } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({
@@ -72,18 +63,14 @@ export class ParkingOperatingHoursSectionComponent {
   readonly operatingHours = input.required<FieldTree<OperatingHours>>();
 
   readonly openTimeError = computed(() =>
-    ParkingOperatingHoursSectionComponent.getError(
-      this.operatingHours().openTime
-    )
+    ParkingOperatingHoursSectionComponent.getError(this.operatingHours().openTime),
   );
   readonly closeTimeError = computed(() =>
-    ParkingOperatingHoursSectionComponent.getError(
-      this.operatingHours().closeTime
-    )
+    ParkingOperatingHoursSectionComponent.getError(this.operatingHours().closeTime),
   );
 
   private static getError(
-    field: FieldTree<string, string>
+    field: FieldTree<string, string>,
   ): ValidationError.WithFieldTree[] | undefined {
     if (!field().touched() && field().invalid()) {
       return undefined;

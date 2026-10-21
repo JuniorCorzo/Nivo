@@ -1,10 +1,7 @@
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 
-import {
-  displaySlotGroup,
-  SlotGroupEditModalComponent,
-} from "./slot-group-edit-modal";
+import { displaySlotGroup, SlotGroupEditModalComponent } from "./slot-group-edit-modal";
 import type { SlotGroupOption } from "./slot-group-edit-modal";
 
 describe("SlotGroupEditModalComponent", () => {
@@ -39,9 +36,7 @@ describe("SlotGroupEditModalComponent", () => {
   });
 
   it("should auto-select single group if groups has only 1 item and no initial values", () => {
-    const singleGroupFixture = TestBed.createComponent(
-      SlotGroupEditModalComponent
-    );
+    const singleGroupFixture = TestBed.createComponent(SlotGroupEditModalComponent);
     const comp = singleGroupFixture.componentInstance;
     singleGroupFixture.componentRef.setInput("parkingId", "parking-1");
     singleGroupFixture.componentRef.setInput("groups", [
@@ -55,9 +50,7 @@ describe("SlotGroupEditModalComponent", () => {
   });
 
   it("should display message when no group is selected", () => {
-    const unselectedFixture = TestBed.createComponent(
-      SlotGroupEditModalComponent
-    );
+    const unselectedFixture = TestBed.createComponent(SlotGroupEditModalComponent);
     const comp = unselectedFixture.componentInstance;
     unselectedFixture.componentRef.setInput("parkingId", "parking-1");
     unselectedFixture.componentRef.setInput("groups", mockGroups);
@@ -67,7 +60,7 @@ describe("SlotGroupEditModalComponent", () => {
     expect(comp.selectedGroup()).toBeNull();
     const text = unselectedFixture.nativeElement.textContent ?? "";
     expect(text).toContain(
-      "Elegí un grupo en el selector para configurar la nueva zona o prefijo."
+      "Elegí un grupo en el selector para configurar la nueva zona o prefijo.",
     );
   });
 
@@ -94,7 +87,7 @@ describe("SlotGroupEditModalComponent", () => {
     expect(component.hasChanges()).toBe(false);
 
     const submitBtn = fixture.nativeElement.querySelector(
-      '[data-testid="submit-group-btn"] button'
+      '[data-testid="submit-group-btn"] button',
     );
     expect(submitBtn?.hasAttribute("disabled")).toBe(true);
   });
@@ -106,7 +99,7 @@ describe("SlotGroupEditModalComponent", () => {
     expect(component.hasChanges()).toBe(true);
 
     const submitBtn = fixture.nativeElement.querySelector(
-      '[data-testid="submit-group-btn"] button'
+      '[data-testid="submit-group-btn"] button',
     );
     expect(submitBtn?.hasAttribute("disabled")).toBe(false);
   });
@@ -155,9 +148,7 @@ describe("SlotGroupEditModalComponent", () => {
 
   it("should not emit cancel when clicking inside dialog panel", () => {
     const spy = vi.spyOn(component.cancel, "emit");
-    const panelEl = fixture.nativeElement.querySelector(
-      '[role="dialog"] > div'
-    );
+    const panelEl = fixture.nativeElement.querySelector('[role="dialog"] > div');
     panelEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
     expect(spy).not.toHaveBeenCalled();
@@ -190,9 +181,7 @@ describe("SlotGroupEditModalComponent", () => {
 
     const banner = fixture.nativeElement.querySelector(".text-destructive");
     expect(banner).toBeTruthy();
-    expect(banner?.textContent).toContain(
-      "No se puede modificar este grupo porque tiene"
-    );
+    expect(banner?.textContent).toContain("No se puede modificar este grupo porque tiene");
     expect(banner?.textContent).toContain("2 plaza(s) ocupada(s) o en uso");
 
     component.newZone.set("NUEVA");
@@ -202,7 +191,7 @@ describe("SlotGroupEditModalComponent", () => {
     expect(component.canSubmit()).toBe(false);
 
     const submitBtn = fixture.nativeElement.querySelector(
-      '[data-testid="submit-group-btn"] button'
+      '[data-testid="submit-group-btn"] button',
     );
     expect(submitBtn?.hasAttribute("disabled")).toBe(true);
 
@@ -220,7 +209,7 @@ describe("SlotGroupEditModalComponent", () => {
     expect(component.canSubmit()).toBe(true);
 
     const submitBtn = fixture.nativeElement.querySelector(
-      '[data-testid="submit-group-btn"] button'
+      '[data-testid="submit-group-btn"] button',
     );
     expect(submitBtn?.hasAttribute("disabled")).toBe(false);
   });
@@ -243,9 +232,7 @@ describe("SlotGroupEditModalComponent", () => {
         prefix: "A",
         zone: "NORTE",
       };
-      expect(displaySlotGroup(g)).toBe(
-        "Zona NORTE · Prefijo A (5 plazas · 1 ocupada)"
-      );
+      expect(displaySlotGroup(g)).toBe("Zona NORTE · Prefijo A (5 plazas · 1 ocupada)");
     });
 
     it("should format group with plural occupied label when occupiedCount > 1", () => {
@@ -255,9 +242,7 @@ describe("SlotGroupEditModalComponent", () => {
         prefix: "A",
         zone: "NORTE",
       };
-      expect(displaySlotGroup(g)).toBe(
-        "Zona NORTE · Prefijo A (5 plazas · 3 ocupadas)"
-      );
+      expect(displaySlotGroup(g)).toBe("Zona NORTE · Prefijo A (5 plazas · 3 ocupadas)");
     });
   });
 });

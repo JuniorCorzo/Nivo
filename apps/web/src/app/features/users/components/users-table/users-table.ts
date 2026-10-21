@@ -1,17 +1,8 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import type { UserModel } from "@core/models/user.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideRotateCcw, lucideUsers } from "@ng-icons/lucide";
-import {
-  ButtonComponent,
-  TypographyH4,
-  TypographyMuted,
-} from "@nivo-sass/design-system";
+import { ButtonComponent, TypographyH4, TypographyMuted } from "@nivo-sass/design-system";
 import {
   DataTableComponent,
   DataTablePaginationComponent,

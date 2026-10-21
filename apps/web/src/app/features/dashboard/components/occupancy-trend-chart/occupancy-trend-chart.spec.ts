@@ -43,9 +43,7 @@ describe("OccupancyTrendChartComponent", () => {
     expect(component.chartInstance?.data.labels).toHaveLength(2);
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.chart.peakHourIngress
-    );
+    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.chart.peakHourIngress);
   });
 
   it("debe renderizar estado vacío con icono y textos de APP_TEXTS cuando data está vacía", () => {
@@ -54,16 +52,10 @@ describe("OccupancyTrendChartComponent", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    const emptyState = compiled.querySelector(
-      '[data-testid="chart-empty-state"]'
-    );
+    const emptyState = compiled.querySelector('[data-testid="chart-empty-state"]');
     expect(emptyState).toBeTruthy();
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.chart.emptyStateTitle
-    );
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.chart.emptyStateSubtitle
-    );
+    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.chart.emptyStateTitle);
+    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.chart.emptyStateSubtitle);
     expect(compiled.querySelector("canvas")).toBeNull();
     expect(component.chartInstance).toBeNull();
   });
@@ -105,9 +97,7 @@ describe("OccupancyTrendChartComponent", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.chart.peakDayIngress
-    );
+    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.chart.peakDayIngress);
     expect(component.peakIngressValue()).toContain("25");
   });
 

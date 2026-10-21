@@ -42,9 +42,7 @@ describe("ParkingEmptyState", () => {
 
   it("should emit create output when button is clicked", () => {
     /* SAFETY: Querying rendered button element in fixture */
-    const button = compiled.querySelector(
-      "nv-button button, nv-button"
-    ) as HTMLElement | null;
+    const button = compiled.querySelector("nv-button button, nv-button") as HTMLElement | null;
     button?.click();
     expect(hostComponent.createdCalled()).toBe(true);
   });

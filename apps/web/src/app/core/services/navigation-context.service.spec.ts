@@ -4,10 +4,7 @@ import { Router, provideRouter } from "@angular/router";
 import { ActiveParkingService } from "@core/services/active-parking.service";
 
 import { NavigationContextService } from "./navigation-context.service";
-import type {
-  RouteBreadcrumb,
-  RouteNavContext,
-} from "./navigation-context.service";
+import type { RouteBreadcrumb, RouteNavContext } from "./navigation-context.service";
 
 describe("NavigationContextService", () => {
   let service: NavigationContextService;
@@ -244,9 +241,7 @@ describe("NavigationContextService", () => {
     expect(service.navContext()).toBeNull();
     expect(service.scope()).toBe("parking");
     expect(service.isRoot()).toBe(false);
-    expect(service.breadcrumbs()).toEqual([
-      { icon: "lucideHome", label: "Home", url: "/app" },
-    ]);
+    expect(service.breadcrumbs()).toEqual([{ icon: "lucideHome", label: "Home", url: "/app" }]);
     expect(service.mobilePath()).toBe("Home");
   });
 

@@ -7,13 +7,9 @@
 >
   @if (user(); as targetUser) {
     <!-- Header -->
-    <div
-      class="border-border flex items-center justify-between border-b pb-3.5"
-    >
+    <div class="border-border flex items-center justify-between border-b pb-3.5">
       <div class="flex items-center gap-2.5">
-        <div
-          class="bg-primary/10 text-primary grid h-9 w-9 place-items-center rounded-lg"
-        >
+        <div class="bg-primary/10 text-primary grid h-9 w-9 place-items-center rounded-lg">
           <ng-icon name="lucideShieldCheck" size="18" />
         </div>
         <div>
@@ -47,9 +43,7 @@
         <div class="text-muted-foreground text-xs">{{ targetUser.email }}</div>
       </div>
       <div class="flex flex-col items-end gap-1">
-        <span class="text-muted-foreground text-xs"
-          >{{ texts.currentRoleLabel }}</span
-        >
+        <span class="text-muted-foreground text-xs">{{ texts.currentRoleLabel }}</span>
         <app-user-role-badge [role]="targetUser.role" />
       </div>
     </div>
@@ -80,17 +74,11 @@
     </div>
 
     <!-- Actions -->
-    <div
-      class="border-border mt-5 flex justify-end gap-2.5 border-t pt-3.5"
-    >
+    <div class="border-border mt-5 flex justify-end gap-2.5 border-t pt-3.5">
       <nv-button type="button" variant="outline" (click)="onCancel()">
         {{ texts.actions.cancel }}
       </nv-button>
-      <nv-button
-        type="button"
-        [disabled]="isSubmitting() || isOwner()"
-        (click)="onSubmit()"
-      >
+      <nv-button type="button" [disabled]="isSubmitting() || isOwner()" (click)="onSubmit()">
         {{ texts.actions.submit }}
       </nv-button>
     </div>

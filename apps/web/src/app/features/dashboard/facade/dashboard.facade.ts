@@ -41,9 +41,7 @@ export class DashboardFacade {
   private readonly userSelectedScope = signal<ScopeState | null>(null);
   private readonly _activeScopeOverride = signal<ScopeState | null>(null);
 
-  readonly isMultiParkingTenant = computed(
-    () => this.accessibleParkings().length > 1
-  );
+  readonly isMultiParkingTenant = computed(() => this.accessibleParkings().length > 1);
 
   readonly activeScope = Object.assign(
     computed<ScopeState>(() => {
@@ -78,7 +76,7 @@ export class DashboardFacade {
         this.userSelectedScope.set(val);
         this._activeScopeOverride.set(val);
       },
-    }
+    },
   );
 
   readonly isGlobalScope = computed(() => this.activeScope().mode === "GLOBAL");
@@ -93,9 +91,7 @@ export class DashboardFacade {
   readonly reportsTotalPages = signal<number>(0);
   readonly isLoading = signal<boolean>(false);
 
-  readonly occupancyPercentage = computed(
-    () => this.summary()?.occupancyRate ?? 0
-  );
+  readonly occupancyPercentage = computed(() => this.summary()?.occupancyRate ?? 0);
 
   constructor() {
     effect(() => {
@@ -117,8 +113,7 @@ export class DashboardFacade {
     this.apiService.setCache(cacheKey, update);
 
     const currentScope = this.activeScope();
-    const matchesGlobal =
-      currentScope.mode === "GLOBAL" && update.scope === "GLOBAL";
+    const matchesGlobal = currentScope.mode === "GLOBAL" && update.scope === "GLOBAL";
     const matchesSingle =
       currentScope.mode === "SINGLE" &&
       Boolean(update.parkingId) &&
@@ -225,14 +220,12 @@ export class DashboardFacade {
       startDate !== undefined && endDate !== undefined
         ? { endDate, startDate }
         : this.calculateDateRange(this.timeGranularity());
-    this.apiService
-      .getHourlyOccupancy(parkingId, dates.startDate, dates.endDate)
-      .subscribe({
-        error: (err: unknown) => {
-          void err;
-        },
-        next: (res) => this.hourlyOccupancy.set(res),
-      });
+    this.apiService.getHourlyOccupancy(parkingId, dates.startDate, dates.endDate).subscribe({
+      error: (err: unknown) => {
+        void err;
+      },
+      next: (res) => this.hourlyOccupancy.set(res),
+    });
   }
 
   loadParkingsComparison(startDate?: string, endDate?: string): void {
@@ -240,23 +233,19 @@ export class DashboardFacade {
       startDate !== undefined && endDate !== undefined
         ? {
             endDate,
-            endLocalDate: endDate.includes("T")
-              ? (endDate.split("T")[0] ?? endDate)
-              : endDate,
+            endLocalDate: endDate.includes("T") ? (endDate.split("T")[0] ?? endDate) : endDate,
             startDate,
             startLocalDate: startDate.includes("T")
               ? (startDate.split("T")[0] ?? startDate)
               : startDate,
           }
         : this.calculateDateRange(this.timeGranularity());
-    this.apiService
-      .getParkingsComparison(dates.startLocalDate, dates.endLocalDate)
-      .subscribe({
-        error: (err: unknown) => {
-          void err;
-        },
-        next: (res) => this.parkingsComparison.set(res),
-      });
+    this.apiService.getParkingsComparison(dates.startLocalDate, dates.endLocalDate).subscribe({
+      error: (err: unknown) => {
+        void err;
+      },
+      next: (res) => this.parkingsComparison.set(res),
+    });
   }
 
   loadReports(page = 0): void {

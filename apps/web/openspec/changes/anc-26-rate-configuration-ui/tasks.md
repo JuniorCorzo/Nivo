@@ -15,10 +15,10 @@ Decision needed before apply: No Chained PRs recommended: No Chain strategy: siz
 
 ### Suggested Work Units
 
-| Unit | Goal | Likely PR | Focused test command | Runtime harness | Rollback boundary |
-| --- | --- | --- | --- | --- | --- |
-| 1 | Core models, mappers, and RateService | PR 1 | `bun test rate.mapper.spec.ts rate-service.spec.ts` | N/A (headless domain layer) | `src/app/core/models/rate.model.ts`, `src/app/core/mappers/rate.mapper.ts`, `src/app/core/services/rate-service.ts` |
-| 2 | Rate UI components, facade, calculator, and routes | PR 1 | `bun test rate-form.facade.spec.ts` | Visit `/app/parking-lots/:id/rates` in browser | `src/app/features/rates/`, `src/app/app.routes.ts` |
+| Unit | Goal                                               | Likely PR | Focused test command                                | Runtime harness                                | Rollback boundary                                                                                                   |
+| ---- | -------------------------------------------------- | --------- | --------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 1    | Core models, mappers, and RateService              | PR 1      | `bun test rate.mapper.spec.ts rate-service.spec.ts` | N/A (headless domain layer)                    | `src/app/core/models/rate.model.ts`, `src/app/core/mappers/rate.mapper.ts`, `src/app/core/services/rate-service.ts` |
+| 2    | Rate UI components, facade, calculator, and routes | PR 1      | `bun test rate-form.facade.spec.ts`                 | Visit `/app/parking-lots/:id/rates` in browser | `src/app/features/rates/`, `src/app/app.routes.ts`                                                                  |
 
 ## Phase 1: Core Foundation & API Integration
 

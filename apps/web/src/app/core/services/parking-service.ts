@@ -63,8 +63,8 @@ export class ParkingService {
       .listParkingLots({}, ParkingService.httpContext())
       .pipe(
         map((response: ResponseListParkingLotListItemResponse) =>
-          response.data.map((item) => mapToParkingLotListItemModel(item))
-        )
+          response.data.map((item) => mapToParkingLotListItemModel(item)),
+        ),
       );
   }
 
@@ -80,7 +80,7 @@ export class ParkingService {
           throw new Error(`Parking lot with ID ${id} not found`);
         }
         return parking;
-      })
+      }),
     );
   }
 
@@ -93,10 +93,8 @@ export class ParkingService {
     return this.parkingLotsService
       .createParkingLots({ body: request }, ParkingService.httpContext())
       .pipe(
-        map((response: ResponseParkingLotsResponse) =>
-          mapToParkingLotsModel(response.data)
-        ),
-        tap(() => this.updateState())
+        map((response: ResponseParkingLotsResponse) => mapToParkingLotsModel(response.data)),
+        tap(() => this.updateState()),
       );
   }
 
@@ -109,10 +107,8 @@ export class ParkingService {
     return this.parkingLotsService
       .updateParkingLots({ body: request }, ParkingService.httpContext())
       .pipe(
-        map((response: ResponseParkingLotsResponse) =>
-          mapToParkingLotsModel(response.data)
-        ),
-        tap(() => this.updateState())
+        map((response: ResponseParkingLotsResponse) => mapToParkingLotsModel(response.data)),
+        tap(() => this.updateState()),
       );
   }
 
@@ -125,12 +121,12 @@ export class ParkingService {
           slotType: slot.type,
           zone: slot.zone || undefined,
         },
-        ParkingService.httpContext()
+        ParkingService.httpContext(),
       )
       .pipe(
         map(() => {
           // void return
-        })
+        }),
       );
   }
 
@@ -144,13 +140,11 @@ export class ParkingService {
         tap(() => this.updateState()),
         map(() => {
           // void return
-        })
+        }),
       );
   }
 
   getUpsertById(id: string): Observable<UpsertParkingLotsModel> {
-    return this.getById(id).pipe(
-      map((parking) => mapListItemToUpsertParkingLotsModel(parking))
-    );
+    return this.getById(id).pipe(map((parking) => mapListItemToUpsertParkingLotsModel(parking)));
   }
 }

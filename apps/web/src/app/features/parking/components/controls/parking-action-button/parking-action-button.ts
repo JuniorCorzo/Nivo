@@ -8,11 +8,7 @@ import {
   lucidePencil,
   lucideTrash2,
 } from "@ng-icons/lucide";
-import {
-  ButtonComponent,
-  DividerComponent,
-  ToastService,
-} from "@nivo-sass/design-system";
+import { ButtonComponent, DividerComponent, ToastService } from "@nivo-sass/design-system";
 
 import { MeatballMenu } from "@/app/shared/components/meatball-menu/meatball-menu";
 import type { MeatballMenuItem } from "@/app/shared/components/meatball-menu/meatball-menu";

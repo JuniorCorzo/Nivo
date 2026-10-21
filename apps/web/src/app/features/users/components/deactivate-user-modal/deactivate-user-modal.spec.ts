@@ -60,27 +60,19 @@ describe("DeactivateUserModalComponent", () => {
   };
 
   beforeAll(() => {
-    HTMLDialogElement.prototype.showModal = vi.fn(
-      function mockShowModal(this: HTMLDialogElement) {
-        this.open = true;
-      }
-    );
-    HTMLDialogElement.prototype.close = vi.fn(
-      function mockClose(this: HTMLDialogElement) {
-        this.open = false;
-      }
-    );
+    HTMLDialogElement.prototype.showModal = vi.fn(function mockShowModal(this: HTMLDialogElement) {
+      this.open = true;
+    });
+    HTMLDialogElement.prototype.close = vi.fn(function mockClose(this: HTMLDialogElement) {
+      this.open = false;
+    });
   });
 
   beforeEach(async () => {
     userServiceMock = {
       currentUser: signal<UserModel | null>(currentManagerUser),
       deactivateUser: vi.fn().mockReturnValue(of(null)),
-      users: signal<UserModel[]>([
-        currentManagerUser,
-        targetOperatorUser,
-        soleOwnerUser,
-      ]),
+      users: signal<UserModel[]>([currentManagerUser, targetOperatorUser, soleOwnerUser]),
     };
     toastServiceMock = {
       showToast: vi.fn(),
@@ -118,9 +110,7 @@ describe("DeactivateUserModalComponent", () => {
     fixture.detectChanges();
 
     /* SAFETY: Dialog element is guaranteed to be an HTMLDialogElement in test environment */
-    const dialog = fixture.nativeElement.querySelector(
-      "dialog"
-    ) as HTMLDialogElement;
+    const dialog = fixture.nativeElement.querySelector("dialog") as HTMLDialogElement;
     expect(dialog.open).toBe(false);
   });
 
@@ -134,16 +124,14 @@ describe("DeactivateUserModalComponent", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain(
-      APP_TEXTS.users.modals.deactivate.selfDeactivationWarning
+      APP_TEXTS.users.modals.deactivate.selfDeactivationWarning,
     );
 
     /* SAFETY: Confirm button is HTMLButtonElement */
     const confirmBtn = compiled.querySelector(
-      'button[variant="destructive"], nv-button[variant="destructive"] button, button:last-child'
+      'button[variant="destructive"], nv-button[variant="destructive"] button, button:last-child',
     ) as HTMLButtonElement;
-    expect(confirmBtn?.disabled || component.canDeactivate() === false).toBe(
-      true
-    );
+    expect(confirmBtn?.disabled || component.canDeactivate() === false).toBe(true);
   });
 
   it("should block and show warning on sole owner deactivation attempt", () => {
@@ -155,9 +143,7 @@ describe("DeactivateUserModalComponent", () => {
 
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.users.modals.deactivate.lastOwnerWarning
-    );
+    expect(compiled.textContent).toContain(APP_TEXTS.users.modals.deactivate.lastOwnerWarning);
   });
 
   it("should call userService.deactivateUser and emit outputs on valid confirmation", () => {
@@ -174,7 +160,7 @@ describe("DeactivateUserModalComponent", () => {
 
     expect(userServiceMock.deactivateUser).toHaveBeenCalledWith("user-op-2");
     expect(toastServiceMock.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "success" })
+      expect.objectContaining({ type: "success" }),
     );
     expect(deactivatedCalled).toBe(true);
     expect(closedCalled).toBe(true);
@@ -182,13 +168,13 @@ describe("DeactivateUserModalComponent", () => {
 
   it("should handle error when deactivateUser fails", () => {
     userServiceMock.deactivateUser.mockReturnValue(
-      throwError(() => new Error("Deactivate failed"))
+      throwError(() => new Error("Deactivate failed")),
     );
 
     component.onConfirm();
 
     expect(toastServiceMock.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "error" })
+      expect.objectContaining({ type: "error" }),
     );
     expect(component.isSubmitting()).toBe(false);
   });
@@ -210,18 +196,14 @@ describe("DeactivateUserModalComponent", () => {
     });
 
     /* SAFETY: Dialog element is guaranteed to be an HTMLDialogElement in test environment */
-    const dialog = fixture.nativeElement.querySelector(
-      "dialog"
-    ) as HTMLDialogElement;
+    const dialog = fixture.nativeElement.querySelector("dialog") as HTMLDialogElement;
     dialog.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(closedCalled).toBe(true);
   });
 
   it("should close dialog on ngOnDestroy if open", () => {
     /* SAFETY: Dialog element is guaranteed to be an HTMLDialogElement in test environment */
-    const dialog = fixture.nativeElement.querySelector(
-      "dialog"
-    ) as HTMLDialogElement;
+    const dialog = fixture.nativeElement.querySelector("dialog") as HTMLDialogElement;
     expect(dialog.open).toBe(true);
 
     fixture.destroy();

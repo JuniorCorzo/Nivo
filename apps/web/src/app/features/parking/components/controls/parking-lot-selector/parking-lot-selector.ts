@@ -24,22 +24,12 @@ import {
   lucideParkingSquare,
   lucidePlus,
 } from "@ng-icons/lucide";
-import {
-  BadgeComponent,
-  ButtonComponent,
-  TypographyMuted,
-} from "@nivo-sass/design-system";
+import { BadgeComponent, ButtonComponent, TypographyMuted } from "@nivo-sass/design-system";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    OverlayModule,
-    NgIcon,
-    BadgeComponent,
-    ButtonComponent,
-    TypographyMuted,
-  ],
+  imports: [OverlayModule, NgIcon, BadgeComponent, ButtonComponent, TypographyMuted],
   providers: [
     provideIcons({
       lucideBuilding2,
@@ -71,15 +61,13 @@ export class ParkingLotSelector {
   private readonly originElement = viewChild<ElementRef<HTMLElement>>("origin");
 
   public readonly parkingLots = computed<ParkingLotListItemModel[]>(
-    () => this.parkingService.parkingLots() ?? []
+    () => this.parkingService.parkingLots() ?? [],
   );
 
-  public readonly hasMultipleLots = computed<boolean>(
-    () => this.parkingLots().length > 1
-  );
+  public readonly hasMultipleLots = computed<boolean>(() => this.parkingLots().length > 1);
 
   public readonly activeLot = computed<ParkingLotListItemModel | null>(() =>
-    this.activeParkingService.activeParkingLot()
+    this.activeParkingService.activeParkingLot(),
   );
 
   public readonly activeAddress = computed<string>(() => {

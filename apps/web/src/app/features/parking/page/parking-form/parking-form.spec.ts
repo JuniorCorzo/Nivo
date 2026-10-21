@@ -78,7 +78,7 @@ describe("ParkingFormComponent", () => {
             openTime: "08:00:00-05:00",
           },
           timezone: "UTC-05:00",
-        })
+        }),
       ),
       parkingLots: signal([]),
       update: vi.fn(),
@@ -130,7 +130,7 @@ describe("ParkingFormComponent", () => {
     expect(header).toBeTruthy();
     expect(header.textContent).toContain("Crear Parqueadero");
     expect(header.textContent).toContain(
-      "Configurá los datos de sede, ubicación geográfica, horarios y capacidad"
+      "Configurá los datos de sede, ubicación geográfica, horarios y capacidad",
     );
   });
 
@@ -138,10 +138,10 @@ describe("ParkingFormComponent", () => {
     const header = fixture.nativeElement.querySelector("app-page-header");
     expect(header).toBeTruthy();
     const cancelBtn: HTMLElement = header.querySelector(
-      '[data-testid="parking-form-header-cancel"]'
+      '[data-testid="parking-form-header-cancel"]',
     );
     const submitBtn: HTMLElement = header.querySelector(
-      '[data-testid="parking-form-header-submit"]'
+      '[data-testid="parking-form-header-submit"]',
     );
     expect(cancelBtn).toBeTruthy();
     expect(submitBtn).toBeTruthy();

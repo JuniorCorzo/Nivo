@@ -17,6 +17,4 @@ export const mapToUserModel = (data: UserDto): UserModel => ({
   updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
 });
 
-export const mapToCreatedRegisterDto = (
-  model: RegisterUserModel
-): CreatedUserDto => ({ ...model });
+export const mapToCreatedRegisterDto = (model: RegisterUserModel): CreatedUserDto => ({ ...model });

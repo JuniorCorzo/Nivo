@@ -36,9 +36,7 @@ describe("LoginPage", () => {
     }).compileComponents();
 
     router = TestBed.inject(Router);
-    vi.spyOn(router, "navigate").mockImplementation(() =>
-      Promise.resolve(true)
-    );
+    vi.spyOn(router, "navigate").mockImplementation(() => Promise.resolve(true));
 
     fixture = TestBed.createComponent(LoginPage);
     component = fixture.componentInstance;

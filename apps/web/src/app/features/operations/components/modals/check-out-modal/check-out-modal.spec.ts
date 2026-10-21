@@ -46,7 +46,7 @@ describe("CheckOutModalComponent", () => {
           name: "Standard",
           subtotal: 5000,
           total: 5000,
-        })
+        }),
       ),
       checkOutVehicle: vi.fn().mockReturnValue(of({})),
       getActiveTicketBySlot: vi.fn().mockReturnValue(
@@ -55,7 +55,7 @@ describe("CheckOutModalComponent", () => {
           id: "ticket-1",
           licensePlate: "ABC123",
           status: "OPEN",
-        })
+        }),
       ),
     };
     slotServiceSpy = {
@@ -131,9 +131,7 @@ describe("CheckOutModalComponent", () => {
     expect(emptyText).toContain("A-01");
 
     /* SAFETY: The slot item rendered is a button HTML element */
-    const slotBtn = fixture.nativeElement.querySelector(
-      "button.group"
-    ) as HTMLButtonElement;
+    const slotBtn = fixture.nativeElement.querySelector("button.group") as HTMLButtonElement;
     expect(slotBtn).toBeTruthy();
     slotBtn.click();
     expect(selectSlotSpy).toHaveBeenCalledWith(occupiedSlot);

@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import type { ValidationError, FieldTree } from "@angular/forms/signals";
 import { FormField } from "@angular/forms/signals";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -18,14 +13,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    InputComponent,
-    ComboboxComponent,
-    TypographyH3,
-    TypographyMuted,
-    FormField,
-    NgIcon,
-  ],
+  imports: [InputComponent, ComboboxComponent, TypographyH3, TypographyMuted, FormField, NgIcon],
   providers: [provideIcons({ lucideMapPin })],
   selector: "app-parking-address-section",
   standalone: true,
@@ -89,9 +77,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       <nv-input
         id="zipCode"
         [label]="APP_TEXTS.parking.form.fields.address.zipCode.label"
-        [placeholder]="
-          APP_TEXTS.parking.form.fields.address.zipCode.placeholder
-        "
+        [placeholder]="APP_TEXTS.parking.form.fields.address.zipCode.placeholder"
         [formField]="zipCodeField()"
         [error]="zipCodeError()"
       />

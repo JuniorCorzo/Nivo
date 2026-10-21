@@ -3,10 +3,7 @@ import type { SlotSummary } from "@core/models/slot.model";
 import { SlotService } from "@core/services/slot-service";
 import { ToastService } from "@nivo-sass/design-system";
 
-export const getDeleteModalCopy = (
-  slot: SlotSummary | null,
-  scope: "single" | "batch"
-): string => {
+export const getDeleteModalCopy = (slot: SlotSummary | null, scope: "single" | "batch"): string => {
   if (!slot) {
     return "Seleccioná una plaza para eliminar.";
   }
@@ -38,11 +35,9 @@ export class SlotDeleteState {
   readonly deleteScope = signal<"single" | "batch">("single");
 
   readonly deleteModalCopy = computed(() =>
-    getDeleteModalCopy(this.deleteTarget(), this.deleteScope())
+    getDeleteModalCopy(this.deleteTarget(), this.deleteScope()),
   );
-  readonly deleteRequiresConfirm = computed(() =>
-    requiresDeleteConfirm(this.deleteTarget())
-  );
+  readonly deleteRequiresConfirm = computed(() => requiresDeleteConfirm(this.deleteTarget()));
 
   openBatchDeleteModal(firstTarget: SlotSummary): void {
     this.deleteTarget.set(firstTarget);
@@ -69,7 +64,7 @@ export class SlotDeleteState {
     parkingId: string,
     selectedIds: Set<string>,
     clearSelection: () => void,
-    removeSingleSelection: (id: string) => void
+    removeSingleSelection: (id: string) => void,
   ): void {
     const singleId = this.deleteTarget()?.id;
     let targetIds: string[] = [];

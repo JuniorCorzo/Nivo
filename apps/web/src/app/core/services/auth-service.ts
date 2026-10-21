@@ -29,38 +29,32 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<boolean> {
-    return this.authController
-      .login({ body: { email, password } }, AuthService.httpContext())
-      .pipe(
-        map((response) => mapToLoginResponseModel(response.data)),
-        map(({ accessToken }) => {
-          this.accessToken.set(accessToken);
-          return !!accessToken;
-        }),
-        catchError(() => of(false))
-      );
+    return this.authController.login({ body: { email, password } }, AuthService.httpContext()).pipe(
+      map((response) => mapToLoginResponseModel(response.data)),
+      map(({ accessToken }) => {
+        this.accessToken.set(accessToken);
+        return !!accessToken;
+      }),
+      catchError(() => of(false)),
+    );
   }
 
   refreshSession(): Observable<string> {
-    return this.authController
-      .refreshSession({}, AuthService.httpContext())
-      .pipe(
-        map(({ data }) => {
-          const { accessToken } = data;
-          this.accessToken.set(accessToken);
-          return accessToken;
-        })
-      );
+    return this.authController.refreshSession({}, AuthService.httpContext()).pipe(
+      map(({ data }) => {
+        const { accessToken } = data;
+        this.accessToken.set(accessToken);
+        return accessToken;
+      }),
+    );
   }
 
   logout() {
-    this.authController
-      .logout({}, new HttpContext().set(ADD_WITH_CREDENTIALS, true))
-      .subscribe({
-        next: () => {
-          this.accessToken.set(null);
-          this.router.navigate([APP_ROUTES.auth.login]);
-        },
-      });
+    this.authController.logout({}, new HttpContext().set(ADD_WITH_CREDENTIALS, true)).subscribe({
+      next: () => {
+        this.accessToken.set(null);
+        this.router.navigate([APP_ROUTES.auth.login]);
+      },
+    });
   }
 }

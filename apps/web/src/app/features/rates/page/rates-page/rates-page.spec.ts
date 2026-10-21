@@ -2,12 +2,7 @@ import "@angular/compiler";
 import { signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
-import {
-  ActivatedRoute,
-  convertToParamMap,
-  provideRouter,
-  Router,
-} from "@angular/router";
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from "@angular/router";
 import type { RateModel, SpecialPolicyModel } from "@core/models/rate.model";
 import { ParkingService } from "@core/services/parking-service";
 import { RateService } from "@core/services/rate-service";
@@ -113,7 +108,7 @@ describe("RatesPageComponent", () => {
     expect(header).toBeTruthy();
     expect(header.textContent).toContain("Tarifas");
     expect(header.textContent).toContain(
-      "Gestión de esquemas tarifarios, precios base y simulación en tiempo real"
+      "Gestión de esquemas tarifarios, precios base y simulación en tiempo real",
     );
 
     const actions = header.querySelector("[actions]");
@@ -123,29 +118,21 @@ describe("RatesPageComponent", () => {
 
   it("should navigate to create rate when clicking nueva tarifa", () => {
     component.createRate();
-    expect(router.navigate).toHaveBeenCalledWith([
-      "/app/parking-lots/parking-1/rates/new",
-    ]);
+    expect(router.navigate).toHaveBeenCalledWith(["/app/parking-lots/parking-1/rates/new"]);
   });
 
   it("should switch tabs between rates, calculator and policies", () => {
     expect(component.activeTab()).toBe("rates");
     expect(fixture.nativeElement.querySelector("app-rates-list")).toBeTruthy();
-    expect(
-      fixture.nativeElement.querySelector("app-rate-calculator")
-    ).toBeFalsy();
+    expect(fixture.nativeElement.querySelector("app-rate-calculator")).toBeFalsy();
 
     component.activeTab.set("calculator");
     fixture.detectChanges();
-    expect(
-      fixture.nativeElement.querySelector("app-rate-calculator")
-    ).toBeTruthy();
+    expect(fixture.nativeElement.querySelector("app-rate-calculator")).toBeTruthy();
     expect(fixture.nativeElement.querySelector("app-rates-list")).toBeFalsy();
 
     component.activeTab.set("policies");
     fixture.detectChanges();
-    expect(
-      fixture.nativeElement.querySelector("app-special-policies-config")
-    ).toBeTruthy();
+    expect(fixture.nativeElement.querySelector("app-special-policies-config")).toBeTruthy();
   });
 });

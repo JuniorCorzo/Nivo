@@ -63,14 +63,14 @@ export class SlotService {
       .listSlotSummaries({ parking: parkingId }, SlotService.httpContext())
       .pipe(
         map((response: ResponseListSlotSummaryResponse) =>
-          (response.data ?? []).map((item) => mapToSlotSummary(item))
+          (response.data ?? []).map((item) => mapToSlotSummary(item)),
         ),
         tap((slots) =>
           this.slotSummaries.update((state) => ({
             ...state,
             [parkingId]: slots,
-          }))
-        )
+          })),
+        ),
       );
   }
 
@@ -92,13 +92,13 @@ export class SlotService {
             })),
           },
         },
-        SlotService.httpContext()
+        SlotService.httpContext(),
       )
       .pipe(
         map(() => {
           // void return
         }),
-        tap(() => this.refreshState(model.parkingLotId))
+        tap(() => this.refreshState(model.parkingLotId)),
       );
   }
 
@@ -113,7 +113,7 @@ export class SlotService {
             type: model.type,
           },
         },
-        SlotService.httpContext()
+        SlotService.httpContext(),
       )
       .pipe(
         map((response: ResponseSlotResponse) => {
@@ -121,7 +121,7 @@ export class SlotService {
           const data = response.data as SlotResponse;
           return SlotService.mapToSlotModel(data);
         }),
-        tap(() => this.refreshState(model.parkingLotId))
+        tap(() => this.refreshState(model.parkingLotId)),
       );
   }
 
@@ -138,13 +138,13 @@ export class SlotService {
       })
       .pipe(
         map((response: ResponseListSlotResponse) =>
-          (response.data ?? []).map((item) => SlotService.mapToSlotModel(item))
+          (response.data ?? []).map((item) => SlotService.mapToSlotModel(item)),
         ),
         tap((slots) => {
           if (slots.length > 0 && slots[0].parkingId) {
             this.refreshState(slots[0].parkingId);
           }
-        })
+        }),
       );
   }
 
@@ -162,21 +162,19 @@ export class SlotService {
       })
       .pipe(
         map((response: ResponseListSlotResponse) =>
-          (response.data ?? []).map((item) => SlotService.mapToSlotModel(item))
+          (response.data ?? []).map((item) => SlotService.mapToSlotModel(item)),
         ),
-        tap(() => this.refreshState(payload.parkingId))
+        tap(() => this.refreshState(payload.parkingId)),
       );
   }
 
   delete(slotId: string, parkingId: string): Observable<void> {
-    return this.slotsService
-      .deleteSlot({ slotId }, SlotService.httpContext())
-      .pipe(
-        map(() => {
-          // void return
-        }),
-        tap(() => this.refreshState(parkingId))
-      );
+    return this.slotsService.deleteSlot({ slotId }, SlotService.httpContext()).pipe(
+      map(() => {
+        // void return
+      }),
+      tap(() => this.refreshState(parkingId)),
+    );
   }
 
   deleteBatch(slotIds: string[], parkingId: string): Observable<void> {
@@ -185,13 +183,13 @@ export class SlotService {
         {
           body: slotIds,
         },
-        SlotService.httpContext()
+        SlotService.httpContext(),
       )
       .pipe(
         map(() => {
           // void return
         }),
-        tap(() => this.refreshState(parkingId))
+        tap(() => this.refreshState(parkingId)),
       );
   }
 

@@ -124,31 +124,28 @@ test.describe("CUJ 02: Parking Lots Management", () => {
       });
     });
 
-    await page.route(
-      `**/api/v1/parking-lots/${mockParkingLot.id}`,
-      async (route) => {
-        if (route.request().method() === "DELETE") {
-          deleted = true;
-          await route.fulfill({
-            contentType: "application/json",
-            json: {
-              status: 204,
-            },
-            status: 204,
-          });
-          return;
-        }
-
+    await page.route(`**/api/v1/parking-lots/${mockParkingLot.id}`, async (route) => {
+      if (route.request().method() === "DELETE") {
+        deleted = true;
         await route.fulfill({
           contentType: "application/json",
           json: {
-            data: mockParkingLot,
-            status: 200,
+            status: 204,
           },
-          status: 200,
+          status: 204,
         });
+        return;
       }
-    );
+
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          data: mockParkingLot,
+          status: 200,
+        },
+        status: 200,
+      });
+    });
 
     await parkingLotsPage.goto();
     await parkingLotsPage.expectActiveLotName(mockParkingLot.name);

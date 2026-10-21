@@ -25,9 +25,7 @@ describe("DashboardOperationsSectionComponent", () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector("app-parking-comparison-chart")).toBeNull();
     expect(compiled.querySelector("app-recent-activity-stream")).toBeTruthy();
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.operations.recentActivity.title
-    );
+    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.operations.recentActivity.title);
   });
 
   it("con multi parking debe renderizar gráfico comparativo y emitir parkingSelected", () => {
@@ -51,9 +49,7 @@ describe("DashboardOperationsSectionComponent", () => {
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector("app-parking-comparison-chart")).toBeTruthy();
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.operations.comparison.title
-    );
+    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.operations.comparison.title);
     expect(compiled.textContent).toContain("1 instalaciones");
 
     component.parkingSelected.emit("p1");

@@ -30,12 +30,8 @@ describe("DashboardKpiGridComponent", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(
-      compiled.querySelector('ng-icon[name="lucideTrendingUp"]')
-    ).toBeTruthy();
-    expect(
-      compiled.querySelector('ng-icon[name="lucideDollarSign"]')
-    ).toBeTruthy();
+    expect(compiled.querySelector('ng-icon[name="lucideTrendingUp"]')).toBeTruthy();
+    expect(compiled.querySelector('ng-icon[name="lucideDollarSign"]')).toBeTruthy();
     expect(compiled.querySelector('ng-icon[name="lucideTicket"]')).toBeTruthy();
     expect(compiled.querySelector('ng-icon[name="lucideClock"]')).toBeTruthy();
   });
@@ -59,15 +55,9 @@ describe("DashboardKpiGridComponent", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.kpis.revenue.digitalRatio
-    );
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.kpis.tickets.rotation
-    );
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.kpis.stay.gracePeriod
-    );
+    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.kpis.revenue.digitalRatio);
+    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.kpis.tickets.rotation);
+    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.kpis.stay.gracePeriod);
     expect(compiled.textContent).toContain("95 min");
     expect(compiled.textContent).toContain("~1h 35m");
     expect(compiled.textContent).toContain("42.0%");

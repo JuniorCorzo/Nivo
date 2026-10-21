@@ -8,11 +8,7 @@ import { provideRouter } from "@angular/router";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import { ActiveParkingService } from "@core/services/active-parking.service";
 import { ParkingService } from "@core/services/parking-service";
-import {
-  BadgeComponent,
-  TypographyH1,
-  TypographyMuted,
-} from "@nivo-sass/design-system";
+import { BadgeComponent, TypographyH1, TypographyMuted } from "@nivo-sass/design-system";
 
 import { PageHeaderComponent } from "./page-header";
 
@@ -95,18 +91,14 @@ describe("PageHeaderComponent", () => {
   it("should render title inside nv-h1 when title input is provided", () => {
     const titleEl = fixture.debugElement.query(By.directive(TypographyH1));
     expect(titleEl).toBeTruthy();
-    expect(titleEl.nativeElement.textContent.trim()).toBe(
-      "Operaciones de Parqueo"
-    );
+    expect(titleEl.nativeElement.textContent.trim()).toBe("Operaciones de Parqueo");
   });
 
   it("should render app-parking-lot-selector when showParkingSelector is true", () => {
     fixture.componentRef.setInput("showParkingSelector", true);
     fixture.detectChanges();
 
-    const selector = fixture.nativeElement.querySelector(
-      "app-parking-lot-selector"
-    );
+    const selector = fixture.nativeElement.querySelector("app-parking-lot-selector");
     expect(selector).toBeTruthy();
     const titleEl = fixture.debugElement.query(By.directive(TypographyH1));
     expect(titleEl).toBeNull();
@@ -116,22 +108,16 @@ describe("PageHeaderComponent", () => {
     fixture.componentRef.setInput("subtitle", "Subtítulo de prueba");
     fixture.detectChanges();
 
-    const subtitleEl = fixture.debugElement.query(
-      By.directive(TypographyMuted)
-    );
+    const subtitleEl = fixture.debugElement.query(By.directive(TypographyMuted));
     expect(subtitleEl).toBeTruthy();
-    expect(subtitleEl.nativeElement.textContent.trim()).toBe(
-      "Subtítulo de prueba"
-    );
+    expect(subtitleEl.nativeElement.textContent.trim()).toBe("Subtítulo de prueba");
   });
 
   it("should not render nv-muted when subtitle input is null", () => {
     fixture.componentRef.setInput("subtitle", null);
     fixture.detectChanges();
 
-    const subtitleEl = fixture.debugElement.query(
-      By.directive(TypographyMuted)
-    );
+    const subtitleEl = fixture.debugElement.query(By.directive(TypographyMuted));
     expect(subtitleEl).toBeNull();
   });
 
@@ -140,12 +126,9 @@ describe("PageHeaderComponent", () => {
       fixture.componentRef.setInput("icon", "lucideParkingSquare");
       fixture.detectChanges();
 
-      const iconContainer =
-        fixture.nativeElement.querySelector(".bg-primary\\/10");
+      const iconContainer = fixture.nativeElement.querySelector(".bg-primary\\/10");
       expect(iconContainer).toBeTruthy();
-      const iconEl = fixture.debugElement.query(
-        By.css(".bg-primary\\/10 ng-icon")
-      );
+      const iconEl = fixture.debugElement.query(By.css(".bg-primary\\/10 ng-icon"));
       expect(iconEl).toBeTruthy();
       /* SAFETY: By.css queries ng-icon which has an InputSignal name */
       const iconInstance = iconEl.componentInstance as { name: () => string };
@@ -156,16 +139,14 @@ describe("PageHeaderComponent", () => {
       fixture.componentRef.setInput("icon", null);
       fixture.detectChanges();
 
-      const iconContainer =
-        fixture.nativeElement.querySelector(".bg-primary\\/10");
+      const iconContainer = fixture.nativeElement.querySelector(".bg-primary\\/10");
       expect(iconContainer).toBeNull();
     });
   });
 
   describe("Layout and Grid Structure", () => {
     it("should wrap header in section with container query classes", () => {
-      const sectionEl: HTMLElement =
-        fixture.nativeElement.querySelector("section");
+      const sectionEl: HTMLElement = fixture.nativeElement.querySelector("section");
       expect(sectionEl).toBeTruthy();
       expect(sectionEl.classList.contains("@container")).toBe(true);
       expect(sectionEl.classList.contains("block")).toBe(true);
@@ -173,15 +154,10 @@ describe("PageHeaderComponent", () => {
     });
 
     it("should have container query grid classes on header element", () => {
-      const headerEl: HTMLElement =
-        fixture.nativeElement.querySelector("header");
+      const headerEl: HTMLElement = fixture.nativeElement.querySelector("header");
       expect(headerEl.classList.contains("grid")).toBe(true);
-      expect(headerEl.classList.contains("@sm:grid-cols-[auto_1fr_auto]")).toBe(
-        true
-      );
-      expect(headerEl.classList.contains("@sm:grid-rows-[auto_auto]")).toBe(
-        true
-      );
+      expect(headerEl.classList.contains("@sm:grid-cols-[auto_1fr_auto]")).toBe(true);
+      expect(headerEl.classList.contains("@sm:grid-rows-[auto_auto]")).toBe(true);
       expect(headerEl.classList.contains("@sm:items-center")).toBe(true);
       expect(headerEl.classList.contains("@sm:gap-x-4")).toBe(true);
       expect(headerEl.classList.contains("@sm:gap-y-2")).toBe(true);
@@ -192,8 +168,7 @@ describe("PageHeaderComponent", () => {
       fixture.componentRef.setInput("icon", "lucideParkingSquare");
       fixture.detectChanges();
 
-      const iconContainer =
-        fixture.nativeElement.querySelector(".bg-primary\\/10");
+      const iconContainer = fixture.nativeElement.querySelector(".bg-primary\\/10");
       expect(iconContainer).toBeTruthy();
       // Mobile positioning (no row-span-2)
       expect(iconContainer.classList.contains("col-start-1")).toBe(true);
@@ -208,26 +183,16 @@ describe("PageHeaderComponent", () => {
     });
 
     it("should place breadcrumbs container on top row spanning columns 2 and 3 on desktop", () => {
-      const desktopBreadcrumbs = fixture.nativeElement.querySelector(
-        ".page-header-desktop"
-      );
+      const desktopBreadcrumbs = fixture.nativeElement.querySelector(".page-header-desktop");
       expect(desktopBreadcrumbs).toBeTruthy();
-      expect(desktopBreadcrumbs.classList.contains("@sm:col-start-2")).toBe(
-        true
-      );
-      expect(desktopBreadcrumbs.classList.contains("@sm:col-span-2")).toBe(
-        true
-      );
-      expect(desktopBreadcrumbs.classList.contains("@sm:row-start-1")).toBe(
-        true
-      );
+      expect(desktopBreadcrumbs.classList.contains("@sm:col-start-2")).toBe(true);
+      expect(desktopBreadcrumbs.classList.contains("@sm:col-span-2")).toBe(true);
+      expect(desktopBreadcrumbs.classList.contains("@sm:row-start-1")).toBe(true);
       expect(desktopBreadcrumbs.classList.contains("@sm:flex")).toBe(true);
     });
 
     it("should place title and subtitle container in row 2 col 2", () => {
-      const row2Container = fixture.nativeElement.querySelector(
-        ".flex.min-w-0.flex-col.gap-0\\.5"
-      );
+      const row2Container = fixture.nativeElement.querySelector(".flex.min-w-0.flex-col.gap-0\\.5");
       expect(row2Container).toBeTruthy();
       expect(row2Container.classList.contains("@sm:col-start-2")).toBe(true);
       expect(row2Container.classList.contains("@sm:row-start-2")).toBe(true);
@@ -235,7 +200,7 @@ describe("PageHeaderComponent", () => {
 
     it("should place actions container in row 3 full width on mobile, and row 2 col 3 on desktop", () => {
       const actionsContainer = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-actions"]'
+        '[data-testid="page-header-actions"]',
       );
       expect(actionsContainer).toBeTruthy();
       // Mobile
@@ -257,7 +222,7 @@ describe("PageHeaderComponent", () => {
       fixture.detectChanges();
 
       const breadcrumbEl = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-breadcrumb"]'
+        '[data-testid="page-header-breadcrumb"]',
       );
       expect(breadcrumbEl).toBeTruthy();
       const links = breadcrumbEl.querySelectorAll("a");
@@ -314,53 +279,33 @@ describe("PageHeaderComponent", () => {
     });
 
     it("should project leading icon via [icon] slot when icon input is not used", () => {
-      const projectedIcon = hostFixture.debugElement.query(
-        By.css("#projected-icon")
-      );
+      const projectedIcon = hostFixture.debugElement.query(By.css("#projected-icon"));
       expect(projectedIcon).toBeTruthy();
-      expect(projectedIcon.nativeElement.textContent.trim()).toBe(
-        "Custom Icon"
-      );
+      expect(projectedIcon.nativeElement.textContent.trim()).toBe("Custom Icon");
     });
 
     it("should project badge via [badge] slot when badge input is not used", () => {
-      const projectedBadge = hostFixture.debugElement.query(
-        By.css("#projected-badge")
-      );
+      const projectedBadge = hostFixture.debugElement.query(By.css("#projected-badge"));
       expect(projectedBadge).toBeTruthy();
-      expect(projectedBadge.nativeElement.textContent.trim()).toBe(
-        "Custom Badge"
-      );
+      expect(projectedBadge.nativeElement.textContent.trim()).toBe("Custom Badge");
     });
 
     it("should project subtitle via [subtitle] slot when subtitle input is not used", () => {
-      const projectedSubtitle = hostFixture.debugElement.query(
-        By.css("#projected-subtitle")
-      );
+      const projectedSubtitle = hostFixture.debugElement.query(By.css("#projected-subtitle"));
       expect(projectedSubtitle).toBeTruthy();
-      expect(projectedSubtitle.nativeElement.textContent.trim()).toBe(
-        "Custom Subtitle"
-      );
+      expect(projectedSubtitle.nativeElement.textContent.trim()).toBe("Custom Subtitle");
     });
 
     it("should project actions via [actions] slot", () => {
-      const projectedActions = hostFixture.debugElement.query(
-        By.css("#projected-actions")
-      );
+      const projectedActions = hostFixture.debugElement.query(By.css("#projected-actions"));
       expect(projectedActions).toBeTruthy();
-      expect(projectedActions.nativeElement.textContent).toContain(
-        "Custom Action"
-      );
+      expect(projectedActions.nativeElement.textContent).toContain("Custom Action");
     });
 
     it("should project unslotted content into default slot", () => {
-      const defaultContent = hostFixture.debugElement.query(
-        By.css("#projected-default")
-      );
+      const defaultContent = hostFixture.debugElement.query(By.css("#projected-default"));
       expect(defaultContent).toBeTruthy();
-      expect(defaultContent.nativeElement.textContent.trim()).toBe(
-        "Default Content"
-      );
+      expect(defaultContent.nativeElement.textContent.trim()).toBe("Default Content");
     });
   });
 
@@ -373,7 +318,7 @@ describe("PageHeaderComponent", () => {
       fixture.detectChanges();
 
       const breadcrumbEl = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-breadcrumb"]'
+        '[data-testid="page-header-breadcrumb"]',
       );
       expect(breadcrumbEl).toBeTruthy();
       expect(breadcrumbEl.textContent).toContain("Home");
@@ -401,9 +346,7 @@ describe("PageHeaderComponent", () => {
 
       const crumbs = component.computedBreadcrumbs();
       // Falls back to [Home] since no navigation context service is available
-      expect(crumbs).toEqual([
-        { icon: "lucideHome", label: "Home", url: "/app" },
-      ]);
+      expect(crumbs).toEqual([{ icon: "lucideHome", label: "Home", url: "/app" }]);
     });
 
     it("should prioritize custom explicit breadcrumbs prepending Home when not starting with Home", () => {
@@ -414,7 +357,7 @@ describe("PageHeaderComponent", () => {
       fixture.detectChanges();
 
       const breadcrumbEl = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-breadcrumb"]'
+        '[data-testid="page-header-breadcrumb"]',
       );
       expect(breadcrumbEl).toBeTruthy();
       expect(breadcrumbEl.textContent).toContain("Home");
@@ -432,9 +375,9 @@ describe("PageHeaderComponent", () => {
 
       expect(standaloneFixture.componentInstance).toBeTruthy();
       // Without navigation context service, falls back to Home-only breadcrumbs
-      expect(standaloneFixture.componentInstance.computedBreadcrumbs()).toEqual(
-        [{ icon: "lucideHome", label: "Home", url: "/app" }]
-      );
+      expect(standaloneFixture.componentInstance.computedBreadcrumbs()).toEqual([
+        { icon: "lucideHome", label: "Home", url: "/app" },
+      ]);
     });
   });
 
@@ -449,15 +392,13 @@ describe("PageHeaderComponent", () => {
 
     it("should render history buttons by default", () => {
       const historyContainer = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-history"]'
+        '[data-testid="page-header-history"]',
       );
       expect(historyContainer).toBeTruthy();
 
-      const backBtn = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-back-btn"]'
-      );
+      const backBtn = fixture.nativeElement.querySelector('[data-testid="page-header-back-btn"]');
       const forwardBtn = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-forward-btn"]'
+        '[data-testid="page-header-forward-btn"]',
       );
       expect(backBtn).toBeTruthy();
       expect(forwardBtn).toBeTruthy();
@@ -468,14 +409,14 @@ describe("PageHeaderComponent", () => {
       fixture.detectChanges();
 
       const historyContainer = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-history"]'
+        '[data-testid="page-header-history"]',
       );
       expect(historyContainer).toBeNull();
     });
 
     it("should trigger goBack and location.back when back button is clicked", () => {
       const backBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-back-btn"]'
+        '[data-testid="page-header-back-btn"]',
       );
       expect(backBtn).toBeTruthy();
       backBtn.click();
@@ -484,7 +425,7 @@ describe("PageHeaderComponent", () => {
 
     it("should trigger goForward and location.forward when forward button is clicked", () => {
       const forwardBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-forward-btn"]'
+        '[data-testid="page-header-forward-btn"]',
       );
       expect(forwardBtn).toBeTruthy();
       forwardBtn.click();
@@ -501,7 +442,7 @@ describe("PageHeaderComponent", () => {
       fixture.detectChanges();
 
       const breadcrumbEl = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-breadcrumb"]'
+        '[data-testid="page-header-breadcrumb"]',
       );
       expect(breadcrumbEl).toBeTruthy();
       const icons = breadcrumbEl.querySelectorAll("ng-icon.shrink-0");
@@ -535,12 +476,8 @@ describe("PageHeaderComponent", () => {
 
   describe("Dual Responsive Layout (Desktop & Mobile)", () => {
     it("should render both desktop container and mobile 3-row container", () => {
-      const desktopContainer = fixture.nativeElement.querySelector(
-        ".page-header-desktop"
-      );
-      const mobileContainer = fixture.nativeElement.querySelector(
-        ".page-header-mobile"
-      );
+      const desktopContainer = fixture.nativeElement.querySelector(".page-header-desktop");
+      const mobileContainer = fixture.nativeElement.querySelector(".page-header-mobile");
       expect(desktopContainer).toBeTruthy();
       expect(mobileContainer).toBeTruthy();
     });
@@ -552,10 +489,9 @@ describe("PageHeaderComponent", () => {
       fixture.componentRef.setInput("isRoot", false);
       fixture.detectChanges();
 
-      const mobileBackBtn: HTMLButtonElement =
-        fixture.nativeElement.querySelector(
-          '[data-testid="page-header-mobile-back-btn"]'
-        );
+      const mobileBackBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
+        '[data-testid="page-header-mobile-back-btn"]',
+      );
       expect(mobileBackBtn).toBeTruthy();
       mobileBackBtn.click();
       expect(locationSpy.back).toHaveBeenCalled();
@@ -566,7 +502,7 @@ describe("PageHeaderComponent", () => {
       fixture.detectChanges();
 
       const mobileBackBtn = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-mobile-back-btn"]'
+        '[data-testid="page-header-mobile-back-btn"]',
       );
       expect(mobileBackBtn).toBeNull();
     });
@@ -577,7 +513,7 @@ describe("PageHeaderComponent", () => {
       fixture.detectChanges();
 
       const mobilePathEl = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-mobile-path"]'
+        '[data-testid="page-header-mobile-path"]',
       );
       expect(mobilePathEl).toBeTruthy();
       // Service returns "Home" as mobilePath (initial state with no navigation)
@@ -590,7 +526,7 @@ describe("PageHeaderComponent", () => {
       fixture.detectChanges();
 
       const mobilePathEl = fixture.nativeElement.querySelector(
-        '[data-testid="page-header-mobile-path"]'
+        '[data-testid="page-header-mobile-path"]',
       );
       expect(mobilePathEl).toBeTruthy();
       // Without NavigationContextService, falls back to computed breadcrumbs joined

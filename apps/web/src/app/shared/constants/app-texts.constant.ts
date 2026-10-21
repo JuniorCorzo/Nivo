@@ -169,8 +169,7 @@ export const APP_TEXTS = {
       sync: "Sincronizar",
     },
     chart: {
-      emptyStateSubtitle:
-        "No se registraron movimientos de vehículos en el período seleccionado.",
+      emptyStateSubtitle: "No se registraron movimientos de vehículos en el período seleccionado.",
       emptyStateTitle: "Sin datos de telemetría",
       entries: "Entradas",
       exits: "Salidas",
@@ -180,10 +179,8 @@ export const APP_TEXTS = {
       peakHourIngress: "Hora Pico Ingreso",
       peakMaxOccupancy: "Pico Máximo Ocupación",
       subtitles: {
-        sevenDays:
-          "Curva de flujo diario: Entradas vs Salidas (últimos 7 días)",
-        thirtyDays:
-          "Curva de flujo diario: Entradas vs Salidas (últimos 30 días)",
+        sevenDays: "Curva de flujo diario: Entradas vs Salidas (últimos 7 días)",
+        thirtyDays: "Curva de flujo diario: Entradas vs Salidas (últimos 30 días)",
         today: "Curva de flujo horario: Entradas vs Salidas (06:00 - 22:00)",
       },
       titleDaily: "Tendencia de Ocupación: Flujo Diario",
@@ -241,14 +238,12 @@ export const APP_TEXTS = {
       },
       recentActivity: {
         liveBadge: "SSE En Línea",
-        subtitle:
-          "Transacciones de ingreso y salida en vivo por barrera automatizada",
+        subtitle: "Transacciones de ingreso y salida en vivo por barrera automatizada",
         title: "Flujo Operativo Reciente",
       },
     },
     reports: {
-      description:
-        "Transacciones de ingreso, permanencia y recaudo por vehículo",
+      description: "Transacciones de ingreso, permanencia y recaudo por vehículo",
       pagination: {
         next: "Siguiente",
         previous: "Anterior",
@@ -270,12 +265,10 @@ export const APP_TEXTS = {
       firstPage: "Primera página",
       lastPage: "Última página",
       nextPage: "Página siguiente",
-      pageInfo: (current: number, total: number) =>
-        `Página ${current} de ${total}`,
+      pageInfo: (current: number, total: number) => `Página ${current} de ${total}`,
       previousPage: "Página anterior",
       rowsPerPage: "Filas por página:",
-      totalResults: (total: number) =>
-        `Total: ${total} resultado${total === 1 ? "" : "s"}`,
+      totalResults: (total: number) => `Total: ${total} resultado${total === 1 ? "" : "s"}`,
     },
     search: {
       clear: "Limpiar búsqueda",
@@ -332,8 +325,7 @@ export const APP_TEXTS = {
       slotDistribution: {
         prefix: "Prefijo",
         slotsLabel: (count: number) => `${count} cupo${count === 1 ? "" : "s"}`,
-        summary: (count: number) =>
-          `${count} grupo${count === 1 ? "" : "s"} de cupos`,
+        summary: (count: number) => `${count} grupo${count === 1 ? "" : "s"} de cupos`,
         title: "Distribución de cupos",
         totalSlots: (total: number) => `${total} en total`,
       },
@@ -393,8 +385,7 @@ export const APP_TEXTS = {
           closeTime: {
             errors: {
               invalidFormat: "Formato inválido. Use HH:mm",
-              invalidRange:
-                "La hora de cierre debe ser posterior a la de apertura",
+              invalidRange: "La hora de cierre debe ser posterior a la de apertura",
               required: "La hora de cierre es requerida",
             },
             label: "Hora de cierre",
@@ -440,8 +431,7 @@ export const APP_TEXTS = {
     },
     list: {
       empty: {
-        description:
-          "Comienza agregando tu primer parqueadero para gestionar tus propiedades.",
+        description: "Comienza agregando tu primer parqueadero para gestionar tus propiedades.",
         title: "No tienes parqueaderos registrados",
       },
       search: {
@@ -483,8 +473,7 @@ export const APP_TEXTS = {
       },
       list: {
         empty: {
-          description:
-            "Comienza creando un lote de plazas para este parqueadero.",
+          description: "Comienza creando un lote de plazas para este parqueadero.",
           parkingNotFound: "Parqueadero no encontrado",
           title: "No hay plazas configuradas",
         },
@@ -499,8 +488,7 @@ export const APP_TEXTS = {
   },
   photoCapture: {
     badgeSize: (kb: number) => `${kb} KB`,
-    cameraError:
-      "No se pudo acceder a la cámara. Usa la opción de subir archivo.",
+    cameraError: "No se pudo acceder a la cámara. Usa la opción de subir archivo.",
     capture: "Capturar",
     clearPhoto: "Eliminar foto",
     hint: "JPG comprimido (< 100 KB) para registro de motocicleta",
@@ -548,8 +536,7 @@ export const APP_TEXTS = {
       generic:
         "Ha ocurrido un error inesperado. Por favor, recargue la página e inténtelo de nuevo.",
       network: "Error de conexión. Verifique su conexión a internet.",
-      timeout:
-        "La solicitud ha tardado demasiado tiempo. Por favor, inténtelo de nuevo.",
+      timeout: "La solicitud ha tardado demasiado tiempo. Por favor, inténtelo de nuevo.",
     },
   },
   sidebar: {
@@ -600,10 +587,8 @@ export const APP_TEXTS = {
         },
       },
       preview: {
-        conflictWarning:
-          "Algunas plazas del rango ya existen. Ajusta el rango para continuar.",
-        count: (count: number) =>
-          `Se crearán ${count} plaza${count === 1 ? "" : "s"}`,
+        conflictWarning: "Algunas plazas del rango ya existen. Ajusta el rango para continuar.",
+        count: (count: number) => `Se crearán ${count} plaza${count === 1 ? "" : "s"}`,
         range: (from: number, to: number) => `Rango: ${from} - ${to}`,
         title: "Vista previa",
       },
@@ -613,11 +598,9 @@ export const APP_TEXTS = {
     deleteModal: {
       cancel: "Cancelar",
       confirm: "Sí, eliminar",
-      message:
-        "¿Estás seguro de que deseas eliminar esta plaza? Esta acción no se puede deshacer.",
+      message: "¿Estás seguro de que deseas eliminar esta plaza? Esta acción no se puede deshacer.",
       title: "Eliminar plaza",
-      warningHistory:
-        "Esta plaza tiene historial de tickets. Debes confirmar para continuar.",
+      warningHistory: "Esta plaza tiene historial de tickets. Debes confirmar para continuar.",
     },
     detail: {
       activeTicket: {
@@ -670,10 +653,8 @@ export const APP_TEXTS = {
         },
       },
       restrictions: {
-        activeTicketType:
-          "Existe un ticket activo. El tipo no se puede modificar.",
-        occupiedNumber:
-          "La plaza está ocupada. El número no se puede modificar.",
+        activeTicketType: "Existe un ticket activo. El tipo no se puede modificar.",
+        occupiedNumber: "La plaza está ocupada. El número no se puede modificar.",
       },
       subtitle: "Actualiza la información de la plaza",
       title: "Editar plaza",
@@ -687,8 +668,7 @@ export const APP_TEXTS = {
       },
       empty: {
         createCta: "Crear plazas",
-        description:
-          "Comienza creando un lote de plazas para este parqueadero.",
+        description: "Comienza creando un lote de plazas para este parqueadero.",
         parkingNotFound: "Parqueadero no encontrado",
         title: "No hay plazas configuradas",
       },
@@ -804,8 +784,7 @@ export const APP_TEXTS = {
       title: "Detalle del Ticket",
     },
     emptyState: {
-      description:
-        "No hay tickets registrados que coincidan con los filtros aplicados.",
+      description: "No hay tickets registrados que coincidan con los filtros aplicados.",
       message: "No se encontraron tickets",
       title: "No se encontraron tickets",
     },
@@ -896,12 +875,10 @@ export const APP_TEXTS = {
         },
         description:
           "Esta acción revocará el acceso al sistema para este usuario. Podrás reactivarlo posteriormente si es necesario.",
-        lastOwnerWarning:
-          "No se puede desactivar al único propietario activo del parqueadero.",
+        lastOwnerWarning: "No se puede desactivar al único propietario activo del parqueadero.",
         selfDeactivationWarning:
           "No puedes desactivar tu propia cuenta mientras estés en sesión activa.",
-        singleOwnerWarning:
-          "No se puede desactivar al único propietario activo del parqueadero.",
+        singleOwnerWarning: "No se puede desactivar al único propietario activo del parqueadero.",
         title: "¿Desactivar usuario?",
       },
       invite: {
@@ -960,10 +937,8 @@ export const APP_TEXTS = {
             placeholder: "Selecciona el nuevo rol...",
           },
         },
-        ownerRoleNotice:
-          "El rol de Propietario no puede ser modificado.",
-        subtitle:
-          "Modifica el nivel de acceso y permisos del usuario en la plataforma.",
+        ownerRoleNotice: "El rol de Propietario no puede ser modificado.",
+        subtitle: "Modifica el nivel de acceso y permisos del usuario en la plataforma.",
         title: "Modificar Rol de Usuario",
         userLabel: "Usuario",
       },
@@ -1002,8 +977,7 @@ export const APP_TEXTS = {
     },
     titles: {
       page: "Gestión de Usuarios",
-      subtitle:
-        "Administra el equipo de tu parqueadero, asigna roles y controla accesos.",
+      subtitle: "Administra el equipo de tu parqueadero, asigna roles y controla accesos.",
     },
     toasts: {
       deactivateError: "Ocurrió un error al desactivar el usuario",

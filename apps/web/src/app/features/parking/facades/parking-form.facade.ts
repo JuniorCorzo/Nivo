@@ -13,10 +13,7 @@ import type { UpsertParkingLotsModel } from "@core/models/parking.model";
 import { ColombiaService } from "@core/service/colombia-service";
 import { ParkingService } from "@core/services/parking-service";
 import type { Coordinates } from "@core/type/coordinates.type";
-import type {
-  SlotDistribution,
-  SlotType,
-} from "@core/type/slot-distribution.type";
+import type { SlotDistribution, SlotType } from "@core/type/slot-distribution.type";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { formatCoordinate } from "@shared/utils/coordinates.utils";
 
@@ -40,7 +37,7 @@ export class ParkingFormFacade {
   readonly slots = signal<SlotDistribution[]>([]);
   private readonly originalSlots = signal<SlotDistribution[]>([]);
   readonly slotsChanged = computed(
-    () => JSON.stringify(this.originalSlots()) !== JSON.stringify(this.slots())
+    () => JSON.stringify(this.originalSlots()) !== JSON.stringify(this.slots()),
   );
   readonly slotTypeOptions: { value: SlotType; label: string }[] = [
     { label: "Carro", value: "CAR" },
@@ -107,7 +104,7 @@ export class ParkingFormFacade {
       /^(?<hours>[0-1]?[0-9]|2[0-3]):(?<minutes>[0-5][0-9])$/u,
       {
         message: this.fieldTexts.operatingHours.openTime.errors.invalidFormat,
-      }
+      },
     );
     required(schemaPath.operatingHours.closeTime, {
       message: this.fieldTexts.operatingHours.closeTime.errors.required,
@@ -117,7 +114,7 @@ export class ParkingFormFacade {
       /^(?<hours>[0-1]?[0-9]|2[0-3]):(?<minutes>[0-5][0-9])$/u,
       {
         message: this.fieldTexts.operatingHours.closeTime.errors.invalidFormat,
-      }
+      },
     );
 
     required(schemaPath.gracePeriodMinutes, {
@@ -156,32 +153,22 @@ export class ParkingFormFacade {
   readonly title = computed(() =>
     this.mode() === "create"
       ? APP_TEXTS.parking.form.create.title
-      : APP_TEXTS.parking.form.edit.title
+      : APP_TEXTS.parking.form.edit.title,
   );
   readonly description = computed(() =>
     this.mode() === "create"
       ? APP_TEXTS.parking.form.create.description
-      : APP_TEXTS.parking.form.edit.description
+      : APP_TEXTS.parking.form.edit.description,
   );
   readonly submitButtonText = computed(() =>
-    this.mode() === "create"
-      ? APP_TEXTS.parking.actions.create
-      : APP_TEXTS.parking.actions.edit
+    this.mode() === "create" ? APP_TEXTS.parking.actions.create : APP_TEXTS.parking.actions.edit,
   );
-  readonly nameError = computed(() =>
-    ParkingFormFacade.getFieldError(this.form.name)
-  );
-  readonly streetError = computed(() =>
-    ParkingFormFacade.getFieldError(this.form.address.street)
-  );
-  readonly cityError = computed(() =>
-    ParkingFormFacade.getFieldError(this.form.address.city)
-  );
-  readonly stateError = computed(() =>
-    ParkingFormFacade.getFieldError(this.form.address.state)
-  );
+  readonly nameError = computed(() => ParkingFormFacade.getFieldError(this.form.name));
+  readonly streetError = computed(() => ParkingFormFacade.getFieldError(this.form.address.street));
+  readonly cityError = computed(() => ParkingFormFacade.getFieldError(this.form.address.city));
+  readonly stateError = computed(() => ParkingFormFacade.getFieldError(this.form.address.state));
   readonly zipCodeError = computed(() =>
-    ParkingFormFacade.getFieldError(this.form.address.zipCode)
+    ParkingFormFacade.getFieldError(this.form.address.zipCode),
   );
 
   constructor() {
@@ -212,18 +199,10 @@ export class ParkingFormFacade {
     this.form.address.zipCode().value.set(model.address.zipCode ?? "");
     this.form.operatingHours
       .closeTime()
-      .value.set(
-        ParkingFormFacade.formatOffsetTimeForInput(
-          model.operatingHours.closeTime
-        )
-      );
+      .value.set(ParkingFormFacade.formatOffsetTimeForInput(model.operatingHours.closeTime));
     this.form.operatingHours
       .openTime()
-      .value.set(
-        ParkingFormFacade.formatOffsetTimeForInput(
-          model.operatingHours.openTime
-        )
-      );
+      .value.set(ParkingFormFacade.formatOffsetTimeForInput(model.operatingHours.openTime));
     this.form.currency().value.set(model.currency);
     this.form.gracePeriodMinutes().value.set(model.gracePeriodMinutes ?? 0);
     this.form.gracePeriodPrice().value.set(model.gracePeriodPrice ?? 0);
@@ -235,9 +214,7 @@ export class ParkingFormFacade {
       this.onStateSelected(model.address.state);
     }
 
-    const validCoordinates = ParkingFormFacade.normalizeCoordinates(
-      model.coordinates
-    );
+    const validCoordinates = ParkingFormFacade.normalizeCoordinates(model.coordinates);
     this.isMapPlaceholderVisible.set(!validCoordinates);
     if (validCoordinates) {
       this.selectedCoordinates.set(validCoordinates);
@@ -249,9 +226,7 @@ export class ParkingFormFacade {
   }
 
   onStateSelected(item: string | null | undefined): void {
-    const citiesByDepartment = this.colombiaService.getCitiesByDepartmentName(
-      String(item ?? "")
-    );
+    const citiesByDepartment = this.colombiaService.getCitiesByDepartmentName(String(item ?? ""));
     this.cities.set(citiesByDepartment);
   }
 
@@ -265,18 +240,14 @@ export class ParkingFormFacade {
   }
 
   addSlot(): void {
-    this.slots.update((slots) => [
-      ...slots,
-      ParkingFormFacade.createEmptySlot(),
-    ]);
+    this.slots.update((slots) => [...slots, ParkingFormFacade.createEmptySlot()]);
   }
 
   removeSlot(index: number): void {
     const slot = this.slots()[index];
     const id = this.parkingId();
     const isExisting = this.originalSlots().some(
-      (s) =>
-        s.type === slot.type && s.prefix === slot.prefix && s.zone === slot.zone
+      (s) => s.type === slot.type && s.prefix === slot.prefix && s.zone === slot.zone,
     );
 
     if (this.mode() === "edit" && id && isExisting) {
@@ -289,12 +260,12 @@ export class ParkingFormFacade {
   updateSlot<K extends keyof SlotDistribution>(
     index: number,
     field: K,
-    value: SlotDistribution[K]
+    value: SlotDistribution[K],
   ): void {
     this.slots.update((slots) =>
       slots.map((slot, currentIndex) =>
-        currentIndex === index ? { ...slot, [field]: value } : slot
-      )
+        currentIndex === index ? { ...slot, [field]: value } : slot,
+      ),
     );
   }
 
@@ -321,12 +292,8 @@ export class ParkingFormFacade {
       ivaRate: Number(this.form.ivaRate().value() ?? 0.19),
       name: this.form.name().value(),
       operatingHours: {
-        closeTime: this.formatInputTimeForOffsetTime(
-          this.form.operatingHours.closeTime().value()
-        ),
-        openTime: this.formatInputTimeForOffsetTime(
-          this.form.operatingHours.openTime().value()
-        ),
+        closeTime: this.formatInputTimeForOffsetTime(this.form.operatingHours.closeTime().value()),
+        openTime: this.formatInputTimeForOffsetTime(this.form.operatingHours.openTime().value()),
       },
       slots: this.slotsChanged() ? slots : undefined,
       timezone: initial.timezone,
@@ -367,7 +334,7 @@ export class ParkingFormFacade {
   }
 
   private static normalizeCoordinates(
-    coordinates: Coordinates | null | undefined
+    coordinates: Coordinates | null | undefined,
   ): Coordinates | undefined {
     if (!coordinates) {
       return undefined;
@@ -384,7 +351,7 @@ export class ParkingFormFacade {
   }
 
   private static getFieldError(
-    field: FieldTree<string, string>
+    field: FieldTree<string, string>,
   ): ValidationError.WithFieldTree[] | undefined {
     if (!field().touched() && field().invalid()) {
       return undefined;

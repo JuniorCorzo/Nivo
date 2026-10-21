@@ -100,17 +100,14 @@ describe("RateFormComponent", () => {
   });
 
   it("should render app-page-header with title, subtitle, icon, and breadcrumbs", () => {
-    const headerDebugEl = fixture.debugElement.query(
-      By.directive(PageHeaderComponent)
-    );
+    const headerDebugEl = fixture.debugElement.query(By.directive(PageHeaderComponent));
     expect(headerDebugEl).toBeTruthy();
 
     // SAFETY: Querying component instance of PageHeaderComponent
-    const headerInstance =
-      headerDebugEl.componentInstance as PageHeaderComponent;
+    const headerInstance = headerDebugEl.componentInstance as PageHeaderComponent;
     expect(headerInstance.title()).toBe("Configurar nueva tarifa");
     expect(headerInstance.subtitle()).toBe(
-      "Parqueadero Central — Definí el valor base y las condiciones de cobro"
+      "Parqueadero Central — Definí el valor base y las condiciones de cobro",
     );
     expect(headerInstance.icon()).toBe("lucideCoins");
     expect(headerInstance.breadcrumbs()).toEqual([
@@ -135,11 +132,9 @@ describe("RateFormComponent", () => {
   });
 
   it("should project back to rates button in [actions] slot of page-header", () => {
-    const headerDebugEl = fixture.debugElement.query(
-      By.directive(PageHeaderComponent)
-    );
+    const headerDebugEl = fixture.debugElement.query(By.directive(PageHeaderComponent));
     const actionsSlot = headerDebugEl.nativeElement.querySelector(
-      '[data-testid="page-header-actions"]'
+      '[data-testid="page-header-actions"]',
     );
     expect(actionsSlot).toBeTruthy();
     expect(actionsSlot.textContent).toContain("Volver a tarifas");

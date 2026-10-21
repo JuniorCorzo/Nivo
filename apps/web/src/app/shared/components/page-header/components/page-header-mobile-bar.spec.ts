@@ -37,9 +37,7 @@ describe("PageHeaderMobileBarComponent", () => {
   });
 
   it("should render mobile path", () => {
-    const pathEl = fixture.nativeElement.querySelector(
-      '[data-testid="page-header-mobile-path"]'
-    );
+    const pathEl = fixture.nativeElement.querySelector('[data-testid="page-header-mobile-path"]');
     expect(pathEl).toBeTruthy();
     expect(pathEl.textContent.trim()).toBe("Inicio / Config");
   });
@@ -52,7 +50,7 @@ describe("PageHeaderMobileBarComponent", () => {
     component.back.subscribe(backSpy);
 
     const backBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
-      '[data-testid="page-header-mobile-back-btn"]'
+      '[data-testid="page-header-mobile-back-btn"]',
     );
     expect(backBtn).toBeTruthy();
 
@@ -65,7 +63,7 @@ describe("PageHeaderMobileBarComponent", () => {
     fixture.detectChanges();
 
     const backBtn = fixture.nativeElement.querySelector(
-      '[data-testid="page-header-mobile-back-btn"]'
+      '[data-testid="page-header-mobile-back-btn"]',
     );
     expect(backBtn).toBeNull();
   });
@@ -84,9 +82,7 @@ describe("PageHeaderMobileBarComponent", () => {
     const hostFixture = TestBed.createComponent(TestHostComponent);
     hostFixture.detectChanges();
 
-    const projected = hostFixture.nativeElement.querySelector(
-      "#projected-mobile-badge"
-    );
+    const projected = hostFixture.nativeElement.querySelector("#projected-mobile-badge");
     expect(projected).toBeTruthy();
     expect(projected.textContent.trim()).toBe("Custom Badge");
   });

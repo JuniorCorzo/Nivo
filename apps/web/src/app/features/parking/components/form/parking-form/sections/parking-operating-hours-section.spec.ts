@@ -15,18 +15,14 @@ interface MockFieldTreeSignal {
 
 interface ParkingOperatingHoursStatic {
   getError: (
-    field: (() => MockFieldTreeSignal) | FieldTree<string, string>
+    field: (() => MockFieldTreeSignal) | FieldTree<string, string>,
   ) => ValidationError.WithFieldTree[] | undefined;
 }
 
 @Component({
   imports: [ParkingOperatingHoursSectionComponent],
   standalone: true,
-  template: `
-    <app-parking-operating-hours-section
-      [operatingHours]="operatingHoursForm"
-    />
-  `,
+  template: ` <app-parking-operating-hours-section [operatingHours]="operatingHoursForm" /> `,
 })
 class TestHostComponent {
   public hoursModel = signal<OperatingHours>({
@@ -36,21 +32,13 @@ class TestHostComponent {
 
   public operatingHoursForm = form(this.hoursModel, (path) => {
     required(path.openTime, { message: "openTime required" });
-    pattern(
-      path.openTime,
-      /^(?<hours>[0-1]?[0-9]|2[0-3]):(?<minutes>[0-5][0-9])$/u,
-      {
-        message: "invalid openTime format",
-      }
-    );
+    pattern(path.openTime, /^(?<hours>[0-1]?[0-9]|2[0-3]):(?<minutes>[0-5][0-9])$/u, {
+      message: "invalid openTime format",
+    });
     required(path.closeTime, { message: "closeTime required" });
-    pattern(
-      path.closeTime,
-      /^(?<hours>[0-1]?[0-9]|2[0-3]):(?<minutes>[0-5][0-9])$/u,
-      {
-        message: "invalid closeTime format",
-      }
-    );
+    pattern(path.closeTime, /^(?<hours>[0-1]?[0-9]|2[0-3]):(?<minutes>[0-5][0-9])$/u, {
+      message: "invalid closeTime format",
+    });
   });
 }
 
@@ -58,7 +46,7 @@ const createMockField =
   (
     touched: boolean,
     invalid: boolean,
-    errors: ValidationError.WithFieldTree[] | null
+    errors: ValidationError.WithFieldTree[] | null,
   ): (() => MockFieldTreeSignal) =>
   () => ({
     errors: () => errors,

@@ -64,7 +64,7 @@ export class PublicTicketPageComponent {
   private timerIntervalId: ReturnType<typeof setInterval> | null = null;
 
   readonly formattedElapsed = computed<string>(() =>
-    PublicTicketPageComponent.formatElapsed(this.elapsedSeconds())
+    PublicTicketPageComponent.formatElapsed(this.elapsedSeconds()),
   );
 
   readonly estimatedCost = computed<number>(() => {
@@ -80,7 +80,7 @@ export class PublicTicketPageComponent {
     return PublicTicketPageComponent.calculateEstimatedFee(
       this.elapsedSeconds(),
       unitPrice,
-      timeUnit
+      timeUnit,
     );
   });
 
@@ -95,9 +95,7 @@ export class PublicTicketPageComponent {
         : "https://app.nivo.dev";
     const shareUrl = `${origin}/t/${t.id}`;
     const plate = t.plate || this.texts.unplatedVehicle;
-    const message = encodeURIComponent(
-      `Comprobante de parqueo vehículo ${plate}: ${shareUrl}`
-    );
+    const message = encodeURIComponent(`Comprobante de parqueo vehículo ${plate}: ${shareUrl}`);
     return `https://wa.me/?text=${message}`;
   });
 
@@ -150,9 +148,7 @@ export class PublicTicketPageComponent {
       width: 144,
     })
       .then((svg) => {
-        this.qrDataUrl.set(
-          `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
-        );
+        this.qrDataUrl.set(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
       })
       .catch(() => {
         this.qrDataUrl.set("");
@@ -197,7 +193,7 @@ export class PublicTicketPageComponent {
   static calculateEstimatedFee(
     seconds: number,
     unitPrice: number,
-    timeUnit: string = "HOURS"
+    timeUnit: string = "HOURS",
   ): number {
     if (timeUnit === "MINUTES") {
       const minutesBilled = Math.max(1, Math.ceil(seconds / 60));

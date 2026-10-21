@@ -1,17 +1,7 @@
-import {
-  DestroyRef,
-  Injectable,
-  computed,
-  inject,
-  signal,
-} from "@angular/core";
+import { DestroyRef, Injectable, computed, inject, signal } from "@angular/core";
 import type { RateModel, VehicleType } from "@core/models/rate.model";
 import type { SlotSummary } from "@core/models/slot.model";
-import type {
-  CreateTicketPayload,
-  PlateCountry,
-  TicketSummary,
-} from "@core/models/ticket.model";
+import type { CreateTicketPayload, PlateCountry, TicketSummary } from "@core/models/ticket.model";
 import { ParkingService } from "@core/services/parking-service";
 import { RateService } from "@core/services/rate-service";
 import { SlotService } from "@core/services/slot-service";
@@ -40,9 +30,7 @@ export class CheckInFacade {
   readonly plateCountry = signal<PlateCountry>("CO");
   readonly photoUrl = signal<string | null>(null);
   readonly phoneNumber = signal<string>("");
-  readonly isUnplated = computed<boolean>(
-    () => this.plateCountry() === "UNPLATED"
-  );
+  readonly isUnplated = computed<boolean>(() => this.plateCountry() === "UNPLATED");
 
   readonly isSubmitting = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
@@ -54,10 +42,7 @@ export class CheckInFacade {
     if (!id) {
       return null;
     }
-    return (
-      (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ??
-      null
-    );
+    return (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ?? null;
   });
 
   readonly allSlots = computed<SlotSummary[]>(() => {
@@ -70,9 +55,7 @@ export class CheckInFacade {
 
   readonly availableSlots = computed<SlotSummary[]>(() => {
     const type = this.vehicleType();
-    return this.allSlots().filter(
-      (slot) => slot.status === "AVAILABLE" && slot.type === type
-    );
+    return this.allSlots().filter((slot) => slot.status === "AVAILABLE" && slot.type === type);
   });
 
   readonly allRates = computed<RateModel[]>(() => {
@@ -100,9 +83,7 @@ export class CheckInFacade {
     return this.allRates().filter((rate) => rate.vehicleType === type);
   });
 
-  readonly hasAvailableSlots = computed<boolean>(
-    () => this.availableSlots().length > 0
-  );
+  readonly hasAvailableSlots = computed<boolean>(() => this.availableSlots().length > 0);
 
   readonly isValid = computed<boolean>(() => {
     if (this.isSubmitting()) {
@@ -130,25 +111,21 @@ export class CheckInFacade {
   }
 
   loadData(parkingId: string): void {
-    this.slotService
-      .getAllSlotSummariesByParkingId(parkingId)
-      .subscribe((slots) => {
-        const allKnownTypes: VehicleType[] = ["CAR", "MOTORCYCLE", "BIKE"];
-        const available = allKnownTypes.filter((t) =>
-          slots.some((s) => s.status === "AVAILABLE" && s.type === t)
-        );
-        if (available.length > 0 && !available.includes(this.vehicleType())) {
-          this.setVehicleType(available[0]);
-        } else {
-          this.setVehicleType(this.vehicleType());
-        }
-      });
+    this.slotService.getAllSlotSummariesByParkingId(parkingId).subscribe((slots) => {
+      const allKnownTypes: VehicleType[] = ["CAR", "MOTORCYCLE", "BIKE"];
+      const available = allKnownTypes.filter((t) =>
+        slots.some((s) => s.status === "AVAILABLE" && s.type === t),
+      );
+      if (available.length > 0 && !available.includes(this.vehicleType())) {
+        this.setVehicleType(available[0]);
+      } else {
+        this.setVehicleType(this.vehicleType());
+      }
+    });
     this.rateService.getRatesByParkingId(parkingId).subscribe((rates) => {
       if (!this.selectedRateId()) {
         const type = this.vehicleType();
-        const matchingRates = (rates ?? []).filter(
-          (r) => r.vehicleType === type
-        );
+        const matchingRates = (rates ?? []).filter((r) => r.vehicleType === type);
         if (matchingRates.length > 0) {
           this.selectedRateId.set(matchingRates[0].id);
         }
@@ -207,9 +184,7 @@ export class CheckInFacade {
     this.vehicleType.set(type);
 
     // Auto-select first available slot for this vehicle type
-    const slots = this.allSlots().filter(
-      (s) => s.status === "AVAILABLE" && s.type === type
-    );
+    const slots = this.allSlots().filter((s) => s.status === "AVAILABLE" && s.type === type);
     this.selectedSlotId.set(slots.length > 0 ? slots[0].id : null);
 
     // Auto-select first rate for this vehicle type

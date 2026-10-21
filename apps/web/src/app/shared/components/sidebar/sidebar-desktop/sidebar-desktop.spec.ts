@@ -54,9 +54,7 @@ describe("SidebarDesktop", () => {
   });
 
   it("should observe tablet breakpoint query", () => {
-    expect(observeSpy).toHaveBeenCalledWith([
-      "(min-width: 768px) and (max-width: 1024px)",
-    ]);
+    expect(observeSpy).toHaveBeenCalledWith(["(min-width: 768px) and (max-width: 1024px)"]);
   });
 
   it("should render horizontal logo when expanded", () => {
@@ -65,9 +63,7 @@ describe("SidebarDesktop", () => {
 
     /* SAFETY: Fixture nativeElement is HTMLElement */
     const element = fixture.nativeElement as HTMLElement;
-    const horizontalLogo = element.querySelector(
-      'ng-icon[name="nivo-logo-horizontal"]'
-    );
+    const horizontalLogo = element.querySelector('ng-icon[name="nivo-logo-horizontal"]');
     const iconLogo = element.querySelector('ng-icon[name="nivo-logo-icon"]');
 
     expect(horizontalLogo).toBeTruthy();
@@ -80,9 +76,7 @@ describe("SidebarDesktop", () => {
 
     /* SAFETY: Fixture nativeElement is HTMLElement */
     const element = fixture.nativeElement as HTMLElement;
-    const horizontalLogo = element.querySelector(
-      'ng-icon[name="nivo-logo-horizontal"]'
-    );
+    const horizontalLogo = element.querySelector('ng-icon[name="nivo-logo-horizontal"]');
     const iconLogo = element.querySelector('ng-icon[name="nivo-logo-icon"]');
 
     expect(horizontalLogo).toBeNull();
@@ -95,7 +89,7 @@ describe("SidebarDesktop", () => {
 
     /* SAFETY: QuerySelector returns HTMLButtonElement */
     const button = fixture.nativeElement.querySelector(
-      'button[aria-label="Colapsar sidebar"]'
+      'button[aria-label="Colapsar sidebar"]',
     ) as HTMLButtonElement;
     expect(button).toBeTruthy();
 
@@ -106,7 +100,7 @@ describe("SidebarDesktop", () => {
 
     /* SAFETY: QuerySelector returns HTMLButtonElement */
     const expandButton = fixture.nativeElement.querySelector(
-      'button[aria-label="Expandir sidebar"]'
+      'button[aria-label="Expandir sidebar"]',
     ) as HTMLButtonElement;
     expect(expandButton).toBeTruthy();
   });

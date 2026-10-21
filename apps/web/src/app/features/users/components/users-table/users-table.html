@@ -1,12 +1,5 @@
-<app-data-table
-  [table]="table()"
-  [isLoading]="isLoading()"
-  [emptyMessage]="texts.emptyState.title"
->
-  <div
-    emptyState
-    class="flex flex-col items-center justify-center py-12 text-center"
-  >
+<app-data-table [table]="table()" [isLoading]="isLoading()" [emptyMessage]="texts.emptyState.title">
+  <div emptyState class="flex flex-col items-center justify-center py-12 text-center">
     <div
       class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground"
     >
@@ -16,12 +9,7 @@
     <nv-muted class="mb-4 max-w-sm">
       {{ texts.emptyState.description }}
     </nv-muted>
-    <nv-button
-      type="button"
-      variant="outline"
-      size="sm"
-      (click)="resetFilters.emit()"
-    >
+    <nv-button type="button" variant="outline" size="sm" (click)="resetFilters.emit()">
       <ng-icon name="lucideRotateCcw" size="14" />
       {{ texts.emptyState.resetFilters }}
     </nv-button>

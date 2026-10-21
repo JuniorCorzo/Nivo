@@ -1,12 +1,6 @@
 import type { OnDestroy, OnInit } from "@angular/core";
 import { Component, inject, signal } from "@angular/core";
-import {
-  email,
-  form,
-  FormField,
-  minLength,
-  required,
-} from "@angular/forms/signals";
+import { email, form, FormField, minLength, required } from "@angular/forms/signals";
 import { Router, RouterLink } from "@angular/router";
 import type { UserCredentialsModel } from "@core/models/user.model";
 import { AuthService } from "@core/services/auth-service";
@@ -80,7 +74,7 @@ export class LoginPage implements OnInit, OnDestroy {
     this.submit
       .pipe(
         exhaustMap(() => this.sendRequest(this.loginModel())),
-        takeUntil(this.destroy)
+        takeUntil(this.destroy),
       )
       .subscribe({
         complete: () => {

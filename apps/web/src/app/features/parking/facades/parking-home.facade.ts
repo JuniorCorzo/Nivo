@@ -18,7 +18,7 @@ export class ParkingHomeFacade {
   readonly selectedParkingId = signal<string | null>(null);
 
   readonly activeParkingLot = computed<ParkingLotListItemModel | null>(() =>
-    this.activeParkingService.activeParkingLot()
+    this.activeParkingService.activeParkingLot(),
   );
 
   readonly totalSlots = computed(() => {
@@ -30,15 +30,10 @@ export class ParkingHomeFacade {
   });
 
   readonly occupiedSlots = computed(() =>
-    Math.round(
-      (this.totalSlots() * (this.activeParkingLot()?.occuppationRate || 0)) /
-        100
-    )
+    Math.round((this.totalSlots() * (this.activeParkingLot()?.occuppationRate || 0)) / 100),
   );
 
-  readonly availableSlots = computed(() =>
-    Math.max(0, this.totalSlots() - this.occupiedSlots())
-  );
+  readonly availableSlots = computed(() => Math.max(0, this.totalSlots() - this.occupiedSlots()));
 
   onCreateParking(): void {
     this.router.navigate([APP_ROUTES.app.createParkingLots]);

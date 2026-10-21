@@ -1,11 +1,5 @@
 import { Location } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { NavigationContextService } from "@core/services/navigation-context.service";
 import { ParkingLotSelector } from "@features/parking/components/controls/parking-lot-selector/parking-lot-selector";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -40,12 +34,7 @@ import { PageHeaderBreadcrumbsComponent } from "./components/page-header-breadcr
 import { PageHeaderHistoryComponent } from "./components/page-header-history";
 import { PageHeaderMobileBarComponent } from "./components/page-header-mobile-bar";
 
-export type PageHeaderBadgeVariant =
-  | "info"
-  | "success"
-  | "warning"
-  | "destructive"
-  | "secondary";
+export type PageHeaderBadgeVariant = "info" | "success" | "warning" | "destructive" | "secondary";
 
 export interface PageHeaderBreadcrumbItem {
   label: string;
@@ -156,15 +145,11 @@ export class PageHeaderComponent {
       // Ensure explicit breadcrumbs always start with Home
       const hasHome =
         explicitBreadcrumbs.length > 0 &&
-        (explicitBreadcrumbs[0].label === "Home" ||
-          explicitBreadcrumbs[0].url === "/app");
+        (explicitBreadcrumbs[0].label === "Home" || explicitBreadcrumbs[0].url === "/app");
 
       const items = hasHome
         ? [...explicitBreadcrumbs]
-        : [
-            { icon: "lucideHome", label: "Home", url: "/app" },
-            ...explicitBreadcrumbs,
-          ];
+        : [{ icon: "lucideHome", label: "Home", url: "/app" }, ...explicitBreadcrumbs];
 
       return items.map((item) => ({
         ...item,

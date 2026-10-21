@@ -1,11 +1,7 @@
 import { signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
-import {
-  provideRouter,
-  ActivatedRoute,
-  convertToParamMap,
-} from "@angular/router";
+import { provideRouter, ActivatedRoute, convertToParamMap } from "@angular/router";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import type { SlotStatus, SlotSummary } from "@core/models/slot.model";
 import { NavigationContextService } from "@core/services/navigation-context.service";
@@ -26,7 +22,7 @@ import {
 import { ParkingSlotsListPage } from "./parking-slots-list";
 
 const mockParking = (
-  overrides: Partial<ParkingLotListItemModel> = {}
+  overrides: Partial<ParkingLotListItemModel> = {},
 ): ParkingLotListItemModel => ({
   address: { city: "", country: "", state: "", street: "", zipCode: "" },
   coordinates: { latitude: 0, longitude: 0 },
@@ -57,9 +53,7 @@ const mockSlot = (overrides: Partial<SlotSummary> = {}): SlotSummary => ({
 });
 
 const mockActivatedRoute = (parkingId: string, slotId?: string) => {
-  const params: Record<string, string> = slotId
-    ? { parkingId, slotId }
-    : { parkingId };
+  const params: Record<string, string> = slotId ? { parkingId, slotId } : { parkingId };
   return {
     paramMap: of(convertToParamMap(params)),
     snapshot: { paramMap: convertToParamMap(params) },
@@ -126,9 +120,7 @@ const setupTest = (opts: {
     ]),
     isRoot: signal(false),
     mobilePath: signal(
-      parkingName
-        ? `Home / Parqueaderos / ${parkingName} / Plazas`
-        : "Home / Parqueaderos"
+      parkingName ? `Home / Parqueaderos / ${parkingName} / Plazas` : "Home / Parqueaderos",
     ),
     navContext: signal({
       backLink: "/app/parking-lots",
@@ -217,9 +209,7 @@ describe("ParkingSlotsListPage — Integration", () => {
     });
 
     it("should render search input", () => {
-      const search = fixture.nativeElement.querySelector(
-        'input[type="search"]'
-      );
+      const search = fixture.nativeElement.querySelector('input[type="search"]');
       expect(search).toBeTruthy();
     });
 
@@ -241,8 +231,7 @@ describe("ParkingSlotsListPage — Integration", () => {
     });
 
     it("should render all 8 table column headers", () => {
-      const headers =
-        fixture.nativeElement.querySelectorAll("th[nv-table-head]");
+      const headers = fixture.nativeElement.querySelectorAll("th[nv-table-head]");
       expect(headers.length).toBe(8);
       const text = fixture.nativeElement.textContent ?? "";
       expect(text).toContain("Número");
@@ -284,9 +273,7 @@ describe("ParkingSlotsListPage — Integration", () => {
     });
 
     it('should show "No hay plazas configuradas" message', () => {
-      expect(fixture.nativeElement.textContent).toContain(
-        "No hay plazas configuradas"
-      );
+      expect(fixture.nativeElement.textContent).toContain("No hay plazas configuradas");
     });
 
     it("should show CTA to create first batch", () => {
@@ -316,9 +303,7 @@ describe("ParkingSlotsListPage — Integration", () => {
     });
 
     it("should have action buttons on rows", () => {
-      const buttons = fixture.nativeElement.querySelectorAll(
-        "td[nv-table-cell] button"
-      );
+      const buttons = fixture.nativeElement.querySelectorAll("td[nv-table-cell] button");
       expect(buttons.length).toBeGreaterThan(0);
     });
   });
@@ -350,17 +335,13 @@ describe("ParkingSlotsListPage — Integration", () => {
 
     it("should have detail button per row", () => {
       const buttons = fixture.nativeElement.querySelectorAll("button");
-      const titles = Array.from(buttons, (b: HTMLButtonElement) =>
-        b.getAttribute("title")
-      );
+      const titles = Array.from(buttons, (b: HTMLButtonElement) => b.getAttribute("title"));
       expect(titles).toContain("Ver detalle");
     });
 
     it("should have row action buttons for edit, status, delete", () => {
       const buttons = fixture.nativeElement.querySelectorAll("button");
-      const titles = Array.from(buttons, (b: HTMLButtonElement) =>
-        b.getAttribute("title")
-      );
+      const titles = Array.from(buttons, (b: HTMLButtonElement) => b.getAttribute("title"));
       expect(titles).toContain("Editar");
       expect(titles).toContain("Cambiar estado");
       expect(titles).toContain("Eliminar");
@@ -499,7 +480,7 @@ describe("ParkingSlotsListPage — Integration", () => {
 
     it("should have navigation breadcrumb links", () => {
       const links = fixture.nativeElement.querySelectorAll(
-        '[data-testid="page-header-breadcrumb"] a'
+        '[data-testid="page-header-breadcrumb"] a',
       );
       expect(links.length).toBe(3);
       expect(links[0].textContent).toContain("Home");
@@ -516,9 +497,7 @@ describe("ParkingSlotsListPage — Integration", () => {
       });
       const emptyFixture = TestBed.createComponent(ParkingSlotsListPage);
       emptyFixture.detectChanges();
-      expect(emptyFixture.nativeElement.textContent).toContain(
-        "Parqueadero no encontrado"
-      );
+      expect(emptyFixture.nativeElement.textContent).toContain("Parqueadero no encontrado");
     });
   });
 
@@ -567,9 +546,7 @@ describe("ParkingSlotsListPage — Integration", () => {
       facade.drawerSlotId.set("1");
       fixture.detectChanges();
 
-      const drawer = fixture.nativeElement.querySelector(
-        "app-slot-detail-drawer"
-      );
+      const drawer = fixture.nativeElement.querySelector("app-slot-detail-drawer");
       expect(drawer).toBeTruthy();
       const text = drawer.textContent ?? "";
       expect(text).toContain("Equipamiento y disponibilidad");
@@ -597,9 +574,7 @@ describe("ParkingSlotsListPage — Integration", () => {
       fixture.detectChanges();
 
       expect(facade.metadataModalOpen()).toBe(true);
-      const modal = fixture.nativeElement.querySelector(
-        "app-slot-metadata-batch-modal"
-      );
+      const modal = fixture.nativeElement.querySelector("app-slot-metadata-batch-modal");
       expect(modal).toBeTruthy();
     });
 
@@ -624,7 +599,7 @@ describe("ParkingSlotsListPage — Integration", () => {
       expect(toastServiceMock.showToast).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "success",
-        })
+        }),
       );
     });
 
@@ -632,7 +607,7 @@ describe("ParkingSlotsListPage — Integration", () => {
       slotServiceMock.updateSlotMetadata.mockReturnValue(
         throwError(() => ({
           error: { message: "Error específico de equipamiento" },
-        }))
+        })),
       );
 
       facade.updateSlotsMetadata({
@@ -693,9 +668,7 @@ describe("ParkingSlotsListPage — Integration", () => {
       fixture.detectChanges();
 
       expect(facade.groupModalOpen()).toBe(true);
-      const modal = fixture.nativeElement.querySelector(
-        "app-slot-group-edit-modal"
-      );
+      const modal = fixture.nativeElement.querySelector("app-slot-group-edit-modal");
       expect(modal).toBeTruthy();
     });
 
@@ -722,7 +695,7 @@ describe("ParkingSlotsListPage — Integration", () => {
       expect(toastServiceMock.showToast).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "success",
-        })
+        }),
       );
     });
 
@@ -746,9 +719,7 @@ describe("ParkingSlotsListPage — Integration", () => {
       }).compileComponents();
 
       const occupiedFixture = TestBed.createComponent(ParkingSlotsListPage);
-      const occupiedFacade = occupiedFixture.debugElement.injector.get(
-        ParkingSlotsListFacade
-      );
+      const occupiedFacade = occupiedFixture.debugElement.injector.get(ParkingSlotsListFacade);
       occupiedFixture.detectChanges();
       await occupiedFixture.whenStable();
 
@@ -766,8 +737,7 @@ describe("ParkingSlotsListPage — Integration", () => {
 
       expect(occupiedConfig.slotService.updateSlotGroup).not.toHaveBeenCalled();
       expect(occupiedConfig.toastService.showToast).toHaveBeenCalledWith({
-        message:
-          "No se puede modificar el grupo porque contiene plazas ocupadas o no disponibles.",
+        message: "No se puede modificar el grupo porque contiene plazas ocupadas o no disponibles.",
         type: "error",
       });
     });
@@ -776,7 +746,7 @@ describe("ParkingSlotsListPage — Integration", () => {
       slotServiceMock.updateSlotGroup.mockReturnValue(
         throwError(() => ({
           error: { message: "No se puede renombrar el grupo" },
-        }))
+        })),
       );
 
       facade.updateSlotGroup({
@@ -798,14 +768,11 @@ describe("ParkingSlotsListPage — Integration", () => {
 // ── Pure Function Safety Net (re-export verification) ──────────────────
 
 describe("ParkingSlotsListPage — Pure Function Safety Net", () => {
-  const s = (overrides: Partial<SlotSummary> = {}): SlotSummary =>
-    mockSlot(overrides);
+  const s = (overrides: Partial<SlotSummary> = {}): SlotSummary => mockSlot(overrides);
 
   describe("getDeleteModalCopy", () => {
     it("batch scope → batch message", () => {
-      expect(getDeleteModalCopy(s(), "batch")).toContain(
-        "Hay plazas seleccionadas"
-      );
+      expect(getDeleteModalCopy(s(), "batch")).toContain("Hay plazas seleccionadas");
     });
     it("single, no history → simple", () => {
       const result = getDeleteModalCopy(s({ hasHistory: false }), "single");
@@ -813,14 +780,10 @@ describe("ParkingSlotsListPage — Pure Function Safety Net", () => {
       expect(result).not.toContain("historial");
     });
     it("single, has history → warning", () => {
-      expect(getDeleteModalCopy(s({ hasHistory: true }), "single")).toContain(
-        "historial"
-      );
+      expect(getDeleteModalCopy(s({ hasHistory: true }), "single")).toContain("historial");
     });
     it("null → default", () => {
-      expect(getDeleteModalCopy(null, "single")).toBe(
-        "Seleccioná una plaza para eliminar."
-      );
+      expect(getDeleteModalCopy(null, "single")).toBe("Seleccioná una plaza para eliminar.");
     });
   });
 
@@ -842,17 +805,11 @@ describe("ParkingSlotsListPage — Pure Function Safety Net", () => {
         "RESERVED",
       ]));
     it("OCCUPIED", () =>
-      expect(getStatusTransitionOptions("OCCUPIED")).toEqual([
-        "AVAILABLE",
-        "MAINTENANCE",
-      ]));
+      expect(getStatusTransitionOptions("OCCUPIED")).toEqual(["AVAILABLE", "MAINTENANCE"]));
     it("MAINTENANCE", () =>
       expect(getStatusTransitionOptions("MAINTENANCE")).toEqual(["AVAILABLE"]));
     it("RESERVED", () =>
-      expect(getStatusTransitionOptions("RESERVED")).toEqual([
-        "AVAILABLE",
-        "OCCUPIED",
-      ]));
+      expect(getStatusTransitionOptions("RESERVED")).toEqual(["AVAILABLE", "OCCUPIED"]));
     it("unknown → []", () => {
       /* SAFETY: Testing fallback for invalid status string */
       expect(getStatusTransitionOptions("UNKNOWN" as SlotStatus)).toEqual([]);
@@ -871,9 +828,7 @@ describe("ParkingSlotsListPage — Pure Function Safety Net", () => {
       expect(r.body).toContain("ticket activo");
     });
     it("occupied→available without ticket → no extra", () => {
-      expect(
-        getStatusModalCopy("OCCUPIED", "AVAILABLE", false).requiresExtraConfirm
-      ).toBe(false);
+      expect(getStatusModalCopy("OCCUPIED", "AVAILABLE", false).requiresExtraConfirm).toBe(false);
     });
   });
 

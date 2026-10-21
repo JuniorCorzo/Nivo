@@ -15,13 +15,7 @@ import {
 import { RatePreviewComponent } from "./rate-preview";
 
 @Component({
-  imports: [
-    CommonModule,
-    InputComponent,
-    SelectComponent,
-    RatePreviewComponent,
-    NgIcon,
-  ],
+  imports: [CommonModule, InputComponent, SelectComponent, RatePreviewComponent, NgIcon],
   providers: [provideIcons({ lucideCalculator })],
   selector: "app-rate-calculator",
   standalone: true,
@@ -37,9 +31,7 @@ import { RatePreviewComponent } from "./rate-preview";
             <ng-icon name="lucideCalculator" class="text-base" />
           </div>
           <div>
-            <h3 class="text-foreground text-base font-bold">
-              Calculadora interactiva de tarifas
-            </h3>
+            <h3 class="text-foreground text-base font-bold">Calculadora interactiva de tarifas</h3>
             <p class="text-muted-foreground text-xs">
               Ingresá los parámetros de estancia para simular el cobro
             </p>
@@ -109,7 +101,7 @@ export class RateCalculatorComponent {
       basePrice: this.basePrice(),
       durationInMinutes: this.durationMinutes(),
       timeUnit: this.timeUnit(),
-    })
+    }),
   );
 
   onVehicleTypeChange(val: string | null | undefined): void {

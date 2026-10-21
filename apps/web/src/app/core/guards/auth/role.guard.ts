@@ -23,7 +23,6 @@ export const roleGuard =
         }
 
         return router.createUrlTree([APP_ROUTES.app.parkingLots]);
-      })
+      }),
     );
   };
-

@@ -57,6 +57,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       show(toastService, errorMessage);
 
       return throwError(() => mapResponseError(response));
-    })
+    }),
   );
 };

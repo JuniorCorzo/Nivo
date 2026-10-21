@@ -93,8 +93,7 @@ export class ParkingComparisonChartComponent implements OnDestroy {
       };
     }
     return {
-      classes:
-        "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30",
+      classes: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30",
       label: "NORMAL",
     };
   }
@@ -131,10 +130,7 @@ export class ParkingComparisonChartComponent implements OnDestroy {
     return Math.max(item.totalSlots - item.occupiedSlots, 0);
   }
 
-  private renderChart(
-    canvas: HTMLCanvasElement,
-    items: ParkingComparisonItem[]
-  ): void {
+  private renderChart(canvas: HTMLCanvasElement, items: ParkingComparisonItem[]): void {
     if (this.chartInstance) {
       this.chartInstance.destroy();
       this.chartInstance = null;

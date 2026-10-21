@@ -42,9 +42,7 @@ describe("SlotDistributionDonutChartComponent", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    const centerCount = compiled.querySelector(
-      '[data-testid="donut-center-count"]'
-    );
+    const centerCount = compiled.querySelector('[data-testid="donut-center-count"]');
     expect(centerCount?.textContent?.trim()).toBe("392");
     expect(compiled.textContent).toContain("Ocupadas");
   });

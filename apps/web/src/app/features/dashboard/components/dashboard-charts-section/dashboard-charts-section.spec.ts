@@ -16,14 +16,8 @@ describe("DashboardChartsSectionComponent", () => {
   });
 
   it("debe envolver los gráficos de tendencia y distribución en contenedores nv-card con encabezados", () => {
-    fixture.componentRef.setInput(
-      "title",
-      APP_TEXTS.dashboard.chart.titleHourly
-    );
-    fixture.componentRef.setInput(
-      "subtitle",
-      APP_TEXTS.dashboard.chart.subtitles.today
-    );
+    fixture.componentRef.setInput("title", APP_TEXTS.dashboard.chart.titleHourly);
+    fixture.componentRef.setInput("subtitle", APP_TEXTS.dashboard.chart.subtitles.today);
     fixture.componentRef.setInput("summary", {
       availableSlots: 60,
       occupancyRate: 40,
@@ -36,20 +30,12 @@ describe("DashboardChartsSectionComponent", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.chart.titleHourly
-    );
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.distribution.title
-    );
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.distribution.subtitle
-    );
+    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.chart.titleHourly);
+    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.distribution.title);
+    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.distribution.subtitle);
     expect(compiled.textContent).toContain("Total: 100");
     expect(compiled.querySelector("app-occupancy-trend-chart")).toBeTruthy();
-    expect(
-      compiled.querySelector("app-slot-distribution-donut-chart")
-    ).toBeTruthy();
+    expect(compiled.querySelector("app-slot-distribution-donut-chart")).toBeTruthy();
   });
 
   it("debe renderizar las leyendas de entradas, salidas y ocupación desde APP_TEXTS", () => {
@@ -59,8 +45,6 @@ describe("DashboardChartsSectionComponent", () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain(APP_TEXTS.dashboard.chart.entries);
     expect(compiled.textContent).toContain(APP_TEXTS.dashboard.chart.exits);
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.chart.legendOccupancy
-    );
+    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.chart.legendOccupancy);
   });
 });

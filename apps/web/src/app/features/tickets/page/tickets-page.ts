@@ -1,25 +1,11 @@
 import { CommonModule } from "@angular/common";
 import type { OnInit } from "@angular/core";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TicketReceiptComponent } from "@features/operations/components/receipt/ticket-receipt/ticket-receipt";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import {
-  lucideArrowLeft,
-  lucideCheckCircle2,
-  lucideClock,
-  lucideTicket,
-} from "@ng-icons/lucide";
-import {
-  CardComponent,
-  CardContentComponent,
-  TypographyMuted,
-} from "@nivo-sass/design-system";
+import { lucideArrowLeft, lucideCheckCircle2, lucideClock, lucideTicket } from "@ng-icons/lucide";
+import { CardComponent, CardContentComponent, TypographyMuted } from "@nivo-sass/design-system";
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
@@ -71,7 +57,7 @@ export class TicketsPageComponent implements OnInit {
   protected readonly title = computed(() =>
     this.facade.isTenantView()
       ? this.texts.titles.tenant.title
-      : this.texts.titles.parkingLots.title
+      : this.texts.titles.parkingLots.title,
   );
 
   protected readonly headerContext = computed(() => this.initHeaderContext());
@@ -88,14 +74,10 @@ export class TicketsPageComponent implements OnInit {
     const parkingTexts = this.texts.titles.parkingLots;
 
     const title = isTenantView ? tenantTexts.title : parkingTexts.title;
-    const subtitle = isTenantView
-      ? tenantTexts.subtitle
-      : parkingTexts.subtitle;
+    const subtitle = isTenantView ? tenantTexts.subtitle : parkingTexts.subtitle;
 
     const back =
-      !isTenantView && parkingLotId
-        ? APP_ROUTES.app.parkingLotOperations(parkingLotId)
-        : null;
+      !isTenantView && parkingLotId ? APP_ROUTES.app.parkingLotOperations(parkingLotId) : null;
 
     return { back, subtitle, title };
   }

@@ -1,11 +1,7 @@
 import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
-import type {
-  ActivatedRouteSnapshot,
-  RouterStateSnapshot,
-  UrlTree,
-} from "@angular/router";
+import type { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from "@angular/router";
 import type { UserModel } from "@core/models/user.model";
 import { UserService } from "@core/services/user/user-service";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
@@ -62,9 +58,9 @@ describe("roleGuard", () => {
 
     const guard = roleGuard(["MANAGER", "OWNER"]);
     /* SAFETY: roleGuard returns Observable<boolean | UrlTree> */
-    const result$ = TestBed.runInInjectionContext(() =>
-      guard(mockRoute, mockState)
-    ) as Observable<boolean | UrlTree>;
+    const result$ = TestBed.runInInjectionContext(() => guard(mockRoute, mockState)) as Observable<
+      boolean | UrlTree
+    >;
     const result = await firstValueFrom(result$);
 
     expect(result).toBe(true);
@@ -84,14 +80,12 @@ describe("roleGuard", () => {
 
     const guard = roleGuard(["MANAGER", "OWNER"]);
     /* SAFETY: roleGuard returns Observable<boolean | UrlTree> */
-    const result$ = TestBed.runInInjectionContext(() =>
-      guard(mockRoute, mockState)
-    ) as Observable<boolean | UrlTree>;
+    const result$ = TestBed.runInInjectionContext(() => guard(mockRoute, mockState)) as Observable<
+      boolean | UrlTree
+    >;
     const result = await firstValueFrom(result$);
 
-    expect(router.createUrlTree).toHaveBeenCalledWith([
-      APP_ROUTES.app.parkingLots,
-    ]);
+    expect(router.createUrlTree).toHaveBeenCalledWith([APP_ROUTES.app.parkingLots]);
     expect(result).not.toBe(true);
   });
 
@@ -100,14 +94,12 @@ describe("roleGuard", () => {
 
     const guard = roleGuard(["MANAGER", "OWNER"]);
     /* SAFETY: roleGuard returns Observable<boolean | UrlTree> */
-    const result$ = TestBed.runInInjectionContext(() =>
-      guard(mockRoute, mockState)
-    ) as Observable<boolean | UrlTree>;
+    const result$ = TestBed.runInInjectionContext(() => guard(mockRoute, mockState)) as Observable<
+      boolean | UrlTree
+    >;
     const result = await firstValueFrom(result$);
 
-    expect(router.createUrlTree).toHaveBeenCalledWith([
-      APP_ROUTES.auth.login,
-    ]);
+    expect(router.createUrlTree).toHaveBeenCalledWith([APP_ROUTES.auth.login]);
     expect(result).not.toBe(true);
   });
 
@@ -125,17 +117,16 @@ describe("roleGuard", () => {
 
     const userServiceMock = TestBed.inject(UserService);
     vi.mocked(userServiceMock.loadCurrentUser).mockReturnValue(
-      timer(20).pipe(map(() => delayedUser))
+      timer(20).pipe(map(() => delayedUser)),
     );
 
     const guard = roleGuard(["MANAGER"]);
     /* SAFETY: roleGuard returns Observable<boolean | UrlTree> */
-    const result$ = TestBed.runInInjectionContext(() =>
-      guard(mockRoute, mockState)
-    ) as Observable<boolean | UrlTree>;
+    const result$ = TestBed.runInInjectionContext(() => guard(mockRoute, mockState)) as Observable<
+      boolean | UrlTree
+    >;
     const result = await firstValueFrom(result$);
 
     expect(result).toBe(true);
   });
 });
-

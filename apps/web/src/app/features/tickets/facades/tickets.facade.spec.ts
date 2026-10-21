@@ -1,10 +1,7 @@
 import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
-import type {
-  PriceDetailedModel,
-  TicketSummary,
-} from "@core/models/ticket.model";
+import type { PriceDetailedModel, TicketSummary } from "@core/models/ticket.model";
 import { ParkingService } from "@core/services/parking-service";
 import { TicketService } from "@core/services/ticket-service";
 import { of } from "rxjs";
@@ -86,9 +83,7 @@ describe("TicketsFacade", () => {
 
   it("should load tickets and compute stats reactively", () => {
     facade.loadTickets("parking-123");
-    expect(mockTicketService.listTicketsByParkingLot).toHaveBeenCalledWith(
-      "parking-123"
-    );
+    expect(mockTicketService.listTicketsByParkingLot).toHaveBeenCalledWith("parking-123");
     expect(facade.tickets().length).toBe(3);
     expect(facade.isLoading()).toBe(false);
 

@@ -1,8 +1,5 @@
 import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 
 import { PublicTicketService } from "./public-ticket.service";
@@ -13,11 +10,7 @@ describe("PublicTicketService", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        PublicTicketService,
-        provideHttpClient(),
-        provideHttpClientTesting(),
-      ],
+      providers: [PublicTicketService, provideHttpClient(), provideHttpClientTesting()],
     });
 
     service = TestBed.inject(PublicTicketService);

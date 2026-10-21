@@ -4,13 +4,9 @@ const DEFAULT_FRACTION_DIGITS = 4;
 
 export const formatCoordinate = (
   coordinate?: number | null,
-  locale = "es-CO"
+  locale = "es-CO",
 ): string | undefined => {
-  if (
-    coordinate === null ||
-    coordinate === undefined ||
-    !Number.isFinite(coordinate)
-  ) {
+  if (coordinate === null || coordinate === undefined || !Number.isFinite(coordinate)) {
     return undefined;
   }
 
@@ -20,10 +16,7 @@ export const formatCoordinate = (
   }).format(coordinate);
 };
 
-export const formatCoordinates = (
-  coordinates?: Coordinates | null,
-  separator = ", "
-): string => {
+export const formatCoordinates = (coordinates?: Coordinates | null, separator = ", "): string => {
   if (!coordinates) {
     return "";
   }

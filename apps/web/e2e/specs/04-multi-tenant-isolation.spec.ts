@@ -68,26 +68,21 @@ test.describe("CUJ 04: Multi-Tenant Data Isolation & IDOR Protection", () => {
       });
     });
 
-    await page.route(
-      `**/api/v1/parking-lots/${tenantBLotId}`,
-      async (route) => {
-        await route.fulfill({
-          contentType: "application/json",
-          json: {
-            errors: ["Parking lot not found or belongs to another tenant"],
-            message: "Parqueadero no encontrado",
-            status: 404,
-          },
+    await page.route(`**/api/v1/parking-lots/${tenantBLotId}`, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          errors: ["Parking lot not found or belongs to another tenant"],
+          message: "Parqueadero no encontrado",
           status: 404,
-        });
-      }
-    );
+        },
+        status: 404,
+      });
+    });
 
     await page.goto(`/app/parking-lots/${tenantBLotId}/operations`);
 
-    const alertMessage = page.locator(
-      "[role='alert'], .toast, .text-destructive"
-    );
+    const alertMessage = page.locator("[role='alert'], .toast, .text-destructive");
     await expect(alertMessage.first()).toBeVisible();
     await expect(page.getByText("Tenant B Poblado")).toBeHidden();
   });
@@ -99,53 +94,42 @@ test.describe("CUJ 04: Multi-Tenant Data Isolation & IDOR Protection", () => {
     await setupMockTenantApi(page, tenantA);
 
     let deleteBlocked = false;
-    await page.route(
-      `**/api/v1/parking-lots/${tenantBLotId}`,
-      async (route) => {
-        if (route.request().method() === "DELETE") {
-          deleteBlocked = true;
-          await route.fulfill({
-            contentType: "application/json",
-            json: {
-              errors: [
-                "Access denied: You do not have permission to delete this resource",
-              ],
-              message: "No tienes permisos para realizar esta acción",
-              status: 403,
-            },
-            status: 403,
-          });
-          return;
-        }
-
+    await page.route(`**/api/v1/parking-lots/${tenantBLotId}`, async (route) => {
+      if (route.request().method() === "DELETE") {
+        deleteBlocked = true;
         await route.fulfill({
           contentType: "application/json",
           json: {
-            data: tenantALot,
-            status: 200,
+            errors: ["Access denied: You do not have permission to delete this resource"],
+            message: "No tienes permisos para realizar esta acción",
+            status: 403,
           },
-          status: 200,
+          status: 403,
         });
+        return;
       }
-    );
 
-    const response = await page.request.delete(
-      `/api/v1/parking-lots/${tenantBLotId}`,
-      {
-        headers: {
-          Authorization: `Bearer mock-jwt-token-${tenantA.tenantId}`,
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          data: tenantALot,
+          status: 200,
         },
-      }
-    );
+        status: 200,
+      });
+    });
+
+    const response = await page.request.delete(`/api/v1/parking-lots/${tenantBLotId}`, {
+      headers: {
+        Authorization: `Bearer mock-jwt-token-${tenantA.tenantId}`,
+      },
+    });
 
     expect(response.status()).toBe(403);
     expect(deleteBlocked).toBe(true);
   });
 
-  test("Tenant A cannot access or query Tenant B's tickets", async ({
-    page,
-    tenantA,
-  }) => {
+  test("Tenant A cannot access or query Tenant B's tickets", async ({ page, tenantA }) => {
     await setupMockTenantApi(page, tenantA);
 
     await page.route(`**/api/v1/tickets/${tenantBTicketId}`, async (route) => {
@@ -160,14 +144,11 @@ test.describe("CUJ 04: Multi-Tenant Data Isolation & IDOR Protection", () => {
       });
     });
 
-    const response = await page.request.get(
-      `/api/v1/tickets/${tenantBTicketId}`,
-      {
-        headers: {
-          Authorization: `Bearer mock-jwt-token-${tenantA.tenantId}`,
-        },
-      }
-    );
+    const response = await page.request.get(`/api/v1/tickets/${tenantBTicketId}`, {
+      headers: {
+        Authorization: `Bearer mock-jwt-token-${tenantA.tenantId}`,
+      },
+    });
 
     expect(response.status()).toBe(404);
   });

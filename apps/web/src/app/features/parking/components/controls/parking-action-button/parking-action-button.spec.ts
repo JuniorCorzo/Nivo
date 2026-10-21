@@ -17,9 +17,7 @@ import { ParkingHomeFacade } from "../../../facades/parking-home.facade";
 import { ParkingActionButton } from "./parking-action-button";
 
 interface MockFacadeActions {
-  activeParkingLot: ReturnType<
-    typeof signal<{ id: string; name: string } | null>
-  >;
+  activeParkingLot: ReturnType<typeof signal<{ id: string; name: string } | null>>;
   onDeleteClick: ReturnType<typeof vi.fn>;
   onEdit: ReturnType<typeof vi.fn>;
   onManageOperations: ReturnType<typeof vi.fn>;
@@ -88,9 +86,7 @@ describe("ParkingActionButton", () => {
 
   it("should call onManageOperations when clicking Operaciones en vivo button", () => {
     const buttons = [...fixture.nativeElement.querySelectorAll("nv-button")];
-    const liveOpBtn = buttons.find((btn) =>
-      btn.textContent?.includes("Operaciones en vivo")
-    );
+    const liveOpBtn = buttons.find((btn) => btn.textContent?.includes("Operaciones en vivo"));
 
     expect(liveOpBtn).toBeTruthy();
     liveOpBtn?.click();
@@ -99,9 +95,7 @@ describe("ParkingActionButton", () => {
 
   it("should call onManageRates when clicking Tarifas button", () => {
     const buttons = [...fixture.nativeElement.querySelectorAll("nv-button")];
-    const ratesBtn = buttons.find((btn) =>
-      btn.textContent?.includes("Tarifas")
-    );
+    const ratesBtn = buttons.find((btn) => btn.textContent?.includes("Tarifas"));
 
     expect(ratesBtn).toBeTruthy();
     ratesBtn?.click();
@@ -118,8 +112,7 @@ describe("ParkingActionButton", () => {
   });
 
   it("should render meatball menu with copy ID, edit, and delete items", () => {
-    const meatballMenu =
-      fixture.nativeElement.querySelector("app-meatball-menu");
+    const meatballMenu = fixture.nativeElement.querySelector("app-meatball-menu");
     expect(meatballMenu).toBeTruthy();
 
     expect(component.menuItems).toHaveLength(3);

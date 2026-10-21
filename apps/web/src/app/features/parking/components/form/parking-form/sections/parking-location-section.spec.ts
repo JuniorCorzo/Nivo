@@ -66,22 +66,16 @@ describe("ParkingLocationSectionComponent", () => {
       hostComponent.showPlaceholder.set(true);
       fixture.detectChanges();
 
-      const placeholderEl = fixture.nativeElement.querySelector(
-        ".location-placeholder"
-      );
+      const placeholderEl = fixture.nativeElement.querySelector(".location-placeholder");
       expect(placeholderEl).toBeTruthy();
-      expect(placeholderEl?.textContent?.trim()).toContain(
-        "Haz clic para interactuar"
-      );
+      expect(placeholderEl?.textContent?.trim()).toContain("Haz clic para interactuar");
     });
 
     it("should hide placeholder overlay when showPlaceholder is false", () => {
       hostComponent.showPlaceholder.set(false);
       fixture.detectChanges();
 
-      const placeholderEl = fixture.nativeElement.querySelector(
-        ".location-placeholder"
-      );
+      const placeholderEl = fixture.nativeElement.querySelector(".location-placeholder");
       expect(placeholderEl).toBeNull();
     });
   });
@@ -91,9 +85,7 @@ describe("ParkingLocationSectionComponent", () => {
       hostComponent.hasCoordinates.set(false);
       fixture.detectChanges();
 
-      const coordinateBoxes = fixture.nativeElement.querySelectorAll(
-        ".grid.grid-cols-1.font-mono"
-      );
+      const coordinateBoxes = fixture.nativeElement.querySelectorAll(".grid.grid-cols-1.font-mono");
       expect(coordinateBoxes.length).toBe(0);
     });
 
@@ -113,7 +105,7 @@ describe("ParkingLocationSectionComponent", () => {
     it("should emit mapInteracted when map wrapper container is clicked", () => {
       /* SAFETY: Querying rendered container element in fixture */
       const container = fixture.nativeElement.querySelector(
-        ".relative.flex.flex-col.gap-3"
+        ".relative.flex.flex-col.gap-3",
       ) as HTMLElement;
       container.click();
 

@@ -1,21 +1,11 @@
 import type { OnDestroy } from "@angular/core";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { FormField } from "@angular/forms/signals";
 import { ActivatedRoute, Router } from "@angular/router";
 import type { UpsertParkingLotsModel } from "@core/models/parking.model";
 import { ParkingService } from "@core/services/parking-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import {
-  lucideBuilding2,
-  lucideLoader2,
-  lucideMapPin,
-  lucideSave,
-} from "@ng-icons/lucide";
+import { lucideBuilding2, lucideLoader2, lucideMapPin, lucideSave } from "@ng-icons/lucide";
 import {
   ButtonComponent,
   CardComponent,
@@ -78,8 +68,7 @@ export class ParkingFormComponent implements OnDestroy {
   protected readonly parkingId = this.route.snapshot.paramMap.get("parkingId");
 
   readonly title = computed(() => this.facade.title());
-  readonly subtitle =
-    "Configurá los datos de sede, ubicación geográfica, horarios y capacidad";
+  readonly subtitle = "Configurá los datos de sede, ubicación geográfica, horarios y capacidad";
   readonly backUrl = APP_ROUTES.app.parkingLots;
 
   private readonly submit$ = new Subject<UpsertParkingLotsModel>();
@@ -105,7 +94,7 @@ export class ParkingFormComponent implements OnDestroy {
             this.facade.setSubmitting(false);
           }
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
   }

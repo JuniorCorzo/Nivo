@@ -13,9 +13,7 @@ import type {
   ParkingComparisonItemModel,
 } from "@core/models/dashboard.model";
 
-export const isDashboardSummaryDto = (
-  val?: unknown
-): val is DashboardSummaryDto => {
+export const isDashboardSummaryDto = (val?: unknown): val is DashboardSummaryDto => {
   if (!val || typeof val !== "object" || Array.isArray(val)) {
     return false;
   }
@@ -30,9 +28,7 @@ export const isDashboardSummaryDto = (
   );
 };
 
-export const mapToDashboardSummaryModel = (
-  dto: DashboardSummaryDto
-): DashboardSummaryModel => ({
+export const mapToDashboardSummaryModel = (dto: DashboardSummaryDto): DashboardSummaryModel => ({
   activeTickets: dto.activeTickets ?? undefined,
   availableSlots: dto.availableSlots ?? 0,
   avgStayMinutes: dto.avgStayMinutes ?? undefined,
@@ -47,9 +43,7 @@ export const mapToDashboardSummaryModel = (
   totalTickets: dto.totalTickets ?? undefined,
 });
 
-export const mapToHourlyOccupancyPoint = (
-  dto: HourlyOccupancyDto
-): HourlyOccupancyPointModel => ({
+export const mapToHourlyOccupancyPoint = (dto: HourlyOccupancyDto): HourlyOccupancyPointModel => ({
   checkins: dto.checkins ?? 0,
   checkouts: dto.checkouts ?? 0,
   estimatedOccupancyRate: dto.occupancyRate ?? 0,
@@ -58,7 +52,7 @@ export const mapToHourlyOccupancyPoint = (
 });
 
 export const mapToParkingComparisonItem = (
-  dto: ParkingComparisonDto
+  dto: ParkingComparisonDto,
 ): ParkingComparisonItemModel => ({
   activeTickets: dto.activeTickets ?? 0,
   avgStayMinutes: dto.avgStayMinutes ?? 0,
@@ -71,7 +65,7 @@ export const mapToParkingComparisonItem = (
 });
 
 export const mapToOperationalReportItem = (
-  dto: OperationalReportDto
+  dto: OperationalReportDto,
 ): OperationalReportItemModel => ({
   durationMinutes: dto.durationMinutes ?? undefined,
   entryTime: dto.entryTime ?? "",
@@ -89,7 +83,7 @@ export const mapToOperationalReportItem = (
 });
 
 export const mapToPaginatedOperationalReport = (
-  dto: PageOperationalReportDto
+  dto: PageOperationalReportDto,
 ): PaginatedOperationalReportModel => ({
   items: (dto.content ?? []).map(mapToOperationalReportItem),
   page: dto.number ?? 0,

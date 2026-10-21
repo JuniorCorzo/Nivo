@@ -21,9 +21,7 @@ interface MockToastService {
 
 describe("ParkingHomeFacade", () => {
   let facade: ParkingHomeFacade;
-  let mockActiveParkingLotSignal: ReturnType<
-    typeof signal<ParkingLotListItemModel | null>
-  >;
+  let mockActiveParkingLotSignal: ReturnType<typeof signal<ParkingLotListItemModel | null>>;
   let navigatedCommands: unknown[] | null = null;
   let mockRouter: Partial<Router>;
   let mockParkingService: MockParkingService;
@@ -67,9 +65,7 @@ describe("ParkingHomeFacade", () => {
       name: "Estacionamiento Norte",
       occuppationRate: 80,
       ownerName: "Owner 2",
-      slotDistribution: [
-        { count: 100, prefix: "B", type: "CAR", zone: "General" },
-      ],
+      slotDistribution: [{ count: 100, prefix: "B", type: "CAR", zone: "General" }],
       totalCapacity: 100,
       updatedAt: "2026-01-01T00:00:00Z",
     },
@@ -77,9 +73,7 @@ describe("ParkingHomeFacade", () => {
 
   beforeEach(() => {
     navigatedCommands = null;
-    mockActiveParkingLotSignal = signal<ParkingLotListItemModel | null>(
-      mockLots[0]
-    );
+    mockActiveParkingLotSignal = signal<ParkingLotListItemModel | null>(mockLots[0]);
     mockRouter = {
       navigate: (commands: unknown[]) => {
         navigatedCommands = commands;
@@ -153,37 +147,27 @@ describe("ParkingHomeFacade", () => {
 
     it("should navigate to edit parking page on onEdit", () => {
       facade.onEdit();
-      expect(navigatedCommands).toEqual([
-        APP_ROUTES.app.editParkingLots("lot-1"),
-      ]);
+      expect(navigatedCommands).toEqual([APP_ROUTES.app.editParkingLots("lot-1")]);
     });
 
     it("should navigate to slots management page on onManageSlots", () => {
       facade.onManageSlots();
-      expect(navigatedCommands).toEqual([
-        APP_ROUTES.app.parkingLotSlots("lot-1"),
-      ]);
+      expect(navigatedCommands).toEqual([APP_ROUTES.app.parkingLotSlots("lot-1")]);
     });
 
     it("should navigate to rates management page on onManageRates", () => {
       facade.onManageRates();
-      expect(navigatedCommands).toEqual([
-        APP_ROUTES.app.parkingLotRates("lot-1"),
-      ]);
+      expect(navigatedCommands).toEqual([APP_ROUTES.app.parkingLotRates("lot-1")]);
     });
 
     it("should navigate to active parking operations on onManageOperations", () => {
       facade.onManageOperations();
-      expect(navigatedCommands).toEqual([
-        APP_ROUTES.app.parkingLotOperations("lot-1"),
-      ]);
+      expect(navigatedCommands).toEqual([APP_ROUTES.app.parkingLotOperations("lot-1")]);
     });
 
     it("should navigate to active parking tickets on onManageTickets", () => {
       facade.onManageTickets();
-      expect(navigatedCommands).toEqual([
-        APP_ROUTES.app.parkingLotTickets("lot-1"),
-      ]);
+      expect(navigatedCommands).toEqual([APP_ROUTES.app.parkingLotTickets("lot-1")]);
     });
 
     it("should not navigate on actions if activeParkingLot is null", () => {
@@ -230,9 +214,7 @@ describe("ParkingHomeFacade", () => {
     });
 
     it("should handle delete error and show error toast", () => {
-      mockParkingService.delete.mockReturnValue(
-        throwError(() => new Error("Error"))
-      );
+      mockParkingService.delete.mockReturnValue(throwError(() => new Error("Error")));
       facade.onDeleteClick();
       facade.onDeleteConfirm();
 

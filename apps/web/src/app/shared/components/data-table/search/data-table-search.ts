@@ -40,11 +40,7 @@ export class DataTableSearchComponent<TData extends RowData> {
 
   constructor() {
     this.searchSubject
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         this.table().setGlobalFilter(value);
       });

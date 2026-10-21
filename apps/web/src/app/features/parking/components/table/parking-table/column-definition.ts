@@ -1,8 +1,5 @@
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
-import {
-  createColumnHelper,
-  flexRenderComponent,
-} from "@tanstack/angular-table";
+import { createColumnHelper, flexRenderComponent } from "@tanstack/angular-table";
 
 import { ActionsColumn } from "@/app/shared/components/actions-column/actions-column";
 

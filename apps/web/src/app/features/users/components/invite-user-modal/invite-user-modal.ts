@@ -1,27 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-  output,
-  signal,
-} from "@angular/core";
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from "@angular/forms";
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from "@angular/core";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { UserService } from "@core/services/user/user-service";
 import type { Role } from "@core/type/role.type";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import {
-  lucideMail,
-  lucidePhone,
-  lucideUser,
-  lucideUserPlus,
-  lucideX,
-} from "@ng-icons/lucide";
+import { lucideMail, lucidePhone, lucideUser, lucideUserPlus, lucideX } from "@ng-icons/lucide";
 import {
   ButtonComponent,
   InputComponent,
