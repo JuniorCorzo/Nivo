@@ -2,6 +2,7 @@ package dev.angelcorzo.nivo.domain.model.users.gateways;
 
 import dev.angelcorzo.nivo.domain.model.users.Users;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -106,4 +107,12 @@ public interface UsersRepository {
      * @param id The unique identifier of the user to delete.
      */
     void deleteById(UUID id);
+
+    /**
+     * Retrieves all active users associated with a specific tenant.
+     *
+     * @param tenantId The unique identifier of the tenant.
+     * @return A list of {@link Users} entities belonging to the tenant.
+     */
+    List<Users> findAllByTenantId(UUID tenantId);
 }

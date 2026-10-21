@@ -1,6 +1,7 @@
 import type { Routes } from "@angular/router";
 import { authGuard } from "@core/guards/auth/auth-guard";
 import { publicGuard } from "@core/guards/auth/public-guard";
+import { roleGuard } from "@core/guards/auth/role.guard";
 import { LayoutMinimal } from "@layouts/layout-minimal/layout-minimal";
 import { LayoutComponent } from "@layouts/layout/layout";
 
@@ -95,6 +96,28 @@ export const routes: Routes = [
           return c.TicketsPageComponent;
         },
         path: APP_ROUTE_PATHS.app.tickets,
+      },
+      {
+        canActivate: [roleGuard(["SUPERADMIN", "OWNER", "MANAGER"])],
+        data: {
+          breadcrumb: {
+            icon: "lucideUsers",
+            label: "Usuarios",
+            url: "/app/users",
+          } satisfies RouteBreadcrumb,
+          navContext: {
+            isRoot: true,
+            scope: "tenant",
+            section: "Configuración",
+            title: "Gestión de Usuarios",
+          } satisfies RouteNavContext,
+        },
+        loadComponent: async () => {
+          const c = await import("@features/users/page/users-page/users-page");
+          return c.UsersPageComponent;
+        },
+        path: APP_ROUTE_PATHS.app.users,
+        title: "Gestión de Usuarios",
       },
       {
         children: [

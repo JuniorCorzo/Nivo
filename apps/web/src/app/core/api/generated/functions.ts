@@ -47,6 +47,8 @@ export type { GetCurrentUser$Params as GetCurrentUser$Params } from './fn/users/
 export { getCurrentUser as getCurrentUser } from './fn/users/get-current-user';
 export type { DeactivateUser$Params as DeactivateUser$Params } from './fn/users/deactivate-user';
 export { deactivateUser as deactivateUser } from './fn/users/deactivate-user';
+export type { GetUsers$Params as GetUsers$Params } from './fn/users/get-users';
+export { getUsers as getUsers } from './fn/users/get-users';
 export type { CheckOutVehicle$Params as CheckOutVehicle$Params } from './fn/parking-tickets/check-out-vehicle';
 export { checkOutVehicle as checkOutVehicle } from './fn/parking-tickets/check-out-vehicle';
 export type { CreateTicket$Params as CreateTicket$Params } from './fn/parking-tickets/create-ticket';

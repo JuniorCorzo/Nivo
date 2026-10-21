@@ -1,12 +1,15 @@
 package dev.angelcorzo.nivo.domain.usecase.user;
 
+import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.model.users.Users;
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
+import dev.angelcorzo.nivo.domain.model.users.exceptions.CannotModifyOwnerRoleException;
+import dev.angelcorzo.nivo.domain.model.users.exceptions.SelfRoleModificationNotAllowedException;
 import dev.angelcorzo.nivo.domain.model.users.exceptions.UserNotExistsInTenantException;
 import dev.angelcorzo.nivo.domain.model.users.gateways.UsersRepository;
-import dev.angelcorzo.nivo.domain.usecase.user.exceptions.InvalidRoleException;
 import dev.angelcorzo.nivo.domain.usecase.notification.notifier.UserNotifier;
+import dev.angelcorzo.nivo.domain.usecase.user.exceptions.InvalidRoleException;
 import java.util.Set;
 import java.util.UUID;
 import lombok.Builder;
@@ -32,20 +35,34 @@ import lombok.RequiredArgsConstructor;
 public class ModifyUserRoleUseCase {
   private final UsersRepository usersRepository;
   private final UserNotifier userNotifier;
+  private final AuthenticationContextGateway authenticationContextGateway;
 
   /**
    * Modifies the role of a user.
    *
    * @param modifyUserRole The command containing the user ID, new role, and tenant ID.
    * @return The updated {@link Users} object.
+   * @throws SelfRoleModificationNotAllowedException if the target user is the authenticated user.
    * @throws UserNotExistsInTenantException if the user does not exist within the specified tenant.
+   * @throws CannotModifyOwnerRoleException if attempting to change an OWNER or SUPERADMIN user's role.
    * @throws InvalidRoleException if the new role is not permitted (e.g., OWNER, SUPERADMIN).
    */
   public Users modifyRole(final ModifyUserRole modifyUserRole) {
+    final UUID tenantId = this.authenticationContextGateway.getCurrentTenantId();
+    final UUID currentUserId = this.authenticationContextGateway.getCurrentUserId();
+
+    if (modifyUserRole.userId().equals(currentUserId)) {
+      throw new SelfRoleModificationNotAllowedException();
+    }
+
     Users user =
         this.usersRepository
-            .findByIdAndTenantId(modifyUserRole.userId(), modifyUserRole.tenantId())
+            .findByIdAndTenantId(modifyUserRole.userId(), tenantId)
             .orElseThrow(UserNotExistsInTenantException::new);
+
+    if (user.getRole() == Roles.OWNER || user.getRole() == Roles.SUPERADMIN) {
+      throw new CannotModifyOwnerRoleException();
+    }
 
     this.validateRolePermitted(modifyUserRole.newRole());
     user.setRole(modifyUserRole.newRole());

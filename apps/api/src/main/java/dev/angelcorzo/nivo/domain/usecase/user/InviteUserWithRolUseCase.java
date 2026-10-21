@@ -1,5 +1,6 @@
 package dev.angelcorzo.nivo.domain.usecase.user;
 
+import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.model.tenants.exceptions.TenantNotExistsException;
 import dev.angelcorzo.nivo.domain.model.tenants.gateways.TenantsRepository;
@@ -12,8 +13,8 @@ import dev.angelcorzo.nivo.domain.model.users.exceptions.UserAlreadyExistsInTena
 import dev.angelcorzo.nivo.domain.model.users.exceptions.UserNotExistsException;
 import dev.angelcorzo.nivo.domain.model.users.gateways.UsersRepository;
 import dev.angelcorzo.nivo.domain.model.users.valueobject.UserReference;
-import dev.angelcorzo.nivo.domain.usecase.user.exceptions.InvalidRoleException;
 import dev.angelcorzo.nivo.domain.usecase.notification.notifier.UserNotifier;
+import dev.angelcorzo.nivo.domain.usecase.user.exceptions.InvalidRoleException;
 import java.time.OffsetDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -44,6 +45,7 @@ public class InviteUserWithRolUseCase {
   private final UserInvitationsRepository userInvitationsRepository;
   private final TenantsRepository tenantsRepository;
   private final UserNotifier userNotifier;
+  private final AuthenticationContextGateway authenticationContextGateway;
 
   /**
    * Registers a new user invitation.
@@ -59,16 +61,19 @@ public class InviteUserWithRolUseCase {
    * @throws TenantNotExistsException if the specified tenant does not exist.
    */
   public UserInvitations registerInvitation(final InviteUserWithRole inviteUserWithRole) {
-    this.validateInvitation(inviteUserWithRole);
+    final UUID tenantId = this.authenticationContextGateway.getCurrentTenantId();
+    final UUID inviteBy = this.authenticationContextGateway.getCurrentUserId();
+
+    this.validateInvitation(inviteUserWithRole, tenantId);
     final Tenants tenant =
         this.tenantsRepository
-            .findById(inviteUserWithRole.tenantId())
-            .orElseThrow(() -> new TenantNotExistsException(inviteUserWithRole.tenantId()));
+            .findById(tenantId)
+            .orElseThrow(() -> new TenantNotExistsException(tenantId));
 
     final Users invitedBy =
         this.usersRepository
-            .findById(inviteUserWithRole.inviteBy())
-            .orElseThrow(() -> new UserNotExistsException(inviteUserWithRole.inviteBy()));
+            .findById(inviteBy)
+            .orElseThrow(() -> new UserNotExistsException(inviteBy));
 
     final UserInvitations userInvitations =
         UserInvitations.builder()
@@ -91,13 +96,12 @@ public class InviteUserWithRolUseCase {
    * Validates the invitation details against business rules before registration.
    *
    * @param invitation The invitation command to validate.
+   * @param tenantId The validated tenant ID.
    * @throws UserAlreadyExistsInTenantException if the invited email already exists within the
    *     tenant.
    * @throws InvalidRoleException if the specified role is not permitted.
-   * @throws UserNotExistsException if the inviter user does not exist.
    */
-  private void validateInvitation(final InviteUserWithRole invitation) {
-    final UUID tenantId = invitation.tenantId();
+  private void validateInvitation(final InviteUserWithRole invitation, final UUID tenantId) {
     final String email = invitation.email();
     final Roles rol = invitation.role();
 

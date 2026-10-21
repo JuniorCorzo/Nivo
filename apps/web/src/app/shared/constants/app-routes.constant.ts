@@ -20,6 +20,7 @@ export const APP_ROUTE_PATHS = {
     parkingLotTickets: `${parkingLotsSegment}/:parkingId/${ticketsSegment}`,
     parkingLots: parkingLotsSegment,
     tickets: ticketsSegment,
+    users: "users",
   },
   auth: {
     login: "login",
@@ -54,6 +55,7 @@ export const APP_ROUTES = {
       `${parkingLotsRoute}/${parkingId}/${ticketsSegment}`,
     parkingLots: parkingLotsRoute,
     tickets: `/app/${ticketsSegment}`,
+    users: "/app/users",
   },
   auth: {
     login: "/auth/login",

@@ -1,17 +1,20 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterLink } from "@angular/router";
+import { UserService } from "@core/services/user/user-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideCar,
   lucideLayoutDashboard,
   lucideTicket,
+  lucideUsers,
 } from "@ng-icons/lucide";
 import { SidebarFooter } from "@shared/components/sidebar-footer/sidebar-footer";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
@@ -29,6 +32,7 @@ import { filter } from "rxjs";
       lucideCar,
       lucideLayoutDashboard,
       lucideTicket,
+      lucideUsers,
     }),
   ],
   selector: "app-sidebar-base",
@@ -38,15 +42,29 @@ export class SidebarBase {
   readonly collapsed = input<boolean>(false);
   protected readonly homeUrl = APP_ROUTES.app.parkingLots;
 
-  public readonly navItems = signal(
-    APP_TEXTS.sidebar.nav.map((item) => ({ ...item, isActive: false }))
-  );
-
   private readonly router = inject(Router);
+  private readonly userService = inject(UserService);
+
+  private readonly currentUrl = signal(this.router.url.split("?", 1)[0]);
+
+  public readonly navItems = computed(() => {
+    const currentRole = this.userService.currentUser()?.role;
+    const url = this.currentUrl();
+
+    return APP_TEXTS.sidebar.nav
+      .filter((item) => {
+        if (!item.roles) {
+          return true;
+        }
+        return Boolean(currentRole && item.roles.includes(currentRole));
+      })
+      .map((item) => ({
+        ...item,
+        isActive: Boolean(item.url && url.includes(item.url)),
+      }));
+  });
 
   constructor() {
-    this.setActiveItem(this.router.url.split("?", 1)[0]);
-
     this.router.events
       .pipe(
         filter(
@@ -55,16 +73,7 @@ export class SidebarBase {
         takeUntilDestroyed()
       )
       .subscribe((event) => {
-        this.setActiveItem(event.urlAfterRedirects);
+        this.currentUrl.set(event.urlAfterRedirects);
       });
-  }
-
-  private setActiveItem(url: string): void {
-    this.navItems.update((items) =>
-      items.map((item) => ({
-        ...item,
-        isActive: Boolean(item.url && url.includes(item.url)),
-      }))
-    );
   }
 }

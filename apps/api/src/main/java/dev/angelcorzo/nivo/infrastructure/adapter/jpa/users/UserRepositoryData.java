@@ -1,6 +1,7 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.users;
 
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -88,4 +89,14 @@ public interface UserRepositoryData extends JpaRepository<UsersData, UUID> {
   @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query(value = "UPDATE UsersData u SET u.tenant.id = :tenantId WHERE u.id = :userId")
   int assignTenant(@Param("userId") UUID userId, @Param("tenantId") UUID tenantId);
+
+  /**
+   * Finds all active users for a tenant ordered by creation date descending.
+   *
+   * @param tenantId The unique identifier of the tenant.
+   * @return List of UsersData records with tenant eager-loaded.
+   */
+  @EntityGraph(attributePaths = {"tenant"})
+  @Query("SELECT u FROM UsersData u WHERE u.tenant.id = :tenantId ORDER BY u.createdAt DESC")
+  List<UsersData> findAllByTenantId(@Param("tenantId") UUID tenantId);
 }
