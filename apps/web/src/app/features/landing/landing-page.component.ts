@@ -1,94 +1,35 @@
-import { CommonModule, DecimalPipe } from "@angular/common";
-import type { OnInit } from "@angular/core";
 import {
   ChangeDetectionStrategy,
   Component,
   inject,
   signal,
 } from "@angular/core";
-import { Router, RouterLink } from "@angular/router";
+import type { OnInit } from "@angular/core";
+import { Router } from "@angular/router";
 import type {
   SimulateRateRequest,
   SimulateRateResponse,
 } from "@core/models/simulator.model";
 import { SimulatorService } from "@core/services/simulator.service";
-import { NgIcon, provideIcons } from "@ng-icons/core";
-import {
-  lucideAlertCircle,
-  lucideArrowRight,
-  lucideBadgeCheck,
-  lucideBike,
-  lucideCalculator,
-  lucideCar,
-  lucideCheck,
-  lucideCheckCircle2,
-  lucideClock,
-  lucideMotorbike,
-  lucideQrCode,
-  lucideReceipt,
-  lucideShieldCheck,
-  lucideSmartphone,
-  lucideSparkles,
-  lucideXCircle,
-  lucideZap,
-} from "@ng-icons/lucide";
-import {
-  BadgeComponent,
-  ButtonComponent,
-  CardComponent,
-  CardContentComponent,
-  CardDescriptionComponent,
-  CardHeaderComponent,
-  CardTitleComponent,
-  TypographyH1,
-  TypographyH2,
-  TypographyH3,
-  TypographyH4,
-  TypographyMuted,
-  TypographyP,
-} from "@nivo-sass/design-system";
+
+import { LandingBenefitsComponent } from "./components/landing-benefits.component";
+import { LandingComparisonComponent } from "./components/landing-comparison.component";
+import { LandingFooterComponent } from "./components/landing-footer.component";
+import { LandingHeroComponent } from "./components/landing-hero.component";
+import { LandingNavbarComponent } from "./components/landing-navbar.component";
+import { LandingPricingComponent } from "./components/landing-pricing.component";
+import { LandingSimulatorComponent } from "./components/landing-simulator.component";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
-    DecimalPipe,
-    RouterLink,
-    NgIcon,
-    ButtonComponent,
-    CardComponent,
-    CardHeaderComponent,
-    CardTitleComponent,
-    CardDescriptionComponent,
-    CardContentComponent,
-    BadgeComponent,
-    TypographyH1,
-    TypographyH2,
-    TypographyH3,
-    TypographyH4,
-    TypographyP,
-    TypographyMuted,
-  ],
-  providers: [
-    provideIcons({
-      lucideAlertCircle,
-      lucideArrowRight,
-      lucideBadgeCheck,
-      lucideBike,
-      lucideCalculator,
-      lucideCar,
-      lucideCheck,
-      lucideCheckCircle2,
-      lucideClock,
-      lucideMotorbike,
-      lucideQrCode,
-      lucideReceipt,
-      lucideShieldCheck,
-      lucideSmartphone,
-      lucideSparkles,
-      lucideXCircle,
-      lucideZap,
-    }),
+    LandingNavbarComponent,
+    LandingHeroComponent,
+    LandingBenefitsComponent,
+    LandingSimulatorComponent,
+    LandingComparisonComponent,
+    LandingPricingComponent,
+    LandingFooterComponent,
   ],
   selector: "app-landing-page",
   standalone: true,
@@ -106,15 +47,6 @@ export class LandingPageComponent implements OnInit {
 
   readonly simulationResult = signal<SimulateRateResponse | null>(null);
   readonly isCalculating = signal<boolean>(false);
-
-  readonly durationPresets = [
-    { label: "30 min", value: 30 },
-    { label: "1 hora", value: 60 },
-    { label: "1.5 horas", value: 90 },
-    { label: "2 horas", value: 120 },
-    { label: "3 horas", value: 180 },
-    { label: "5 horas", value: 300 },
-  ];
 
   ngOnInit(): void {
     this.calculateRate();
@@ -135,16 +67,6 @@ export class LandingPageComponent implements OnInit {
   setDuration(minutes: number): void {
     this.minutesStayed.set(Math.max(1, minutes));
     this.calculateRate();
-  }
-
-  onMinutesInputChange(event: Event): void {
-    /* SAFETY: event.target is bound to HTMLInputElement on input change */
-    const input = event.target as HTMLInputElement;
-    const value = Math.trunc(Number(input.value));
-    if (!Number.isNaN(value) && value > 0) {
-      this.minutesStayed.set(value);
-      this.calculateRate();
-    }
   }
 
   calculateRate(): void {

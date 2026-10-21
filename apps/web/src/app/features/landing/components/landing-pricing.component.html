@@ -1,0 +1,147 @@
+<section id="precios" class="border-t border-[var(--border)] py-20">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto mb-14 max-w-3xl text-center">
+      <nv-badge variant="outline" class="mb-3">{{ texts.badge }}</nv-badge>
+      <nv-h2 class="text-3xl font-bold">{{ texts.title }}</nv-h2>
+      <nv-p class="mt-3 text-[var(--muted-foreground)]">
+        {{ texts.description }}
+      </nv-p>
+    </div>
+
+    <div class="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-3">
+      <!-- Free / Basic Plan -->
+      <nv-card class="flex flex-col justify-between p-8">
+        <div>
+          <nv-h3 class="text-xl font-bold">{{ texts.basic.name }}</nv-h3>
+          <nv-muted class="mt-1 text-xs">
+            {{ texts.basic.description }}
+          </nv-muted>
+
+          <div class="my-6">
+            <span class="font-mono text-4xl font-bold">{{
+              texts.basic.price
+            }}</span>
+            <span class="text-sm text-[var(--muted-foreground)]">
+              {{ texts.basic.period }}</span
+            >
+          </div>
+
+          <ul class="space-y-3 text-sm text-[var(--muted-foreground)]">
+            @for (feature of texts.basic.features; track feature) {
+              <li class="flex items-center gap-2">
+                <ng-icon
+                  name="lucideCheck"
+                  size="16"
+                  class="text-emerald-500"
+                />
+                <span>{{ feature }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="mt-8">
+          <nv-button
+            class="w-full"
+            variant="outline"
+            (click)="registerClick.emit()"
+          >
+            {{ texts.basic.cta }}
+          </nv-button>
+        </div>
+      </nv-card>
+
+      <!-- Pro Plan -->
+      <nv-card
+        class="relative flex flex-col justify-between border-2 border-[var(--primary)] p-8 shadow-xl"
+      >
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+          <nv-badge variant="default" class="px-3 text-xs">
+            {{ texts.popularBadge }}
+          </nv-badge>
+        </div>
+
+        <div>
+          <nv-h3 class="text-xl font-bold">{{ texts.pro.name }}</nv-h3>
+          <nv-muted class="mt-1 text-xs">
+            {{ texts.pro.description }}
+          </nv-muted>
+
+          <div class="my-6">
+            <span class="font-mono text-4xl font-bold">{{
+              texts.pro.price
+            }}</span>
+            <span class="text-sm text-[var(--muted-foreground)]">
+              {{ texts.pro.period }}</span
+            >
+          </div>
+
+          <ul class="space-y-3 text-sm">
+            @for (feature of texts.pro.features; track feature) {
+              <li class="flex items-center gap-2">
+                <ng-icon
+                  name="lucideCheck"
+                  size="16"
+                  class="text-emerald-500"
+                />
+                <span>{{ feature }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="mt-8">
+          <nv-button
+            class="w-full"
+            variant="default"
+            (click)="registerClick.emit()"
+          >
+            {{ texts.pro.cta }}
+          </nv-button>
+        </div>
+      </nv-card>
+
+      <!-- Multi-sede Plan -->
+      <nv-card class="flex flex-col justify-between p-8">
+        <div>
+          <nv-h3 class="text-xl font-bold">{{ texts.multiSite.name }}</nv-h3>
+          <nv-muted class="mt-1 text-xs">
+            {{ texts.multiSite.description }}
+          </nv-muted>
+
+          <div class="my-6">
+            <span class="font-mono text-4xl font-bold">{{
+              texts.multiSite.price
+            }}</span>
+            <span class="text-sm text-[var(--muted-foreground)]">
+              {{ texts.multiSite.period }}</span
+            >
+          </div>
+
+          <ul class="space-y-3 text-sm text-[var(--muted-foreground)]">
+            @for (feature of texts.multiSite.features; track feature) {
+              <li class="flex items-center gap-2">
+                <ng-icon
+                  name="lucideCheck"
+                  size="16"
+                  class="text-emerald-500"
+                />
+                <span>{{ feature }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="mt-8">
+          <nv-button
+            class="w-full"
+            variant="outline"
+            (click)="registerClick.emit()"
+          >
+            {{ texts.multiSite.cta }}
+          </nv-button>
+        </div>
+      </nv-card>
+    </div>
+  </div>
+</section>

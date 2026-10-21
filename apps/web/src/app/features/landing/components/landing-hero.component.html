@@ -1,0 +1,52 @@
+<section class="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28">
+  <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+    <div
+      class="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--muted)]/50 px-3.5 py-1 text-xs font-medium text-[var(--foreground)]"
+    >
+      <ng-icon name="lucideSparkles" size="14" class="text-amber-500" />
+      <span>{{ texts.badge }}</span>
+    </div>
+
+    <nv-h1
+      class="mx-auto max-w-4xl text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl"
+    >
+      {{ texts.title }}
+    </nv-h1>
+
+    <nv-p class="mx-auto mt-6 max-w-2xl text-lg text-[var(--muted-foreground)]">
+      {{ texts.description }}
+    </nv-p>
+
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+      <nv-button size="lg" variant="default" (click)="trySimulatorClick.emit()">
+        <span>{{ texts.trySimulator }}</span>
+        <ng-icon name="lucideArrowRight" size="16" />
+      </nv-button>
+      <nv-button size="lg" variant="outline" (click)="registerClick.emit()">
+        {{ texts.createAccountFree }}
+      </nv-button>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-3">
+      <nv-card class="p-6 text-center">
+        <div class="font-mono text-3xl font-bold text-[var(--foreground)]">
+          {{ texts.stats.hardware.value }}
+        </div>
+        <nv-muted class="mt-1">{{ texts.stats.hardware.label }}</nv-muted>
+      </nv-card>
+      <nv-card class="p-6 text-center">
+        <div class="font-mono text-3xl font-bold text-[var(--foreground)]">
+          {{ texts.stats.time.value }}
+        </div>
+        <nv-muted class="mt-1">{{ texts.stats.time.label }}</nv-muted>
+      </nv-card>
+      <nv-card class="p-6 text-center">
+        <div class="font-mono text-3xl font-bold text-[var(--foreground)]">
+          {{ texts.stats.accuracy.value }}
+        </div>
+        <nv-muted class="mt-1">{{ texts.stats.accuracy.label }}</nv-muted>
+      </nv-card>
+    </div>
+  </div>
+</section>

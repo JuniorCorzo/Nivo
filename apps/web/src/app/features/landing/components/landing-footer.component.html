@@ -1,0 +1,65 @@
+<!-- Bottom CTA Banner -->
+<section class="border-t border-[var(--border)] bg-[var(--muted)]/30 py-16">
+  <div class="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
+    <nv-h2 class="text-3xl font-bold">{{ ctaBannerTexts.title }}</nv-h2>
+    <nv-p class="mx-auto mt-3 max-w-xl text-[var(--muted-foreground)]">
+      {{ ctaBannerTexts.description }}
+    </nv-p>
+    <div class="mt-8 flex justify-center gap-4">
+      <nv-button size="lg" variant="default" (click)="ctaClick.emit()">
+        <span>{{ ctaBannerTexts.cta }}</span>
+        <ng-icon name="lucideArrowRight" size="16" />
+      </nv-button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-[var(--border)] bg-[var(--background)] py-12">
+  <div
+    class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 sm:px-6 md:flex-row lg:px-8"
+  >
+    <div class="flex items-center gap-3">
+      <ng-icon
+        name="nivo-logo-horizontal"
+        class="h-6! w-20! text-[var(--foreground)]"
+      />
+      <span class="text-xs text-[var(--muted-foreground)]">
+        {{ texts.copyright }}
+      </span>
+    </div>
+
+    <div class="flex items-center gap-6 text-xs text-[var(--muted-foreground)]">
+      <a
+        routerLink="/auth/login"
+        class="transition-colors hover:text-[var(--foreground)]"
+      >
+        {{ texts.login }}
+      </a>
+      <a
+        routerLink="/auth/register"
+        class="transition-colors hover:text-[var(--foreground)]"
+      >
+        {{ texts.register }}
+      </a>
+      <a
+        href="#simulador"
+        class="transition-colors hover:text-[var(--foreground)]"
+      >
+        {{ texts.simulator }}
+      </a>
+      <a
+        href="#beneficios"
+        class="transition-colors hover:text-[var(--foreground)]"
+      >
+        {{ texts.benefits }}
+      </a>
+      <a
+        href="#precios"
+        class="transition-colors hover:text-[var(--foreground)]"
+      >
+        {{ texts.pricing }}
+      </a>
+    </div>
+  </div>
+</footer>
