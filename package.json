@@ -1,6 +1,7 @@
 {
   "name": "nivo",
   "private": true,
+  "type": "module",
   "packageManager": "bun@1.3.13",
   "scripts": {
     "dev": "./dev.sh",
@@ -24,8 +25,8 @@
     "test:e2e": "bun run --cwd apps/web test:e2e",
     "test:e2e:lightpanda": "bun run --cwd apps/web test:e2e:lightpanda",
     "test:e2e:chromium": "bun run --cwd apps/web test:e2e:chromium",
-    "format:check": "prettier --check .",
-    "format:fix": "prettier --write .",
+    "format:check": "oxfmt --check apps/web/src libs/design-system/src",
+    "format:fix": "oxfmt --write apps/web/src libs/design-system/src",
     "format:api:check": "./apps/api/gradlew -p apps/api spotlessCheck",
     "format:api:fix": "./apps/api/gradlew -p apps/api spotlessApply",
     "format:all:check": "bun run format:api:check && bun run format:check",
@@ -34,8 +35,5 @@
   "workspaces": [
     "apps/web",
     "libs/design-system"
-  ],
-  "devDependencies": {
-    "prettier": "^3.8.3"
-  }
+  ]
 }
