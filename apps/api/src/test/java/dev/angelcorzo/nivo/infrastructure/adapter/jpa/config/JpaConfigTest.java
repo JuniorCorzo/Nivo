@@ -39,7 +39,7 @@ class JpaConfigTest {
 
     dbSecretUnderTest = DBSecret.builder()
       .username("postgres")
-      .password("angel2003")
+      .password("test-password")
       .url("jdbc:postgresql://localhost:5432/nivo_db?currentSchema=test_scheme")
       .build();
   }
@@ -51,7 +51,7 @@ class JpaConfigTest {
     when(env.getProperty("spring.datasource.url"))
       .thenReturn("jdbc:postgresql://localhost:5432/nivo_db?currentSchema=test_scheme");
     when(env.getProperty("spring.datasource.username")).thenReturn("postgres");
-    when(env.getProperty("spring.datasource.password")).thenReturn("angel2003");
+    when(env.getProperty("spring.datasource.password")).thenReturn("test-password");
 
     DBSecret secretResult = jpaConfigUnderTest.dbSecret(env);
 
