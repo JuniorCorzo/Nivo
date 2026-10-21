@@ -53,7 +53,9 @@ describe("TicketsPageComponent", () => {
     fixture.detectChanges();
 
     expect(component).toBeTruthy();
-    expect(mockTicketService.listTicketsByParkingLot).toHaveBeenCalledWith("p-123");
+    expect(mockTicketService.listTicketsByParkingLot).toHaveBeenCalledWith(
+      "p-123"
+    );
   });
 
   it("should load tenant tickets when parkingId param is not present", () => {

@@ -1,8 +1,8 @@
+import { setTimeout as sleep } from "node:timers/promises";
+
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import type { TicketSummary } from "@core/models/ticket.model";
-
-import { setTimeout as sleep } from "node:timers/promises";
 
 import { TicketReceiptComponent } from "./ticket-receipt";
 
@@ -116,7 +116,7 @@ describe("TicketReceiptComponent", () => {
     fixture.detectChanges();
 
     const imgEl: HTMLImageElement | null = fixture.nativeElement.querySelector(
-      'img[alt="Foto del vehículo"]',
+      'img[alt="Foto del vehículo"]'
     );
     expect(imgEl).toBeTruthy();
     expect(imgEl?.src).toContain("data:image/jpeg;base64,mockphotodata");

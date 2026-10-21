@@ -96,13 +96,13 @@ describe("ParkingMapComponent", () => {
         mapStatic.isValidCoordinates({
           latitude: Number.NaN,
           longitude: -74.0721,
-        }),
+        })
       ).toBe(false);
       expect(
         mapStatic.isValidCoordinates({
           latitude: 4.711,
           longitude: Number.POSITIVE_INFINITY,
-        }),
+        })
       ).toBe(false);
     });
   });
@@ -138,7 +138,10 @@ describe("ParkingMapComponent", () => {
       });
       fixture.detectChanges();
 
-      expect(privateComp.setMarkerPosition).toHaveBeenCalledWith(10.9685, -74.7813);
+      expect(privateComp.setMarkerPosition).toHaveBeenCalledWith(
+        10.9685,
+        -74.7813
+      );
     });
   });
 

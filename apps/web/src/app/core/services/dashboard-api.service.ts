@@ -28,7 +28,10 @@ export class DashboardApiService {
   private readonly reportsService = inject(ReportsService);
   private readonly http = inject(HttpClient);
 
-  private readonly cache = new Map<string, { data: unknown; expiresAt: number }>();
+  private readonly cache = new Map<
+    string,
+    { data: unknown; expiresAt: number }
+  >();
   public readonly defaultTtlMs = 60_000;
 
   private static httpContext(): HttpContext {
@@ -77,10 +80,12 @@ export class DashboardApiService {
     }
 
     const params = parkingId ? { parkingId } : {};
-    return this.dashboardService.getSummary(params, DashboardApiService.httpContext()).pipe(
-      map((dto) => mapToDashboardSummaryModel(dto)),
-      tap((res) => this.setCache(cacheKey, res)),
-    );
+    return this.dashboardService
+      .getSummary(params, DashboardApiService.httpContext())
+      .pipe(
+        map((dto) => mapToDashboardSummaryModel(dto)),
+        tap((res) => this.setCache(cacheKey, res))
+      );
   }
 
   private static normalizeHourlyCacheDate(val?: string): string {
@@ -94,9 +99,10 @@ export class DashboardApiService {
   getHourlyOccupancy(
     parkingId?: string,
     startDate?: string,
-    endDate?: string,
+    endDate?: string
   ): Observable<HourlyOccupancyPointModel[]> {
-    const normalizedStart = DashboardApiService.normalizeHourlyCacheDate(startDate);
+    const normalizedStart =
+      DashboardApiService.normalizeHourlyCacheDate(startDate);
     const normalizedEnd = DashboardApiService.normalizeHourlyCacheDate(endDate);
     const cacheKey = `hourly:${parkingId ?? "global"}:${normalizedStart}:${normalizedEnd}`;
     const cached = this.getFromCache<HourlyOccupancyPointModel[]>(cacheKey);
@@ -114,10 +120,12 @@ export class DashboardApiService {
     if (startDate) {
       params.startDate = startDate;
     }
-    return this.dashboardService.getHourlyOccupancy(params, DashboardApiService.httpContext()).pipe(
-      map((dtos) => (dtos ?? []).map(mapToHourlyOccupancyPoint)),
-      tap((res) => this.setCache(cacheKey, res)),
-    );
+    return this.dashboardService
+      .getHourlyOccupancy(params, DashboardApiService.httpContext())
+      .pipe(
+        map((dtos) => (dtos ?? []).map(mapToHourlyOccupancyPoint)),
+        tap((res) => this.setCache(cacheKey, res))
+      );
   }
 
   private static toLocalDateString(val?: string): string | undefined {
@@ -129,7 +137,7 @@ export class DashboardApiService {
 
   getParkingsComparison(
     startDate?: string,
-    endDate?: string,
+    endDate?: string
   ): Observable<ParkingComparisonItemModel[]> {
     const sanitizedStart = DashboardApiService.toLocalDateString(startDate);
     const sanitizedEnd = DashboardApiService.toLocalDateString(endDate);
@@ -150,14 +158,14 @@ export class DashboardApiService {
       .getParkingsComparison(params, DashboardApiService.httpContext())
       .pipe(
         map((dtos) => (dtos ?? []).map(mapToParkingComparisonItem)),
-        tap((res) => this.setCache(cacheKey, res)),
+        tap((res) => this.setCache(cacheKey, res))
       );
   }
 
   getOperationalReport(
     page = 0,
     parkingId?: string,
-    size = 10,
+    size = 10
   ): Observable<PaginatedOperationalReportModel> {
     const cacheKey = `reports:${parkingId ?? "global"}:${page}:${size}`;
     const cached = this.getFromCache<PaginatedOperationalReportModel>(cacheKey);
@@ -169,13 +177,16 @@ export class DashboardApiService {
     const request$ = parkingId
       ? this.reportsService.getOperationalReport(
           { pageable, parkingId },
-          DashboardApiService.httpContext(),
+          DashboardApiService.httpContext()
         )
-      : this.reportsService.getOperationalReport({ pageable }, DashboardApiService.httpContext());
+      : this.reportsService.getOperationalReport(
+          { pageable },
+          DashboardApiService.httpContext()
+        );
 
     return request$.pipe(
       map((dto) => mapToPaginatedOperationalReport(dto)),
-      tap((res) => this.setCache(cacheKey, res)),
+      tap((res) => this.setCache(cacheKey, res))
     );
   }
 

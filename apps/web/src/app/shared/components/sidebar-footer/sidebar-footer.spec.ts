@@ -50,7 +50,9 @@ describe("SidebarFooter", () => {
     // Only app-user-menu should be a direct child in footer
     const footer = fixture.debugElement.query(By.css("footer"));
     const directThemeButton = footer.query(By.css(":scope > app-theme-button"));
-    const directLogoutButton = footer.query(By.css(":scope > app-logout-button"));
+    const directLogoutButton = footer.query(
+      By.css(":scope > app-logout-button")
+    );
 
     expect(directThemeButton).toBeNull();
     expect(directLogoutButton).toBeNull();

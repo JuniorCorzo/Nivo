@@ -1,8 +1,22 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 import type { Coordinates } from "@core/type/coordinates.type";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideCar, lucideCoins, lucideMapPin, lucideParkingSquare } from "@ng-icons/lucide";
-import { CardComponent, TypographyMono, TypographyMuted } from "@nivo-sass/design-system";
+import {
+  lucideCar,
+  lucideCoins,
+  lucideMapPin,
+  lucideParkingSquare,
+} from "@ng-icons/lucide";
+import {
+  CardComponent,
+  TypographyMono,
+  TypographyMuted,
+} from "@nivo-sass/design-system";
 import { formatCoordinates } from "@shared/utils/coordinates.utils";
 
 @Component({

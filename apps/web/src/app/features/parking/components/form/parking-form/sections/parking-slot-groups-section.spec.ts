@@ -1,7 +1,10 @@
 import { Component, signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
-import type { SlotDistribution, SlotType } from "@core/type/slot-distribution.type";
+import type {
+  SlotDistribution,
+  SlotType,
+} from "@core/type/slot-distribution.type";
 
 import { ParkingSlotGroupsSectionComponent } from "./parking-slot-groups-section";
 
@@ -85,7 +88,9 @@ describe("ParkingSlotGroupsSectionComponent", () => {
   describe("static methods", () => {
     it("should return label from displaySlotTypeFn", () => {
       const option: SlotTypeOption = { label: "Vehículo", value: "CAR" };
-      expect(ParkingSlotGroupsSectionComponent.displaySlotTypeFn(option)).toBe("Vehículo");
+      expect(ParkingSlotGroupsSectionComponent.displaySlotTypeFn(option)).toBe(
+        "Vehículo"
+      );
       expect(component.displaySlotTypeFn(option)).toBe("Vehículo");
     });
 
@@ -94,7 +99,9 @@ describe("ParkingSlotGroupsSectionComponent", () => {
         label: "Moto",
         value: "MOTORCYCLE",
       };
-      expect(ParkingSlotGroupsSectionComponent.valueSlotTypeFn(option)).toBe("MOTORCYCLE");
+      expect(ParkingSlotGroupsSectionComponent.valueSlotTypeFn(option)).toBe(
+        "MOTORCYCLE"
+      );
       expect(component.valueSlotTypeFn(option)).toBe("MOTORCYCLE");
     });
   });
@@ -102,14 +109,18 @@ describe("ParkingSlotGroupsSectionComponent", () => {
   describe("addSlot and removeSlot outputs", () => {
     it("should emit addSlot output when add button is clicked", () => {
       /* SAFETY: Querying add button element */
-      const addButton = fixture.nativeElement.querySelector("button") as HTMLButtonElement;
+      const addButton = fixture.nativeElement.querySelector(
+        "button"
+      ) as HTMLButtonElement;
       addButton.click();
 
       expect(hostComponent.addSlotCalled).toBe(true);
     });
 
     it("should emit removeSlot output with index when remove button is clicked", () => {
-      const removeButtons = fixture.nativeElement.querySelectorAll("button.text-destructive");
+      const removeButtons = fixture.nativeElement.querySelectorAll(
+        "button.text-destructive"
+      );
       expect(removeButtons.length).toBe(2);
 
       /* SAFETY: Querying remove button element */
@@ -185,7 +196,9 @@ describe("ParkingSlotGroupsSectionComponent", () => {
       hostComponent.slots.set([]);
       fixture.detectChanges();
 
-      const slotCards = fixture.nativeElement.querySelectorAll(".border-border.bg-muted\\/40");
+      const slotCards = fixture.nativeElement.querySelectorAll(
+        ".border-border.bg-muted\\/40"
+      );
       expect(slotCards.length).toBe(0);
     });
   });

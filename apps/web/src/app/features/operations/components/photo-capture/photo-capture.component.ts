@@ -65,7 +65,12 @@ interface Dimensions {
             <ng-icon name="lucideCamera" class="text-sm" />
             <span>{{ texts.capture }}</span>
           </nv-button>
-          <nv-button type="button" variant="outline" size="sm" (click)="stopCamera()">
+          <nv-button
+            type="button"
+            variant="outline"
+            size="sm"
+            (click)="stopCamera()"
+          >
             <span>{{ texts.stopCamera }}</span>
           </nv-button>
         </div>
@@ -84,7 +89,10 @@ interface Dimensions {
               variant="outline"
               class="border-zinc-700 bg-zinc-900/90 font-mono text-xs backdrop-blur-xs"
             >
-              <ng-icon name="lucideCheck" class="mr-1 text-xs text-emerald-400" />
+              <ng-icon
+                name="lucideCheck"
+                class="mr-1 text-xs text-emerald-400"
+              />
               <span>{{ texts.badgeSize(photoSizeKb()) }}</span>
             </nv-badge>
           </div>
@@ -123,7 +131,9 @@ interface Dimensions {
             <ng-icon name="lucideCamera" class="text-xl" />
           </div>
           <div class="flex flex-col gap-0.5">
-            <span class="text-xs font-semibold text-zinc-200">{{ texts.noPhoto }}</span>
+            <span class="text-xs font-semibold text-zinc-200">{{
+              texts.noPhoto
+            }}</span>
             <span class="text-[11px] text-zinc-400">{{ texts.hint }}</span>
           </div>
 
@@ -160,7 +170,9 @@ interface Dimensions {
       }
 
       @if (errorMessage()) {
-        <div class="rounded-lg border border-red-500/20 bg-red-500/10 p-2.5 text-xs text-red-400">
+        <div
+          class="rounded-lg border border-red-500/20 bg-red-500/10 p-2.5 text-xs text-red-400"
+        >
           <span>{{ errorMessage() }}</span>
         </div>
       }
@@ -238,7 +250,10 @@ export class PhotoCaptureComponent implements OnDestroy {
     const sourceWidth = video?.videoWidth || this.MAX_WIDTH;
     const sourceHeight = video?.videoHeight || this.MAX_HEIGHT;
 
-    const { targetHeight, targetWidth } = this.calculateDimensions(sourceWidth, sourceHeight);
+    const { targetHeight, targetWidth } = this.calculateDimensions(
+      sourceWidth,
+      sourceHeight
+    );
 
     const canvas = document.createElement("canvas");
     canvas.width = targetWidth;
@@ -277,7 +292,10 @@ export class PhotoCaptureComponent implements OnDestroy {
 
       const img = new Image();
       img.addEventListener("load", () => {
-        const { targetHeight, targetWidth } = this.calculateDimensions(img.width, img.height);
+        const { targetHeight, targetWidth } = this.calculateDimensions(
+          img.width,
+          img.height
+        );
         const canvas = document.createElement("canvas");
         canvas.width = targetWidth;
         canvas.height = targetHeight;
@@ -318,19 +336,27 @@ export class PhotoCaptureComponent implements OnDestroy {
   }
 
   static calculateSizeKb(dataUrl: string): number {
-    const base64Data = dataUrl.includes(",") ? (dataUrl.split(",")[1] ?? "") : dataUrl;
+    const base64Data = dataUrl.includes(",")
+      ? (dataUrl.split(",")[1] ?? "")
+      : dataUrl;
     const bytes = (base64Data.length * 3) / 4;
     return Math.round((bytes / 1024) * 10) / 10;
   }
 
   readonly calculateSizeKb = PhotoCaptureComponent.calculateSizeKb;
 
-  private calculateDimensions(sourceWidth: number, sourceHeight: number): Dimensions {
+  private calculateDimensions(
+    sourceWidth: number,
+    sourceHeight: number
+  ): Dimensions {
     let targetWidth = sourceWidth;
     let targetHeight = sourceHeight;
 
     if (targetWidth > this.MAX_WIDTH || targetHeight > this.MAX_HEIGHT) {
-      const ratio = Math.min(this.MAX_WIDTH / targetWidth, this.MAX_HEIGHT / targetHeight);
+      const ratio = Math.min(
+        this.MAX_WIDTH / targetWidth,
+        this.MAX_HEIGHT / targetHeight
+      );
       targetWidth = Math.round(targetWidth * ratio);
       targetHeight = Math.round(targetHeight * ratio);
     }

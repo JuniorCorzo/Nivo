@@ -12,7 +12,10 @@ import type { ValidationError } from "@angular/forms/signals";
 import { InputComponent, SelectComponent } from "@nivo-sass/design-system";
 
 import type { DurationOption, DurationUnit } from "../../utils/duration.utils";
-import { DURATION_UNIT_OPTIONS, DurationConverter } from "../../utils/duration.utils";
+import {
+  DURATION_UNIT_OPTIONS,
+  DurationConverter,
+} from "../../utils/duration.utils";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -63,13 +66,17 @@ export class DurationInputComponent implements ControlValueAccessor {
   readonly id = input<string>("duration-input");
   readonly label = input<string>("Tiempo de gracia");
   readonly placeholder = input<string>("0");
-  readonly error = input<string | ValidationError.WithFieldTree[] | undefined>();
+  readonly error = input<
+    string | ValidationError.WithFieldTree[] | undefined
+  >();
 
   readonly amount = signal<number>(0);
   readonly unit = signal<DurationUnit>("MINUTES");
   readonly disabled = signal<boolean>(false);
 
-  readonly normalizedError = computed<ValidationError.WithFieldTree[] | undefined>(() => {
+  readonly normalizedError = computed<
+    ValidationError.WithFieldTree[] | undefined
+  >(() => {
     const err = this.error();
     if (typeof err === "string") {
       return [{ message: err } as ValidationError.WithFieldTree];
@@ -125,7 +132,10 @@ export class DurationInputComponent implements ControlValueAccessor {
   }
 
   private notifyChange(): void {
-    const totalMinutes = DurationConverter.toMinutes(this.amount(), this.unit());
+    const totalMinutes = DurationConverter.toMinutes(
+      this.amount(),
+      this.unit()
+    );
     this.onChange(totalMinutes);
   }
 }

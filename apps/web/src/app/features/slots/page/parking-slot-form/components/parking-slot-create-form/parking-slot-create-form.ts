@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, input, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  inject,
+} from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideAlertCircle, lucideSparkles } from "@ng-icons/lucide";
 import { InputComponent, SelectComponent } from "@nivo-sass/design-system";

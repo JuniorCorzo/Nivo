@@ -1,5 +1,13 @@
-export const formatPrice = (price?: number | null, locale = "es-CO"): string => {
-  if (price === null || price === undefined || !Number.isFinite(price) || price < 0) {
+export const formatPrice = (
+  price?: number | null,
+  locale = "es-CO"
+): string => {
+  if (
+    price === null ||
+    price === undefined ||
+    !Number.isFinite(price) ||
+    price < 0
+  ) {
     return "-";
   }
 

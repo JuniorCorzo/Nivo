@@ -8,5 +8,7 @@ export const publicGuard: CanActivateFn = () => {
   const isAuthenticate = inject(AuthService).isAuthenticate();
   const router = inject(Router);
 
-  return isAuthenticate ? router.createUrlTree([APP_ROUTES.app.parkingLots]) : true;
+  return isAuthenticate
+    ? router.createUrlTree([APP_ROUTES.app.parkingLots])
+    : true;
 };

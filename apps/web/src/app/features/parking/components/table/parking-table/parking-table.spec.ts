@@ -10,21 +10,26 @@ import { ParkingTable } from "./parking-table";
 interface ParkingTableStatic {
   shouldRenderHeader: (
     header: { isPlaceholder: boolean; column: { parent?: unknown } },
-    depth: number,
+    depth: number
   ) => boolean;
   headerCellClass: (
     header: { column: { id: string }; subHeaders: unknown[] },
-    depth: number,
+    depth: number
   ) => string;
   titleForCell: (
     columnId: string,
-    parkingLot: ParkingLotListItemModel | { address?: unknown; slotDistribution?: unknown },
+    parkingLot:
+      | ParkingLotListItemModel
+      | { address?: unknown; slotDistribution?: unknown }
   ) => string | null;
 }
 
 interface ParkingTableInternal {
   contentClass: (id: string) => string;
-  rowSpanForHeader: (header: { subHeaders: unknown[] }, depth: number) => number;
+  rowSpanForHeader: (
+    header: { subHeaders: unknown[] },
+    depth: number
+  ) => number;
   headerRowClass: (depth: number) => string;
 }
 
@@ -37,7 +42,9 @@ describe("ParkingTable", () => {
   let component: ParkingTable;
   let internals: ParkingTableInternal;
   let staticHelpers: ParkingTableStatic;
-  let mockParkingLotsSignal: ReturnType<typeof signal<ParkingLotListItemModel[]>>;
+  let mockParkingLotsSignal: ReturnType<
+    typeof signal<ParkingLotListItemModel[]>
+  >;
   let mockParkingService: MockParkingService;
 
   const mockParkingLot: ParkingLotListItemModel = {
@@ -134,7 +141,9 @@ describe("ParkingTable", () => {
         column: { id: "name" },
         subHeaders: [{}],
       };
-      expect(staticHelpers.headerCellClass(header, 0)).toBe("!align-bottom pb-3");
+      expect(staticHelpers.headerCellClass(header, 0)).toBe(
+        "!align-bottom pb-3"
+      );
     });
 
     it("should append centered classes when subHeaders length > 1", () => {
@@ -143,27 +152,33 @@ describe("ParkingTable", () => {
         subHeaders: [{}, {}],
       };
       expect(staticHelpers.headerCellClass(header, 0)).toBe(
-        "!align-bottom pb-3 flex justify-center align-bottom!",
+        "!align-bottom pb-3 flex justify-center align-bottom!"
       );
     });
   });
 
   describe("titleForCell static helper", () => {
     it("should return name string for 'name' columnId", () => {
-      expect(staticHelpers.titleForCell("name", mockParkingLot)).toBe("Parqueadero Central");
+      expect(staticHelpers.titleForCell("name", mockParkingLot)).toBe(
+        "Parqueadero Central"
+      );
     });
 
     it("should return ownerName string for 'ownerName' columnId", () => {
-      expect(staticHelpers.titleForCell("ownerName", mockParkingLot)).toBe("Juan Pérez");
+      expect(staticHelpers.titleForCell("ownerName", mockParkingLot)).toBe(
+        "Juan Pérez"
+      );
     });
 
     it("should return currency string for 'currency' columnId", () => {
-      expect(staticHelpers.titleForCell("currency", mockParkingLot)).toBe("COP");
+      expect(staticHelpers.titleForCell("currency", mockParkingLot)).toBe(
+        "COP"
+      );
     });
 
     it("should return formatted address for 'address' columnId", () => {
       expect(staticHelpers.titleForCell("address", mockParkingLot)).toBe(
-        "Calle 100 # 15-20, Bogotá",
+        "Calle 100 # 15-20, Bogotá"
       );
     });
 
@@ -172,13 +187,15 @@ describe("ParkingTable", () => {
         ...mockParkingLot,
         address: undefined,
       };
-      expect(staticHelpers.titleForCell("address", lotWithoutAddress)).toBeNull();
+      expect(
+        staticHelpers.titleForCell("address", lotWithoutAddress)
+      ).toBeNull();
     });
 
     it("should return formatted slot distribution for 'slotDistribution' columnId", () => {
-      expect(staticHelpers.titleForCell("slotDistribution", mockParkingLot)).toBe(
-        "CAR: 20 | MOTORCYCLE: 10",
-      );
+      expect(
+        staticHelpers.titleForCell("slotDistribution", mockParkingLot)
+      ).toBe("CAR: 20 | MOTORCYCLE: 10");
     });
 
     it("should return null for 'slotDistribution' columnId when distribution is missing", () => {
@@ -186,19 +203,21 @@ describe("ParkingTable", () => {
         ...mockParkingLot,
         slotDistribution: undefined,
       };
-      expect(staticHelpers.titleForCell("slotDistribution", lotWithoutSlots)).toBeNull();
+      expect(
+        staticHelpers.titleForCell("slotDistribution", lotWithoutSlots)
+      ).toBeNull();
     });
 
     it("should return formatted occupancy string for 'occupancy' columnId", () => {
       expect(staticHelpers.titleForCell("occupancy", mockParkingLot)).toBe(
-        "15 / 30 ocupados (50%)",
+        "15 / 30 ocupados (50%)"
       );
     });
 
     it("should return formatted occupancy string for 'occuppationRate' columnId", () => {
-      expect(staticHelpers.titleForCell("occuppationRate", mockParkingLot)).toBe(
-        "15 / 30 ocupados (50%)",
-      );
+      expect(
+        staticHelpers.titleForCell("occuppationRate", mockParkingLot)
+      ).toBe("15 / 30 ocupados (50%)");
     });
 
     it("should return null for unknown columnId", () => {

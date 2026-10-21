@@ -1,7 +1,11 @@
 import { ChangeDetectionStrategy, Component, output } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideParkingSquare, lucidePlus } from "@ng-icons/lucide";
-import { ButtonComponent, TypographyH2, TypographyP } from "@nivo-sass/design-system";
+import {
+  ButtonComponent,
+  TypographyH2,
+  TypographyP,
+} from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({

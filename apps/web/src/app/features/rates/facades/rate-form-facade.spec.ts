@@ -145,8 +145,10 @@ describe("RateFormFacade", () => {
         name: "Tarifa Plena",
         parkingId: "parking-1",
         pricePerUnit: 5000,
-      }),
+      })
     );
-    expect(toastSpy.showToast).toHaveBeenCalledWith(expect.objectContaining({ type: "success" }));
+    expect(toastSpy.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "success" })
+    );
   });
 });

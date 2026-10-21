@@ -1,5 +1,8 @@
 import type { SlotSummary } from "@core/models/slot.model";
-import { createColumnHelper, flexRenderComponent } from "@tanstack/angular-table";
+import {
+  createColumnHelper,
+  flexRenderComponent,
+} from "@tanstack/angular-table";
 
 import { SlotRowActionsComponent } from "../../components/table/slot-row-actions/slot-row-actions";
 import { SlotStatusBadgeComponent } from "../../components/table/slot-status-badge/slot-status-badge";
@@ -26,15 +29,20 @@ export interface ParkingSlotColumnOptions {
 
 const columnHelper = createColumnHelper<SlotSummary>();
 
-export const parkingSlotColumnDefinition = (options: ParkingSlotColumnOptions = {}) => [
+export const parkingSlotColumnDefinition = (
+  options: ParkingSlotColumnOptions = {}
+) => [
   columnHelper.display({
     cell: (info) =>
       flexRenderComponent(SlotSelectCellComponent, {
         inputs: {
-          checked: options.isSelected ? options.isSelected(info.row.original.id) : false,
+          checked: options.isSelected
+            ? options.isSelected(info.row.original.id)
+            : false,
         },
         outputs: {
-          toggle: (checked: boolean) => options.onToggleSelected?.(info.row.original.id, checked),
+          toggle: (checked: boolean) =>
+            options.onToggleSelected?.(info.row.original.id, checked),
         },
       }),
     enableColumnFilter: false,

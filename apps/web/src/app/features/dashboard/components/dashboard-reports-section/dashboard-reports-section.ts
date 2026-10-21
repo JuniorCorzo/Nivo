@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
 import type { OperationalReportItemModel } from "@core/models/dashboard.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideDownload } from "@ng-icons/lucide";

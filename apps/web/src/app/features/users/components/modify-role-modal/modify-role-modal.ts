@@ -13,7 +13,12 @@ import type { UserModel } from "@core/models/user.model";
 import { UserService } from "@core/services/user/user-service";
 import type { Role } from "@core/type/role.type";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideAlertTriangle, lucideShieldCheck, lucideUser, lucideX } from "@ng-icons/lucide";
+import {
+  lucideAlertTriangle,
+  lucideShieldCheck,
+  lucideUser,
+  lucideX,
+} from "@ng-icons/lucide";
 import {
   ButtonComponent,
   ModalComponent,

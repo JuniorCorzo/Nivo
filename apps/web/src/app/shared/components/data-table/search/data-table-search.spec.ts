@@ -14,7 +14,9 @@ interface Item {
 @Component({
   imports: [DataTableSearchComponent],
   standalone: true,
-  template: ` <app-data-table-search [table]="table" placeholder="Buscar elementos..." /> `,
+  template: `
+    <app-data-table-search [table]="table" placeholder="Buscar elementos..." />
+  `,
 })
 class SearchTestHostComponent {
   readonly items = signal<Item[]>([
@@ -89,7 +91,9 @@ describe("DataTableSearchComponent", () => {
     expect(host.table.getState().globalFilter).toBe("cherry");
 
     /* SAFETY: Clear button exists in the template when search value is non-empty */
-    const clearBtn = el.querySelector('[aria-label="Limpiar búsqueda"]') as HTMLElement;
+    const clearBtn = el.querySelector(
+      '[aria-label="Limpiar búsqueda"]'
+    ) as HTMLElement;
     expect(clearBtn).toBeTruthy();
     clearBtn.click();
     fixture.detectChanges();

@@ -53,8 +53,12 @@ describe("ActionsColumn", () => {
 
   it("should set active parking and navigate on onViewDetails", () => {
     component.onViewDetails();
-    expect(mockActiveParkingService.setActiveParkingId).toHaveBeenCalledWith("parking-123");
-    expect(mockRouter.navigate).toHaveBeenCalledWith([APP_ROUTES.app.parkingLots]);
+    expect(mockActiveParkingService.setActiveParkingId).toHaveBeenCalledWith(
+      "parking-123"
+    );
+    expect(mockRouter.navigate).toHaveBeenCalledWith([
+      APP_ROUTES.app.parkingLots,
+    ]);
   });
 
   it("should navigate on onEdit", () => {

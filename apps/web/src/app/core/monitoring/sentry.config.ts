@@ -1,7 +1,17 @@
 import type { EnvironmentProviders, Provider } from "@angular/core";
-import { ErrorHandler, inject, isDevMode, provideAppInitializer } from "@angular/core";
+import {
+  ErrorHandler,
+  inject,
+  isDevMode,
+  provideAppInitializer,
+} from "@angular/core";
 import { Router } from "@angular/router";
-import { browserTracingIntegration, createErrorHandler, init, TraceService } from "@sentry/angular";
+import {
+  browserTracingIntegration,
+  createErrorHandler,
+  init,
+  TraceService,
+} from "@sentry/angular";
 
 export interface SentryConfigOptions {
   dsn?: string;
@@ -57,7 +67,9 @@ export const getSentryDsn = (): string => {
  * Determines whether Sentry should be initialized conditionally:
  * Only if explicit DSN is provided or in production (with a valid DSN).
  */
-export const shouldInitializeSentry = (options?: SentryConfigOptions): boolean => {
+export const shouldInitializeSentry = (
+  options?: SentryConfigOptions
+): boolean => {
   if (options && isBoolean(options.enabled)) {
     return options.enabled;
   }
@@ -74,7 +86,7 @@ export const shouldInitializeSentry = (options?: SentryConfigOptions): boolean =
  */
 export const initSentry = (
   options?: SentryConfigOptions,
-  initializer: (opts: Parameters<typeof init>[0]) => void = init,
+  initializer: (opts: Parameters<typeof init>[0]) => void = init
 ): boolean => {
   if (!shouldInitializeSentry(options)) {
     return false;
@@ -85,10 +97,14 @@ export const initSentry = (
 
   initializer({
     dsn,
-    environment: options?.environment ?? (isProduction ? "production" : "development"),
+    environment:
+      options?.environment ?? (isProduction ? "production" : "development"),
     integrations: [browserTracingIntegration()],
     release: options?.release,
-    tracePropagationTargets: options?.tracePropagationTargets ?? ["localhost", /^\/api/u],
+    tracePropagationTargets: options?.tracePropagationTargets ?? [
+      "localhost",
+      /^\/api/u,
+    ],
     tracesSampleRate: options?.tracesSampleRate ?? (isProduction ? 0.2 : 1),
   });
 
@@ -121,7 +137,7 @@ export const provideSentryTracing = (): (Provider | EnvironmentProviders)[] => [
  * Combined provider setup for Sentry error handling and tracing.
  */
 export const provideSentry = (
-  options?: SentryConfigOptions,
+  options?: SentryConfigOptions
 ): (Provider | EnvironmentProviders)[] => {
   initSentry(options);
   return [provideSentryErrorHandler(), ...provideSentryTracing()];

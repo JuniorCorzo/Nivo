@@ -18,7 +18,12 @@
       <nv-button variant="outline" type="button" (click)="cancel.emit()">
         {{ LABELS.cancel }}
       </nv-button>
-      <nv-button variant="destructive" type="button" autofocus (click)="confirm.emit()">
+      <nv-button
+        variant="destructive"
+        type="button"
+        autofocus
+        (click)="confirm.emit()"
+      >
         {{ LABELS.confirm }}
       </nv-button>
     </div>

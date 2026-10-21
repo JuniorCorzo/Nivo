@@ -83,19 +83,31 @@ describe("UsersTableComponent", () => {
   it("should render role badges correctly", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    const roleBadges = compiled.querySelectorAll("app-user-role-badge nv-badge");
+    const roleBadges = compiled.querySelectorAll(
+      "app-user-role-badge nv-badge"
+    );
     expect(roleBadges.length).toBe(2);
-    expect(roleBadges[0].textContent?.trim()).toBe(APP_TEXTS.users.table.roles.owner);
-    expect(roleBadges[1].textContent?.trim()).toBe(APP_TEXTS.users.table.roles.operator);
+    expect(roleBadges[0].textContent?.trim()).toBe(
+      APP_TEXTS.users.table.roles.owner
+    );
+    expect(roleBadges[1].textContent?.trim()).toBe(
+      APP_TEXTS.users.table.roles.operator
+    );
   });
 
   it("should render status badges correctly for active and inactive", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    const statusBadges = compiled.querySelectorAll("app-user-status-badge nv-badge");
+    const statusBadges = compiled.querySelectorAll(
+      "app-user-status-badge nv-badge"
+    );
     expect(statusBadges.length).toBe(2);
-    expect(statusBadges[0].textContent?.trim()).toBe(APP_TEXTS.users.table.status.active);
-    expect(statusBadges[1].textContent?.trim()).toBe(APP_TEXTS.users.table.status.inactive);
+    expect(statusBadges[0].textContent?.trim()).toBe(
+      APP_TEXTS.users.table.status.active
+    );
+    expect(statusBadges[1].textContent?.trim()).toBe(
+      APP_TEXTS.users.table.status.inactive
+    );
   });
 
   it("should show empty state when users array is empty", () => {
@@ -105,7 +117,9 @@ describe("UsersTableComponent", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
     const emptyStateHeading = compiled.querySelector("[emptyState] nv-h4");
-    expect(emptyStateHeading?.textContent?.trim()).toBe(APP_TEXTS.users.table.emptyState.title);
+    expect(emptyStateHeading?.textContent?.trim()).toBe(
+      APP_TEXTS.users.table.emptyState.title
+    );
   });
 
   it("should show loading skeletons when isLoading is true", () => {
@@ -151,7 +165,7 @@ describe("UsersTableComponent", () => {
     const compiled = fixture.nativeElement as HTMLElement;
     /* SAFETY: Reset button exists in the rendered empty state */
     const resetButton = compiled.querySelector(
-      "[emptyState] nv-button button, [emptyState] button",
+      "[emptyState] nv-button button, [emptyState] button"
     ) as HTMLButtonElement | null;
     expect(resetButton).not.toBeNull();
     resetButton?.click();
@@ -168,14 +182,14 @@ describe("UsersTableComponent", () => {
     // Row 0 is OWNER
     /* SAFETY: nv-button contains native button element in DOM */
     const ownerChangeRoleBtn = rows[0].querySelector(
-      `nv-button[aria-label="${APP_TEXTS.users.table.actions.changeRole}"] button`,
+      `nv-button[aria-label="${APP_TEXTS.users.table.actions.changeRole}"] button`
     ) as HTMLButtonElement | null;
     expect(ownerChangeRoleBtn?.disabled).toBe(false);
 
     // Row 1 is OPERATOR
     /* SAFETY: nv-button contains native button element in DOM */
     const operatorChangeRoleBtn = rows[1].querySelector(
-      `nv-button[aria-label="${APP_TEXTS.users.table.actions.changeRole}"] button`,
+      `nv-button[aria-label="${APP_TEXTS.users.table.actions.changeRole}"] button`
     ) as HTMLButtonElement | null;
     expect(operatorChangeRoleBtn?.disabled).toBe(false);
   });

@@ -1,8 +1,19 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  output,
+} from "@angular/core";
 import { Router } from "@angular/router";
 import { ActiveParkingService } from "@core/services/active-parking.service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideEye, lucidePencil, lucideTicket, lucideTrash2 } from "@ng-icons/lucide";
+import {
+  lucideEye,
+  lucidePencil,
+  lucideTicket,
+  lucideTrash2,
+} from "@ng-icons/lucide";
 import { ButtonComponent } from "@nivo-sass/design-system";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
@@ -10,7 +21,9 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgIcon, ButtonComponent],
-  providers: [provideIcons({ lucideEye, lucidePencil, lucideTicket, lucideTrash2 })],
+  providers: [
+    provideIcons({ lucideEye, lucidePencil, lucideTicket, lucideTrash2 }),
+  ],
   selector: "app-actions-column",
   styleUrl: "./actions-column.css",
   templateUrl: "./actions-column.html",

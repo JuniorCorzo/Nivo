@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
 import type { TicketSummary } from "@core/models/ticket.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideEye, lucidePrinter } from "@ng-icons/lucide";

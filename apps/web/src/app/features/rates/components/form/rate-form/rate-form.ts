@@ -1,5 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from "@angular/core";
 import { RouterLink } from "@angular/router";
 import type { TimeUnit, VehicleType } from "@core/models/rate.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -12,7 +17,11 @@ import {
   lucideSliders,
   lucideLoader2,
 } from "@ng-icons/lucide";
-import { ButtonComponent, InputComponent, SelectComponent } from "@nivo-sass/design-system";
+import {
+  ButtonComponent,
+  InputComponent,
+  SelectComponent,
+} from "@nivo-sass/design-system";
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import type { PageHeaderBreadcrumbItem } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
@@ -66,8 +75,10 @@ export class RateFormComponent {
 
   readonly breadcrumbs = computed<PageHeaderBreadcrumbItem[]>(() => {
     const p = this.facade.parking();
-    const modeLabel = this.facade.mode() === "create" ? "Nueva tarifa" : "Editar tarifa";
-    const modeIcon = this.facade.mode() === "create" ? "lucidePlus" : "lucideEdit";
+    const modeLabel =
+      this.facade.mode() === "create" ? "Nueva tarifa" : "Editar tarifa";
+    const modeIcon =
+      this.facade.mode() === "create" ? "lucidePlus" : "lucideEdit";
     if (!p) {
       return [
         {

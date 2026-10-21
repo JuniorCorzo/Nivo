@@ -12,14 +12,14 @@ La interfaz de gestión de parqueaderos es la **primera feature operativa** del 
 
 ### Alcance
 
-| Dentro del alcance                                                     | Fuera del alcance                                |
-| ---------------------------------------------------------------------- | ------------------------------------------------ |
-| CRUD completo de parqueaderos                                          | Backend API (se asumen endpoints existentes)     |
-| Mapa interactivo para selección de ubicación (Leaflet + OpenStreetMap) | Sistema de permisos nuevo (roles existentes)     |
-| Tabla paginada con filtros y búsqueda server-side                      | i18n real (se mantiene patrón `APP_TEXTS`)       |
-| Formularios con validación en tiempo real (signal forms)               | Optimización de mapas (clustering, tiles custom) |
-| Indicador de ocupación con semáforo de colores                         | PWA / manejo offline                             |
-| Acciones condicionadas por rol                                         | Tests E2E                                        |
+| Dentro del alcance | Fuera del alcance |
+| --- | --- |
+| CRUD completo de parqueaderos | Backend API (se asumen endpoints existentes) |
+| Mapa interactivo para selección de ubicación (Leaflet + OpenStreetMap) | Sistema de permisos nuevo (roles existentes) |
+| Tabla paginada con filtros y búsqueda server-side | i18n real (se mantiene patrón `APP_TEXTS`) |
+| Formularios con validación en tiempo real (signal forms) | Optimización de mapas (clustering, tiles custom) |
+| Indicador de ocupación con semáforo de colores | PWA / manejo offline |
+| Acciones condicionadas por rol | Tests E2E |
 
 ### Stack UI
 
@@ -47,12 +47,12 @@ La interfaz de gestión de parqueaderos es la **primera feature operativa** del 
 
 ### Descripción funcional por vista
 
-| Vista                 | Ruta                          | Propósito                                                                                        | Permisos                                                   |
-| --------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
-| **ParkingListPage**   | `/dashboard/parking`          | Listado tabular de parqueaderos con búsqueda, filtros por estado, paginación y acciones rápidas  | Todos — acciones CRUD solo para OWNER/MANAGER/SUPERADMIN   |
-| **ParkingCreatePage** | `/dashboard/parking/new`      | Formulario de creación de nuevo parqueadero con mapa interactivo para ubicación                  | OWNER, MANAGER, SUPERADMIN                                 |
-| **ParkingDetailPage** | `/dashboard/parking/:id`      | Vista de solo lectura con toda la información del parqueadero, barra de ocupación, mapa readonly | Todos — editar/eliminar solo para OWNER/MANAGER/SUPERADMIN |
-| **ParkingEditPage**   | `/dashboard/parking/:id/edit` | Formulario pre-llenado para edición, reutiliza `ParkingFormComponent`                            | OWNER, MANAGER, SUPERADMIN                                 |
+| Vista | Ruta | Propósito | Permisos |
+| --- | --- | --- | --- |
+| **ParkingListPage** | `/dashboard/parking` | Listado tabular de parqueaderos con búsqueda, filtros por estado, paginación y acciones rápidas | Todos — acciones CRUD solo para OWNER/MANAGER/SUPERADMIN |
+| **ParkingCreatePage** | `/dashboard/parking/new` | Formulario de creación de nuevo parqueadero con mapa interactivo para ubicación | OWNER, MANAGER, SUPERADMIN |
+| **ParkingDetailPage** | `/dashboard/parking/:id` | Vista de solo lectura con toda la información del parqueadero, barra de ocupación, mapa readonly | Todos — editar/eliminar solo para OWNER/MANAGER/SUPERADMIN |
+| **ParkingEditPage** | `/dashboard/parking/:id/edit` | Formulario pre-llenado para edición, reutiliza `ParkingFormComponent` | OWNER, MANAGER, SUPERADMIN |
 
 ---
 
@@ -82,11 +82,11 @@ La interfaz de gestión de parqueaderos es la **primera feature operativa** del 
 
 ### Distribución detallada
 
-| Zona                     | Ancho               | Comportamiento                                  | Contenido                                              |
-| ------------------------ | ------------------- | ----------------------------------------------- | ------------------------------------------------------ |
-| **Sidebar**              | `w-64` (256px) fijo | Colapsable en mobile (drawer), visible en `md+` | Logo, links de navegación con indicador activo, logout |
-| **Main Content**         | `flex-1` (resto)    | Scroll independiente, `min-h-screen`            | Header de página + `<router-outlet />`                 |
-| **Header** (inside Main) | Full width del main | Fijo o sticky-top, height auto                  | Título de la sección actual, breadcrumbs opcional      |
+| Zona | Ancho | Comportamiento | Contenido |
+| --- | --- | --- | --- |
+| **Sidebar** | `w-64` (256px) fijo | Colapsable en mobile (drawer), visible en `md+` | Logo, links de navegación con indicador activo, logout |
+| **Main Content** | `flex-1` (resto) | Scroll independiente, `min-h-screen` | Header de página + `<router-outlet />` |
+| **Header** (inside Main) | Full width del main | Fijo o sticky-top, height auto | Título de la sección actual, breadcrumbs opcional |
 
 ### Implementación del sidebar
 
@@ -426,11 +426,11 @@ ParkingDetailPage
 
 #### Modos de uso
 
-| Contexto    | `initialPosition`         | `readonly` | Comportamiento                                                                     |
-| ----------- | ------------------------- | ---------- | ---------------------------------------------------------------------------------- |
-| **Crear**   | `undefined`               | `false`    | Centra en ubicación por defecto, click coloca/mueve marker, emite coordenadas      |
-| **Editar**  | `{ lat, lng }` existentes | `false`    | Centra en ubicación guardada, click permite mover marker, emite coordenadas nuevas |
-| **Detalle** | `{ lat, lng }` existentes | `true`     | Centra en ubicación guardada, ignora clicks, marker fijo                           |
+| Contexto | `initialPosition` | `readonly` | Comportamiento |
+| --- | --- | --- | --- |
+| **Crear** | `undefined` | `false` | Centra en ubicación por defecto, click coloca/mueve marker, emite coordenadas |
+| **Editar** | `{ lat, lng }` existentes | `false` | Centra en ubicación guardada, click permite mover marker, emite coordenadas nuevas |
+| **Detalle** | `{ lat, lng }` existentes | `true` | Centra en ubicación guardada, ignora clicks, marker fijo |
 
 #### Dimensiones
 
@@ -444,13 +444,13 @@ ParkingDetailPage
 
 > El design system actual (`@nivo-sass/design-system`) NO incluye estos componentes primitivos. Necesitan implementarse como parte de esta feature o como contribución al design system.
 
-| Componente                       | Descripción                                                                                                                     | Donde se usa                  |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
-| **`<select>` nativo estilizado** | Dropdown de filtro por estado. Se usa `<select>` de HTML con clases Tailwind mientras no exista `nv-select`                     | FiltersBar (ParkingListPage)  |
-| **Tabla HTML estilizada**        | `<table>` con clases Tailwind: `w-full`, bordes, hover states, striped. No existe `nv-table`                                    | ParkingListPage               |
-| **Barra de progreso**            | `<div>` con `bg-secondary` como track y `<div>` hijo con `bg-{color}` como fill + `transition-all`                              | ParkingDetailPage (ocupación) |
-| **Diálogo de confirmación**      | Modal nativo `<dialog>` o overlay custom con `nv-card` + `nv-button`                                                            | Eliminar parqueadero          |
-| **Skeleton/Spinner**             | Loading skeleton o spinner para datos. Se usa `<ng-icon name="lucideLoader" class="animate-spin">` existente + placeholder divs | Todas las páginas             |
+| Componente | Descripción | Donde se usa |
+| --- | --- | --- |
+| **`<select>` nativo estilizado** | Dropdown de filtro por estado. Se usa `<select>` de HTML con clases Tailwind mientras no exista `nv-select` | FiltersBar (ParkingListPage) |
+| **Tabla HTML estilizada** | `<table>` con clases Tailwind: `w-full`, bordes, hover states, striped. No existe `nv-table` | ParkingListPage |
+| **Barra de progreso** | `<div>` con `bg-secondary` como track y `<div>` hijo con `bg-{color}` como fill + `transition-all` | ParkingDetailPage (ocupación) |
+| **Diálogo de confirmación** | Modal nativo `<dialog>` o overlay custom con `nv-card` + `nv-button` | Eliminar parqueadero |
+| **Skeleton/Spinner** | Loading skeleton o spinner para datos. Se usa `<ng-icon name="lucideLoader" class="animate-spin">` existente + placeholder divs | Todas las páginas |
 
 ---
 
@@ -810,13 +810,13 @@ ParkingDetailPage
 
 ### 6.4 ParkingMapComponent — Estados
 
-| Estado            | Visual                                               | Comportamiento                              |
-| ----------------- | ---------------------------------------------------- | ------------------------------------------- |
-| **Inicializando** | Contenedor gris con skeleton/pulse                   | Tiles cargando, `animate-pulse` en el fondo |
-| **Sin marker**    | Mapa centrado en ubicación por defecto, sin pin      | Click coloca marker                         |
-| **Con marker**    | Pin visible en posición seleccionada                 | Click nuevo mueve marker                    |
-| **Readonly**      | Pin visible, sin interacción                         | Clicks ignorados                            |
-| **Error tiles**   | Mapa con fondo gris + mensaje "Error al cargar mapa" | Funciona el click si no es readonly         |
+| Estado | Visual | Comportamiento |
+| --- | --- | --- |
+| **Inicializando** | Contenedor gris con skeleton/pulse | Tiles cargando, `animate-pulse` en el fondo |
+| **Sin marker** | Mapa centrado en ubicación por defecto, sin pin | Click coloca marker |
+| **Con marker** | Pin visible en posición seleccionada | Click nuevo mueve marker |
+| **Readonly** | Pin visible, sin interacción | Clicks ignorados |
+| **Error tiles** | Mapa con fondo gris + mensaje "Error al cargar mapa" | Funciona el click si no es readonly |
 
 ---
 
@@ -874,31 +874,31 @@ parking: {
 
 ## 8. Resumen de Componentes por Archivo
 
-| Archivo/Componente       | Tipo       | Reutilizable                   | Design System                           |
-| ------------------------ | ---------- | ------------------------------ | --------------------------------------- |
-| `LayoutDashboard`        | Layout     | ✅ (toda la app)               | —                                       |
-| `SidebarComponent`       | Componente | ✅ (dentro de LayoutDashboard) | nv-button, nv-muted                     |
-| `ParkingListPage`        | Page       | ❌                             | nv-button, nv-badge, nv-input, nv-muted |
-| `ParkingCreatePage`      | Page       | ❌                             | nv-card, nv-button                      |
-| `ParkingEditPage`        | Page       | ❌                             | nv-card, nv-button                      |
-| `ParkingDetailPage`      | Page       | ❌                             | nv-card, nv-badge, nv-button, nv-alert  |
-| `ParkingFormComponent`   | Componente | ✅ (create + edit)             | nv-card, nv-input, nv-h3, nv-button     |
-| `ParkingMapComponent`    | Componente | ✅ (3 contextos)               | — (Leaflet)                             |
-| `ConfirmDialogComponent` | Componente | ✅ (reutilizable)              | nv-card, nv-button                      |
+| Archivo/Componente | Tipo | Reutilizable | Design System |
+| --- | --- | --- | --- |
+| `LayoutDashboard` | Layout | ✅ (toda la app) | — |
+| `SidebarComponent` | Componente | ✅ (dentro de LayoutDashboard) | nv-button, nv-muted |
+| `ParkingListPage` | Page | ❌ | nv-button, nv-badge, nv-input, nv-muted |
+| `ParkingCreatePage` | Page | ❌ | nv-card, nv-button |
+| `ParkingEditPage` | Page | ❌ | nv-card, nv-button |
+| `ParkingDetailPage` | Page | ❌ | nv-card, nv-badge, nv-button, nv-alert |
+| `ParkingFormComponent` | Componente | ✅ (create + edit) | nv-card, nv-input, nv-h3, nv-button |
+| `ParkingMapComponent` | Componente | ✅ (3 contextos) | — (Leaflet) |
+| `ConfirmDialogComponent` | Componente | ✅ (reutilizable) | nv-card, nv-button |
 
 ---
 
 ## 9. Decisiones de Diseño UI
 
-| #   | Decisión                                                  | Rationale                                                                                                       |
-| --- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| 1   | **Card-based layout** para formularios y detalle          | Consistencia con el patrón existente (LoginPage usa nv-card). Delimitación visual clara de secciones            |
-| 2   | **Tabla HTML nativa** estilizada con Tailwind             | No existe `nv-table` en el design system. Evita dependencias extras. Se puede extraer a `nv-table` en el futuro |
-| 3   | **Diálogo de confirmación** custom (no native `<dialog>`) | Mayor control visual, consistencia con el design system, animaciones de entrada/salida                          |
-| 4   | **Barra de progreso** CSS pura (no librería)              | No se justifica una dependencia para una sola barra de progreso con 3 estados de color                          |
-| 5   | **Select nativo** para filtro de estado                   | Mientras no exista `nv-select`. Funcional y accesible. Se puede mejorar más adelante                            |
-| 6   | **Sidebar fijo** con iconos                               | Primera feature operativa → la sidebar será base para features futuras. Diseño extensible                       |
-| 7   | **Info grid 2 columnas** en detalle (md+)                 | Mejor uso de espacio en desktop. Colapsa a 1 columna en mobile                                                  |
-| 8   | **Mini progress bar** en cada fila de la tabla            | Feedback visual inmediato de ocupación sin necesidad de ir al detalle                                           |
-| 9   | **Skeleton loading** en lugar de spinner                  | Mejor UX, da sensación de carga más rápida, reduce layout shift                                                 |
-| 10  | **Toast para feedback exitoso**                           | Consistente con patrón existente (`ToastService`). No interrumpe el flujo del usuario                           |
+| # | Decisión | Rationale |
+| --- | --- | --- |
+| 1 | **Card-based layout** para formularios y detalle | Consistencia con el patrón existente (LoginPage usa nv-card). Delimitación visual clara de secciones |
+| 2 | **Tabla HTML nativa** estilizada con Tailwind | No existe `nv-table` en el design system. Evita dependencias extras. Se puede extraer a `nv-table` en el futuro |
+| 3 | **Diálogo de confirmación** custom (no native `<dialog>`) | Mayor control visual, consistencia con el design system, animaciones de entrada/salida |
+| 4 | **Barra de progreso** CSS pura (no librería) | No se justifica una dependencia para una sola barra de progreso con 3 estados de color |
+| 5 | **Select nativo** para filtro de estado | Mientras no exista `nv-select`. Funcional y accesible. Se puede mejorar más adelante |
+| 6 | **Sidebar fijo** con iconos | Primera feature operativa → la sidebar será base para features futuras. Diseño extensible |
+| 7 | **Info grid 2 columnas** en detalle (md+) | Mejor uso de espacio en desktop. Colapsa a 1 columna en mobile |
+| 8 | **Mini progress bar** en cada fila de la tabla | Feedback visual inmediato de ocupación sin necesidad de ir al detalle |
+| 9 | **Skeleton loading** en lugar de spinner | Mejor UX, da sensación de carga más rápida, reduce layout shift |
+| 10 | **Toast para feedback exitoso** | Consistente con patrón existente (`ToastService`). No interrumpe el flujo del usuario |

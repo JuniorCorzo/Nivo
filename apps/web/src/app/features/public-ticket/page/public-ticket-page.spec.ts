@@ -60,7 +60,9 @@ describe("PublicTicketPageComponent", () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(publicTicketServiceMock.getPublicTicket).toHaveBeenCalledWith("uuid-ticket-1");
+    expect(publicTicketServiceMock.getPublicTicket).toHaveBeenCalledWith(
+      "uuid-ticket-1"
+    );
     expect(component.ticket()).toEqual(mockTicket);
     expect(component.isLoading()).toBe(false);
     expect(component.hasError()).toBe(false);
@@ -68,7 +70,7 @@ describe("PublicTicketPageComponent", () => {
 
   it("should handle error state when ticket is not found", async () => {
     publicTicketServiceMock.getPublicTicket.mockReturnValue(
-      throwError(() => new Error("Not Found")),
+      throwError(() => new Error("Not Found"))
     );
 
     fixture.componentRef.setInput("id", "non-existent-id");
@@ -88,11 +90,19 @@ describe("PublicTicketPageComponent", () => {
 
   it("should calculate estimated fee correctly for hourly rate", () => {
     // 3665 seconds is > 1 hour -> 2 billed hours * $2000 = $4000
-    const fee = PublicTicketPageComponent.calculateEstimatedFee(3665, 2000, "HOURS");
+    const fee = PublicTicketPageComponent.calculateEstimatedFee(
+      3665,
+      2000,
+      "HOURS"
+    );
     expect(fee).toBe(4000);
 
     // 1800 seconds is <= 1 hour -> 1 billed hour * $2000 = $2000
-    const feeFirstHour = PublicTicketPageComponent.calculateEstimatedFee(1800, 2000, "HOURS");
+    const feeFirstHour = PublicTicketPageComponent.calculateEstimatedFee(
+      1800,
+      2000,
+      "HOURS"
+    );
     expect(feeFirstHour).toBe(2000);
   });
 
@@ -115,7 +125,9 @@ describe("PublicTicketPageComponent", () => {
         ...mockTicket,
         entryTime,
       };
-      publicTicketServiceMock.getPublicTicket.mockReturnValue(of(ticketWithRecentEntry));
+      publicTicketServiceMock.getPublicTicket.mockReturnValue(
+        of(ticketWithRecentEntry)
+      );
 
       fixture.componentRef.setInput("id", "uuid-timer-test");
       fixture.detectChanges();

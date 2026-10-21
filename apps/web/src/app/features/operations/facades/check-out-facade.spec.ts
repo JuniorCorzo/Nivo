@@ -1,6 +1,10 @@
 import { TestBed } from "@angular/core/testing";
 import type { SlotSummary } from "@core/models/slot.model";
-import type { PaymentRecord, PriceDetailedModel, TicketSummary } from "@core/models/ticket.model";
+import type {
+  PaymentRecord,
+  PriceDetailedModel,
+  TicketSummary,
+} from "@core/models/ticket.model";
 import { ParkingService } from "@core/services/parking-service";
 import { SlotService } from "@core/services/slot-service";
 import { TicketService } from "@core/services/ticket-service";
@@ -46,7 +50,7 @@ describe("CheckOutFacade", () => {
           name: "Tarifa",
           subtotal: 5000,
           total: 5950,
-        }),
+        })
       ),
       checkOutVehicle: vi.fn(),
       getActiveTicketBySlot: vi.fn(),
@@ -181,7 +185,9 @@ describe("CheckOutFacade", () => {
     });
     expect(facade.lastPaymentRecord()).toEqual(mockPayment);
     expect(facade.isReceiptOpen()).toBe(true);
-    expect(toastSpy.showToast).toHaveBeenCalledWith(expect.objectContaining({ type: "success" }));
+    expect(toastSpy.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "success" })
+    );
   });
 
   it("should filter and return only occupied slots", () => {
@@ -203,9 +209,13 @@ describe("CheckOutFacade", () => {
     const [slot] = facade.occupiedSlots();
     facade.selectSlot(slot);
 
-    expect(ticketServiceSpy.getActiveTicketBySlot).toHaveBeenCalledWith("slot-occ-1");
+    expect(ticketServiceSpy.getActiveTicketBySlot).toHaveBeenCalledWith(
+      "slot-occ-1"
+    );
     expect(facade.selectedTicket()).toEqual(mockTicket);
-    expect(ticketServiceSpy.calculatePrice).toHaveBeenCalledWith("ticket-from-slot");
+    expect(ticketServiceSpy.calculatePrice).toHaveBeenCalledWith(
+      "ticket-from-slot"
+    );
   });
 
   it("should clear selected ticket and reload occupied slots", () => {
@@ -221,7 +231,9 @@ describe("CheckOutFacade", () => {
 
     facade.clearSelectedTicket();
     expect(facade.selectedTicket()).toBeNull();
-    expect(slotServiceSpy.getAllSlotSummariesByParkingId).toHaveBeenCalledWith("parking-1");
+    expect(slotServiceSpy.getAllSlotSummariesByParkingId).toHaveBeenCalledWith(
+      "parking-1"
+    );
   });
 
   it("should return false for isZeroPayment and canCheckOut when priceCalculation is null", () => {
@@ -232,7 +244,9 @@ describe("CheckOutFacade", () => {
   });
 
   it("should not allow checkout when calculatePrice fails", () => {
-    ticketServiceSpy.calculatePrice.mockReturnValue(throwError(() => new Error("Network error")));
+    ticketServiceSpy.calculatePrice.mockReturnValue(
+      throwError(() => new Error("Network error"))
+    );
 
     const ticket: TicketSummary = {
       entryTime: "2026-08-27T10:00:00Z",

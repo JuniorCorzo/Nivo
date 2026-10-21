@@ -128,7 +128,8 @@ export class OccupancyTrendChartComponent implements OnDestroy {
       }
 
       return [...dayMap.entries()].map(([dayKey, group]) => {
-        const avgOccupancy = Math.round((group.totalOccupancy / group.count) * 10) / 10;
+        const avgOccupancy =
+          Math.round((group.totalOccupancy / group.count) * 10) / 10;
         return {
           checkins: group.checkins,
           checkouts: group.checkouts,
@@ -149,7 +150,9 @@ export class OccupancyTrendChartComponent implements OnDestroy {
   });
 
   readonly peakLabel = computed(() =>
-    this.timeGranularity() === "today" ? this.texts.peakHourIngress : this.texts.peakDayIngress,
+    this.timeGranularity() === "today"
+      ? this.texts.peakHourIngress
+      : this.texts.peakDayIngress
   );
 
   readonly peakIngressValue = computed(() => {
@@ -167,7 +170,9 @@ export class OccupancyTrendChartComponent implements OnDestroy {
       return this.texts.noData;
     }
     const unit =
-      this.timeGranularity() === "today" ? this.texts.unitVehPerHour : this.texts.unitVeh;
+      this.timeGranularity() === "today"
+        ? this.texts.unitVehPerHour
+        : this.texts.unitVeh;
     return `${peak.label} (${peak.checkins} ${unit})`;
   });
 

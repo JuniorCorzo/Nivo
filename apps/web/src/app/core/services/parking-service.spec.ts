@@ -68,7 +68,10 @@ describe("ParkingService", () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [ParkingService, { provide: ParkingLotsService, useValue: parkingLotsServiceSpy }],
+      providers: [
+        ParkingService,
+        { provide: ParkingLotsService, useValue: parkingLotsServiceSpy },
+      ],
     });
 
     service = TestBed.inject(ParkingService);
@@ -95,7 +98,7 @@ describe("ParkingService", () => {
         message: "Success",
         status: "200",
         timestamp: "2026-01-01T00:00:00Z",
-      }),
+      })
     );
 
     service.refresh();
@@ -113,8 +116,8 @@ describe("ParkingService", () => {
           new HttpErrorResponse({
             status: 401,
             statusText: "Unauthorized",
-          }),
-      ),
+          })
+      )
     );
 
     expect(() => service.refresh()).not.toThrow();
@@ -134,14 +137,17 @@ describe("ParkingService", () => {
             new HttpErrorResponse({
               status: 401,
               statusText: "Unauthorized",
-            }),
-        ),
+            })
+        )
       ),
       updateParkingLots: vi.fn(),
     };
 
     TestBed.configureTestingModule({
-      providers: [ParkingService, { provide: ParkingLotsService, useValue: failingSpy }],
+      providers: [
+        ParkingService,
+        { provide: ParkingLotsService, useValue: failingSpy },
+      ],
     });
 
     let failingService!: ParkingService;
@@ -165,9 +171,9 @@ describe("ParkingService", () => {
   });
 
   it("getById() debe lanzar error si el ID no existe", async () => {
-    await expect(firstValueFrom(service.getById("lot-unknown"))).rejects.toThrow(
-      "Parking lot with ID lot-unknown not found",
-    );
+    await expect(
+      firstValueFrom(service.getById("lot-unknown"))
+    ).rejects.toThrow("Parking lot with ID lot-unknown not found");
   });
 
   it("create() debe llamar a createParkingLots y refrescar el estado", async () => {
@@ -213,7 +219,9 @@ describe("ParkingService", () => {
       timestamp: "2026-01-01T00:00:00Z",
     };
 
-    parkingLotsServiceSpy.createParkingLots.mockReturnValue(of(mockCreateResponse));
+    parkingLotsServiceSpy.createParkingLots.mockReturnValue(
+      of(mockCreateResponse)
+    );
 
     const result = await firstValueFrom(service.create(mockModel));
     expect(parkingLotsServiceSpy.createParkingLots).toHaveBeenCalled();

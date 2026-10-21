@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideChevronLeft,
@@ -31,9 +36,15 @@ export class DataTablePaginationComponent<TData extends RowData> {
   readonly table = input.required<Table<TData>>();
   readonly pageSizeOptions = input<number[]>([10, 20, 50]);
 
-  readonly currentPage = computed(() => this.table().getState().pagination.pageIndex + 1);
-  readonly totalPages = computed(() => Math.max(1, this.table().getPageCount()));
-  readonly pageSizeString = computed(() => this.table().getState().pagination.pageSize.toString());
+  readonly currentPage = computed(
+    () => this.table().getState().pagination.pageIndex + 1
+  );
+  readonly totalPages = computed(() =>
+    Math.max(1, this.table().getPageCount())
+  );
+  readonly pageSizeString = computed(() =>
+    this.table().getState().pagination.pageSize.toString()
+  );
 
   readonly displaySizeFn = String;
   readonly valueSizeFn = String;

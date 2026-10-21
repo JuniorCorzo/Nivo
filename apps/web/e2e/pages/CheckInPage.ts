@@ -41,9 +41,11 @@ export class CheckInPage {
       .filter({ hasText: "Automóvil" });
     this.checkInModal = page.locator("app-check-in-modal");
     this.checkOutModal = page.locator("app-check-out-modal");
-    this.checkoutSubmitButton = page.locator("app-check-out-modal").getByRole("button", {
-      name: /Cobrar y Registrar Salida|Autorizar Salida Gratuita/iu,
-    });
+    this.checkoutSubmitButton = page
+      .locator("app-check-out-modal")
+      .getByRole("button", {
+        name: /Cobrar y Registrar Salida|Autorizar Salida Gratuita/iu,
+      });
     this.closeReceiptButton = page
       .locator("app-ticket-receipt")
       .getByRole("button", { name: /Cerrar/iu });

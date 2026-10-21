@@ -138,7 +138,15 @@
   {
     "id": 2,
     "department": "Arauca",
-    "cities": ["Arauca", "Arauquita", "Cravo Norte", "Fortul", "Puerto Rondón", "Saravena", "Tame"]
+    "cities": [
+      "Arauca",
+      "Arauquita",
+      "Cravo Norte",
+      "Fortul",
+      "Puerto Rondón",
+      "Saravena",
+      "Tame"
+    ]
   },
   {
     "id": 3,

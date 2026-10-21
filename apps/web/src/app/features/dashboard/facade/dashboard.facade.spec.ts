@@ -43,7 +43,7 @@ describe("DashboardFacade", () => {
           page: 0,
           totalElements: 0,
           totalPages: 1,
-        }),
+        })
       ),
       getParkingsComparison: vi.fn().mockReturnValue(of([])),
       getSummary: vi.fn().mockReturnValue(
@@ -54,7 +54,7 @@ describe("DashboardFacade", () => {
           scope: "GLOBAL",
           todayRevenue: 100_000,
           totalCapacity: 100,
-        }),
+        })
       ),
       setCache: vi.fn(),
     };
@@ -166,7 +166,7 @@ describe("DashboardFacade", () => {
           hourBucket: "2026-09-26T10:00:00Z",
           totalCapacity: 100,
         },
-      ]),
+      ])
     );
 
     facade.loadHourlyOccupancy();
@@ -188,14 +188,14 @@ describe("DashboardFacade", () => {
           todayRevenue: 100_000,
           totalSlots: 100,
         },
-      ]),
+      ])
     );
 
     facade.loadParkingsComparison();
 
     expect(apiServiceMock.getParkingsComparison).toHaveBeenCalledWith(
       expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/u),
-      expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/u),
+      expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/u)
     );
     expect(facade.parkingsComparison().length).toBe(1);
   });
@@ -216,12 +216,15 @@ describe("DashboardFacade", () => {
         page: 0,
         totalElements: 1,
         totalPages: 1,
-      }),
+      })
     );
 
     facade.loadReports(0);
 
-    expect(apiServiceMock.getOperationalReport).toHaveBeenCalledWith(0, undefined);
+    expect(apiServiceMock.getOperationalReport).toHaveBeenCalledWith(
+      0,
+      undefined
+    );
     expect(facade.reports().length).toBe(1);
     expect(facade.reports()[0]?.licensePlate).toBe("XYZ-789");
   });
@@ -231,7 +234,9 @@ describe("DashboardFacade", () => {
       expect(blob.type).toBe("text/csv");
     });
 
-    expect(apiServiceMock.exportOperationalReportCsv).toHaveBeenCalledWith(undefined);
+    expect(apiServiceMock.exportOperationalReportCsv).toHaveBeenCalledWith(
+      undefined
+    );
   });
 
   it("debe delegar conexión SSE hacia DashboardSseService", async () => {
@@ -268,7 +273,7 @@ describe("DashboardFacade", () => {
     expect(todayRange.startLocalDate).toMatch(/^\d{4}-\d{2}-\d{2}$/u);
     expect(todayRange.endLocalDate).toMatch(/^\d{4}-\d{2}-\d{2}$/u);
     expect(new Date(todayRange.startDate).getTime()).toBeLessThanOrEqual(
-      new Date(todayRange.endDate).getTime(),
+      new Date(todayRange.endDate).getTime()
     );
 
     // Determinismo: llamadas repetidas deben devolver exactamente los mismos límites
@@ -282,7 +287,8 @@ describe("DashboardFacade", () => {
     expect(sevenDaysRange.startLocalDate).toMatch(/^\d{4}-\d{2}-\d{2}$/u);
     expect(sevenDaysRange.endLocalDate).toMatch(/^\d{4}-\d{2}-\d{2}$/u);
     const sevenDaysDiffDays =
-      (new Date(sevenDaysRange.endDate).getTime() - new Date(sevenDaysRange.startDate).getTime()) /
+      (new Date(sevenDaysRange.endDate).getTime() -
+        new Date(sevenDaysRange.startDate).getTime()) /
       (24 * 60 * 60 * 1000);
     expect(Math.round(sevenDaysDiffDays)).toBe(8);
 
@@ -308,11 +314,11 @@ describe("DashboardFacade", () => {
     expect(apiServiceMock.getHourlyOccupancy).toHaveBeenCalledWith(
       undefined,
       expect.any(String),
-      expect.any(String),
+      expect.any(String)
     );
     expect(apiServiceMock.getParkingsComparison).toHaveBeenCalledWith(
       expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/u),
-      expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/u),
+      expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/u)
     );
   });
 
@@ -325,20 +331,26 @@ describe("DashboardFacade", () => {
     expect(apiServiceMock.getHourlyOccupancy).toHaveBeenCalledWith(
       undefined,
       expect.any(String),
-      expect.any(String),
+      expect.any(String)
     );
     expect(apiServiceMock.getParkingsComparison).toHaveBeenCalledWith(
       expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/u),
-      expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/u),
+      expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/u)
     );
   });
 
   it("debe pasar fechas en formato YYYY-MM-DD a getParkingsComparison incluso si se proporcionan fechas ISO", () => {
     apiServiceMock.getParkingsComparison.mockClear();
 
-    facade.loadParkingsComparison("2026-10-01T05:00:00.000Z", "2026-10-01T23:59:59.000Z");
+    facade.loadParkingsComparison(
+      "2026-10-01T05:00:00.000Z",
+      "2026-10-01T23:59:59.000Z"
+    );
 
-    expect(apiServiceMock.getParkingsComparison).toHaveBeenCalledWith("2026-10-01", "2026-10-01");
+    expect(apiServiceMock.getParkingsComparison).toHaveBeenCalledWith(
+      "2026-10-01",
+      "2026-10-01"
+    );
   });
 
   it("debe limpiar la caché de DashboardApiService y recargar datos al invocar refreshTelemetry", () => {
@@ -360,7 +372,7 @@ describe("DashboardFacade", () => {
 
     expect(apiServiceMock.setCache).toHaveBeenCalledWith(
       "summary:global",
-      expect.objectContaining({ occupancyRate: 50 }),
+      expect.objectContaining({ occupancyRate: 50 })
     );
   });
 
@@ -417,7 +429,10 @@ describe("DashboardFacade", () => {
     expect(facade.summary()?.occupancyRate).toBe(80);
 
     // Pero la caché sí debe actualizarse para p2
-    expect(apiServiceMock.setCache).toHaveBeenCalledWith("summary:p2", p2Summary);
+    expect(apiServiceMock.setCache).toHaveBeenCalledWith(
+      "summary:p2",
+      p2Summary
+    );
   });
 
   it("no debe sobrescribir summary en ámbito GLOBAL si la actualización SSE es de una sede SINGLE", () => {
@@ -453,6 +468,9 @@ describe("DashboardFacade", () => {
 
     expect(facade.summary()?.scope).toBe("GLOBAL");
     expect(facade.summary()?.occupancyRate).toBe(50);
-    expect(apiServiceMock.setCache).toHaveBeenCalledWith("summary:p1", p1Summary);
+    expect(apiServiceMock.setCache).toHaveBeenCalledWith(
+      "summary:p1",
+      p1Summary
+    );
   });
 });

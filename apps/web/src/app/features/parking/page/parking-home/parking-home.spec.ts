@@ -13,7 +13,9 @@ import { ParkingHome } from "./parking-home";
 describe("ParkingHome Component", () => {
   let component: ParkingHome;
   let fixture: ComponentFixture<ParkingHome>;
-  let mockActiveParkingLotSignal: ReturnType<typeof signal<ParkingLotListItemModel | null>>;
+  let mockActiveParkingLotSignal: ReturnType<
+    typeof signal<ParkingLotListItemModel | null>
+  >;
   let mockFacade: Partial<ParkingHomeFacade>;
 
   const mockLot: ParkingLotListItemModel = {
@@ -37,7 +39,9 @@ describe("ParkingHome Component", () => {
   };
 
   beforeEach(async () => {
-    mockActiveParkingLotSignal = signal<ParkingLotListItemModel | null>(mockLot);
+    mockActiveParkingLotSignal = signal<ParkingLotListItemModel | null>(
+      mockLot
+    );
     mockFacade = {
       activeParkingLot: mockActiveParkingLotSignal,
       availableSlots: signal(18),
@@ -69,7 +73,9 @@ describe("ParkingHome Component", () => {
           provide: ActiveParkingService,
           useValue: {
             activeParkingLot: mockActiveParkingLotSignal,
-            activeParkingName: computed(() => mockActiveParkingLotSignal()?.name ?? ""),
+            activeParkingName: computed(
+              () => mockActiveParkingLotSignal()?.name ?? ""
+            ),
           },
         },
       ],
@@ -108,7 +114,9 @@ describe("ParkingHome Component", () => {
     expect(header.textContent).toContain("Operaciones en vivo");
     expect(header.textContent).toContain("Calle 100 # 15-20, Bogotá");
     expect(header.textContent).not.toContain("Parqueadero Central — Calle 100");
-    const breadcrumb = header.querySelector('[data-testid="page-header-breadcrumb"]');
+    const breadcrumb = header.querySelector(
+      '[data-testid="page-header-breadcrumb"]'
+    );
     expect(breadcrumb).toBeTruthy();
     expect(breadcrumb.textContent).toContain("Home");
   });

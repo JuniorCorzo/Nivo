@@ -33,7 +33,9 @@ describe("SlotAccessibleCellComponent", () => {
     expect(fixture.nativeElement.textContent).not.toContain("PMR");
     const muted = fixture.nativeElement.querySelector("nv-muted");
     expect(muted).toBeTruthy();
-    const icon = fixture.nativeElement.querySelector('ng-icon[name="lucideMinus"]');
+    const icon = fixture.nativeElement.querySelector(
+      'ng-icon[name="lucideMinus"]'
+    );
     expect(icon).toBeTruthy();
   });
 });

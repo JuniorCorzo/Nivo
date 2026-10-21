@@ -37,7 +37,10 @@ describe("coordinates.utils", () => {
     });
 
     it("should support custom separator", () => {
-      const result = formatCoordinates({ latitude: 4.6097, longitude: -74.0817 }, " | ");
+      const result = formatCoordinates(
+        { latitude: 4.6097, longitude: -74.0817 },
+        " | "
+      );
       expect(result).toBe("4,6097 | -74,0817");
     });
 
@@ -51,13 +54,13 @@ describe("coordinates.utils", () => {
         formatCoordinates({
           latitude: Number.NaN,
           longitude: -74.0817,
-        }),
+        })
       ).toBe("");
       expect(
         formatCoordinates({
           latitude: 4.6097,
           longitude: Number.NaN,
-        }),
+        })
       ).toBe("");
     });
   });

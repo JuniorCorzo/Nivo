@@ -8,7 +8,8 @@ export class SlotsSelectionState {
 
   allSelected(filteredSlots: SlotSummary[]): boolean {
     return (
-      filteredSlots.length > 0 && filteredSlots.every((slot) => this.selectedIds().has(slot.id))
+      filteredSlots.length > 0 &&
+      filteredSlots.every((slot) => this.selectedIds().has(slot.id))
     );
   }
 
@@ -29,13 +30,18 @@ export class SlotsSelectionState {
     });
   }
 
-  toggleAll(eventOrChecked: Event | boolean, filteredSlots: SlotSummary[]): void {
+  toggleAll(
+    eventOrChecked: Event | boolean,
+    filteredSlots: SlotSummary[]
+  ): void {
     /* SAFETY: Event target of change event is HTMLInputElement */
     const checked =
       eventOrChecked instanceof Event
         ? Boolean((eventOrChecked.target as HTMLInputElement)?.checked)
         : Boolean(eventOrChecked);
-    this.selectedIds.set(checked ? new Set(filteredSlots.map((slot) => slot.id)) : new Set());
+    this.selectedIds.set(
+      checked ? new Set(filteredSlots.map((slot) => slot.id)) : new Set()
+    );
   }
 
   clear(): void {

@@ -63,11 +63,15 @@ export class DeactivateUserModalComponent {
     if (!target || target.role !== "OWNER") {
       return false;
     }
-    const activeOwners = this.users().filter((u) => u.role === "OWNER" && !u.deletedAt);
+    const activeOwners = this.users().filter(
+      (u) => u.role === "OWNER" && !u.deletedAt
+    );
     return activeOwners.length <= 1;
   });
 
-  readonly canDeactivate = computed(() => !this.isSelfDeactivation() && !this.isSoleOwner());
+  readonly canDeactivate = computed(
+    () => !this.isSelfDeactivation() && !this.isSoleOwner()
+  );
 
   onCancel(event?: Event): void {
     event?.preventDefault();

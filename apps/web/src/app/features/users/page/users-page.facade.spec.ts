@@ -69,7 +69,10 @@ describe("UsersPageFacade", () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [UsersPageFacade, { provide: UserService, useValue: userServiceMock }],
+      providers: [
+        UsersPageFacade,
+        { provide: UserService, useValue: userServiceMock },
+      ],
     });
 
     facade = TestBed.inject(UsersPageFacade);
@@ -90,7 +93,9 @@ describe("UsersPageFacade", () => {
   });
 
   it("should handle error in loadUsers", () => {
-    userServiceMock.listUsers.mockReturnValue(throwError(() => new Error("Network error")));
+    userServiceMock.listUsers.mockReturnValue(
+      throwError(() => new Error("Network error"))
+    );
     facade.loadUsers();
     expect(facade.isLoading()).toBe(false);
   });

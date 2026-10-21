@@ -4,8 +4,14 @@ import type {
   ResponsePaymentsDto,
   ResponsePriceDetailed,
 } from "@core/api/generated/models";
-import { ParkingTicketsService, RatesService } from "@core/api/generated/services";
-import type { CreateTicketPayload, CheckOutPayload } from "@core/models/ticket.model";
+import {
+  ParkingTicketsService,
+  RatesService,
+} from "@core/api/generated/services";
+import type {
+  CreateTicketPayload,
+  CheckOutPayload,
+} from "@core/models/ticket.model";
 import { ParkingService } from "@core/services/parking-service";
 import { firstValueFrom, of, throwError } from "rxjs";
 
@@ -168,10 +174,12 @@ describe("TicketService", () => {
 
     parkingTicketsSpy.getActiveTicket.mockReturnValue(of(mockResponse));
 
-    const result = await firstValueFrom(service.getActiveTicketBySlot("slot-1"));
+    const result = await firstValueFrom(
+      service.getActiveTicketBySlot("slot-1")
+    );
     expect(parkingTicketsSpy.getActiveTicket).toHaveBeenCalledWith(
       { slot: "slot-1" },
-      expect.any(Object),
+      expect.any(Object)
     );
     expect(result.id).toBe("ticket-real-123");
     expect(result.licensePlate).toBe("XYZ789");
@@ -203,10 +211,12 @@ describe("TicketService", () => {
 
     parkingTicketsSpy.listTickets.mockReturnValue(of(mockResponse));
 
-    const result = await firstValueFrom(service.listTicketsByParkingLot("lot-1"));
+    const result = await firstValueFrom(
+      service.listTicketsByParkingLot("lot-1")
+    );
     expect(parkingTicketsSpy.listTickets).toHaveBeenCalledWith(
       { parking: "lot-1" },
-      expect.anything(),
+      expect.anything()
     );
     expect(result.length).toBe(2);
     expect(result[0].id).toBe("ticket-1");
@@ -227,39 +237,41 @@ describe("TicketService", () => {
         of([
           { id: "lot-1", name: "Parqueadero Central" },
           { id: "lot-2", name: "Parqueadero Norte" },
-        ]),
+        ])
       );
 
-      parkingTicketsSpy.listTickets.mockImplementation((params: { parking: string }) => {
-        if (params.parking === "lot-1") {
+      parkingTicketsSpy.listTickets.mockImplementation(
+        (params: { parking: string }) => {
+          if (params.parking === "lot-1") {
+            return of({
+              data: [
+                {
+                  entryTime: "2026-08-27T10:00:00Z",
+                  id: "t-1",
+                  licensePlate: "AAA111",
+                  status: "OPEN",
+                },
+              ],
+            });
+          }
           return of({
             data: [
               {
-                entryTime: "2026-08-27T10:00:00Z",
-                id: "t-1",
-                licensePlate: "AAA111",
+                entryTime: "2026-08-27T14:00:00Z",
+                id: "t-2",
+                licensePlate: "BBB222",
+                status: "CLOSED",
+              },
+              {
+                createdAt: "2026-08-27T08:00:00Z",
+                id: "t-3",
+                licensePlate: "CCC333",
                 status: "OPEN",
               },
             ],
           });
         }
-        return of({
-          data: [
-            {
-              entryTime: "2026-08-27T14:00:00Z",
-              id: "t-2",
-              licensePlate: "BBB222",
-              status: "CLOSED",
-            },
-            {
-              createdAt: "2026-08-27T08:00:00Z",
-              id: "t-3",
-              licensePlate: "CCC333",
-              status: "OPEN",
-            },
-          ],
-        });
-      });
+      );
 
       const result = await firstValueFrom(service.listTicketsByTenant());
 
@@ -285,24 +297,26 @@ describe("TicketService", () => {
         of([
           { id: "lot-1", name: "Parqueadero Central" },
           { id: "lot-broken", name: "Parqueadero Error" },
-        ]),
+        ])
       );
 
-      parkingTicketsSpy.listTickets.mockImplementation((params: { parking: string }) => {
-        if (params.parking === "lot-1") {
-          return of({
-            data: [
-              {
-                entryTime: "2026-08-27T10:00:00Z",
-                id: "t-1",
-                licensePlate: "AAA111",
-                status: "OPEN",
-              },
-            ],
-          });
+      parkingTicketsSpy.listTickets.mockImplementation(
+        (params: { parking: string }) => {
+          if (params.parking === "lot-1") {
+            return of({
+              data: [
+                {
+                  entryTime: "2026-08-27T10:00:00Z",
+                  id: "t-1",
+                  licensePlate: "AAA111",
+                  status: "OPEN",
+                },
+              ],
+            });
+          }
+          return throwError(() => new Error("Network error"));
         }
-        return throwError(() => new Error("Network error"));
-      });
+      );
 
       const result = await firstValueFrom(service.listTicketsByTenant());
 

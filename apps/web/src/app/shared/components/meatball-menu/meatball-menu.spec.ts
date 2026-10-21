@@ -69,7 +69,9 @@ describe("MeatballMenu", () => {
   });
 
   it("should attach cdkOverlayOrigin to an inline-flex wrapper div around nv-button", () => {
-    const wrapper = fixture.nativeElement.querySelector("div[cdkoverlayorigin]");
+    const wrapper = fixture.nativeElement.querySelector(
+      "div[cdkoverlayorigin]"
+    );
     expect(wrapper).toBeTruthy();
     expect(wrapper?.classList.contains("inline-flex")).toBe(true);
     expect(wrapper?.querySelector("nv-button")).toBeTruthy();
@@ -139,7 +141,9 @@ describe("MeatballMenu", () => {
     expect(menu).toBeTruthy();
 
     const menuItems =
-      overlayContainerElement.querySelectorAll<HTMLButtonElement>('[role="menuitem"]');
+      overlayContainerElement.querySelectorAll<HTMLButtonElement>(
+        '[role="menuitem"]'
+      );
     expect(menuItems.length).toBe(2);
     expect(menuItems[0]?.textContent).toContain("Editar");
     expect(menuItems[1]?.textContent).toContain("Eliminar");
@@ -170,7 +174,10 @@ describe("MeatballMenu", () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const itemBtn = overlayContainerElement.querySelector<HTMLButtonElement>('[role="menuitem"]');
+    const itemBtn =
+      overlayContainerElement.querySelector<HTMLButtonElement>(
+        '[role="menuitem"]'
+      );
     expect(itemBtn?.disabled).toBe(true);
 
     itemBtn?.click();
@@ -216,12 +223,15 @@ describe("MeatballMenu", () => {
     await hostFixture.whenStable();
 
     // SAFETY: Host template declares app-meatball-menu as the sole child component
-    const menuComponent = hostFixture.debugElement.children[0].componentInstance as MeatballMenu;
+    const menuComponent = hostFixture.debugElement.children[0]
+      .componentInstance as MeatballMenu;
     menuComponent.open();
     hostFixture.detectChanges();
     await hostFixture.whenStable();
 
-    const projected = overlayContainerElement.querySelector('[data-testid="projected-content"]');
+    const projected = overlayContainerElement.querySelector(
+      '[data-testid="projected-content"]'
+    );
     expect(projected).toBeTruthy();
     expect(projected?.textContent).toContain("Custom Projected Content");
   });

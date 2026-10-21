@@ -7,7 +7,10 @@ import {
   input,
   output,
 } from "@angular/core";
-import type { PriceDetailedModel, TicketSummary } from "@core/models/ticket.model";
+import type {
+  PriceDetailedModel,
+  TicketSummary,
+} from "@core/models/ticket.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideCar,

@@ -117,7 +117,8 @@ describe("CheckInModalComponent", () => {
   it("should apply plate mask directive formatting on plate input", () => {
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
-    const input: HTMLInputElement | null = fixture.nativeElement.querySelector("#plate-input");
+    const input: HTMLInputElement | null =
+      fixture.nativeElement.querySelector("#plate-input");
     expect(input).not.toBeNull();
     if (!input) {
       return;
@@ -133,7 +134,8 @@ describe("CheckInModalComponent", () => {
   it("should auto-detect Venezuelan plate and update facade plate and country", () => {
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
-    const input: HTMLInputElement | null = fixture.nativeElement.querySelector("#plate-input");
+    const input: HTMLInputElement | null =
+      fixture.nativeElement.querySelector("#plate-input");
     expect(input).not.toBeNull();
     if (!input) {
       return;
@@ -150,7 +152,8 @@ describe("CheckInModalComponent", () => {
   it("should auto-detect Colombian plate and update facade plate and country", () => {
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
-    const input: HTMLInputElement | null = fixture.nativeElement.querySelector("#plate-input");
+    const input: HTMLInputElement | null =
+      fixture.nativeElement.querySelector("#plate-input");
     expect(input).not.toBeNull();
     if (!input) {
       return;
@@ -172,7 +175,8 @@ describe("CheckInModalComponent", () => {
     fixture.detectChanges();
 
     expect(component.facade.isUnplated()).toBe(true);
-    const photoCapture = fixture.nativeElement.querySelector("app-photo-capture");
+    const photoCapture =
+      fixture.nativeElement.querySelector("app-photo-capture");
     expect(photoCapture).not.toBeNull();
 
     component.facade.setIsUnplated(false);

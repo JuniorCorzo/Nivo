@@ -20,6 +20,6 @@ export class Sidebar {
     this.breakpointObserver
       .observe(["(max-width: 767.98px)"])
       .pipe(map((result) => result.matches)),
-    { initialValue: false },
+    { initialValue: false }
   );
 }

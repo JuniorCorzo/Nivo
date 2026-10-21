@@ -1,7 +1,11 @@
 import { HttpContext } from "@angular/common/http";
 import { inject, Injectable, signal } from "@angular/core";
 import type { RatesDto, SpecialPoliciesDto } from "@core/api/generated/models";
-import { ParkingLotsService, RatesService, TenantsService } from "@core/api/generated/services";
+import {
+  ParkingLotsService,
+  RatesService,
+  TenantsService,
+} from "@core/api/generated/services";
 import { AUTHORIZED } from "@core/http/context/auth.token";
 import {
   mapToCreateRateDto,
@@ -52,8 +56,8 @@ export class RateService {
           this.ratesState.update((state) => ({
             ...state,
             [parkingId]: rates,
-          })),
-        ),
+          }))
+        )
       );
   }
 
@@ -75,45 +79,51 @@ export class RateService {
               [model.parkingId]: [...current, createdRate],
             };
           });
-        }),
+        })
       );
   }
 
   updateRate(model: UpdateRateModel, parkingId: string): Observable<RateModel> {
     const dto = mapToUpdateRateDto(model);
-    return this.ratesService.updateRate({ body: dto }, RateService.httpContext()).pipe(
-      map((response) => {
-        /* SAFETY: Updated rate response data is defined */
-        const data = response.data as RatesDto;
-        return mapToRateModel(data);
-      }),
-      tap((updatedRate) => {
-        this.ratesState.update((state) => {
-          const current = state[parkingId] ?? [];
-          return {
-            ...state,
-            [parkingId]: current.map((r) => (r.id === updatedRate.id ? updatedRate : r)),
-          };
-        });
-      }),
-    );
+    return this.ratesService
+      .updateRate({ body: dto }, RateService.httpContext())
+      .pipe(
+        map((response) => {
+          /* SAFETY: Updated rate response data is defined */
+          const data = response.data as RatesDto;
+          return mapToRateModel(data);
+        }),
+        tap((updatedRate) => {
+          this.ratesState.update((state) => {
+            const current = state[parkingId] ?? [];
+            return {
+              ...state,
+              [parkingId]: current.map((r) =>
+                r.id === updatedRate.id ? updatedRate : r
+              ),
+            };
+          });
+        })
+      );
   }
 
   deleteRate(rateId: string, parkingId: string): Observable<void> {
-    return this.ratesService.deleteRate({ id: rateId }, RateService.httpContext()).pipe(
-      map(() => {
-        // void return
-      }),
-      tap(() => {
-        this.ratesState.update((state) => {
-          const current = state[parkingId] ?? [];
-          return {
-            ...state,
-            [parkingId]: current.filter((r) => r.id !== rateId),
-          };
-        });
-      }),
-    );
+    return this.ratesService
+      .deleteRate({ id: rateId }, RateService.httpContext())
+      .pipe(
+        map(() => {
+          // void return
+        }),
+        tap(() => {
+          this.ratesState.update((state) => {
+            const current = state[parkingId] ?? [];
+            return {
+              ...state,
+              [parkingId]: current.filter((r) => r.id !== rateId),
+            };
+          });
+        })
+      );
   }
 
   loadSpecialPolicies(): Observable<SpecialPolicyModel[]> {
@@ -127,7 +137,7 @@ export class RateService {
             .map((item) => mapToSpecialPolicyModel(item))
             .filter((p): p is SpecialPolicyModel => !!p);
         }),
-        tap((policies) => this.specialPoliciesState.set(policies)),
+        tap((policies) => this.specialPoliciesState.set(policies))
       );
   }
 
@@ -155,7 +165,9 @@ export class RateService {
       if (specialPolicy.operation === "PERCENTAGE") {
         const factor = specialPolicy.valueToModify / 100;
         discountOrSurcharge =
-          specialPolicy.modifies === "DISCOUNT" ? -(subtotal * factor) : subtotal * factor;
+          specialPolicy.modifies === "DISCOUNT"
+            ? -(subtotal * factor)
+            : subtotal * factor;
       } else if (specialPolicy.operation === "SUBTRACT") {
         discountOrSurcharge = -specialPolicy.valueToModify;
       } else {

@@ -36,7 +36,9 @@
 
   <div class="flex flex-wrap items-center justify-between gap-2">
     <div class="flex flex-wrap items-center gap-2">
-      <nv-muted class="text-muted-foreground text-xs font-medium">Filtros rápidos:</nv-muted>
+      <nv-muted class="text-muted-foreground text-xs font-medium"
+        >Filtros rápidos:</nv-muted
+      >
       <nv-button
         size="sm"
         [variant]="isAccessibleFilter() ? 'secondary' : 'outline'"
@@ -54,6 +56,8 @@
         <ng-icon name="lucidePlugZap2" size="16"></ng-icon>
       </nv-button>
     </div>
-    <nv-button variant="ghost" size="sm" (click)="clearFilters.emit()"> Limpiar filtros </nv-button>
+    <nv-button variant="ghost" size="sm" (click)="clearFilters.emit()">
+      Limpiar filtros
+    </nv-button>
   </div>
 </div>

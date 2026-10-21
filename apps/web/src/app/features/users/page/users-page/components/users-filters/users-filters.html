@@ -1,5 +1,7 @@
 <nv-card>
-  <nv-card-content class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+  <nv-card-content
+    class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"
+  >
     <div class="w-full sm:max-w-md">
       <nv-input
         [placeholder]="texts.searchPlaceholder"
@@ -11,14 +13,14 @@
 
     <div class="flex flex-wrap items-center gap-1.5">
       @for (filter of roleFilters(); track filter.value) {
-        <nv-button
-          type="button"
-          size="sm"
-          [variant]="selectedRole() === filter.value ? 'default' : 'outline'"
-          (click)="onRoleClick(filter.value)"
-        >
-          {{ filter.label }}
-        </nv-button>
+      <nv-button
+        type="button"
+        size="sm"
+        [variant]="selectedRole() === filter.value ? 'default' : 'outline'"
+        (click)="onRoleClick(filter.value)"
+      >
+        {{ filter.label }}
+      </nv-button>
       }
     </div>
   </nv-card-content>

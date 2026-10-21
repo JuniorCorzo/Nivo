@@ -43,7 +43,10 @@ describe("ParkingComparisonChartComponent", () => {
     ]);
     fixture.detectChanges();
     expect(component.chartInstance).toBeDefined();
-    expect(component.chartInstance?.data.labels).toEqual(["Sede Centro", "Sede Norte"]);
+    expect(component.chartInstance?.data.labels).toEqual([
+      "Sede Centro",
+      "Sede Norte",
+    ]);
   });
 
   it("debe configurar dataset y tooltip con formato detallado de plazas", () => {
@@ -73,7 +76,8 @@ describe("ParkingComparisonChartComponent", () => {
     expect(dataset?.categoryPercentage).toBe(0.85);
     expect(dataset?.borderRadius).toBe(4);
 
-    const tooltipCallback = component.chartInstance?.options.plugins?.tooltip?.callbacks?.label;
+    const tooltipCallback =
+      component.chartInstance?.options.plugins?.tooltip?.callbacks?.label;
     /* SAFETY: Mock TooltipItem context containing dataIndex and parsed coordinates for testing label */
     const mockContext = {
       dataIndex: 0,
@@ -112,7 +116,9 @@ describe("ParkingComparisonChartComponent", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('[data-testid="facility-cards-ranking"]')).toBeTruthy();
+    expect(
+      compiled.querySelector('[data-testid="facility-cards-ranking"]')
+    ).toBeTruthy();
     expect(compiled.textContent).toContain("Sede Poblado");
     expect(compiled.textContent).toContain("92.0% CRÍTICO");
     expect(compiled.textContent).toContain("Sede Chapinero");
@@ -140,7 +146,7 @@ describe("ParkingComparisonChartComponent", () => {
 
     /* SAFETY: Card query returns an HTMLElement */
     const card = fixture.nativeElement.querySelector(
-      '[data-testid="facility-card-p1"]',
+      '[data-testid="facility-card-p1"]'
     ) as HTMLElement;
     card.click();
     expect(selectedId).toBe("p1");
@@ -152,7 +158,9 @@ describe("ParkingComparisonChartComponent", () => {
     expect(component.chartInstance).toBeNull();
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain("No hay datos disponibles para la comparativa de sedes");
+    expect(compiled.textContent).toContain(
+      "No hay datos disponibles para la comparativa de sedes"
+    );
   });
 
   it("al hacer click en una barra debe emitir evento parkingSelected con el parkingId correspondiente", () => {

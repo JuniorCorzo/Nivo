@@ -1,5 +1,11 @@
 import type { OnDestroy, OnInit } from "@angular/core";
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+} from "@angular/core";
 import { ParkingService } from "@core/services/parking-service";
 import type { PageHeaderBreadcrumbItem } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
@@ -43,7 +49,9 @@ export class DashboardPage implements OnInit, OnDestroy {
   readonly kpiSectionTitle = computed(() => {
     const scope = this.facade.activeScope();
     if (scope.mode === "SINGLE" && scope.parkingId) {
-      const parking = this.facade.accessibleParkings().find((p) => p.id === scope.parkingId);
+      const parking = this.facade
+        .accessibleParkings()
+        .find((p) => p.id === scope.parkingId);
       if (parking) {
         return parking.name;
       }
@@ -53,7 +61,9 @@ export class DashboardPage implements OnInit, OnDestroy {
   });
 
   readonly chartTitle = computed(() =>
-    this.timeGranularity() === "today" ? this.texts.chart.titleHourly : this.texts.chart.titleDaily,
+    this.timeGranularity() === "today"
+      ? this.texts.chart.titleHourly
+      : this.texts.chart.titleDaily
   );
 
   readonly chartSubtitle = computed(() => {
@@ -71,7 +81,9 @@ export class DashboardPage implements OnInit, OnDestroy {
     effect(() => {
       const lots = this.parkingService?.parkingLots() ?? [];
       if (lots.length > 0 && this.facade.accessibleParkings().length === 0) {
-        this.facade.accessibleParkings.set(lots.map((l) => ({ id: l.id, name: l.name })));
+        this.facade.accessibleParkings.set(
+          lots.map((l) => ({ id: l.id, name: l.name }))
+        );
       }
     });
   }
@@ -92,7 +104,10 @@ export class DashboardPage implements OnInit, OnDestroy {
     this.facade.setTimeGranularity(granularity);
   }
 
-  onScopeChange(scope: { mode: "GLOBAL" | "SINGLE"; parkingId?: string }): void {
+  onScopeChange(scope: {
+    mode: "GLOBAL" | "SINGLE";
+    parkingId?: string;
+  }): void {
     this.facade.setScope(scope.mode, scope.parkingId);
   }
 

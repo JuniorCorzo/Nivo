@@ -8,12 +8,12 @@ export interface RawErrorPayload {
 }
 
 export const isResponseError = (
-  response: RawErrorPayload | null | undefined,
+  response: RawErrorPayload | null | undefined
 ): response is ResponseErrorModel =>
   Boolean(
     response &&
     typeof response === "object" &&
     "error" in response &&
     "status" in response &&
-    "code" in response,
+    "code" in response
   );

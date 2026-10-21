@@ -16,43 +16,51 @@
 >
   <img [src]="userProfileImage()" alt="" class="size-8 shrink-0 rounded-full" />
   @if (!collapsed()) {
-    <span class="flex min-w-0 flex-1 flex-col overflow-hidden">
-      <span class="truncate text-sm font-medium">{{ name }}</span>
-      <span class="text-muted-foreground truncate text-xs">{{ email }}</span>
-    </span>
-    <ng-icon name="lucideChevronsUpDown" size="16" class="text-muted-foreground shrink-0" />
+  <span class="flex min-w-0 flex-1 flex-col overflow-hidden">
+    <span class="truncate text-sm font-medium">{{ name }}</span>
+    <span class="text-muted-foreground truncate text-xs">{{ email }}</span>
+  </span>
+  <ng-icon
+    name="lucideChevronsUpDown"
+    size="16"
+    class="text-muted-foreground shrink-0"
+  />
   }
 </button>
 
 @if (isOpen()) {
-  <ng-template
-    cdkConnectedOverlay
-    [cdkConnectedOverlayOrigin]="origin"
-    [cdkConnectedOverlayOpen]="true"
-    [cdkConnectedOverlayPositions]="overlayPositions"
-    (overlayOutsideClick)="close()"
-    (detach)="close()"
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="origin"
+  [cdkConnectedOverlayOpen]="true"
+  [cdkConnectedOverlayPositions]="overlayPositions"
+  (overlayOutsideClick)="close()"
+  (detach)="close()"
+>
+  <div
+    role="menu"
+    class="border-border bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 z-50 w-64 max-w-52 rounded-xl border p-2 shadow-lg"
   >
-    <div
-      role="menu"
-      class="border-border bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 z-50 w-64 max-w-52 rounded-xl border p-2 shadow-lg"
-    >
-      <div class="flex items-center gap-3 p-2">
-        <img [src]="userProfileImage()" alt="" class="size-9 shrink-0 rounded-full" />
-        <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <span class="text-foreground truncate text-sm font-semibold">
-            {{ name }}
-          </span>
-          <nv-muted class="truncate text-xs"> {{ email }} </nv-muted>
-        </div>
-      </div>
-
-      <nv-divider class="my-1.5" />
-
-      <div class="flex flex-col gap-1">
-        <app-theme-button [collapsed]="false" />
-        <app-logout-button [collapsed]="false" (click)="close()" />
+    <div class="flex items-center gap-3 p-2">
+      <img
+        [src]="userProfileImage()"
+        alt=""
+        class="size-9 shrink-0 rounded-full"
+      />
+      <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <span class="text-foreground truncate text-sm font-semibold">
+          {{ name }}
+        </span>
+        <nv-muted class="truncate text-xs"> {{ email }} </nv-muted>
       </div>
     </div>
-  </ng-template>
+
+    <nv-divider class="my-1.5" />
+
+    <div class="flex flex-col gap-1">
+      <app-theme-button [collapsed]="false" />
+      <app-logout-button [collapsed]="false" (click)="close()" />
+    </div>
+  </div>
+</ng-template>
 }

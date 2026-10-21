@@ -1,8 +1,20 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
-import type { SlotDistribution, SlotType } from "@core/type/slot-distribution.type";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
+import type {
+  SlotDistribution,
+  SlotType,
+} from "@core/type/slot-distribution.type";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucidePlus, lucideTrash2, lucideLayers } from "@ng-icons/lucide";
-import { SelectComponent, TypographyH3, TypographyMuted } from "@nivo-sass/design-system";
+import {
+  SelectComponent,
+  TypographyH3,
+  TypographyMuted,
+} from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 interface SlotTypeOption {
@@ -53,9 +65,15 @@ interface SlotTypeOption {
 
     <div class="mt-1 flex flex-col gap-3.5">
       @for (slot of slots(); track $index) {
-        <div class="border-border bg-muted/40 rounded-xl border p-4 transition-all">
-          <div class="border-border flex items-center justify-between gap-3 border-b pb-3">
-            <span class="text-foreground text-xs font-bold tracking-wider uppercase">
+        <div
+          class="border-border bg-muted/40 rounded-xl border p-4 transition-all"
+        >
+          <div
+            class="border-border flex items-center justify-between gap-3 border-b pb-3"
+          >
+            <span
+              class="text-foreground text-xs font-bold tracking-wider uppercase"
+            >
               {{ APP_TEXTS.parking.form.fields.slots.itemLabel }}
               {{ $index + 1 }}
             </span>
@@ -65,53 +83,79 @@ interface SlotTypeOption {
               class="text-destructive inline-flex cursor-pointer items-center gap-1 text-xs font-medium transition-colors hover:opacity-80"
             >
               <ng-icon name="lucideTrash2" size="13" />
-              <span>{{ APP_TEXTS.parking.form.fields.slots.actions.remove }}</span>
+              <span>{{
+                APP_TEXTS.parking.form.fields.slots.actions.remove
+              }}</span>
             </button>
           </div>
 
-          <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
-            <label class="text-muted-foreground flex flex-col gap-1 text-xs font-medium">
-              <span>{{ APP_TEXTS.parking.form.fields.slots.prefix.label }}</span>
+          <div
+            class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4"
+          >
+            <label
+              class="text-muted-foreground flex flex-col gap-1 text-xs font-medium"
+            >
+              <span>{{
+                APP_TEXTS.parking.form.fields.slots.prefix.label
+              }}</span>
               <input
                 class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-lg border px-3 py-2 text-xs font-medium focus:outline-hidden"
                 type="text"
                 [value]="slot.prefix"
-                [placeholder]="APP_TEXTS.parking.form.fields.slots.prefix.placeholder"
-                (input)="emitSlotChange($index, 'prefix', $any($event.target).value)"
+                [placeholder]="
+                  APP_TEXTS.parking.form.fields.slots.prefix.placeholder
+                "
+                (input)="
+                  emitSlotChange($index, 'prefix', $any($event.target).value)
+                "
               />
             </label>
 
-            <label class="text-muted-foreground flex flex-col gap-1 text-xs font-medium">
+            <label
+              class="text-muted-foreground flex flex-col gap-1 text-xs font-medium"
+            >
               <span>{{ APP_TEXTS.parking.form.fields.slots.zone.label }}</span>
               <input
                 class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-lg border px-3 py-2 text-xs font-medium focus:outline-hidden"
                 type="text"
                 [value]="slot.zone"
-                [placeholder]="APP_TEXTS.parking.form.fields.slots.zone.placeholder"
-                (input)="emitSlotChange($index, 'zone', $any($event.target).value)"
+                [placeholder]="
+                  APP_TEXTS.parking.form.fields.slots.zone.placeholder
+                "
+                (input)="
+                  emitSlotChange($index, 'zone', $any($event.target).value)
+                "
               />
             </label>
 
-            <label class="text-muted-foreground flex flex-col gap-1 text-xs font-medium">
+            <label
+              class="text-muted-foreground flex flex-col gap-1 text-xs font-medium"
+            >
               <span>{{ APP_TEXTS.parking.form.fields.slots.type.label }}</span>
               <nv-select
                 [items]="slotTypeOptions()"
                 [displayFn]="displaySlotTypeFn"
                 [valueFn]="valueSlotTypeFn"
                 [value]="slot.type"
-                [placeholder]="APP_TEXTS.parking.form.fields.slots.type.placeholder"
+                [placeholder]="
+                  APP_TEXTS.parking.form.fields.slots.type.placeholder
+                "
                 (valueChange)="emitSlotChange($index, 'type', $any($event))"
               />
             </label>
 
-            <label class="text-muted-foreground flex flex-col gap-1 text-xs font-medium">
+            <label
+              class="text-muted-foreground flex flex-col gap-1 text-xs font-medium"
+            >
               <span>{{ APP_TEXTS.parking.form.fields.slots.count.label }}</span>
               <input
                 class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-lg border px-3 py-2 font-mono text-xs font-medium focus:outline-hidden"
                 type="number"
                 min="0"
                 [value]="slot.count"
-                [placeholder]="APP_TEXTS.parking.form.fields.slots.count.placeholder"
+                [placeholder]="
+                  APP_TEXTS.parking.form.fields.slots.count.placeholder
+                "
                 (input)="emitSlotCountChange($index, $event)"
               />
             </label>
@@ -143,13 +187,14 @@ export class ParkingSlotGroupsSectionComponent {
     return item.value;
   }
 
-  readonly displaySlotTypeFn = ParkingSlotGroupsSectionComponent.displaySlotTypeFn;
+  readonly displaySlotTypeFn =
+    ParkingSlotGroupsSectionComponent.displaySlotTypeFn;
   readonly valueSlotTypeFn = ParkingSlotGroupsSectionComponent.valueSlotTypeFn;
 
   emitSlotChange<K extends keyof SlotDistribution>(
     index: number,
     field: K,
-    value: SlotDistribution[K],
+    value: SlotDistribution[K]
   ): void {
     this.slotChange.emit({ field, index, value });
   }

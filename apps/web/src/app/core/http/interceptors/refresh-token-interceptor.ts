@@ -6,7 +6,15 @@ import type {
 } from "@angular/common/http";
 import { inject } from "@angular/core";
 import { AuthService } from "@core/services/auth-service";
-import { BehaviorSubject, catchError, filter, mergeMap, switchMap, take, throwError } from "rxjs";
+import {
+  BehaviorSubject,
+  catchError,
+  filter,
+  mergeMap,
+  switchMap,
+  take,
+  throwError,
+} from "rxjs";
 
 import { AUTHORIZED } from "../context/auth.token";
 
@@ -25,7 +33,11 @@ const withToken = (req: HttpRequest<unknown>, token: string) =>
     },
   });
 
-const refreshToken = (req: HttpRequest<unknown>, next: HttpHandlerFn, authService: AuthService) => {
+const refreshToken = (
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+  authService: AuthService
+) => {
   isRefresh = true;
   newToken$.next(null);
 
@@ -42,14 +54,14 @@ const refreshToken = (req: HttpRequest<unknown>, next: HttpHandlerFn, authServic
       authService.logout();
 
       return throwError(() => failure);
-    }),
+    })
   );
 };
 
 const handleUnauthorized = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
-  authService: AuthService,
+  authService: AuthService
 ) => {
   if (!isRefresh) {
     return refreshToken(req, next, authService);
@@ -58,7 +70,7 @@ const handleUnauthorized = (
   return newToken$.pipe(
     filter((token): token is string => token !== null),
     take(1),
-    mergeMap((token) => next(withToken(req, token))),
+    mergeMap((token) => next(withToken(req, token)))
   );
 };
 
@@ -75,6 +87,6 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       return handleUnauthorized(req, next, authService);
-    }),
+    })
   );
 };

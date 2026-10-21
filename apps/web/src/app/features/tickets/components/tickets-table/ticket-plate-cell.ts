@@ -4,7 +4,9 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-ticket-plate-cell",
   standalone: true,
-  template: ` <span class="text-foreground font-mono font-bold">{{ plate() }}</span> `,
+  template: `
+    <span class="text-foreground font-mono font-bold">{{ plate() }}</span>
+  `,
 })
 export class TicketPlateCellComponent {
   readonly plate = input.required<string>();

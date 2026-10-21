@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideTrash2 } from "@ng-icons/lucide";
 import { ButtonComponent } from "@nivo-sass/design-system";

@@ -1,4 +1,7 @@
-import type { CreatedSlots, SlotDistributionResponse } from "@core/api/generated/models";
+import type {
+  CreatedSlots,
+  SlotDistributionResponse,
+} from "@core/api/generated/models";
 import type { ParkingLotListItemResponse } from "@core/api/generated/models/parking-lot-list-item-response";
 import type { ParkingLotsResponse } from "@core/api/generated/models/parking-lots-response";
 import type { UpsertParkingLotsRequest } from "@core/api/generated/models/upsert-parking-lots-request";
@@ -7,9 +10,14 @@ import type {
   ParkingLotsModel,
   UpsertParkingLotsModel,
 } from "@core/models/parking.model";
-import type { SlotDistribution, SlotType } from "@core/type/slot-distribution.type";
+import type {
+  SlotDistribution,
+  SlotType,
+} from "@core/type/slot-distribution.type";
 
-const mapToSlotDistributionModel = (response: SlotDistributionResponse): SlotDistribution => {
+const mapToSlotDistributionModel = (
+  response: SlotDistributionResponse
+): SlotDistribution => {
   /* SAFETY: Backend returns valid SlotType string value corresponding to the enum */
   const type = response.type as SlotType;
   return { ...response, type };
@@ -22,7 +30,9 @@ const mapToCreatedSlot = (model: SlotDistribution): CreatedSlots => ({
   zone: model.zone,
 });
 
-export const mapToParkingLotsModel = (response: ParkingLotsResponse): ParkingLotsModel => ({
+export const mapToParkingLotsModel = (
+  response: ParkingLotsResponse
+): ParkingLotsModel => ({
   address: response.address,
   coordinates: response.coordinates,
   createdAt: new Date(response.createdAt),
@@ -40,7 +50,7 @@ export const mapToParkingLotsModel = (response: ParkingLotsResponse): ParkingLot
 });
 
 export const mapToParkingLotListItemModel = (
-  response: ParkingLotListItemResponse,
+  response: ParkingLotListItemResponse
 ): ParkingLotListItemModel => ({
   address: response.address,
   coordinates: response.coordinates,
@@ -54,13 +64,15 @@ export const mapToParkingLotListItemModel = (
   occuppationRate: response.occuppationRate,
   operatingHours: response.operatingHours,
   ownerName: response.ownerName,
-  slotDistribution: response.slotDistribution.map((slot) => mapToSlotDistributionModel(slot)),
+  slotDistribution: response.slotDistribution.map((slot) =>
+    mapToSlotDistributionModel(slot)
+  ),
   totalCapacity: response.totalCapacity,
   updatedAt: response.updatedAt,
 });
 
 export const mapListItemToUpsertParkingLotsModel = (
-  model: ParkingLotListItemModel,
+  model: ParkingLotListItemModel
 ): UpsertParkingLotsModel => ({
   address: {
     ...model.address,
@@ -87,7 +99,7 @@ export const mapListItemToUpsertParkingLotsModel = (
 });
 
 export const mapToUpsertParkingLotsRequest = (
-  model: UpsertParkingLotsModel,
+  model: UpsertParkingLotsModel
 ): UpsertParkingLotsRequest => ({
   address: model.address,
   coordinates: model.coordinates,

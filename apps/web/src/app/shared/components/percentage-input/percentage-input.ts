@@ -45,12 +45,16 @@ export class PercentageInputComponent implements ControlValueAccessor {
   readonly id = input<string>("percentage-input");
   readonly label = input<string>("Tasa IVA (%)");
   readonly placeholder = input<string>("19");
-  readonly error = input<string | ValidationError.WithFieldTree[] | undefined>();
+  readonly error = input<
+    string | ValidationError.WithFieldTree[] | undefined
+  >();
 
   readonly percentage = signal<number>(0);
   readonly disabled = signal<boolean>(false);
 
-  readonly normalizedError = computed<ValidationError.WithFieldTree[] | undefined>(() => {
+  readonly normalizedError = computed<
+    ValidationError.WithFieldTree[] | undefined
+  >(() => {
     const err = this.error();
     if (typeof err === "string") {
       return [{ message: err } as ValidationError.WithFieldTree];

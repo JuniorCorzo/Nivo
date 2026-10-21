@@ -62,15 +62,21 @@ describe("percentage.utils", () => {
     });
 
     it("should perform lossless roundtrips", () => {
-      expect(PercentageConverter.rateToPercentage(PercentageConverter.percentageToRate(19))).toBe(
-        19,
-      );
-      expect(PercentageConverter.percentageToRate(PercentageConverter.rateToPercentage(0.19))).toBe(
-        0.19,
-      );
-      expect(PercentageConverter.rateToPercentage(PercentageConverter.percentageToRate(16.5))).toBe(
-        16.5,
-      );
+      expect(
+        PercentageConverter.rateToPercentage(
+          PercentageConverter.percentageToRate(19)
+        )
+      ).toBe(19);
+      expect(
+        PercentageConverter.percentageToRate(
+          PercentageConverter.rateToPercentage(0.19)
+        )
+      ).toBe(0.19);
+      expect(
+        PercentageConverter.rateToPercentage(
+          PercentageConverter.percentageToRate(16.5)
+        )
+      ).toBe(16.5);
     });
   });
 

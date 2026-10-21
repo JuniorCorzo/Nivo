@@ -66,7 +66,9 @@ describe("ParkingPolicySectionComponent", () => {
   });
 
   it("should render duration-input for grace period with initial form values", () => {
-    const durationInput = fixture.debugElement.query(By.directive(DurationInputComponent));
+    const durationInput = fixture.debugElement.query(
+      By.directive(DurationInputComponent)
+    );
     expect(durationInput).toBeTruthy();
     expect(durationInput.componentInstance.label()).toBe("Tiempo de gracia");
     expect(durationInput.componentInstance.amount()).toBe(15);
@@ -74,8 +76,11 @@ describe("ParkingPolicySectionComponent", () => {
   });
 
   it("should propagate duration input updates back to signal form model", () => {
-    const durationInput = fixture.debugElement.query(By.directive(DurationInputComponent));
-    const durationComp: DurationInputComponent = durationInput.componentInstance;
+    const durationInput = fixture.debugElement.query(
+      By.directive(DurationInputComponent)
+    );
+    const durationComp: DurationInputComponent =
+      durationInput.componentInstance;
 
     durationComp.onUnitChange("HOURS");
     durationComp.onAmountChange(2);
@@ -85,8 +90,11 @@ describe("ParkingPolicySectionComponent", () => {
   });
 
   it("should propagate validation errors to duration-input when field is invalid and touched", () => {
-    const durationInput = fixture.debugElement.query(By.directive(DurationInputComponent));
-    const durationComp: DurationInputComponent = durationInput.componentInstance;
+    const durationInput = fixture.debugElement.query(
+      By.directive(DurationInputComponent)
+    );
+    const durationComp: DurationInputComponent =
+      durationInput.componentInstance;
 
     expect(durationComp.error()).toEqual([]);
 
@@ -103,15 +111,20 @@ describe("ParkingPolicySectionComponent", () => {
   });
 
   it("should render percentage-input for IVA rate with initial form values", () => {
-    const percentageInput = fixture.debugElement.query(By.directive(PercentageInputComponent));
+    const percentageInput = fixture.debugElement.query(
+      By.directive(PercentageInputComponent)
+    );
     expect(percentageInput).toBeTruthy();
     expect(percentageInput.componentInstance.label()).toBe("Tasa IVA (%)");
     expect(percentageInput.componentInstance.percentage()).toBe(19);
   });
 
   it("should propagate percentage input updates back to signal form model as decimal rate", () => {
-    const percentageInput = fixture.debugElement.query(By.directive(PercentageInputComponent));
-    const inputEl: HTMLInputElement = percentageInput.nativeElement.querySelector("input");
+    const percentageInput = fixture.debugElement.query(
+      By.directive(PercentageInputComponent)
+    );
+    const inputEl: HTMLInputElement =
+      percentageInput.nativeElement.querySelector("input");
 
     inputEl.value = "16";
     inputEl.dispatchEvent(new Event("input", { bubbles: true }));
@@ -121,8 +134,11 @@ describe("ParkingPolicySectionComponent", () => {
   });
 
   it("should propagate validation errors to percentage-input when field is invalid and touched", () => {
-    const percentageInput = fixture.debugElement.query(By.directive(PercentageInputComponent));
-    const percentageComp: PercentageInputComponent = percentageInput.componentInstance;
+    const percentageInput = fixture.debugElement.query(
+      By.directive(PercentageInputComponent)
+    );
+    const percentageComp: PercentageInputComponent =
+      percentageInput.componentInstance;
 
     expect(percentageComp.error()).toEqual([]);
 

@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+} from "@angular/core";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import { ParkingService } from "@core/services/parking-service";
 import {
@@ -34,7 +39,11 @@ import { parkingLotsColumnDefinition } from "./column-definition";
 })
 export class ParkingTable {
   private readonly rightAlignedColumnIds = new Set<string>();
-  private readonly truncateColumnIds = new Set(["name", "address", "ownerName"]);
+  private readonly truncateColumnIds = new Set([
+    "name",
+    "address",
+    "ownerName",
+  ]);
 
   readonly searchQuery = input<string>("");
 
@@ -52,7 +61,7 @@ export class ParkingTable {
 
   protected static shouldRenderHeader(
     header: { isPlaceholder: boolean; column: { parent?: unknown } },
-    headerGroupDepth: number,
+    headerGroupDepth: number
   ): boolean {
     if (headerGroupDepth === 0) {
       return true;
@@ -63,7 +72,10 @@ export class ParkingTable {
 
   protected readonly shouldRenderHeader = ParkingTable.shouldRenderHeader;
 
-  protected rowSpanForHeader(header: { subHeaders: unknown[] }, headerGroupDepth: number): number {
+  protected rowSpanForHeader(
+    header: { subHeaders: unknown[] },
+    headerGroupDepth: number
+  ): number {
     if (header.subHeaders.length > 1) {
       return 1;
     }
@@ -72,7 +84,8 @@ export class ParkingTable {
   }
 
   protected headerRowClass(headerGroupDepth: number): string {
-    const isLastHeaderRow = headerGroupDepth === this.table.getHeaderGroups().length - 1;
+    const isLastHeaderRow =
+      headerGroupDepth === this.table.getHeaderGroups().length - 1;
 
     return [isLastHeaderRow ? "" : "!border-b-0", "hover:!bg-transparent"]
       .filter(Boolean)
@@ -81,7 +94,7 @@ export class ParkingTable {
 
   protected static headerCellClass(
     header: { column: { id: string }; subHeaders: unknown[] },
-    _headerGroupDepth: number,
+    _headerGroupDepth: number
   ): string {
     const classes = ["!align-bottom"];
 
@@ -120,14 +133,16 @@ export class ParkingTable {
 
   protected static titleForCell(
     columnId: string,
-    parkingLot: ParkingLotListItemModel,
+    parkingLot: ParkingLotListItemModel
   ): string | null {
     switch (columnId) {
       case "name":
       case "ownerName":
       case "currency": {
         /* SAFETY: Accessing known string property by columnId */
-        return String(parkingLot[columnId as keyof ParkingLotListItemModel] ?? "");
+        return String(
+          parkingLot[columnId as keyof ParkingLotListItemModel] ?? ""
+        );
       }
       case "address": {
         const { address } = parkingLot;
@@ -139,7 +154,11 @@ export class ParkingTable {
       }
       case "slotDistribution": {
         const distribution = parkingLot.slotDistribution;
-        return distribution?.map((slot) => `${slot.type}: ${slot.count}`).join(" | ") ?? null;
+        return (
+          distribution
+            ?.map((slot) => `${slot.type}: ${slot.count}`)
+            .join(" | ") ?? null
+        );
       }
       case "occupancy":
       case "occuppationRate": {

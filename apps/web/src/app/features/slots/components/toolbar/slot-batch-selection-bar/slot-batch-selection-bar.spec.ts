@@ -27,8 +27,12 @@ describe("SlotBatchSelectionBarComponent", () => {
     fixture.componentRef.setInput("selectedCount", 3);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain("3 plazas seleccionadas");
-    expect(fixture.nativeElement.textContent).toContain("Editar equipamiento (3)");
+    expect(fixture.nativeElement.textContent).toContain(
+      "3 plazas seleccionadas"
+    );
+    expect(fixture.nativeElement.textContent).toContain(
+      "Editar equipamiento (3)"
+    );
     expect(fixture.nativeElement.textContent).toContain("Eliminar");
   });
 
@@ -40,7 +44,9 @@ describe("SlotBatchSelectionBarComponent", () => {
     fixture.detectChanges();
 
     /* SAFETY: nv-button is rendered when selectedCount > 0 */
-    const editBtn = fixture.nativeElement.querySelector("nv-button") as HTMLElement;
+    const editBtn = fixture.nativeElement.querySelector(
+      "nv-button"
+    ) as HTMLElement;
     editBtn.click();
 
     expect(emitted).toBe(true);
@@ -55,7 +61,7 @@ describe("SlotBatchSelectionBarComponent", () => {
 
     /* SAFETY: Destructive action button is rendered when selectedCount > 0 */
     const deleteBtn = fixture.nativeElement.querySelector(
-      "button.bg-destructive",
+      "button.bg-destructive"
     ) as HTMLButtonElement;
     deleteBtn.click();
 

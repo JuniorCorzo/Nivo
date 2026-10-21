@@ -26,7 +26,9 @@ class TestHostComponent {
   readonly label = signal("Tasa IVA (%)");
   readonly id = signal("iva-rate-input");
   readonly placeholder = signal("19");
-  readonly error = signal<string | ValidationError.WithFieldTree[] | undefined>(undefined);
+  readonly error = signal<string | ValidationError.WithFieldTree[] | undefined>(
+    undefined
+  );
 }
 
 describe("PercentageInputComponent", () => {
@@ -42,7 +44,7 @@ describe("PercentageInputComponent", () => {
     fixture = TestBed.createComponent(TestHostComponent);
     host = fixture.componentInstance;
     component = fixture.debugElement.query(
-      By.directive(PercentageInputComponent),
+      By.directive(PercentageInputComponent)
     ).componentInstance;
     fixture.detectChanges();
   });
@@ -64,7 +66,9 @@ describe("PercentageInputComponent", () => {
   });
 
   it("should emit decimal rate to form control when percentage input changes in template", () => {
-    const inputEl: HTMLInputElement = fixture.debugElement.query(By.css("input")).nativeElement;
+    const inputEl: HTMLInputElement = fixture.debugElement.query(
+      By.css("input")
+    ).nativeElement;
     inputEl.value = "16";
     inputEl.dispatchEvent(new Event("input", { bubbles: true }));
     fixture.detectChanges();
@@ -76,7 +80,9 @@ describe("PercentageInputComponent", () => {
     host.control.disable();
     fixture.detectChanges();
 
-    const inputComp = fixture.debugElement.query(By.directive(InputComponent)).componentInstance;
+    const inputComp = fixture.debugElement.query(
+      By.directive(InputComponent)
+    ).componentInstance;
     expect(component.disabled()).toBe(true);
     expect(inputComp.disabled()).toBe(true);
 

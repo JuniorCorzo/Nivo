@@ -60,7 +60,7 @@ export class CheckOutFacade {
       this.priceCalculation() !== null &&
       !this.isLoadingCalculation() &&
       !this.isLoadingTicket() &&
-      !this.isSubmitting(),
+      !this.isSubmitting()
   );
 
   init(parkingId: string): void {
@@ -87,7 +87,9 @@ export class CheckOutFacade {
       error: (err) => {
         this.isLoadingTicket.set(false);
         const errorMsg =
-          err?.error?.message || err?.message || "No se encontró un ticket activo para este cupo.";
+          err?.error?.message ||
+          err?.message ||
+          "No se encontró un ticket activo para este cupo.";
         this.errorMessage.set(errorMsg);
         this.toast.showToast({ message: errorMsg, type: "error" });
       },
@@ -123,7 +125,9 @@ export class CheckOutFacade {
       error: (err) => {
         this.isLoadingCalculation.set(false);
         const errorMsg =
-          err?.error?.message || err?.message || "Error al calcular la tarifa de salida.";
+          err?.error?.message ||
+          err?.message ||
+          "Error al calcular la tarifa de salida.";
         this.errorMessage.set(errorMsg);
         this.toast.showToast({ message: errorMsg, type: "error" });
       },
@@ -166,7 +170,9 @@ export class CheckOutFacade {
       error: (err) => {
         this.isSubmitting.set(false);
         const errorMsg =
-          err?.error?.message || err?.message || "Error al procesar la salida del vehículo.";
+          err?.error?.message ||
+          err?.message ||
+          "Error al procesar la salida del vehículo.";
         this.errorMessage.set(errorMsg);
         this.toast.showToast({ message: errorMsg, type: "error" });
       },

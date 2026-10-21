@@ -25,8 +25,16 @@ export interface DurationValue {
   unit: DurationUnit;
 }
 
-export const toMinutes = (amount?: number | null, unit: DurationUnit = "MINUTES"): number => {
-  if (amount === null || amount === undefined || !Number.isFinite(amount) || amount <= 0) {
+export const toMinutes = (
+  amount?: number | null,
+  unit: DurationUnit = "MINUTES"
+): number => {
+  if (
+    amount === null ||
+    amount === undefined ||
+    !Number.isFinite(amount) ||
+    amount <= 0
+  ) {
     return 0;
   }
 
@@ -40,10 +48,12 @@ export const fromMinutes = (totalMinutes?: number | null): DurationValue => {
   }
 
   switch (true) {
-    case totalMinutes >= MINUTES_IN_DAY && totalMinutes % MINUTES_IN_DAY === 0: {
+    case totalMinutes >= MINUTES_IN_DAY &&
+      totalMinutes % MINUTES_IN_DAY === 0: {
       return { amount: totalMinutes / MINUTES_IN_DAY, unit: "DAYS" };
     }
-    case totalMinutes >= MINUTES_IN_HOUR && totalMinutes % MINUTES_IN_HOUR === 0: {
+    case totalMinutes >= MINUTES_IN_HOUR &&
+      totalMinutes % MINUTES_IN_HOUR === 0: {
       return { amount: totalMinutes / MINUTES_IN_HOUR, unit: "HOURS" };
     }
     default: {

@@ -49,7 +49,9 @@ describe("SlotDrawerState", () => {
 
     expect(state.drawerTab()).toBe("general");
     expect(state.drawerSlotId()).toBe("slot-1");
-    expect(routerMock.navigate).toHaveBeenCalledWith(["/app/parking-lots/parking-1/slots/slot-1"]);
+    expect(routerMock.navigate).toHaveBeenCalledWith([
+      "/app/parking-lots/parking-1/slots/slot-1",
+    ]);
   });
 
   it("should closeDrawer, reset drawerSlotId, and navigate to slots list", () => {
@@ -57,7 +59,9 @@ describe("SlotDrawerState", () => {
     state.closeDrawer("parking-1");
 
     expect(state.drawerSlotId()).toBeNull();
-    expect(routerMock.navigate).toHaveBeenCalledWith(["/app/parking-lots/parking-1/slots"]);
+    expect(routerMock.navigate).toHaveBeenCalledWith([
+      "/app/parking-lots/parking-1/slots",
+    ]);
   });
 
   it("should find drawerSlot in list", () => {

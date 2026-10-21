@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import {
   BadgeComponent,
@@ -70,12 +75,14 @@ export class ParkingGeneralInfo {
   });
 
   public readonly gracePeriodText = computed<string>(() =>
-    formatDuration(this.parking()?.gracePeriodMinutes),
+    formatDuration(this.parking()?.gracePeriodMinutes)
   );
 
   public readonly gracePeriodPriceText = computed<string>(() =>
-    formatPrice(this.parking()?.gracePeriodPrice),
+    formatPrice(this.parking()?.gracePeriodPrice)
   );
 
-  public readonly ivaRateText = computed<string>(() => formatIvaRate(this.parking()?.ivaRate));
+  public readonly ivaRateText = computed<string>(() =>
+    formatIvaRate(this.parking()?.ivaRate)
+  );
 }

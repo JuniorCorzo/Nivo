@@ -9,7 +9,11 @@ import {
   TableRowComponent,
 } from "@nivo-sass/design-system";
 import type { ColumnDef } from "@tanstack/angular-table";
-import { createAngularTable, FlexRender, getCoreRowModel } from "@tanstack/angular-table";
+import {
+  createAngularTable,
+  FlexRender,
+  getCoreRowModel,
+} from "@tanstack/angular-table";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -121,11 +125,15 @@ export class OperationalReportsTableComponent {
           return "-";
         }
         const isCompleted =
-          status === "COMPLETED" || status === "CLOSED" || status === "FINALIZADO";
-        const isOpen = status === "OPEN" || status === "ACTIVE" || status === "ACTIVO";
+          status === "COMPLETED" ||
+          status === "CLOSED" ||
+          status === "FINALIZADO";
+        const isOpen =
+          status === "OPEN" || status === "ACTIVE" || status === "ACTIVO";
         let badgeClasses = "bg-amber-500/10 text-amber-400 border-amber-500/20";
         if (isOpen) {
-          badgeClasses = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+          badgeClasses =
+            "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
         } else if (isCompleted) {
           badgeClasses = "bg-zinc-800 text-zinc-300 border-zinc-700";
         }
@@ -138,7 +146,9 @@ export class OperationalReportsTableComponent {
       cell: (info) => {
         const val = info.getValue();
         const formatted =
-          val === null || val === undefined ? "$0" : `$${Number(val).toLocaleString("es-CO")}`;
+          val === null || val === undefined
+            ? "$0"
+            : `$${Number(val).toLocaleString("es-CO")}`;
         return `<span class="font-mono font-semibold text-xs text-foreground">${formatted}</span>`;
       },
       header: "Total",

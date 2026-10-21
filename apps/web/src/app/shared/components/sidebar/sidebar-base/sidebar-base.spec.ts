@@ -84,12 +84,18 @@ describe("SidebarBase", () => {
 
   it("should update active nav item on NavigationEnd event", async () => {
     routerEventsSubject.next(
-      new NavigationEnd(1, APP_ROUTES.app.parkingLots, APP_ROUTES.app.parkingLots),
+      new NavigationEnd(
+        1,
+        APP_ROUTES.app.parkingLots,
+        APP_ROUTES.app.parkingLots
+      )
     );
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const activeItem = component.navItems().find((item) => item.url === APP_ROUTES.app.parkingLots);
+    const activeItem = component
+      .navItems()
+      .find((item) => item.url === APP_ROUTES.app.parkingLots);
     expect(activeItem?.isActive).toBe(true);
 
     const activeLink = fixture.debugElement.query(By.css("nav a.bg-muted"));
@@ -111,7 +117,9 @@ describe("SidebarBase", () => {
     currentUserSignal.set(null);
     fixture.detectChanges();
 
-    const hasUsersItem = component.navItems().some((item) => item.label === "Usuarios");
+    const hasUsersItem = component
+      .navItems()
+      .some((item) => item.label === "Usuarios");
     expect(hasUsersItem).toBe(false);
   });
 
@@ -119,7 +127,9 @@ describe("SidebarBase", () => {
     currentUserSignal.set(createMockUser("OPERATOR"));
     fixture.detectChanges();
 
-    const hasUsersItem = component.navItems().some((item) => item.label === "Usuarios");
+    const hasUsersItem = component
+      .navItems()
+      .some((item) => item.label === "Usuarios");
     expect(hasUsersItem).toBe(false);
   });
 
@@ -127,7 +137,9 @@ describe("SidebarBase", () => {
     currentUserSignal.set(createMockUser("MANAGER"));
     fixture.detectChanges();
 
-    const hasUsersItem = component.navItems().some((item) => item.label === "Usuarios");
+    const hasUsersItem = component
+      .navItems()
+      .some((item) => item.label === "Usuarios");
     expect(hasUsersItem).toBe(true);
   });
 
@@ -135,7 +147,9 @@ describe("SidebarBase", () => {
     currentUserSignal.set(createMockUser("OWNER"));
     fixture.detectChanges();
 
-    const hasUsersItem = component.navItems().some((item) => item.label === "Usuarios");
+    const hasUsersItem = component
+      .navItems()
+      .some((item) => item.label === "Usuarios");
     expect(hasUsersItem).toBe(true);
   });
 });

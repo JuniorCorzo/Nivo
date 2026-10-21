@@ -39,7 +39,9 @@ describe("DashboardSseService", () => {
     expect(globalUrl).toBe("http://localhost:8080/api/dashboard/stream");
 
     const singleUrl = service.buildStreamUrl("pkg-456");
-    expect(singleUrl).toBe("http://localhost:8080/api/dashboard/stream?parkingId=pkg-456");
+    expect(singleUrl).toBe(
+      "http://localhost:8080/api/dashboard/stream?parkingId=pkg-456"
+    );
   });
 
   it("should calculate exponential backoff delay capped at 30 seconds", () => {
@@ -82,21 +84,25 @@ describe("DashboardSseService", () => {
     let requestedUrl = "";
     let capturedHeaders: HeadersInit | undefined;
 
-    window.fetch = vi.fn().mockImplementation((url: string | URL | Request, init?: RequestInit) => {
-      requestedUrl = url.toString();
-      capturedHeaders = init?.headers;
-      const mockStream = new ReadableStream({
-        start(controller) {
-          controller.close();
-        },
+    window.fetch = vi
+      .fn()
+      .mockImplementation((url: string | URL | Request, init?: RequestInit) => {
+        requestedUrl = url.toString();
+        capturedHeaders = init?.headers;
+        const mockStream = new ReadableStream({
+          start(controller) {
+            controller.close();
+          },
+        });
+        return Promise.resolve(new Response(mockStream, { status: 200 }));
       });
-      return Promise.resolve(new Response(mockStream, { status: 200 }));
-    });
 
     try {
       await service.connect("pkg-123");
 
-      expect(requestedUrl).toBe("http://localhost:8080/api/dashboard/stream?parkingId=pkg-123");
+      expect(requestedUrl).toBe(
+        "http://localhost:8080/api/dashboard/stream?parkingId=pkg-123"
+      );
       const headers = new Headers(capturedHeaders);
       expect(headers.get("Accept")).toBe("text/event-stream");
       expect(headers.get("Authorization")).toBe("Bearer mock-jwt-token");

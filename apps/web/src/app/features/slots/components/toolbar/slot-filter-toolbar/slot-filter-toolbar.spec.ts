@@ -18,7 +18,9 @@ describe("SlotFilterToolbarComponent", () => {
   });
 
   it("should render search input and 3 selects", () => {
-    const searchInput = fixture.nativeElement.querySelector('input[type="search"]');
+    const searchInput = fixture.nativeElement.querySelector(
+      'input[type="search"]'
+    );
     const selects = fixture.nativeElement.querySelectorAll("nv-select");
 
     expect(searchInput).toBeTruthy();
@@ -31,7 +33,7 @@ describe("SlotFilterToolbarComponent", () => {
 
     /* SAFETY: The search input is guaranteed to exist in the component template */
     const searchInput = fixture.nativeElement.querySelector(
-      'input[type="search"]',
+      'input[type="search"]'
     ) as HTMLInputElement;
     const event = new Event("input", { bubbles: true });
     searchInput.dispatchEvent(event);
@@ -41,8 +43,8 @@ describe("SlotFilterToolbarComponent", () => {
 
   it("should emit filterChange when selects change", () => {
     const emissions: { key: string; value: unknown }[] = [];
-    component.filterChange.subscribe((change: { key: string; value: unknown }) =>
-      emissions.push(change),
+    component.filterChange.subscribe(
+      (change: { key: string; value: unknown }) => emissions.push(change)
     );
 
     component.onFilterChange("type", "CAR");
@@ -59,9 +61,13 @@ describe("SlotFilterToolbarComponent", () => {
   it("should render quick filter buttons and clear button", () => {
     const buttons = [...fixture.nativeElement.querySelectorAll("nv-button")];
     /* SAFETY: nv-button elements in DOM are HTMLElements */
-    const buttonTexts = buttons.map((b) => (b as HTMLElement).textContent?.trim() ?? "");
+    const buttonTexts = buttons.map(
+      (b) => (b as HTMLElement).textContent?.trim() ?? ""
+    );
 
-    expect(buttonTexts.some((t) => t.includes("Solo Discapacitados"))).toBe(true);
+    expect(buttonTexts.some((t) => t.includes("Solo Discapacitados"))).toBe(
+      true
+    );
     expect(buttonTexts.some((t) => t.includes("Solo Eléctricos"))).toBe(true);
     expect(buttonTexts.some((t) => t.includes("Limpiar filtros"))).toBe(true);
   });
@@ -76,7 +82,9 @@ describe("SlotFilterToolbarComponent", () => {
     // simulate active
     fixture.componentRef.setInput("isAccessibleFilter", true);
     component.toggleAccessible();
-    expect(emissions[1]).toEqual([{ key: "isAccessible", value: undefined }][0]);
+    expect(emissions[1]).toEqual(
+      [{ key: "isAccessible", value: undefined }][0]
+    );
   });
 
   it("should toggle hasCharger filter and emit filterChange", () => {
@@ -100,7 +108,7 @@ describe("SlotFilterToolbarComponent", () => {
     /* SAFETY: Clear filter button exists in the template and is an HTMLElement */
     const clearBtn = buttons.find((b) =>
       /* SAFETY: nv-button element in DOM is an HTMLElement */
-      (b as HTMLElement).textContent?.includes("Limpiar filtros"),
+      (b as HTMLElement).textContent?.includes("Limpiar filtros")
     ) as HTMLElement;
 
     expect(clearBtn).toBeTruthy();

@@ -12,14 +12,21 @@ import { DurationInputComponent } from "./duration-input";
   imports: [DurationInputComponent, ReactiveFormsModule],
   standalone: true,
   template: `
-    <app-duration-input [formControl]="control" [label]="label()" [id]="id()" [error]="error()" />
+    <app-duration-input
+      [formControl]="control"
+      [label]="label()"
+      [id]="id()"
+      [error]="error()"
+    />
   `,
 })
 class TestHostComponent {
   readonly control = new FormControl<number>(0);
   readonly label = signal("Tiempo de gracia");
   readonly id = signal("grace-duration");
-  readonly error = signal<string | ValidationError.WithFieldTree[] | undefined>(undefined);
+  readonly error = signal<string | ValidationError.WithFieldTree[] | undefined>(
+    undefined
+  );
 }
 
 describe("DurationInputComponent", () => {
@@ -34,13 +41,17 @@ describe("DurationInputComponent", () => {
 
     fixture = TestBed.createComponent(TestHostComponent);
     host = fixture.componentInstance;
-    component = fixture.debugElement.query(By.directive(DurationInputComponent)).componentInstance;
+    component = fixture.debugElement.query(
+      By.directive(DurationInputComponent)
+    ).componentInstance;
     fixture.detectChanges();
   });
 
   it("should render nv-input and nv-select components in template", () => {
     const inputDebug = fixture.debugElement.query(By.directive(InputComponent));
-    const selectDebug = fixture.debugElement.query(By.directive(SelectComponent));
+    const selectDebug = fixture.debugElement.query(
+      By.directive(SelectComponent)
+    );
 
     expect(inputDebug).toBeTruthy();
     expect(selectDebug).toBeTruthy();
@@ -76,11 +87,15 @@ describe("DurationInputComponent", () => {
   });
 
   it("should propagate total minutes to form control when amount input event triggers in template", () => {
-    const selectComp = fixture.debugElement.query(By.directive(SelectComponent)).componentInstance;
+    const selectComp = fixture.debugElement.query(
+      By.directive(SelectComponent)
+    ).componentInstance;
     selectComp.valueChange.emit("HOURS");
     fixture.detectChanges();
 
-    const inputEl: HTMLInputElement = fixture.debugElement.query(By.css("input")).nativeElement;
+    const inputEl: HTMLInputElement = fixture.debugElement.query(
+      By.css("input")
+    ).nativeElement;
     inputEl.value = "3";
     inputEl.dispatchEvent(new Event("input", { bubbles: true }));
     fixture.detectChanges();
@@ -89,12 +104,16 @@ describe("DurationInputComponent", () => {
   });
 
   it("should propagate total minutes to form control when unit select change triggers in template", () => {
-    const inputEl: HTMLInputElement = fixture.debugElement.query(By.css("input")).nativeElement;
+    const inputEl: HTMLInputElement = fixture.debugElement.query(
+      By.css("input")
+    ).nativeElement;
     inputEl.value = "2";
     inputEl.dispatchEvent(new Event("input", { bubbles: true }));
     fixture.detectChanges();
 
-    const selectComp = fixture.debugElement.query(By.directive(SelectComponent)).componentInstance;
+    const selectComp = fixture.debugElement.query(
+      By.directive(SelectComponent)
+    ).componentInstance;
     selectComp.valueChange.emit("DAYS");
     fixture.detectChanges();
 
@@ -105,8 +124,12 @@ describe("DurationInputComponent", () => {
     host.control.disable();
     fixture.detectChanges();
 
-    const inputComp = fixture.debugElement.query(By.directive(InputComponent)).componentInstance;
-    const selectComp = fixture.debugElement.query(By.directive(SelectComponent)).componentInstance;
+    const inputComp = fixture.debugElement.query(
+      By.directive(InputComponent)
+    ).componentInstance;
+    const selectComp = fixture.debugElement.query(
+      By.directive(SelectComponent)
+    ).componentInstance;
 
     expect(component.disabled()).toBe(true);
     expect(inputComp.disabled()).toBe(true);
@@ -124,6 +147,8 @@ describe("DurationInputComponent", () => {
     host.error.set("Campo requerido");
     fixture.detectChanges();
 
-    expect(component.normalizedError()).toEqual([{ message: "Campo requerido" }]);
+    expect(component.normalizedError()).toEqual([
+      { message: "Campo requerido" },
+    ]);
   });
 });

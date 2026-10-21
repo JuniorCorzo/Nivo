@@ -1,6 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
 import type { UserModel } from "@core/models/user.model";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
+import { describe, expect, it, vi } from "vitest";
+
 import { createUserColumns, formatUserDate } from "./user-columns-definition";
 
 describe("user-columns-definition", () => {
@@ -40,7 +41,14 @@ describe("user-columns-definition", () => {
     it("should define all expected columns with correct headers", () => {
       const columns = createUserColumns();
       const ids = columns.map((c) => c.id);
-      expect(ids).toEqual(["user", "contact", "role", "status", "createdAt", "actions"]);
+      expect(ids).toEqual([
+        "user",
+        "contact",
+        "role",
+        "status",
+        "createdAt",
+        "actions",
+      ]);
 
       const texts = APP_TEXTS.users.table.headers;
       expect(columns[0].header).toBe(texts.user);
@@ -62,7 +70,10 @@ describe("user-columns-definition", () => {
       };
 
       interface CellAccessor {
-        cell: (ctx: { getValue: () => string; row: { original: UserModel } }) => string;
+        cell: (ctx: {
+          getValue: () => string;
+          row: { original: UserModel };
+        }) => string;
       }
 
       /* SAFETY: contactCol is validated as ColumnDef with cell renderer */

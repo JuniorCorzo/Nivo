@@ -13,7 +13,9 @@ interface TransitionDocument {
 describe("ThemeButton", () => {
   let component: ThemeButton;
   let fixture: ComponentFixture<ThemeButton>;
-  let originalStartViewTransition: typeof document.startViewTransition | undefined;
+  let originalStartViewTransition:
+    | typeof document.startViewTransition
+    | undefined;
 
   beforeEach(async () => {
     originalStartViewTransition = document.startViewTransition;
@@ -33,7 +35,11 @@ describe("ThemeButton", () => {
     } else {
       document.startViewTransition = originalStartViewTransition;
     }
-    document.documentElement.classList.remove("theme-transition", "light", "dark");
+    document.documentElement.classList.remove(
+      "theme-transition",
+      "light",
+      "dark"
+    );
   });
 
   it("should create", () => {
@@ -59,30 +65,41 @@ describe("ThemeButton", () => {
     });
 
     /* SAFETY: Document is cast to TransitionDocument to assign the mock transition function */
-    (document as TransitionDocument).startViewTransition = startViewTransitionSpy;
+    (document as TransitionDocument).startViewTransition =
+      startViewTransitionSpy;
 
     /* SAFETY: Fixture native element contains a button element */
-    const button = fixture.nativeElement.querySelector("button") as HTMLButtonElement;
+    const button = fixture.nativeElement.querySelector(
+      "button"
+    ) as HTMLButtonElement;
     button.click();
 
     expect(startViewTransitionSpy).toHaveBeenCalledTimes(1);
-    expect(document.documentElement.classList.contains("theme-transition")).toBe(true);
+    expect(
+      document.documentElement.classList.contains("theme-transition")
+    ).toBe(true);
 
     resolveFinished();
     await finishedPromise;
     await Promise.resolve();
 
-    expect(document.documentElement.classList.contains("theme-transition")).toBe(false);
+    expect(
+      document.documentElement.classList.contains("theme-transition")
+    ).toBe(false);
   });
 
   it("should execute toggleTheme directly without adding theme-transition class when startViewTransition is not supported", () => {
     Reflect.deleteProperty(document, "startViewTransition");
 
     /* SAFETY: Fixture native element contains a button element */
-    const button = fixture.nativeElement.querySelector("button") as HTMLButtonElement;
+    const button = fixture.nativeElement.querySelector(
+      "button"
+    ) as HTMLButtonElement;
     button.click();
 
-    expect(document.documentElement.classList.contains("theme-transition")).toBe(false);
+    expect(
+      document.documentElement.classList.contains("theme-transition")
+    ).toBe(false);
     expect(document.documentElement.classList.contains("light")).toBe(true);
   });
 });

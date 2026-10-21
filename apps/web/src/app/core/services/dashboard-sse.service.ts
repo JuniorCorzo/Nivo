@@ -1,7 +1,10 @@
 import type { OnDestroy } from "@angular/core";
 import { inject, Injectable, signal } from "@angular/core";
 import { ApiConfiguration } from "@core/api/generated/api-configuration";
-import { isDashboardSummaryDto, mapToDashboardSummaryModel } from "@core/mappers/dashboard.mapper";
+import {
+  isDashboardSummaryDto,
+  mapToDashboardSummaryModel,
+} from "@core/mappers/dashboard.mapper";
 import type { DashboardSummaryModel } from "@core/models/dashboard.model";
 import { AuthService } from "@core/services/auth-service";
 import { MetricsService } from "@core/services/metrics.service";
@@ -29,7 +32,9 @@ export class DashboardSseService implements OnDestroy {
 
   buildStreamUrl(parkingId?: string): string {
     const base = this.config.rootUrl.replace(/\/+$/u, "");
-    const query = parkingId ? `?parkingId=${encodeURIComponent(parkingId)}` : "";
+    const query = parkingId
+      ? `?parkingId=${encodeURIComponent(parkingId)}`
+      : "";
     return `${base}/dashboard/stream${query}`;
   }
 

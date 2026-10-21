@@ -1,4 +1,11 @@
-import { DestroyRef, Injectable, computed, effect, inject, signal } from "@angular/core";
+import {
+  DestroyRef,
+  Injectable,
+  computed,
+  effect,
+  inject,
+  signal,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import type { SlotStatus, SlotSummary } from "@core/models/slot.model";
@@ -60,14 +67,16 @@ export class ParkingSlotsListFacade {
     const zones = new Set(
       this.slots()
         .map((s) => s.zone)
-        .filter((z): z is string => Boolean(z)),
+        .filter((z): z is string => Boolean(z))
     );
     if (zones.size === 0) {
       return SLOT_ZONE_FILTER_OPTIONS;
     }
     return [
       { label: "Zona: Todas", value: "" },
-      ...[...zones].toSorted((a, b) => a.localeCompare(b)).map((z) => ({ label: z, value: z })),
+      ...[...zones]
+        .toSorted((a, b) => a.localeCompare(b))
+        .map((z) => ({ label: z, value: z })),
     ];
   });
   readonly statusOptions = SLOT_STATUS_FILTER_OPTIONS;
@@ -92,7 +101,9 @@ export class ParkingSlotsListFacade {
   // ─── delegated selection signals ───
   readonly selectedIds = this.selectionState.selectedIds;
   readonly selectedCount = this.selectionState.selectedCount;
-  readonly allSelected = computed(() => this.selectionState.allSelected(this.filteredSlots()));
+  readonly allSelected = computed(() =>
+    this.selectionState.allSelected(this.filteredSlots())
+  );
 
   // ─── delegated delete signals ───
   readonly deleteModalOpen = this.deleteState.deleteModalOpen;
@@ -113,14 +124,14 @@ export class ParkingSlotsListFacade {
   // ─── delegated metadata batch signals ───
   readonly metadataModalOpen = this.metadataBatchState.metadataModalOpen;
   readonly selectedSlots = computed(() =>
-    this.slots().filter((slot) => this.selectedIds().has(slot.id)),
+    this.slots().filter((slot) => this.selectedIds().has(slot.id))
   );
 
   // ─── delegated group edit signals ───
   readonly groupModalOpen = this.groupState.groupModalOpen;
   readonly groupTarget = this.groupState.groupTarget;
   readonly availableGroups = computed<SlotGroupOption[]>(() =>
-    this.groupState.availableGroups(this.slots()),
+    this.groupState.availableGroups(this.slots())
   );
 
   // ─── delegated drawer & route specific signals ───
@@ -131,7 +142,9 @@ export class ParkingSlotsListFacade {
   readonly parking = computed(() => {
     const parkingId = this.parkingId();
     return parkingId
-      ? (this.parkingService.parkingLots().find((parking) => parking.id === parkingId) ?? null)
+      ? (this.parkingService
+          .parkingLots()
+          .find((parking) => parking.id === parkingId) ?? null)
       : null;
   });
 
@@ -151,19 +164,25 @@ export class ParkingSlotsListFacade {
     onViewDetail: (slot) => this.openDrawer(slot.id),
   });
 
-  readonly filteredSlots = computed(() => this.table.getRowModel().rows.map((row) => row.original));
+  readonly filteredSlots = computed(() =>
+    this.table.getRowModel().rows.map((row) => row.original)
+  );
 
   readonly pageCount = computed(() => this.table.getPageCount());
 
-  readonly drawerSlot = computed(() => this.drawerState.drawerSlot(this.slots()));
+  readonly drawerSlot = computed(() =>
+    this.drawerState.drawerSlot(this.slots())
+  );
 
   constructor() {
     const destroyRef = inject(DestroyRef);
 
-    this.route.paramMap.pipe(takeUntilDestroyed(destroyRef)).subscribe((params) => {
-      this.parkingId.set(params.get("parkingId"));
-      this.drawerSlotId.set(params.get("slotId"));
-    });
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(destroyRef))
+      .subscribe((params) => {
+        this.parkingId.set(params.get("parkingId"));
+        this.drawerSlotId.set(params.get("slotId"));
+      });
 
     effect((onCleanup) => {
       const parking = this.parking();
@@ -171,7 +190,9 @@ export class ParkingSlotsListFacade {
         return;
       }
 
-      const sub = this.slotsService.getAllSlotSummariesByParkingId(parking.id).subscribe();
+      const sub = this.slotsService
+        .getAllSlotSummariesByParkingId(parking.id)
+        .subscribe();
 
       onCleanup(() => sub.unsubscribe());
     });
@@ -191,7 +212,9 @@ export class ParkingSlotsListFacade {
     if (!parking) {
       return;
     }
-    this.router.navigate([APP_ROUTES.app.editParkingLotSlot(parking.id, slotId)]);
+    this.router.navigate([
+      APP_ROUTES.app.editParkingLotSlot(parking.id, slotId),
+    ]);
   }
 
   openDrawer(slotId: string): void {
@@ -281,7 +304,9 @@ export class ParkingSlotsListFacade {
 
   // ─── modals: delete ───
   openBatchDeleteModal(): void {
-    const first = this.filteredSlots().find((slot) => this.selectedIds().has(slot.id));
+    const first = this.filteredSlots().find((slot) =>
+      this.selectedIds().has(slot.id)
+    );
     if (!first) {
       return;
     }
@@ -306,7 +331,7 @@ export class ParkingSlotsListFacade {
       parkingId,
       this.selectedIds(),
       () => this.selectionState.clear(),
-      (id) => this.selectionState.remove(id),
+      (id) => this.selectionState.remove(id)
     );
   }
 
@@ -326,7 +351,7 @@ export class ParkingSlotsListFacade {
     slotIds: string[];
   }): void {
     this.metadataBatchState.updateSlotsMetadata(payload, this.parkingId(), () =>
-      this.selectionState.clear(),
+      this.selectionState.clear()
     );
   }
 

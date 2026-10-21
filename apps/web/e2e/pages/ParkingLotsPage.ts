@@ -38,16 +38,22 @@ export class ParkingLotsPage {
       .locator("app-parking-form")
       .getByRole("button", { name: "Cancelar" });
     this.cityInput = page.locator("input#city");
-    this.closeTimeInput = page.locator("input#closeTime, input[placeholder='Ej. 20:00']");
+    this.closeTimeInput = page.locator(
+      "input#closeTime, input[placeholder='Ej. 20:00']"
+    );
     this.confirmDeleteButton = page
       .locator("app-delete-parking-modal")
       .getByRole("button", { name: "Sí, eliminar" });
     this.deleteButton = page.getByRole("button", { name: "Eliminar" });
     this.editButton = page.getByRole("button", { name: "Editar" });
-    this.emptyCreateButton = page.locator("app-parking-empty-state").getByRole("button");
+    this.emptyCreateButton = page
+      .locator("app-parking-empty-state")
+      .getByRole("button");
     this.emptyState = page.locator("app-parking-empty-state");
     this.nameInput = page.locator("input#name");
-    this.openTimeInput = page.locator("input#openTime, input[placeholder='Ej. 08:00']");
+    this.openTimeInput = page.locator(
+      "input#openTime, input[placeholder='Ej. 08:00']"
+    );
     this.operationsButton = page.getByRole("button", {
       name: "Operaciones en vivo",
     });
@@ -56,9 +62,11 @@ export class ParkingLotsPage {
     this.slotsButton = page.getByRole("button", { name: "Espacios / Slots" });
     this.stateInput = page.locator("input#state");
     this.streetInput = page.locator("input#street");
-    this.submitFormButton = page.locator("app-parking-form").getByRole("button", {
-      name: /Guardar cambios|Crear Parqueadero|Guardando/iu,
-    });
+    this.submitFormButton = page
+      .locator("app-parking-form")
+      .getByRole("button", {
+        name: /Guardar cambios|Crear Parqueadero|Guardando/iu,
+      });
     this.zipCodeInput = page.locator("input#zipCode");
   }
 
@@ -69,7 +77,9 @@ export class ParkingLotsPage {
       return;
     }
 
-    const lotSelector = this.page.locator("app-parking-lot-selector button").first();
+    const lotSelector = this.page
+      .locator("app-parking-lot-selector button")
+      .first();
     if (await lotSelector.isVisible()) {
       await lotSelector.click();
       const newLotButton = this.page.getByRole("button", {

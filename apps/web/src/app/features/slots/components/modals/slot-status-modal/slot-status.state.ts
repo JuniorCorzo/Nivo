@@ -17,15 +17,17 @@ export interface StatusModalCopy {
   title: string;
 }
 
-export const getStatusTransitionOptions = (currentStatus: SlotStatus): SlotStatus[] =>
-  VALID_STATUS_TRANSITIONS[currentStatus] ?? [];
+export const getStatusTransitionOptions = (
+  currentStatus: SlotStatus
+): SlotStatus[] => VALID_STATUS_TRANSITIONS[currentStatus] ?? [];
 
 export const getStatusModalCopy = (
   currentStatus: SlotStatus,
   nextStatus: SlotStatus,
-  hasTicket: boolean,
+  hasTicket: boolean
 ): StatusModalCopy => {
-  const { title, warningActiveTicket, confirmChange } = APP_TEXTS.slots.statusModal;
+  const { title, warningActiveTicket, confirmChange } =
+    APP_TEXTS.slots.statusModal;
   if (currentStatus === "OCCUPIED" && nextStatus === "AVAILABLE" && hasTicket) {
     return {
       body: warningActiveTicket,

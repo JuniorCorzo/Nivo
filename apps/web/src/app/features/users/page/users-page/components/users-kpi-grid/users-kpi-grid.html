@@ -2,16 +2,16 @@
   <!-- Total Users -->
   <nv-card>
     <nv-card-content class="flex items-center gap-4 p-5">
-      <div class="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-xl">
+      <div
+        class="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-xl"
+      >
         <ng-icon name="lucideUsers" size="24" />
       </div>
       <div>
-        <nv-muted class="text-xs font-semibold uppercase tracking-wider">
+        <nv-muted class="text-xs font-semibold tracking-wider uppercase">
           {{ texts.totalUsers }}
         </nv-muted>
-        <div class="font-mono text-2xl font-bold">
-          {{ total() }}
-        </div>
+        <div class="font-mono text-2xl font-bold">{{ total() }}</div>
       </div>
     </nv-card-content>
   </nv-card>
@@ -25,12 +25,10 @@
         <ng-icon name="lucideShieldCheck" size="24" />
       </div>
       <div>
-        <nv-muted class="text-xs font-semibold uppercase tracking-wider">
+        <nv-muted class="text-xs font-semibold tracking-wider uppercase">
           {{ texts.activeOperators }}
         </nv-muted>
-        <div class="font-mono text-2xl font-bold">
-          {{ activeOperators() }}
-        </div>
+        <div class="font-mono text-2xl font-bold">{{ activeOperators() }}</div>
       </div>
     </nv-card-content>
   </nv-card>
@@ -44,12 +42,10 @@
         <ng-icon name="lucideShield" size="24" />
       </div>
       <div>
-        <nv-muted class="text-xs font-semibold uppercase tracking-wider">
+        <nv-muted class="text-xs font-semibold tracking-wider uppercase">
           {{ texts.managers }}
         </nv-muted>
-        <div class="font-mono text-2xl font-bold">
-          {{ managers() }}
-        </div>
+        <div class="font-mono text-2xl font-bold">{{ managers() }}</div>
       </div>
     </nv-card-content>
   </nv-card>
@@ -63,12 +59,10 @@
         <ng-icon name="lucideUserX" size="24" />
       </div>
       <div>
-        <nv-muted class="text-xs font-semibold uppercase tracking-wider">
+        <nv-muted class="text-xs font-semibold tracking-wider uppercase">
           {{ texts.deactivated }}
         </nv-muted>
-        <div class="font-mono text-2xl font-bold">
-          {{ deactivated() }}
-        </div>
+        <div class="font-mono text-2xl font-bold">{{ deactivated() }}</div>
       </div>
     </nv-card-content>
   </nv-card>

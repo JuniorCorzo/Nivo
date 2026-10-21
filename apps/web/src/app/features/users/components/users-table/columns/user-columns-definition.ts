@@ -1,7 +1,10 @@
 import type { UserModel } from "@core/models/user.model";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import type { ColumnDef } from "@tanstack/angular-table";
-import { createColumnHelper, flexRenderComponent } from "@tanstack/angular-table";
+import {
+  createColumnHelper,
+  flexRenderComponent,
+} from "@tanstack/angular-table";
 
 import {
   UserInfoCellComponent,
@@ -35,7 +38,9 @@ const columnHelper = createColumnHelper<UserModel>();
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type UserTableColumn = ColumnDef<UserModel, any>;
 
-export const createUserColumns = (options: UserColumnsOptions = {}): UserTableColumn[] => [
+export const createUserColumns = (
+  options: UserColumnsOptions = {}
+): UserTableColumn[] => [
   columnHelper.accessor("fullName", {
     cell: (info) =>
       flexRenderComponent(UserInfoCellComponent, {
@@ -67,7 +72,9 @@ export const createUserColumns = (options: UserColumnsOptions = {}): UserTableCo
       }),
     enableSorting: true,
     filterFn: (row, columnId, filterValue: string) =>
-      !filterValue || filterValue === "ALL" || row.getValue(columnId) === filterValue,
+      !filterValue ||
+      filterValue === "ALL" ||
+      row.getValue(columnId) === filterValue,
     header: APP_TEXTS.users.table.headers.role,
     id: "role",
   }),
@@ -78,7 +85,9 @@ export const createUserColumns = (options: UserColumnsOptions = {}): UserTableCo
       }),
     enableSorting: true,
     filterFn: (row, columnId, filterValue: string) =>
-      !filterValue || filterValue === "ALL" || row.getValue(columnId) === filterValue,
+      !filterValue ||
+      filterValue === "ALL" ||
+      row.getValue(columnId) === filterValue,
     header: APP_TEXTS.users.table.headers.status,
     id: "status",
   }),
@@ -92,7 +101,10 @@ export const createUserColumns = (options: UserColumnsOptions = {}): UserTableCo
     cell: (info) =>
       flexRenderComponent(UserRowActionsComponent, {
         inputs: {
-          isSelf: Boolean(options.currentUserId && info.row.original.id === options.currentUserId),
+          isSelf: Boolean(
+            options.currentUserId &&
+            info.row.original.id === options.currentUserId
+          ),
           user: info.row.original,
         },
         outputs: {

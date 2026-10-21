@@ -1,5 +1,8 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import type { PriceDetailedModel, TicketSummary } from "@core/models/ticket.model";
+import type {
+  PriceDetailedModel,
+  TicketSummary,
+} from "@core/models/ticket.model";
 import { ParkingService } from "@core/services/parking-service";
 import { TicketService } from "@core/services/ticket-service";
 import { DataTableState } from "@shared/components/data-table";
@@ -31,7 +34,7 @@ export class TicketsFacade {
       onReprintReceipt: (ticket) => this.openReceipt(ticket),
       onSelectTicket: (ticket) => this.openDetail(ticket),
       showParkingLot: this.isTenantView(),
-    }),
+    })
   );
 
   readonly table = this.tableState.createTable({
@@ -46,7 +49,11 @@ export class TicketsFacade {
       const plate = row.original.licensePlate?.toUpperCase() ?? "";
       const parkingLot = row.original.parkingLotName?.toUpperCase() ?? "";
       const barcode = row.original.barcode?.toUpperCase() ?? "";
-      return plate.includes(search) || parkingLot.includes(search) || barcode.includes(search);
+      return (
+        plate.includes(search) ||
+        parkingLot.includes(search) ||
+        barcode.includes(search)
+      );
     },
     initialVisibility: {
       parkingLotId: false,
@@ -54,7 +61,7 @@ export class TicketsFacade {
   });
 
   readonly filteredTickets = computed(() =>
-    this.table.getFilteredRowModel().rows.map((row) => row.original),
+    this.table.getFilteredRowModel().rows.map((row) => row.original)
   );
 
   readonly ticketStats = computed(() => {
@@ -96,19 +103,19 @@ export class TicketsFacade {
     if (criteria.status !== undefined) {
       this.tableState.setColumnFilter(
         "status",
-        criteria.status === "ALL" ? undefined : criteria.status,
+        criteria.status === "ALL" ? undefined : criteria.status
       );
     }
     if (criteria.vehicleType !== undefined) {
       this.tableState.setColumnFilter(
         "slotType",
-        criteria.vehicleType === "ALL" ? undefined : criteria.vehicleType,
+        criteria.vehicleType === "ALL" ? undefined : criteria.vehicleType
       );
     }
     if (criteria.parkingLotId !== undefined) {
       this.tableState.setColumnFilter(
         "parkingLotId",
-        criteria.parkingLotId === "ALL" ? undefined : criteria.parkingLotId,
+        criteria.parkingLotId === "ALL" ? undefined : criteria.parkingLotId
       );
     }
     if (criteria.dateRange !== undefined) {

@@ -23,7 +23,10 @@ export class SlotsTableState {
   readonly columnFilters = signal<ColumnFiltersState>([]);
   readonly pagination = signal<PaginationState>({ pageIndex: 0, pageSize: 10 });
 
-  initTable(slotsSignal: () => SlotSummary[], options: ParkingSlotColumnOptions = {}) {
+  initTable(
+    slotsSignal: () => SlotSummary[],
+    options: ParkingSlotColumnOptions = {}
+  ) {
     return createAngularTable(() => ({
       columns: parkingSlotColumnDefinition(options),
       data: slotsSignal(),
@@ -58,10 +61,9 @@ export class SlotsTableState {
 
   columnFilterValue(key: string): string | boolean | undefined {
     /* SAFETY: Filter value in columnFilters is stored as string or boolean */
-    return this.columnFilters().find((filter: ColumnFilter) => filter.id === key)?.value as
-      | string
-      | boolean
-      | undefined;
+    return this.columnFilters().find(
+      (filter: ColumnFilter) => filter.id === key
+    )?.value as string | boolean | undefined;
   }
 
   setFilter(key: string, value: unknown): void {

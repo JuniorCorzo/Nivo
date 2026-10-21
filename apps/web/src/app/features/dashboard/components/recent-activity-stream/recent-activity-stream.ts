@@ -33,7 +33,9 @@ export class RecentActivityStreamComponent {
       return "TKT-0000";
     }
     const clean = rawId.replace("#", "");
-    return clean.length > 8 ? clean.slice(0, 8).toUpperCase() : clean.toUpperCase();
+    return clean.length > 8
+      ? clean.slice(0, 8).toUpperCase()
+      : clean.toUpperCase();
   }
 
   isEgress(item: OperationalReportItemModel): boolean {
@@ -50,7 +52,11 @@ export class RecentActivityStreamComponent {
   isPending(item: OperationalReportItemModel): boolean {
     void this;
     const payStatus = (item.paymentStatus || "").toUpperCase();
-    return payStatus === "PENDING" || payStatus === "EN COBRO" || payStatus === "PENDIENTE";
+    return (
+      payStatus === "PENDING" ||
+      payStatus === "EN COBRO" ||
+      payStatus === "PENDIENTE"
+    );
   }
 
   formatTime(item: OperationalReportItemModel): string {

@@ -1,6 +1,10 @@
 <div class="mx-auto flex max-w-5xl flex-col gap-6 p-4 sm:p-6 md:p-8">
   <!-- Top Bar: Back & Title -->
-  <app-page-header [title]="title()" [subtitle]="subtitle" icon="lucideBuilding2">
+  <app-page-header
+    [title]="title()"
+    [subtitle]="subtitle"
+    icon="lucideBuilding2"
+  >
     <div actions class="flex w-full items-center gap-2 sm:w-auto">
       <nv-button
         type="button"
@@ -22,11 +26,11 @@
         data-testid="parking-form-header-submit"
       >
         @if (facade.isSubmitting()) {
-          <ng-icon name="lucideLoader2" class="animate-spin text-base" />
-          <span>Guardando...</span>
+        <ng-icon name="lucideLoader2" class="animate-spin text-base" />
+        <span>Guardando...</span>
         } @else {
-          <ng-icon name="lucideSave" class="text-base" />
-          <span>{{ facade.submitButtonText() }}</span>
+        <ng-icon name="lucideSave" class="text-base" />
+        <span>{{ facade.submitButtonText() }}</span>
         }
       </nv-button>
     </div>
@@ -44,7 +48,9 @@
             <ng-icon name="lucideBuilding2" class="text-base" />
           </div>
           <div>
-            <nv-h2 class="text-foreground text-base font-bold"> Datos del parqueadero </nv-h2>
+            <nv-h2 class="text-foreground text-base font-bold">
+              Datos del parqueadero
+            </nv-h2>
             <nv-muted class="text-muted-foreground text-xs">
               Nombre comercial y datos generales de la sede
             </nv-muted>
@@ -94,7 +100,9 @@
 
       <!-- Section 4: Operating Hours -->
       <div class="border-border border-t pt-6">
-        <app-parking-operating-hours-section [operatingHours]="facade.form.operatingHours" />
+        <app-parking-operating-hours-section
+          [operatingHours]="facade.form.operatingHours"
+        />
       </div>
 
       <!-- Section 5: Policy -->
@@ -122,7 +130,12 @@
     <div
       class="bg-muted/50 border-border flex flex-col-reverse gap-2 border-t p-4 sm:flex-row sm:items-center sm:justify-end sm:gap-3 sm:p-6"
     >
-      <nv-button type="button" variant="secondary" (click)="onCancel()" class="w-full sm:w-auto">
+      <nv-button
+        type="button"
+        variant="secondary"
+        (click)="onCancel()"
+        class="w-full sm:w-auto"
+      >
         Cancelar
       </nv-button>
 
@@ -134,11 +147,11 @@
         class="w-full sm:w-auto"
       >
         @if (facade.isSubmitting()) {
-          <ng-icon name="lucideLoader2" class="animate-spin text-base" />
-          <span>Guardando...</span>
+        <ng-icon name="lucideLoader2" class="animate-spin text-base" />
+        <span>Guardando...</span>
         } @else {
-          <ng-icon name="lucideSave" class="text-base" />
-          <span>{{ facade.submitButtonText() }}</span>
+        <ng-icon name="lucideSave" class="text-base" />
+        <span>{{ facade.submitButtonText() }}</span>
         }
       </nv-button>
     </div>

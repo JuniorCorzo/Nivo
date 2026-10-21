@@ -57,7 +57,9 @@ describe("SidebarMobile", () => {
     expect(header).toBeTruthy();
     expect(header.nativeElement.classList.contains("h-14")).toBe(true);
 
-    const burger = header.query(By.css("button[aria-label='Abrir menú de navegación']"));
+    const burger = header.query(
+      By.css("button[aria-label='Abrir menú de navegación']")
+    );
     expect(burger).toBeTruthy();
 
     const logo = header.query(By.css("a[aria-label='Nivo']"));
@@ -80,7 +82,7 @@ describe("SidebarMobile", () => {
 
   it("should open drawer when burger button is clicked", () => {
     const burger = fixture.debugElement.query(
-      By.css("button[aria-label='Abrir menú de navegación']"),
+      By.css("button[aria-label='Abrir menú de navegación']")
     );
     burger.nativeElement.click();
     fixture.detectChanges();
@@ -101,7 +103,9 @@ describe("SidebarMobile", () => {
     component.openDrawer();
     fixture.detectChanges();
 
-    const backdrop = fixture.debugElement.query(By.css("[data-testid='drawer-backdrop']"));
+    const backdrop = fixture.debugElement.query(
+      By.css("[data-testid='drawer-backdrop']")
+    );
     expect(backdrop).toBeTruthy();
 
     backdrop.nativeElement.click();
@@ -115,7 +119,7 @@ describe("SidebarMobile", () => {
     fixture.detectChanges();
 
     const closeBtn = fixture.debugElement.query(
-      By.css("button[aria-label='Cerrar menú de navegación']"),
+      By.css("button[aria-label='Cerrar menú de navegación']")
     );
     expect(closeBtn).toBeTruthy();
 
@@ -146,7 +150,9 @@ describe("SidebarMobile", () => {
     fixture.detectChanges();
     expect(component.mobileDrawerOpen()).toBe(true);
 
-    routerEventsSubject.next(new NavigationEnd(1, "/app/tickets", "/app/tickets"));
+    routerEventsSubject.next(
+      new NavigationEnd(1, "/app/tickets", "/app/tickets")
+    );
     fixture.detectChanges();
 
     expect(component.mobileDrawerOpen()).toBe(false);

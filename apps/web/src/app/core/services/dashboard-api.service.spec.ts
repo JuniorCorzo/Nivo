@@ -1,5 +1,8 @@
 import { provideHttpClient } from "@angular/common/http";
-import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { AUTHORIZED } from "@core/http/context/auth.token";
 
@@ -11,7 +14,11 @@ describe("DashboardApiService", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [DashboardApiService, provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        DashboardApiService,
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     });
     service = TestBed.inject(DashboardApiService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -50,7 +57,9 @@ describe("DashboardApiService", () => {
     });
 
     const req = httpMock.expectOne(
-      (r) => r.url.endsWith("/dashboard/summary") && r.params.get("parkingId") === "pkg-123",
+      (r) =>
+        r.url.endsWith("/dashboard/summary") &&
+        r.params.get("parkingId") === "pkg-123"
     );
     expect(req.request.method).toBe("GET");
     expect(req.request.context.get(AUTHORIZED)).toBe(true);
@@ -75,7 +84,8 @@ describe("DashboardApiService", () => {
 
     const req = httpMock.expectOne(
       (r) =>
-        r.url.endsWith("/dashboard/occupancy-hourly") && r.params.get("parkingId") === "pkg-123",
+        r.url.endsWith("/dashboard/occupancy-hourly") &&
+        r.params.get("parkingId") === "pkg-123"
     );
     expect(req.request.context.get(AUTHORIZED)).toBe(true);
 
@@ -92,7 +102,11 @@ describe("DashboardApiService", () => {
 
   it("should pass startDate and endDate to getHourlyOccupancy when provided", () => {
     service
-      .getHourlyOccupancy("pkg-123", "2026-10-01T00:00:00.000Z", "2026-10-01T23:59:59.000Z")
+      .getHourlyOccupancy(
+        "pkg-123",
+        "2026-10-01T00:00:00.000Z",
+        "2026-10-01T23:59:59.000Z"
+      )
       .subscribe((points) => {
         expect(points.length).toBe(1);
       });
@@ -102,7 +116,7 @@ describe("DashboardApiService", () => {
         r.url.endsWith("/dashboard/occupancy-hourly") &&
         r.params.get("parkingId") === "pkg-123" &&
         r.params.get("startDate") === "2026-10-01T00:00:00.000Z" &&
-        r.params.get("endDate") === "2026-10-01T23:59:59.000Z",
+        r.params.get("endDate") === "2026-10-01T23:59:59.000Z"
     );
     expect(req.request.context.get(AUTHORIZED)).toBe(true);
 
@@ -124,7 +138,9 @@ describe("DashboardApiService", () => {
       expect(items[0]?.occupancyRate).toBe(85);
     });
 
-    const req = httpMock.expectOne((r) => r.url.endsWith("/dashboard/parkings-comparison"));
+    const req = httpMock.expectOne((r) =>
+      r.url.endsWith("/dashboard/parkings-comparison")
+    );
     expect(req.request.context.get(AUTHORIZED)).toBe(true);
 
     req.flush([
@@ -141,7 +157,10 @@ describe("DashboardApiService", () => {
 
   it("should sanitize startDate and endDate to YYYY-MM-DD format in getParkingsComparison", () => {
     service
-      .getParkingsComparison("2026-10-01T00:00:00.000Z", "2026-10-01T23:59:59.000Z")
+      .getParkingsComparison(
+        "2026-10-01T00:00:00.000Z",
+        "2026-10-01T23:59:59.000Z"
+      )
       .subscribe((items) => {
         expect(items.length).toBe(1);
       });
@@ -150,7 +169,7 @@ describe("DashboardApiService", () => {
       (r) =>
         r.url.endsWith("/dashboard/parkings-comparison") &&
         r.params.get("startDate") === "2026-10-01" &&
-        r.params.get("endDate") === "2026-10-01",
+        r.params.get("endDate") === "2026-10-01"
     );
     expect(req.request.context.get(AUTHORIZED)).toBe(true);
 
@@ -167,15 +186,17 @@ describe("DashboardApiService", () => {
   });
 
   it("should preserve already formatted YYYY-MM-DD startDate and endDate in getParkingsComparison", () => {
-    service.getParkingsComparison("2026-10-01", "2026-10-02").subscribe((items) => {
-      expect(items.length).toBe(1);
-    });
+    service
+      .getParkingsComparison("2026-10-01", "2026-10-02")
+      .subscribe((items) => {
+        expect(items.length).toBe(1);
+      });
 
     const req = httpMock.expectOne(
       (r) =>
         r.url.endsWith("/dashboard/parkings-comparison") &&
         r.params.get("startDate") === "2026-10-01" &&
-        r.params.get("endDate") === "2026-10-02",
+        r.params.get("endDate") === "2026-10-02"
     );
     expect(req.request.context.get(AUTHORIZED)).toBe(true);
 
@@ -199,7 +220,9 @@ describe("DashboardApiService", () => {
       expect(report.items[0]?.licensePlate).toBe("ABC1234");
     });
 
-    const req = httpMock.expectOne((r) => r.url.endsWith("/reports/operational"));
+    const req = httpMock.expectOne((r) =>
+      r.url.endsWith("/reports/operational")
+    );
     expect(req.request.context.get(AUTHORIZED)).toBe(true);
     expect(req.request.params.get("parkingId")).toBe("pkg-123");
 
@@ -226,7 +249,9 @@ describe("DashboardApiService", () => {
     });
 
     const req = httpMock.expectOne(
-      (r) => r.url.endsWith("/reports/operational/csv") && r.params.get("parkingId") === "pkg-123",
+      (r) =>
+        r.url.endsWith("/reports/operational/csv") &&
+        r.params.get("parkingId") === "pkg-123"
     );
     expect(req.request.method).toBe("GET");
     expect(req.request.responseType).toBe("blob");
@@ -244,7 +269,9 @@ describe("DashboardApiService", () => {
         call1Result = res;
       });
 
-      const req1 = httpMock.expectOne((r) => r.url.endsWith("/dashboard/summary"));
+      const req1 = httpMock.expectOne((r) =>
+        r.url.endsWith("/dashboard/summary")
+      );
       req1.flush({
         availableSlots: 10,
         occupancyRate: 50,
@@ -265,11 +292,15 @@ describe("DashboardApiService", () => {
 
     it("should return cached hourly occupancy on repeated calls within TTL", () => {
       let callCount = 0;
-      service.getHourlyOccupancy("pkg-1", "2026-10-01", "2026-10-02").subscribe(() => {
-        callCount += 1;
-      });
+      service
+        .getHourlyOccupancy("pkg-1", "2026-10-01", "2026-10-02")
+        .subscribe(() => {
+          callCount += 1;
+        });
 
-      const req = httpMock.expectOne((r) => r.url.endsWith("/dashboard/occupancy-hourly"));
+      const req = httpMock.expectOne((r) =>
+        r.url.endsWith("/dashboard/occupancy-hourly")
+      );
       req.flush([
         {
           checkins: 5,
@@ -280,9 +311,11 @@ describe("DashboardApiService", () => {
         },
       ]);
 
-      service.getHourlyOccupancy("pkg-1", "2026-10-01", "2026-10-02").subscribe(() => {
-        callCount += 1;
-      });
+      service
+        .getHourlyOccupancy("pkg-1", "2026-10-01", "2026-10-02")
+        .subscribe(() => {
+          callCount += 1;
+        });
 
       httpMock.expectNone((r) => r.url.endsWith("/dashboard/occupancy-hourly"));
       expect(callCount).toBe(2);
@@ -291,12 +324,18 @@ describe("DashboardApiService", () => {
     it("should return cached hourly occupancy when dates differ only by milliseconds/sub-minute precision", () => {
       let callCount = 0;
       service
-        .getHourlyOccupancy("pkg-1", "2026-10-01T00:00:00.000Z", "2026-10-01T23:59:59.999Z")
+        .getHourlyOccupancy(
+          "pkg-1",
+          "2026-10-01T00:00:00.000Z",
+          "2026-10-01T23:59:59.999Z"
+        )
         .subscribe(() => {
           callCount += 1;
         });
 
-      const req = httpMock.expectOne((r) => r.url.endsWith("/dashboard/occupancy-hourly"));
+      const req = httpMock.expectOne((r) =>
+        r.url.endsWith("/dashboard/occupancy-hourly")
+      );
       req.flush([
         {
           checkins: 5,
@@ -308,7 +347,11 @@ describe("DashboardApiService", () => {
       ]);
 
       service
-        .getHourlyOccupancy("pkg-1", "2026-10-01T00:00:00.123Z", "2026-10-01T23:59:59.456Z")
+        .getHourlyOccupancy(
+          "pkg-1",
+          "2026-10-01T00:00:00.123Z",
+          "2026-10-01T23:59:59.456Z"
+        )
         .subscribe(() => {
           callCount += 1;
         });
@@ -319,7 +362,9 @@ describe("DashboardApiService", () => {
 
     it("should re-invoke backend service when clearCache is called", () => {
       service.getSummary().subscribe();
-      const req1 = httpMock.expectOne((r) => r.url.endsWith("/dashboard/summary"));
+      const req1 = httpMock.expectOne((r) =>
+        r.url.endsWith("/dashboard/summary")
+      );
       req1.flush({
         availableSlots: 50,
         occupancyRate: 50,
@@ -332,7 +377,9 @@ describe("DashboardApiService", () => {
       service.clearCache();
 
       service.getSummary().subscribe();
-      const req2 = httpMock.expectOne((r) => r.url.endsWith("/dashboard/summary"));
+      const req2 = httpMock.expectOne((r) =>
+        r.url.endsWith("/dashboard/summary")
+      );
       req2.flush({
         availableSlots: 50,
         occupancyRate: 50,
@@ -347,7 +394,9 @@ describe("DashboardApiService", () => {
       vi.useFakeTimers();
       try {
         service.getSummary().subscribe();
-        const req1 = httpMock.expectOne((r) => r.url.endsWith("/dashboard/summary"));
+        const req1 = httpMock.expectOne((r) =>
+          r.url.endsWith("/dashboard/summary")
+        );
         req1.flush({
           availableSlots: 50,
           occupancyRate: 50,
@@ -360,7 +409,9 @@ describe("DashboardApiService", () => {
         vi.advanceTimersByTime(service.defaultTtlMs + 1000);
 
         service.getSummary().subscribe();
-        const req2 = httpMock.expectOne((r) => r.url.endsWith("/dashboard/summary"));
+        const req2 = httpMock.expectOne((r) =>
+          r.url.endsWith("/dashboard/summary")
+        );
         req2.flush({
           availableSlots: 40,
           occupancyRate: 60,
@@ -376,7 +427,9 @@ describe("DashboardApiService", () => {
 
     it("should invalidate specific cache patterns", () => {
       service.getSummary("pkg-1").subscribe();
-      const req1 = httpMock.expectOne((r) => r.url.endsWith("/dashboard/summary"));
+      const req1 = httpMock.expectOne((r) =>
+        r.url.endsWith("/dashboard/summary")
+      );
       req1.flush({
         availableSlots: 10,
         occupancyRate: 50,
@@ -390,7 +443,9 @@ describe("DashboardApiService", () => {
       service.invalidate("summary:pkg-1");
 
       service.getSummary("pkg-1").subscribe();
-      const req2 = httpMock.expectOne((r) => r.url.endsWith("/dashboard/summary"));
+      const req2 = httpMock.expectOne((r) =>
+        r.url.endsWith("/dashboard/summary")
+      );
       req2.flush({
         availableSlots: 10,
         occupancyRate: 50,

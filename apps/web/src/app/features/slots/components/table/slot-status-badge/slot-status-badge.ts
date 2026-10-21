@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 import type { ParkingSlotStatus } from "@core/type/parking-slot.type";
 import { BadgeComponent } from "@nivo-sass/design-system";
 
@@ -7,8 +12,9 @@ import {
   SLOT_STATUS_VARIANTS,
 } from "../../../shared/parking-slot-presentations";
 
-export const isParkingSlotStatus = (status: string): status is ParkingSlotStatus =>
-  status in SLOT_STATUS_LABELS;
+export const isParkingSlotStatus = (
+  status: string
+): status is ParkingSlotStatus => status in SLOT_STATUS_LABELS;
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

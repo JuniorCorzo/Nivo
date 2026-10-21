@@ -28,7 +28,9 @@ describe("parkingSlotColumnDefinition", () => {
     const cols = parkingSlotColumnDefinition();
     expect(cols.length).toBe(8);
     /* SAFETY: TanStack column definition display columns have id or accessorKey */
-    const ids = cols.map((c) => c.id ?? (c as ColumnWithAccessorKey).accessorKey);
+    const ids = cols.map(
+      (c) => c.id ?? (c as ColumnWithAccessorKey).accessorKey
+    );
     expect(ids).toEqual([
       "select",
       "slotNumber",

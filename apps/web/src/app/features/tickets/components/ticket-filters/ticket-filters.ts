@@ -12,11 +12,18 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideFilterX, lucideRotateCcw, lucideSearch } from "@ng-icons/lucide";
-import { ButtonComponent, InputComponent, SelectComponent } from "@nivo-sass/design-system";
+import {
+  ButtonComponent,
+  InputComponent,
+  SelectComponent,
+} from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { debounceTime, distinctUntilChanged, Subject } from "rxjs";
 
-import type { TicketFilterCriteria, TicketStatusFilter } from "../../models/ticket-filter.model";
+import type {
+  TicketFilterCriteria,
+  TicketStatusFilter,
+} from "../../models/ticket-filter.model";
 
 export interface FilterSelectOption<T = string> {
   label: string;
@@ -87,7 +94,11 @@ export class TicketFiltersComponent implements OnInit {
 
   ngOnInit(): void {
     this.plateSubject
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe((plate) => {
         this.filtersChange.emit({
           ...this.filters(),

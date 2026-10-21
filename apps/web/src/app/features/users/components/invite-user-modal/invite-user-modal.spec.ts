@@ -2,9 +2,9 @@ import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import { UserService } from "@core/services/user/user-service";
 import { ToastService } from "@nivo-sass/design-system";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { of, throwError } from "rxjs";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 import { InviteUserModalComponent } from "./invite-user-modal";
 
@@ -23,12 +23,16 @@ describe("InviteUserModalComponent", () => {
   let toastServiceMock: MockToastService;
 
   beforeAll(() => {
-    HTMLDialogElement.prototype.showModal = vi.fn(function mockShowModal(this: HTMLDialogElement) {
-      this.open = true;
-    });
-    HTMLDialogElement.prototype.close = vi.fn(function mockClose(this: HTMLDialogElement) {
-      this.open = false;
-    });
+    HTMLDialogElement.prototype.showModal = vi.fn(
+      function mockShowModal(this: HTMLDialogElement) {
+        this.open = true;
+      }
+    );
+    HTMLDialogElement.prototype.close = vi.fn(
+      function mockClose(this: HTMLDialogElement) {
+        this.open = false;
+      }
+    );
   });
 
   beforeEach(async () => {
@@ -69,7 +73,9 @@ describe("InviteUserModalComponent", () => {
     fixture.detectChanges();
 
     /* SAFETY: Dialog element is guaranteed to be an HTMLDialogElement in test environment */
-    const dialog = fixture.nativeElement.querySelector("dialog") as HTMLDialogElement;
+    const dialog = fixture.nativeElement.querySelector(
+      "dialog"
+    ) as HTMLDialogElement;
     expect(dialog.open).toBe(false);
   });
 
@@ -102,17 +108,19 @@ describe("InviteUserModalComponent", () => {
     expect(userServiceMock.inviteUser).toHaveBeenCalledWith(
       "carlos@nivo.com",
       "OPERATOR",
-      "Carlos Gómez",
+      "Carlos Gómez"
     );
     expect(toastServiceMock.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "success" }),
+      expect.objectContaining({ type: "success" })
     );
     expect(invitedCalled).toBe(true);
     expect(closedCalled).toBe(true);
   });
 
   it("should handle error when userService.inviteUser fails", () => {
-    userServiceMock.inviteUser.mockReturnValue(throwError(() => new Error("Invite failed")));
+    userServiceMock.inviteUser.mockReturnValue(
+      throwError(() => new Error("Invite failed"))
+    );
 
     component.form.controls.fullName.setValue("Carlos Gómez");
     component.form.controls.email.setValue("carlos@nivo.com");
@@ -121,7 +129,7 @@ describe("InviteUserModalComponent", () => {
     component.onSubmit();
 
     expect(toastServiceMock.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "error" }),
+      expect.objectContaining({ type: "error" })
     );
     expect(component.isSubmitting()).toBe(false);
   });
@@ -165,14 +173,18 @@ describe("InviteUserModalComponent", () => {
     });
 
     /* SAFETY: Dialog element is guaranteed to be an HTMLDialogElement in test environment */
-    const dialog = fixture.nativeElement.querySelector("dialog") as HTMLDialogElement;
+    const dialog = fixture.nativeElement.querySelector(
+      "dialog"
+    ) as HTMLDialogElement;
     dialog.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(closedCalled).toBe(true);
   });
 
   it("should close dialog on ngOnDestroy if open", () => {
     /* SAFETY: Dialog element is guaranteed to be an HTMLDialogElement in test environment */
-    const dialog = fixture.nativeElement.querySelector("dialog") as HTMLDialogElement;
+    const dialog = fixture.nativeElement.querySelector(
+      "dialog"
+    ) as HTMLDialogElement;
     expect(dialog.open).toBe(true);
 
     fixture.destroy();

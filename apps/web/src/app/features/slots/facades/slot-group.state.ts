@@ -36,7 +36,7 @@ export const availableGroups = (slots: SlotSummary[]): SlotGroupOption[] => {
     }
   }
   return [...map.values()].toSorted(
-    (a, b) => a.zone.localeCompare(b.zone) || a.prefix.localeCompare(b.prefix),
+    (a, b) => a.zone.localeCompare(b.zone) || a.prefix.localeCompare(b.prefix)
   );
 };
 
@@ -49,7 +49,11 @@ export class SlotGroupState {
   readonly groupTarget = signal<{ zone: string; prefix: string } | null>(null);
   readonly availableGroups = availableGroups;
 
-  openGroupModal(selectedSlots: SlotSummary[], zone?: string, prefix?: string): void {
+  openGroupModal(
+    selectedSlots: SlotSummary[],
+    zone?: string,
+    prefix?: string
+  ): void {
     if (zone !== undefined && prefix !== undefined) {
       this.groupTarget.set({ prefix, zone });
     } else if (selectedSlots.length > 0) {
@@ -71,17 +75,18 @@ export class SlotGroupState {
   updateSlotGroup(
     payload: UpdateSlotGroupPayload,
     slots: SlotSummary[],
-    onDone?: () => void,
+    onDone?: () => void
   ): void {
     const hasOccupied = slots.some(
       (slot) =>
         (slot.zone ?? "") === payload.currentZone &&
         (slot.prefix ?? "") === payload.currentPrefix &&
-        slot.status !== "AVAILABLE",
+        slot.status !== "AVAILABLE"
     );
     if (hasOccupied) {
       this.toast?.showToast({
-        message: "No se puede modificar el grupo porque contiene plazas ocupadas o no disponibles.",
+        message:
+          "No se puede modificar el grupo porque contiene plazas ocupadas o no disponibles.",
         type: "error",
       });
       return;
@@ -89,7 +94,10 @@ export class SlotGroupState {
 
     this.slotsService.updateSlotGroup(payload).subscribe({
       error: (err) => {
-        const msg = err?.error?.message || err?.message || "Error al actualizar el grupo de plazas";
+        const msg =
+          err?.error?.message ||
+          err?.message ||
+          "Error al actualizar el grupo de plazas";
         this.toast?.showToast({
           message: msg,
           type: "error",

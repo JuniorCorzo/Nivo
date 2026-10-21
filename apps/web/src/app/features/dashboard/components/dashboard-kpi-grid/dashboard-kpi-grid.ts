@@ -1,5 +1,10 @@
 import { DecimalPipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 import type { DashboardSummaryModel } from "@core/models/dashboard.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {

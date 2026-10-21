@@ -1,8 +1,17 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
 import type { TicketSummary } from "@core/models/ticket.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideInbox, lucideRotateCcw } from "@ng-icons/lucide";
-import { ButtonComponent, TypographyH4, TypographyMuted } from "@nivo-sass/design-system";
+import {
+  ButtonComponent,
+  TypographyH4,
+  TypographyMuted,
+} from "@nivo-sass/design-system";
 import {
   DataTableComponent,
   DataTablePaginationComponent,

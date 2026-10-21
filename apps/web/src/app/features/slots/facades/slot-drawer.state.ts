@@ -40,7 +40,9 @@ export class SlotDrawerState {
   openDrawer(parkingId: string, slotId: string): void {
     this.drawerTab.set("general");
     this.drawerSlotId.set(slotId);
-    this.router.navigate([APP_ROUTES.app.parkingLotSlotDetail(parkingId, slotId)]);
+    this.router.navigate([
+      APP_ROUTES.app.parkingLotSlotDetail(parkingId, slotId),
+    ]);
   }
 
   closeDrawer(parkingId: string): void {

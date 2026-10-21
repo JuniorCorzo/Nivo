@@ -17,7 +17,10 @@ export class TenantService {
     const requestBody = mapToRegisterTenantDto(registerTenant);
 
     return this.tenantsService
-      .registerTenant({ body: requestBody }, new HttpContext().set(AUTHORIZED, false))
+      .registerTenant(
+        { body: requestBody },
+        new HttpContext().set(AUTHORIZED, false)
+      )
       .pipe(map(({ data }) => mapToUserModel(data)));
   }
 }

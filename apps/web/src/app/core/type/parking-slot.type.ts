@@ -1,6 +1,10 @@
 import type { SlotType } from "./slot-distribution.type";
 
-export type ParkingSlotStatus = "AVAILABLE" | "OCCUPIED" | "MAINTENANCE" | "RESERVED";
+export type ParkingSlotStatus =
+  | "AVAILABLE"
+  | "OCCUPIED"
+  | "MAINTENANCE"
+  | "RESERVED";
 
 export interface ParkingSlot {
   id: string;

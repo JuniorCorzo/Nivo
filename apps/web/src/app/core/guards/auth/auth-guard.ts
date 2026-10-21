@@ -8,7 +8,7 @@ import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 const handleUnauthorized = (
   route: ActivatedRouteSnapshot,
   redirectService: RedirectService,
-  router: Router,
+  router: Router
 ) => {
   redirectService.saveRedirectUrl(route);
 
@@ -20,5 +20,7 @@ export const authGuard: CanActivateFn = (route) => {
   const router = inject(Router);
   const redirectService = inject(RedirectService);
 
-  return isAuthenticate ? true : handleUnauthorized(route, redirectService, router);
+  return isAuthenticate
+    ? true
+    : handleUnauthorized(route, redirectService, router);
 };

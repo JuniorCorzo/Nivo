@@ -107,7 +107,11 @@ describe("ParkingAddressSectionComponent", () => {
     const addressSection = fixture.debugElement.children[0]
       .componentInstance as ParkingAddressSectionComponent;
 
-    expect(addressSection.departments()).toEqual(["Cundinamarca", "Antioquia", "Valle"]);
+    expect(addressSection.departments()).toEqual([
+      "Cundinamarca",
+      "Antioquia",
+      "Valle",
+    ]);
     expect(addressSection.cities()).toEqual(["Bogotá", "Soacha", "Chía"]);
 
     hostComponent.departments.set(["Santander"]);

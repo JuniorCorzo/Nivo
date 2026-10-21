@@ -49,7 +49,7 @@ describe("UserRowActionsComponent", () => {
     const compiled = fixture.nativeElement as HTMLElement;
     /* SAFETY: nv-button contains native button element in DOM */
     const changeRoleBtn = compiled.querySelector(
-      `nv-button[aria-label="${APP_TEXTS.users.table.actions.changeRole}"] button`,
+      `nv-button[aria-label="${APP_TEXTS.users.table.actions.changeRole}"] button`
     ) as HTMLButtonElement | null;
     expect(changeRoleBtn?.disabled).toBe(false);
 
@@ -70,7 +70,7 @@ describe("UserRowActionsComponent", () => {
     const compiled = fixture.nativeElement as HTMLElement;
     /* SAFETY: nv-button contains native button element in DOM */
     const changeRoleBtn = compiled.querySelector(
-      `nv-button[aria-label="${APP_TEXTS.users.table.actions.changeRole}"] button`,
+      `nv-button[aria-label="${APP_TEXTS.users.table.actions.changeRole}"] button`
     ) as HTMLButtonElement | null;
     expect(changeRoleBtn?.disabled).toBe(false);
 
@@ -92,7 +92,7 @@ describe("UserRowActionsComponent", () => {
     const compiled = fixture.nativeElement as HTMLElement;
     /* SAFETY: nv-button contains native button element in DOM */
     const deactivateBtn = compiled.querySelector(
-      `nv-button[aria-label="${APP_TEXTS.users.table.actions.deactivate}"] button`,
+      `nv-button[aria-label="${APP_TEXTS.users.table.actions.deactivate}"] button`
     ) as HTMLButtonElement | null;
     expect(deactivateBtn?.disabled).toBe(true);
   });

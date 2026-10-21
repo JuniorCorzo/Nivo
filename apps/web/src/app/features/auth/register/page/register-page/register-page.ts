@@ -83,8 +83,14 @@ export class RegisterPage implements OnInit, OnDestroy {
   });
 
   protected registerForm = form(this.registerModel, (schemePath) => {
-    const { companyName, confirmPassword, contactInfo, email, password, username } =
-      this.texts.form;
+    const {
+      companyName,
+      confirmPassword,
+      contactInfo,
+      email,
+      password,
+      username,
+    } = this.texts.form;
     required(schemePath.companyName, { message: companyName.errors.required });
     minLength(schemePath.companyName, 3, {
       message: companyName.errors.minLength,
@@ -107,7 +113,10 @@ export class RegisterPage implements OnInit, OnDestroy {
       message: confirmPassword.errors.required,
     });
     validateTree(schemePath, (model) => {
-      if (model.valueOf(schemePath.password) === model.valueOf(schemePath.confirmPassword)) {
+      if (
+        model.valueOf(schemePath.password) ===
+        model.valueOf(schemePath.confirmPassword)
+      ) {
         return null;
       }
 
@@ -123,7 +132,7 @@ export class RegisterPage implements OnInit, OnDestroy {
     this.submitter
       .pipe(
         exhaustMap((payload) => from(this.sendRequest(payload))),
-        takeUntil(this.destroyer),
+        takeUntil(this.destroyer)
       )
       .subscribe();
   }

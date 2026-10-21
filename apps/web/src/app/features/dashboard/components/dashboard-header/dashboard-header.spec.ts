@@ -37,7 +37,9 @@ describe("DashboardHeaderComponent", () => {
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
     /* SAFETY: Test query returns an HTMLElement */
-    const btnWeek = compiled.querySelector('[data-testid="granularity-week"]') as HTMLElement;
+    const btnWeek = compiled.querySelector(
+      '[data-testid="granularity-week"]'
+    ) as HTMLElement;
     btnWeek.click();
 
     expect(emitSpy).toHaveBeenCalledWith("7days");
@@ -51,7 +53,7 @@ describe("DashboardHeaderComponent", () => {
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
     const syncBtn = [...compiled.querySelectorAll("button")].find((b) =>
-      b.textContent?.includes(APP_TEXTS.dashboard.actions.sync),
+      b.textContent?.includes(APP_TEXTS.dashboard.actions.sync)
     );
     syncBtn?.click();
 
@@ -64,7 +66,9 @@ describe("DashboardHeaderComponent", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('[data-testid="multi-parking-selector"]')).toBeNull();
+    expect(
+      compiled.querySelector('[data-testid="multi-parking-selector"]')
+    ).toBeNull();
   });
 
   it("debe renderizar selector multi-sede y emitir scopeChange al seleccionar sede", () => {
@@ -80,11 +84,17 @@ describe("DashboardHeaderComponent", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('[data-testid="multi-parking-selector"]')).toBeTruthy();
+    expect(
+      compiled.querySelector('[data-testid="multi-parking-selector"]')
+    ).toBeTruthy();
 
-    const buttons = compiled.querySelectorAll('[data-testid="multi-parking-selector"] button');
+    const buttons = compiled.querySelectorAll(
+      '[data-testid="multi-parking-selector"] button'
+    );
     /* SAFETY: Matched button is guaranteed to be an HTMLElement */
-    const p1Btn = [...buttons].find((b) => b.textContent?.includes("Sede Centro")) as HTMLElement;
+    const p1Btn = [...buttons].find((b) =>
+      b.textContent?.includes("Sede Centro")
+    ) as HTMLElement;
     p1Btn.click();
 
     expect(emitSpy).toHaveBeenCalledWith({ mode: "SINGLE", parkingId: "p1" });

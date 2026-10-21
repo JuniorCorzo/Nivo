@@ -1,14 +1,22 @@
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { ActivatedRoute, convertToParamMap, provideRouter } from "@angular/router";
+import {
+  ActivatedRoute,
+  convertToParamMap,
+  provideRouter,
+} from "@angular/router";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import type { RateModel } from "@core/models/rate.model";
 import { ParkingService } from "@core/services/parking-service";
 import { RateService } from "@core/services/rate-service";
 import { SlotService } from "@core/services/slot-service";
 import { TicketService } from "@core/services/ticket-service";
-import { ButtonComponent, DividerComponent, ToastService } from "@nivo-sass/design-system";
+import {
+  ButtonComponent,
+  DividerComponent,
+  ToastService,
+} from "@nivo-sass/design-system";
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { of, throwError } from "rxjs";
 
@@ -202,15 +210,19 @@ describe("OperationsPageComponent", () => {
 
   it("should render page header with quick action buttons that trigger modal methods", () => {
     fixture.detectChanges();
-    const pageHeader = fixture.debugElement.query(By.directive(PageHeaderComponent));
+    const pageHeader = fixture.debugElement.query(
+      By.directive(PageHeaderComponent)
+    );
     expect(pageHeader).toBeTruthy();
 
-    const buttons = fixture.debugElement.queryAll(By.directive(ButtonComponent));
+    const buttons = fixture.debugElement.queryAll(
+      By.directive(ButtonComponent)
+    );
     const checkInBtn = buttons.find((btn) =>
-      btn.nativeElement.textContent.includes("Registrar Ingreso"),
+      btn.nativeElement.textContent.includes("Registrar Ingreso")
     );
     const checkOutBtn = buttons.find((btn) =>
-      btn.nativeElement.textContent.includes("Procesar Salida"),
+      btn.nativeElement.textContent.includes("Procesar Salida")
     );
 
     expect(checkInBtn).toBeDefined();
@@ -300,7 +312,7 @@ describe("OperationsPageComponent", () => {
     };
 
     ticketServiceSpy.getActiveTicketBySlot.mockReturnValue(
-      throwError(() => ({ error: { message: "Ticket no encontrado" } })),
+      throwError(() => ({ error: { message: "Ticket no encontrado" } }))
     );
 
     component.checkOutSpecificSlot(mockSlot);
@@ -327,7 +339,9 @@ describe("OperationsPageComponent", () => {
       zone: "Z1",
     };
 
-    ticketServiceSpy.getActiveTicketBySlot.mockReturnValue(throwError(() => new Error("Unknown")));
+    ticketServiceSpy.getActiveTicketBySlot.mockReturnValue(
+      throwError(() => new Error("Unknown"))
+    );
 
     component.checkOutSpecificSlot(mockSlot);
 
@@ -365,13 +379,20 @@ describe("OperationsPageComponent", () => {
     ];
 
     it("should load active tickets on init and filter only OPEN status", () => {
-      ticketServiceSpy.listTicketsByParkingLot.mockReturnValue(of(mockActiveTickets));
+      ticketServiceSpy.listTicketsByParkingLot.mockReturnValue(
+        of(mockActiveTickets)
+      );
 
       component.refreshActiveTickets();
 
-      expect(ticketServiceSpy.listTicketsByParkingLot).toHaveBeenCalledWith("p-1");
+      expect(ticketServiceSpy.listTicketsByParkingLot).toHaveBeenCalledWith(
+        "p-1"
+      );
       expect(component.activeTickets().length).toBe(2);
-      expect(component.activeTickets().map((t) => t.id)).toEqual(["t-1", "t-2"]);
+      expect(component.activeTickets().map((t) => t.id)).toEqual([
+        "t-1",
+        "t-2",
+      ]);
     });
 
     it("should filter active tickets by search query against plate and slot number", () => {
@@ -448,7 +469,9 @@ describe("OperationsPageComponent", () => {
       fixture.detectChanges();
 
       const compiled: HTMLElement = fixture.nativeElement;
-      expect(compiled.textContent).toContain("No hay vehículos activos en este momento.");
+      expect(compiled.textContent).toContain(
+        "No hay vehículos activos en este momento."
+      );
     });
 
     it("should trigger hotkeys I and O to open modals when target is not an input", () => {

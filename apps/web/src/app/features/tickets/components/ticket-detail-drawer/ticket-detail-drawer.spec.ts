@@ -1,6 +1,9 @@
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
-import type { PriceDetailedModel, TicketSummary } from "@core/models/ticket.model";
+import type {
+  PriceDetailedModel,
+  TicketSummary,
+} from "@core/models/ticket.model";
 
 import { TicketDetailDrawerComponent } from "./ticket-detail-drawer";
 

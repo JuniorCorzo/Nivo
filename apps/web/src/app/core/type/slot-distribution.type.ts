@@ -1,4 +1,9 @@
-export type SlotType = "CAR" | "MOTORCYCLE" | "BIKE" | "ELECTRIC_VEHICLE" | "DISABLED";
+export type SlotType =
+  | "CAR"
+  | "MOTORCYCLE"
+  | "BIKE"
+  | "ELECTRIC_VEHICLE"
+  | "DISABLED";
 
 export interface SlotDistribution {
   prefix: string;

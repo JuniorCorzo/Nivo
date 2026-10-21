@@ -10,9 +10,9 @@ import { DeactivateUserModalComponent } from "../../components/deactivate-user-m
 import { InviteUserModalComponent } from "../../components/invite-user-modal/invite-user-modal";
 import { ModifyRoleModalComponent } from "../../components/modify-role-modal/modify-role-modal";
 import { UsersTableComponent } from "../../components/users-table";
+import { UsersPageFacade } from "../users-page.facade";
 import { UsersFiltersComponent } from "./components/users-filters/users-filters";
 import { UsersKpiGridComponent } from "./components/users-kpi-grid/users-kpi-grid";
-import { UsersPageFacade } from "../users-page.facade";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

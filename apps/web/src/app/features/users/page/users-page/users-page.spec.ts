@@ -109,7 +109,9 @@ describe("UsersPageComponent", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain("Gestión de Usuarios");
-    expect(compiled.textContent).toContain("Administra el equipo de tu parqueadero");
+    expect(compiled.textContent).toContain(
+      "Administra el equipo de tu parqueadero"
+    );
   });
 
   it("should render 4 KPI metric cards with calculated values", () => {
@@ -144,7 +146,9 @@ describe("UsersPageComponent", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
     const buttons = [...compiled.querySelectorAll("button")];
-    const operatorButton = buttons.find((b) => b.textContent?.includes("Operador"));
+    const operatorButton = buttons.find((b) =>
+      b.textContent?.includes("Operador")
+    );
     expect(operatorButton).toBeDefined();
 
     operatorButton?.click();
@@ -157,7 +161,9 @@ describe("UsersPageComponent", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
     const buttons = [...compiled.querySelectorAll("button")];
-    const inviteButton = buttons.find((b) => b.textContent?.includes("Invitar Usuario"));
+    const inviteButton = buttons.find((b) =>
+      b.textContent?.includes("Invitar Usuario")
+    );
     expect(inviteButton).toBeDefined();
 
     inviteButton?.click();
@@ -177,7 +183,7 @@ describe("UsersPageComponent", () => {
     const compiled = fixture.nativeElement as HTMLElement;
     /* SAFETY: app-users-filters contains an input element for search query */
     const searchInput = compiled.querySelector(
-      "app-users-filters input",
+      "app-users-filters input"
     ) as HTMLInputElement | null;
     expect(searchInput).not.toBeNull();
 

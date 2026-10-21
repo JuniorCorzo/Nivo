@@ -1,15 +1,25 @@
-@let localInvalidCredentials = invalidCredentials(); @let isLoadingLocal = isLoading();
+@let localInvalidCredentials = invalidCredentials(); @let isLoadingLocal =
+isLoading();
 <section class="flex-center min-h-screen">
   <nv-card class="flex-center flex-col gap-8 p-6 md:min-w-md md:gap-10 md:p-12">
     <nv-card-header class="flex-center gap-2 p-0!">
-      <ng-icon name="nivo-logo-horizontal" class="text-foreground h-16! w-36! text-center" />
+      <ng-icon
+        name="nivo-logo-horizontal"
+        class="text-foreground h-16! w-36! text-center"
+      />
       <span class="flex-center flex-col gap-2">
-        <nv-card-title class="text-center text-2xl">{{ texts.title }}</nv-card-title>
+        <nv-card-title class="text-center text-2xl"
+          >{{ texts.title }}</nv-card-title
+        >
         <nv-card-description>{{ texts.description }}</nv-card-description>
       </span>
     </nv-card-header>
     <nv-card-content class="flex w-full flex-col p-0!">
-      <form novalidate class="flex-center w-full flex-col gap-6" (submit)="onSubmit($event)">
+      <form
+        novalidate
+        class="flex-center w-full flex-col gap-6"
+        (submit)="onSubmit($event)"
+      >
         <nv-input
           class="w-full"
           [label]="texts.form.email.label"
@@ -28,9 +38,13 @@
         <div class="flex w-full flex-col gap-2 text-xs">
           <span class="min-h-5">
             @if (localInvalidCredentials) {
-              <nv-p class="text-destructive text-sm font-medium" aria-live="polite" role="alert">
-                {{ texts.errors.invalidCredentials }}
-              </nv-p>
+            <nv-p
+              class="text-destructive text-sm font-medium"
+              aria-live="polite"
+              role="alert"
+            >
+              {{ texts.errors.invalidCredentials }}
+            </nv-p>
             }
           </span>
           <nv-button
@@ -39,9 +53,12 @@
             size="md"
             [disabled]="!loginForm().valid()"
           >
-            {{ texts.actions.submit }}
-            @if (isLoadingLocal) {
-              <ng-icon name="lucideLoader" class="animate-spin duration-75" size="16"></ng-icon>
+            {{ texts.actions.submit }} @if (isLoadingLocal) {
+            <ng-icon
+              name="lucideLoader"
+              class="animate-spin duration-75"
+              size="16"
+            ></ng-icon>
             }
           </nv-button>
           <span class="flex-center f flex-col gap-2">
@@ -54,9 +71,9 @@
                 {{ texts.actions.register }}
               </a></nv-muted
             >
-            <nv-muted class="cursor-pointer hover:underline">{{
-              texts.actions.forgotPassword
-            }}</nv-muted>
+            <nv-muted class="cursor-pointer hover:underline"
+              >{{ texts.actions.forgotPassword }}</nv-muted
+            >
           </span>
         </div>
       </form>

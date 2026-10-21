@@ -39,7 +39,9 @@ describe("DashboardPage", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('[data-testid="multi-parking-selector"]')).toBeNull();
+    expect(
+      compiled.querySelector('[data-testid="multi-parking-selector"]')
+    ).toBeNull();
     expect(compiled.querySelector("app-parking-comparison-chart")).toBeNull();
   });
 
@@ -53,10 +55,14 @@ describe("DashboardPage", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('[data-testid="multi-parking-selector"]')).toBeTruthy();
+    expect(
+      compiled.querySelector('[data-testid="multi-parking-selector"]')
+    ).toBeTruthy();
     expect(compiled.querySelector("app-parking-comparison-chart")).toBeTruthy();
     expect(compiled.textContent).toContain("Comparativa de Sedes");
-    expect(compiled.querySelector('ng-icon[name="lucideBuilding2"]')).toBeTruthy();
+    expect(
+      compiled.querySelector('ng-icon[name="lucideBuilding2"]')
+    ).toBeTruthy();
   });
 
   it("debe envolver los gráficos de tendencia y distribución en contenedores nv-card con encabezados", () => {
@@ -72,8 +78,12 @@ describe("DashboardPage", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('ng-icon[name="lucideTrendingUp"]')).toBeTruthy();
-    expect(compiled.querySelector('ng-icon[name="lucideDollarSign"]')).toBeTruthy();
+    expect(
+      compiled.querySelector('ng-icon[name="lucideTrendingUp"]')
+    ).toBeTruthy();
+    expect(
+      compiled.querySelector('ng-icon[name="lucideDollarSign"]')
+    ).toBeTruthy();
     expect(compiled.querySelector('ng-icon[name="lucideTicket"]')).toBeTruthy();
     expect(compiled.querySelector('ng-icon[name="lucideClock"]')).toBeTruthy();
   });
@@ -106,9 +116,15 @@ describe("DashboardPage", () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain(APP_TEXTS.dashboard.title);
     expect(compiled.textContent).toContain(APP_TEXTS.dashboard.kpis.title);
-    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.kpis.revenue.digitalRatio);
-    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.kpis.tickets.rotation);
-    expect(compiled.textContent).toContain(APP_TEXTS.dashboard.kpis.stay.gracePeriod);
+    expect(compiled.textContent).toContain(
+      APP_TEXTS.dashboard.kpis.revenue.digitalRatio
+    );
+    expect(compiled.textContent).toContain(
+      APP_TEXTS.dashboard.kpis.tickets.rotation
+    );
+    expect(compiled.textContent).toContain(
+      APP_TEXTS.dashboard.kpis.stay.gracePeriod
+    );
     expect(compiled.textContent).toContain("95 min");
     expect(compiled.textContent).toContain("~1h 35m");
   });
@@ -184,15 +200,23 @@ describe("DashboardPage", () => {
     fixture.detectChanges();
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    const filter = compiled.querySelector('[data-testid="time-granularity-filter"]');
+    const filter = compiled.querySelector(
+      '[data-testid="time-granularity-filter"]'
+    );
     expect(filter).toBeTruthy();
 
     /* SAFETY: Test element query returns HTMLElement */
-    const btnToday = compiled.querySelector('[data-testid="granularity-today"]') as HTMLElement;
+    const btnToday = compiled.querySelector(
+      '[data-testid="granularity-today"]'
+    ) as HTMLElement;
     /* SAFETY: Test element query returns HTMLElement */
-    const btnWeek = compiled.querySelector('[data-testid="granularity-week"]') as HTMLElement;
+    const btnWeek = compiled.querySelector(
+      '[data-testid="granularity-week"]'
+    ) as HTMLElement;
     /* SAFETY: Test element query returns HTMLElement */
-    const btnMonth = compiled.querySelector('[data-testid="granularity-month"]') as HTMLElement;
+    const btnMonth = compiled.querySelector(
+      '[data-testid="granularity-month"]'
+    ) as HTMLElement;
 
     expect(btnToday).toBeTruthy();
     expect(btnWeek).toBeTruthy();
@@ -224,11 +248,13 @@ describe("DashboardPage", () => {
     fixture.detectChanges();
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector("app-operational-reports-table")).toBeTruthy();
+    expect(
+      compiled.querySelector("app-operational-reports-table")
+    ).toBeTruthy();
     expect(compiled.textContent).toContain("Reporte Operativo de Tickets");
 
     const exportBtn = [...compiled.querySelectorAll("button")].find((b) =>
-      b.textContent?.includes("Descargar CSV"),
+      b.textContent?.includes("Descargar CSV")
     );
     expect(exportBtn).toBeTruthy();
     expect(exportBtn?.getAttribute("nv-button")).toBeDefined();
@@ -241,7 +267,7 @@ describe("DashboardPage", () => {
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
     const syncBtn = [...compiled.querySelectorAll("button")].find((b) =>
-      b.textContent?.includes("Sincronizar"),
+      b.textContent?.includes("Sincronizar")
     );
     expect(syncBtn).toBeTruthy();
     expect(syncBtn?.getAttribute("nv-button")).toBeDefined();

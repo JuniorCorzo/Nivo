@@ -121,8 +121,12 @@ describe("CheckInFacade", () => {
     facade.init("parking-1");
 
     expect(facade.parkingId()).toBe("parking-1");
-    expect(slotServiceSpy.getAllSlotSummariesByParkingId).toHaveBeenCalledWith("parking-1");
-    expect(rateServiceSpy.getRatesByParkingId).toHaveBeenCalledWith("parking-1");
+    expect(slotServiceSpy.getAllSlotSummariesByParkingId).toHaveBeenCalledWith(
+      "parking-1"
+    );
+    expect(rateServiceSpy.getRatesByParkingId).toHaveBeenCalledWith(
+      "parking-1"
+    );
   });
 
   it("should normalize license plate to uppercase and trimmed", () => {
@@ -200,7 +204,7 @@ describe("CheckInFacade", () => {
     ticketServiceSpy.createTicket.mockReturnValue(
       throwError(() => ({
         error: { message: "Vehículo ya tiene un ticket activo" },
-      })),
+      }))
     );
 
     facade.init("parking-1");
@@ -210,7 +214,9 @@ describe("CheckInFacade", () => {
     facade.submitCheckIn();
 
     expect(facade.errorMessage()).toBe("Vehículo ya tiene un ticket activo");
-    expect(toastSpy.showToast).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
+    expect(toastSpy.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "error" })
+    );
   });
 
   it("should only include vehicle types that have available slots in availableVehicleTypes", () => {
@@ -308,7 +314,7 @@ describe("CheckInFacade", () => {
         phoneNumber: "3001234567",
         photoUrl: "data:image/jpeg;base64,samplephoto",
         plateCountry: "UNPLATED",
-      }),
+      })
     );
     expect(facade.lastIssuedTicket()).toEqual(mockTicket);
     expect(facade.isReceiptOpen()).toBe(true);

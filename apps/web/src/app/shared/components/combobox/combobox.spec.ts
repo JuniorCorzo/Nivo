@@ -15,7 +15,8 @@ const SAMPLE_ITEMS: TestItem[] = [
   { id: 4, name: "Valle del Cauca" },
 ];
 
-const getOptions = (): NodeListOf<HTMLElement> => document.querySelectorAll('[role="option"]');
+const getOptions = (): NodeListOf<HTMLElement> =>
+  document.querySelectorAll('[role="option"]');
 
 interface ComboboxAccessor {
   combobox?: () => {
@@ -26,14 +27,16 @@ interface ComboboxAccessor {
   } | null;
 }
 
-const getListbox = (): HTMLElement | null => document.querySelector('[role="listbox"]');
+const getListbox = (): HTMLElement | null =>
+  document.querySelector('[role="listbox"]');
 
 describe("ComboboxComponent", () => {
   let fixture: ComponentFixture<ComboboxComponent>;
   let overlayContainer: OverlayContainer;
 
   const openDropdown = () => {
-    const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
+    const inputEl: HTMLInputElement =
+      fixture.nativeElement.querySelector("input");
     inputEl.dispatchEvent(new Event("focusin", { bubbles: true }));
     const target: unknown = fixture.componentInstance;
     /* SAFETY: Accessing internal combobox signal on component in test */
@@ -49,7 +52,12 @@ describe("ComboboxComponent", () => {
   const getPopupText = (): string => {
     const listbox = document.querySelector('[role="listbox"]');
     const overlay = document.querySelector(".cdk-overlay-container");
-    return listbox?.textContent || overlay?.textContent || fixture.nativeElement.textContent || "";
+    return (
+      listbox?.textContent ||
+      overlay?.textContent ||
+      fixture.nativeElement.textContent ||
+      ""
+    );
   };
 
   beforeEach(() => {
@@ -76,7 +84,8 @@ describe("ComboboxComponent", () => {
       fixture.componentInstance.writeValue("Antioquia");
       fixture.detectChanges();
 
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
       expect(inputEl.value).toBe("Antioquia");
     });
 
@@ -89,11 +98,16 @@ describe("ComboboxComponent", () => {
 
       openDropdown();
 
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" }));
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" })
+      );
       fixture.detectChanges();
 
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter" }));
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "Enter" })
+      );
       fixture.detectChanges();
 
       expect(onChangeSpy).toHaveBeenCalledWith("Antioquia");
@@ -104,7 +118,8 @@ describe("ComboboxComponent", () => {
       fixture.componentInstance.registerOnTouched(onTouchedSpy);
       fixture.detectChanges();
 
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
       inputEl.focus();
       inputEl.dispatchEvent(new Event("blur"));
       fixture.detectChanges();
@@ -116,7 +131,8 @@ describe("ComboboxComponent", () => {
       fixture.componentInstance.setDisabledState(true);
       fixture.detectChanges();
 
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
       expect(inputEl.disabled).toBe(true);
     });
 
@@ -125,7 +141,8 @@ describe("ComboboxComponent", () => {
       fixture.componentInstance.setDisabledState(false);
       fixture.detectChanges();
 
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
       expect(inputEl.disabled).toBe(false);
     });
   });
@@ -147,7 +164,8 @@ describe("ComboboxComponent", () => {
     it("should filter items by display text", () => {
       openDropdown();
 
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
       inputEl.value = "Anti";
       inputEl.dispatchEvent(new Event("input", { bubbles: true }));
       fixture.detectChanges();
@@ -160,7 +178,8 @@ describe("ComboboxComponent", () => {
     it("should filter case-insensitively", () => {
       openDropdown();
 
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
       inputEl.value = "antioquia";
       inputEl.dispatchEvent(new Event("input", { bubbles: true }));
       fixture.detectChanges();
@@ -171,12 +190,16 @@ describe("ComboboxComponent", () => {
     });
 
     it("should use custom filterFn when provided", () => {
-      fixture.componentRef.setInput("filterFn", (item: TestItem) => item.id > 2);
+      fixture.componentRef.setInput(
+        "filterFn",
+        (item: TestItem) => item.id > 2
+      );
       fixture.detectChanges();
 
       openDropdown();
 
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
       inputEl.value = "a";
       inputEl.dispatchEvent(new Event("input", { bubbles: true }));
       fixture.detectChanges();
@@ -188,7 +211,8 @@ describe("ComboboxComponent", () => {
     it("should show no results when search matches nothing", () => {
       openDropdown();
 
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
       inputEl.value = "XYZ";
       inputEl.dispatchEvent(new Event("input", { bubbles: true }));
       fixture.detectChanges();
@@ -207,8 +231,11 @@ describe("ComboboxComponent", () => {
     });
 
     it("should highlight the first item on ArrowDown", () => {
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" }));
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" })
+      );
       fixture.detectChanges();
 
       const options = getOptions();
@@ -216,10 +243,15 @@ describe("ComboboxComponent", () => {
     });
 
     it("should highlight the next item on subsequent ArrowDown", () => {
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" }));
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" })
+      );
       fixture.detectChanges();
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" }));
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" })
+      );
       fixture.detectChanges();
 
       const options = getOptions();
@@ -228,12 +260,19 @@ describe("ComboboxComponent", () => {
     });
 
     it("should highlight previous item on ArrowUp", () => {
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" }));
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" })
+      );
       fixture.detectChanges();
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" }));
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" })
+      );
       fixture.detectChanges();
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowUp" }));
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "ArrowUp" })
+      );
       fixture.detectChanges();
 
       const options = getOptions();
@@ -242,10 +281,15 @@ describe("ComboboxComponent", () => {
     });
 
     it("should wrap to last item on ArrowUp when at first item", () => {
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" }));
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" })
+      );
       fixture.detectChanges();
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowUp" }));
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "ArrowUp" })
+      );
       fixture.detectChanges();
 
       const options = getOptions();
@@ -254,8 +298,11 @@ describe("ComboboxComponent", () => {
     });
 
     it("should close dropdown on Escape", () => {
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "Escape" })
+      );
       fixture.detectChanges();
 
       const listbox = getListbox();
@@ -266,10 +313,15 @@ describe("ComboboxComponent", () => {
       const selectionSpy = vi.fn();
       fixture.componentInstance.selectionChange.subscribe(selectionSpy);
 
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" }));
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" })
+      );
       fixture.detectChanges();
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter" }));
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "Enter" })
+      );
       fixture.detectChanges();
 
       expect(selectionSpy).toHaveBeenCalledWith(SAMPLE_ITEMS[0]);
@@ -280,10 +332,15 @@ describe("ComboboxComponent", () => {
       const onChangeSpy = vi.fn();
       fixture.componentInstance.registerOnChange(onChangeSpy);
 
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" }));
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" })
+      );
       fixture.detectChanges();
-      inputEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter" }));
+      inputEl.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "Enter" })
+      );
       fixture.detectChanges();
 
       expect(onChangeSpy).toHaveBeenCalledWith("Antioquia");
@@ -307,7 +364,9 @@ describe("ComboboxComponent", () => {
       const options = getOptions();
       /* SAFETY: Option element in list is an HTMLElement */
       const optionEl = options[1] as HTMLElement;
-      optionEl.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+      optionEl.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true, cancelable: true })
+      );
       fixture.detectChanges();
 
       expect(selectionSpy).toHaveBeenCalledWith(SAMPLE_ITEMS[1]);
@@ -349,7 +408,8 @@ describe("ComboboxComponent", () => {
       fixture.detectChanges();
       openDropdown();
 
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
       inputEl.value = "XYZ";
       inputEl.dispatchEvent(new Event("input", { bubbles: true }));
       fixture.detectChanges();
@@ -365,13 +425,15 @@ describe("ComboboxComponent", () => {
     });
 
     it('should have aria-expanded="false" when dropdown is closed', () => {
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
       expect(inputEl.getAttribute("aria-expanded")).toBe("false");
     });
 
     it('should have aria-expanded="true" when dropdown is open', () => {
       openDropdown();
-      const inputEl: HTMLInputElement = fixture.nativeElement.querySelector("input");
+      const inputEl: HTMLInputElement =
+        fixture.nativeElement.querySelector("input");
       expect(inputEl.getAttribute("aria-expanded")).toBe("true");
     });
 

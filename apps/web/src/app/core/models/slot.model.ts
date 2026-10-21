@@ -1,5 +1,10 @@
 export type SlotStatus = "AVAILABLE" | "OCCUPIED" | "RESERVED" | "MAINTENANCE";
-export type SlotType = "CAR" | "MOTORCYCLE" | "BIKE" | "ELECTRIC_VEHICLE" | "DISABLED";
+export type SlotType =
+  | "CAR"
+  | "MOTORCYCLE"
+  | "BIKE"
+  | "ELECTRIC_VEHICLE"
+  | "DISABLED";
 
 export interface Slot {
   id: string;

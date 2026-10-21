@@ -67,7 +67,10 @@ describe("UserService", () => {
     usersServiceSpy.getCurrentUser.mockReturnValue(of(mockResponse));
 
     TestBed.configureTestingModule({
-      providers: [UserService, { provide: UsersService, useValue: usersServiceSpy }],
+      providers: [
+        UserService,
+        { provide: UsersService, useValue: usersServiceSpy },
+      ],
     });
     service = TestBed.inject(UserService);
   });
@@ -94,7 +97,9 @@ describe("UserService", () => {
       timestamp: "2026-01-01T00:00:00.000Z",
     };
     /* SAFETY: Simulating backend response with missing user payload */
-    usersServiceSpy.getCurrentUser.mockReturnValue(of(emptyResponse as ResponseUserDto));
+    usersServiceSpy.getCurrentUser.mockReturnValue(
+      of(emptyResponse as ResponseUserDto)
+    );
     const newService = TestBed.runInInjectionContext(() => new UserService());
     let loadedUser: UserModel | null | undefined;
     newService.loadCurrentUser().subscribe((u) => {
@@ -131,9 +136,11 @@ describe("UserService", () => {
     usersServiceSpy.inviteUserWithRol.mockReturnValue(of({ message: "OK" }));
 
     let emitted = false;
-    service.inviteUser("new@example.com", "OPERATOR", "New User").subscribe(() => {
-      emitted = true;
-    });
+    service
+      .inviteUser("new@example.com", "OPERATOR", "New User")
+      .subscribe(() => {
+        emitted = true;
+      });
 
     expect(usersServiceSpy.inviteUserWithRol).toHaveBeenCalledWith({
       body: {
@@ -149,7 +156,7 @@ describe("UserService", () => {
   it("should modify user role and emit updated domain model", () => {
     const updatedDto: UserDto = { ...mockUserDto2, role: "MANAGER" };
     usersServiceSpy.modifyRol.mockReturnValue(
-      of({ data: updatedDto, message: "OK", status: "200", timestamp: "" }),
+      of({ data: updatedDto, message: "OK", status: "200", timestamp: "" })
     );
 
     // Pre-populate users list via listUsers
@@ -159,7 +166,7 @@ describe("UserService", () => {
         message: "OK",
         status: "200",
         timestamp: "",
-      }),
+      })
     );
     service.listUsers().subscribe();
 
@@ -199,7 +206,7 @@ describe("UserService", () => {
         message: "OK",
         status: "200",
         timestamp: "",
-      }),
+      })
     );
     service.listUsers().subscribe();
 
@@ -267,7 +274,9 @@ describe("UserService", () => {
 
     it("should catch API error and emit null", () => {
       usersServiceSpy.getCurrentUser.mockReset();
-      usersServiceSpy.getCurrentUser.mockReturnValue(throwError(() => new Error("Network error")));
+      usersServiceSpy.getCurrentUser.mockReturnValue(
+        throwError(() => new Error("Network error"))
+      );
 
       const newService = TestBed.runInInjectionContext(() => new UserService());
       expect(newService.currentUser()).toBeNull();

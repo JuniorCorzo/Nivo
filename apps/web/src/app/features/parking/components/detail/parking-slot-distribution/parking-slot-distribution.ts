@@ -2,7 +2,12 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import type { SlotDistribution } from "@core/type/slot-distribution.type";
 import { SLOT_TYPE_ICONS } from "@features/slots/shared/parking-slot-presentations";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideAccessibility, lucideBike, lucideCar, lucideZap } from "@ng-icons/lucide";
+import {
+  lucideAccessibility,
+  lucideBike,
+  lucideCar,
+  lucideZap,
+} from "@ng-icons/lucide";
 import {
   CardComponent,
   TypographyH3,
@@ -13,7 +18,13 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgIcon, CardComponent, TypographyH3, TypographyMuted, TypographyMono],
+  imports: [
+    NgIcon,
+    CardComponent,
+    TypographyH3,
+    TypographyMuted,
+    TypographyMono,
+  ],
   providers: [
     provideIcons({
       lucideAccessibility,

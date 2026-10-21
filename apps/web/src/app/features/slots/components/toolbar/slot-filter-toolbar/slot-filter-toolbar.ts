@@ -1,6 +1,15 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
 import { provideIcons, NgIcon } from "@ng-icons/core";
-import { lucideAccessibility, lucidePlugZap2, lucideSearch } from "@ng-icons/lucide";
+import {
+  lucideAccessibility,
+  lucidePlugZap2,
+  lucideSearch,
+} from "@ng-icons/lucide";
 import {
   ButtonComponent,
   InputComponent,
@@ -29,7 +38,9 @@ import {
     TypographyMuted,
     TypographySpan,
   ],
-  providers: [provideIcons({ lucideAccessibility, lucidePlugZap2, lucideSearch })],
+  providers: [
+    provideIcons({ lucideAccessibility, lucidePlugZap2, lucideSearch }),
+  ],
   selector: "app-slot-filter-toolbar",
   standalone: true,
   templateUrl: "./slot-filter-toolbar.html",
@@ -45,7 +56,9 @@ export class SlotFilterToolbarComponent {
   readonly typeOptions = input<Option[]>(SLOT_TYPE_FILTER_OPTIONS);
   readonly zoneOptions = input<Option[]>(SLOT_ZONE_FILTER_OPTIONS);
   readonly statusOptions = input<Option[]>(SLOT_STATUS_FILTER_OPTIONS);
-  readonly placeholder = input<string>(APP_TEXTS.parking.slots.list.search.placeholder);
+  readonly placeholder = input<string>(
+    APP_TEXTS.parking.slots.list.search.placeholder
+  );
 
   readonly queryInput = output<Event>();
   readonly filterChange = output<{ key: string; value: unknown }>();
