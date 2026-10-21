@@ -16,30 +16,33 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class CreateSlotUseCase {
-    private final SlotsRepository slotsRepository;
-    private final TenantsRepository tenantsRepository;
-    private final ParkingLotsRepository parkingLotsRepository;
+  private final SlotsRepository slotsRepository;
+  private final TenantsRepository tenantsRepository;
+  private final ParkingLotsRepository parkingLotsRepository;
 
-    public Slots execute(CreateSlotCommand command) {
-        this.validate(command);
+  public Slots execute(CreateSlotCommand command) {
+    this.validate(command);
 
-        final Slots slot = Slots.builder()
-            .tenant(TenantReference.of(this.tenantsRepository.getReferenceById(command.tenantId())))
-            .parking(ParkingLotsReference.of(this.parkingLotsRepository.getReferenceById(command.parkingLotId())))
-            .slotNumber(command.slotNumber()).type(command.type()).status(SlotStatus.AVAILABLE).build();
+    final Slots slot = Slots.builder()
+      .tenant(TenantReference.of(this.tenantsRepository.getReferenceById(command.tenantId())))
+      .parking(ParkingLotsReference.of(this.parkingLotsRepository.getReferenceById(command.parkingLotId())))
+      .slotNumber(command.slotNumber())
+      .type(command.type())
+      .status(SlotStatus.AVAILABLE)
+      .build();
 
-        return this.slotsRepository.save(slot);
-    }
+    return this.slotsRepository.save(slot);
+  }
 
-    private void validate(CreateSlotCommand command) {
-        if (!this.tenantsRepository.existsById(command.tenantId()))
-            throw new TenantNotExistsException(command.tenantId());
+  private void validate(CreateSlotCommand command) {
+    if (!this.tenantsRepository.existsById(command.tenantId()))
+      throw new TenantNotExistsException(command.tenantId());
 
-        if (!this.parkingLotsRepository.existsById(command.parkingLotId()))
-            throw new ParkingNotExistsException(command.parkingLotId());
-    }
+    if (!this.parkingLotsRepository.existsById(command.parkingLotId()))
+      throw new ParkingNotExistsException(command.parkingLotId());
+  }
 
-    @Builder(toBuilder = true)
-    public record CreateSlotCommand(UUID parkingLotId, UUID tenantId, String slotNumber, SlotType type) {
-    }
+  @Builder(toBuilder = true)
+  public record CreateSlotCommand(UUID parkingLotId, UUID tenantId, String slotNumber, SlotType type) {
+  }
 }

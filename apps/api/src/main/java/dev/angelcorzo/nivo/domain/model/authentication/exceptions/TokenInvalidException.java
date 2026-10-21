@@ -19,25 +19,25 @@ package dev.angelcorzo.nivo.domain.model.authentication.exceptions;
  */
 public class TokenInvalidException extends SecurityException {
 
-    /**
-     * Constructs a new {@code TokenInvalidException} with the specified detail message.
-     *
-     * @param message
-     *            the detail message.
-     */
-    public TokenInvalidException(String message) {
-        super(message);
-    }
+  /**
+   * Constructs a new {@code TokenInvalidException} with the specified detail message.
+   *
+   * @param message
+   *          the detail message.
+   */
+  public TokenInvalidException(String message) {
+    super(message);
+  }
 
-    /**
-     * Constructs a new {@code TokenInvalidException} with the specified detail message and cause.
-     *
-     * @param message
-     *            the detail message.
-     * @param cause
-     *            the underlying cause of the exception.
-     */
-    public TokenInvalidException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  /**
+   * Constructs a new {@code TokenInvalidException} with the specified detail message and cause.
+   *
+   * @param message
+   *          the detail message.
+   * @param cause
+   *          the underlying cause of the exception.
+   */
+  public TokenInvalidException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

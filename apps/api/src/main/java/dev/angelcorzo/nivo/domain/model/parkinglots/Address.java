@@ -29,24 +29,24 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Address {
-    /**
-     * The street name and number. Example: "Carrera 7 # 11-10".
-     */
-    private String street;
-    /**
-     * The city name. Example: "Bogotá".
-     */
-    private String city;
-    /**
-     * The state, province, or region. Example: "Cundinamarca".
-     */
-    private String state;
-    /**
-     * The country name. Example: "Colombia".
-     */
-    private String country;
-    /**
-     * The postal or ZIP code. Example: "110311".
-     */
-    private String zipCode;
+  /**
+   * The street name and number. Example: "Carrera 7 # 11-10".
+   */
+  private String street;
+  /**
+   * The city name. Example: "Bogotá".
+   */
+  private String city;
+  /**
+   * The state, province, or region. Example: "Cundinamarca".
+   */
+  private String state;
+  /**
+   * The country name. Example: "Colombia".
+   */
+  private String country;
+  /**
+   * The postal or ZIP code. Example: "110311".
+   */
+  private String zipCode;
 }

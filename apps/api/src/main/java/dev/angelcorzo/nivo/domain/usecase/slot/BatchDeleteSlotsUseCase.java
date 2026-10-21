@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class BatchDeleteSlotsUseCase {
-    private final SlotsRepository slotRepository;
+  private final SlotsRepository slotRepository;
 
-    public void execute(List<UUID> slotIds) {
-        this.slotRepository.batchDelete(slotIds);
-    }
+  public void execute(List<UUID> slotIds) {
+    this.slotRepository.batchDelete(slotIds);
+  }
 }

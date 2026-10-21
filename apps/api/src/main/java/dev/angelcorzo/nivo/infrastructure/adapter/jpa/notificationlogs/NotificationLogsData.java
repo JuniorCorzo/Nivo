@@ -35,55 +35,55 @@ import org.hibernate.annotations.CreationTimestamp;
 @Entity
 @Table(name = "notification_logs")
 public class NotificationLogsData {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
-    private TenantsData tenant;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
+  private TenantsData tenant;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "actor_user_id", referencedColumnName = "id", nullable = false)
-    private UsersData actorUser;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "actor_user_id", referencedColumnName = "id", nullable = false)
+  private UsersData actorUser;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipient_user_id", referencedColumnName = "id")
-    private UsersData recipientUser;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "recipient_user_id", referencedColumnName = "id")
+  private UsersData recipientUser;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "template_id", referencedColumnName = "id")
-    private NotificationTemplatesData template;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "template_id", referencedColumnName = "id")
+  private NotificationTemplatesData template;
 
-    @Column(name = "event_type", nullable = false, length = 50)
-    @Enumerated(EnumType.STRING)
-    private NotificationEvents eventType;
+  @Column(name = "event_type", nullable = false, length = 50)
+  @Enumerated(EnumType.STRING)
+  private NotificationEvents eventType;
 
-    @Column(name = "channel", nullable = false, length = 20)
-    @Enumerated(EnumType.STRING)
-    private NotificationsChannel channel;
+  @Column(name = "channel", nullable = false, length = 20)
+  @Enumerated(EnumType.STRING)
+  private NotificationsChannel channel;
 
-    @Column(name = "recipient", nullable = false)
-    private String recipient;
+  @Column(name = "recipient", nullable = false)
+  private String recipient;
 
-    @Column(name = "subject")
-    private String subject;
+  @Column(name = "subject")
+  private String subject;
 
-    @Column(name = "body", columnDefinition = "text")
-    private String body;
+  @Column(name = "body", columnDefinition = "text")
+  private String body;
 
-    @Column(name = "status", nullable = false, length = 20)
-    @ColumnDefault("'PENDING'")
-    @Enumerated(EnumType.STRING)
-    private NotificationLogsStatus status;
+  @Column(name = "status", nullable = false, length = 20)
+  @ColumnDefault("'PENDING'")
+  @Enumerated(EnumType.STRING)
+  private NotificationLogsStatus status;
 
-    @Column(name = "error_message", columnDefinition = "text")
-    private String errorMessage;
+  @Column(name = "error_message", columnDefinition = "text")
+  private String errorMessage;
 
-    @Column(name = "sent_at", columnDefinition = "TIMESTAMPTZ")
-    private OffsetDateTime sentAt;
+  @Column(name = "sent_at", columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime sentAt;
 
-    @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMPTZ")
-    @CreationTimestamp
-    private OffsetDateTime createdAt;
+  @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMPTZ")
+  @CreationTimestamp
+  private OffsetDateTime createdAt;
 }

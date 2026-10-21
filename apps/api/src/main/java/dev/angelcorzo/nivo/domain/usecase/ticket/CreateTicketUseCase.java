@@ -10,11 +10,11 @@ import dev.angelcorzo.nivo.domain.usecase.notification.notifier.TicketNotifier;
 
 public class CreateTicketUseCase extends CheckinVehicleUseCase {
 
-    public CreateTicketUseCase(final ParkingTicketsRepository parkingTicketsRepository,
-        final TenantsRepository tenantsRepository, final UsersRepository usersRepository,
-        final SlotsRepository slotsRepository, final RatesRepository ratesRepository,
-        final TicketNotifier ticketNotifier, final UnplatedTicketSequenceGateway unplatedTicketSequenceGateway) {
-        super(parkingTicketsRepository, tenantsRepository, usersRepository, slotsRepository, ratesRepository,
-            ticketNotifier, unplatedTicketSequenceGateway);
-    }
+  public CreateTicketUseCase(final ParkingTicketsRepository parkingTicketsRepository,
+    final TenantsRepository tenantsRepository, final UsersRepository usersRepository,
+    final SlotsRepository slotsRepository, final RatesRepository ratesRepository,
+    final TicketNotifier ticketNotifier, final UnplatedTicketSequenceGateway unplatedTicketSequenceGateway) {
+    super(parkingTicketsRepository, tenantsRepository, usersRepository, slotsRepository, ratesRepository,
+      ticketNotifier, unplatedTicketSequenceGateway);
+  }
 }

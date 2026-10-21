@@ -27,29 +27,29 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class PasswordEncodeImpl implements PasswordEncodeGateway {
 
-    private final PasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This implementation uses the injected {@link PasswordEncoder} to hash the raw password. The specific hashing
-     * algorithm (e.g., BCrypt) is determined by the PasswordEncoder bean configured in the application context.
-     * </p>
-     */
-    @Override
-    public String encrypt(String rawPassword) {
-        return this.passwordEncoder.encode(rawPassword);
-    }
+  /**
+   * {@inheritDoc}
+   * <p>
+   * This implementation uses the injected {@link PasswordEncoder} to hash the raw password. The specific hashing
+   * algorithm (e.g., BCrypt) is determined by the PasswordEncoder bean configured in the application context.
+   * </p>
+   */
+  @Override
+  public String encrypt(String rawPassword) {
+    return this.passwordEncoder.encode(rawPassword);
+  }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This implementation uses the injected {@link PasswordEncoder} to compare a raw password with its encrypted
-     * version in a secure manner that prevents timing attacks.
-     * </p>
-     */
-    @Override
-    public boolean matches(String rawPassword, String passwordEncrypted) {
-        return this.passwordEncoder.matches(rawPassword, passwordEncrypted);
-    }
+  /**
+   * {@inheritDoc}
+   * <p>
+   * This implementation uses the injected {@link PasswordEncoder} to compare a raw password with its encrypted version
+   * in a secure manner that prevents timing attacks.
+   * </p>
+   */
+  @Override
+  public boolean matches(String rawPassword, String passwordEncrypted) {
+    return this.passwordEncoder.matches(rawPassword, passwordEncrypted);
+  }
 }

@@ -22,16 +22,16 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Public Tickets", description = "Public parking ticket access for drivers")
 @RequiredArgsConstructor
 public class PublicTicketsController {
-    private final GetPublicTicketUseCase getPublicTicketUseCase;
-    private final ParkingTicketMapper parkingTicketMapper;
+  private final GetPublicTicketUseCase getPublicTicketUseCase;
+  private final ParkingTicketMapper parkingTicketMapper;
 
-    @Operation(summary = "Get public parking ticket by ID", description = "Retrieves public parking ticket details by UUID for unauthenticated driver verification")
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "Public ticket retrieved successfully"),
-        @ApiResponse(responseCode = "404", description = "Parking ticket not found")})
-    @GetMapping("/{id}")
-    public Response<PublicTicketDTO> getPublicTicket(
-        @Parameter(description = "Parking ticket ID", required = true) @PathVariable("id") final UUID id) {
-        final ParkingTickets ticket = this.getPublicTicketUseCase.execute(id);
-        return Response.ok(this.parkingTicketMapper.toPublicDto(ticket), "Public ticket retrieved successfully");
-    }
+  @Operation(summary = "Get public parking ticket by ID", description = "Retrieves public parking ticket details by UUID for unauthenticated driver verification")
+  @ApiResponses({@ApiResponse(responseCode = "200", description = "Public ticket retrieved successfully"),
+    @ApiResponse(responseCode = "404", description = "Parking ticket not found")})
+  @GetMapping("/{id}")
+  public Response<PublicTicketDTO> getPublicTicket(
+    @Parameter(description = "Parking ticket ID", required = true) @PathVariable("id") final UUID id) {
+    final ParkingTickets ticket = this.getPublicTicketUseCase.execute(id);
+    return Response.ok(this.parkingTicketMapper.toPublicDto(ticket), "Public ticket retrieved successfully");
+  }
 }

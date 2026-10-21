@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface NotificationPreferencesRepository {
-    List<NotificationPreferences> findAllByUserId(UUID userId);
+  List<NotificationPreferences> findAllByUserId(UUID userId);
 
-    boolean isEnable(NotificationEvents event, NotificationsChannel channel, String to);
+  boolean isEnable(NotificationEvents event, NotificationsChannel channel, String to);
 
-    boolean toggleActiveStatus(UUID userId, NotificationEvents event, NotificationsChannel channel);
+  boolean toggleActiveStatus(UUID userId, NotificationEvents event, NotificationsChannel channel);
 }

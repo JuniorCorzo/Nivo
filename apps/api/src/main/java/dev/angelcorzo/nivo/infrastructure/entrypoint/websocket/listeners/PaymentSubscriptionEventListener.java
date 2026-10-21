@@ -14,51 +14,51 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 @Component
 @RequiredArgsConstructor
 public class PaymentSubscriptionEventListener {
-    private final PaymentEventBroker transactionEventBroker;
-    private final ConcurrentHashMap<String, Map<String, String>> subscriptions = new ConcurrentHashMap<>();
+  private final PaymentEventBroker transactionEventBroker;
+  private final ConcurrentHashMap<String, Map<String, String>> subscriptions = new ConcurrentHashMap<>();
 
-    @EventListener
-    public void handleSessionSubscribe(SessionSubscribeEvent event) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+  @EventListener
+  public void handleSessionSubscribe(SessionSubscribeEvent event) {
+    StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        String destination = accessor.getDestination();
-        if (destination == null || !destination.startsWith("/topic/payment/")) {
-            return;
-        }
-
-        String paymentId = destination.substring("/topic/payment/".length());
-        this.subscriptions.computeIfAbsent(accessor.getSessionId(), k -> new ConcurrentHashMap<>())
-            .put(accessor.getSubscriptionId(), paymentId);
+    String destination = accessor.getDestination();
+    if (destination == null || !destination.startsWith("/topic/payment/")) {
+      return;
     }
 
-    @EventListener
-    public void handleSessionUnsubscribe(SessionUnsubscribeEvent event) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-        final String sessionId = accessor.getSessionId();
-        final String subscriptionId = accessor.getSubscriptionId();
+    String paymentId = destination.substring("/topic/payment/".length());
+    this.subscriptions.computeIfAbsent(accessor.getSessionId(), k -> new ConcurrentHashMap<>())
+      .put(accessor.getSubscriptionId(), paymentId);
+  }
 
-        final boolean hasSession = this.subscriptions.containsKey(sessionId);
-        final boolean hasSubscription = this.subscriptions.get(sessionId).containsKey(subscriptionId);
+  @EventListener
+  public void handleSessionUnsubscribe(SessionUnsubscribeEvent event) {
+    StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+    final String sessionId = accessor.getSessionId();
+    final String subscriptionId = accessor.getSubscriptionId();
 
-        if (!hasSession || !hasSubscription)
-            return;
+    final boolean hasSession = this.subscriptions.containsKey(sessionId);
+    final boolean hasSubscription = this.subscriptions.get(sessionId).containsKey(subscriptionId);
 
-        this.transactionEventBroker.unsubscribe(this.subscriptions.get(sessionId).get(subscriptionId));
-        this.subscriptions.get(sessionId).remove(subscriptionId);
-    }
+    if (!hasSession || !hasSubscription)
+      return;
 
-    @EventListener
-    public void handleSessionDisconnect(SessionDisconnectEvent event) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-        final String sessionId = accessor.getSessionId();
+    this.transactionEventBroker.unsubscribe(this.subscriptions.get(sessionId).get(subscriptionId));
+    this.subscriptions.get(sessionId).remove(subscriptionId);
+  }
 
-        if (!this.subscriptions.containsKey(sessionId))
-            return;
+  @EventListener
+  public void handleSessionDisconnect(SessionDisconnectEvent event) {
+    StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+    final String sessionId = accessor.getSessionId();
 
-        this.subscriptions.get(sessionId).forEach((subscriptionId, paymentId) -> {
-            this.transactionEventBroker.unsubscribe(paymentId);
-        });
+    if (!this.subscriptions.containsKey(sessionId))
+      return;
 
-        this.subscriptions.remove(sessionId);
-    }
+    this.subscriptions.get(sessionId).forEach((subscriptionId, paymentId) -> {
+      this.transactionEventBroker.unsubscribe(paymentId);
+    });
+
+    this.subscriptions.remove(sessionId);
+  }
 }

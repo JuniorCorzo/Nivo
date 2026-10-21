@@ -27,36 +27,36 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @ExtendWith(MockitoExtension.class)
 class DashboardStreamControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private DashboardSseRegistry sseRegistry;
+  @MockitoBean
+  private DashboardSseRegistry sseRegistry;
 
-    @Test
-    @DisplayName("GET /dashboard/stream sin parkingId suscribe stream SSE global del tenant")
-    void shouldSubscribeGlobalTenantSseStream() throws Exception {
-        final SseEmitter emitter = new SseEmitter();
+  @Test
+  @DisplayName("GET /dashboard/stream sin parkingId suscribe stream SSE global del tenant")
+  void shouldSubscribeGlobalTenantSseStream() throws Exception {
+    final SseEmitter emitter = new SseEmitter();
 
-        when(sseRegistry.createEmitter((UUID) null)).thenReturn(emitter);
+    when(sseRegistry.createEmitter((UUID) null)).thenReturn(emitter);
 
-        mockMvc.perform(get("/dashboard/stream").accept(MediaType.TEXT_EVENT_STREAM_VALUE)).andExpect(status().isOk());
+    mockMvc.perform(get("/dashboard/stream").accept(MediaType.TEXT_EVENT_STREAM_VALUE)).andExpect(status().isOk());
 
-        verify(sseRegistry).createEmitter((UUID) null);
-    }
+    verify(sseRegistry).createEmitter((UUID) null);
+  }
 
-    @Test
-    @DisplayName("GET /dashboard/stream con parkingId suscribe stream SSE de sede puntual")
-    void shouldSubscribeSingleParkingSseStream() throws Exception {
-        final UUID parkingId = UUID.randomUUID();
-        final SseEmitter emitter = new SseEmitter();
+  @Test
+  @DisplayName("GET /dashboard/stream con parkingId suscribe stream SSE de sede puntual")
+  void shouldSubscribeSingleParkingSseStream() throws Exception {
+    final UUID parkingId = UUID.randomUUID();
+    final SseEmitter emitter = new SseEmitter();
 
-        when(sseRegistry.createEmitter(parkingId)).thenReturn(emitter);
+    when(sseRegistry.createEmitter(parkingId)).thenReturn(emitter);
 
-        mockMvc.perform(
-            get("/dashboard/stream").param("parkingId", parkingId.toString()).accept(MediaType.TEXT_EVENT_STREAM_VALUE))
-            .andExpect(status().isOk());
+    mockMvc.perform(
+      get("/dashboard/stream").param("parkingId", parkingId.toString()).accept(MediaType.TEXT_EVENT_STREAM_VALUE))
+      .andExpect(status().isOk());
 
-        verify(sseRegistry).createEmitter(parkingId);
-    }
+    verify(sseRegistry).createEmitter(parkingId);
+  }
 }

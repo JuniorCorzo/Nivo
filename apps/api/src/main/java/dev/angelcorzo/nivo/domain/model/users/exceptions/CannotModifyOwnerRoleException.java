@@ -13,14 +13,14 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.ErrorMessagesModel;
  * @since 1.0.0
  */
 public class CannotModifyOwnerRoleException extends AppException {
-    private static final int STATUS = 403;
-    private static final String CODE = "CANNOT_MODIFY_OWNER_ROLE";
+  private static final int STATUS = 403;
+  private static final String CODE = "CANNOT_MODIFY_OWNER_ROLE";
 
-    public CannotModifyOwnerRoleException() {
-        super(ErrorMessagesModel.CANNOT_MODIFY_OWNER_ROLE.toString(), STATUS, CODE);
-    }
+  public CannotModifyOwnerRoleException() {
+    super(ErrorMessagesModel.CANNOT_MODIFY_OWNER_ROLE.toString(), STATUS, CODE);
+  }
 
-    public CannotModifyOwnerRoleException(final String message) {
-        super(message, STATUS, CODE);
-    }
+  public CannotModifyOwnerRoleException(final String message) {
+    super(message, STATUS, CODE);
+  }
 }

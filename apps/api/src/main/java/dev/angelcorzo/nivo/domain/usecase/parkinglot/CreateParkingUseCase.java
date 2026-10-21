@@ -22,46 +22,57 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class CreateParkingUseCase {
-    private final BatchPersistSlotsUseCase batchCreateSlotsUseCase;
-    private final ParkingLotsRepository parkingLotsRepository;
-    private final UsersRepository usersRepository;
-    private final AuthenticationContextGateway authenticationContext;
+  private final BatchPersistSlotsUseCase batchCreateSlotsUseCase;
+  private final ParkingLotsRepository parkingLotsRepository;
+  private final UsersRepository usersRepository;
+  private final AuthenticationContextGateway authenticationContext;
 
-    private ParkingLots getBuildParkingLots(UpsertParkingLotsDTO parking, UUID ownerId) {
-        Users userReferenceById = usersRepository.getReferenceById(ownerId);
-        Tenants currentTenant = this.authenticationContext.getCurrentTenant();
+  private ParkingLots getBuildParkingLots(UpsertParkingLotsDTO parking, UUID ownerId) {
+    Users userReferenceById = usersRepository.getReferenceById(ownerId);
+    Tenants currentTenant = this.authenticationContext.getCurrentTenant();
 
-        return ParkingLots.builder().name(parking.name()).address(parking.address()).coordinates(parking.coordinates())
-            .owner(UserReference.of(userReferenceById)).tenant(TenantReference.of(currentTenant))
-            .timezone(parking.timezone()).currency(parking.currency()).operatingHours(parking.operatingHours())
-            .policy(parking.policy() != null ? parking.policy() : ParkingLotPolicy.defaults()).build();
+    return ParkingLots.builder()
+      .name(parking.name())
+      .address(parking.address())
+      .coordinates(parking.coordinates())
+      .owner(UserReference.of(userReferenceById))
+      .tenant(TenantReference.of(currentTenant))
+      .timezone(parking.timezone())
+      .currency(parking.currency())
+      .operatingHours(parking.operatingHours())
+      .policy(parking.policy() != null ? parking.policy() : ParkingLotPolicy.defaults())
+      .build();
+  }
+
+  private UUID getOwnerId() {
+    Tenants currentTenant = this.authenticationContext.getCurrentTenant();
+
+    return currentTenant.getUsers()
+      .stream()
+      .filter(user -> user.role().equals(Roles.OWNER))
+      .map(UserReference::id)
+      .findFirst()
+      .orElseThrow(() -> new NoOwnerInTenantException(currentTenant.getId()));
+  }
+
+  private void createdSlots(List<CreatedSlots> slotsToCreate, ParkingLots parkingLots) {
+
+    final List<Slots> slots = SlotMapper.toEntities(slotsToCreate, this.authenticationContext.getCurrentTenant(),
+      parkingLots);
+
+    this.batchCreateSlotsUseCase.execute(slots);
+  }
+
+  public ParkingLots execute(UpsertParkingLotsDTO parking) {
+    UUID ownerId = getOwnerId();
+    ParkingLots parkingLots = getBuildParkingLots(parking, ownerId);
+    parkingLots = this.parkingLotsRepository.save(parkingLots);
+
+    List<CreatedSlots> slots = parking.slots();
+    if (slots != null && !slots.isEmpty()) {
+      this.createdSlots(slots, parkingLots);
     }
 
-    private UUID getOwnerId() {
-        Tenants currentTenant = this.authenticationContext.getCurrentTenant();
-
-        return currentTenant.getUsers().stream().filter(user -> user.role().equals(Roles.OWNER)).map(UserReference::id)
-            .findFirst().orElseThrow(() -> new NoOwnerInTenantException(currentTenant.getId()));
-    }
-
-    private void createdSlots(List<CreatedSlots> slotsToCreate, ParkingLots parkingLots) {
-
-        final List<Slots> slots = SlotMapper.toEntities(slotsToCreate, this.authenticationContext.getCurrentTenant(),
-            parkingLots);
-
-        this.batchCreateSlotsUseCase.execute(slots);
-    }
-
-    public ParkingLots execute(UpsertParkingLotsDTO parking) {
-        UUID ownerId = getOwnerId();
-        ParkingLots parkingLots = getBuildParkingLots(parking, ownerId);
-        parkingLots = this.parkingLotsRepository.save(parkingLots);
-
-        List<CreatedSlots> slots = parking.slots();
-        if (slots != null && !slots.isEmpty()) {
-            this.createdSlots(slots, parkingLots);
-        }
-
-        return parkingLots;
-    }
+    return parkingLots;
+  }
 }

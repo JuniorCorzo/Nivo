@@ -4,22 +4,22 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationExecutionContextHolder {
-    private static final ThreadLocal<NotificationExecutionContext> CONTEXT = new ThreadLocal<>();
+  private static final ThreadLocal<NotificationExecutionContext> CONTEXT = new ThreadLocal<>();
 
-    public void set(NotificationExecutionContext context) {
-        CONTEXT.set(context);
+  public void set(NotificationExecutionContext context) {
+    CONTEXT.set(context);
+  }
+
+  public NotificationExecutionContext getRequired() {
+    final NotificationExecutionContext context = CONTEXT.get();
+    if (context == null) {
+      throw new IllegalStateException("Notification execution context is not available");
     }
 
-    public NotificationExecutionContext getRequired() {
-        final NotificationExecutionContext context = CONTEXT.get();
-        if (context == null) {
-            throw new IllegalStateException("Notification execution context is not available");
-        }
+    return context;
+  }
 
-        return context;
-    }
-
-    public void clear() {
-        CONTEXT.remove();
-    }
+  public void clear() {
+    CONTEXT.remove();
+  }
 }

@@ -19,18 +19,18 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class NotificationLogs {
-    private UUID id;
-    private TenantReference tenant;
-    private UserReference actorUser;
-    private UserReference recipientUser;
-    private UUID templateId;
-    private NotificationEvents eventType;
-    private NotificationsChannel channel;
-    private String recipient;
-    private String subject;
-    private String body;
-    private NotificationLogsStatus status;
-    private String errorMessage;
-    private OffsetDateTime sentAt;
-    private OffsetDateTime createdAt;
+  private UUID id;
+  private TenantReference tenant;
+  private UserReference actorUser;
+  private UserReference recipientUser;
+  private UUID templateId;
+  private NotificationEvents eventType;
+  private NotificationsChannel channel;
+  private String recipient;
+  private String subject;
+  private String body;
+  private NotificationLogsStatus status;
+  private String errorMessage;
+  private OffsetDateTime sentAt;
+  private OffsetDateTime createdAt;
 }

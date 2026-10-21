@@ -32,86 +32,88 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
-    private final AuthenticationGateway authenticationGateway;
+  private final AuthenticationGateway authenticationGateway;
 
-    @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+  @Override
+  public Message<?> preSend(Message<?> message, MessageChannel channel) {
+    StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-        if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
-            log.debug("Processing CONNECT command for WebSocket authentication");
+    if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
+      log.debug("Processing CONNECT command for WebSocket authentication");
 
-            // Extraer el token del header Authorization
-            List<String> authHeaders = accessor.getNativeHeader("Authorization");
+      // Extraer el token del header Authorization
+      List<String> authHeaders = accessor.getNativeHeader("Authorization");
 
-            if (authHeaders == null || authHeaders.isEmpty()) {
-                log.warn("No Authorization header found in WebSocket CONNECT");
-                throw new IllegalArgumentException("Missing Authorization header");
-            }
+      if (authHeaders == null || authHeaders.isEmpty()) {
+        log.warn("No Authorization header found in WebSocket CONNECT");
+        throw new IllegalArgumentException("Missing Authorization header");
+      }
 
-            String authHeader = authHeaders.get(0);
-            String token = extractToken(authHeader);
+      String authHeader = authHeaders.get(0);
+      String token = extractToken(authHeader);
 
-            if (token == null) {
-                log.warn("Invalid Authorization header format");
-                throw new IllegalArgumentException("Invalid Authorization header format");
-            }
+      if (token == null) {
+        log.warn("Invalid Authorization header format");
+        throw new IllegalArgumentException("Invalid Authorization header format");
+      }
 
-            try {
-                // Validar el token usando AuthenticationGateway
-                authenticationGateway.validateToken(token);
-                log.debug("JWT validated successfully");
+      try {
+        // Validar el token usando AuthenticationGateway
+        authenticationGateway.validateToken(token);
+        log.debug("JWT validated successfully");
 
-                // Extraer claims del token
-                Map<String, String> claims = authenticationGateway.extractTokenClaims(token);
+        // Extraer claims del token
+        Map<String, String> claims = authenticationGateway.extractTokenClaims(token);
 
-                String userId = claims.get("sub");
-                String tenantId = claims.get("tenantId");
-                String role = claims.get("role");
+        String userId = claims.get("sub");
+        String tenantId = claims.get("tenantId");
+        String role = claims.get("role");
 
-                if (userId == null || tenantId == null || role == null) {
-                    log.warn("JWT is missing required claims");
-                    throw new IllegalArgumentException("JWT missing required claims");
-                }
-
-                // Crear el principal de autenticación
-                UserAuthentication userPrincipal = UserAuthentication.builder().userId(UUID.fromString(userId))
-                    .tenantId(UUID.fromString(tenantId))
-                    .role(Roles.valueOf(Roles.class, role.replace("ROLE_", "").toUpperCase())).build();
-
-                List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
-
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    userPrincipal, null, authorities);
-
-                // Establecer el usuario autenticado en el contexto de Spring Security
-                accessor.setUser(authentication);
-
-                log.info("WebSocket connection authenticated for user: {} with role: {}", userPrincipal.userId(), role);
-
-            } catch (IllegalArgumentException e) {
-                log.error("Invalid JWT token: {}", e.getMessage());
-                throw e;
-            } catch (Exception e) {
-                log.error("Error processing JWT token: {}", e.getMessage(), e);
-                throw new IllegalArgumentException("Error processing authentication", e);
-            }
+        if (userId == null || tenantId == null || role == null) {
+          log.warn("JWT is missing required claims");
+          throw new IllegalArgumentException("JWT missing required claims");
         }
 
-        return message;
+        // Crear el principal de autenticación
+        UserAuthentication userPrincipal = UserAuthentication.builder()
+          .userId(UUID.fromString(userId))
+          .tenantId(UUID.fromString(tenantId))
+          .role(Roles.valueOf(Roles.class, role.replace("ROLE_", "").toUpperCase()))
+          .build();
+
+        List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
+
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+          userPrincipal, null, authorities);
+
+        // Establecer el usuario autenticado en el contexto de Spring Security
+        accessor.setUser(authentication);
+
+        log.info("WebSocket connection authenticated for user: {} with role: {}", userPrincipal.userId(), role);
+
+      } catch (IllegalArgumentException e) {
+        log.error("Invalid JWT token: {}", e.getMessage());
+        throw e;
+      } catch (Exception e) {
+        log.error("Error processing JWT token: {}", e.getMessage(), e);
+        throw new IllegalArgumentException("Error processing authentication", e);
+      }
     }
 
-    /**
-     * Extrae el token del header Authorization. Soporta formato "Bearer <token>"
-     *
-     * @param authHeader
-     *            El valor del header Authorization
-     * @return El token JWT o null si el formato es inválido
-     */
-    private String extractToken(String authHeader) {
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
-        }
-        return null;
+    return message;
+  }
+
+  /**
+   * Extrae el token del header Authorization. Soporta formato "Bearer <token>"
+   *
+   * @param authHeader
+   *          El valor del header Authorization
+   * @return El token JWT o null si el formato es inválido
+   */
+  private String extractToken(String authHeader) {
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      return authHeader.substring(7);
     }
+    return null;
+  }
 }

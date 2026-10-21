@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ShowSpecialPoliciesByTenantUseCase {
-    private final SpecialPoliciesRepository specialPoliciesRepository;
+  private final SpecialPoliciesRepository specialPoliciesRepository;
 
-    public List<SpecialPolicies> execute(UUID tenantId) {
-        return this.specialPoliciesRepository.findAllByTenantId(tenantId);
-    }
+  public List<SpecialPolicies> execute(UUID tenantId) {
+    return this.specialPoliciesRepository.findAllByTenantId(tenantId);
+  }
 }

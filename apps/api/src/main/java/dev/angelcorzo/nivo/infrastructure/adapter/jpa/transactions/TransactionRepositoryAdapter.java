@@ -10,30 +10,30 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class TransactionRepositoryAdapter
-    extends
-        AdapterOperations<Transactions, TransactionsData, UUID, TransactionRepositoryData>
-    implements
-        TransactionsRepository {
+  extends
+    AdapterOperations<Transactions, TransactionsData, UUID, TransactionRepositoryData>
+  implements
+    TransactionsRepository {
 
-    /**
-     * Constructor for AdapterOperations.
-     *
-     * @param repository
-     *            The JPA repository instance.
-     * @param mapper
-     *            The mapper for converting between domain and data entities.
-     */
-    protected TransactionRepositoryAdapter(TransactionRepositoryData repository, TransactionMapper mapper) {
-        super(repository, mapper);
-    }
+  /**
+   * Constructor for AdapterOperations.
+   *
+   * @param repository
+   *          The JPA repository instance.
+   * @param mapper
+   *          The mapper for converting between domain and data entities.
+   */
+  protected TransactionRepositoryAdapter(TransactionRepositoryData repository, TransactionMapper mapper) {
+    super(repository, mapper);
+  }
 
-    @Override
-    public Optional<Transactions> findBySupplierRef(String supplierRef) {
-        return super.repository.findBySupplierRef(supplierRef).map(super::toEntity);
-    }
+  @Override
+  public Optional<Transactions> findBySupplierRef(String supplierRef) {
+    return super.repository.findBySupplierRef(supplierRef).map(super::toEntity);
+  }
 
-    @Override
-    public boolean existsBySupplierRef(String supplierRef) {
-        return super.repository.existsBySupplierRef(supplierRef);
-    }
+  @Override
+  public boolean existsBySupplierRef(String supplierRef) {
+    return super.repository.existsBySupplierRef(supplierRef);
+  }
 }

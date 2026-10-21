@@ -16,30 +16,30 @@ import org.junit.jupiter.api.Test;
 @DisplayName("ListSlotsSummaryUseCase Tests")
 class ListSlotsSummaryUseCaseTest {
 
-    private SlotsRepository slotsRepository;
-    private ListSlotsSummaryUseCase useCase;
+  private SlotsRepository slotsRepository;
+  private ListSlotsSummaryUseCase useCase;
 
-    @BeforeEach
-    void setUp() {
-        slotsRepository = mock(SlotsRepository.class);
-        useCase = new ListSlotsSummaryUseCase(slotsRepository);
-    }
+  @BeforeEach
+  void setUp() {
+    slotsRepository = mock(SlotsRepository.class);
+    useCase = new ListSlotsSummaryUseCase(slotsRepository);
+  }
 
-    @Test
-    @DisplayName("Should return slots summary for parking lot")
-    void shouldReturnSlotsSummary() {
-        UUID parkingId = UUID.randomUUID();
-        UUID slotId = UUID.randomUUID();
-        SlotSummary summary = new SlotSummary(slotId, "Main Lot", SlotType.CAR, "A", "Zone-1", "A-01",
-            SlotStatus.AVAILABLE, false, false, false, false, true);
+  @Test
+  @DisplayName("Should return slots summary for parking lot")
+  void shouldReturnSlotsSummary() {
+    UUID parkingId = UUID.randomUUID();
+    UUID slotId = UUID.randomUUID();
+    SlotSummary summary = new SlotSummary(slotId, "Main Lot", SlotType.CAR, "A", "Zone-1", "A-01",
+      SlotStatus.AVAILABLE, false, false, false, false, true);
 
-        when(slotsRepository.findAllSummaryByParkingLotsId(parkingId)).thenReturn(List.of(summary));
+    when(slotsRepository.findAllSummaryByParkingLotsId(parkingId)).thenReturn(List.of(summary));
 
-        List<SlotSummary> result = useCase.execute(parkingId);
+    List<SlotSummary> result = useCase.execute(parkingId);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).prefix()).isEqualTo("A");
-        assertThat(result.get(0).numberSlot()).isEqualTo("A-01");
-        verify(slotsRepository).findAllSummaryByParkingLotsId(parkingId);
-    }
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).prefix()).isEqualTo("A");
+    assertThat(result.get(0).numberSlot()).isEqualTo("A-01");
+    verify(slotsRepository).findAllSummaryByParkingLotsId(parkingId);
+  }
 }

@@ -42,72 +42,80 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("RateController Unit Tests")
 class RateControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+  private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
-    @MockitoBean
-    private RatesMapper ratesMapper;
+  @MockitoBean
+  private RatesMapper ratesMapper;
 
-    @MockitoBean
-    private AuthenticationContextGateway authenticationContext;
+  @MockitoBean
+  private AuthenticationContextGateway authenticationContext;
 
-    @MockitoBean
-    private UpdateRateUseCase updateRateUseCase;
+  @MockitoBean
+  private UpdateRateUseCase updateRateUseCase;
 
-    @MockitoBean
-    private DeleteRateUseCase deleteRateUseCase;
+  @MockitoBean
+  private DeleteRateUseCase deleteRateUseCase;
 
-    @MockitoBean
-    private CalculateRateUseCase calculateRateUseCase;
+  @MockitoBean
+  private CalculateRateUseCase calculateRateUseCase;
 
-    @Test
-    @DisplayName("GET /rates/{ticketId}/calculate - Should calculate ticket price")
-    void shouldCalculatePrice() throws Exception {
-        UUID ticketId = UUID.randomUUID();
-        PriceDetailed price = PriceDetailed.of("Standard Rate");
+  @Test
+  @DisplayName("GET /rates/{ticketId}/calculate - Should calculate ticket price")
+  void shouldCalculatePrice() throws Exception {
+    UUID ticketId = UUID.randomUUID();
+    PriceDetailed price = PriceDetailed.of("Standard Rate");
 
-        when(calculateRateUseCase.execute(ticketId)).thenReturn(price);
+    when(calculateRateUseCase.execute(ticketId)).thenReturn(price);
 
-        mockMvc.perform(get("/rates/{ticketId}/calculate", ticketId)).andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value(RateMessages.CALCULATE_PRICE.format()));
-    }
+    mockMvc.perform(get("/rates/{ticketId}/calculate", ticketId))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value(RateMessages.CALCULATE_PRICE.format()));
+  }
 
-    @Test
-    @DisplayName("PUT /rates/update - Should update tariff rate")
-    void shouldUpdateRate() throws Exception {
-        UUID rateId = UUID.randomUUID();
-        UpdateRate request = UpdateRate.builder().id(rateId).name("Day Rate").description("Daytime rate")
-            .pricePerUnit(BigDecimal.valueOf(5000)).timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(15)
-            .vehicleType(VehicleType.CAR).build();
+  @Test
+  @DisplayName("PUT /rates/update - Should update tariff rate")
+  void shouldUpdateRate() throws Exception {
+    UUID rateId = UUID.randomUUID();
+    UpdateRate request = UpdateRate.builder()
+      .id(rateId)
+      .name("Day Rate")
+      .description("Daytime rate")
+      .pricePerUnit(BigDecimal.valueOf(5000))
+      .timeUnit(TimeUnitsRate.HOURS)
+      .minChargeTimeMinutes(15)
+      .vehicleType(VehicleType.CAR)
+      .build();
 
-        UpdateRateUseCase.UpdateRate domainCommand = mock(UpdateRateUseCase.UpdateRate.class);
-        Rates updatedRate = Rates.builder().id(rateId).build();
-        RatesDTO responseDto = mock(RatesDTO.class);
+    UpdateRateUseCase.UpdateRate domainCommand = mock(UpdateRateUseCase.UpdateRate.class);
+    Rates updatedRate = Rates.builder().id(rateId).build();
+    RatesDTO responseDto = mock(RatesDTO.class);
 
-        when(ratesMapper.toModel(any(UpdateRate.class))).thenReturn(domainCommand);
-        when(updateRateUseCase.execute(domainCommand)).thenReturn(updatedRate);
-        when(ratesMapper.toDTO(updatedRate)).thenReturn(responseDto);
+    when(ratesMapper.toModel(any(UpdateRate.class))).thenReturn(domainCommand);
+    when(updateRateUseCase.execute(domainCommand)).thenReturn(updatedRate);
+    when(ratesMapper.toDTO(updatedRate)).thenReturn(responseDto);
 
-        mockMvc
-            .perform(put("/rates/update").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value(RateMessages.UPDATED_RATE_SUCCESSFULLY.format()));
-    }
+    mockMvc
+      .perform(put("/rates/update").contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value(RateMessages.UPDATED_RATE_SUCCESSFULLY.format()));
+  }
 
-    @Test
-    @DisplayName("DELETE /rates/{id}/delete - Should delete rate")
-    void shouldDeleteRate() throws Exception {
-        UUID tenantId = UUID.randomUUID();
-        UUID rateId = UUID.randomUUID();
+  @Test
+  @DisplayName("DELETE /rates/{id}/delete - Should delete rate")
+  void shouldDeleteRate() throws Exception {
+    UUID tenantId = UUID.randomUUID();
+    UUID rateId = UUID.randomUUID();
 
-        when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
-        mockMvc.perform(delete("/rates/{id}/delete", rateId)).andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value(RateMessages.DELETE_RATE_SUCCESSFULLY.format()));
+    mockMvc.perform(delete("/rates/{id}/delete", rateId))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value(RateMessages.DELETE_RATE_SUCCESSFULLY.format()));
 
-        verify(deleteRateUseCase).execute(rateId, tenantId);
-    }
+    verify(deleteRateUseCase).execute(rateId, tenantId);
+  }
 }

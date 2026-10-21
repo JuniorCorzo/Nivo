@@ -18,94 +18,103 @@ import org.junit.jupiter.api.Test;
 @DisplayName("DeleteParkingLotUseCase Tests")
 class DeleteParkingLotUseCaseTest {
 
-    private ParkingLotsRepository parkingLotsRepository;
-    private SlotsRepository slotsRepository;
-    private AuthenticationContextGateway authenticationContext;
-    private DeleteParkingLotUseCase useCase;
+  private ParkingLotsRepository parkingLotsRepository;
+  private SlotsRepository slotsRepository;
+  private AuthenticationContextGateway authenticationContext;
+  private DeleteParkingLotUseCase useCase;
 
-    @BeforeEach
-    void setUp() {
-        parkingLotsRepository = mock(ParkingLotsRepository.class);
-        slotsRepository = mock(SlotsRepository.class);
-        authenticationContext = mock(AuthenticationContextGateway.class);
-        useCase = new DeleteParkingLotUseCase(parkingLotsRepository, slotsRepository, authenticationContext);
-    }
+  @BeforeEach
+  void setUp() {
+    parkingLotsRepository = mock(ParkingLotsRepository.class);
+    slotsRepository = mock(SlotsRepository.class);
+    authenticationContext = mock(AuthenticationContextGateway.class);
+    useCase = new DeleteParkingLotUseCase(parkingLotsRepository, slotsRepository, authenticationContext);
+  }
 
-    @Test
-    @DisplayName("Should delete parking lot and soft-delete its slots when tenant matches")
-    void shouldDeleteParkingLotSuccessfully() {
-        UUID tenantId = UUID.randomUUID();
-        UUID parkingId = UUID.randomUUID();
-        ParkingLots parkingLot = ParkingLots.builder().id(parkingId).name("Lot A")
-            .tenant(TenantReference.builder().id(tenantId).build()).build();
+  @Test
+  @DisplayName("Should delete parking lot and soft-delete its slots when tenant matches")
+  void shouldDeleteParkingLotSuccessfully() {
+    UUID tenantId = UUID.randomUUID();
+    UUID parkingId = UUID.randomUUID();
+    ParkingLots parkingLot = ParkingLots.builder()
+      .id(parkingId)
+      .name("Lot A")
+      .tenant(TenantReference.builder().id(tenantId).build())
+      .build();
 
-        when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
+    when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
 
-        useCase.execute(parkingId, tenantId);
+    useCase.execute(parkingId, tenantId);
 
-        verify(slotsRepository).softDeleteByParkingLotsId(parkingId);
-        verify(parkingLotsRepository).delete(parkingLot);
-    }
+    verify(slotsRepository).softDeleteByParkingLotsId(parkingId);
+    verify(parkingLotsRepository).delete(parkingLot);
+  }
 
-    @Test
-    @DisplayName("Should delete parking lot using AuthenticationContextGateway when tenantId is not provided")
-    void shouldDeleteUsingAuthenticationContextGateway() {
-        UUID tenantId = UUID.randomUUID();
-        UUID parkingId = UUID.randomUUID();
-        ParkingLots parkingLot = ParkingLots.builder().id(parkingId).name("Lot A")
-            .tenant(TenantReference.builder().id(tenantId).build()).build();
+  @Test
+  @DisplayName("Should delete parking lot using AuthenticationContextGateway when tenantId is not provided")
+  void shouldDeleteUsingAuthenticationContextGateway() {
+    UUID tenantId = UUID.randomUUID();
+    UUID parkingId = UUID.randomUUID();
+    ParkingLots parkingLot = ParkingLots.builder()
+      .id(parkingId)
+      .name("Lot A")
+      .tenant(TenantReference.builder().id(tenantId).build())
+      .build();
 
-        when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
-        when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
+    when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
 
-        useCase.execute(parkingId);
+    useCase.execute(parkingId);
 
-        verify(slotsRepository).softDeleteByParkingLotsId(parkingId);
-        verify(parkingLotsRepository).delete(parkingLot);
-    }
+    verify(slotsRepository).softDeleteByParkingLotsId(parkingId);
+    verify(parkingLotsRepository).delete(parkingLot);
+  }
 
-    @Test
-    @DisplayName("Should throw ParkingNotExistsException when parking lot is not found")
-    void shouldThrowWhenNotFound() {
-        UUID tenantId = UUID.randomUUID();
-        UUID parkingId = UUID.randomUUID();
-        when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.empty());
+  @Test
+  @DisplayName("Should throw ParkingNotExistsException when parking lot is not found")
+  void shouldThrowWhenNotFound() {
+    UUID tenantId = UUID.randomUUID();
+    UUID parkingId = UUID.randomUUID();
+    when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.execute(parkingId, tenantId)).isInstanceOf(ParkingNotExistsException.class);
+    assertThatThrownBy(() -> useCase.execute(parkingId, tenantId)).isInstanceOf(ParkingNotExistsException.class);
 
-        verify(slotsRepository, never()).softDeleteByParkingLotsId(any());
-        verify(parkingLotsRepository, never()).delete(any());
-    }
+    verify(slotsRepository, never()).softDeleteByParkingLotsId(any());
+    verify(parkingLotsRepository, never()).delete(any());
+  }
 
-    @Test
-    @DisplayName("Should throw ParkingNotExistsException when parking lot belongs to another tenant")
-    void shouldThrowWhenTenantDoesNotMatch() {
-        UUID tenantA = UUID.randomUUID();
-        UUID tenantB = UUID.randomUUID();
-        UUID parkingId = UUID.randomUUID();
-        ParkingLots parkingLot = ParkingLots.builder().id(parkingId).name("Lot Tenant A")
-            .tenant(TenantReference.builder().id(tenantA).build()).build();
+  @Test
+  @DisplayName("Should throw ParkingNotExistsException when parking lot belongs to another tenant")
+  void shouldThrowWhenTenantDoesNotMatch() {
+    UUID tenantA = UUID.randomUUID();
+    UUID tenantB = UUID.randomUUID();
+    UUID parkingId = UUID.randomUUID();
+    ParkingLots parkingLot = ParkingLots.builder()
+      .id(parkingId)
+      .name("Lot Tenant A")
+      .tenant(TenantReference.builder().id(tenantA).build())
+      .build();
 
-        when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
+    when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
 
-        assertThatThrownBy(() -> useCase.execute(parkingId, tenantB)).isInstanceOf(ParkingNotExistsException.class);
+    assertThatThrownBy(() -> useCase.execute(parkingId, tenantB)).isInstanceOf(ParkingNotExistsException.class);
 
-        verify(slotsRepository, never()).softDeleteByParkingLotsId(any());
-        verify(parkingLotsRepository, never()).delete(any());
-    }
+    verify(slotsRepository, never()).softDeleteByParkingLotsId(any());
+    verify(parkingLotsRepository, never()).delete(any());
+  }
 
-    @Test
-    @DisplayName("Should throw ParkingNotExistsException when parking lot has no tenant reference")
-    void shouldThrowWhenTenantIsNull() {
-        UUID tenantId = UUID.randomUUID();
-        UUID parkingId = UUID.randomUUID();
-        ParkingLots parkingLot = ParkingLots.builder().id(parkingId).name("Orphan Lot").tenant(null).build();
+  @Test
+  @DisplayName("Should throw ParkingNotExistsException when parking lot has no tenant reference")
+  void shouldThrowWhenTenantIsNull() {
+    UUID tenantId = UUID.randomUUID();
+    UUID parkingId = UUID.randomUUID();
+    ParkingLots parkingLot = ParkingLots.builder().id(parkingId).name("Orphan Lot").tenant(null).build();
 
-        when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
+    when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
 
-        assertThatThrownBy(() -> useCase.execute(parkingId, tenantId)).isInstanceOf(ParkingNotExistsException.class);
+    assertThatThrownBy(() -> useCase.execute(parkingId, tenantId)).isInstanceOf(ParkingNotExistsException.class);
 
-        verify(slotsRepository, never()).softDeleteByParkingLotsId(any());
-        verify(parkingLotsRepository, never()).delete(any());
-    }
+    verify(slotsRepository, never()).softDeleteByParkingLotsId(any());
+    verify(parkingLotsRepository, never()).delete(any());
+  }
 }

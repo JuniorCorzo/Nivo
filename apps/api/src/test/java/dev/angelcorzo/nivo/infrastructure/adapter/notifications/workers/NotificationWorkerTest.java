@@ -15,21 +15,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("NotificationWorker Unit Tests")
 class NotificationWorkerTest {
 
-    @Mock
-    private SendNotificationQueue queue;
+  @Mock
+  private SendNotificationQueue queue;
 
-    @Mock
-    private NotificationProcessor notificationProcessor;
+  @Mock
+  private NotificationProcessor notificationProcessor;
 
-    @InjectMocks
-    private NotificationWorker worker;
+  @InjectMocks
+  private NotificationWorker worker;
 
-    @Test
-    @DisplayName("Should start application and handle loop without exception")
-    void shouldStartApplication() throws Exception {
-        lenient().when(queue.take()).thenThrow(new InterruptedException());
+  @Test
+  @DisplayName("Should start application and handle loop without exception")
+  void shouldStartApplication() throws Exception {
+    lenient().when(queue.take()).thenThrow(new InterruptedException());
 
-        worker.onStartApplication();
-        Thread.sleep(100);
-    }
+    worker.onStartApplication();
+    Thread.sleep(100);
+  }
 }

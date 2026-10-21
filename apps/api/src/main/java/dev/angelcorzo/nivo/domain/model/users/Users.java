@@ -34,54 +34,54 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Users {
-    /** The unique identifier for the User. */
-    private UUID id;
+  /** The unique identifier for the User. */
+  private UUID id;
 
-    /** The user's full name. */
-    private String fullName;
+  /** The user's full name. */
+  private String fullName;
 
-    /** The user's email address, used for login and communication. Must be unique within a Tenant. */
-    private String email;
+  /** The user's email address, used for login and communication. Must be unique within a Tenant. */
+  private String email;
 
-    /** The user's hashed password for authentication. */
-    private String password;
+  /** The user's hashed password for authentication. */
+  private String password;
 
-    /** The role assigned to the user, which defines their permissions. */
-    private Roles role;
+  /** The role assigned to the user, which defines their permissions. */
+  private Roles role;
 
-    /** The Tenant to which the user belongs. */
-    private TenantReference tenant;
+  /** The Tenant to which the user belongs. */
+  private TenantReference tenant;
 
-    /** Additional contact information for the user, such as a phone number. */
-    private String contactInfo;
+  /** Additional contact information for the user, such as a phone number. */
+  private String contactInfo;
 
-    /** The ID of the user who performed a soft-delete on this user. Null if not deleted. */
-    private UUID deletedBy;
+  /** The ID of the user who performed a soft-delete on this user. Null if not deleted. */
+  private UUID deletedBy;
 
-    /** The timestamp when the user was created. */
-    private OffsetDateTime createdAt;
+  /** The timestamp when the user was created. */
+  private OffsetDateTime createdAt;
 
-    /** The timestamp of the last update to the user's information. */
-    private OffsetDateTime updatedAt;
+  /** The timestamp of the last update to the user's information. */
+  private OffsetDateTime updatedAt;
 
-    /**
-     * The timestamp when the user was soft-deleted. A non-null value indicates the user is inactive.
-     */
-    private OffsetDateTime deletedAt;
+  /**
+   * The timestamp when the user was soft-deleted. A non-null value indicates the user is inactive.
+   */
+  private OffsetDateTime deletedAt;
 
-    /**
-     * Deactivates the user and records the actor who performed the action.
-     *
-     * @param actorId
-     *            The ID of the user performing the deactivation.
-     * @throws UserAlreadyDeactivatedException
-     *             if the user is already deactivated.
-     */
-    public void deactivate(final UUID actorId) {
-        if (this.deletedAt != null) {
-            throw new UserAlreadyDeactivatedException(this.id);
-        }
-        this.deletedAt = OffsetDateTime.now();
-        this.deletedBy = actorId;
+  /**
+   * Deactivates the user and records the actor who performed the action.
+   *
+   * @param actorId
+   *          The ID of the user performing the deactivation.
+   * @throws UserAlreadyDeactivatedException
+   *           if the user is already deactivated.
+   */
+  public void deactivate(final UUID actorId) {
+    if (this.deletedAt != null) {
+      throw new UserAlreadyDeactivatedException(this.id);
     }
+    this.deletedAt = OffsetDateTime.now();
+    this.deletedBy = actorId;
+  }
 }

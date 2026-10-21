@@ -10,8 +10,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface NotificationTemplatesRepositoryData extends JpaRepository<NotificationTemplatesData, UUID> {
 
-    @Query("SELECT n FROM NotificationTemplatesData n WHERE n.eventType = :eventType AND n.channel ="
-        + " :channel AND n.isActive = true")
-    Optional<NotificationTemplatesData> findByEventTypeAndChannel(@Param("eventType") NotificationEvents eventType,
-        @Param("channel") NotificationsChannel channel);
+  @Query("SELECT n FROM NotificationTemplatesData n WHERE n.eventType = :eventType AND n.channel ="
+    + " :channel AND n.isActive = true")
+  Optional<NotificationTemplatesData> findByEventTypeAndChannel(@Param("eventType") NotificationEvents eventType,
+    @Param("channel") NotificationsChannel channel);
 }

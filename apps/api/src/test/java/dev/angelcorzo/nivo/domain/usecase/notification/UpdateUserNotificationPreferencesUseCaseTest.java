@@ -15,31 +15,31 @@ import org.junit.jupiter.api.Test;
 @DisplayName("UpdateUserNotificationPreferencesUseCase Tests")
 class UpdateUserNotificationPreferencesUseCaseTest {
 
-    private NotificationPreferencesRepository notificationPreferencesRepository;
-    private AuthenticationContextGateway authenticationContextGateway;
-    private UpdateUserNotificationPreferencesUseCase useCase;
+  private NotificationPreferencesRepository notificationPreferencesRepository;
+  private AuthenticationContextGateway authenticationContextGateway;
+  private UpdateUserNotificationPreferencesUseCase useCase;
 
-    @BeforeEach
-    void setUp() {
-        notificationPreferencesRepository = mock(NotificationPreferencesRepository.class);
-        authenticationContextGateway = mock(AuthenticationContextGateway.class);
-        useCase = new UpdateUserNotificationPreferencesUseCase(notificationPreferencesRepository,
-            authenticationContextGateway);
-    }
+  @BeforeEach
+  void setUp() {
+    notificationPreferencesRepository = mock(NotificationPreferencesRepository.class);
+    authenticationContextGateway = mock(AuthenticationContextGateway.class);
+    useCase = new UpdateUserNotificationPreferencesUseCase(notificationPreferencesRepository,
+      authenticationContextGateway);
+  }
 
-    @Test
-    @DisplayName("Should toggle notification active status")
-    void shouldToggleActiveStatus() {
-        UUID userId = UUID.randomUUID();
+  @Test
+  @DisplayName("Should toggle notification active status")
+  void shouldToggleActiveStatus() {
+    UUID userId = UUID.randomUUID();
 
-        when(authenticationContextGateway.getCurrentUserId()).thenReturn(userId);
-        when(notificationPreferencesRepository.toggleActiveStatus(userId, NotificationEvents.TICKET_OPENED,
-            NotificationsChannel.EMAIL)).thenReturn(true);
+    when(authenticationContextGateway.getCurrentUserId()).thenReturn(userId);
+    when(notificationPreferencesRepository.toggleActiveStatus(userId, NotificationEvents.TICKET_OPENED,
+      NotificationsChannel.EMAIL)).thenReturn(true);
 
-        boolean result = useCase.toggleActiveStatus(NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL);
+    boolean result = useCase.toggleActiveStatus(NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL);
 
-        assertThat(result).isTrue();
-        verify(notificationPreferencesRepository).toggleActiveStatus(userId, NotificationEvents.TICKET_OPENED,
-            NotificationsChannel.EMAIL);
-    }
+    assertThat(result).isTrue();
+    verify(notificationPreferencesRepository).toggleActiveStatus(userId, NotificationEvents.TICKET_OPENED,
+      NotificationsChannel.EMAIL);
+  }
 }

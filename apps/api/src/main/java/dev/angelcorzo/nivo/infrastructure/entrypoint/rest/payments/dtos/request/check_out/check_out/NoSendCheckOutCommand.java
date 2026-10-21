@@ -7,5 +7,5 @@ import lombok.Builder;
 
 @Builder
 public record NoSendCheckOutCommand(@NotNull UUID ticketId,
-    @NotNull PaymentsMethods paymentMethod) implements CheckOutCommand {
+  @NotNull PaymentsMethods paymentMethod) implements CheckOutCommand {
 }

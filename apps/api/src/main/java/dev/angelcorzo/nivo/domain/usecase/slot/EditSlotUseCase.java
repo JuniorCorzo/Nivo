@@ -13,30 +13,33 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class EditSlotUseCase {
-    private final SlotsRepository slotsRepository;
+  private final SlotsRepository slotsRepository;
 
-    public Slots execute(UpdateSlotCommand command) {
-        final Slots existing = this.slotsRepository.findById(command.id())
-            .orElseThrow(() -> new SlotNotFoundException(command.id()));
+  public Slots execute(UpdateSlotCommand command) {
+    final Slots existing = this.slotsRepository.findById(command.id())
+      .orElseThrow(() -> new SlotNotFoundException(command.id()));
 
-        if (existing.getStatus() == SlotStatus.OCCUPIED) {
-            throw new SlotCannotBeModifiedException(
-                "Slot cannot be modified because it is currently OCCUPIED: " + command.id(), List.of(command.id()));
-        }
-
-        if (command.status() == SlotStatus.OCCUPIED) {
-            throw new SlotCannotBeModifiedException(
-                "Slot cannot be manually transitioned to OCCUPIED. Vehicle check-in is required.",
-                List.of(command.id()));
-        }
-
-        final Slots updatedSlot = existing.toBuilder().slotNumber(command.slotNumber()).type(command.type())
-            .status(command.status()).build();
-
-        return this.slotsRepository.save(updatedSlot);
+    if (existing.getStatus() == SlotStatus.OCCUPIED) {
+      throw new SlotCannotBeModifiedException(
+        "Slot cannot be modified because it is currently OCCUPIED: " + command.id(), List.of(command.id()));
     }
 
-    @Builder(toBuilder = true)
-    public record UpdateSlotCommand(UUID id, String slotNumber, SlotType type, SlotStatus status) {
+    if (command.status() == SlotStatus.OCCUPIED) {
+      throw new SlotCannotBeModifiedException(
+        "Slot cannot be manually transitioned to OCCUPIED. Vehicle check-in is required.",
+        List.of(command.id()));
     }
+
+    final Slots updatedSlot = existing.toBuilder()
+      .slotNumber(command.slotNumber())
+      .type(command.type())
+      .status(command.status())
+      .build();
+
+    return this.slotsRepository.save(updatedSlot);
+  }
+
+  @Builder(toBuilder = true)
+  public record UpdateSlotCommand(UUID id, String slotNumber, SlotType type, SlotStatus status) {
+  }
 }

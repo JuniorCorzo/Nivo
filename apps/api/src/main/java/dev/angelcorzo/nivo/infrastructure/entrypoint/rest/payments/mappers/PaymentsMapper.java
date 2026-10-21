@@ -19,22 +19,22 @@ import org.mapstruct.SubclassMappings;
 
 @Mapper(config = MapperStructConfig.class)
 public interface PaymentsMapper {
-    @SubclassMappings({@SubclassMapping(source = EmailCheckOutCommand.class, target = EmailCheckOut.class),
-        @SubclassMapping(source = SMSCheckOutCommand.class, target = SMSCheckOut.class),
-        @SubclassMapping(source = NoSendCheckOutCommand.class, target = NoSendCheckOut.class),})
-    CheckOut toModel(CheckOutCommand command);
+  @SubclassMappings({@SubclassMapping(source = EmailCheckOutCommand.class, target = EmailCheckOut.class),
+    @SubclassMapping(source = SMSCheckOutCommand.class, target = SMSCheckOut.class),
+    @SubclassMapping(source = NoSendCheckOutCommand.class, target = NoSendCheckOut.class),})
+  CheckOut toModel(CheckOutCommand command);
 
-    @InheritConfiguration(name = "toModel")
-    EmailCheckOut toEmailModel(EmailCheckOutCommand emailCheckOut);
+  @InheritConfiguration(name = "toModel")
+  EmailCheckOut toEmailModel(EmailCheckOutCommand emailCheckOut);
 
-    @InheritConfiguration(name = "toModel")
-    SMSCheckOut toSMSModel(SMSCheckOutCommand emailCheckOut);
+  @InheritConfiguration(name = "toModel")
+  SMSCheckOut toSMSModel(SMSCheckOutCommand emailCheckOut);
 
-    @InheritConfiguration(name = "toModel")
-    NoSendCheckOut toUrlModel(NoSendCheckOutCommand emailCheckOut);
+  @InheritConfiguration(name = "toModel")
+  NoSendCheckOut toUrlModel(NoSendCheckOutCommand emailCheckOut);
 
-    @Mapping(target = "tenantId", source = "tenant.id")
-    @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "parkingTicketId", source = "parkingTicket.id")
-    PaymentsDTO toDto(Payments payments);
+  @Mapping(target = "tenantId", source = "tenant.id")
+  @Mapping(target = "userId", source = "user.id")
+  @Mapping(target = "parkingTicketId", source = "parkingTicket.id")
+  PaymentsDTO toDto(Payments payments);
 }

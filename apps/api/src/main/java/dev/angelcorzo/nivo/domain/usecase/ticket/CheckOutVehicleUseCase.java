@@ -15,20 +15,20 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class CheckOutVehicleUseCase {
-    private final ProcessPaymentUseCase processPayment;
-    private final CalculateRateUseCase calculateRateUseCase;
-    private final ParkingTicketsRepository parkingTicketsRepository;
+  private final ProcessPaymentUseCase processPayment;
+  private final CalculateRateUseCase calculateRateUseCase;
+  private final ParkingTicketsRepository parkingTicketsRepository;
 
-    public Payments execute(CheckOut command) {
-        final UUID ticketId = command.ticketId();
-        final ParkingTickets ticket = this.parkingTicketsRepository.findById(ticketId)
-            .orElseThrow(() -> new ProcessPaymentException(new PaymentError.TicketNotFound(ticketId)));
+  public Payments execute(CheckOut command) {
+    final UUID ticketId = command.ticketId();
+    final ParkingTickets ticket = this.parkingTicketsRepository.findById(ticketId)
+      .orElseThrow(() -> new ProcessPaymentException(new PaymentError.TicketNotFound(ticketId)));
 
-        if (ticket.getStatus() == ParkingTicketStatus.CLOSED) {
-            throw new ProcessPaymentException(new PaymentError.Duplicate(ticketId));
-        }
-
-        final PriceDetailed amounts = this.calculateRateUseCase.execute(command.ticketId());
-        return this.processPayment.execute(ticket, amounts, command);
+    if (ticket.getStatus() == ParkingTicketStatus.CLOSED) {
+      throw new ProcessPaymentException(new PaymentError.Duplicate(ticketId));
     }
+
+    final PriceDetailed amounts = this.calculateRateUseCase.execute(command.ticketId());
+    return this.processPayment.execute(ticket, amounts, command);
+  }
 }

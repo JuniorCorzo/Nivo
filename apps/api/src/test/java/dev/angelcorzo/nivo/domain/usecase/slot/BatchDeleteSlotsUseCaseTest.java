@@ -12,22 +12,22 @@ import org.junit.jupiter.api.Test;
 @DisplayName("BatchDeleteSlotsUseCase Tests")
 class BatchDeleteSlotsUseCaseTest {
 
-    private SlotsRepository slotsRepository;
-    private BatchDeleteSlotsUseCase useCase;
+  private SlotsRepository slotsRepository;
+  private BatchDeleteSlotsUseCase useCase;
 
-    @BeforeEach
-    void setUp() {
-        slotsRepository = mock(SlotsRepository.class);
-        useCase = new BatchDeleteSlotsUseCase(slotsRepository);
-    }
+  @BeforeEach
+  void setUp() {
+    slotsRepository = mock(SlotsRepository.class);
+    useCase = new BatchDeleteSlotsUseCase(slotsRepository);
+  }
 
-    @Test
-    @DisplayName("Should batch delete slots by ids")
-    void shouldBatchDeleteSlots() {
-        List<UUID> slotIds = List.of(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
+  @Test
+  @DisplayName("Should batch delete slots by ids")
+  void shouldBatchDeleteSlots() {
+    List<UUID> slotIds = List.of(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
 
-        useCase.execute(slotIds);
+    useCase.execute(slotIds);
 
-        verify(slotsRepository).batchDelete(slotIds);
-    }
+    verify(slotsRepository).batchDelete(slotIds);
+  }
 }

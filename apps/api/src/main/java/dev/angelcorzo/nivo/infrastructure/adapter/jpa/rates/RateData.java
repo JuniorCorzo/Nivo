@@ -26,50 +26,50 @@ import org.hibernate.annotations.*;
 @SQLRestriction(value = "deleted_at IS NULL")
 @SQLDelete(sql = "UPDATE rates SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 public class RateData {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parking_lot_id", referencedColumnName = "id", nullable = false)
-    private ParkingLotsData parking;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "parking_lot_id", referencedColumnName = "id", nullable = false)
+  private ParkingLotsData parking;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
-    private TenantsData tenant;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
+  private TenantsData tenant;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+  @Column(name = "name", nullable = false)
+  private String name;
 
-    @Column(name = "description", nullable = false)
-    private String description;
+  @Column(name = "description", nullable = false)
+  private String description;
 
-    @Column(name = "price_per_unit", nullable = false)
-    private BigDecimal pricePerUnit;
+  @Column(name = "price_per_unit", nullable = false)
+  private BigDecimal pricePerUnit;
 
-    @Column(name = "time_unit", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private TimeUnitsRate timeUnit;
+  @Column(name = "time_unit", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private TimeUnitsRate timeUnit;
 
-    @Column(name = "min_charge_time_minutes")
-    @ColumnDefault(value = "0")
-    private Integer minChargeTimeMinutes;
+  @Column(name = "min_charge_time_minutes")
+  @ColumnDefault(value = "0")
+  private Integer minChargeTimeMinutes;
 
-    @Column(name = "vehicle_type", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private VehicleType vehicleType;
+  @Column(name = "vehicle_type", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private VehicleType vehicleType;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ")
-    @CreationTimestamp
-    private OffsetDateTime createdAt;
+  @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ")
+  @CreationTimestamp
+  private OffsetDateTime createdAt;
 
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMPTZ")
-    @UpdateTimestamp
-    private OffsetDateTime updatedAt;
+  @Column(name = "updated_at", columnDefinition = "TIMESTAMPTZ")
+  @UpdateTimestamp
+  private OffsetDateTime updatedAt;
 
-    @Column(name = "deleted_at", columnDefinition = "TIMESTAMPTZ")
-    private OffsetDateTime deleted_at;
+  @Column(name = "deleted_at", columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime deleted_at;
 
-    @OneToMany(mappedBy = "rate", fetch = FetchType.LAZY)
-    private List<ParkingTicketsData> tickets;
+  @OneToMany(mappedBy = "rate", fetch = FetchType.LAZY)
+  private List<ParkingTicketsData> tickets;
 }

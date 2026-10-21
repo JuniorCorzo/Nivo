@@ -18,30 +18,30 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.TokenErrorMessages;
  * @see TokenErrorMessages
  */
 public class ExpiredTokenException extends AppException {
-    private static final String CODE = "TOKEN_EXPIRED";
-    private static final int STATUS_CODE = 401;
+  private static final String CODE = "TOKEN_EXPIRED";
+  private static final int STATUS_CODE = 401;
 
-    /**
-     * Constructs a new {@code ExpiredTokenException} with a custom message.
-     *
-     * <p>
-     * While it is recommended to use the default constructor which provides a standardized message, this constructor
-     * allows for a more specific message in special cases.
-     *
-     * @param message
-     *            the detail message.
-     */
-    public ExpiredTokenException(String message) {
-        super(message, STATUS_CODE, CODE);
-    }
+  /**
+   * Constructs a new {@code ExpiredTokenException} with a custom message.
+   *
+   * <p>
+   * While it is recommended to use the default constructor which provides a standardized message, this constructor
+   * allows for a more specific message in special cases.
+   *
+   * @param message
+   *          the detail message.
+   */
+  public ExpiredTokenException(String message) {
+    super(message, STATUS_CODE, CODE);
+  }
 
-    /**
-     * Constructs a new {@code ExpiredTokenException} with the default error message.
-     *
-     * <p>
-     * The default message is retrieved from {@link TokenErrorMessages#EXPIRED_TOKEN}.
-     */
-    public ExpiredTokenException() {
-        super(TokenErrorMessages.EXPIRED_TOKEN.getMessage(), STATUS_CODE, CODE);
-    }
+  /**
+   * Constructs a new {@code ExpiredTokenException} with the default error message.
+   *
+   * <p>
+   * The default message is retrieved from {@link TokenErrorMessages#EXPIRED_TOKEN}.
+   */
+  public ExpiredTokenException() {
+    super(TokenErrorMessages.EXPIRED_TOKEN.getMessage(), STATUS_CODE, CODE);
+  }
 }

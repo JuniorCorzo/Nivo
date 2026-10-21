@@ -9,6 +9,6 @@ import lombok.Builder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 public record SlotSummaryResponse(UUID id, String parkingName, SlotType type, String prefix, String zone,
-    String numberSlot, SlotStatus status, boolean hasTicket, boolean hasHistory, boolean hasCharger,
-    boolean isAccessible, boolean isActive) {
+  String numberSlot, SlotStatus status, boolean hasTicket, boolean hasHistory, boolean hasCharger,
+  boolean isAccessible, boolean isActive) {
 }

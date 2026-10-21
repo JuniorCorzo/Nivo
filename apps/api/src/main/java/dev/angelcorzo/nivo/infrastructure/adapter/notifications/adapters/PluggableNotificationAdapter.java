@@ -28,47 +28,47 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class PluggableNotificationAdapter implements NotificationGateway {
 
-    private final Map<EmailProviderType, EmailProviderClient> clientsByProvider;
-    private final EmailProviderType activeProvider;
+  private final Map<EmailProviderType, EmailProviderClient> clientsByProvider;
+  private final EmailProviderType activeProvider;
 
-    public PluggableNotificationAdapter(final List<EmailProviderClient> clients,
-        @Value("${nivo.notification.email.provider:SENDGRID}") final String activeProviderName) {
-        this.clientsByProvider = new EnumMap<>(EmailProviderType.class);
-        for (EmailProviderClient client : clients) {
-            this.clientsByProvider.put(client.getProviderType(), client);
-        }
-        this.activeProvider = resolveProviderType(activeProviderName);
-        log.info("Initialized PluggableNotificationAdapter with active email provider: {} (registered providers: {})",
-            this.activeProvider, this.clientsByProvider.keySet());
+  public PluggableNotificationAdapter(final List<EmailProviderClient> clients,
+    @Value("${nivo.notification.email.provider:SENDGRID}") final String activeProviderName) {
+    this.clientsByProvider = new EnumMap<>(EmailProviderType.class);
+    for (EmailProviderClient client : clients) {
+      this.clientsByProvider.put(client.getProviderType(), client);
+    }
+    this.activeProvider = resolveProviderType(activeProviderName);
+    log.info("Initialized PluggableNotificationAdapter with active email provider: {} (registered providers: {})",
+      this.activeProvider, this.clientsByProvider.keySet());
+  }
+
+  @Override
+  public void sendEmail(final NotificationTemplates template, final String to, final NotificationsData content) {
+    final EmailProviderClient client = this.clientsByProvider.get(this.activeProvider);
+    if (client == null) {
+      throw new IllegalStateException(
+        "No EmailProviderClient registered for active provider: " + this.activeProvider);
     }
 
-    @Override
-    public void sendEmail(final NotificationTemplates template, final String to, final NotificationsData content) {
-        final EmailProviderClient client = this.clientsByProvider.get(this.activeProvider);
-        if (client == null) {
-            throw new IllegalStateException(
-                "No EmailProviderClient registered for active provider: " + this.activeProvider);
-        }
+    log.debug("Delegating email dispatch to provider={} for template={}", this.activeProvider,
+      template != null ? template.getTemplateReference() : "N/A");
 
-        log.debug("Delegating email dispatch to provider={} for template={}", this.activeProvider,
-            template != null ? template.getTemplateReference() : "N/A");
+    client.sendEmail(template, to, content);
+  }
 
-        client.sendEmail(template, to, content);
+  public EmailProviderType getActiveProvider() {
+    return this.activeProvider;
+  }
+
+  private static EmailProviderType resolveProviderType(final String providerName) {
+    if (providerName == null || providerName.isBlank()) {
+      return EmailProviderType.SENDGRID;
     }
-
-    public EmailProviderType getActiveProvider() {
-        return this.activeProvider;
+    try {
+      return EmailProviderType.valueOf(providerName.trim().toUpperCase());
+    } catch (IllegalArgumentException e) {
+      log.warn("Unknown email provider '{}' configured; falling back to default SENDGRID", providerName);
+      return EmailProviderType.SENDGRID;
     }
-
-    private static EmailProviderType resolveProviderType(final String providerName) {
-        if (providerName == null || providerName.isBlank()) {
-            return EmailProviderType.SENDGRID;
-        }
-        try {
-            return EmailProviderType.valueOf(providerName.trim().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            log.warn("Unknown email provider '{}' configured; falling back to default SENDGRID", providerName);
-            return EmailProviderType.SENDGRID;
-        }
-    }
+  }
 }

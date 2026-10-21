@@ -13,49 +13,49 @@ import org.junit.jupiter.params.provider.ValueSource;
 @DisplayName("EmailExceptionPredicate Unit Tests")
 class EmailExceptionPredicateTest {
 
-    private final EmailExceptionPredicate predicate = new EmailExceptionPredicate();
-    private final Method dummyMethod = Object.class.getMethods()[0];
+  private final EmailExceptionPredicate predicate = new EmailExceptionPredicate();
+  private final Method dummyMethod = Object.class.getMethods()[0];
 
-    @ParameterizedTest
-    @ValueSource(ints = {500, 502, 503, 504})
-    @DisplayName("Should retry on SendGrid 5xx status codes")
-    void shouldRetryOn5xx(int statusCode) {
-        SendGridApiException exception = new SendGridApiException(statusCode, "Error");
+  @ParameterizedTest
+  @ValueSource(ints = {500, 502, 503, 504})
+  @DisplayName("Should retry on SendGrid 5xx status codes")
+  void shouldRetryOn5xx(int statusCode) {
+    SendGridApiException exception = new SendGridApiException(statusCode, "Error");
 
-        boolean result = predicate.shouldRetry(dummyMethod, exception);
+    boolean result = predicate.shouldRetry(dummyMethod, exception);
 
-        assertThat(result).isTrue();
-    }
+    assertThat(result).isTrue();
+  }
 
-    @ParameterizedTest
-    @ValueSource(ints = {400, 401, 403, 404, 422})
-    @DisplayName("Should not retry on SendGrid 4xx status codes")
-    void shouldNotRetryOn4xx(int statusCode) {
-        SendGridApiException exception = new SendGridApiException(statusCode, "Bad request");
+  @ParameterizedTest
+  @ValueSource(ints = {400, 401, 403, 404, 422})
+  @DisplayName("Should not retry on SendGrid 4xx status codes")
+  void shouldNotRetryOn4xx(int statusCode) {
+    SendGridApiException exception = new SendGridApiException(statusCode, "Bad request");
 
-        boolean result = predicate.shouldRetry(dummyMethod, exception);
+    boolean result = predicate.shouldRetry(dummyMethod, exception);
 
-        assertThat(result).isFalse();
-    }
+    assertThat(result).isFalse();
+  }
 
-    @Test
-    @DisplayName("Should retry on SendGridRequestBuildException")
-    void shouldRetryOnRequestBuildException() {
-        SendGridRequestBuildException exception = new SendGridRequestBuildException("Failed build",
-            new RuntimeException());
+  @Test
+  @DisplayName("Should retry on SendGridRequestBuildException")
+  void shouldRetryOnRequestBuildException() {
+    SendGridRequestBuildException exception = new SendGridRequestBuildException("Failed build",
+      new RuntimeException());
 
-        boolean result = predicate.shouldRetry(dummyMethod, exception);
+    boolean result = predicate.shouldRetry(dummyMethod, exception);
 
-        assertThat(result).isTrue();
-    }
+    assertThat(result).isTrue();
+  }
 
-    @Test
-    @DisplayName("Should not retry on generic RuntimeException")
-    void shouldNotRetryOnGenericException() {
-        RuntimeException exception = new RuntimeException("Other error");
+  @Test
+  @DisplayName("Should not retry on generic RuntimeException")
+  void shouldNotRetryOnGenericException() {
+    RuntimeException exception = new RuntimeException("Other error");
 
-        boolean result = predicate.shouldRetry(dummyMethod, exception);
+    boolean result = predicate.shouldRetry(dummyMethod, exception);
 
-        assertThat(result).isFalse();
-    }
+    assertThat(result).isFalse();
+  }
 }

@@ -10,6 +10,6 @@ import lombok.Builder;
 
 @Builder(toBuilder = true)
 public record UserInvitationsDTO(UUID id, Tenants tenant, String invitedEmail, Roles role, UUID token,
-    UserInvitationStatus status, Users invitedBy, OffsetDateTime createdAt, OffsetDateTime acceptedAt,
-    OffsetDateTime expiredAt) {
+  UserInvitationStatus status, Users invitedBy, OffsetDateTime createdAt, OffsetDateTime acceptedAt,
+  OffsetDateTime expiredAt) {
 }

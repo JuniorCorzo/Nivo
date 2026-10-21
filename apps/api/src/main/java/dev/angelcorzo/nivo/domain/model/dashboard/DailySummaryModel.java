@@ -13,15 +13,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DailySummaryModel {
-    private UUID parkingLotId;
-    private UUID tenantId;
-    private String parkingName;
-    private LocalDate summaryDate;
-    private Long totalTickets;
-    private Long completedTickets;
-    private Long ongoingTickets;
-    private Long uniqueVehicles;
-    private BigDecimal totalRevenue;
-    private Double avgDurationMinutes;
-    private String currency;
+  private UUID parkingLotId;
+  private UUID tenantId;
+  private String parkingName;
+  private LocalDate summaryDate;
+  private Long totalTickets;
+  private Long completedTickets;
+  private Long ongoingTickets;
+  private Long uniqueVehicles;
+  private BigDecimal totalRevenue;
+  private Double avgDurationMinutes;
+  private String currency;
 }

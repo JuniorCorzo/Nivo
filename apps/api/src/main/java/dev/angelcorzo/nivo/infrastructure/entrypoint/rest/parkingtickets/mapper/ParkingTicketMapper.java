@@ -12,16 +12,16 @@ import org.mapstruct.Mapping;
 
 @Mapper(config = MapperStructConfig.class, uses = TimezoneConverter.class)
 public interface ParkingTicketMapper {
-    CheckinVehicleUseCase.CreatedParkingTicket toModel(CreateTicket dto);
+  CheckinVehicleUseCase.CreatedParkingTicket toModel(CreateTicket dto);
 
-    @Mapping(target = "entryTime", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getEntryTime()))")
-    @Mapping(target = "exitTime", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getExitTime()))")
-    @Mapping(target = "createdAt", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getCreatedAt()))")
-    @Mapping(target = "updatedAt", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getUpdatedAt()))")
-    @Mapping(target = "deletedAt", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getDeletedAt()))")
-    ParkingTicketsDTO toDto(ParkingTickets model);
+  @Mapping(target = "entryTime", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getEntryTime()))")
+  @Mapping(target = "exitTime", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getExitTime()))")
+  @Mapping(target = "createdAt", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getCreatedAt()))")
+  @Mapping(target = "updatedAt", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getUpdatedAt()))")
+  @Mapping(target = "deletedAt", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getDeletedAt()))")
+  ParkingTicketsDTO toDto(ParkingTickets model);
 
-    @Mapping(target = "entryTime", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getEntryTime()))")
-    @Mapping(target = "exitTime", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getExitTime()))")
-    PublicTicketDTO toPublicDto(ParkingTickets model);
+  @Mapping(target = "entryTime", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getEntryTime()))")
+  @Mapping(target = "exitTime", expression = "java(dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter.toBogota(model.getExitTime()))")
+  PublicTicketDTO toPublicDto(ParkingTickets model);
 }

@@ -14,34 +14,34 @@ import org.junit.jupiter.api.Test;
 @DisplayName("DayCapStage Tests")
 class DayCapStageTest {
 
-    private final DayCapStage stage = new DayCapStage();
+  private final DayCapStage stage = new DayCapStage();
 
-    @Test
-    @DisplayName("Should return context unmodified for standard pricing context")
-    void shouldPassthroughUnsettledContext() {
-        ParkingLotPolicy policy = new ParkingLotPolicy(15, BigDecimal.ZERO, new BigDecimal("0.19"));
-        OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
-        OffsetDateTime exit = entry.plusHours(2);
+  @Test
+  @DisplayName("Should return context unmodified for standard pricing context")
+  void shouldPassthroughUnsettledContext() {
+    ParkingLotPolicy policy = new ParkingLotPolicy(15, BigDecimal.ZERO, new BigDecimal("0.19"));
+    OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
+    OffsetDateTime exit = entry.plusHours(2);
 
-        PricingContext ctx = PricingContext.of(RateReference.builder().build(), policy, entry, exit);
-        PricingContext result = stage.apply(ctx);
+    PricingContext ctx = PricingContext.of(RateReference.builder().build(), policy, entry, exit);
+    PricingContext result = stage.apply(ctx);
 
-        assertThat(result).isSameAs(ctx);
-    }
+    assertThat(result).isSameAs(ctx);
+  }
 
-    @Test
-    @DisplayName("Should return context unmodified when context is settled with subtotal and breakpoints")
-    void shouldPassthroughSettledContext() {
-        ParkingLotPolicy policy = new ParkingLotPolicy(15, BigDecimal.ZERO, new BigDecimal("0.19"));
-        OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
-        OffsetDateTime exit = entry.plusHours(2);
+  @Test
+  @DisplayName("Should return context unmodified when context is settled with subtotal and breakpoints")
+  void shouldPassthroughSettledContext() {
+    ParkingLotPolicy policy = new ParkingLotPolicy(15, BigDecimal.ZERO, new BigDecimal("0.19"));
+    OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
+    OffsetDateTime exit = entry.plusHours(2);
 
-        PricingContext ctx = PricingContext.of(RateReference.builder().build(), policy, entry, exit)
-            .withSubtotal(new BigDecimal("10000.00"), PriceLine.of("Base rate", new BigDecimal("10000.00")))
-            .toSettled();
+    PricingContext ctx = PricingContext.of(RateReference.builder().build(), policy, entry, exit)
+      .withSubtotal(new BigDecimal("10000.00"), PriceLine.of("Base rate", new BigDecimal("10000.00")))
+      .toSettled();
 
-        PricingContext result = stage.apply(ctx);
+    PricingContext result = stage.apply(ctx);
 
-        assertThat(result).isSameAs(ctx);
-    }
+    assertThat(result).isSameAs(ctx);
+  }
 }

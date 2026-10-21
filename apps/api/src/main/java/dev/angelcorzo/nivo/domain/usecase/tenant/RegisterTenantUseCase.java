@@ -31,49 +31,49 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class RegisterTenantUseCase {
-    private final UsersRepository usersRepository;
-    private final TenantsRepository tenantsRepository;
-    private final PasswordEncodeGateway passwordEncode;
-    private final RegistrationNotifier registrationNotifier;
+  private final UsersRepository usersRepository;
+  private final TenantsRepository tenantsRepository;
+  private final PasswordEncodeGateway passwordEncode;
+  private final RegistrationNotifier registrationNotifier;
 
-    /**
-     * Registers a new tenant and creates an associated owner user.
-     *
-     * @param user
-     *            The initial {@link Users} object for the tenant owner.
-     * @param tenant
-     *            The {@link Tenants} object representing the new tenant.
-     * @return The newly created {@link Users} object for the tenant owner, now associated with the tenant.
-     * @throws EmailAlreadyExistsException
-     *             if the email of the provided user already exists in the system.
-     */
-    public Users register(Users user, final Tenants tenant) {
-        this.validateEmailExists(user);
+  /**
+   * Registers a new tenant and creates an associated owner user.
+   *
+   * @param user
+   *          The initial {@link Users} object for the tenant owner.
+   * @param tenant
+   *          The {@link Tenants} object representing the new tenant.
+   * @return The newly created {@link Users} object for the tenant owner, now associated with the tenant.
+   * @throws EmailAlreadyExistsException
+   *           if the email of the provided user already exists in the system.
+   */
+  public Users register(Users user, final Tenants tenant) {
+    this.validateEmailExists(user);
 
-        final Tenants tenantCreated = this.tenantsRepository.save(tenant);
+    final Tenants tenantCreated = this.tenantsRepository.save(tenant);
 
-        final String passwordEncrypted = this.passwordEncode.encrypt(user.getPassword());
-        user.setTenant(TenantReference.of(this.tenantsRepository.getReferenceById(tenantCreated.getId())));
-        user.setRole(Roles.OWNER);
-        user.setPassword(passwordEncrypted);
-        user = this.usersRepository.save(user);
+    final String passwordEncrypted = this.passwordEncode.encrypt(user.getPassword());
+    user.setTenant(TenantReference.of(this.tenantsRepository.getReferenceById(tenantCreated.getId())));
+    user.setRole(Roles.OWNER);
+    user.setPassword(passwordEncrypted);
+    user = this.usersRepository.save(user);
 
-        this.registrationNotifier.notifyUserSelfRegistered(user);
-        return user;
+    this.registrationNotifier.notifyUserSelfRegistered(user);
+    return user;
+  }
+
+  /**
+   * Validates if the email of the provided user already exists in the system.
+   *
+   * @param user
+   *          The {@link Users} object whose email is to be validated.
+   * @throws EmailAlreadyExistsException
+   *           if the email already exists.
+   */
+  private void validateEmailExists(Users user) {
+    final String email = user.getEmail();
+    if (this.usersRepository.existsByEmail(email)) {
+      throw new EmailAlreadyExistsException(email);
     }
-
-    /**
-     * Validates if the email of the provided user already exists in the system.
-     *
-     * @param user
-     *            The {@link Users} object whose email is to be validated.
-     * @throws EmailAlreadyExistsException
-     *             if the email already exists.
-     */
-    private void validateEmailExists(Users user) {
-        final String email = user.getEmail();
-        if (this.usersRepository.existsByEmail(email)) {
-            throw new EmailAlreadyExistsException(email);
-        }
-    }
+  }
 }

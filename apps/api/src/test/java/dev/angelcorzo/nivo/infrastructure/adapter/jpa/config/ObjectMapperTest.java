@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Bean;
 
 @TestConfiguration
 public class ObjectMapperTest {
-    @Bean
-    ObjectMapper objectMapper() {
-        return new ObjectMapperImp();
-    }
+  @Bean
+  ObjectMapper objectMapper() {
+    return new ObjectMapperImp();
+  }
 }

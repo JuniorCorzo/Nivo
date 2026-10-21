@@ -27,100 +27,118 @@ import org.junit.jupiter.api.Test;
 @DisplayName("DefaultTicketNotifier Tests")
 class DefaultTicketNotifierTest {
 
-    private SendNotificationsUseCase sendNotificationsUseCase;
-    private AppProperties appProperties;
-    private DefaultTicketNotifier notifier;
+  private SendNotificationsUseCase sendNotificationsUseCase;
+  private AppProperties appProperties;
+  private DefaultTicketNotifier notifier;
 
-    private final UUID tenantId = UUID.randomUUID();
-    private final UUID userId = UUID.randomUUID();
-    private final UUID ticketId = UUID.randomUUID();
-    private final UserReference user = new UserReference(userId, "John Doe", "john@example.com", Roles.DRIVER,
-        "1234567890");
-    private final TenantReference tenant = new TenantReference(tenantId, "Tenant Name");
+  private final UUID tenantId = UUID.randomUUID();
+  private final UUID userId = UUID.randomUUID();
+  private final UUID ticketId = UUID.randomUUID();
+  private final UserReference user = new UserReference(userId, "John Doe", "john@example.com", Roles.DRIVER,
+    "1234567890");
+  private final TenantReference tenant = new TenantReference(tenantId, "Tenant Name");
 
-    @BeforeEach
-    void setUp() {
-        sendNotificationsUseCase = mock(SendNotificationsUseCase.class);
-        appProperties = mock(AppProperties.class);
-        when(appProperties.getCtaUrl()).thenReturn("https://cta.example.com");
-        when(appProperties.getCompanyName()).thenReturn("Nivo Inc");
-        when(appProperties.getSupportUrl()).thenReturn("https://support.example.com");
-        when(appProperties.getSocialUrl()).thenReturn("https://social.example.com");
-        when(appProperties.getUnsubscribeUrl()).thenReturn("https://unsubscribe.example.com");
-        when(appProperties.getAddressCompany()).thenReturn("123 Street");
+  @BeforeEach
+  void setUp() {
+    sendNotificationsUseCase = mock(SendNotificationsUseCase.class);
+    appProperties = mock(AppProperties.class);
+    when(appProperties.getCtaUrl()).thenReturn("https://cta.example.com");
+    when(appProperties.getCompanyName()).thenReturn("Nivo Inc");
+    when(appProperties.getSupportUrl()).thenReturn("https://support.example.com");
+    when(appProperties.getSocialUrl()).thenReturn("https://social.example.com");
+    when(appProperties.getUnsubscribeUrl()).thenReturn("https://unsubscribe.example.com");
+    when(appProperties.getAddressCompany()).thenReturn("123 Street");
 
-        notifier = new DefaultTicketNotifier(sendNotificationsUseCase, appProperties);
+    notifier = new DefaultTicketNotifier(sendNotificationsUseCase, appProperties);
+  }
+
+  @Nested
+  @DisplayName("notifyTicketOpened")
+  class NotifyTicketOpened {
+
+    @Test
+    @DisplayName("Should send notification when ticket and user are present")
+    void shouldSendNotificationWhenTicketAndUserArePresent() {
+      ParkingTickets ticket = ParkingTickets.builder()
+        .id(ticketId)
+        .licensePlate("ABC-123")
+        .tenant(tenant)
+        .user(user)
+        .createdAt(OffsetDateTime.now())
+        .build();
+
+      notifier.notifyTicketOpened(ticket);
+
+      verify(sendNotificationsUseCase).send(eq(NotificationEvents.TICKET_OPENED), eq(NotificationsChannel.EMAIL),
+        eq("john@example.com"), any(TicketOpenedData.class), eq(tenantId), eq(userId));
     }
 
-    @Nested
-    @DisplayName("notifyTicketOpened")
-    class NotifyTicketOpened {
+    @Test
+    @DisplayName("Should not send notification when ticket is null")
+    void shouldNotSendNotificationWhenTicketIsNull() {
+      notifier.notifyTicketOpened(null);
 
-        @Test
-        @DisplayName("Should send notification when ticket and user are present")
-        void shouldSendNotificationWhenTicketAndUserArePresent() {
-            ParkingTickets ticket = ParkingTickets.builder().id(ticketId).licensePlate("ABC-123").tenant(tenant)
-                .user(user).createdAt(OffsetDateTime.now()).build();
-
-            notifier.notifyTicketOpened(ticket);
-
-            verify(sendNotificationsUseCase).send(eq(NotificationEvents.TICKET_OPENED), eq(NotificationsChannel.EMAIL),
-                eq("john@example.com"), any(TicketOpenedData.class), eq(tenantId), eq(userId));
-        }
-
-        @Test
-        @DisplayName("Should not send notification when ticket is null")
-        void shouldNotSendNotificationWhenTicketIsNull() {
-            notifier.notifyTicketOpened(null);
-
-            verifyNoInteractions(sendNotificationsUseCase);
-        }
-
-        @Test
-        @DisplayName("Should not send notification when ticket user is null")
-        void shouldNotSendNotificationWhenTicketUserIsNull() {
-            ParkingTickets ticket = ParkingTickets.builder().id(ticketId).licensePlate("ABC-123").tenant(tenant)
-                .user(null).build();
-
-            notifier.notifyTicketOpened(ticket);
-
-            verifyNoInteractions(sendNotificationsUseCase);
-        }
+      verifyNoInteractions(sendNotificationsUseCase);
     }
 
-    @Nested
-    @DisplayName("notifyTicketClosed")
-    class NotifyTicketClosed {
+    @Test
+    @DisplayName("Should not send notification when ticket user is null")
+    void shouldNotSendNotificationWhenTicketUserIsNull() {
+      ParkingTickets ticket = ParkingTickets.builder()
+        .id(ticketId)
+        .licensePlate("ABC-123")
+        .tenant(tenant)
+        .user(null)
+        .build();
 
-        @Test
-        @DisplayName("Should send notification when ticket and user are present")
-        void shouldSendNotificationWhenTicketAndUserArePresent() {
-            ParkingTickets ticket = ParkingTickets.builder().id(ticketId).licensePlate("ABC-123").tenant(tenant)
-                .user(user).closedAt(OffsetDateTime.now()).build();
+      notifier.notifyTicketOpened(ticket);
 
-            notifier.notifyTicketClosed(ticket);
-
-            verify(sendNotificationsUseCase).send(eq(NotificationEvents.TICKET_CLOSED), eq(NotificationsChannel.EMAIL),
-                eq("john@example.com"), any(TicketClosedData.class), eq(tenantId), eq(userId));
-        }
-
-        @Test
-        @DisplayName("Should not send notification when ticket is null")
-        void shouldNotSendNotificationWhenTicketIsNull() {
-            notifier.notifyTicketClosed(null);
-
-            verifyNoInteractions(sendNotificationsUseCase);
-        }
-
-        @Test
-        @DisplayName("Should not send notification when ticket user is null")
-        void shouldNotSendNotificationWhenTicketUserIsNull() {
-            ParkingTickets ticket = ParkingTickets.builder().id(ticketId).licensePlate("ABC-123").tenant(tenant)
-                .user(null).build();
-
-            notifier.notifyTicketClosed(ticket);
-
-            verifyNoInteractions(sendNotificationsUseCase);
-        }
+      verifyNoInteractions(sendNotificationsUseCase);
     }
+  }
+
+  @Nested
+  @DisplayName("notifyTicketClosed")
+  class NotifyTicketClosed {
+
+    @Test
+    @DisplayName("Should send notification when ticket and user are present")
+    void shouldSendNotificationWhenTicketAndUserArePresent() {
+      ParkingTickets ticket = ParkingTickets.builder()
+        .id(ticketId)
+        .licensePlate("ABC-123")
+        .tenant(tenant)
+        .user(user)
+        .closedAt(OffsetDateTime.now())
+        .build();
+
+      notifier.notifyTicketClosed(ticket);
+
+      verify(sendNotificationsUseCase).send(eq(NotificationEvents.TICKET_CLOSED), eq(NotificationsChannel.EMAIL),
+        eq("john@example.com"), any(TicketClosedData.class), eq(tenantId), eq(userId));
+    }
+
+    @Test
+    @DisplayName("Should not send notification when ticket is null")
+    void shouldNotSendNotificationWhenTicketIsNull() {
+      notifier.notifyTicketClosed(null);
+
+      verifyNoInteractions(sendNotificationsUseCase);
+    }
+
+    @Test
+    @DisplayName("Should not send notification when ticket user is null")
+    void shouldNotSendNotificationWhenTicketUserIsNull() {
+      ParkingTickets ticket = ParkingTickets.builder()
+        .id(ticketId)
+        .licensePlate("ABC-123")
+        .tenant(tenant)
+        .user(null)
+        .build();
+
+      notifier.notifyTicketClosed(ticket);
+
+      verifyNoInteractions(sendNotificationsUseCase);
+    }
+  }
 }

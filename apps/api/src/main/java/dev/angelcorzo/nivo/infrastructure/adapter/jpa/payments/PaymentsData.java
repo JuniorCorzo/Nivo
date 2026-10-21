@@ -26,64 +26,64 @@ import org.hibernate.type.SqlTypes;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentsData {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", referencedColumnName = "id")
-    private TenantsData tenant;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "tenant_id", referencedColumnName = "id")
+  private TenantsData tenant;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private UsersData user;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", referencedColumnName = "id")
+  private UsersData user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parking_ticket_id", referencedColumnName = "id")
-    private ParkingTicketsData parkingTicket;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "parking_ticket_id", referencedColumnName = "id")
+  private ParkingTicketsData parkingTicket;
 
-    @Column(name = "amount", nullable = false)
-    private BigDecimal amount;
+  @Column(name = "amount", nullable = false)
+  private BigDecimal amount;
 
-    @Column(name = "payment_date", columnDefinition = "TIMESTAMPTZ")
-    private OffsetDateTime paymentDate;
+  @Column(name = "payment_date", columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime paymentDate;
 
-    @Column(name = "payment_method", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private PaymentsMethods paymentMethod;
+  @Column(name = "payment_method", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private PaymentsMethods paymentMethod;
 
-    @Column(name = "status")
-    @ColumnDefault("PENDING_CHECKOUT")
-    @Enumerated(EnumType.STRING)
-    private PaymentStatus status;
+  @Column(name = "status")
+  @ColumnDefault("PENDING_CHECKOUT")
+  @Enumerated(EnumType.STRING)
+  private PaymentStatus status;
 
-    @Column(name = "provider")
-    private String provider;
+  @Column(name = "provider")
+  private String provider;
 
-    @Column(name = "external_payment_id")
-    private String externalPaymentId;
+  @Column(name = "external_payment_id")
+  private String externalPaymentId;
 
-    @Column(name = "checkout_session_id")
-    private String checkoutSessionId;
+  @Column(name = "checkout_session_id")
+  private String checkoutSessionId;
 
-    @Column(name = "checkout_url")
-    private String checkoutUrl;
+  @Column(name = "checkout_url")
+  private String checkoutUrl;
 
-    @Column(name = "checkout_expires_at", columnDefinition = "TIMESTAMPTZ")
-    private OffsetDateTime checkoutExpiresAt;
+  @Column(name = "checkout_expires_at", columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime checkoutExpiresAt;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "provider_create_response", columnDefinition = "jsonb")
-    private JsonNode providerCreateResponse;
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "provider_create_response", columnDefinition = "jsonb")
+  private JsonNode providerCreateResponse;
 
-    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMPTZ")
-    @CreationTimestamp
-    private OffsetDateTime createdAt;
+  @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMPTZ")
+  @CreationTimestamp
+  private OffsetDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMPTZ")
-    @UpdateTimestamp
-    private OffsetDateTime updatedAt;
+  @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMPTZ")
+  @UpdateTimestamp
+  private OffsetDateTime updatedAt;
 
-    @OneToMany(mappedBy = "payment", fetch = FetchType.LAZY)
-    private List<TransactionsData> transactions;
+  @OneToMany(mappedBy = "payment", fetch = FetchType.LAZY)
+  private List<TransactionsData> transactions;
 }

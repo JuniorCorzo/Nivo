@@ -11,9 +11,9 @@ import org.mapstruct.Mapper;
 
 @Mapper(config = MapperStructConfig.class)
 public interface RatesMapper {
-    RateConfigurationUseCase.CreateTariff toModel(CreateRate dto);
+  RateConfigurationUseCase.CreateTariff toModel(CreateRate dto);
 
-    UpdateRateUseCase.UpdateRate toModel(UpdateRate dto);
+  UpdateRateUseCase.UpdateRate toModel(UpdateRate dto);
 
-    RatesDTO toDTO(Rates model);
+  RatesDTO toDTO(Rates model);
 }

@@ -21,75 +21,87 @@ import org.junit.jupiter.api.Test;
 @DisplayName("BatchUpsertSlotsUseCase Tests")
 class BatchUpsertSlotsUseCaseTest {
 
-    private SlotsRepository slotsRepository;
-    private BatchPersistSlotsUseCase batchPersistSlotsUseCase;
-    private BatchUpsertSlotsUseCase useCase;
+  private SlotsRepository slotsRepository;
+  private BatchPersistSlotsUseCase batchPersistSlotsUseCase;
+  private BatchUpsertSlotsUseCase useCase;
 
-    @BeforeEach
-    void setUp() {
-        slotsRepository = mock(SlotsRepository.class);
-        batchPersistSlotsUseCase = mock(BatchPersistSlotsUseCase.class);
-        useCase = new BatchUpsertSlotsUseCase(slotsRepository, batchPersistSlotsUseCase);
+  @BeforeEach
+  void setUp() {
+    slotsRepository = mock(SlotsRepository.class);
+    batchPersistSlotsUseCase = mock(BatchPersistSlotsUseCase.class);
+    useCase = new BatchUpsertSlotsUseCase(slotsRepository, batchPersistSlotsUseCase);
+  }
+
+  @Test
+  @DisplayName("Should create new groups when no existing slots in group")
+  void shouldCreateNewGroups() {
+    UUID parkingId = UUID.randomUUID();
+    ParkingLots parking = ParkingLots.builder().id(parkingId).build();
+    Tenants tenant = Tenants.builder().id(UUID.randomUUID()).build();
+
+    CreatedSlots incoming = new CreatedSlots("A", "Zone-1", SlotType.CAR, 5, 0);
+
+    when(slotsRepository.findAllByParkingLotsId(parkingId)).thenReturn(Collections.emptyList());
+
+    useCase.execute(List.of(incoming), parking, tenant);
+
+    verify(batchPersistSlotsUseCase).execute(anyList());
+  }
+
+  @Test
+  @DisplayName("Should expand group when incoming count is greater than existing")
+  void shouldExpandGroup() {
+    UUID parkingId = UUID.randomUUID();
+    ParkingLots parking = ParkingLots.builder().id(parkingId).build();
+    Tenants tenant = Tenants.builder().id(UUID.randomUUID()).build();
+
+    List<Slots> existing = new ArrayList<>();
+    for (int i = 0; i < 3; i++) {
+      existing.add(Slots.builder()
+        .id(UUID.randomUUID())
+        .prefix("A")
+        .zone("Zone-1")
+        .type(SlotType.CAR)
+        .slotNumber("A-0" + (i + 1))
+        .createdAt(OffsetDateTime.now())
+        .build());
     }
 
-    @Test
-    @DisplayName("Should create new groups when no existing slots in group")
-    void shouldCreateNewGroups() {
-        UUID parkingId = UUID.randomUUID();
-        ParkingLots parking = ParkingLots.builder().id(parkingId).build();
-        Tenants tenant = Tenants.builder().id(UUID.randomUUID()).build();
+    CreatedSlots incoming = new CreatedSlots("A", "Zone-1", SlotType.CAR, 5, 0);
 
-        CreatedSlots incoming = new CreatedSlots("A", "Zone-1", SlotType.CAR, 5, 0);
+    when(slotsRepository.findAllByParkingLotsId(parkingId)).thenReturn(existing);
 
-        when(slotsRepository.findAllByParkingLotsId(parkingId)).thenReturn(Collections.emptyList());
+    useCase.execute(List.of(incoming), parking, tenant);
 
-        useCase.execute(List.of(incoming), parking, tenant);
+    verify(batchPersistSlotsUseCase).execute(anyList());
+  }
 
-        verify(batchPersistSlotsUseCase).execute(anyList());
+  @Test
+  @DisplayName("Should shrink group when incoming count is less than existing")
+  void shouldShrinkGroup() {
+    UUID parkingId = UUID.randomUUID();
+    ParkingLots parking = ParkingLots.builder().id(parkingId).build();
+    Tenants tenant = Tenants.builder().id(UUID.randomUUID()).build();
+
+    List<Slots> existing = new ArrayList<>();
+    for (int i = 0; i < 5; i++) {
+      existing.add(Slots.builder()
+        .id(UUID.randomUUID())
+        .prefix("A")
+        .zone("Zone-1")
+        .type(SlotType.CAR)
+        .slotNumber("A-0" + (i + 1))
+        .createdAt(OffsetDateTime.now().minusMinutes(i))
+        .build());
     }
 
-    @Test
-    @DisplayName("Should expand group when incoming count is greater than existing")
-    void shouldExpandGroup() {
-        UUID parkingId = UUID.randomUUID();
-        ParkingLots parking = ParkingLots.builder().id(parkingId).build();
-        Tenants tenant = Tenants.builder().id(UUID.randomUUID()).build();
+    CreatedSlots incoming = new CreatedSlots("A", "Zone-1", SlotType.CAR, 3, 0);
 
-        List<Slots> existing = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            existing.add(Slots.builder().id(UUID.randomUUID()).prefix("A").zone("Zone-1").type(SlotType.CAR)
-                .slotNumber("A-0" + (i + 1)).createdAt(OffsetDateTime.now()).build());
-        }
+    when(slotsRepository.findAllByParkingLotsId(parkingId)).thenReturn(existing);
 
-        CreatedSlots incoming = new CreatedSlots("A", "Zone-1", SlotType.CAR, 5, 0);
+    useCase.execute(List.of(incoming), parking, tenant);
 
-        when(slotsRepository.findAllByParkingLotsId(parkingId)).thenReturn(existing);
-
-        useCase.execute(List.of(incoming), parking, tenant);
-
-        verify(batchPersistSlotsUseCase).execute(anyList());
-    }
-
-    @Test
-    @DisplayName("Should shrink group when incoming count is less than existing")
-    void shouldShrinkGroup() {
-        UUID parkingId = UUID.randomUUID();
-        ParkingLots parking = ParkingLots.builder().id(parkingId).build();
-        Tenants tenant = Tenants.builder().id(UUID.randomUUID()).build();
-
-        List<Slots> existing = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            existing.add(Slots.builder().id(UUID.randomUUID()).prefix("A").zone("Zone-1").type(SlotType.CAR)
-                .slotNumber("A-0" + (i + 1)).createdAt(OffsetDateTime.now().minusMinutes(i)).build());
-        }
-
-        CreatedSlots incoming = new CreatedSlots("A", "Zone-1", SlotType.CAR, 3, 0);
-
-        when(slotsRepository.findAllByParkingLotsId(parkingId)).thenReturn(existing);
-
-        useCase.execute(List.of(incoming), parking, tenant);
-
-        // 2 excess slots should be deleted
-        verify(slotsRepository, times(2)).deleteById(any(UUID.class));
-    }
+    // 2 excess slots should be deleted
+    verify(slotsRepository, times(2)).deleteById(any(UUID.class));
+  }
 }

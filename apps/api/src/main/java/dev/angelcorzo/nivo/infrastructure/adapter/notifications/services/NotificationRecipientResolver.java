@@ -10,26 +10,26 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class NotificationRecipientResolver {
-    private final UsersRepository usersRepository;
+  private final UsersRepository usersRepository;
 
-    public UserReference resolve(Users actorUser, String recipient, NotificationsChannel channel) {
-        final Users resolvedUser = switch (channel) {
-            case EMAIL -> this.resolveByEmail(actorUser, recipient);
-            case WHATSAPP -> null;
-        };
+  public UserReference resolve(Users actorUser, String recipient, NotificationsChannel channel) {
+    final Users resolvedUser = switch (channel) {
+      case EMAIL -> this.resolveByEmail(actorUser, recipient);
+      case WHATSAPP -> null;
+    };
 
-        if (resolvedUser == null) {
-            return null;
-        }
-
-        return UserReference.of(resolvedUser);
+    if (resolvedUser == null) {
+      return null;
     }
 
-    private Users resolveByEmail(Users actorUser, String recipient) {
-        if (actorUser.getEmail().equals(recipient)) {
-            return actorUser;
-        }
+    return UserReference.of(resolvedUser);
+  }
 
-        return this.usersRepository.findByEmail(recipient).orElse(null);
+  private Users resolveByEmail(Users actorUser, String recipient) {
+    if (actorUser.getEmail().equals(recipient)) {
+      return actorUser;
     }
+
+    return this.usersRepository.findByEmail(recipient).orElse(null);
+  }
 }

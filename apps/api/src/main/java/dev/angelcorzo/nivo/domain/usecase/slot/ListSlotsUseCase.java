@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ListSlotsUseCase {
-    private final SlotsRepository slotsRepository;
+  private final SlotsRepository slotsRepository;
 
-    public List<Slots> execute(UUID parkingLotId) {
-        return this.slotsRepository.findAllByParkingLotsId(parkingLotId);
-    }
+  public List<Slots> execute(UUID parkingLotId) {
+    return this.slotsRepository.findAllByParkingLotsId(parkingLotId);
+  }
 }

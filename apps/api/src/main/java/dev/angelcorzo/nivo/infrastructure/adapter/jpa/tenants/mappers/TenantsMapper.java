@@ -33,10 +33,10 @@ import org.mapstruct.Mapping;
 @Mapper(config = MapperStructConfig.class, uses = CoordinatesMapper.class)
 public interface TenantsMapper extends BaseMapper<Tenants, TenantsData> {
 
-    @Override
-    @Mapping(target = "users", source = "users")
-    Tenants toEntity(TenantsData data);
+  @Override
+  @Mapping(target = "users", source = "users")
+  Tenants toEntity(TenantsData data);
 
-    @Mapping(target = "tenant", ignore = true)
-    Users toUser(UsersData user);
+  @Mapping(target = "tenant", ignore = true)
+  Users toUser(UsersData user);
 }

@@ -23,14 +23,14 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class GetCurrentUserUseCase {
-    private final AuthenticationContextGateway authenticationContextGateway;
+  private final AuthenticationContextGateway authenticationContextGateway;
 
-    /**
-     * Retrieves the currently authenticated user.
-     *
-     * @return The {@link Users} entity of the authenticated user.
-     */
-    public Users execute() {
-        return authenticationContextGateway.getCurrentUser();
-    }
+  /**
+   * Retrieves the currently authenticated user.
+   *
+   * @return The {@link Users} entity of the authenticated user.
+   */
+  public Users execute() {
+    return authenticationContextGateway.getCurrentUser();
+  }
 }

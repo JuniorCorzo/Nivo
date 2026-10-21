@@ -18,12 +18,12 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class NotificationPreferences {
-    private UUID id;
-    private UserReference user;
-    private TenantReference tenant;
-    private NotificationEvents eventType;
-    private NotificationsChannel channel;
-    private Boolean isEnabled;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime updatedAt;
+  private UUID id;
+  private UserReference user;
+  private TenantReference tenant;
+  private NotificationEvents eventType;
+  private NotificationsChannel channel;
+  private Boolean isEnabled;
+  private OffsetDateTime createdAt;
+  private OffsetDateTime updatedAt;
 }

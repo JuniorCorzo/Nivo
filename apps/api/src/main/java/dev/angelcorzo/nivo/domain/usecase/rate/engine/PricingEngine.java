@@ -12,23 +12,23 @@ import java.util.List;
  * {@link PricingStage} implementations without modifying the core execution loop.
  */
 public class PricingEngine {
-    private final List<PricingStage> stages;
+  private final List<PricingStage> stages;
 
-    public PricingEngine(List<PricingStage> stages) {
-        this.stages = List.copyOf(stages);
-    }
+  public PricingEngine(List<PricingStage> stages) {
+    this.stages = List.copyOf(stages);
+  }
 
-    public PriceDetailed calculate(PricingContext context, String tenantName) {
-        PricingContext current = context;
-        for (PricingStage stage : this.stages) {
-            if (current.settled()) {
-                break;
-            }
-            current = stage.apply(current);
-            if (current.settled()) {
-                break;
-            }
-        }
-        return PriceDetailed.from(current, tenantName);
+  public PriceDetailed calculate(PricingContext context, String tenantName) {
+    PricingContext current = context;
+    for (PricingStage stage : this.stages) {
+      if (current.settled()) {
+        break;
+      }
+      current = stage.apply(current);
+      if (current.settled()) {
+        break;
+      }
     }
+    return PriceDetailed.from(current, tenantName);
+  }
 }

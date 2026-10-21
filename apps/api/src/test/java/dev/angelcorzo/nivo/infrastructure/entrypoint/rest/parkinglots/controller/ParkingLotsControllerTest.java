@@ -45,95 +45,99 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("ParkingLotsController Unit Tests")
 class ParkingLotsControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+  private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
-    @MockitoBean
-    private AuthenticationContextGateway authenticationContext;
+  @MockitoBean
+  private AuthenticationContextGateway authenticationContext;
 
-    @MockitoBean
-    private ParkingLotsMapper parkingLotsMapper;
+  @MockitoBean
+  private ParkingLotsMapper parkingLotsMapper;
 
-    @MockitoBean
-    private RatesMapper ratesMapper;
+  @MockitoBean
+  private RatesMapper ratesMapper;
 
-    @MockitoBean
-    private CreateParkingUseCase createParkingUseCase;
+  @MockitoBean
+  private CreateParkingUseCase createParkingUseCase;
 
-    @MockitoBean
-    private UpdateParkingLotsUseCase updateParkingLotsUseCase;
+  @MockitoBean
+  private UpdateParkingLotsUseCase updateParkingLotsUseCase;
 
-    @MockitoBean
-    private ListParkingLotsUseCase listParkingLotsUseCase;
+  @MockitoBean
+  private ListParkingLotsUseCase listParkingLotsUseCase;
 
-    @MockitoBean
-    private RateConfigurationUseCase rateConfigurationUseCase;
+  @MockitoBean
+  private RateConfigurationUseCase rateConfigurationUseCase;
 
-    @MockitoBean
-    private ShowRatesByParkingLotUseCase showRatesByParkingLotUseCase;
+  @MockitoBean
+  private ShowRatesByParkingLotUseCase showRatesByParkingLotUseCase;
 
-    @MockitoBean
-    private DeleteSlotGroupUseCase deleteSlotGroupUseCase;
+  @MockitoBean
+  private DeleteSlotGroupUseCase deleteSlotGroupUseCase;
 
-    @MockitoBean
-    private DeleteParkingLotUseCase deleteParkingLotUseCase;
+  @MockitoBean
+  private DeleteParkingLotUseCase deleteParkingLotUseCase;
 
-    @Test
-    @DisplayName("GET /parking-lots/list - Should list all parking lots")
-    void shouldListParkingLots() throws Exception {
-        UUID tenantId = UUID.randomUUID();
-        ParkingLotListItem item = mock(ParkingLotListItem.class);
-        ParkingLotListItemResponse response = mock(ParkingLotListItemResponse.class);
+  @Test
+  @DisplayName("GET /parking-lots/list - Should list all parking lots")
+  void shouldListParkingLots() throws Exception {
+    UUID tenantId = UUID.randomUUID();
+    ParkingLotListItem item = mock(ParkingLotListItem.class);
+    ParkingLotListItemResponse response = mock(ParkingLotListItemResponse.class);
 
-        when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
-        when(listParkingLotsUseCase.listParkingLots(tenantId)).thenReturn(List.of(item));
-        when(parkingLotsMapper.toListItemResponse(item)).thenReturn(response);
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
+    when(listParkingLotsUseCase.listParkingLots(tenantId)).thenReturn(List.of(item));
+    when(parkingLotsMapper.toListItemResponse(item)).thenReturn(response);
 
-        mockMvc.perform(get("/parking-lots/list")).andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value(ParkingLotsMessages.PARKING_LOTS_LIST.format()));
-    }
+    mockMvc.perform(get("/parking-lots/list"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value(ParkingLotsMessages.PARKING_LOTS_LIST.format()));
+  }
 
-    @Test
-    @DisplayName("GET /parking-lots/{parkingId}/rates - Should show rates by parking lot")
-    void shouldShowRatesByParkingId() throws Exception {
-        UUID parkingId = UUID.randomUUID();
-        Rates rate = Rates.builder().id(UUID.randomUUID()).build();
-        RatesDTO dto = mock(RatesDTO.class);
+  @Test
+  @DisplayName("GET /parking-lots/{parkingId}/rates - Should show rates by parking lot")
+  void shouldShowRatesByParkingId() throws Exception {
+    UUID parkingId = UUID.randomUUID();
+    Rates rate = Rates.builder().id(UUID.randomUUID()).build();
+    RatesDTO dto = mock(RatesDTO.class);
 
-        when(showRatesByParkingLotUseCase.execute(parkingId)).thenReturn(List.of(rate));
-        when(ratesMapper.toDTO(rate)).thenReturn(dto);
+    when(showRatesByParkingLotUseCase.execute(parkingId)).thenReturn(List.of(rate));
+    when(ratesMapper.toDTO(rate)).thenReturn(dto);
 
-        mockMvc.perform(get("/parking-lots/{parkingId}/rates", parkingId)).andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value(RateMessages.SHOW_RATES_BY_TENANT.format()));
-    }
+    mockMvc.perform(get("/parking-lots/{parkingId}/rates", parkingId))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value(RateMessages.SHOW_RATES_BY_TENANT.format()));
+  }
 
-    @Test
-    @DisplayName("DELETE /parking-lots/{parkingId} - Should delete parking lot")
-    void shouldDeleteParkingLot() throws Exception {
-        UUID tenantId = UUID.randomUUID();
-        UUID parkingId = UUID.randomUUID();
+  @Test
+  @DisplayName("DELETE /parking-lots/{parkingId} - Should delete parking lot")
+  void shouldDeleteParkingLot() throws Exception {
+    UUID tenantId = UUID.randomUUID();
+    UUID parkingId = UUID.randomUUID();
 
-        when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
-        mockMvc.perform(delete("/parking-lots/{parkingId}", parkingId)).andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value(ParkingLotsMessages.PARKING_LOT_DELETED.format()));
+    mockMvc.perform(delete("/parking-lots/{parkingId}", parkingId))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value(ParkingLotsMessages.PARKING_LOT_DELETED.format()));
 
-        verify(deleteParkingLotUseCase).execute(parkingId, tenantId);
-    }
+    verify(deleteParkingLotUseCase).execute(parkingId, tenantId);
+  }
 
-    @Test
-    @DisplayName("DELETE /parking-lots/{parkingId}/slots/groups - Should delete slot group")
-    void shouldDeleteSlotGroup() throws Exception {
-        UUID parkingId = UUID.randomUUID();
+  @Test
+  @DisplayName("DELETE /parking-lots/{parkingId}/slots/groups - Should delete slot group")
+  void shouldDeleteSlotGroup() throws Exception {
+    UUID parkingId = UUID.randomUUID();
 
-        mockMvc
-            .perform(delete("/parking-lots/{parkingId}/slots/groups", parkingId).param("slotType", "CAR")
-                .param("prefix", "A").param("zone", "NORTH"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value(ParkingLotsMessages.SLOT_GROUP_DELETED.format()));
+    mockMvc
+      .perform(delete("/parking-lots/{parkingId}/slots/groups", parkingId).param("slotType", "CAR")
+        .param("prefix", "A")
+        .param("zone", "NORTH"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value(ParkingLotsMessages.SLOT_GROUP_DELETED.format()));
 
-        verify(deleteSlotGroupUseCase).execute(any(DeleteSlotGroupUseCase.DeleteSlotGroupCommand.class));
-    }
+    verify(deleteSlotGroupUseCase).execute(any(DeleteSlotGroupUseCase.DeleteSlotGroupCommand.class));
+  }
 }

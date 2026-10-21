@@ -14,12 +14,12 @@ import org.mapstruct.Mappings;
 
 @Mapper(config = MapperStructConfig.class)
 public interface UserMapper {
-    Users toModel(CreatedUserDTO createdUserDTO);
+  Users toModel(CreatedUserDTO createdUserDTO);
 
-    ModifyUserRoleUseCase.ModifyUserRole toModel(ModifyRolDTO modifyRolDTO);
+  ModifyUserRoleUseCase.ModifyUserRole toModel(ModifyRolDTO modifyRolDTO);
 
-    @Mappings(@Mapping(target = "userIdToDeactivate", source = "userId"))
-    DeactivateUserUseCase.DeactivateUserCommand toModel(DeactivateUserDTO dto);
+  @Mappings(@Mapping(target = "userIdToDeactivate", source = "userId"))
+  DeactivateUserUseCase.DeactivateUserCommand toModel(DeactivateUserDTO dto);
 
-    UserDTO toDTO(Users user);
+  UserDTO toDTO(Users user);
 }

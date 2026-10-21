@@ -11,15 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class UnplatedTicketSequenceAdapter implements UnplatedTicketSequenceGateway {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+  @PersistenceContext
+  private EntityManager entityManager;
 
-    @Override
-    @Transactional
-    public String nextTicketCode(final UUID parkingLotId) {
-        final Query query = this.entityManager.createNativeQuery("SELECT next_unplated_ticket_code(:parkingLotId)");
-        query.setParameter("parkingLotId", parkingLotId);
-        final Object result = query.getSingleResult();
-        return result != null ? result.toString() : "SP-1001";
-    }
+  @Override
+  @Transactional
+  public String nextTicketCode(final UUID parkingLotId) {
+    final Query query = this.entityManager.createNativeQuery("SELECT next_unplated_ticket_code(:parkingLotId)");
+    query.setParameter("parkingLotId", parkingLotId);
+    final Object result = query.getSingleResult();
+    return result != null ? result.toString() : "SP-1001";
+  }
 }

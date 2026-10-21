@@ -9,12 +9,12 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class GetNotificationPreferencesByUserUseCase {
-    private final NotificationPreferencesRepository notificationPreferencesRepository;
-    private final AuthenticationContextGateway authenticationContextGateway;
+  private final NotificationPreferencesRepository notificationPreferencesRepository;
+  private final AuthenticationContextGateway authenticationContextGateway;
 
-    public List<NotificationPreferences> execute() {
-        UUID userId = authenticationContextGateway.getCurrentUserId();
+  public List<NotificationPreferences> execute() {
+    UUID userId = authenticationContextGateway.getCurrentUserId();
 
-        return notificationPreferencesRepository.findAllByUserId(userId);
-    }
+    return notificationPreferencesRepository.findAllByUserId(userId);
+  }
 }

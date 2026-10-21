@@ -14,27 +14,27 @@ import org.junit.jupiter.api.Test;
 @DisplayName("ShowRatesByParkingLotUseCase Tests")
 class ShowRatesByParkingLotUseCaseTest {
 
-    private RatesRepository ratesRepository;
-    private ShowRatesByParkingLotUseCase useCase;
+  private RatesRepository ratesRepository;
+  private ShowRatesByParkingLotUseCase useCase;
 
-    @BeforeEach
-    void setUp() {
-        ratesRepository = mock(RatesRepository.class);
-        useCase = new ShowRatesByParkingLotUseCase(ratesRepository);
-    }
+  @BeforeEach
+  void setUp() {
+    ratesRepository = mock(RatesRepository.class);
+    useCase = new ShowRatesByParkingLotUseCase(ratesRepository);
+  }
 
-    @Test
-    @DisplayName("Should return rates for parking lot")
-    void shouldReturnRatesForParkingLot() {
-        UUID parkingId = UUID.randomUUID();
-        Rates rate = Rates.builder().id(UUID.randomUUID()).name("Standard").build();
+  @Test
+  @DisplayName("Should return rates for parking lot")
+  void shouldReturnRatesForParkingLot() {
+    UUID parkingId = UUID.randomUUID();
+    Rates rate = Rates.builder().id(UUID.randomUUID()).name("Standard").build();
 
-        when(ratesRepository.findAllByParkingLotId(parkingId)).thenReturn(List.of(rate));
+    when(ratesRepository.findAllByParkingLotId(parkingId)).thenReturn(List.of(rate));
 
-        List<Rates> result = useCase.execute(parkingId);
+    List<Rates> result = useCase.execute(parkingId);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).isEqualTo("Standard");
-        verify(ratesRepository).findAllByParkingLotId(parkingId);
-    }
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getName()).isEqualTo("Standard");
+    verify(ratesRepository).findAllByParkingLotId(parkingId);
+  }
 }

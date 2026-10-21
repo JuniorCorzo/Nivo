@@ -16,75 +16,75 @@ import org.junit.jupiter.api.Test;
 @DisplayName("UserInvitationsRepositoryAdapter Unit Tests")
 class UserInvitationsRepositoryAdapterTest {
 
-    private UserInvitationsRepositoryData repository;
-    private UserInvitationsMapper mapper;
-    private UserInvitationsRepositoryAdapter adapter;
+  private UserInvitationsRepositoryData repository;
+  private UserInvitationsMapper mapper;
+  private UserInvitationsRepositoryAdapter adapter;
 
-    @BeforeEach
-    void setUp() {
-        repository = mock(UserInvitationsRepositoryData.class);
-        mapper = mock(UserInvitationsMapper.class);
-        adapter = new UserInvitationsRepositoryAdapter(repository, mapper);
-    }
+  @BeforeEach
+  void setUp() {
+    repository = mock(UserInvitationsRepositoryData.class);
+    mapper = mock(UserInvitationsMapper.class);
+    adapter = new UserInvitationsRepositoryAdapter(repository, mapper);
+  }
 
-    @Test
-    @DisplayName("Should find all invitations by tenant ID")
-    void shouldFindAllByTenantId() {
-        UUID tenantId = UUID.randomUUID();
-        UserInvitationsData data = new UserInvitationsData();
-        UserInvitations entity = UserInvitations.builder().id(UUID.randomUUID()).build();
+  @Test
+  @DisplayName("Should find all invitations by tenant ID")
+  void shouldFindAllByTenantId() {
+    UUID tenantId = UUID.randomUUID();
+    UserInvitationsData data = new UserInvitationsData();
+    UserInvitations entity = UserInvitations.builder().id(UUID.randomUUID()).build();
 
-        when(repository.findAllByTenantId(tenantId)).thenReturn(List.of(data));
-        when(mapper.toEntity(data)).thenReturn(entity);
+    when(repository.findAllByTenantId(tenantId)).thenReturn(List.of(data));
+    when(mapper.toEntity(data)).thenReturn(entity);
 
-        List<UserInvitations> result = adapter.findAllInvitationsByTenantId(tenantId);
+    List<UserInvitations> result = adapter.findAllInvitationsByTenantId(tenantId);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0)).isEqualTo(entity);
-    }
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0)).isEqualTo(entity);
+  }
 
-    @Test
-    @DisplayName("Should find invitation by token")
-    void shouldFindByToken() {
-        UUID token = UUID.randomUUID();
-        UserInvitationsData data = new UserInvitationsData();
-        UserInvitations entity = UserInvitations.builder().id(UUID.randomUUID()).token(token).build();
+  @Test
+  @DisplayName("Should find invitation by token")
+  void shouldFindByToken() {
+    UUID token = UUID.randomUUID();
+    UserInvitationsData data = new UserInvitationsData();
+    UserInvitations entity = UserInvitations.builder().id(UUID.randomUUID()).token(token).build();
 
-        when(repository.findByToken(token)).thenReturn(Optional.of(data));
-        when(mapper.toEntity(data)).thenReturn(entity);
+    when(repository.findByToken(token)).thenReturn(Optional.of(data));
+    when(mapper.toEntity(data)).thenReturn(entity);
 
-        Optional<UserInvitations> result = adapter.findByToken(token);
+    Optional<UserInvitations> result = adapter.findByToken(token);
 
-        assertThat(result).isPresent();
-        assertThat(result.get().getToken()).isEqualTo(token);
-    }
+    assertThat(result).isPresent();
+    assertThat(result.get().getToken()).isEqualTo(token);
+  }
 
-    @Test
-    @DisplayName("Should accept invitation")
-    void shouldAcceptInvitation() {
-        UUID id = UUID.randomUUID();
-        UserInvitationsData data = new UserInvitationsData();
-        UserInvitations entity = UserInvitations.builder().id(id).status(UserInvitationStatus.ACCEPTED).build();
+  @Test
+  @DisplayName("Should accept invitation")
+  void shouldAcceptInvitation() {
+    UUID id = UUID.randomUUID();
+    UserInvitationsData data = new UserInvitationsData();
+    UserInvitations entity = UserInvitations.builder().id(id).status(UserInvitationStatus.ACCEPTED).build();
 
-        when(repository.findById(id)).thenReturn(Optional.of(data));
-        when(mapper.toEntity(data)).thenReturn(entity);
+    when(repository.findById(id)).thenReturn(Optional.of(data));
+    when(mapper.toEntity(data)).thenReturn(entity);
 
-        UserInvitations result = adapter.acceptedInvitation(id);
+    UserInvitations result = adapter.acceptedInvitation(id);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getStatus()).isEqualTo(UserInvitationStatus.ACCEPTED);
-        verify(repository).acceptedInvitation(id);
-    }
+    assertThat(result).isNotNull();
+    assertThat(result.getStatus()).isEqualTo(UserInvitationStatus.ACCEPTED);
+    verify(repository).acceptedInvitation(id);
+  }
 
-    @Test
-    @DisplayName("Should revoke invitation")
-    void shouldRevokeInvitation() {
-        UUID id = UUID.randomUUID();
-        when(repository.revokeInvitation(id)).thenReturn(1);
+  @Test
+  @DisplayName("Should revoke invitation")
+  void shouldRevokeInvitation() {
+    UUID id = UUID.randomUUID();
+    when(repository.revokeInvitation(id)).thenReturn(1);
 
-        Boolean result = adapter.revokeInvitation(id);
+    Boolean result = adapter.revokeInvitation(id);
 
-        assertThat(result).isTrue();
-        verify(repository).revokeInvitation(id);
-    }
+    assertThat(result).isTrue();
+    verify(repository).revokeInvitation(id);
+  }
 }

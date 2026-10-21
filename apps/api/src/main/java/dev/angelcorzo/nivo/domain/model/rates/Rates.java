@@ -20,21 +20,21 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Rates {
-    private UUID id;
-    private TenantReference tenant;
-    private ParkingLotsReference parking;
-    private String name;
-    private String description;
-    private BigDecimal pricePerUnit;
-    private TimeUnitsRate timeUnit;
-    private int minChargeTimeMinutes;
-    private VehicleType vehicleType;
-    private SpecialPoliciesReference specialPolicy;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime updatedAt;
-    private OffsetDateTime deletedAt;
+  private UUID id;
+  private TenantReference tenant;
+  private ParkingLotsReference parking;
+  private String name;
+  private String description;
+  private BigDecimal pricePerUnit;
+  private TimeUnitsRate timeUnit;
+  private int minChargeTimeMinutes;
+  private VehicleType vehicleType;
+  private SpecialPoliciesReference specialPolicy;
+  private OffsetDateTime createdAt;
+  private OffsetDateTime updatedAt;
+  private OffsetDateTime deletedAt;
 
-    public boolean hasSpecialPolicy() {
-        return this.specialPolicy != null;
-    }
+  public boolean hasSpecialPolicy() {
+    return this.specialPolicy != null;
+  }
 }

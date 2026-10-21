@@ -29,12 +29,12 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class OperatingHours {
-    /**
-     * The time when the parking lot opens. Includes time and timezone offset. Example: "08:00:00-05:00".
-     */
-    private OffsetTime openTime;
-    /**
-     * The time when the parking lot closes. Includes time and timezone offset. Example: "20:00:00-05:00".
-     */
-    private OffsetTime closeTime;
+  /**
+   * The time when the parking lot opens. Includes time and timezone offset. Example: "08:00:00-05:00".
+   */
+  private OffsetTime openTime;
+  /**
+   * The time when the parking lot closes. Includes time and timezone offset. Example: "20:00:00-05:00".
+   */
+  private OffsetTime closeTime;
 }

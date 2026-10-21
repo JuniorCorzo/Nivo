@@ -36,41 +36,41 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class NotificationWorker {
 
-    private final SendNotificationQueue queue;
-    private final NotificationProcessor notificationProcessor;
+  private final SendNotificationQueue queue;
+  private final NotificationProcessor notificationProcessor;
 
-    /**
-     * Starts the notification event-loop Virtual Thread once the application context is fully loaded and the
-     * application is ready to serve traffic.
-     */
-    @EventListener(ApplicationReadyEvent.class)
-    public void onStartApplication() {
-        log.info("Starting notification event loop worker");
-        Thread.ofVirtual().name("notification-worker").start(this::startProcessingEventLoop);
-    }
+  /**
+   * Starts the notification event-loop Virtual Thread once the application context is fully loaded and the application
+   * is ready to serve traffic.
+   */
+  @EventListener(ApplicationReadyEvent.class)
+  public void onStartApplication() {
+    log.info("Starting notification event loop worker");
+    Thread.ofVirtual().name("notification-worker").start(this::startProcessingEventLoop);
+  }
 
-    /**
-     * Blocking event loop that takes one event at a time from the queue and processes it.
-     *
-     * <p>
-     * The loop terminates cleanly on {@link InterruptedException} (e.g., during graceful shutdown). All other
-     * exceptions are logged and the loop continues, ensuring a single bad event does not stop notification delivery for
-     * subsequent events.
-     */
-    private void startProcessingEventLoop() {
-        log.info("Notification event loop started");
-        while (!Thread.currentThread().isInterrupted()) {
-            try {
-                log.debug("Waiting for notification event from queue");
-                this.notificationProcessor.processEvent(queue.take());
-            } catch (InterruptedException e) {
-                log.warn("Notification event loop interrupted — shutting down worker");
-                Thread.currentThread().interrupt();
-                break;
-            } catch (Exception ex) {
-                log.error("Unhandled exception in notification event loop", ex);
-            }
-        }
-        log.info("Notification event loop stopped");
+  /**
+   * Blocking event loop that takes one event at a time from the queue and processes it.
+   *
+   * <p>
+   * The loop terminates cleanly on {@link InterruptedException} (e.g., during graceful shutdown). All other exceptions
+   * are logged and the loop continues, ensuring a single bad event does not stop notification delivery for subsequent
+   * events.
+   */
+  private void startProcessingEventLoop() {
+    log.info("Notification event loop started");
+    while (!Thread.currentThread().isInterrupted()) {
+      try {
+        log.debug("Waiting for notification event from queue");
+        this.notificationProcessor.processEvent(queue.take());
+      } catch (InterruptedException e) {
+        log.warn("Notification event loop interrupted — shutting down worker");
+        Thread.currentThread().interrupt();
+        break;
+      } catch (Exception ex) {
+        log.error("Unhandled exception in notification event loop", ex);
+      }
     }
+    log.info("Notification event loop stopped");
+  }
 }

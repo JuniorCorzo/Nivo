@@ -23,27 +23,27 @@ import org.hibernate.annotations.Immutable;
 @AllArgsConstructor
 public class HourlyOccupancyViewEntity {
 
-    @Id
-    @Column(name = "tenant_id")
-    private UUID tenantId;
+  @Id
+  @Column(name = "tenant_id")
+  private UUID tenantId;
 
-    @Id
-    @Column(name = "parking_lot_id")
-    private UUID parkingLotId;
+  @Id
+  @Column(name = "parking_lot_id")
+  private UUID parkingLotId;
 
-    @Id
-    @Column(name = "hour_bucket")
-    private OffsetDateTime hourBucket;
+  @Id
+  @Column(name = "hour_bucket")
+  private OffsetDateTime hourBucket;
 
-    @Column(name = "checkins")
-    private Long checkins;
+  @Column(name = "checkins")
+  private Long checkins;
 
-    @Column(name = "checkouts")
-    private Long checkouts;
+  @Column(name = "checkouts")
+  private Long checkouts;
 
-    @Column(name = "total_capacity")
-    private Long totalCapacity;
+  @Column(name = "total_capacity")
+  private Long totalCapacity;
 
-    @Column(name = "estimated_occupancy_rate")
-    private Double estimatedOccupancyRate;
+  @Column(name = "estimated_occupancy_rate")
+  private Double estimatedOccupancyRate;
 }

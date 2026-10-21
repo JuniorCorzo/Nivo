@@ -18,7 +18,7 @@ import lombok.Builder;
  */
 @Builder(toBuilder = true)
 public record ParkingLotSummaryData(UUID id, String name, String currency, Double occuppationRate, Instant createdAt,
-    Instant updatedAt, Instant deletedAt, String street, String city, String state, String country, String zipCode,
-    Double latitude, Double longitude, String slotDistribution, String ownerName, Long totalCapacity, String openTime,
-    String closeTime, Integer gracePeriodMinutes, BigDecimal gracePeriodPrice, BigDecimal ivaRate) {
+  Instant updatedAt, Instant deletedAt, String street, String city, String state, String country, String zipCode,
+  Double latitude, Double longitude, String slotDistribution, String ownerName, Long totalCapacity, String openTime,
+  String closeTime, Integer gracePeriodMinutes, BigDecimal gracePeriodPrice, BigDecimal ivaRate) {
 }

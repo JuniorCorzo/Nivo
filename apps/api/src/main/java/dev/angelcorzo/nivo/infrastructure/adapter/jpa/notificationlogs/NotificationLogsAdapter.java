@@ -33,44 +33,44 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class NotificationLogsAdapter
-    extends
-        AdapterOperations<NotificationLogs, NotificationLogsData, UUID, NotificationLogsRepositoryData>
-    implements
-        NotificationLogsRepository {
+  extends
+    AdapterOperations<NotificationLogs, NotificationLogsData, UUID, NotificationLogsRepositoryData>
+  implements
+    NotificationLogsRepository {
 
-    /**
-     * Constructs a new NotificationLogsAdapter.
-     *
-     * @param repository
-     *            The Spring Data JPA repository for NotificationLogsData.
-     * @param mapper
-     *            The MapStruct mapper for NotificationLogs.
-     */
-    protected NotificationLogsAdapter(NotificationLogsRepositoryData repository, NotificationLogsMapper mapper) {
-        super(repository, mapper);
-    }
+  /**
+   * Constructs a new NotificationLogsAdapter.
+   *
+   * @param repository
+   *          The Spring Data JPA repository for NotificationLogsData.
+   * @param mapper
+   *          The MapStruct mapper for NotificationLogs.
+   */
+  protected NotificationLogsAdapter(NotificationLogsRepositoryData repository, NotificationLogsMapper mapper) {
+    super(repository, mapper);
+  }
 
-    /**
-     * Finds all notification logs associated with a specific user (as actor or recipient).
-     *
-     * @param userId
-     *            The unique identifier of the user.
-     * @return A list of {@link NotificationLogs} entities involving the user.
-     */
-    @Override
-    public List<NotificationLogs> findAllByUserId(UUID userId) {
-        return super.toList(super.repository.findByUserId(userId));
-    }
+  /**
+   * Finds all notification logs associated with a specific user (as actor or recipient).
+   *
+   * @param userId
+   *          The unique identifier of the user.
+   * @return A list of {@link NotificationLogs} entities involving the user.
+   */
+  @Override
+  public List<NotificationLogs> findAllByUserId(UUID userId) {
+    return super.toList(super.repository.findByUserId(userId));
+  }
 
-    /**
-     * Finds all notification logs belonging to a specific tenant.
-     *
-     * @param tenantId
-     *            The unique identifier of the tenant.
-     * @return A list of {@link NotificationLogs} entities for the tenant.
-     */
-    @Override
-    public List<NotificationLogs> findAllByTenantId(UUID tenantId) {
-        return super.toList(super.repository.findByTenant_Id(tenantId));
-    }
+  /**
+   * Finds all notification logs belonging to a specific tenant.
+   *
+   * @param tenantId
+   *          The unique identifier of the tenant.
+   * @return A list of {@link NotificationLogs} entities for the tenant.
+   */
+  @Override
+  public List<NotificationLogs> findAllByTenantId(UUID tenantId) {
+    return super.toList(super.repository.findByTenant_Id(tenantId));
+  }
 }

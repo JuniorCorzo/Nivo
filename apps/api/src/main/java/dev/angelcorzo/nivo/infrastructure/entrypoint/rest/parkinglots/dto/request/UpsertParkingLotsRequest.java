@@ -16,10 +16,10 @@ import lombok.Builder;
 @Builder(toBuilder = true)
 @Schema(requiredProperties = {"name", "address", "coordinates", "timezone", "currency", "operatingHours"})
 public record UpsertParkingLotsRequest(UUID id, @NotBlank String name, @Valid AddressDTO address,
-    @Valid CoordinatesDTO coordinates,
+  @Valid CoordinatesDTO coordinates,
 
-    @Pattern(regexp = "^UTC([+-]([0-9]{1,2}|1[0-4])(:[0-5][0-9])?)?$") String timezone,
+  @Pattern(regexp = "^UTC([+-]([0-9]{1,2}|1[0-4])(:[0-5][0-9])?)?$") String timezone,
 
-    @NotBlank String currency, @Valid OperatingHoursDTO operatingHours, @Valid List<CreatedSlots> slots,
-    Integer gracePeriodMinutes, BigDecimal gracePeriodPrice, BigDecimal ivaRate) {
+  @NotBlank String currency, @Valid OperatingHoursDTO operatingHours, @Valid List<CreatedSlots> slots,
+  Integer gracePeriodMinutes, BigDecimal gracePeriodPrice, BigDecimal ivaRate) {
 }

@@ -7,6 +7,6 @@ import lombok.Builder;
 
 @Builder(toBuilder = true)
 public record SlotSummary(UUID id, String parkingName, SlotType type, String prefix, String zone, String numberSlot,
-    SlotStatus status, boolean hasTicket, boolean hasHistory, boolean hasCharger, boolean isAccessible,
-    boolean isActive) {
+  SlotStatus status, boolean hasTicket, boolean hasHistory, boolean hasCharger, boolean isAccessible,
+  boolean isActive) {
 }

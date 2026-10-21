@@ -18,31 +18,31 @@ import org.springframework.context.ApplicationEventPublisher;
 @DisplayName("SpringEventBus Unit Tests")
 class SpringEventBusTest {
 
-    @Mock
-    private ApplicationEventPublisher applicationEventPublisher;
+  @Mock
+  private ApplicationEventPublisher applicationEventPublisher;
 
-    @InjectMocks
-    private SpringEventBus springEventBus;
+  @InjectMocks
+  private SpringEventBus springEventBus;
 
-    @Test
-    @DisplayName("Should publish event asynchronously through ApplicationEventPublisher")
-    void shouldPublishEvent() {
-        Event event = new Event() {
-            @Override
-            public String event() {
-                return "TEST_EVENT";
-            }
+  @Test
+  @DisplayName("Should publish event asynchronously through ApplicationEventPublisher")
+  void shouldPublishEvent() {
+    Event event = new Event() {
+      @Override
+      public String event() {
+        return "TEST_EVENT";
+      }
 
-            @Override
-            public LocalDateTime occurredAt() {
-                return LocalDateTime.now();
-            }
-        };
+      @Override
+      public LocalDateTime occurredAt() {
+        return LocalDateTime.now();
+      }
+    };
 
-        CompletableFuture<Void> future = springEventBus.publish(event);
-        future.join();
+    CompletableFuture<Void> future = springEventBus.publish(event);
+    future.join();
 
-        assertThat(future).isCompleted();
-        verify(applicationEventPublisher).publishEvent(event);
-    }
+    assertThat(future).isCompleted();
+    verify(applicationEventPublisher).publishEvent(event);
+  }
 }

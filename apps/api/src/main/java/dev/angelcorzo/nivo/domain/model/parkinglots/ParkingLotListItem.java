@@ -17,36 +17,36 @@ import lombok.Builder;
  * <strong>Layer:</strong> Domain (Read Model)
  *
  * @param id
- *            Unique identifier of the parking lot
+ *          Unique identifier of the parking lot
  * @param name
- *            Commercial name
+ *          Commercial name
  * @param address
- *            Physical address value object
+ *          Physical address value object
  * @param occuppationRate
- *            Rate of occuppation slots in parking lot
+ *          Rate of occuppation slots in parking lot
  * @param coordinates
- *            Geographic coordinates value object
+ *          Geographic coordinates value object
  * @param currency
- *            Currency code (e.g., "COP", "USD")
+ *          Currency code (e.g., "COP", "USD")
  * @param createdAt
- *            Creation timestamp
+ *          Creation timestamp
  * @param updatedAt
- *            Last update timestamp
+ *          Last update timestamp
  * @param slotDistribution
- *            Breakdown of slots by type (e.g., CAR: 10, MOTORCYCLE: 5)
+ *          Breakdown of slots by type (e.g., CAR: 10, MOTORCYCLE: 5)
  * @param ownerName
- *            Full name of the parking lot owner
+ *          Full name of the parking lot owner
  * @param totalCapacity
- *            Total number of slots across all types
+ *          Total number of slots across all types
  * @param operatingHours
- *            Operating hours (open/close times with timezone)
+ *          Operating hours (open/close times with timezone)
  * @param policy
- *            Parking lot policy value object
+ *          Parking lot policy value object
  * @see SlotDistributionEntry
  * @see ParkingLots
  */
 @Builder(toBuilder = true)
 public record ParkingLotListItem(UUID id, String name, Address address, Double occuppationRate, Coordinates coordinates,
-    String currency, OffsetDateTime createdAt, OffsetDateTime updatedAt, List<SlotDistributionEntry> slotDistribution,
-    String ownerName, Long totalCapacity, OperatingHours operatingHours, ParkingLotPolicy policy) {
+  String currency, OffsetDateTime createdAt, OffsetDateTime updatedAt, List<SlotDistributionEntry> slotDistribution,
+  String ownerName, Long totalCapacity, OperatingHours operatingHours, ParkingLotPolicy policy) {
 }

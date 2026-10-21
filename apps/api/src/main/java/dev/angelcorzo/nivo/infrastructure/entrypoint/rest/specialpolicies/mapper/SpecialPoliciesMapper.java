@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(config = MapperStructConfig.class)
 public interface SpecialPoliciesMapper {
-    CreateSpecialPolicyUseCase.CreateSpecialPolicyCommand toModel(CreateSpecialPolicies dto);
+  CreateSpecialPolicyUseCase.CreateSpecialPolicyCommand toModel(CreateSpecialPolicies dto);
 
-    SpecialPoliciesDTO toDto(SpecialPolicies model);
+  SpecialPoliciesDTO toDto(SpecialPolicies model);
 }

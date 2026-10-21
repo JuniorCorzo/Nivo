@@ -5,7 +5,7 @@ import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
 
 /** Generic collaborator to dispatch payment-related notifications. */
 public interface PaymentNotifier {
-    void notifyPaymentCheckout(Payments payment, PriceDetailed priceDetailed, String description);
+  void notifyPaymentCheckout(Payments payment, PriceDetailed priceDetailed, String description);
 
-    void notifyPaymentCompleted(Payments payment);
+  void notifyPaymentCompleted(Payments payment);
 }

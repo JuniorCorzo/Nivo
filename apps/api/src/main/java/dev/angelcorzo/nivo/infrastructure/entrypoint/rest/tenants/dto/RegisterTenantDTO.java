@@ -10,7 +10,7 @@ import lombok.Builder;
 @Builder(toBuilder = true)
 @Schema(description = "Payload to register a new tenant organization and its owner")
 public record RegisterTenantDTO(
-    @Schema(description = "Company or business name", example = "Nivo Parking Corp", requiredMode = Schema.RequiredMode.REQUIRED) @NotEmpty String companyName,
+  @Schema(description = "Company or business name", example = "Nivo Parking Corp", requiredMode = Schema.RequiredMode.REQUIRED) @NotEmpty String companyName,
 
-    @Schema(description = "Owner user details", requiredMode = Schema.RequiredMode.REQUIRED) @Valid @NotNull CreatedUserDTO user) {
+  @Schema(description = "Owner user details", requiredMode = Schema.RequiredMode.REQUIRED) @Valid @NotNull CreatedUserDTO user) {
 }

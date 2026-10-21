@@ -6,5 +6,5 @@ import lombok.Builder;
 
 @Builder
 public record EmailCheckOut(UUID ticketId, UUID tenantId, PaymentsMethods paymentMethod,
-    String email) implements CheckOut {
+  String email) implements CheckOut {
 }

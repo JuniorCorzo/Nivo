@@ -5,10 +5,10 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.ErrorMessagesModel;
 import java.util.UUID;
 
 public class ParkingTicketNotFound extends AppException {
-    private static final int STATUS = 404;
-    private static final String CODE = "PARKING_TICKET_NOT_FOUND";
+  private static final int STATUS = 404;
+  private static final String CODE = "PARKING_TICKET_NOT_FOUND";
 
-    public ParkingTicketNotFound(UUID parkingTicketId) {
-        super(ErrorMessagesModel.PARKING_TICKET_NOT_FOUND.format(parkingTicketId), STATUS, CODE);
-    }
+  public ParkingTicketNotFound(UUID parkingTicketId) {
+    super(ErrorMessagesModel.PARKING_TICKET_NOT_FOUND.format(parkingTicketId), STATUS, CODE);
+  }
 }

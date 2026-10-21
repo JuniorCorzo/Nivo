@@ -17,16 +17,16 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class GetActiveParkingTicketBySlotUseCase {
-    private final ParkingTicketsRepository parkingTicketsRepository;
+  private final ParkingTicketsRepository parkingTicketsRepository;
 
-    /**
-     * Retrieves the active parking ticket for the given slot ID.
-     *
-     * @param slotId
-     *            The unique identifier of the slot.
-     * @return An {@link Optional} containing the active {@link ParkingTickets} if present, or empty.
-     */
-    public Optional<ParkingTickets> execute(UUID slotId) {
-        return this.parkingTicketsRepository.findActiveBySlotId(slotId);
-    }
+  /**
+   * Retrieves the active parking ticket for the given slot ID.
+   *
+   * @param slotId
+   *          The unique identifier of the slot.
+   * @return An {@link Optional} containing the active {@link ParkingTickets} if present, or empty.
+   */
+  public Optional<ParkingTickets> execute(UUID slotId) {
+    return this.parkingTicketsRepository.findActiveBySlotId(slotId);
+  }
 }

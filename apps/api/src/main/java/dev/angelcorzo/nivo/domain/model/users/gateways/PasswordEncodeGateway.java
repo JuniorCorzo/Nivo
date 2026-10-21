@@ -18,23 +18,23 @@ package dev.angelcorzo.nivo.domain.model.users.gateways;
  */
 public interface PasswordEncodeGateway {
 
-    /**
-     * Encodes the given raw password into a hash.
-     *
-     * @param rawPassword
-     *            the password to encode.
-     * @return the hashed password.
-     */
-    String encrypt(String rawPassword);
+  /**
+   * Encodes the given raw password into a hash.
+   *
+   * @param rawPassword
+   *          the password to encode.
+   * @return the hashed password.
+   */
+  String encrypt(String rawPassword);
 
-    /**
-     * Verifies that a raw password matches an encoded password.
-     *
-     * @param rawPassword
-     *            the raw password to verify.
-     * @param passwordEncrypted
-     *            the encoded password to match against.
-     * @return {@code true} if the passwords match, {@code false} otherwise.
-     */
-    boolean matches(String rawPassword, String passwordEncrypted);
+  /**
+   * Verifies that a raw password matches an encoded password.
+   *
+   * @param rawPassword
+   *          the raw password to verify.
+   * @param passwordEncrypted
+   *          the encoded password to match against.
+   * @return {@code true} if the passwords match, {@code false} otherwise.
+   */
+  boolean matches(String rawPassword, String passwordEncrypted);
 }

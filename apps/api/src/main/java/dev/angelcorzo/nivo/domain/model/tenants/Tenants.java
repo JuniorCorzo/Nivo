@@ -29,24 +29,24 @@ import lombok.*;
 @Builder(toBuilder = true)
 @EqualsAndHashCode(of = {"id"})
 public class Tenants {
-    /** The unique identifier for the Tenant. It is a UUID generated at the time of creation. */
-    private UUID id;
+  /** The unique identifier for the Tenant. It is a UUID generated at the time of creation. */
+  private UUID id;
 
-    /** The legal or commercial name of the company representing the Tenant. */
-    private String companyName;
+  /** The legal or commercial name of the company representing the Tenant. */
+  private String companyName;
 
-    private List<UserReference> users;
+  private List<UserReference> users;
 
-    /** The timestamp when the Tenant was created in the system. */
-    private OffsetDateTime createdAt;
+  /** The timestamp when the Tenant was created in the system. */
+  private OffsetDateTime createdAt;
 
-    /** The timestamp of the last update to the Tenant's information. */
-    private OffsetDateTime updatedAt;
+  /** The timestamp of the last update to the Tenant's information. */
+  private OffsetDateTime updatedAt;
 
-    /**
-     * The timestamp when the Tenant was soft-deleted. A non-null value indicates the Tenant is considered deleted.
-     */
-    private OffsetDateTime deletedAt;
+  /**
+   * The timestamp when the Tenant was soft-deleted. A non-null value indicates the Tenant is considered deleted.
+   */
+  private OffsetDateTime deletedAt;
 
-    private List<ParkingLotsReference> parkingLots;
+  private List<ParkingLotsReference> parkingLots;
 }

@@ -15,27 +15,27 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.mappers;
  * </p>
  *
  * @param <E>
- *            The Domain Entity type.
+ *          The Domain Entity type.
  * @param <D>
- *            The JPA Data Entity type.
+ *          The JPA Data Entity type.
  * @author Angel Corzo
  * @since 1.0.0
  */
 public interface BaseMapper<E, D> {
-    /**
-     * Converts a JPA data entity to a domain entity.
-     *
-     * @param data
-     *            The JPA data entity.
-     * @return The corresponding domain entity.
-     */
-    E toEntity(D data);
-    /**
-     * Converts a domain entity to a JPA data entity.
-     *
-     * @param entity
-     *            The domain entity.
-     * @return The corresponding JPA data entity.
-     */
-    D toData(E entity);
+  /**
+   * Converts a JPA data entity to a domain entity.
+   *
+   * @param data
+   *          The JPA data entity.
+   * @return The corresponding domain entity.
+   */
+  E toEntity(D data);
+  /**
+   * Converts a domain entity to a JPA data entity.
+   *
+   * @param entity
+   *          The domain entity.
+   * @return The corresponding JPA data entity.
+   */
+  D toData(E entity);
 }

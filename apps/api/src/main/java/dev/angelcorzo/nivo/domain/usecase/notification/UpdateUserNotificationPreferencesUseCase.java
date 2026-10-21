@@ -9,11 +9,11 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class UpdateUserNotificationPreferencesUseCase {
-    private final NotificationPreferencesRepository notificationPreferencesRepository;
-    private final AuthenticationContextGateway authenticationContextGateway;
+  private final NotificationPreferencesRepository notificationPreferencesRepository;
+  private final AuthenticationContextGateway authenticationContextGateway;
 
-    public boolean toggleActiveStatus(NotificationEvents event, NotificationsChannel channel) {
-        final UUID userId = this.authenticationContextGateway.getCurrentUserId();
-        return this.notificationPreferencesRepository.toggleActiveStatus(userId, event, channel);
-    }
+  public boolean toggleActiveStatus(NotificationEvents event, NotificationsChannel channel) {
+    final UUID userId = this.authenticationContextGateway.getCurrentUserId();
+    return this.notificationPreferencesRepository.toggleActiveStatus(userId, event, channel);
+  }
 }

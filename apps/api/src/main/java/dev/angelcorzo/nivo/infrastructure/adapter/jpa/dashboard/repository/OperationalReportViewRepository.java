@@ -12,19 +12,19 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OperationalReportViewRepository
-    extends
-        JpaRepository<OperationalReportViewEntity, UUID>,
-        JpaSpecificationExecutor<OperationalReportViewEntity> {
-    List<OperationalReportViewEntity> findAllByTenantId(UUID tenantId);
+  extends
+    JpaRepository<OperationalReportViewEntity, UUID>,
+    JpaSpecificationExecutor<OperationalReportViewEntity> {
+  List<OperationalReportViewEntity> findAllByTenantId(UUID tenantId);
 
-    Page<OperationalReportViewEntity> findAllByTenantId(UUID tenantId, Pageable pageable);
+  Page<OperationalReportViewEntity> findAllByTenantId(UUID tenantId, Pageable pageable);
 
-    Page<OperationalReportViewEntity> findAllByTenantIdAndParkingLotId(UUID tenantId, UUID parkingLotId,
-        Pageable pageable);
+  Page<OperationalReportViewEntity> findAllByTenantIdAndParkingLotId(UUID tenantId, UUID parkingLotId,
+    Pageable pageable);
 
-    List<OperationalReportViewEntity> findAllByTenantIdAndEntryTimeBetweenOrderByEntryTimeDesc(UUID tenantId,
-        OffsetDateTime start, OffsetDateTime end);
+  List<OperationalReportViewEntity> findAllByTenantIdAndEntryTimeBetweenOrderByEntryTimeDesc(UUID tenantId,
+    OffsetDateTime start, OffsetDateTime end);
 
-    List<OperationalReportViewEntity> findAllByTenantIdAndParkingLotIdAndEntryTimeBetweenOrderByEntryTimeDesc(
-        UUID tenantId, UUID parkingLotId, OffsetDateTime start, OffsetDateTime end);
+  List<OperationalReportViewEntity> findAllByTenantIdAndParkingLotIdAndEntryTimeBetweenOrderByEntryTimeDesc(
+    UUID tenantId, UUID parkingLotId, OffsetDateTime start, OffsetDateTime end);
 }

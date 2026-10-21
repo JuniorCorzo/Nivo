@@ -14,26 +14,26 @@ import org.junit.jupiter.api.Test;
 @DisplayName("ListParkingLotsUseCase Tests")
 class ListParkingLotsUseCaseTest {
 
-    private ParkingLotsRepository parkingLotsRepository;
-    private ListParkingLotsUseCase useCase;
+  private ParkingLotsRepository parkingLotsRepository;
+  private ListParkingLotsUseCase useCase;
 
-    @BeforeEach
-    void setUp() {
-        parkingLotsRepository = mock(ParkingLotsRepository.class);
-        useCase = new ListParkingLotsUseCase(parkingLotsRepository);
-    }
+  @BeforeEach
+  void setUp() {
+    parkingLotsRepository = mock(ParkingLotsRepository.class);
+    useCase = new ListParkingLotsUseCase(parkingLotsRepository);
+  }
 
-    @Test
-    @DisplayName("Should list parking lots by tenant")
-    void shouldListParkingLotsByTenant() {
-        UUID tenantId = UUID.randomUUID();
-        ParkingLotListItem item = mock(ParkingLotListItem.class);
+  @Test
+  @DisplayName("Should list parking lots by tenant")
+  void shouldListParkingLotsByTenant() {
+    UUID tenantId = UUID.randomUUID();
+    ParkingLotListItem item = mock(ParkingLotListItem.class);
 
-        when(parkingLotsRepository.findByTenantId(tenantId)).thenReturn(List.of(item));
+    when(parkingLotsRepository.findByTenantId(tenantId)).thenReturn(List.of(item));
 
-        List<ParkingLotListItem> result = useCase.listParkingLots(tenantId);
+    List<ParkingLotListItem> result = useCase.listParkingLots(tenantId);
 
-        assertThat(result).hasSize(1);
-        verify(parkingLotsRepository).findByTenantId(tenantId);
-    }
+    assertThat(result).hasSize(1);
+    verify(parkingLotsRepository).findByTenantId(tenantId);
+  }
 }

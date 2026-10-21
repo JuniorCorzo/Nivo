@@ -5,5 +5,5 @@ import dev.angelcorzo.nivo.infrastructure.adapter.notifications.valueobject.Noti
 import java.util.Optional;
 
 public interface NotificationTemplateCache {
-    public Optional<NotificationTemplates> getTemplate(final NotificationImmutableKey key);
+  public Optional<NotificationTemplates> getTemplate(final NotificationImmutableKey key);
 }

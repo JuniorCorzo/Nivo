@@ -31,70 +31,70 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class DeactivateUserUseCase {
-    private final UsersRepository usersRepository;
-    private final AuthenticationContextGateway authenticationContextGateway;
+  private final UsersRepository usersRepository;
+  private final AuthenticationContextGateway authenticationContextGateway;
 
-    /**
-     * Deactivates a user.
-     *
-     * @param command
-     *            The command containing details for the deactivation.
-     * @return The deactivated {@link Users} object.
-     * @throws SelfDeactivationNotAllowedException
-     *             if the target user is the authenticated user.
-     * @throws UserNotExistsInTenantException
-     *             if the user does not exist within the specified tenant.
-     * @throws UserAlreadyDeactivatedException
-     *             if the user is already deactivated.
-     * @throws LastOwnerCannotBeDeactivatedException
-     *             if the user is the last owner of the tenant.
-     */
-    public Users deactivate(final DeactivateUserCommand command) {
-        final UUID tenantId = this.authenticationContextGateway.getCurrentTenantId();
-        final UUID currentUserId = this.authenticationContextGateway.getCurrentUserId();
+  /**
+   * Deactivates a user.
+   *
+   * @param command
+   *          The command containing details for the deactivation.
+   * @return The deactivated {@link Users} object.
+   * @throws SelfDeactivationNotAllowedException
+   *           if the target user is the authenticated user.
+   * @throws UserNotExistsInTenantException
+   *           if the user does not exist within the specified tenant.
+   * @throws UserAlreadyDeactivatedException
+   *           if the user is already deactivated.
+   * @throws LastOwnerCannotBeDeactivatedException
+   *           if the user is the last owner of the tenant.
+   */
+  public Users deactivate(final DeactivateUserCommand command) {
+    final UUID tenantId = this.authenticationContextGateway.getCurrentTenantId();
+    final UUID currentUserId = this.authenticationContextGateway.getCurrentUserId();
 
-        if (command.userIdToDeactivate().equals(currentUserId)) {
-            throw new SelfDeactivationNotAllowedException();
-        }
-
-        final Users user = this.usersRepository.findByIdAndTenantId(command.userIdToDeactivate(), tenantId)
-            .orElseThrow(UserNotExistsInTenantException::new);
-
-        this.validateDeactivation(user, tenantId);
-
-        user.deactivate(currentUserId);
-
-        return this.usersRepository.save(user);
+    if (command.userIdToDeactivate().equals(currentUserId)) {
+      throw new SelfDeactivationNotAllowedException();
     }
 
-    /**
-     * Validates the conditions for user deactivation.
-     *
-     * @param user
-     *            The user to be deactivated.
-     * @param tenantId
-     *            The ID of the tenant.
-     * @throws LastOwnerCannotBeDeactivatedException
-     *             if the user is the last owner of the tenant.
-     */
-    private void validateDeactivation(final Users user, final UUID tenantId) {
-        if (user.getRole() == Roles.OWNER) {
-            final Long activeOwners = this.usersRepository.countActiveOwnersByTenantId(tenantId);
-            if (activeOwners == 1) {
-                throw new LastOwnerCannotBeDeactivatedException();
-            }
-        }
-    }
+    final Users user = this.usersRepository.findByIdAndTenantId(command.userIdToDeactivate(), tenantId)
+      .orElseThrow(UserNotExistsInTenantException::new);
 
-    /**
-     * Command object for the {@link DeactivateUserUseCase}.
-     *
-     * @param userIdToDeactivate
-     *            The ID of the user to be deactivated.
-     * @param reason
-     *            An optional reason for the deactivation.
-     */
-    @Builder(toBuilder = true)
-    public record DeactivateUserCommand(UUID userIdToDeactivate, String reason) {
+    this.validateDeactivation(user, tenantId);
+
+    user.deactivate(currentUserId);
+
+    return this.usersRepository.save(user);
+  }
+
+  /**
+   * Validates the conditions for user deactivation.
+   *
+   * @param user
+   *          The user to be deactivated.
+   * @param tenantId
+   *          The ID of the tenant.
+   * @throws LastOwnerCannotBeDeactivatedException
+   *           if the user is the last owner of the tenant.
+   */
+  private void validateDeactivation(final Users user, final UUID tenantId) {
+    if (user.getRole() == Roles.OWNER) {
+      final Long activeOwners = this.usersRepository.countActiveOwnersByTenantId(tenantId);
+      if (activeOwners == 1) {
+        throw new LastOwnerCannotBeDeactivatedException();
+      }
     }
+  }
+
+  /**
+   * Command object for the {@link DeactivateUserUseCase}.
+   *
+   * @param userIdToDeactivate
+   *          The ID of the user to be deactivated.
+   * @param reason
+   *          An optional reason for the deactivation.
+   */
+  @Builder(toBuilder = true)
+  public record DeactivateUserCommand(UUID userIdToDeactivate, String reason) {
+  }
 }

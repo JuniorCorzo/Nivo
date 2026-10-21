@@ -11,11 +11,11 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class SpringEventBus implements EventBus {
-    private final ApplicationEventPublisher applicationEventPublisher;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
-    @Async
-    @Override
-    public CompletableFuture<Void> publish(Event event) {
-        return CompletableFuture.runAsync(() -> applicationEventPublisher.publishEvent(event));
-    }
+  @Async
+  @Override
+  public CompletableFuture<Void> publish(Event event) {
+    return CompletableFuture.runAsync(() -> applicationEventPublisher.publishEvent(event));
+  }
 }

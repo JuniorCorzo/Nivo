@@ -6,13 +6,13 @@ import dev.angelcorzo.nivo.domain.model.users.Users;
 import java.util.UUID;
 
 public interface AuthenticationContextGateway {
-    UserAuthentication getCurrentlyAuthenticatedUser();
+  UserAuthentication getCurrentlyAuthenticatedUser();
 
-    UUID getCurrentTenantId();
+  UUID getCurrentTenantId();
 
-    UUID getCurrentUserId();
+  UUID getCurrentUserId();
 
-    Tenants getCurrentTenant();
+  Tenants getCurrentTenant();
 
-    Users getCurrentUser();
+  Users getCurrentUser();
 }

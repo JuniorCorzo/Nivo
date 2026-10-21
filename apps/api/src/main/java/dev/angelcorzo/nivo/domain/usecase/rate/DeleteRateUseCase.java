@@ -9,20 +9,20 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class DeleteRateUseCase {
-    private final RatesRepository ratesRepository;
-    private final AuthenticationContextGateway authenticationContext;
+  private final RatesRepository ratesRepository;
+  private final AuthenticationContextGateway authenticationContext;
 
-    public void execute(UUID id) {
-        this.execute(id, this.authenticationContext.getCurrentTenantId());
+  public void execute(UUID id) {
+    this.execute(id, this.authenticationContext.getCurrentTenantId());
+  }
+
+  public void execute(UUID id, UUID tenantId) {
+    final Rates rate = this.ratesRepository.findById(id).orElseThrow(() -> new RateNotFoundException(id));
+
+    if (rate.getTenant() == null || !tenantId.equals(rate.getTenant().id())) {
+      throw new RateNotFoundException(id);
     }
 
-    public void execute(UUID id, UUID tenantId) {
-        final Rates rate = this.ratesRepository.findById(id).orElseThrow(() -> new RateNotFoundException(id));
-
-        if (rate.getTenant() == null || !tenantId.equals(rate.getTenant().id())) {
-            throw new RateNotFoundException(id);
-        }
-
-        this.ratesRepository.deleteById(id);
-    }
+    this.ratesRepository.deleteById(id);
+  }
 }

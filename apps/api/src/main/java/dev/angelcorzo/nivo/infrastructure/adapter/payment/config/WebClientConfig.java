@@ -13,20 +13,21 @@ import reactor.core.publisher.Mono;
 @Configuration
 @RequiredArgsConstructor
 public class WebClientConfig {
-    private final PaymentProviderProperties paymentProviderProperties;
-    private final ProviderAuthenticationContext providerAuthenticationContext;
+  private final PaymentProviderProperties paymentProviderProperties;
+  private final ProviderAuthenticationContext providerAuthenticationContext;
 
-    @Bean
-    public WebClient webClient() {
-        return WebClient.builder().baseUrl(this.paymentProviderProperties.getUrl()).filter(this.authFilter()).build();
-    }
+  @Bean
+  public WebClient webClient() {
+    return WebClient.builder().baseUrl(this.paymentProviderProperties.getUrl()).filter(this.authFilter()).build();
+  }
 
-    ExchangeFilterFunction authFilter() {
-        return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-            ClientRequest authenticatedRequest = ClientRequest.from(clientRequest).headers(httpHeaders -> httpHeaders
-                .set(HttpHeaders.AUTHORIZATION, "Bearer " + this.providerAuthenticationContext.getAuthToken().block()))
-                .build();
-            return Mono.just(authenticatedRequest);
-        });
-    }
+  ExchangeFilterFunction authFilter() {
+    return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
+      ClientRequest authenticatedRequest = ClientRequest.from(clientRequest)
+        .headers(httpHeaders -> httpHeaders
+          .set(HttpHeaders.AUTHORIZATION, "Bearer " + this.providerAuthenticationContext.getAuthToken().block()))
+        .build();
+      return Mono.just(authenticatedRequest);
+    });
+  }
 }

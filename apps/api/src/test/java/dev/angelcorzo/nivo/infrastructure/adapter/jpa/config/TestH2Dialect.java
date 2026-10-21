@@ -8,27 +8,28 @@ import org.hibernate.dialect.type.PostgreSQLStructCastingJdbcType;
 import org.hibernate.service.ServiceRegistry;
 
 public class TestH2Dialect extends H2Dialect {
-    private final PostgreSQLDialect pgDialect = new PostgreSQLDialect();
+  private final PostgreSQLDialect pgDialect = new PostgreSQLDialect();
 
-    @Override
-    public boolean supportsUserDefinedTypes() {
-        return true;
-    }
+  @Override
+  public boolean supportsUserDefinedTypes() {
+    return true;
+  }
 
-    @Override
-    public boolean supportsIfExistsBeforeTypeName() {
-        return true;
-    }
+  @Override
+  public boolean supportsIfExistsBeforeTypeName() {
+    return true;
+  }
 
-    @Override
-    public AggregateSupport getAggregateSupport() {
-        return pgDialect.getAggregateSupport();
-    }
+  @Override
+  public AggregateSupport getAggregateSupport() {
+    return pgDialect.getAggregateSupport();
+  }
 
-    @Override
-    public void contributeTypes(TypeContributions typeContributions, ServiceRegistry serviceRegistry) {
-        super.contributeTypes(typeContributions, serviceRegistry);
-        typeContributions.getTypeConfiguration().getJdbcTypeRegistry()
-            .addDescriptorIfAbsent(PostgreSQLStructCastingJdbcType.INSTANCE);
-    }
+  @Override
+  public void contributeTypes(TypeContributions typeContributions, ServiceRegistry serviceRegistry) {
+    super.contributeTypes(typeContributions, serviceRegistry);
+    typeContributions.getTypeConfiguration()
+      .getJdbcTypeRegistry()
+      .addDescriptorIfAbsent(PostgreSQLStructCastingJdbcType.INSTANCE);
+  }
 }

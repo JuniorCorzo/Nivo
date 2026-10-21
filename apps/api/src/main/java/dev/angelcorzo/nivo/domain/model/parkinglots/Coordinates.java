@@ -28,9 +28,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Coordinates {
-    /** The latitude of the location. Range: -90 to 90. */
-    private Double latitude;
+  /** The latitude of the location. Range: -90 to 90. */
+  private Double latitude;
 
-    /** The longitude of the location. Range: -180 to 180. */
-    private Double longitude;
+  /** The longitude of the location. Range: -180 to 180. */
+  private Double longitude;
 }

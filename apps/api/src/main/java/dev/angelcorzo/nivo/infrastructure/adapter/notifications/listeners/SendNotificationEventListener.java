@@ -10,11 +10,11 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class SendNotificationEventListener {
-    private final SendNotificationQueue queue;
+  private final SendNotificationQueue queue;
 
-    @Async
-    @EventListener
-    public void onSendNotificationEvent(SendNotificationEvent event) {
-        this.queue.enqueue(event);
-    }
+  @Async
+  @EventListener
+  public void onSendNotificationEvent(SendNotificationEvent event) {
+    this.queue.enqueue(event);
+  }
 }

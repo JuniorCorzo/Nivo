@@ -13,18 +13,18 @@ import org.mapstruct.Named;
 @Mapper(config = MapperStructConfig.class)
 public interface NotificationLogsMapper extends BaseMapper<NotificationLogs, NotificationLogsData> {
 
-    @Override
-    @Mapping(target = "templateId", source = "template.id")
-    NotificationLogs toEntity(NotificationLogsData data);
+  @Override
+  @Mapping(target = "templateId", source = "template.id")
+  NotificationLogs toEntity(NotificationLogsData data);
 
-    @Override
-    @Mapping(target = "template", source = "templateId", qualifiedByName = "uuidToTemplate")
-    NotificationLogsData toData(NotificationLogs entity);
+  @Override
+  @Mapping(target = "template", source = "templateId", qualifiedByName = "uuidToTemplate")
+  NotificationLogsData toData(NotificationLogs entity);
 
-    @Named("uuidToTemplate")
-    default NotificationTemplatesData uuidToTemplate(UUID templateId) {
-        if (templateId == null)
-            return null;
-        return NotificationTemplatesData.builder().id(templateId).build();
-    }
+  @Named("uuidToTemplate")
+  default NotificationTemplatesData uuidToTemplate(UUID templateId) {
+    if (templateId == null)
+      return null;
+    return NotificationTemplatesData.builder().id(templateId).build();
+  }
 }

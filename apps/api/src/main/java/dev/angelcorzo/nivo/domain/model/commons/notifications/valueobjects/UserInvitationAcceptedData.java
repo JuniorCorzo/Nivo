@@ -5,6 +5,6 @@ import lombok.Builder;
 
 @Builder
 public record UserInvitationAcceptedData(String userName, String acceptedUserName, String organizationName,
-    String roleName, String acceptedAt, String ctaUrl, String companyName, String supportUrl, String socialUrl,
-    String unsubscribeUrl, String companyAddress) implements NotificationsData {
+  String roleName, String acceptedAt, String ctaUrl, String companyName, String supportUrl, String socialUrl,
+  String unsubscribeUrl, String companyAddress) implements NotificationsData {
 }

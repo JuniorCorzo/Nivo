@@ -21,30 +21,30 @@ import org.springframework.core.io.Resource;
 @ConfigurationProperties(prefix = "rsa")
 public class RSAProperties {
 
-    /**
-     * The location of the RSA public key file.
-     * <p>
-     * This resource is used to load the public key for verifying JWT signatures. The value should be a valid Spring
-     * resource path (e.g., {@code classpath:keys/public.pem}).
-     * </p>
-     */
-    private Resource publicKey;
+  /**
+   * The location of the RSA public key file.
+   * <p>
+   * This resource is used to load the public key for verifying JWT signatures. The value should be a valid Spring
+   * resource path (e.g., {@code classpath:keys/public.pem}).
+   * </p>
+   */
+  private Resource publicKey;
 
-    /**
-     * The location of the RSA private key file.
-     * <p>
-     * This resource is used to load the private key for signing JWTs. The value should be a valid Spring resource path
-     * (e.g., {@code classpath:keys/private.pem}).
-     * </p>
-     */
-    private Resource privateKey;
+  /**
+   * The location of the RSA private key file.
+   * <p>
+   * This resource is used to load the private key for signing JWTs. The value should be a valid Spring resource path
+   * (e.g., {@code classpath:keys/private.pem}).
+   * </p>
+   */
+  private Resource privateKey;
 
-    /**
-     * The Key ID (kid) for the RSA key pair.
-     * <p>
-     * This value is included in the JWT header to allow recipients to identify the key that was used to sign the token,
-     * which is useful for key rotation scenarios.
-     * </p>
-     */
-    private String keyId;
+  /**
+   * The Key ID (kid) for the RSA key pair.
+   * <p>
+   * This value is included in the JWT header to allow recipients to identify the key that was used to sign the token,
+   * which is useful for key rotation scenarios.
+   * </p>
+   */
+  private String keyId;
 }

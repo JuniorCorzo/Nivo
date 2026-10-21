@@ -14,10 +14,10 @@ import java.util.UUID;
 import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
 
 public class UserAlreadyDeactivatedException extends AppException {
-    private static final int STATUS = 409;
-    private static final String CODE = "USER_ALREADY_DEACTIVATED";
+  private static final int STATUS = 409;
+  private static final String CODE = "USER_ALREADY_DEACTIVATED";
 
-    public UserAlreadyDeactivatedException(UUID id) {
-        super(ErrorMessagesModel.USER_ALREADY_DEACTIVATED.format(id), STATUS, CODE);
-    }
+  public UserAlreadyDeactivatedException(UUID id) {
+    super(ErrorMessagesModel.USER_ALREADY_DEACTIVATED.format(id), STATUS, CODE);
+  }
 }

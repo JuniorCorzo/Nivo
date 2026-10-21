@@ -9,7 +9,7 @@ import lombok.Builder;
 
 @Builder
 public record PaymentsDTO(UUID id, UUID tenantId, UUID userId, UUID parkingTicketId, BigDecimal amount,
-    OffsetDateTime paymentDate, PaymentsMethods paymentMethod, PaymentStatus status, String provider,
-    String externalPaymentId, String checkoutSessionId, String checkoutUrl, OffsetDateTime checkoutExpiresAt,
-    OffsetDateTime createdAt, OffsetDateTime updatedAt) {
+  OffsetDateTime paymentDate, PaymentsMethods paymentMethod, PaymentStatus status, String provider,
+  String externalPaymentId, String checkoutSessionId, String checkoutUrl, OffsetDateTime checkoutExpiresAt,
+  OffsetDateTime createdAt, OffsetDateTime updatedAt) {
 }

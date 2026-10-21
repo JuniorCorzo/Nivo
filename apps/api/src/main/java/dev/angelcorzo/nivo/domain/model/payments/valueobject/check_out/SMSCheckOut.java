@@ -6,5 +6,5 @@ import lombok.Builder;
 
 @Builder
 public record SMSCheckOut(UUID ticketId, UUID tenantId, PaymentsMethods paymentMethod,
-    String mobilePhone) implements CheckOut {
+  String mobilePhone) implements CheckOut {
 }

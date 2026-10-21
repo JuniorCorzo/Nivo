@@ -5,5 +5,5 @@ import jakarta.validation.constraints.NotBlank;
 
 @Schema(requiredProperties = {"street", "city", "state", "country", "zipCode"})
 public record AddressDTO(@NotBlank String street, @NotBlank String city, @NotBlank String state,
-    @NotBlank String country, @NotBlank String zipCode) {
+  @NotBlank String country, @NotBlank String zipCode) {
 }

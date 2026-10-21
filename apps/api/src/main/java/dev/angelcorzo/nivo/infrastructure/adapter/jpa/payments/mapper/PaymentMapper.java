@@ -9,9 +9,9 @@ import org.mapstruct.Mapper;
 
 @Mapper(config = MapperStructConfig.class, uses = {JacksonConverter.class})
 public interface PaymentMapper extends BaseMapper<Payments, PaymentsData> {
-    @Override
-    Payments toEntity(PaymentsData data);
+  @Override
+  Payments toEntity(PaymentsData data);
 
-    @Override
-    PaymentsData toData(Payments entity);
+  @Override
+  PaymentsData toData(Payments entity);
 }

@@ -32,51 +32,51 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class ParkingLots {
-    /**
-     * The unique identifier for the parking lot. It is a UUID generated at the time of creation.
-     */
-    private UUID id;
+  /**
+   * The unique identifier for the parking lot. It is a UUID generated at the time of creation.
+   */
+  private UUID id;
 
-    /** The commercial name of the parking lot. Example: "Central Parking". */
-    private String name;
+  /** The commercial name of the parking lot. Example: "Central Parking". */
+  private String name;
 
-    /** A value object representing the physical address of the parking lot. */
-    private Address address;
+  /** A value object representing the physical address of the parking lot. */
+  private Address address;
 
-    /**
-     * A value object representing the geographic coordinates of the parking lot.
-     */
-    private Coordinates coordinates;
+  /**
+   * A value object representing the geographic coordinates of the parking lot.
+   */
+  private Coordinates coordinates;
 
-    /** The ID of the primary owner user of the parking lot. */
-    private UserReference owner;
+  /** The ID of the primary owner user of the parking lot. */
+  private UserReference owner;
 
-    /** The ID of the tenant to which this parking lot belongs. */
-    private TenantReference tenant;
+  /** The ID of the tenant to which this parking lot belongs. */
+  private TenantReference tenant;
 
-    /**
-     * The time zone in which the parking lot operates. Example: "America/Bogota".
-     */
-    private String timezone;
+  /**
+   * The time zone in which the parking lot operates. Example: "America/Bogota".
+   */
+  private String timezone;
 
-    /**
-     * The currency used for transactions in the parking lot. Example: "COP", "USD".
-     */
-    private String currency;
+  /**
+   * The currency used for transactions in the parking lot. Example: "COP", "USD".
+   */
+  private String currency;
 
-    /** A value object defining the operating hours of the parking lot. */
-    private OperatingHours operatingHours;
+  /** A value object defining the operating hours of the parking lot. */
+  private OperatingHours operatingHours;
 
-    private OffsetDateTime createdAt;
+  private OffsetDateTime createdAt;
 
-    private OffsetDateTime updatedAt;
+  private OffsetDateTime updatedAt;
 
-    private OffsetDateTime deletedAt;
+  private OffsetDateTime deletedAt;
 
-    @Builder.Default
-    private ParkingLotPolicy policy = ParkingLotPolicy.defaults();
+  @Builder.Default
+  private ParkingLotPolicy policy = ParkingLotPolicy.defaults();
 
-    public ParkingLotPolicy getPolicy() {
-        return this.policy != null ? this.policy : ParkingLotPolicy.defaults();
-    }
+  public ParkingLotPolicy getPolicy() {
+    return this.policy != null ? this.policy : ParkingLotPolicy.defaults();
+  }
 }

@@ -17,14 +17,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Transactions {
-    private UUID id;
-    private Payments payment;
-    private String supplierRef;
-    private String transactionId;
-    private String paymentProvider;
-    private BigDecimal amount;
-    private String currency;
-    private TransactionStatus status;
-    private Object gatewayResponse;
-    private OffsetDateTime createdAt;
+  private UUID id;
+  private Payments payment;
+  private String supplierRef;
+  private String transactionId;
+  private String paymentProvider;
+  private BigDecimal amount;
+  private String currency;
+  private TransactionStatus status;
+  private Object gatewayResponse;
+  private OffsetDateTime createdAt;
 }

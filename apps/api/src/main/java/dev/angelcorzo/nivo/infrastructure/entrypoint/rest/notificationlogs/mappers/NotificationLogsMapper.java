@@ -7,5 +7,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(config = MapperStructConfig.class)
 public interface NotificationLogsMapper {
-    NotificationLogsDTO toDTO(NotificationLogs model);
+  NotificationLogsDTO toDTO(NotificationLogs model);
 }

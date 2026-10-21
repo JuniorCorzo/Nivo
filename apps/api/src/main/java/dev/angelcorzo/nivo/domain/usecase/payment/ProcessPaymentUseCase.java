@@ -17,22 +17,23 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ProcessPaymentUseCase {
-    private final PaymentsRepository paymentsRepository;
-    private final ParkingTicketsRepository parkingTicketsRepository;
-    private final PaymentProviderGateway paymentProviderGateway;
-    private final TransactionsRepository transactionsRepository;
-    private final PaymentNotifier paymentNotifier;
-    private final TicketNotifier ticketNotifier;
+  private final PaymentsRepository paymentsRepository;
+  private final ParkingTicketsRepository parkingTicketsRepository;
+  private final PaymentProviderGateway paymentProviderGateway;
+  private final TransactionsRepository transactionsRepository;
+  private final PaymentNotifier paymentNotifier;
+  private final TicketNotifier ticketNotifier;
 
-    public Payments execute(ParkingTickets ticket, PriceDetailed amounts, CheckOut command) {
-        return this.paymentsRepository.findByParkingTicketId(ticket.getId())
-            .orElseGet(() -> this.processNewPaymentIntent(ticket, amounts, command));
-    }
+  public Payments execute(ParkingTickets ticket, PriceDetailed amounts, CheckOut command) {
+    return this.paymentsRepository.findByParkingTicketId(ticket.getId())
+      .orElseGet(() -> this.processNewPaymentIntent(ticket, amounts, command));
+  }
 
-    private Payments processNewPaymentIntent(ParkingTickets ticket, PriceDetailed amounts, CheckOut command) {
-        return PaymentStrategyFactory
-            .getPaymentStrategy(command.paymentMethod(), paymentsRepository, parkingTicketsRepository,
-                paymentProviderGateway, transactionsRepository, paymentNotifier, ticketNotifier)
-            .processPayment(PaymentCommand.of(ticket, amounts, command)).orElseThrow(ProcessPaymentException::new);
-    }
+  private Payments processNewPaymentIntent(ParkingTickets ticket, PriceDetailed amounts, CheckOut command) {
+    return PaymentStrategyFactory
+      .getPaymentStrategy(command.paymentMethod(), paymentsRepository, parkingTicketsRepository,
+        paymentProviderGateway, transactionsRepository, paymentNotifier, ticketNotifier)
+      .processPayment(PaymentCommand.of(ticket, amounts, command))
+      .orElseThrow(ProcessPaymentException::new);
+  }
 }

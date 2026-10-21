@@ -11,38 +11,38 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PaymentEventBroker implements Subject<PaymentEvent> {
-    private static volatile PaymentEventBroker INSTANCE;
-    private final ConcurrentHashMap<String, Observable<PaymentEvent>> observers = new ConcurrentHashMap<>();
+  private static volatile PaymentEventBroker INSTANCE;
+  private final ConcurrentHashMap<String, Observable<PaymentEvent>> observers = new ConcurrentHashMap<>();
 
-    private final PaymentsRepository paymentsRepository;
+  private final PaymentsRepository paymentsRepository;
 
-    public static PaymentEventBroker getInstance(PaymentsRepository paymentsRepository) {
+  public static PaymentEventBroker getInstance(PaymentsRepository paymentsRepository) {
+    if (INSTANCE == null) {
+      synchronized (PaymentEventBroker.class) {
         if (INSTANCE == null) {
-            synchronized (PaymentEventBroker.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new PaymentEventBroker(paymentsRepository);
-                }
-            }
+          INSTANCE = new PaymentEventBroker(paymentsRepository);
         }
-
-        return INSTANCE;
+      }
     }
 
-    @Override
-    public void subscribe(String event, Observable<PaymentEvent> observer) {
-        this.paymentsRepository.findById(UUID.fromString(event)).ifPresentOrElse(payment -> {
-            observers.put(event, observer);
-            observer.update(PaymentEvent.of(payment.getId(), payment.getStatus()));
-        }, () -> { throw new PaymentNotFound(event); });
-    }
+    return INSTANCE;
+  }
 
-    @Override
-    public void unsubscribe(String event) {
-        this.observers.remove(event);
-    }
+  @Override
+  public void subscribe(String event, Observable<PaymentEvent> observer) {
+    this.paymentsRepository.findById(UUID.fromString(event)).ifPresentOrElse(payment -> {
+      observers.put(event, observer);
+      observer.update(PaymentEvent.of(payment.getId(), payment.getStatus()));
+    }, () -> { throw new PaymentNotFound(event); });
+  }
 
-    @Override
-    public void notifyObservers(String event, PaymentEvent data) {
-        this.observers.get(event).update(data);
-    }
+  @Override
+  public void unsubscribe(String event) {
+    this.observers.remove(event);
+  }
+
+  @Override
+  public void notifyObservers(String event, PaymentEvent data) {
+    this.observers.get(event).update(data);
+  }
 }

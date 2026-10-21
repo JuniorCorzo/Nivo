@@ -14,27 +14,27 @@ import org.junit.jupiter.api.Test;
 @DisplayName("ListSlotsUseCase Tests")
 class ListSlotsUseCaseTest {
 
-    private SlotsRepository slotsRepository;
-    private ListSlotsUseCase useCase;
+  private SlotsRepository slotsRepository;
+  private ListSlotsUseCase useCase;
 
-    @BeforeEach
-    void setUp() {
-        slotsRepository = mock(SlotsRepository.class);
-        useCase = new ListSlotsUseCase(slotsRepository);
-    }
+  @BeforeEach
+  void setUp() {
+    slotsRepository = mock(SlotsRepository.class);
+    useCase = new ListSlotsUseCase(slotsRepository);
+  }
 
-    @Test
-    @DisplayName("Should list all slots for parking lot")
-    void shouldListAllSlotsForParkingLot() {
-        UUID parkingId = UUID.randomUUID();
-        Slots slot = Slots.builder().id(UUID.randomUUID()).slotNumber("A-01").build();
+  @Test
+  @DisplayName("Should list all slots for parking lot")
+  void shouldListAllSlotsForParkingLot() {
+    UUID parkingId = UUID.randomUUID();
+    Slots slot = Slots.builder().id(UUID.randomUUID()).slotNumber("A-01").build();
 
-        when(slotsRepository.findAllByParkingLotsId(parkingId)).thenReturn(List.of(slot));
+    when(slotsRepository.findAllByParkingLotsId(parkingId)).thenReturn(List.of(slot));
 
-        List<Slots> result = useCase.execute(parkingId);
+    List<Slots> result = useCase.execute(parkingId);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getSlotNumber()).isEqualTo("A-01");
-        verify(slotsRepository).findAllByParkingLotsId(parkingId);
-    }
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getSlotNumber()).isEqualTo("A-01");
+    verify(slotsRepository).findAllByParkingLotsId(parkingId);
+  }
 }

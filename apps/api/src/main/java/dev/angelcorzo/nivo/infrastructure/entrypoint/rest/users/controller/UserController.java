@@ -36,85 +36,85 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "Users", description = "User management, invitations, profile and roles")
 public class UserController {
-    private final UserInvitationsMapper userInvitationsMapper;
-    private final UserMapper userMapper;
+  private final UserInvitationsMapper userInvitationsMapper;
+  private final UserMapper userMapper;
 
-    private final InviteUserWithRolUseCase inviteUserWithRolUseCase;
-    private final AcceptInvitationUseCase acceptInvitationUseCase;
-    private final ModifyUserRoleUseCase modifyUserRoleUseCase;
-    private final DeactivateUserUseCase deactivateUserUseCase;
-    private final GetCurrentUserUseCase getCurrentUserUseCase;
-    private final ListUsersByTenantUseCase listUsersByTenantUseCase;
+  private final InviteUserWithRolUseCase inviteUserWithRolUseCase;
+  private final AcceptInvitationUseCase acceptInvitationUseCase;
+  private final ModifyUserRoleUseCase modifyUserRoleUseCase;
+  private final DeactivateUserUseCase deactivateUserUseCase;
+  private final GetCurrentUserUseCase getCurrentUserUseCase;
+  private final ListUsersByTenantUseCase listUsersByTenantUseCase;
 
-    @Operation(summary = "Invite a user with a role", description = "Sends an invitation email to a user with an assigned role for a tenant")
-    @ApiResponses({@ApiResponse(responseCode = "201", description = "Invitation sent successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")})
-    @PostMapping("/invite-user")
-    @PreAuthorize("hasRole('MANAGER')")
-    @ResponseStatus(HttpStatus.CREATED)
-    Response<UserInvitationsDTO> inviteUserWithRol(@RequestBody @Valid final InviteUserDTO inviteUser) {
-        final UserInvitations invitationRegistered = this.inviteUserWithRolUseCase
-            .registerInvitation(this.userInvitationsMapper.toModel(inviteUser));
+  @Operation(summary = "Invite a user with a role", description = "Sends an invitation email to a user with an assigned role for a tenant")
+  @ApiResponses({@ApiResponse(responseCode = "201", description = "Invitation sent successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")})
+  @PostMapping("/invite-user")
+  @PreAuthorize("hasRole('MANAGER')")
+  @ResponseStatus(HttpStatus.CREATED)
+  Response<UserInvitationsDTO> inviteUserWithRol(@RequestBody @Valid final InviteUserDTO inviteUser) {
+    final UserInvitations invitationRegistered = this.inviteUserWithRolUseCase
+      .registerInvitation(this.userInvitationsMapper.toModel(inviteUser));
 
-        return Response.created(this.userInvitationsMapper.toDTO(invitationRegistered),
-            UserMessages.USER_INVITATION_SEND.toString());
-    }
+    return Response.created(this.userInvitationsMapper.toDTO(invitationRegistered),
+      UserMessages.USER_INVITATION_SEND.toString());
+  }
 
-    @Operation(summary = "Accept user invitation", description = "Completes user registration using the invitation token received via email", security = {})
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "Invitation accepted successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid token or user data")})
-    @PatchMapping("/accept-invitation/{token}")
-    Response<UserInvitationsDTO> acceptInvitation(
-        @Parameter(description = "Invitation token", required = true) @PathVariable("token") final UUID token,
-        @RequestBody @Valid final CreatedUserDTO user) {
-        final UserInvitations invitationAccepted = this.acceptInvitationUseCase
-            .accept(AcceptInvitationUseCase.Accept.builder().user(this.userMapper.toModel(user)).token(token).build());
+  @Operation(summary = "Accept user invitation", description = "Completes user registration using the invitation token received via email", security = {})
+  @ApiResponses({@ApiResponse(responseCode = "200", description = "Invitation accepted successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid token or user data")})
+  @PatchMapping("/accept-invitation/{token}")
+  Response<UserInvitationsDTO> acceptInvitation(
+    @Parameter(description = "Invitation token", required = true) @PathVariable("token") final UUID token,
+    @RequestBody @Valid final CreatedUserDTO user) {
+    final UserInvitations invitationAccepted = this.acceptInvitationUseCase
+      .accept(AcceptInvitationUseCase.Accept.builder().user(this.userMapper.toModel(user)).token(token).build());
 
-        return Response.ok(this.userInvitationsMapper.toDTO(invitationAccepted),
-            UserMessages.USER_INVITATION_ACCEPTED.toString());
-    }
+    return Response.ok(this.userInvitationsMapper.toDTO(invitationAccepted),
+      UserMessages.USER_INVITATION_ACCEPTED.toString());
+  }
 
-    @Operation(summary = "Modify user role", description = "Updates the assigned role of a user within a tenant")
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "User role modified successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")})
-    @PatchMapping("/modify-rol")
-    @PreAuthorize("hasRole('MANAGER')")
-    Response<UserDTO> modifyRol(@RequestBody @Valid final ModifyRolDTO modifyRol) {
-        final Users userWithRolUpdate = this.modifyUserRoleUseCase.modifyRole(this.userMapper.toModel(modifyRol));
+  @Operation(summary = "Modify user role", description = "Updates the assigned role of a user within a tenant")
+  @ApiResponses({@ApiResponse(responseCode = "200", description = "User role modified successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")})
+  @PatchMapping("/modify-rol")
+  @PreAuthorize("hasRole('MANAGER')")
+  Response<UserDTO> modifyRol(@RequestBody @Valid final ModifyRolDTO modifyRol) {
+    final Users userWithRolUpdate = this.modifyUserRoleUseCase.modifyRole(this.userMapper.toModel(modifyRol));
 
-        return Response.ok(this.userMapper.toDTO(userWithRolUpdate), UserMessages.USER_ROL_MODIFIED.toString());
-    }
+    return Response.ok(this.userMapper.toDTO(userWithRolUpdate), UserMessages.USER_ROL_MODIFIED.toString());
+  }
 
-    @Operation(summary = "Deactivate user", description = "Soft deletes/deactivates a user from the system")
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "User deactivated successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")})
-    @DeleteMapping("/deactivate-user")
-    @PreAuthorize("hasRole('MANAGER')")
-    Response<Void> deactivateUser(@RequestBody @Valid final DeactivateUserDTO deactivateUser) {
-        this.deactivateUserUseCase.deactivate(this.userMapper.toModel(deactivateUser));
-        return Response.ok(null, UserMessages.USER_DEACTIVATED.toString());
-    }
+  @Operation(summary = "Deactivate user", description = "Soft deletes/deactivates a user from the system")
+  @ApiResponses({@ApiResponse(responseCode = "200", description = "User deactivated successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")})
+  @DeleteMapping("/deactivate-user")
+  @PreAuthorize("hasRole('MANAGER')")
+  Response<Void> deactivateUser(@RequestBody @Valid final DeactivateUserDTO deactivateUser) {
+    this.deactivateUserUseCase.deactivate(this.userMapper.toModel(deactivateUser));
+    return Response.ok(null, UserMessages.USER_DEACTIVATED.toString());
+  }
 
-    @Operation(summary = "Get current user profile", description = "Retrieves the profile of the currently authenticated user")
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "Profile retrieved successfully"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized")})
-    @GetMapping("/me")
-    Response<UserDTO> getCurrentUser() {
-        final Users currentUser = this.getCurrentUserUseCase.execute();
-        return Response.ok(this.userMapper.toDTO(currentUser), UserMessages.USER_PROFILE_RETRIEVED.toString());
-    }
+  @Operation(summary = "Get current user profile", description = "Retrieves the profile of the currently authenticated user")
+  @ApiResponses({@ApiResponse(responseCode = "200", description = "Profile retrieved successfully"),
+    @ApiResponse(responseCode = "401", description = "Unauthorized")})
+  @GetMapping("/me")
+  Response<UserDTO> getCurrentUser() {
+    final Users currentUser = this.getCurrentUserUseCase.execute();
+    return Response.ok(this.userMapper.toDTO(currentUser), UserMessages.USER_PROFILE_RETRIEVED.toString());
+  }
 
-    @Operation(summary = "List users by tenant", description = "Retrieves all internal users belonging to the authenticated tenant")
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")})
-    @GetMapping
-    @PreAuthorize("hasRole('MANAGER')")
-    public Response<List<UserDTO>> getUsers() {
-        final List<Users> users = this.listUsersByTenantUseCase.execute();
-        return Response.ok(users.stream().map(this.userMapper::toDTO).toList(),
-            UserMessages.USERS_RETRIEVED.toString());
-    }
+  @Operation(summary = "List users by tenant", description = "Retrieves all internal users belonging to the authenticated tenant")
+  @ApiResponses({@ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Manager role required")})
+  @GetMapping
+  @PreAuthorize("hasRole('MANAGER')")
+  public Response<List<UserDTO>> getUsers() {
+    final List<Users> users = this.listUsersByTenantUseCase.execute();
+    return Response.ok(users.stream().map(this.userMapper::toDTO).toList(),
+      UserMessages.USERS_RETRIEVED.toString());
+  }
 }

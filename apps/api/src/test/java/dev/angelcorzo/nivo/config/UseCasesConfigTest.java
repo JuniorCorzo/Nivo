@@ -13,19 +13,19 @@ import org.springframework.transaction.interceptor.TransactionInterceptor;
 @DisplayName("UseCasesConfig Unit Tests")
 public class UseCasesConfigTest {
 
-    @Test
-    @DisplayName("Should create transaction manager, interceptor, and auto proxy beans")
-    void testUseCasesConfigBeans() {
-        UseCasesConfig config = new UseCasesConfig();
-        LocalContainerEntityManagerFactoryBean factoryBean = mock(LocalContainerEntityManagerFactoryBean.class);
+  @Test
+  @DisplayName("Should create transaction manager, interceptor, and auto proxy beans")
+  void testUseCasesConfigBeans() {
+    UseCasesConfig config = new UseCasesConfig();
+    LocalContainerEntityManagerFactoryBean factoryBean = mock(LocalContainerEntityManagerFactoryBean.class);
 
-        PlatformTransactionManager txManager = config.transactionManager(factoryBean);
-        assertNotNull(txManager);
+    PlatformTransactionManager txManager = config.transactionManager(factoryBean);
+    assertNotNull(txManager);
 
-        TransactionInterceptor interceptor = config.customTransactionInterceptor(txManager);
-        assertNotNull(interceptor);
+    TransactionInterceptor interceptor = config.customTransactionInterceptor(txManager);
+    assertNotNull(interceptor);
 
-        BeanNameAutoProxyCreator autoProxy = config.transactionAutoProxy();
-        assertNotNull(autoProxy);
-    }
+    BeanNameAutoProxyCreator autoProxy = config.transactionAutoProxy();
+    assertNotNull(autoProxy);
+  }
 }

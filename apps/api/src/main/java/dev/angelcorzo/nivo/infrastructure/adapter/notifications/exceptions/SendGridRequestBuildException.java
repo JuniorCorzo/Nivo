@@ -6,7 +6,7 @@ package dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions;
  */
 public class SendGridRequestBuildException extends SendGridException {
 
-    public SendGridRequestBuildException(String message, Throwable cause) {
-        super(message, 500, "SENDGRID_REQUEST_BUILD_FAILED", cause);
-    }
+  public SendGridRequestBuildException(String message, Throwable cause) {
+    super(message, 500, "SENDGRID_REQUEST_BUILD_FAILED", cause);
+  }
 }

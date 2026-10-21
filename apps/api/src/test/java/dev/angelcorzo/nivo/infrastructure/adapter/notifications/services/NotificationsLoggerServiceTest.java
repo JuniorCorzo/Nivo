@@ -27,62 +27,66 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("NotificationsLoggerService Unit Tests")
 class NotificationsLoggerServiceTest {
 
-    @Mock
-    private NotificationLogsRepository notificationLogsRepository;
+  @Mock
+  private NotificationLogsRepository notificationLogsRepository;
 
-    @Mock
-    private NotificationRecipientResolver notificationRecipientResolver;
+  @Mock
+  private NotificationRecipientResolver notificationRecipientResolver;
 
-    @Mock
-    private NotificationExecutionContextHolder executionContextHolder;
+  @Mock
+  private NotificationExecutionContextHolder executionContextHolder;
 
-    @Mock
-    private TenantsRepository tenantsRepository;
+  @Mock
+  private TenantsRepository tenantsRepository;
 
-    @Mock
-    private UsersRepository usersRepository;
+  @Mock
+  private UsersRepository usersRepository;
 
-    @InjectMocks
-    private NotificationsLoggerService service;
+  @InjectMocks
+  private NotificationsLoggerService service;
 
-    private NotificationTemplates template;
-    private UUID tenantId;
-    private UUID actorUserId;
-    private Tenants tenant;
-    private Users user;
+  private NotificationTemplates template;
+  private UUID tenantId;
+  private UUID actorUserId;
+  private Tenants tenant;
+  private Users user;
 
-    @BeforeEach
-    void setUp() {
-        tenantId = UUID.randomUUID();
-        actorUserId = UUID.randomUUID();
-        template = NotificationTemplates.builder().id(UUID.randomUUID()).templateReference("d-123")
-            .eventType(NotificationEvents.USER_INVITED).channel(NotificationsChannel.EMAIL).build();
+  @BeforeEach
+  void setUp() {
+    tenantId = UUID.randomUUID();
+    actorUserId = UUID.randomUUID();
+    template = NotificationTemplates.builder()
+      .id(UUID.randomUUID())
+      .templateReference("d-123")
+      .eventType(NotificationEvents.USER_INVITED)
+      .channel(NotificationsChannel.EMAIL)
+      .build();
 
-        tenant = Tenants.builder().id(tenantId).build();
-        user = Users.builder().id(actorUserId).email("actor@test.com").build();
+    tenant = Tenants.builder().id(tenantId).build();
+    user = Users.builder().id(actorUserId).email("actor@test.com").build();
 
-        NotificationExecutionContext context = new NotificationExecutionContext(tenantId, actorUserId);
-        when(executionContextHolder.getRequired()).thenReturn(context);
-        when(tenantsRepository.getReferenceById(tenantId)).thenReturn(tenant);
-        when(usersRepository.getReferenceById(actorUserId)).thenReturn(user);
-        when(notificationRecipientResolver.resolve(user, "recipient@test.com", NotificationsChannel.EMAIL))
-            .thenReturn(UserReference.of(user));
-    }
+    NotificationExecutionContext context = new NotificationExecutionContext(tenantId, actorUserId);
+    when(executionContextHolder.getRequired()).thenReturn(context);
+    when(tenantsRepository.getReferenceById(tenantId)).thenReturn(tenant);
+    when(usersRepository.getReferenceById(actorUserId)).thenReturn(user);
+    when(notificationRecipientResolver.resolve(user, "recipient@test.com", NotificationsChannel.EMAIL))
+      .thenReturn(UserReference.of(user));
+  }
 
-    @Test
-    @DisplayName("Should register SENT log")
-    void shouldRegisterSentLog() {
-        service.registerLog(template, "recipient@test.com");
+  @Test
+  @DisplayName("Should register SENT log")
+  void shouldRegisterSentLog() {
+    service.registerLog(template, "recipient@test.com");
 
-        verify(notificationLogsRepository).save(argThat(log -> log.getStatus() == NotificationLogsStatus.SENT));
-    }
+    verify(notificationLogsRepository).save(argThat(log -> log.getStatus() == NotificationLogsStatus.SENT));
+  }
 
-    @Test
-    @DisplayName("Should register FAILED log with error message")
-    void shouldRegisterFailedLog() {
-        service.registerLog(template, "recipient@test.com", "SendGrid error 500");
+  @Test
+  @DisplayName("Should register FAILED log with error message")
+  void shouldRegisterFailedLog() {
+    service.registerLog(template, "recipient@test.com", "SendGrid error 500");
 
-        verify(notificationLogsRepository).save(argThat(log -> log.getStatus() == NotificationLogsStatus.FAILED
-            && "SendGrid error 500".equals(log.getErrorMessage())));
-    }
+    verify(notificationLogsRepository).save(argThat(log -> log.getStatus() == NotificationLogsStatus.FAILED
+      && "SendGrid error 500".equals(log.getErrorMessage())));
+  }
 }

@@ -18,13 +18,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class SpecialPolicies {
-    private UUID id;
-    private TenantReference tenant;
-    private String name;
-    private ModifiesTypes modifies;
-    private OperationsTypes operation;
-    private BigDecimal valueToModify;
-    private boolean active;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime updatedAt;
+  private UUID id;
+  private TenantReference tenant;
+  private String name;
+  private ModifiesTypes modifies;
+  private OperationsTypes operation;
+  private BigDecimal valueToModify;
+  private boolean active;
+  private OffsetDateTime createdAt;
+  private OffsetDateTime updatedAt;
 }

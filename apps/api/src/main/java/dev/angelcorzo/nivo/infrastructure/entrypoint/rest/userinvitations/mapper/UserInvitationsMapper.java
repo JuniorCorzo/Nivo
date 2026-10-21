@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(config = MapperStructConfig.class)
 public interface UserInvitationsMapper {
-    InviteUserWithRolUseCase.InviteUserWithRole toModel(InviteUserDTO dto);
+  InviteUserWithRolUseCase.InviteUserWithRole toModel(InviteUserDTO dto);
 
-    UserInvitationsDTO toDTO(UserInvitations model);
+  UserInvitationsDTO toDTO(UserInvitations model);
 }

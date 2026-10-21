@@ -28,145 +28,172 @@ import org.junit.jupiter.api.Test;
 @DisplayName("RateConfigurationUseCase Tests")
 class RateConfigurationUseCaseTest {
 
-    private RatesRepository ratesRepository;
-    private SpecialPoliciesRepository specialPoliciesRepository;
-    private ParkingLotsRepository parkingLotsRepository;
-    private TenantsRepository tenantsRepository;
-    private RateConfigurationUseCase useCase;
+  private RatesRepository ratesRepository;
+  private SpecialPoliciesRepository specialPoliciesRepository;
+  private ParkingLotsRepository parkingLotsRepository;
+  private TenantsRepository tenantsRepository;
+  private RateConfigurationUseCase useCase;
 
-    @BeforeEach
-    void setUp() {
-        ratesRepository = mock(RatesRepository.class);
-        specialPoliciesRepository = mock(SpecialPoliciesRepository.class);
-        parkingLotsRepository = mock(ParkingLotsRepository.class);
-        tenantsRepository = mock(TenantsRepository.class);
+  @BeforeEach
+  void setUp() {
+    ratesRepository = mock(RatesRepository.class);
+    specialPoliciesRepository = mock(SpecialPoliciesRepository.class);
+    parkingLotsRepository = mock(ParkingLotsRepository.class);
+    tenantsRepository = mock(TenantsRepository.class);
 
-        useCase = new RateConfigurationUseCase(ratesRepository, specialPoliciesRepository, parkingLotsRepository,
-            tenantsRepository);
+    useCase = new RateConfigurationUseCase(ratesRepository, specialPoliciesRepository, parkingLotsRepository,
+      tenantsRepository);
+  }
+
+  @Nested
+  @DisplayName("Happy Path")
+  class HappyPath {
+
+    @Test
+    @DisplayName("Should successfully create tariff without special policy")
+    void shouldCreateTariffWithoutSpecialPolicy() {
+      // Arrange
+      UUID tenantId = UUID.randomUUID();
+      UUID parkingLotId = UUID.randomUUID();
+
+      RateConfigurationUseCase.CreateTariff command = RateConfigurationUseCase.CreateTariff.builder()
+        .tenantId(tenantId)
+        .parkingLotId(parkingLotId)
+        .name("Standard Rate")
+        .description("Hourly rate for cars")
+        .pricePerUnit(BigDecimal.valueOf(5000))
+        .timeUnit(TimeUnitsRate.HOURS)
+        .minChargeTimeMinutes(15)
+        .vehicleType(VehicleType.CAR)
+        .build();
+
+      Tenants tenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
+      ParkingLots parking = ParkingLots.builder().id(parkingLotId).name("Main Lot").build();
+
+      when(parkingLotsRepository.existsById(parkingLotId)).thenReturn(true);
+      when(tenantsRepository.getReferenceById(tenantId)).thenReturn(tenant);
+      when(parkingLotsRepository.getReferenceById(parkingLotId)).thenReturn(parking);
+      when(ratesRepository.save(any(Rates.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
+      // Act
+      Rates result = useCase.execute(command);
+
+      // Assert
+      assertThat(result).isNotNull();
+      assertThat(result.getName()).isEqualTo("Standard Rate");
+      assertThat(result.getPricePerUnit()).isEqualTo(BigDecimal.valueOf(5000));
+      assertThat(result.getSpecialPolicy()).isNull();
+      verify(ratesRepository).save(any(Rates.class));
     }
 
-    @Nested
-    @DisplayName("Happy Path")
-    class HappyPath {
+    @Test
+    @DisplayName("Should successfully create tariff with special policy")
+    void shouldCreateTariffWithSpecialPolicy() {
+      // Arrange
+      UUID tenantId = UUID.randomUUID();
+      UUID parkingLotId = UUID.randomUUID();
+      UUID policyId = UUID.randomUUID();
 
-        @Test
-        @DisplayName("Should successfully create tariff without special policy")
-        void shouldCreateTariffWithoutSpecialPolicy() {
-            // Arrange
-            UUID tenantId = UUID.randomUUID();
-            UUID parkingLotId = UUID.randomUUID();
+      RateConfigurationUseCase.CreateTariff command = RateConfigurationUseCase.CreateTariff.builder()
+        .tenantId(tenantId)
+        .parkingLotId(parkingLotId)
+        .name("Promo Rate")
+        .description("Promo rate")
+        .pricePerUnit(BigDecimal.valueOf(4000))
+        .timeUnit(TimeUnitsRate.HOURS)
+        .minChargeTimeMinutes(0)
+        .vehicleType(VehicleType.MOTORCYCLE)
+        .specialPolicyId(policyId)
+        .build();
 
-            RateConfigurationUseCase.CreateTariff command = RateConfigurationUseCase.CreateTariff.builder()
-                .tenantId(tenantId).parkingLotId(parkingLotId).name("Standard Rate").description("Hourly rate for cars")
-                .pricePerUnit(BigDecimal.valueOf(5000)).timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(15)
-                .vehicleType(VehicleType.CAR).build();
+      Tenants tenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
+      ParkingLots parking = ParkingLots.builder().id(parkingLotId).name("Main Lot").build();
+      SpecialPolicies policy = SpecialPolicies.builder().id(policyId).name("Night Discount").build();
 
-            Tenants tenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
-            ParkingLots parking = ParkingLots.builder().id(parkingLotId).name("Main Lot").build();
+      when(specialPoliciesRepository.existsById(policyId)).thenReturn(true);
+      when(parkingLotsRepository.existsById(parkingLotId)).thenReturn(true);
+      when(tenantsRepository.getReferenceById(tenantId)).thenReturn(tenant);
+      when(parkingLotsRepository.getReferenceById(parkingLotId)).thenReturn(parking);
+      when(specialPoliciesRepository.getReferenceById(policyId)).thenReturn(policy);
+      when(ratesRepository.save(any(Rates.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
-            when(parkingLotsRepository.existsById(parkingLotId)).thenReturn(true);
-            when(tenantsRepository.getReferenceById(tenantId)).thenReturn(tenant);
-            when(parkingLotsRepository.getReferenceById(parkingLotId)).thenReturn(parking);
-            when(ratesRepository.save(any(Rates.class))).thenAnswer(invocation -> invocation.getArgument(0));
+      // Act
+      Rates result = useCase.execute(command);
 
-            // Act
-            Rates result = useCase.execute(command);
+      // Assert
+      assertThat(result).isNotNull();
+      assertThat(result.getSpecialPolicy()).isNotNull();
+      assertThat(result.getSpecialPolicy().name()).isEqualTo("Night Discount");
+    }
+  }
 
-            // Assert
-            assertThat(result).isNotNull();
-            assertThat(result.getName()).isEqualTo("Standard Rate");
-            assertThat(result.getPricePerUnit()).isEqualTo(BigDecimal.valueOf(5000));
-            assertThat(result.getSpecialPolicy()).isNull();
-            verify(ratesRepository).save(any(Rates.class));
-        }
+  @Nested
+  @DisplayName("Validation & Error Cases")
+  class ErrorCases {
 
-        @Test
-        @DisplayName("Should successfully create tariff with special policy")
-        void shouldCreateTariffWithSpecialPolicy() {
-            // Arrange
-            UUID tenantId = UUID.randomUUID();
-            UUID parkingLotId = UUID.randomUUID();
-            UUID policyId = UUID.randomUUID();
+    @Test
+    @DisplayName("Should throw SpecialPolicyNotFoundException when special policy does not exist")
+    void shouldThrowWhenSpecialPolicyNotFound() {
+      UUID policyId = UUID.randomUUID();
+      RateConfigurationUseCase.CreateTariff command = RateConfigurationUseCase.CreateTariff.builder()
+        .parkingLotId(UUID.randomUUID())
+        .specialPolicyId(policyId)
+        .pricePerUnit(BigDecimal.valueOf(5000))
+        .minChargeTimeMinutes(15)
+        .build();
 
-            RateConfigurationUseCase.CreateTariff command = RateConfigurationUseCase.CreateTariff.builder()
-                .tenantId(tenantId).parkingLotId(parkingLotId).name("Promo Rate").description("Promo rate")
-                .pricePerUnit(BigDecimal.valueOf(4000)).timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(0)
-                .vehicleType(VehicleType.MOTORCYCLE).specialPolicyId(policyId).build();
+      when(specialPoliciesRepository.existsById(policyId)).thenReturn(false);
 
-            Tenants tenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
-            ParkingLots parking = ParkingLots.builder().id(parkingLotId).name("Main Lot").build();
-            SpecialPolicies policy = SpecialPolicies.builder().id(policyId).name("Night Discount").build();
-
-            when(specialPoliciesRepository.existsById(policyId)).thenReturn(true);
-            when(parkingLotsRepository.existsById(parkingLotId)).thenReturn(true);
-            when(tenantsRepository.getReferenceById(tenantId)).thenReturn(tenant);
-            when(parkingLotsRepository.getReferenceById(parkingLotId)).thenReturn(parking);
-            when(specialPoliciesRepository.getReferenceById(policyId)).thenReturn(policy);
-            when(ratesRepository.save(any(Rates.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // Act
-            Rates result = useCase.execute(command);
-
-            // Assert
-            assertThat(result).isNotNull();
-            assertThat(result.getSpecialPolicy()).isNotNull();
-            assertThat(result.getSpecialPolicy().name()).isEqualTo("Night Discount");
-        }
+      assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(SpecialPolicyNotFoundException.class);
     }
 
-    @Nested
-    @DisplayName("Validation & Error Cases")
-    class ErrorCases {
+    @Test
+    @DisplayName("Should throw ParkingNotExistsException when parking lot does not exist")
+    void shouldThrowWhenParkingLotNotFound() {
+      UUID parkingId = UUID.randomUUID();
+      RateConfigurationUseCase.CreateTariff command = RateConfigurationUseCase.CreateTariff.builder()
+        .parkingLotId(parkingId)
+        .pricePerUnit(BigDecimal.valueOf(5000))
+        .minChargeTimeMinutes(15)
+        .build();
 
-        @Test
-        @DisplayName("Should throw SpecialPolicyNotFoundException when special policy does not exist")
-        void shouldThrowWhenSpecialPolicyNotFound() {
-            UUID policyId = UUID.randomUUID();
-            RateConfigurationUseCase.CreateTariff command = RateConfigurationUseCase.CreateTariff.builder()
-                .parkingLotId(UUID.randomUUID()).specialPolicyId(policyId).pricePerUnit(BigDecimal.valueOf(5000))
-                .minChargeTimeMinutes(15).build();
+      when(parkingLotsRepository.existsById(parkingId)).thenReturn(false);
 
-            when(specialPoliciesRepository.existsById(policyId)).thenReturn(false);
-
-            assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(SpecialPolicyNotFoundException.class);
-        }
-
-        @Test
-        @DisplayName("Should throw ParkingNotExistsException when parking lot does not exist")
-        void shouldThrowWhenParkingLotNotFound() {
-            UUID parkingId = UUID.randomUUID();
-            RateConfigurationUseCase.CreateTariff command = RateConfigurationUseCase.CreateTariff.builder()
-                .parkingLotId(parkingId).pricePerUnit(BigDecimal.valueOf(5000)).minChargeTimeMinutes(15).build();
-
-            when(parkingLotsRepository.existsById(parkingId)).thenReturn(false);
-
-            assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(ParkingNotExistsException.class);
-        }
-
-        @Test
-        @DisplayName("Should throw InvalidDomainException when pricePerUnit is null")
-        void shouldThrowWhenPricePerUnitIsNull() {
-            assertThatThrownBy(() -> RateConfigurationUseCase.CreateTariff.builder().pricePerUnit(null)
-                .minChargeTimeMinutes(0).build()).isInstanceOf(InvalidDomainException.class)
-                .hasMessageContaining("Rate price cannot be negative or null");
-        }
-
-        @Test
-        @DisplayName("Should throw InvalidDomainException when pricePerUnit is negative")
-        void shouldThrowWhenPricePerUnitIsNegative() {
-            assertThatThrownBy(() -> RateConfigurationUseCase.CreateTariff.builder()
-                .pricePerUnit(BigDecimal.valueOf(-100)).minChargeTimeMinutes(0).build())
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessageContaining("Rate price cannot be negative or null");
-        }
-
-        @Test
-        @DisplayName("Should throw InvalidDomainException when minChargeTimeMinutes is negative")
-        void shouldThrowWhenMinChargeTimeMinutesIsNegative() {
-            assertThatThrownBy(() -> RateConfigurationUseCase.CreateTariff.builder()
-                .pricePerUnit(BigDecimal.valueOf(5000)).minChargeTimeMinutes(-1).build())
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessageContaining("Minimum charge minutes cannot be negative");
-        }
+      assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(ParkingNotExistsException.class);
     }
+
+    @Test
+    @DisplayName("Should throw InvalidDomainException when pricePerUnit is null")
+    void shouldThrowWhenPricePerUnitIsNull() {
+      assertThatThrownBy(() -> RateConfigurationUseCase.CreateTariff.builder()
+        .pricePerUnit(null)
+        .minChargeTimeMinutes(0)
+        .build()).isInstanceOf(InvalidDomainException.class)
+        .hasMessageContaining("Rate price cannot be negative or null");
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidDomainException when pricePerUnit is negative")
+    void shouldThrowWhenPricePerUnitIsNegative() {
+      assertThatThrownBy(() -> RateConfigurationUseCase.CreateTariff.builder()
+        .pricePerUnit(BigDecimal.valueOf(-100))
+        .minChargeTimeMinutes(0)
+        .build())
+        .isInstanceOf(InvalidDomainException.class)
+        .hasMessageContaining("Rate price cannot be negative or null");
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidDomainException when minChargeTimeMinutes is negative")
+    void shouldThrowWhenMinChargeTimeMinutesIsNegative() {
+      assertThatThrownBy(() -> RateConfigurationUseCase.CreateTariff.builder()
+        .pricePerUnit(BigDecimal.valueOf(5000))
+        .minChargeTimeMinutes(-1)
+        .build())
+        .isInstanceOf(InvalidDomainException.class)
+        .hasMessageContaining("Minimum charge minutes cannot be negative");
+    }
+  }
 }

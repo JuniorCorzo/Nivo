@@ -19,54 +19,55 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class PublicApiRateLimitFilter extends OncePerRequestFilter {
 
-    private final TokenBucketRateLimiter rateLimiter;
-    private final BackendOperationsMetricsManager metricsManager;
+  private final TokenBucketRateLimiter rateLimiter;
+  private final BackendOperationsMetricsManager metricsManager;
 
-    @Override
-    protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response,
-        final FilterChain filterChain) throws ServletException, IOException {
+  @Override
+  protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response,
+    final FilterChain filterChain) throws ServletException, IOException {
 
-        final String uri = request.getRequestURI();
-        if (!isPublicApi(uri)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        final String clientIp = resolveClientIp(request);
-        final boolean allowed = rateLimiter.tryConsume(clientIp);
-
-        response.setHeader("X-RateLimit-Limit", "60");
-
-        if (allowed) {
-            final long remaining = rateLimiter.getRemainingTokens(clientIp);
-            response.setHeader("X-RateLimit-Remaining", String.valueOf(remaining));
-            filterChain.doFilter(request, response);
-        } else {
-            final long retryAfter = rateLimiter.getSecondsUntilRefill(clientIp);
-            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-            response.setHeader("Retry-After", String.valueOf(retryAfter));
-            response.setHeader("X-RateLimit-Remaining", "0");
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-            metricsManager.recordPublicAvailabilityRateLimited();
-            metricsManager.recordPublicAvailabilityRequest(HttpStatus.TOO_MANY_REQUESTS.value());
-
-            response.getWriter().write(
-                """
-                    {"error":"Too Many Requests","message":"Rate limit of 60 requests per minute exceeded. Please try again later."}
-                    """);
-        }
+    final String uri = request.getRequestURI();
+    if (!isPublicApi(uri)) {
+      filterChain.doFilter(request, response);
+      return;
     }
 
-    private boolean isPublicApi(final String uri) {
-        return uri.contains("/public/parkings/") || uri.startsWith("/public/") || uri.contains("/api/v1/public/");
-    }
+    final String clientIp = resolveClientIp(request);
+    final boolean allowed = rateLimiter.tryConsume(clientIp);
 
-    private String resolveClientIp(final HttpServletRequest request) {
-        final String xForwarded = request.getHeader("X-Forwarded-For");
-        if (xForwarded != null && !xForwarded.isBlank()) {
-            return xForwarded.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
+    response.setHeader("X-RateLimit-Limit", "60");
+
+    if (allowed) {
+      final long remaining = rateLimiter.getRemainingTokens(clientIp);
+      response.setHeader("X-RateLimit-Remaining", String.valueOf(remaining));
+      filterChain.doFilter(request, response);
+    } else {
+      final long retryAfter = rateLimiter.getSecondsUntilRefill(clientIp);
+      response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+      response.setHeader("Retry-After", String.valueOf(retryAfter));
+      response.setHeader("X-RateLimit-Remaining", "0");
+      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+      metricsManager.recordPublicAvailabilityRateLimited();
+      metricsManager.recordPublicAvailabilityRequest(HttpStatus.TOO_MANY_REQUESTS.value());
+
+      response.getWriter()
+        .write(
+          """
+            {"error":"Too Many Requests","message":"Rate limit of 60 requests per minute exceeded. Please try again later."}
+            """);
     }
+  }
+
+  private boolean isPublicApi(final String uri) {
+    return uri.contains("/public/parkings/") || uri.startsWith("/public/") || uri.contains("/api/v1/public/");
+  }
+
+  private String resolveClientIp(final HttpServletRequest request) {
+    final String xForwarded = request.getHeader("X-Forwarded-For");
+    if (xForwarded != null && !xForwarded.isBlank()) {
+      return xForwarded.split(",")[0].trim();
+    }
+    return request.getRemoteAddr();
+  }
 }

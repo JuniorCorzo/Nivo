@@ -14,9 +14,9 @@ import lombok.Builder;
  * <strong>Layer:</strong> Domain (Read Model Value Object)
  *
  * @param type
- *            The slot type (CAR, MOTORCYCLE, BIKE, etc.)
+ *          The slot type (CAR, MOTORCYCLE, BIKE, etc.)
  * @param count
- *            The total number of slots of this type
+ *          The total number of slots of this type
  */
 @Builder(toBuilder = true)
 public record SlotDistributionEntry(String prefix, String zone, SlotType type, Long count) {

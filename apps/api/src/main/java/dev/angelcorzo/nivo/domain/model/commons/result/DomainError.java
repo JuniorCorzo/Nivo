@@ -1,15 +1,15 @@
 package dev.angelcorzo.nivo.domain.model.commons.result;
 
 public interface DomainError {
-    int status();
+  int status();
 
-    String code();
+  String code();
 
-    String message();
+  String message();
 
-    Severity severity();
+  Severity severity();
 
-    enum Severity {
-        INFO, WARNING, ERROR, CRITICAL
-    }
+  enum Severity {
+    INFO, WARNING, ERROR, CRITICAL
+  }
 }

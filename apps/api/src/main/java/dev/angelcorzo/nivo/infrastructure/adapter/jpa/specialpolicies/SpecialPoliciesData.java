@@ -21,29 +21,29 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity(name = "special_policies")
 @SQLRestriction(value = "active IS TRUE")
 public class SpecialPoliciesData {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
-    private TenantsData tenant;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
+  private TenantsData tenant;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+  @Column(name = "name", nullable = false)
+  private String name;
 
-    @Column(name = "modifies", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ModifiesTypes modifies;
+  @Column(name = "modifies", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private ModifiesTypes modifies;
 
-    @Column(name = "operation")
-    @Enumerated(EnumType.STRING)
-    private OperationsTypes operation;
+  @Column(name = "operation")
+  @Enumerated(EnumType.STRING)
+  private OperationsTypes operation;
 
-    @Column(name = "value_to_modify")
-    private BigDecimal valueToModify;
+  @Column(name = "value_to_modify")
+  private BigDecimal valueToModify;
 
-    @Column(name = "active")
-    @ColumnDefault(value = "TRUE")
-    private boolean active;
+  @Column(name = "active")
+  @ColumnDefault(value = "TRUE")
+  private boolean active;
 }

@@ -9,11 +9,11 @@ import org.mapstruct.Mapper;
 
 @Mapper(config = MapperStructConfig.class)
 public interface AuthenticationMapper {
-    LoginUseCase.UserCredentials toModel(UserCredentialsDTO dto);
+  LoginUseCase.UserCredentials toModel(UserCredentialsDTO dto);
 
-    UserCredentialsDTO toDTO(LoginUseCase.UserCredentials model);
+  UserCredentialsDTO toDTO(LoginUseCase.UserCredentials model);
 
-    AuthResponse toModel(AuthenticationResponseDTO dto);
+  AuthResponse toModel(AuthenticationResponseDTO dto);
 
-    AuthenticationResponseDTO toDTO(AuthResponse model);
+  AuthenticationResponseDTO toDTO(AuthResponse model);
 }

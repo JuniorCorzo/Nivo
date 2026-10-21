@@ -5,5 +5,5 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SpecialPoliciesRepositoryData extends JpaRepository<SpecialPoliciesData, UUID> {
-    List<SpecialPoliciesData> findAllByTenant_Id(UUID tenantId);
+  List<SpecialPoliciesData> findAllByTenant_Id(UUID tenantId);
 }

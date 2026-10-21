@@ -8,23 +8,23 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ParkingTicketsRepository {
-    Optional<ParkingTickets> findById(UUID id);
+  Optional<ParkingTickets> findById(UUID id);
 
-    Optional<ParkingTickets> findByTenantIdAndId(UUID tenantId, UUID id);
+  Optional<ParkingTickets> findByTenantIdAndId(UUID tenantId, UUID id);
 
-    boolean existsById(UUID id);
+  boolean existsById(UUID id);
 
-    ParkingTickets getReferenceById(UUID id);
+  ParkingTickets getReferenceById(UUID id);
 
-    ParkingTickets save(ParkingTickets parkingTickets);
+  ParkingTickets save(ParkingTickets parkingTickets);
 
-    ParkingTickets prepareCheckout(UUID ticketId, BigDecimal amountToCharge);
+  ParkingTickets prepareCheckout(UUID ticketId, BigDecimal amountToCharge);
 
-    ParkingTickets changeStatus(UUID ticketId, ParkingTicketStatus status);
+  ParkingTickets changeStatus(UUID ticketId, ParkingTicketStatus status);
 
-    ParkingTickets closeTicket(UUID ticketId);
+  ParkingTickets closeTicket(UUID ticketId);
 
-    List<ParkingTickets> findAllByParkingLotId(UUID parkingLotId);
+  List<ParkingTickets> findAllByParkingLotId(UUID parkingLotId);
 
-    Optional<ParkingTickets> findActiveBySlotId(UUID slotId);
+  Optional<ParkingTickets> findActiveBySlotId(UUID slotId);
 }

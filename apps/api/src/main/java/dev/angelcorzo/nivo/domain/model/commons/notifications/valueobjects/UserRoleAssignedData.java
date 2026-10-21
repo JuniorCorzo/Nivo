@@ -6,10 +6,10 @@ import lombok.Builder;
 
 @Builder
 public record UserRoleAssignedData(String userName, String roleName, String organizationName, String assignedBy,
-    String assignedAt, List<Permission> permissions, String ctaUrl, String companyName, String supportUrl,
-    String socialUrl, String unsubscribeUrl, String companyAddress) implements NotificationsData {
+  String assignedAt, List<Permission> permissions, String ctaUrl, String companyName, String supportUrl,
+  String socialUrl, String unsubscribeUrl, String companyAddress) implements NotificationsData {
 
-    @Builder
-    public record Permission(String name) {
-    }
+  @Builder
+  public record Permission(String name) {
+  }
 }

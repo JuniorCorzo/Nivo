@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ParkingLotsRepositoryData extends JpaRepository<ParkingLotsData, UUID> {
-    List<ParkingLotsData> findAllByOwnerId(UUID ownerId);
+  List<ParkingLotsData> findAllByOwnerId(UUID ownerId);
 
-    @Query(value = "SELECT * FROM nivo.v_parking_lot_summaries WHERE tenant_id = :tenantId", nativeQuery = true)
-    List<Tuple> findAllByTenantId(@Param("tenantId") UUID tenantId);
+  @Query(value = "SELECT * FROM nivo.v_parking_lot_summaries WHERE tenant_id = :tenantId", nativeQuery = true)
+  List<Tuple> findAllByTenantId(@Param("tenantId") UUID tenantId);
 }

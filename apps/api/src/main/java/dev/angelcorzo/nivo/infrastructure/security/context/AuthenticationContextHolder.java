@@ -19,41 +19,41 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @RequiredArgsConstructor
 public class AuthenticationContextHolder implements AuthenticationContextGateway {
-    private final UsersRepository usersRepository;
-    private final TenantsRepository tenantsRepository;
+  private final UsersRepository usersRepository;
+  private final TenantsRepository tenantsRepository;
 
-    @Override
-    public UserAuthentication getCurrentlyAuthenticatedUser() {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+  @Override
+  public UserAuthentication getCurrentlyAuthenticatedUser() {
+    final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated())
-            throw new UserAuthenticationContextInvalidException();
+    if (authentication == null || !authentication.isAuthenticated())
+      throw new UserAuthenticationContextInvalidException();
 
-        final Object principal = authentication.getPrincipal();
+    final Object principal = authentication.getPrincipal();
 
-        if (principal instanceof UserAuthentication userAuthentication)
-            return userAuthentication;
+    if (principal instanceof UserAuthentication userAuthentication)
+      return userAuthentication;
 
-        throw new UserAuthenticationContextInvalidException();
-    }
+    throw new UserAuthenticationContextInvalidException();
+  }
 
-    @Override
-    public UUID getCurrentTenantId() {
-        return this.getCurrentlyAuthenticatedUser().tenantId();
-    }
+  @Override
+  public UUID getCurrentTenantId() {
+    return this.getCurrentlyAuthenticatedUser().tenantId();
+  }
 
-    @Override
-    public UUID getCurrentUserId() {
-        return this.getCurrentlyAuthenticatedUser().userId();
-    }
+  @Override
+  public UUID getCurrentUserId() {
+    return this.getCurrentlyAuthenticatedUser().userId();
+  }
 
-    @Override
-    public Tenants getCurrentTenant() {
-        return this.tenantsRepository.getReferenceById(this.getCurrentTenantId());
-    }
+  @Override
+  public Tenants getCurrentTenant() {
+    return this.tenantsRepository.getReferenceById(this.getCurrentTenantId());
+  }
 
-    @Override
-    public Users getCurrentUser() {
-        return this.usersRepository.getReferenceById(this.getCurrentUserId());
-    }
+  @Override
+  public Users getCurrentUser() {
+    return this.usersRepository.getReferenceById(this.getCurrentUserId());
+  }
 }

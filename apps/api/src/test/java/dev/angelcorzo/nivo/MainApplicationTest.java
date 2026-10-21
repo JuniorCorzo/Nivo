@@ -9,8 +9,8 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = MainApplication.class)
 class MainApplicationTest {
 
-    @Test
-    @DisplayName("Should successfully load full Spring Boot application context")
-    void contextLoads() {
-    }
+  @Test
+  @DisplayName("Should successfully load full Spring Boot application context")
+  void contextLoads() {
+  }
 }

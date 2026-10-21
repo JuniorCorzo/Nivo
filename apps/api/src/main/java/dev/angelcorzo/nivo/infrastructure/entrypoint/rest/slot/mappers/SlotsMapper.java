@@ -17,16 +17,16 @@ import org.mapstruct.Mapping;
 
 @Mapper(config = MapperStructConfig.class)
 public interface SlotsMapper {
-    EditSlotUseCase.UpdateSlotCommand toModel(UpdateSlotRequest dto);
+  EditSlotUseCase.UpdateSlotCommand toModel(UpdateSlotRequest dto);
 
-    @Mapping(target = "currentNumberSlots", ignore = true)
-    dev.angelcorzo.nivo.domain.model.slots.valueobject.CreatedSlots toModel(CreatedSlots dto);
+  @Mapping(target = "currentNumberSlots", ignore = true)
+  dev.angelcorzo.nivo.domain.model.slots.valueobject.CreatedSlots toModel(CreatedSlots dto);
 
-    SlotResponse toDto(Slots model);
+  SlotResponse toDto(Slots model);
 
-    SlotSummaryResponse toDto(SlotSummary model);
+  SlotSummaryResponse toDto(SlotSummary model);
 
-    UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand toCommand(UpdateSlotMetadataRequest request);
+  UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand toCommand(UpdateSlotMetadataRequest request);
 
-    UpdateSlotGroupUseCase.UpdateSlotGroupCommand toCommand(UpdateSlotGroupRequest request);
+  UpdateSlotGroupUseCase.UpdateSlotGroupCommand toCommand(UpdateSlotGroupRequest request);
 }

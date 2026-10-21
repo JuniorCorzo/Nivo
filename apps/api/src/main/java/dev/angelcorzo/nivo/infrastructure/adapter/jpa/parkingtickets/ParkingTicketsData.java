@@ -28,75 +28,75 @@ import org.hibernate.type.SqlTypes;
 @Getter
 @Setter
 @Table(name = "parking_tickets", uniqueConstraints = @UniqueConstraint(name = "uq_parking_ticket_tenant_id", columnNames = {
-    "tenant_id", "id"}))
+  "tenant_id", "id"}))
 @Entity
 public class ParkingTicketsData {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(nullable = false)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(nullable = false)
+  private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "slot_id", referencedColumnName = "id", nullable = false)
-    private SlotsData slot;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "slot_id", referencedColumnName = "id", nullable = false)
+  private SlotsData slot;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
-    private TenantsData tenant;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
+  private TenantsData tenant;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private UsersData user;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", referencedColumnName = "id")
+  private UsersData user;
 
-    @Column(name = "license_plate")
-    private String licensePlate;
+  @Column(name = "license_plate")
+  private String licensePlate;
 
-    @ColumnDefault(value = "'CO'")
-    @Column(name = "plate_country", nullable = false)
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private PlateCountry plateCountry = PlateCountry.CO;
+  @ColumnDefault(value = "'CO'")
+  @Column(name = "plate_country", nullable = false)
+  @Enumerated(EnumType.STRING)
+  @Builder.Default
+  private PlateCountry plateCountry = PlateCountry.CO;
 
-    @Column(name = "photo_url")
-    private String photoUrl;
+  @Column(name = "photo_url")
+  private String photoUrl;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
+  @Column(name = "phone_number")
+  private String phoneNumber;
 
-    @Column(name = "entry_time", nullable = false, columnDefinition = "TIMESTAMPTZ")
-    private OffsetDateTime entryTime;
+  @Column(name = "entry_time", nullable = false, columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime entryTime;
 
-    @Column(name = "exit_time", columnDefinition = "TIMESTAMPTZ")
-    private OffsetDateTime exitTime;
+  @Column(name = "exit_time", columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime exitTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rate_id", referencedColumnName = "id", nullable = false)
-    private RateData rate;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "rate_id", referencedColumnName = "id", nullable = false)
+  private RateData rate;
 
-    @Column(name = "total_to_charge")
-    private BigDecimal totalToCharge;
+  @Column(name = "total_to_charge")
+  private BigDecimal totalToCharge;
 
-    @ColumnDefault(value = "OPEN")
-    @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private ParkingTicketStatus status = ParkingTicketStatus.OPEN;
+  @ColumnDefault(value = "OPEN")
+  @Column(name = "status", nullable = false)
+  @Enumerated(EnumType.STRING)
+  @Builder.Default
+  private ParkingTicketStatus status = ParkingTicketStatus.OPEN;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "slot_snapshot", columnDefinition = "jsonb")
-    private SlotSnapshot slotSnapshot;
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "slot_snapshot", columnDefinition = "jsonb")
+  private SlotSnapshot slotSnapshot;
 
-    @Column(name = "closed_at", columnDefinition = "TIMESTAMPTZ")
-    private OffsetDateTime closedAt;
+  @Column(name = "closed_at", columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime closedAt;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ")
-    @CreationTimestamp
-    private OffsetDateTime createdAt;
+  @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ")
+  @CreationTimestamp
+  private OffsetDateTime createdAt;
 
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMPTZ")
-    @UpdateTimestamp
-    private OffsetDateTime updatedAt;
+  @Column(name = "updated_at", columnDefinition = "TIMESTAMPTZ")
+  @UpdateTimestamp
+  private OffsetDateTime updatedAt;
 
-    @Column(name = "deleted_at", columnDefinition = "TIMESTAMPTZ")
-    private OffsetDateTime deleted_at;
+  @Column(name = "deleted_at", columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime deleted_at;
 }

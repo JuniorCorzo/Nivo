@@ -15,30 +15,35 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 @SpringJUnitConfig(classes = {ParkingTicketMapperRestImpl.class, TimezoneConverter.class})
 class ParkingTicketMapperTest {
 
-    @Autowired
-    private ParkingTicketMapper mapper;
+  @Autowired
+  private ParkingTicketMapper mapper;
 
-    @Test
-    void toDtoConvertsDatesToBogotaTimezone() {
-        OffsetDateTime utc = OffsetDateTime.of(2025, 5, 3, 0, 20, 37, 0, ZoneOffset.UTC);
-        ParkingTickets model = ParkingTickets.builder().entryTime(utc).exitTime(utc).createdAt(utc).updatedAt(utc)
-            .deletedAt(utc).build();
+  @Test
+  void toDtoConvertsDatesToBogotaTimezone() {
+    OffsetDateTime utc = OffsetDateTime.of(2025, 5, 3, 0, 20, 37, 0, ZoneOffset.UTC);
+    ParkingTickets model = ParkingTickets.builder()
+      .entryTime(utc)
+      .exitTime(utc)
+      .createdAt(utc)
+      .updatedAt(utc)
+      .deletedAt(utc)
+      .build();
 
-        ParkingTicketsDTO dto = mapper.toDto(model);
+    ParkingTicketsDTO dto = mapper.toDto(model);
 
-        ZoneId bogota = ZoneId.of("America/Bogota");
-        assertThat(dto.entryTime().getZone()).isEqualTo(bogota);
-        assertThat(dto.entryTime().getHour()).isEqualTo(19);
-        assertThat(dto.createdAt().getZone()).isEqualTo(bogota);
-        assertThat(dto.createdAt().getDayOfMonth()).isEqualTo(2);
-    }
+    ZoneId bogota = ZoneId.of("America/Bogota");
+    assertThat(dto.entryTime().getZone()).isEqualTo(bogota);
+    assertThat(dto.entryTime().getHour()).isEqualTo(19);
+    assertThat(dto.createdAt().getZone()).isEqualTo(bogota);
+    assertThat(dto.createdAt().getDayOfMonth()).isEqualTo(2);
+  }
 
-    @Test
-    void toDtoHandlesNullDates() {
-        ParkingTickets model = ParkingTickets.builder().build();
-        ParkingTicketsDTO dto = mapper.toDto(model);
+  @Test
+  void toDtoHandlesNullDates() {
+    ParkingTickets model = ParkingTickets.builder().build();
+    ParkingTicketsDTO dto = mapper.toDto(model);
 
-        assertThat(dto.entryTime()).isNull();
-        assertThat(dto.createdAt()).isNull();
-    }
+    assertThat(dto.entryTime()).isNull();
+    assertThat(dto.createdAt()).isNull();
+  }
 }
