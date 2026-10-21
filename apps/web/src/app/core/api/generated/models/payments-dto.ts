@@ -11,9 +11,16 @@ export interface PaymentsDto {
   id?: string;
   parkingTicketId?: string;
   paymentDate?: string;
-  paymentMethod?: 'EFFECTIVE' | 'PAY_LINK';
+  paymentMethod?: "EFFECTIVE" | "PAY_LINK";
   provider?: string;
-  status?: 'PENDING_CHECKOUT' | 'PENDING_PAYMENT' | 'PAID' | 'FAILED' | 'EXPIRED' | 'CANCELED' | 'REFUNDED';
+  status?:
+    | "PENDING_CHECKOUT"
+    | "PENDING_PAYMENT"
+    | "PAID"
+    | "FAILED"
+    | "EXPIRED"
+    | "CANCELED"
+    | "REFUNDED";
   tenantId?: string;
   updatedAt?: string;
   userId?: string;

@@ -17,10 +17,7 @@ public class DeleteRateUseCase {
   }
 
   public void execute(UUID id, UUID tenantId) {
-    final Rates rate =
-        this.ratesRepository
-            .findById(id)
-            .orElseThrow(() -> new RateNotFoundException(id));
+    final Rates rate = this.ratesRepository.findById(id).orElseThrow(() -> new RateNotFoundException(id));
 
     if (rate.getTenant() == null || !tenantId.equals(rate.getTenant().id())) {
       throw new RateNotFoundException(id);

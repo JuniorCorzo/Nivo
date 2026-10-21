@@ -92,7 +92,7 @@
           (input)="onMinTimeInput($event)"
         />
 
-        @if (facade.mode() === 'create') {
+        @if (facade.mode() === "create") {
         <nv-select
           class="col-span-1 w-full sm:col-span-2"
           label="Política especial / recargo (Opcional)"
@@ -126,7 +126,7 @@
           } @else {
           <ng-icon name="lucideSave" size="16" />
           <span
-            >{{ facade.mode() === 'create' ? 'Crear tarifa' : 'Guardar cambios'
+            >{{ facade.mode() === "create" ? "Crear tarifa" : "Guardar cambios"
             }}</span
           >
           }

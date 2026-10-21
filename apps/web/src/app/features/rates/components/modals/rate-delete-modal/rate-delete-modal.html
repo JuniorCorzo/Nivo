@@ -48,7 +48,7 @@
       >
         <span>Unidad: {{ r.timeUnit }}</span>
         <span class="text-foreground font-mono font-bold">
-          {{ r.pricePerUnit | currency:'COP':'symbol-narrow':'1.0-0' }}
+          {{ r.pricePerUnit | currency: "COP" : "symbol-narrow" : "1.0-0" }}
         </span>
       </div>
     </div>
@@ -68,7 +68,7 @@
         (click)="confirm.emit()"
       >
         <ng-icon name="lucideTrash2" size="14" />
-        {{ isDeleting() ? 'Eliminando...' : 'Eliminar tarifa' }}
+        {{ isDeleting() ? "Eliminando..." : "Eliminar tarifa" }}
       </nv-button>
     </div>
   </div>

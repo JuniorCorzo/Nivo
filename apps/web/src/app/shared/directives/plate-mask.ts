@@ -175,7 +175,8 @@ export class PlateMaskDirective {
     let updatedCaretCount = rawCharsBeforeCursor;
     if (raw.length === this.lastRawValue.length && rawCharsBeforeCursor > 0) {
       updatedRaw =
-        raw.slice(0, rawCharsBeforeCursor - 1) + raw.slice(rawCharsBeforeCursor);
+        raw.slice(0, rawCharsBeforeCursor - 1) +
+        raw.slice(rawCharsBeforeCursor);
     }
     if (rawCharsBeforeCursor > 0) {
       updatedCaretCount -= 1;

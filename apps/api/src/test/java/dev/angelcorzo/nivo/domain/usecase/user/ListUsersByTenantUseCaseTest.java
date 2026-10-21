@@ -23,31 +23,35 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("ListUsersByTenantUseCase - Unit Tests")
 class ListUsersByTenantUseCaseTest {
 
-  @Mock private UsersRepository usersRepository;
-  @Mock private AuthenticationContextGateway authenticationContextGateway;
+  @Mock
+  private UsersRepository usersRepository;
 
-  @InjectMocks private ListUsersByTenantUseCase listUsersByTenantUseCase;
+  @Mock
+  private AuthenticationContextGateway authenticationContextGateway;
+
+  @InjectMocks
+  private ListUsersByTenantUseCase listUsersByTenantUseCase;
 
   @Test
   @DisplayName("Should return list of users for authenticated tenant")
   void shouldReturnListOfUsers_whenTenantHasUsers() {
     final UUID tenantId = UUID.randomUUID();
     final Users user1 = Users.builder()
-        .id(UUID.randomUUID())
-        .fullName("Alice Manager")
-        .email("alice@test.com")
-        .role(Roles.MANAGER)
-        .tenant(TenantReference.builder().id(tenantId).companyName("Nivo Corp").build())
-        .createdAt(OffsetDateTime.now())
-        .build();
+      .id(UUID.randomUUID())
+      .fullName("Alice Manager")
+      .email("alice@test.com")
+      .role(Roles.MANAGER)
+      .tenant(TenantReference.builder().id(tenantId).companyName("Nivo Corp").build())
+      .createdAt(OffsetDateTime.now())
+      .build();
     final Users user2 = Users.builder()
-        .id(UUID.randomUUID())
-        .fullName("Bob Operator")
-        .email("bob@test.com")
-        .role(Roles.OPERATOR)
-        .tenant(TenantReference.builder().id(tenantId).companyName("Nivo Corp").build())
-        .createdAt(OffsetDateTime.now().minusDays(1))
-        .build();
+      .id(UUID.randomUUID())
+      .fullName("Bob Operator")
+      .email("bob@test.com")
+      .role(Roles.OPERATOR)
+      .tenant(TenantReference.builder().id(tenantId).companyName("Nivo Corp").build())
+      .createdAt(OffsetDateTime.now().minusDays(1))
+      .build();
 
     when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
     when(usersRepository.findAllByTenantId(tenantId)).thenReturn(List.of(user1, user2));
@@ -79,11 +83,9 @@ class ListUsersByTenantUseCaseTest {
   @DisplayName("Should propagate exception when authentication context fails")
   void shouldPropagateException_whenAuthenticationContextFails() {
     when(authenticationContextGateway.getCurrentTenantId())
-        .thenThrow(new UserAuthenticationContextInvalidException());
+      .thenThrow(new UserAuthenticationContextInvalidException());
 
-    assertThrows(
-        UserAuthenticationContextInvalidException.class,
-        () -> listUsersByTenantUseCase.execute());
+    assertThrows(UserAuthenticationContextInvalidException.class, () -> listUsersByTenantUseCase.execute());
     verifyNoInteractions(usersRepository);
   }
 }

@@ -18,9 +18,8 @@ class SlotNumberUtilsTest {
   void shouldThrowWhenInstantiated() throws NoSuchMethodException {
     Constructor<SlotNumberUtils> constructor = SlotNumberUtils.class.getDeclaredConstructor();
     constructor.setAccessible(true);
-    assertThatThrownBy(constructor::newInstance)
-        .isInstanceOf(InvocationTargetException.class)
-        .hasCauseInstanceOf(UnsupportedOperationException.class);
+    assertThatThrownBy(constructor::newInstance).isInstanceOf(InvocationTargetException.class)
+      .hasCauseInstanceOf(UnsupportedOperationException.class);
   }
 
   @Test
@@ -45,11 +44,7 @@ class SlotNumberUtilsTest {
   }
 
   @ParameterizedTest
-  @CsvSource({
-      "A-01, A, B, B-01",
-      "A-100, A, VIP, VIP-100",
-      "ZONE-99, ZONE, SEC, SEC-99"
-  })
+  @CsvSource({"A-01, A, B, B-01", "A-100, A, VIP, VIP-100", "ZONE-99, ZONE, SEC, SEC-99"})
   @DisplayName("Should replace prefix when old slot number starts with oldPrefix and hyphen")
   void shouldReplacePrefixWithHyphen(String oldNumber, String oldPrefix, String newPrefix, String expected) {
     String result = SlotNumberUtils.recalculateSlotNumber(oldNumber, oldPrefix, newPrefix);
@@ -57,11 +52,7 @@ class SlotNumberUtilsTest {
   }
 
   @ParameterizedTest
-  @CsvSource({
-      "A01, A, B, B01",
-      "A100, A, VIP, VIP100",
-      "B05, B, C, C05"
-  })
+  @CsvSource({"A01, A, B, B01", "A100, A, VIP, VIP100", "B05, B, C, C05"})
   @DisplayName("Should replace prefix when old slot number starts with oldPrefix without hyphen")
   void shouldReplacePrefixWithoutHyphen(String oldNumber, String oldPrefix, String newPrefix, String expected) {
     String result = SlotNumberUtils.recalculateSlotNumber(oldNumber, oldPrefix, newPrefix);
@@ -69,13 +60,10 @@ class SlotNumberUtilsTest {
   }
 
   @ParameterizedTest
-  @CsvSource({
-      "01, A, VIP, VIP-01",
-      "123, B, C, C-123",
-      "X-01, A, B, B-X-01"
-  })
+  @CsvSource({"01, A, VIP, VIP-01", "123, B, C, C-123", "X-01, A, B, B-X-01"})
   @DisplayName("Should prepend new prefix with hyphen when old slot number does not start with oldPrefix")
-  void shouldPrependWhenDoesNotStartWithOldPrefix(String oldNumber, String oldPrefix, String newPrefix, String expected) {
+  void shouldPrependWhenDoesNotStartWithOldPrefix(String oldNumber, String oldPrefix, String newPrefix,
+    String expected) {
     String result = SlotNumberUtils.recalculateSlotNumber(oldNumber, oldPrefix, newPrefix);
     assertThat(result).isEqualTo(expected);
   }

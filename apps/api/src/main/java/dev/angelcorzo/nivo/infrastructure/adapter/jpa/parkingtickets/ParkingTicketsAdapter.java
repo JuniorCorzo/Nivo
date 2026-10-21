@@ -1,12 +1,12 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets.mappers.ParkingTicketMapper;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTicketNotFound;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.ParkingTicketStatus;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.ParkingTicketsRepository;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets.mappers.ParkingTicketMapper;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -17,18 +17,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class ParkingTicketsAdapter
-    extends AdapterOperations<
-        ParkingTickets, ParkingTicketsData, UUID, ParkingTicketsRepositoryData>
-    implements ParkingTicketsRepository {
+  extends
+    AdapterOperations<ParkingTickets, ParkingTicketsData, UUID, ParkingTicketsRepositoryData>
+  implements
+    ParkingTicketsRepository {
 
   /**
    * Constructor for AdapterOperations.
    *
-   * @param repository The JPA repository instance.
-   * @param mapper The mapper for converting between domain and data entities.
+   * @param repository
+   *          The JPA repository instance.
+   * @param mapper
+   *          The mapper for converting between domain and data entities.
    */
-  protected ParkingTicketsAdapter(
-      ParkingTicketsRepositoryData repository, ParkingTicketMapper mapper) {
+  protected ParkingTicketsAdapter(ParkingTicketsRepositoryData repository, ParkingTicketMapper mapper) {
     super(repository, mapper);
   }
 
@@ -82,9 +84,7 @@ public class ParkingTicketsAdapter
 
   @Override
   public List<ParkingTickets> findAllByParkingLotId(UUID parkingLotId) {
-    return super.repository.findAllBySlot_Parking_Id(parkingLotId).stream()
-        .map(super::toEntity)
-        .toList();
+    return super.repository.findAllBySlot_Parking_Id(parkingLotId).stream().map(super::toEntity).toList();
   }
 
   @Override

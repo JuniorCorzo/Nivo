@@ -8,52 +8,25 @@ import dev.angelcorzo.nivo.infrastructure.adapter.payment.utils.PaymentProviderD
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-public record CreatePayLinkResponse(
-    long id,
-    @StripQuotes String title,
-    @StripQuotes String description,
-    @StripQuotes String date,
-    int state,
-    @StripQuotes String txtCode,
-    long clientId,
-    int onePayment,
-    int quantity,
-    int baseTax,
-    @StripQuotes String currency,
-    @StripQuotes String typeSell,
-    @StripQuotes String urlConfirmation,
-    @StripQuotes String urlResponse,
-    int tax,
-    int icoTax,
-    int amount,
-    @StripQuotes String invoceNumber,
-    @StripQuotes String routeQr,
-    @StripQuotes String routeLink,
-    @StripQuotes String expirationDate) {
+public record CreatePayLinkResponse(long id, @StripQuotes String title, @StripQuotes String description,
+  @StripQuotes String date, int state, @StripQuotes String txtCode, long clientId, int onePayment, int quantity,
+  int baseTax, @StripQuotes String currency, @StripQuotes String typeSell, @StripQuotes String urlConfirmation,
+  @StripQuotes String urlResponse, int tax, int icoTax, int amount, @StripQuotes String invoceNumber,
+  @StripQuotes String routeQr, @StripQuotes String routeLink, @StripQuotes String expirationDate) {
 
   @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-  public CreatePayLinkResponse(
-      @JsonProperty("id") long id,
-      @StripQuotes @JsonProperty("title") String title,
-      @StripQuotes @JsonProperty("description") String description,
-      @StripQuotes @JsonProperty("date") String date,
-      @JsonProperty("state") int state,
-      @StripQuotes @JsonProperty("txtCode") String txtCode,
-      @JsonProperty("clientId") long clientId,
-      @JsonProperty("onePayment") int onePayment,
-      @JsonProperty("quantity") int quantity,
-      @JsonProperty("baseTax") int baseTax,
-      @StripQuotes @JsonProperty("currency") String currency,
-      @StripQuotes @JsonProperty("typeSell") String typeSell,
-      @StripQuotes @JsonProperty("urlConfirmation") String urlConfirmation,
-      @StripQuotes @JsonProperty("urlResponse") String urlResponse,
-      @JsonProperty("tax") int tax,
-      @JsonProperty("icoTax") int icoTax,
-      @JsonProperty("amount") int amount,
-      @StripQuotes @JsonProperty("invoceNumber") String invoceNumber,
-      @StripQuotes @JsonProperty("routeQr") String routeQr,
-      @StripQuotes @JsonProperty("routeLink") String routeLink,
-      @StripQuotes @JsonProperty("expirationDate") String expirationDate) {
+  public CreatePayLinkResponse(@JsonProperty("id") long id, @StripQuotes @JsonProperty("title") String title,
+    @StripQuotes @JsonProperty("description") String description, @StripQuotes @JsonProperty("date") String date,
+    @JsonProperty("state") int state, @StripQuotes @JsonProperty("txtCode") String txtCode,
+    @JsonProperty("clientId") long clientId, @JsonProperty("onePayment") int onePayment,
+    @JsonProperty("quantity") int quantity, @JsonProperty("baseTax") int baseTax,
+    @StripQuotes @JsonProperty("currency") String currency, @StripQuotes @JsonProperty("typeSell") String typeSell,
+    @StripQuotes @JsonProperty("urlConfirmation") String urlConfirmation,
+    @StripQuotes @JsonProperty("urlResponse") String urlResponse, @JsonProperty("tax") int tax,
+    @JsonProperty("icoTax") int icoTax, @JsonProperty("amount") int amount,
+    @StripQuotes @JsonProperty("invoceNumber") String invoceNumber,
+    @StripQuotes @JsonProperty("routeQr") String routeQr, @StripQuotes @JsonProperty("routeLink") String routeLink,
+    @StripQuotes @JsonProperty("expirationDate") String expirationDate) {
     this.id = id;
     this.title = title;
     this.description = description;
@@ -79,16 +52,14 @@ public record CreatePayLinkResponse(
 
   public ProviderMetadata toProviderMetadata(String providerName) {
     return ProviderMetadata.builder()
-        .provider(providerName)
-        .externalPaymentId(String.valueOf(id()))
-        .checkoutSessionId(invoceNumber())
-        .checkoutUrl(routeLink())
-        .checkoutExpiresAt(
-            LocalDateTime.parse(
-                    expirationDate(),
-                    PaymentProviderDateTimeFormatters.RESPONSE_EPAYCO_DATE_TIME_FORMAT)
-                .atOffset(ZoneOffset.UTC))
-        .rawResponse(this)
-        .build();
+      .provider(providerName)
+      .externalPaymentId(String.valueOf(id()))
+      .checkoutSessionId(invoceNumber())
+      .checkoutUrl(routeLink())
+      .checkoutExpiresAt(LocalDateTime
+        .parse(expirationDate(), PaymentProviderDateTimeFormatters.RESPONSE_EPAYCO_DATE_TIME_FORMAT)
+        .atOffset(ZoneOffset.UTC))
+      .rawResponse(this)
+      .build();
   }
 }

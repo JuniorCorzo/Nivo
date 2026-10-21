@@ -1,8 +1,8 @@
 import { provideLocationMocks } from "@angular/common/testing";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
-import { provideRouter } from '@angular/router';
-import type { ActivatedRoute } from '@angular/router';
+import { provideRouter } from "@angular/router";
+import type { ActivatedRoute } from "@angular/router";
 import type { PublicTicketModel } from "@core/models/public-ticket.model";
 import { PublicTicketService } from "@core/services/public-ticket.service";
 import { of, throwError } from "rxjs";

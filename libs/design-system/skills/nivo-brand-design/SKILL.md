@@ -32,55 +32,55 @@ The ONLY chromatic colors are the 4 semantic states. Everything else is Zinc gra
 
 **Dark theme (default):**
 
-| Token | HEX | Use |
-| --- | --- | --- |
-| Background / Card / Popover | `#09090b` | Fondo principal |
-| Foreground | `#fafafa` | Texto principal |
-| Muted Foreground | `#a1a1aa` | Texto secundario, labels |
-| Muted | `#27272a` | Badges, fondos inactivos |
-| Primary | `#fafafa` (text: `#18181b`) | Botón principal, CTAs |
-| Secondary | `#27272a` (text: `#fafafa`) | Botón secundario |
-| Accent | `#27272a` | Hover sidebar, item activo |
-| Border / Input | `#27272a` | Bordes, divisores |
-| Ring | `#d4d4d8` | Focus ring |
-| Destructive | `#7f1d1d` (text: `#fafafa`) | Errores, plazas ocupadas |
-| Success | `#22c55e` | Plazas disponibles, check-in OK |
-| Warning | `#eab308` | Advertencias, reservas pendientes |
-| Info | `#3b82f6` | Mensajes informativos |
+| Token                       | HEX                         | Use                               |
+| --------------------------- | --------------------------- | --------------------------------- |
+| Background / Card / Popover | `#09090b`                   | Fondo principal                   |
+| Foreground                  | `#fafafa`                   | Texto principal                   |
+| Muted Foreground            | `#a1a1aa`                   | Texto secundario, labels          |
+| Muted                       | `#27272a`                   | Badges, fondos inactivos          |
+| Primary                     | `#fafafa` (text: `#18181b`) | Botón principal, CTAs             |
+| Secondary                   | `#27272a` (text: `#fafafa`) | Botón secundario                  |
+| Accent                      | `#27272a`                   | Hover sidebar, item activo        |
+| Border / Input              | `#27272a`                   | Bordes, divisores                 |
+| Ring                        | `#d4d4d8`                   | Focus ring                        |
+| Destructive                 | `#7f1d1d` (text: `#fafafa`) | Errores, plazas ocupadas          |
+| Success                     | `#22c55e`                   | Plazas disponibles, check-in OK   |
+| Warning                     | `#eab308`                   | Advertencias, reservas pendientes |
+| Info                        | `#3b82f6`                   | Mensajes informativos             |
 
 **Light theme:**
 
-| Token | HEX | Use |
-| --- | --- | --- |
-| Background / Card / Popover | `#ffffff` | Fondo principal |
-| Foreground | `#09090b` | Texto principal |
-| Muted Foreground | `#71717a` | Texto secundario |
-| Muted | `#f4f4f5` | Fondos sutiles |
-| Primary | `#18181b` (text: `#fafafa`) | Botón principal, CTAs |
-| Secondary | `#f4f4f5` (text: `#18181b`) | Botón secundario |
-| Accent | `#f4f4f5` | Hover sidebar, item activo |
-| Border / Input | `#e4e4e7` | Bordes, divisores |
-| Ring | `#18181b` | Focus ring |
-| Destructive | `#ef4444` (text: `#fafafa`) | Errores |
-| Success | `#16a34a` | Confirmaciones |
-| Warning | `#ca8a04` | Advertencias |
-| Info | `#2563eb` | Informativos |
+| Token                       | HEX                         | Use                        |
+| --------------------------- | --------------------------- | -------------------------- |
+| Background / Card / Popover | `#ffffff`                   | Fondo principal            |
+| Foreground                  | `#09090b`                   | Texto principal            |
+| Muted Foreground            | `#71717a`                   | Texto secundario           |
+| Muted                       | `#f4f4f5`                   | Fondos sutiles             |
+| Primary                     | `#18181b` (text: `#fafafa`) | Botón principal, CTAs      |
+| Secondary                   | `#f4f4f5` (text: `#18181b`) | Botón secundario           |
+| Accent                      | `#f4f4f5`                   | Hover sidebar, item activo |
+| Border / Input              | `#e4e4e7`                   | Bordes, divisores          |
+| Ring                        | `#18181b`                   | Focus ring                 |
+| Destructive                 | `#ef4444` (text: `#fafafa`) | Errores                    |
+| Success                     | `#16a34a`                   | Confirmaciones             |
+| Warning                     | `#ca8a04`                   | Advertencias               |
+| Info                        | `#2563eb`                   | Informativos               |
 
 ### 3. Typography system
 
-| Level | Font | Size | Weight | Line-height | Tracking |
-| --- | --- | --- | --- | --- | --- |
-| H1 | Inter | 30px / 1.875rem | Bold (700) | 36px | -0.75px |
-| H2 | Inter | 24px / 1.5rem | Semibold (600) | 32px | -0.5px |
-| H3 | Inter | 20px / 1.25rem | Semibold (600) | 28px | -0.25px |
-| H4 | Inter | 18px / 1.125rem | Semibold (600) | 24px | 0 |
-| H5 | Inter | 16px / 1rem | Semibold (600) | 24px | 0 |
-| H6 | Inter | 14px / 0.875rem | Semibold (600) | 20px | 0 |
-| Body Large | Inter | 16px / 1rem | Regular (400) | 26px | 0 |
-| Body Regular | Inter | 14px / 0.875rem | Regular (400) | 22px | 0 |
-| Caption | Inter | 12px / 0.75rem | Regular (400) | 18px | 0 |
-| Button Text | Inter | 14px / 0.875rem | Medium (500) | 20px | 0 |
-| Code / Data | JetBrains Mono | 13px / 0.8125rem | Regular (400) | 20px | 0 |
+| Level        | Font           | Size             | Weight         | Line-height | Tracking |
+| ------------ | -------------- | ---------------- | -------------- | ----------- | -------- |
+| H1           | Inter          | 30px / 1.875rem  | Bold (700)     | 36px        | -0.75px  |
+| H2           | Inter          | 24px / 1.5rem    | Semibold (600) | 32px        | -0.5px   |
+| H3           | Inter          | 20px / 1.25rem   | Semibold (600) | 28px        | -0.25px  |
+| H4           | Inter          | 18px / 1.125rem  | Semibold (600) | 24px        | 0        |
+| H5           | Inter          | 16px / 1rem      | Semibold (600) | 24px        | 0        |
+| H6           | Inter          | 14px / 0.875rem  | Semibold (600) | 20px        | 0        |
+| Body Large   | Inter          | 16px / 1rem      | Regular (400)  | 26px        | 0        |
+| Body Regular | Inter          | 14px / 0.875rem  | Regular (400)  | 22px        | 0        |
+| Caption      | Inter          | 12px / 0.75rem   | Regular (400)  | 18px        | 0        |
+| Button Text  | Inter          | 14px / 0.875rem  | Medium (500)   | 20px        | 0        |
+| Code / Data  | JetBrains Mono | 13px / 0.8125rem | Regular (400)  | 20px        | 0        |
 
 - **Inter**: Everything (headings, body, UI, navigation)
 - **JetBrains Mono**: Data numbers, plates, codes (with `font-feature-settings: "tnum"`)

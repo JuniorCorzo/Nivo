@@ -93,7 +93,9 @@ describe("SelectComponent", () => {
     selectComponent.writeValue("1");
     const selectedClasses = selectComponent.optionClasses(item1);
 
-    expect(selectedClasses).toContain("bg-accent text-accent-foreground font-medium");
+    expect(selectedClasses).toContain(
+      "bg-accent text-accent-foreground font-medium"
+    );
     expect(selectedClasses).not.toContain("data-[active=true]:bg-accent");
     expect(selectedClasses).not.toContain(
       "data-[active=true]:text-accent-foreground"

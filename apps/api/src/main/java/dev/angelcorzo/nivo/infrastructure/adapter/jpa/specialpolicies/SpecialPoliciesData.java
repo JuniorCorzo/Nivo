@@ -1,8 +1,8 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.specialpolicies;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.TenantsData;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.ModifiesTypes;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.OperationsTypes;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.TenantsData;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -17,12 +17,7 @@ import org.hibernate.annotations.SQLRestriction;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(
-    check =
-        @CheckConstraint(
-            name = "valid_percentage",
-            constraint =
-                "operation = 'PERCENTAGE' AND (value_to_modify > 0 AND value_to_modify <= 100)"))
+@Table(check = @CheckConstraint(name = "valid_percentage", constraint = "operation = 'PERCENTAGE' AND (value_to_modify > 0 AND value_to_modify <= 100)"))
 @Entity(name = "special_policies")
 @SQLRestriction(value = "active IS TRUE")
 public class SpecialPoliciesData {
@@ -51,5 +46,4 @@ public class SpecialPoliciesData {
   @Column(name = "active")
   @ColumnDefault(value = "TRUE")
   private boolean active;
-
-  }
+}

@@ -1,25 +1,31 @@
 # Technical Design: Ticket Management & History UI (ANC-86)
 
 ## Architecture Overview
+
 The Ticket Management & History UI provides parking operators and administrators with historical auditing, reactive multi-criteria filtering, active stay price calculation previews, and receipt reprinting. Following Clean Architecture and modern Angular (v20+) patterns, the feature isolates state in a dedicated signal-driven facade (`TicketsFacade`), decouples presentation via dumb standalone components powered by `@nivo-sass/design-system`, and connects to the backend through an extended `TicketService`.
 
 ## Clean Architecture & Component Mapping
 
 ### Backend (`apps/api`)
+
 Zero backend code changes required. Consumes existing endpoints:
+
 - `GET /tickets/list?parking=:parkingId`: Returns historical and active tickets.
 - `GET /rates/calculate?ticketId=:ticketId`: Real-time pricing calculation for open stays.
 
 ### Core Extensions (`apps/web/src/app/core`)
+
 - **`TicketService` (`core/services/ticket-service.ts`)**:
   - `listTicketsByParkingLot(parkingLotId: string): Observable<TicketSummary[]>`: Invokes `ParkingTicketsService.listTickets`, mapping DTOs via `mapToTicketSummary`.
 
 ### Routing Integration (`apps/web/src/app`)
+
 - **`APP_ROUTE_PATHS.app.parkingLotTickets`**: `'parking-lots/:parkingId/tickets'`
 - **`APP_ROUTES.app.parkingLotTickets(parkingId)`**: `(parkingId) => /app/parking-lots/${parkingId}/tickets`
 - **`app.routes.ts`**: Lazy-loads `TicketsPageComponent` under authenticated application shell layout.
 
 ### Feature Layer (`apps/web/src/app/features/tickets`)
+
 - **`TicketsPageComponent` (`page/tickets-page.ts`) [Smart Container]**:
   - Injects `ActivatedRoute` and provides `TicketsFacade`.
   - Extracts route parameter `parkingId` and triggers ticket loading.
@@ -71,16 +77,19 @@ Zero backend code changes required. Consumes existing endpoints:
 ## Architectural Decision Records (ADRs)
 
 ### ADR-1: In-Memory Client-Side Signal Filtering
+
 - **Context**: Operators filter tickets by license plate, status, and vehicle type during daily operations.
 - **Decision**: Fetch parking lot tickets on navigation and apply reactive filtering in `TicketsFacade` via `computed()`.
 - **Consequences**: Instant UI feedback without network latency or repeated server queries; optimal for standard parking lot active dataset sizes.
 
 ### ADR-2: Direct Cross-Feature Reuse of TicketReceiptComponent
+
 - **Context**: Entry and exit receipts must look identical across Operations checkout and Ticket Management history.
 - **Decision**: Import and reuse `TicketReceiptComponent` from `@features/operations/components/ticket-receipt/ticket-receipt.component.ts` rather than duplicating markup or styles.
 - **Consequences**: Ensures single source of truth for print media queries, barcodes, and receipt formatting without duplicate code.
 
 ## Security & Multi-Tenancy
+
 - **Multi-Tenant Isolation**: Secured via `AUTHORIZED` HttpContext token injecting Bearer JWT. Backend validates tenant ownership against `parkingId`.
 - **Access Control**: Limited to authenticated operators/administrators having parking lot read privileges.
 - **UI Hardening & A11y**: Strict template sanitization, `ChangeDetectionStrategy.OnPush` across all views, and WCAG 2.2 AA compliant drawer dialogs.

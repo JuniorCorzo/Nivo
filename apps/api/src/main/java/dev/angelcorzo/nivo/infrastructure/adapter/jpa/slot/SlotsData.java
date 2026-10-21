@@ -1,10 +1,10 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot;
 
+import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
+import dev.angelcorzo.nivo.domain.model.slots.enums.SlotType;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkinglots.ParkingLotsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets.ParkingTicketsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.TenantsData;
-import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
-import dev.angelcorzo.nivo.domain.model.slots.enums.SlotType;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;

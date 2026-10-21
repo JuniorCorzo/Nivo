@@ -10,10 +10,6 @@ export default defineConfig({
   extends: [core, angular, antiSlop, jsPlugins],
   ignorePatterns: core.ignorePatterns,
   jsPlugins: jsPlugins.jsPlugins,
-  rules: {
-    "anti-slop/no-unknown-parameters": "off",
-    "github/filenames-match-regex": ["error", "^[a-z0-9-]+(\\.[a-z0-9-]+)*$"],
-  },
   overrides: [
     {
       files: ["e2e/**"],
@@ -23,4 +19,8 @@ export default defineConfig({
       },
     },
   ],
+  rules: {
+    "anti-slop/no-unknown-parameters": "off",
+    "github/filenames-match-regex": ["error", "^[a-z0-9-]+(\\.[a-z0-9-]+)*$"],
+  },
 });

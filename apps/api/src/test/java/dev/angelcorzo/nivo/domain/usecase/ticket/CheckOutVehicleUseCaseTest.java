@@ -13,10 +13,10 @@ import dev.angelcorzo.nivo.domain.model.payments.enums.PaymentsMethods;
 import dev.angelcorzo.nivo.domain.model.payments.exceptions.ProcessPaymentException;
 import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.CheckOut;
 import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.NoSendCheckOut;
+import dev.angelcorzo.nivo.domain.usecase.payment.ProcessPaymentUseCase;
 import dev.angelcorzo.nivo.domain.usecase.rate.CalculateRateUseCase;
 import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
 import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceLine;
-import dev.angelcorzo.nivo.domain.usecase.payment.ProcessPaymentUseCase;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,22 +54,17 @@ class CheckOutVehicleUseCaseTest {
       UUID tenantId = UUID.randomUUID();
       CheckOut command = new NoSendCheckOut(ticketId, tenantId, PaymentsMethods.EFFECTIVE);
 
-      ParkingTickets ticket =
-          ParkingTickets.builder()
-              .id(ticketId)
-              .status(ParkingTicketStatus.OPEN)
-              .build();
+      ParkingTickets ticket = ParkingTickets.builder().id(ticketId).status(ParkingTicketStatus.OPEN).build();
 
       PriceDetailed price = PriceDetailed.of("Central Parking");
       price.addLine(new PriceLine("Base", BigDecimal.valueOf(10000)));
       price.setIvaRate(BigDecimal.valueOf(0.19));
 
-      Payments payment =
-          Payments.builder()
-              .id(UUID.randomUUID())
-              .status(PaymentStatus.PAID)
-              .paymentMethod(PaymentsMethods.EFFECTIVE)
-              .build();
+      Payments payment = Payments.builder()
+        .id(UUID.randomUUID())
+        .status(PaymentStatus.PAID)
+        .paymentMethod(PaymentsMethods.EFFECTIVE)
+        .build();
 
       when(parkingTicketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
       when(calculateRateUseCase.execute(ticketId)).thenReturn(price);
@@ -99,8 +94,7 @@ class CheckOutVehicleUseCaseTest {
 
       when(parkingTicketsRepository.findById(ticketId)).thenReturn(Optional.empty());
 
-      assertThatThrownBy(() -> useCase.execute(command))
-          .isInstanceOf(ProcessPaymentException.class);
+      assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(ProcessPaymentException.class);
     }
 
     @Test
@@ -110,16 +104,11 @@ class CheckOutVehicleUseCaseTest {
       UUID tenantId = UUID.randomUUID();
       CheckOut command = new NoSendCheckOut(ticketId, tenantId, PaymentsMethods.EFFECTIVE);
 
-      ParkingTickets ticket =
-          ParkingTickets.builder()
-              .id(ticketId)
-              .status(ParkingTicketStatus.CLOSED)
-              .build();
+      ParkingTickets ticket = ParkingTickets.builder().id(ticketId).status(ParkingTicketStatus.CLOSED).build();
 
       when(parkingTicketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
 
-      assertThatThrownBy(() -> useCase.execute(command))
-          .isInstanceOf(ProcessPaymentException.class);
+      assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(ProcessPaymentException.class);
     }
   }
 }

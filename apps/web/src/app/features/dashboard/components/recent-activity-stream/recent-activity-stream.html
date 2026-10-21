@@ -33,9 +33,9 @@
             class="text-foreground rounded border border-zinc-800 bg-zinc-900 px-1.5 py-0.5 font-mono text-xs font-bold"
             data-testid="license-plate-pill"
           >
-            {{ item.licensePlate || 'SIN-PLACA' }}
+            {{ item.licensePlate || "SIN-PLACA" }}
           </span>
-          <span class="text-zinc-400">{{ item.slotType || 'Automóvil' }}</span>
+          <span class="text-zinc-400">{{ item.slotType || "Automóvil" }}</span>
           @if (item.parkingName) {
           <span class="text-muted-foreground text-[10px]"
             >• {{ item.parkingName }}</span
@@ -45,8 +45,8 @@
         <span class="text-muted-foreground block truncate text-[11px]">
           Ticket #{{ formatTicketId(item.ticketId) }} • @if (item.totalToCharge
           && item.totalToCharge > 0) { Cobro ${{ item.totalToCharge | number:
-          '1.0-0' }} COP{{ item.paymentMethod ? ' (' + item.paymentMethod + ')'
-          : '' }} } @else if (item.slotNumber) { Barrera Entrada • Plaza {{
+          "1.0-0" }} COP{{ item.paymentMethod ? " (" + item.paymentMethod + ")"
+          : "" }} } @else if (item.slotNumber) { Barrera Entrada • Plaza {{
           item.slotNumber }} } @else { Barrera de Acceso Automatizada }
         </span>
       </div>

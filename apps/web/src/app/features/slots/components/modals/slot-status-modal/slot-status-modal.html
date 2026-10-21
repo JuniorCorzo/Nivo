@@ -38,10 +38,10 @@
         <div class="flex items-center justify-between text-xs">
           <span class="text-muted-foreground font-medium">Estado actual:</span>
           <span class="text-foreground font-semibold">
-            {{ currentTarget.status === 'AVAILABLE' ? 'Disponible' :
-            currentTarget.status === 'OCCUPIED' ? 'Ocupada' :
-            currentTarget.status === 'MAINTENANCE' ? 'Mantenimiento' :
-            'Reservada' }}
+            {{ currentTarget.status === "AVAILABLE" ? "Disponible" :
+            currentTarget.status === "OCCUPIED" ? "Ocupada" :
+            currentTarget.status === "MAINTENANCE" ? "Mantenimiento" :
+            "Reservada" }}
           </span>
         </div>
 
@@ -58,8 +58,8 @@
             [class.text-foreground]="nextStatus() !== option"
             (click)="selectStatusNext.emit(option)"
           >
-            {{ option === 'AVAILABLE' ? 'Disponible' : option === 'OCCUPIED' ?
-            'Ocupada' : option === 'MAINTENANCE' ? 'Mantenimiento' : 'Reservada'
+            {{ option === "AVAILABLE" ? "Disponible" : option === "OCCUPIED" ?
+            "Ocupada" : option === "MAINTENANCE" ? "Mantenimiento" : "Reservada"
             }}
           </button>
           }

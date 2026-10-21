@@ -149,9 +149,7 @@ test("complete a multi-step booking wizard", async ({ page }) => {
   await page.goto("/booking");
 
   await test.step("enter guest information", async () => {
-    await expect(
-      page.getByRole("heading", { name: "Guest Info" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Guest Info" })).toBeVisible();
 
     await page.getByLabel("Full name").fill("Alice Smith");
     await page.getByLabel("Email").fill("alice@test.com");
@@ -161,9 +159,7 @@ test("complete a multi-step booking wizard", async ({ page }) => {
   });
 
   await test.step("select room options", async () => {
-    await expect(
-      page.getByRole("heading", { name: "Room Selection" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Room Selection" })).toBeVisible();
 
     await page.getByLabel("Room type").selectOption("suite");
     await page.getByLabel("Check-in").fill("2025-09-01");
@@ -173,9 +169,7 @@ test("complete a multi-step booking wizard", async ({ page }) => {
   });
 
   await test.step("confirm booking", async () => {
-    await expect(
-      page.getByRole("heading", { name: "Confirmation" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Confirmation" })).toBeVisible();
 
     await expect(page.getByText("Alice Smith")).toBeVisible();
     await expect(page.getByText("suite")).toBeVisible();
@@ -183,9 +177,7 @@ test("complete a multi-step booking wizard", async ({ page }) => {
     await page.getByRole("button", { name: "Confirm booking" }).click();
   });
 
-  await expect(
-    page.getByRole("heading", { name: "Booking complete" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Booking complete" })).toBeVisible();
 });
 
 test("wizard validates each step before proceeding", async ({ page }) => {
@@ -232,18 +224,14 @@ test("successful form submission shows confirmation", async ({ page }) => {
   await expect(page.getByText("Feedback received")).toBeVisible();
 });
 
-test("form submission shows server-side validation errors", async ({
-  page,
-}) => {
+test("form submission shows server-side validation errors", async ({ page }) => {
   await page.goto("/signup");
 
   await page.getByLabel("Email").fill("existing@test.com");
   await page.getByLabel("Password", { exact: true }).fill("Secure1@pass");
   await page.getByRole("button", { name: "Sign up" }).click();
 
-  await expect(
-    page.getByText("Email address already registered"),
-  ).toBeVisible();
+  await expect(page.getByText("Email address already registered")).toBeVisible();
 });
 
 test("form shows loading state during submission", async ({ page }) => {
@@ -296,9 +284,7 @@ test("fill and submit a signup form", async ({ page }) => {
 
   await page.getByLabel("Country").selectOption("UK");
   await page.getByLabel("City").selectOption({ label: "London" });
-  await page
-    .getByLabel("Skills")
-    .selectOption(["typescript", "playwright", "nodejs"]);
+  await page.getByLabel("Skills").selectOption(["typescript", "playwright", "nodejs"]);
 
   await page.getByLabel("Accept terms").check();
   await expect(page.getByLabel("Accept terms")).toBeChecked();
@@ -389,12 +375,7 @@ test("validates email format", async ({ page }) => {
 
   const emailField = page.getByLabel("Email");
 
-  const invalidEmails = [
-    "invalid",
-    "missing@",
-    "@nodomain.com",
-    "has spaces@mail.com",
-  ];
+  const invalidEmails = ["invalid", "missing@", "@nodomain.com", "has spaces@mail.com"];
 
   for (const email of invalidEmails) {
     await emailField.fill(email);

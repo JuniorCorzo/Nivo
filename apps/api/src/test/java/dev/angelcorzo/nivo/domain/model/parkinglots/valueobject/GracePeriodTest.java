@@ -56,33 +56,31 @@ class GracePeriodTest {
   @Test
   @DisplayName("Should throw InvalidDomainException when minutes are negative")
   void shouldThrowWhenMinutesNegative() {
-    assertThatThrownBy(() -> new GracePeriod(-1, BigDecimal.ZERO))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessageContaining("Grace period minutes must be non-negative");
+    assertThatThrownBy(() -> new GracePeriod(-1, BigDecimal.ZERO)).isInstanceOf(InvalidDomainException.class)
+      .hasMessageContaining("Grace period minutes must be non-negative");
   }
 
   @Test
   @DisplayName("Should throw InvalidDomainException when price is null")
   void shouldThrowWhenPriceNull() {
-    assertThatThrownBy(() -> new GracePeriod(15, null))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessageContaining("Grace period price cannot be null");
+    assertThatThrownBy(() -> new GracePeriod(15, null)).isInstanceOf(InvalidDomainException.class)
+      .hasMessageContaining("Grace period price cannot be null");
   }
 
   @Test
   @DisplayName("Should throw InvalidDomainException when price is negative")
   void shouldThrowWhenPriceNegative() {
     assertThatThrownBy(() -> new GracePeriod(15, new BigDecimal("-10.00")))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessageContaining("Grace period price must be non-negative");
+      .isInstanceOf(InvalidDomainException.class)
+      .hasMessageContaining("Grace period price must be non-negative");
   }
 
   @Test
   @DisplayName("Should throw InvalidDomainException when zero minutes has a positive price")
   void shouldThrowWhenZeroMinutesWithPositivePrice() {
     assertThatThrownBy(() -> new GracePeriod(0, new BigDecimal("100.00")))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessage("Cannot set a price for a zero-minute grace period");
+      .isInstanceOf(InvalidDomainException.class)
+      .hasMessage("Cannot set a price for a zero-minute grace period");
   }
 
   @Test

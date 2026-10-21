@@ -20,10 +20,8 @@ public class DeleteParkingLotUseCase {
   }
 
   public void execute(UUID parkingId, UUID tenantId) {
-    ParkingLots parkingLot =
-        parkingLotsRepository
-            .findById(parkingId)
-            .orElseThrow(() -> new ParkingNotExistsException(parkingId));
+    ParkingLots parkingLot = parkingLotsRepository.findById(parkingId)
+      .orElseThrow(() -> new ParkingNotExistsException(parkingId));
 
     if (parkingLot.getTenant() == null || !tenantId.equals(parkingLot.getTenant().id())) {
       throw new ParkingNotExistsException(parkingId);

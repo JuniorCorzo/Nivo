@@ -30,28 +30,20 @@ public class PaymentProviderClient {
 
   public Result<ListPayLinkResponse, PaymentError> getPayLinkDetails(String checkoutSessionId) {
     try {
-      final EpaycoFilterRequest filterRequest =
-          new EpaycoFilterRequest("reference", checkoutSessionId);
+      final EpaycoFilterRequest filterRequest = new EpaycoFilterRequest("reference", checkoutSessionId);
 
-      return Optional.ofNullable(
-              webClient
-                  .post()
-                  .uri("/collection/link")
-                  .bodyValue(filterRequest)
-                  .retrieve()
-                  .bodyToMono(
-                      new ParameterizedTypeReference<
-                          EpaycoResponse<EpaycoPagination<ListPayLinkResponse>>>() {})
-                  .timeout(TIMEOUT)
-                  .block())
-          .<Result<ListPayLinkResponse, PaymentError>>map(
-              response ->
-                  response.fold(
-                      data -> Result.success(data.firstData()),
-                      _ ->
-                          Result.failure(
-                              new PaymentError.ProviderValidation(response.titleResponse()))))
-          .orElseGet(this::emptyResponseFailure);
+      return Optional.ofNullable(webClient.post()
+        .uri("/collection/link")
+        .bodyValue(filterRequest)
+        .retrieve()
+        .bodyToMono(new ParameterizedTypeReference<EpaycoResponse<EpaycoPagination<ListPayLinkResponse>>>() {
+        })
+        .timeout(TIMEOUT)
+        .block())
+        .<Result<ListPayLinkResponse, PaymentError>>map(
+          response -> response.fold(data -> Result.success(data.firstData()),
+            _ -> Result.failure(new PaymentError.ProviderValidation(response.titleResponse()))))
+        .orElseGet(this::emptyResponseFailure);
     } catch (Exception ex) {
       return Result.failure(handleException(ex));
     }
@@ -59,18 +51,14 @@ public class PaymentProviderClient {
 
   public Result<CreatePayLinkResponse, PaymentError> createPayLink(CreatePayLink createPayLink) {
     try {
-      return Optional.ofNullable(
-              webClient
-                  .post()
-                  .uri("/collection/link/create")
-                  .bodyValue(createPayLink)
-                  .retrieve()
-                  .bodyToMono(
-                      new ParameterizedTypeReference<EpaycoResponse<CreatePayLinkResponse>>() {})
-                  .timeout(TIMEOUT)
-                  .block())
-          .map(this::handleResponse)
-          .orElseGet(this::emptyResponseFailure);
+      return Optional.ofNullable(webClient.post()
+        .uri("/collection/link/create")
+        .bodyValue(createPayLink)
+        .retrieve()
+        .bodyToMono(new ParameterizedTypeReference<EpaycoResponse<CreatePayLinkResponse>>() {
+        })
+        .timeout(TIMEOUT)
+        .block()).map(this::handleResponse).orElseGet(this::emptyResponseFailure);
     } catch (Exception ex) {
       return Result.failure(handleException(ex));
     }
@@ -81,12 +69,10 @@ public class PaymentProviderClient {
   }
 
   private <T> Result<T, PaymentError> handleResponse(EpaycoResponse<T> response) {
-    return response.fold(
-        Result::success,
-        _ -> {
-          log.error("Failed to create pay link: {}", response.textResponse());
-          return Result.failure(new PaymentError.ProviderValidation(response.textResponse()));
-        });
+    return response.fold(Result::success, _ -> {
+      log.error("Failed to create pay link: {}", response.textResponse());
+      return Result.failure(new PaymentError.ProviderValidation(response.textResponse()));
+    });
   }
 
   private PaymentError handleException(Exception ex) {
@@ -94,12 +80,10 @@ public class PaymentProviderClient {
     if (ex instanceof WebClientResponseException webClientEx) {
       return switch (webClientEx.getStatusCode().value()) {
         case 400 ->
-            new PaymentError.ProviderValidation(
-                "Bad Request: " + webClientEx.getResponseBodyAsString(), 400);
+          new PaymentError.ProviderValidation("Bad Request: " + webClientEx.getResponseBodyAsString(), 400);
         case 429 -> new PaymentError.ProviderRateLimited(properties.getProviderName());
-        default ->
-            new PaymentError.ProviderServerError(
-                properties.getProviderName(), webClientEx.getResponseBodyAsString());
+        default -> new PaymentError.ProviderServerError(properties.getProviderName(),
+          webClientEx.getResponseBodyAsString());
       };
     }
 
@@ -108,8 +92,7 @@ public class PaymentProviderClient {
     }
 
     if (ex instanceof DecodingException) {
-      return new PaymentError.ProviderDeserialization(
-          properties.getProviderName(), ex.getMessage());
+      return new PaymentError.ProviderDeserialization(properties.getProviderName(), ex.getMessage());
     }
 
     return new PaymentError.ProviderUnexpectedError(properties.getProviderName(), ex.getMessage());

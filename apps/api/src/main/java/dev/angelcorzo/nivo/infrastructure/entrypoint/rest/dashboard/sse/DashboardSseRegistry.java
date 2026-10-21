@@ -26,9 +26,8 @@ public class DashboardSseRegistry {
   private final Map<String, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
   private final ScheduledExecutorService heartbeatScheduler;
 
-  public DashboardSseRegistry(
-      final BackendOperationsMetricsManager metricsManager,
-      final AuthenticationContextGateway authenticationContext) {
+  public DashboardSseRegistry(final BackendOperationsMetricsManager metricsManager,
+    final AuthenticationContextGateway authenticationContext) {
     this.metricsManager = metricsManager;
     this.authenticationContext = authenticationContext;
     this.heartbeatScheduler = Executors.newSingleThreadScheduledExecutor(r -> {

@@ -12,7 +12,6 @@ import dev.angelcorzo.nivo.domain.model.users.UserAuthentication;
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
 import dev.angelcorzo.nivo.domain.usecase.auth.ValidateAccessTokenUseCase;
 import java.time.Instant;
-import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,15 +34,17 @@ class CustomJwtAuthenticationConverterTest {
   }
 
   private Jwt createJwt(String tokenValue, String sub, String tenantId, String role) {
-    Jwt.Builder builder =
-        Jwt.withTokenValue(tokenValue)
-            .header("alg", "RS256")
-            .issuedAt(Instant.now())
-            .expiresAt(Instant.now().plusSeconds(3600));
+    Jwt.Builder builder = Jwt.withTokenValue(tokenValue)
+      .header("alg", "RS256")
+      .issuedAt(Instant.now())
+      .expiresAt(Instant.now().plusSeconds(3600));
 
-    if (sub != null) builder.subject(sub);
-    if (tenantId != null) builder.claim("tenantId", tenantId);
-    if (role != null) builder.claim("role", role);
+    if (sub != null)
+      builder.subject(sub);
+    if (tenantId != null)
+      builder.claim("tenantId", tenantId);
+    if (role != null)
+      builder.claim("role", role);
 
     return builder.build();
   }
@@ -66,8 +67,7 @@ class CustomJwtAuthenticationConverterTest {
       // Assert
       assertThat(token).isNotNull();
       assertThat(token.isAuthenticated()).isTrue();
-      assertThat(token.getAuthorities())
-          .containsExactly(new SimpleGrantedAuthority("ROLE_OPERATOR"));
+      assertThat(token.getAuthorities()).containsExactly(new SimpleGrantedAuthority("ROLE_OPERATOR"));
 
       UserAuthentication principal = (UserAuthentication) token.getPrincipal();
       assertThat(principal.userId()).isEqualTo(userId);
@@ -119,12 +119,12 @@ class CustomJwtAuthenticationConverterTest {
     @DisplayName("Should propagate ExpiredTokenException when use case validation fails")
     void shouldPropagateExpiredTokenException() {
       // Arrange
-      Jwt jwt = createJwt("expired-token", UUID.randomUUID().toString(), UUID.randomUUID().toString(), "ROLE_DRIVER");
+      Jwt jwt = createJwt("expired-token", UUID.randomUUID().toString(), UUID.randomUUID().toString(),
+        "ROLE_DRIVER");
       doThrow(new ExpiredTokenException()).when(validateAccessTokenUseCase).validate("expired-token");
 
       // Act & Assert
-      assertThatThrownBy(() -> converter.convert(jwt))
-          .isInstanceOf(ExpiredTokenException.class);
+      assertThatThrownBy(() -> converter.convert(jwt)).isInstanceOf(ExpiredTokenException.class);
     }
 
     @Test
@@ -132,8 +132,7 @@ class CustomJwtAuthenticationConverterTest {
     void shouldThrowWhenSubjectMissing() {
       Jwt jwt = createJwt("token", null, UUID.randomUUID().toString(), "ROLE_OPERATOR");
 
-      assertThatThrownBy(() -> converter.convert(jwt))
-          .isInstanceOf(TokenInvalidException.class);
+      assertThatThrownBy(() -> converter.convert(jwt)).isInstanceOf(TokenInvalidException.class);
     }
 
     @Test
@@ -141,8 +140,7 @@ class CustomJwtAuthenticationConverterTest {
     void shouldThrowWhenTenantIdMissing() {
       Jwt jwt = createJwt("token", UUID.randomUUID().toString(), null, "ROLE_OPERATOR");
 
-      assertThatThrownBy(() -> converter.convert(jwt))
-          .isInstanceOf(TokenInvalidException.class);
+      assertThatThrownBy(() -> converter.convert(jwt)).isInstanceOf(TokenInvalidException.class);
     }
 
     @Test
@@ -150,8 +148,7 @@ class CustomJwtAuthenticationConverterTest {
     void shouldThrowWhenRoleMissing() {
       Jwt jwt = createJwt("token", UUID.randomUUID().toString(), UUID.randomUUID().toString(), null);
 
-      assertThatThrownBy(() -> converter.convert(jwt))
-          .isInstanceOf(TokenInvalidException.class);
+      assertThatThrownBy(() -> converter.convert(jwt)).isInstanceOf(TokenInvalidException.class);
     }
   }
 }

@@ -1,4 +1,3 @@
-import type { ElementRef, OnDestroy } from "@angular/core";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,7 +8,6 @@ import {
   output,
   signal,
   untracked,
-  viewChild,
 } from "@angular/core";
 import type { UserModel } from "@core/models/user.model";
 import { UserService } from "@core/services/user/user-service";
@@ -23,6 +21,7 @@ import {
 } from "@ng-icons/lucide";
 import {
   ButtonComponent,
+  ModalComponent,
   SelectComponent,
   ToastService,
   TypographyH3,
@@ -36,6 +35,18 @@ export interface RoleOption {
   value: Role;
 }
 
+const VALID_ROLES = new Set<string>([
+  "SUPERADMIN",
+  "OWNER",
+  "MANAGER",
+  "OPERATOR",
+  "DRIVER",
+  "AUDITOR",
+]);
+
+export const isRole = (val: unknown): val is Role =>
+  typeof val === "string" && VALID_ROLES.has(val);
+
 const displayRoleOption = (item: RoleOption): string => item.label;
 const roleOptionValue = (item: RoleOption): string => item.value;
 
@@ -43,6 +54,7 @@ const roleOptionValue = (item: RoleOption): string => item.value;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ButtonComponent,
+    ModalComponent,
     NgIcon,
     SelectComponent,
     TypographyH3,
@@ -58,10 +70,9 @@ const roleOptionValue = (item: RoleOption): string => item.value;
   ],
   selector: "app-modify-role-modal",
   standalone: true,
-  styleUrl: "./modify-role-modal.css",
   templateUrl: "./modify-role-modal.html",
 })
-export class ModifyRoleModalComponent implements OnDestroy {
+export class ModifyRoleModalComponent {
   private readonly userService = inject(UserService);
   private readonly toastService = inject(ToastService);
 
@@ -78,8 +89,6 @@ export class ModifyRoleModalComponent implements OnDestroy {
   protected readonly titleId = "modify-role-title";
   protected readonly descriptionId = "modify-role-description";
 
-  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>("dialog");
-
   readonly isOwner = computed(() => this.user()?.role === "OWNER");
 
   readonly roleOptions: RoleOption[] = [
@@ -92,19 +101,6 @@ export class ModifyRoleModalComponent implements OnDestroy {
   readonly roleValue = roleOptionValue;
 
   constructor() {
-    effect(() => {
-      const open = this.isOpen();
-      const dialogEl = this.dialog()?.nativeElement;
-      if (!dialogEl) {
-        return;
-      }
-      if (open && !dialogEl.open) {
-        dialogEl.showModal();
-      } else if (!open && dialogEl.open) {
-        dialogEl.close();
-      }
-    });
-
     effect(() => {
       const u = this.user();
       untracked(() => {
@@ -119,20 +115,15 @@ export class ModifyRoleModalComponent implements OnDestroy {
     });
   }
 
-  onRoleChange(newRole: string): void {
-    /* SAFETY: SelectComponent emits string, typed as Role */
-    this.selectedRole.set(newRole as Role);
+  onRoleChange(newRole: unknown): void {
+    if (isRole(newRole)) {
+      this.selectedRole.set(newRole);
+    }
   }
 
   onCancel(event?: Event): void {
     event?.preventDefault();
     this.closed.emit();
-  }
-
-  protected onBackdropClick(event: MouseEvent): void {
-    if (event.target === this.dialog()?.nativeElement) {
-      this.onCancel();
-    }
   }
 
   onSubmit(): void {
@@ -161,12 +152,5 @@ export class ModifyRoleModalComponent implements OnDestroy {
         this.closed.emit();
       },
     });
-  }
-
-  ngOnDestroy(): void {
-    const dialogEl = this.dialog()?.nativeElement;
-    if (dialogEl?.open) {
-      dialogEl.close();
-    }
   }
 }

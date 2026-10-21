@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface OperationalReportGateway {
-  PageResult<OperationalReportModel> findOperationalReports(
-      UUID tenantId, UUID parkingLotId, int page, int size);
+  PageResult<OperationalReportModel> findOperationalReports(UUID tenantId, UUID parkingLotId, int page, int size);
+
   List<OperationalReportModel> findAllForExport(UUID tenantId, UUID parkingLotId);
 }

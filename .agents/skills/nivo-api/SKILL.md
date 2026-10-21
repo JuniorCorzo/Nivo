@@ -49,16 +49,16 @@ apps/api/
 
 ## Naming Conventions
 
-| Element | Pattern | Example |
-|---------|---------|---------|
-| Packages | lowercase | `dev.angelcorzo.nivo.model.parkingtickets` |
-| Classes | PascalCase | `CheckOutVehicleUseCase` |
-| Methods/Variables | camelCase | `execute()`, `ticketId` |
-| Constants | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
-| Use Cases | `*UseCase` | `CheckOutVehicleUseCase` |
-| Controllers | `*Controller` | `ParkingTicketsController` |
-| Repositories/Gateways | `*Repository` | `ParkingTicketsRepository` |
-| DTOs | `*DTO` or descriptive record | `ParkingTicketsDTO`, `CreateTicket` |
+| Element               | Pattern                      | Example                                    |
+| --------------------- | ---------------------------- | ------------------------------------------ |
+| Packages              | lowercase                    | `dev.angelcorzo.nivo.model.parkingtickets` |
+| Classes               | PascalCase                   | `CheckOutVehicleUseCase`                   |
+| Methods/Variables     | camelCase                    | `execute()`, `ticketId`                    |
+| Constants             | UPPER_SNAKE_CASE             | `MAX_RETRY_COUNT`                          |
+| Use Cases             | `*UseCase`                   | `CheckOutVehicleUseCase`                   |
+| Controllers           | `*Controller`                | `ParkingTicketsController`                 |
+| Repositories/Gateways | `*Repository`                | `ParkingTicketsRepository`                 |
+| DTOs                  | `*DTO` or descriptive record | `ParkingTicketsDTO`, `CreateTicket`        |
 
 ## Java Code Conventions
 

@@ -3,10 +3,10 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.mappers.SlotSummaryDataMapper;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.mappers.SlotsMappers;
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotSummary;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.mappers.SlotSummaryDataMapper;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.mappers.SlotsMappers;
 import jakarta.persistence.Tuple;
 import java.util.List;
 import java.util.UUID;

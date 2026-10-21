@@ -4,8 +4,7 @@ import dev.angelcorzo.nivo.domain.usecase.rate.engine.PricingContext;
 import dev.angelcorzo.nivo.domain.usecase.rate.engine.PricingStage;
 
 /**
- * Stub stage for Maximum Daily Cap.
- * TODO: ANC-XX Enforce day cap safeguard against total stay cost.
+ * Stub stage for Maximum Daily Cap. TODO: ANC-XX Enforce day cap safeguard against total stay cost.
  */
 public class DayCapStage implements PricingStage {
   @Override

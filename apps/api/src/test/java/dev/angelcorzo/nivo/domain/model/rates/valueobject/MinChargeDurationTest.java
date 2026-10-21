@@ -40,13 +40,11 @@ class MinChargeDurationTest {
   @Test
   @DisplayName("Should throw InvalidDomainException when minutes are negative")
   void shouldThrowWhenMinutesAreNegative() {
-    assertThatThrownBy(() -> new MinChargeDuration(-1))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessageContaining("Minimum charge minutes cannot be negative");
+    assertThatThrownBy(() -> new MinChargeDuration(-1)).isInstanceOf(InvalidDomainException.class)
+      .hasMessageContaining("Minimum charge minutes cannot be negative");
 
-    assertThatThrownBy(() -> MinChargeDuration.of(-15))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessageContaining("Minimum charge minutes cannot be negative");
+    assertThatThrownBy(() -> MinChargeDuration.of(-15)).isInstanceOf(InvalidDomainException.class)
+      .hasMessageContaining("Minimum charge minutes cannot be negative");
   }
 
   @Test

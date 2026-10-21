@@ -27,20 +27,18 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("PaymentController Unit Tests")
 class PaymentControllerTest {
 
-  @Autowired private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-  @MockitoBean private ConfirmPaymentUseCase confirmPaymentUseCase;
+  @MockitoBean
+  private ConfirmPaymentUseCase confirmPaymentUseCase;
 
   @Test
   @DisplayName("POST /payments/confirmation - Should confirm payment via webhook")
   void shouldConfirmPaymentWebhook() throws Exception {
-    mockMvc
-        .perform(
-            post("/payments/confirmation")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("x_transaction_id", "tx_12345")
-                .param("x_amount", "10000"))
-        .andExpect(status().isOk());
+    mockMvc.perform(post("/payments/confirmation").contentType(MediaType.APPLICATION_FORM_URLENCODED)
+      .param("x_transaction_id", "tx_12345")
+      .param("x_amount", "10000")).andExpect(status().isOk());
 
     verify(confirmPaymentUseCase).execute(any(), any());
   }

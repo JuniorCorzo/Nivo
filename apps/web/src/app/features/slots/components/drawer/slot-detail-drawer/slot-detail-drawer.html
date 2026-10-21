@@ -59,7 +59,7 @@
   </div>
 
   <!-- Drawer Body -->
-  @if (drawerTab() === 'general') {
+  @if (drawerTab() === "general") {
   <div class="flex flex-col gap-3 overflow-y-auto p-5">
     <div
       class="bg-muted/50 border-border flex items-center justify-between rounded-xl border p-3 text-xs"
@@ -90,7 +90,7 @@
     >
       <span class="text-muted-foreground font-medium">Zona</span>
       <strong class="text-foreground font-semibold"
-        >{{ slot().zone || 'Sin zona' }}</strong
+        >{{ slot().zone || "Sin zona" }}</strong
       >
     </div>
     <div
@@ -124,9 +124,9 @@
         [class.text-muted-foreground]="slot().status === 'RESERVED'"
         [class.border-border]="slot().status === 'RESERVED'"
       >
-        {{ slot().status === 'AVAILABLE' ? 'Disponible' : slot().status ===
-        'OCCUPIED' ? 'Ocupada' : slot().status === 'MAINTENANCE' ?
-        'Mantenimiento' : 'Reservada' }}
+        {{ slot().status === "AVAILABLE" ? "Disponible" : slot().status ===
+        "OCCUPIED" ? "Ocupada" : slot().status === "MAINTENANCE" ?
+        "Mantenimiento" : "Reservada" }}
       </span>
     </div>
 

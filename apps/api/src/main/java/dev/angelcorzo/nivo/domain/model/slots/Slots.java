@@ -22,12 +22,16 @@ public class Slots {
   private String prefix;
   private SlotType type;
   private SlotStatus status;
+
   @Builder.Default
   private boolean hasCharger = false;
+
   @Builder.Default
   private boolean isAccessible = false;
+
   @Builder.Default
   private boolean isActive = true;
+
   private OffsetDateTime createdAt;
   private OffsetDateTime updatedAt;
   private OffsetDateTime deletedAt;

@@ -6,13 +6,11 @@ import dev.angelcorzo.nivo.domain.model.payments.enums.PaymentsMethods;
 import java.util.UUID;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "sendVia")
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = EmailCheckOutCommand.class, name = "EMAIL"),
-    @JsonSubTypes.Type(value = SMSCheckOutCommand.class, name = "SMS"),
-    @JsonSubTypes.Type(value = NoSendCheckOutCommand.class, name = "URL"),
-})
-public sealed interface CheckOutCommand
-    permits EmailCheckOutCommand, SMSCheckOutCommand, NoSendCheckOutCommand {
+@JsonSubTypes({@JsonSubTypes.Type(value = EmailCheckOutCommand.class, name = "EMAIL"),
+  @JsonSubTypes.Type(value = SMSCheckOutCommand.class, name = "SMS"),
+  @JsonSubTypes.Type(value = NoSendCheckOutCommand.class, name = "URL"),})
+public sealed interface CheckOutCommand permits EmailCheckOutCommand, SMSCheckOutCommand, NoSendCheckOutCommand {
   UUID ticketId();
+
   PaymentsMethods paymentMethod();
 }

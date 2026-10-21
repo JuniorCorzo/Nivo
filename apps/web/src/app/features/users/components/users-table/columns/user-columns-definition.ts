@@ -103,7 +103,7 @@ export const createUserColumns = (
         inputs: {
           isSelf: Boolean(
             options.currentUserId &&
-              info.row.original.id === options.currentUserId
+            info.row.original.id === options.currentUserId
           ),
           user: info.row.original,
         },

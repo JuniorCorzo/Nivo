@@ -23,7 +23,8 @@ class GetNotificationPreferencesByUserUseCaseTest {
   void setUp() {
     notificationPreferencesRepository = mock(NotificationPreferencesRepository.class);
     authenticationContextGateway = mock(AuthenticationContextGateway.class);
-    useCase = new GetNotificationPreferencesByUserUseCase(notificationPreferencesRepository, authenticationContextGateway);
+    useCase = new GetNotificationPreferencesByUserUseCase(notificationPreferencesRepository,
+      authenticationContextGateway);
   }
 
   @Test

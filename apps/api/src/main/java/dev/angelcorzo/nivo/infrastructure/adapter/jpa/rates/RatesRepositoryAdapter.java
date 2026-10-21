@@ -1,23 +1,25 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.rates;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.rates.mapper.RatesMapper;
 import dev.angelcorzo.nivo.domain.model.rates.Rates;
 import dev.angelcorzo.nivo.domain.model.rates.gateways.RatesRepository;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.rates.mapper.RatesMapper;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class RatesRepositoryAdapter
-    extends AdapterOperations<Rates, RateData, UUID, RatesRepositoryData>
-    implements RatesRepository {
+public class RatesRepositoryAdapter extends AdapterOperations<Rates, RateData, UUID, RatesRepositoryData>
+  implements
+    RatesRepository {
 
   /**
    * Constructor for AdapterOperations.
    *
-   * @param repository The JPA repository instance.
-   * @param mapper The mapper for converting between domain and data entities.
+   * @param repository
+   *          The JPA repository instance.
+   * @param mapper
+   *          The mapper for converting between domain and data entities.
    */
   protected RatesRepositoryAdapter(RatesRepositoryData repository, RatesMapper mapper) {
     super(repository, mapper);
@@ -25,9 +27,7 @@ public class RatesRepositoryAdapter
 
   @Override
   public List<Rates> findAllByParkingLotId(UUID parkingLotId) {
-    return super.repository.findAllByParking_Id(parkingLotId).stream()
-        .map(super::toEntity)
-        .toList();
+    return super.repository.findAllByParking_Id(parkingLotId).stream().map(super::toEntity).toList();
   }
 
   @Override

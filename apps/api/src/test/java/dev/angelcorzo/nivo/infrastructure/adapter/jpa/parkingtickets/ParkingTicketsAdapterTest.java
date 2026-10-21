@@ -3,11 +3,11 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets.mappers.ParkingTicketMapper;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.SlotsData;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.ParkingTicketStatus;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets.mappers.ParkingTicketMapper;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.SlotsData;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;

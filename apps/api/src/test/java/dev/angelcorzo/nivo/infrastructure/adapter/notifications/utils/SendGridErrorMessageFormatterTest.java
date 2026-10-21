@@ -16,7 +16,8 @@ class SendGridErrorMessageFormatterTest {
     String json = "{\"errors\": [{\"message\": \"The from address does not match a verified Sender Identity\"}]}";
     String formatted = formatter.formatProviderError(400, json);
 
-    assertThat(formatted).isEqualTo("SendGrid status=400, message=The from address does not match a verified Sender Identity");
+    assertThat(formatted)
+      .isEqualTo("SendGrid status=400, message=The from address does not match a verified Sender Identity");
   }
 
   @Test

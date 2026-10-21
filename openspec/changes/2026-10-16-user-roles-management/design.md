@@ -60,6 +60,7 @@ flowchart TD
 ### 1.1 Clean Architecture Layer Breakdown
 
 The backend follows the established Hexagonal / Clean Architecture layout:
+
 - **Domain Layer (`dev.angelcorzo.nivo.domain.usecase.user`)**:
   - `ListUsersByTenantUseCase`: Business use case responsible for orchestrating tenant user retrieval.
   - Resolves the caller's tenant context from `AuthenticationContextGateway.getCurrentTenantId()`.
@@ -134,6 +135,7 @@ sequenceDiagram
 ### 2.1 Security & Guard Protocol (`RoleGuard`)
 
 To enforce strict RBAC boundaries on the frontend, a functional route guard `roleGuard` is introduced:
+
 - **Location**: `apps/web/src/app/core/guards/auth/role-guard.ts`
 - **Signature**: `roleGuard(allowedRoles: Role[]): CanActivateFn`
 - **Behavior**:
@@ -199,6 +201,7 @@ export const roleGuard = (allowedRoles: Role[]): CanActivateFn => {
 ### 2.4 User Management Page & Components (`@features/users`)
 
 Directory structure:
+
 ```
 apps/web/src/app/features/users/
 ├── components/
@@ -229,6 +232,7 @@ apps/web/src/app/features/users/
 ```
 
 #### TanStack Table Integration
+
 - Columns:
   1. **Usuario**: Avatar with user initials, full name, and email.
   2. **Contacto**: Phone number or contact info (fallback to "N/A").
@@ -239,6 +243,7 @@ apps/web/src/app/features/users/
 - Real-time client filtering for search queries (full name, email) and role dropdown selection.
 
 #### Modal Dialogs (`@nivo-sass/design-system`)
+
 - **`InviteUserModalComponent`**:
   - Accessible native `<dialog>` wrapper with backdrop blur and enter/exit animations.
   - Form Fields:
@@ -258,16 +263,17 @@ apps/web/src/app/features/users/
 
 ## 3. Security Contracts & RBAC Matrix
 
-| Role | Access `/app/users` | List Users (`GET /users`) | Invite User (`POST /invite`) | Modify Role (`PATCH /modify-rol`) | Deactivate (`DELETE /deactivate`) |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **SUPERADMIN** | Yes | Yes | Yes | Yes | Yes |
-| **OWNER** | Yes | Yes | Yes | Yes | Yes |
-| **MANAGER** | Yes | Yes | Yes | Yes | Yes |
-| **OPERATOR** | **No** (Redirect) | **No** (403) | **No** (403) | **No** (403) | **No** (403) |
-| **DRIVER** | **No** (Redirect) | **No** (403) | **No** (403) | **No** (403) | **No** (403) |
-| **AUDITOR** | **No** (Redirect) | **No** (403) | **No** (403) | **No** (403) | **No** (403) |
+| Role           | Access `/app/users` | List Users (`GET /users`) | Invite User (`POST /invite`) | Modify Role (`PATCH /modify-rol`) | Deactivate (`DELETE /deactivate`) |
+| :------------- | :-----------------: | :-----------------------: | :--------------------------: | :-------------------------------: | :-------------------------------: |
+| **SUPERADMIN** |         Yes         |            Yes            |             Yes              |                Yes                |                Yes                |
+| **OWNER**      |         Yes         |            Yes            |             Yes              |                Yes                |                Yes                |
+| **MANAGER**    |         Yes         |            Yes            |             Yes              |                Yes                |                Yes                |
+| **OPERATOR**   |  **No** (Redirect)  |       **No** (403)        |         **No** (403)         |           **No** (403)            |           **No** (403)            |
+| **DRIVER**     |  **No** (Redirect)  |       **No** (403)        |         **No** (403)         |           **No** (403)            |           **No** (403)            |
+| **AUDITOR**    |  **No** (Redirect)  |       **No** (403)        |         **No** (403)         |           **No** (403)            |           **No** (403)            |
 
 ### Invariants & Guardrails
+
 1. **Self-Deactivation Guard**: A manager or owner cannot deactivate their own active account. Attempting this returns a client-side validation block and backend rejection.
 2. **Owner Retention Guard**: A tenant must always possess at least one active `OWNER`. The backend enforces this via `UsersRepository.countActiveOwnersByTenantId`.
 3. **Tenant Isolation**: Users can only view and manage users belonging to their own `tenant_id`. No cross-tenant access is permissible.
@@ -276,9 +282,9 @@ apps/web/src/app/features/users/
 
 ## 4. Error Handling & Defensive Resilience
 
-| Failure Scenario | HTTP Code / UI State | System Reaction | User Feedback |
-| :--- | :--- | :--- | :--- |
-| Operator requests `/users` | 403 Forbidden | Interceptor catches 403, triggers redirect to `/app/dashboard` | Toast: *"No tienes permisos para acceder a este módulo"* |
-| Invite existing active user | 400 Bad Request (`UserAlreadyExistsInTenantException`) | Backend rejects transaction | Form Error: *"El usuario ya pertenece a este parqueadero"* |
-| Deactivate already deactivated user | 400 Bad Request (`UserAlreadyDeactivatedException`) | Domain exception mapped to error response | Toast: *"El usuario ya se encuentra inactivo"* |
-| Network timeout during listing | HTTP Error / Empty State | Component enters retry state | Table empty state with "Reintentar" action |
+| Failure Scenario                    | HTTP Code / UI State                                   | System Reaction                                                | User Feedback                                              |
+| :---------------------------------- | :----------------------------------------------------- | :------------------------------------------------------------- | :--------------------------------------------------------- |
+| Operator requests `/users`          | 403 Forbidden                                          | Interceptor catches 403, triggers redirect to `/app/dashboard` | Toast: _"No tienes permisos para acceder a este módulo"_   |
+| Invite existing active user         | 400 Bad Request (`UserAlreadyExistsInTenantException`) | Backend rejects transaction                                    | Form Error: _"El usuario ya pertenece a este parqueadero"_ |
+| Deactivate already deactivated user | 400 Bad Request (`UserAlreadyDeactivatedException`)    | Domain exception mapped to error response                      | Toast: _"El usuario ya se encuentra inactivo"_             |
+| Network timeout during listing      | HTTP Error / Empty State                               | Component enters retry state                                   | Table empty state with "Reintentar" action                 |

@@ -1,8 +1,8 @@
+import { setTimeout as sleep } from "node:timers/promises";
+
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import type { TicketSummary } from "@core/models/ticket.model";
-
-import { setTimeout as sleep } from "node:timers/promises";
 
 import { TicketReceiptComponent } from "./ticket-receipt";
 

@@ -5,14 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import lombok.Builder;
 
-@Schema(
-    requiredMode = Schema.RequiredMode.REQUIRED,
-    requiredProperties = {
-      "id",
-      "fullName",
-      "email",
-      "role",
-      "contactInfo",
-    })
+@Schema(requiredMode = Schema.RequiredMode.REQUIRED, requiredProperties = {"id", "fullName", "email", "role",
+  "contactInfo",})
 @Builder(toBuilder = true)
-public record UserInfo(UUID id, String fullName, String email, Roles role, String contactInfo) {}
+public record UserInfo(UUID id, String fullName, String email, Roles role, String contactInfo) {
+}

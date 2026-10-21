@@ -50,19 +50,12 @@ class CheckinVehicleUseCaseTest {
     ticketNotifier = mock(TicketNotifier.class);
     unplatedTicketSequenceGateway = mock(UnplatedTicketSequenceGateway.class);
 
-    useCase =
-        new CheckinVehicleUseCase(
-            parkingTicketsRepository,
-            tenantsRepository,
-            usersRepository,
-            slotsRepository,
-            ratesRepository,
-            ticketNotifier,
-            unplatedTicketSequenceGateway);
+    useCase = new CheckinVehicleUseCase(parkingTicketsRepository, tenantsRepository, usersRepository,
+      slotsRepository, ratesRepository, ticketNotifier, unplatedTicketSequenceGateway);
   }
 
   @Nested
-  @DisplayName("Happy Path")
+  @DisplayName("Successful Vehicle Check-in Scenarios")
   class HappyPath {
 
     @Test
@@ -75,12 +68,10 @@ class CheckinVehicleUseCaseTest {
       final String email = "driver@example.com";
       final String plate = "ABC123";
 
-      final CheckinVehicleUseCase.CreatedParkingTicket command =
-          new CheckinVehicleUseCase.CreatedParkingTicket(
-              slotId, tenantId, email, rateId, plate);
+      final CheckinVehicleUseCase.CreatedParkingTicket command = new CheckinVehicleUseCase.CreatedParkingTicket(
+        slotId, tenantId, email, rateId, plate);
 
-      final Slots mockSlot =
-          Slots.builder().id(slotId).slotNumber("A-1").status(SlotStatus.AVAILABLE).build();
+      final Slots mockSlot = Slots.builder().id(slotId).slotNumber("A-1").status(SlotStatus.AVAILABLE).build();
       final Tenants mockTenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
       final Rates mockRate = Rates.builder().id(rateId).name("Standard").build();
       final Users mockUser = Users.builder().id(UUID.randomUUID()).email(email).build();
@@ -90,13 +81,13 @@ class CheckinVehicleUseCaseTest {
       when(ratesRepository.existsById(rateId)).thenReturn(true);
 
       when(slotsRepository.save(any(Slots.class)))
-          .thenAnswer(invocation -> invocation.getArgument(0));
+        .thenAnswer(invocation -> invocation.getArgument(0));
       when(tenantsRepository.getReferenceById(tenantId)).thenReturn(mockTenant);
       when(ratesRepository.getReferenceById(rateId)).thenReturn(mockRate);
       when(usersRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
 
       when(parkingTicketsRepository.save(any(ParkingTickets.class)))
-          .thenAnswer(invocation -> invocation.getArgument(0));
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
       // Act
       final ParkingTickets ticket = useCase.execute(command);
@@ -124,19 +115,18 @@ class CheckinVehicleUseCaseTest {
       final String photoUrl = "https://storage.nivo.dev/photos/bike-123.jpg";
       final String phoneNumber = "+573001234567";
 
-      final CheckinVehicleUseCase.CreatedParkingTicket command =
-          CheckinVehicleUseCase.CreatedParkingTicket.builder()
-              .slotId(slotId)
-              .tenantId(tenantId)
-              .rateId(rateId)
-              .plate(null)
-              .plateCountry(PlateCountry.UNPLATED)
-              .photoUrl(photoUrl)
-              .phoneNumber(phoneNumber)
-              .build();
+      final CheckinVehicleUseCase.CreatedParkingTicket command = CheckinVehicleUseCase.CreatedParkingTicket
+        .builder()
+        .slotId(slotId)
+        .tenantId(tenantId)
+        .rateId(rateId)
+        .plate(null)
+        .plateCountry(PlateCountry.UNPLATED)
+        .photoUrl(photoUrl)
+        .phoneNumber(phoneNumber)
+        .build();
 
-      final Slots mockSlot =
-          Slots.builder().id(slotId).slotNumber("M-01").status(SlotStatus.AVAILABLE).build();
+      final Slots mockSlot = Slots.builder().id(slotId).slotNumber("M-01").status(SlotStatus.AVAILABLE).build();
       final Tenants mockTenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
       final Rates mockRate = Rates.builder().id(rateId).name("Moto Tariff").build();
 
@@ -144,12 +134,12 @@ class CheckinVehicleUseCaseTest {
       when(tenantsRepository.existsById(tenantId)).thenReturn(true);
       when(ratesRepository.existsById(rateId)).thenReturn(true);
       when(slotsRepository.save(any(Slots.class)))
-          .thenAnswer(invocation -> invocation.getArgument(0));
+        .thenAnswer(invocation -> invocation.getArgument(0));
       when(tenantsRepository.getReferenceById(tenantId)).thenReturn(mockTenant);
       when(ratesRepository.getReferenceById(rateId)).thenReturn(mockRate);
       when(unplatedTicketSequenceGateway.nextTicketCode(any())).thenReturn("SP-1001");
       when(parkingTicketsRepository.save(any(ParkingTickets.class)))
-          .thenAnswer(invocation -> invocation.getArgument(0));
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
       // Act
       final ParkingTickets ticket = useCase.execute(command);
@@ -172,17 +162,16 @@ class CheckinVehicleUseCaseTest {
       final UUID tenantId = UUID.randomUUID();
       final UUID rateId = UUID.randomUUID();
 
-      final CheckinVehicleUseCase.CreatedParkingTicket command =
-          CheckinVehicleUseCase.CreatedParkingTicket.builder()
-              .slotId(slotId)
-              .tenantId(tenantId)
-              .rateId(rateId)
-              .plateCountry(PlateCountry.UNPLATED)
-              .photoUrl(null)
-              .build();
+      final CheckinVehicleUseCase.CreatedParkingTicket command = CheckinVehicleUseCase.CreatedParkingTicket
+        .builder()
+        .slotId(slotId)
+        .tenantId(tenantId)
+        .rateId(rateId)
+        .plateCountry(PlateCountry.UNPLATED)
+        .photoUrl(null)
+        .build();
 
-      final Slots mockSlot =
-          Slots.builder().id(slotId).slotNumber("M-01").status(SlotStatus.AVAILABLE).build();
+      final Slots mockSlot = Slots.builder().id(slotId).slotNumber("M-01").status(SlotStatus.AVAILABLE).build();
 
       when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
       when(tenantsRepository.existsById(tenantId)).thenReturn(true);
@@ -190,7 +179,7 @@ class CheckinVehicleUseCaseTest {
 
       // Act & Assert
       assertThatThrownBy(() -> useCase.execute(command))
-          .isInstanceOf(UnplatedVehiclePhotoRequiredException.class);
+        .isInstanceOf(UnplatedVehiclePhotoRequiredException.class);
       verify(parkingTicketsRepository, never()).save(any());
     }
 
@@ -203,17 +192,16 @@ class CheckinVehicleUseCaseTest {
       final UUID rateId = UUID.randomUUID();
       final String plate = "AB123CD";
 
-      final CheckinVehicleUseCase.CreatedParkingTicket command =
-          CheckinVehicleUseCase.CreatedParkingTicket.builder()
-              .slotId(slotId)
-              .tenantId(tenantId)
-              .rateId(rateId)
-              .plate(plate)
-              .plateCountry(PlateCountry.VE)
-              .build();
+      final CheckinVehicleUseCase.CreatedParkingTicket command = CheckinVehicleUseCase.CreatedParkingTicket
+        .builder()
+        .slotId(slotId)
+        .tenantId(tenantId)
+        .rateId(rateId)
+        .plate(plate)
+        .plateCountry(PlateCountry.VE)
+        .build();
 
-      final Slots mockSlot =
-          Slots.builder().id(slotId).slotNumber("V-01").status(SlotStatus.AVAILABLE).build();
+      final Slots mockSlot = Slots.builder().id(slotId).slotNumber("V-01").status(SlotStatus.AVAILABLE).build();
       final Tenants mockTenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
       final Rates mockRate = Rates.builder().id(rateId).name("Standard").build();
 
@@ -221,11 +209,11 @@ class CheckinVehicleUseCaseTest {
       when(tenantsRepository.existsById(tenantId)).thenReturn(true);
       when(ratesRepository.existsById(rateId)).thenReturn(true);
       when(slotsRepository.save(any(Slots.class)))
-          .thenAnswer(invocation -> invocation.getArgument(0));
+        .thenAnswer(invocation -> invocation.getArgument(0));
       when(tenantsRepository.getReferenceById(tenantId)).thenReturn(mockTenant);
       when(ratesRepository.getReferenceById(rateId)).thenReturn(mockRate);
       when(parkingTicketsRepository.save(any(ParkingTickets.class)))
-          .thenAnswer(invocation -> invocation.getArgument(0));
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
       // Act
       final ParkingTickets ticket = useCase.execute(command);
@@ -249,19 +237,16 @@ class CheckinVehicleUseCaseTest {
       final UUID slotId = UUID.randomUUID();
       final UUID tenantId = UUID.randomUUID();
       final UUID rateId = UUID.randomUUID();
-      final CheckinVehicleUseCase.CreatedParkingTicket command =
-          new CheckinVehicleUseCase.CreatedParkingTicket(
-              slotId, tenantId, "driver@example.com", rateId, "ABC123");
+      final CheckinVehicleUseCase.CreatedParkingTicket command = new CheckinVehicleUseCase.CreatedParkingTicket(
+        slotId, tenantId, "driver@example.com", rateId, "ABC123");
 
-      final Slots mockSlot =
-          Slots.builder().id(slotId).slotNumber("A-1").status(SlotStatus.OCCUPIED).build();
+      final Slots mockSlot = Slots.builder().id(slotId).slotNumber("A-1").status(SlotStatus.OCCUPIED).build();
 
       when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
 
       // Act & Assert
-      assertThatThrownBy(() -> useCase.execute(command))
-          .isInstanceOf(SlotCannotBeModifiedException.class)
-          .hasMessageContaining("Slot cannot be used for check-in because it is not available: " + slotId);
+      assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(SlotCannotBeModifiedException.class)
+        .hasMessageContaining("Slot cannot be used for check-in because it is not available: " + slotId);
 
       verify(parkingTicketsRepository, never()).save(any());
       verify(slotsRepository, never()).save(any());

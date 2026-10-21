@@ -2,12 +2,7 @@ package dev.angelcorzo.nivo.domain.model.slots.valueobject;
 
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotType;
 
-public record CreatedSlots(
-    String prefix,
-    String zone,
-    SlotType slotType,
-    Integer numberSlots,
-    int currentNumberSlots) {
+public record CreatedSlots(String prefix, String zone, SlotType slotType, Integer numberSlots, int currentNumberSlots) {
 
   public CreatedSlots(String prefix, String zone, SlotType slotType, Integer numberSlots, int currentNumberSlots) {
     this.prefix = prefix;

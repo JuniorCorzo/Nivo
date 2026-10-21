@@ -45,17 +45,17 @@ class GetHourlyOccupancyUseCaseTest {
     when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
     final HourlyOccupancyModel model = HourlyOccupancyModel.builder()
-        .parkingLotId(parkingId)
-        .tenantId(tenantId)
-        .hourBucket(hourBucket)
-        .checkins(15L)
-        .checkouts(5L)
-        .totalCapacity(50L)
-        .estimatedOccupancyRate(30.0)
-        .build();
+      .parkingLotId(parkingId)
+      .tenantId(tenantId)
+      .hourBucket(hourBucket)
+      .checkins(15L)
+      .checkouts(5L)
+      .totalCapacity(50L)
+      .estimatedOccupancyRate(30.0)
+      .build();
 
     when(hourlyGateway.findByTenantIdAndParkingLotIdAndHourBucketBetween(tenantId, parkingId, start, end))
-        .thenReturn(List.of(model));
+      .thenReturn(List.of(model));
 
     final List<HourlyOccupancyDTO> result = useCase.execute(parkingId, start, end);
 
@@ -78,24 +78,24 @@ class GetHourlyOccupancyUseCaseTest {
     when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
     final HourlyOccupancyModel branch1 = HourlyOccupancyModel.builder()
-        .parkingLotId(UUID.randomUUID())
-        .tenantId(tenantId)
-        .hourBucket(hourBucket)
-        .checkins(20L)
-        .checkouts(8L)
-        .totalCapacity(100L)
-        .estimatedOccupancyRate(20.0)
-        .build();
+      .parkingLotId(UUID.randomUUID())
+      .tenantId(tenantId)
+      .hourBucket(hourBucket)
+      .checkins(20L)
+      .checkouts(8L)
+      .totalCapacity(100L)
+      .estimatedOccupancyRate(20.0)
+      .build();
 
     final HourlyOccupancyModel branch2 = HourlyOccupancyModel.builder()
-        .parkingLotId(UUID.randomUUID())
-        .tenantId(tenantId)
-        .hourBucket(hourBucket)
-        .checkins(10L)
-        .checkouts(2L)
-        .totalCapacity(100L)
-        .estimatedOccupancyRate(10.0)
-        .build();
+      .parkingLotId(UUID.randomUUID())
+      .tenantId(tenantId)
+      .hourBucket(hourBucket)
+      .checkins(10L)
+      .checkouts(2L)
+      .totalCapacity(100L)
+      .estimatedOccupancyRate(10.0)
+      .build();
 
     when(hourlyGateway.findByTenantId(tenantId)).thenReturn(List.of(branch1, branch2));
 

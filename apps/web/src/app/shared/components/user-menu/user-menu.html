@@ -12,7 +12,7 @@
   class="bg-muted text-foreground focus-visible:ring-ring flex w-full cursor-pointer items-center rounded-lg p-2 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none"
   [class.justify-center]="collapsed()"
   [class.gap-2]="!collapsed()"
-  [attr.title]="collapsed() ? (name || null) : null"
+  [attr.title]="collapsed() ? name || null : null"
 >
   <img [src]="userProfileImage()" alt="" class="size-8 shrink-0 rounded-full" />
   @if (!collapsed()) {

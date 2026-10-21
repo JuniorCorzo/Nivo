@@ -3,8 +3,8 @@ package dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions;
 import lombok.Getter;
 
 /**
- * Thrown when SendGrid returns an HTTP response with a non-2xx status code. Carries the raw status
- * code and response body to allow callers to inspect or log the provider error.
+ * Thrown when SendGrid returns an HTTP response with a non-2xx status code. Carries the raw status code and response
+ * body to allow callers to inspect or log the provider error.
  */
 @Getter
 public class SendGridApiException extends SendGridException {
@@ -13,7 +13,8 @@ public class SendGridApiException extends SendGridException {
   private final String responseBody;
 
   public SendGridApiException(int statusCode, String responseBody) {
-    super("SendGrid API returned non-2xx status " + statusCode + ". Body: " + responseBody, statusCode, "SENDGRID_API_ERROR");
+    super("SendGrid API returned non-2xx status " + statusCode + ". Body: " + responseBody, statusCode,
+      "SENDGRID_API_ERROR");
     this.statusCode = statusCode;
     this.responseBody = responseBody;
   }

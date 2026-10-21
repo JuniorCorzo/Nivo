@@ -9,16 +9,8 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record SendNotificationEvent(
-    String event,
-    NotificationEvents notificationEvent,
-    NotificationsChannel channel,
-    UUID tenantId,
-    UUID actorUserId,
-    String to,
-    NotificationsData content,
-    LocalDateTime occurredAt)
-    implements Event {
+public record SendNotificationEvent(String event, NotificationEvents notificationEvent, NotificationsChannel channel,
+  UUID tenantId, UUID actorUserId, String to, NotificationsData content, LocalDateTime occurredAt) implements Event {
 
   public SendNotificationEvent {
     if (occurredAt == null) {

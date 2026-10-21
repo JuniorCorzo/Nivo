@@ -18,37 +18,29 @@ public interface PaymentsRepositoryData extends JpaRepository<PaymentsData, UUID
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
   @Query(value = "SELECT p FROM PaymentsData p WHERE  p.checkoutSessionId = :checkoutSessionId")
-  Optional<PaymentsData> findByCheckoutSessionId(
-      @Param("checkoutSessionId") String checkoutSessionId);
+  Optional<PaymentsData> findByCheckoutSessionId(@Param("checkoutSessionId") String checkoutSessionId);
 
-  @Query(
-      value =
-          """
-          SELECT p FROM PaymentsData p
-          WHERE p.parkingTicket.id = :parkingTicketId
-          AND p.status IN ('PENDING_PAYMENT', 'PENDING_CHECKOUT')
-          """)
+  @Query(value = """
+    SELECT p FROM PaymentsData p
+    WHERE p.parkingTicket.id = :parkingTicketId
+    AND p.status IN ('PENDING_PAYMENT', 'PENDING_CHECKOUT')
+    """)
   Optional<PaymentsData> findByParkingTicketId(@Param("parkingTicketId") UUID parkingTicketId);
 
-  @Query(
-      value =
-          """
-            SELECT p.checkoutSessionId FROM PaymentsData p
-            WHERE p.checkoutSessionId IS NOT NULL
-            AND p.status IN ('PENDING_PAYMENT', 'PENDING_CHECKOUT')
-          """)
+  @Query(value = """
+      SELECT p.checkoutSessionId FROM PaymentsData p
+      WHERE p.checkoutSessionId IS NOT NULL
+      AND p.status IN ('PENDING_PAYMENT', 'PENDING_CHECKOUT')
+    """)
   List<String> findAllCheckoutSessionIds();
 
   boolean existsByParkingTicketId(UUID parkingTicketId);
 
   @Modifying
-  @Query(
-      value =
-          """
-          UPDATE PaymentsData p
-          SET p.status = :newStatus
-          WHERE p.id = :paymentId
-          """)
-  void processPayment(
-      @Param("paymentId") UUID paymentId, @Param("newStatus") PaymentStatus newStatus);
+  @Query(value = """
+    UPDATE PaymentsData p
+    SET p.status = :newStatus
+    WHERE p.id = :paymentId
+    """)
+  void processPayment(@Param("paymentId") UUID paymentId, @Param("newStatus") PaymentStatus newStatus);
 }

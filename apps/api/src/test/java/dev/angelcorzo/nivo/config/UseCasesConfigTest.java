@@ -17,8 +17,7 @@ public class UseCasesConfigTest {
   @DisplayName("Should create transaction manager, interceptor, and auto proxy beans")
   void testUseCasesConfigBeans() {
     UseCasesConfig config = new UseCasesConfig();
-    LocalContainerEntityManagerFactoryBean factoryBean =
-        mock(LocalContainerEntityManagerFactoryBean.class);
+    LocalContainerEntityManagerFactoryBean factoryBean = mock(LocalContainerEntityManagerFactoryBean.class);
 
     PlatformTransactionManager txManager = config.transactionManager(factoryBean);
     assertNotNull(txManager);

@@ -1,11 +1,10 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationlogs.controller;
 
+import dev.angelcorzo.nivo.domain.usecase.notification.GetNotificationsHistoryUseCase;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.dto.Response;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationlogs.dto.NotificationLogsDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationlogs.enums.NotificationLogsMessages;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationlogs.mappers.NotificationLogsMapper;
-import dev.angelcorzo.nivo.domain.model.notificationlogs.NotificationLogs;
-import dev.angelcorzo.nivo.domain.usecase.notification.GetNotificationsHistoryUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -25,20 +24,16 @@ public class NotificationLogsController {
   private final NotificationLogsMapper notificationLogsMapper;
   private final GetNotificationsHistoryUseCase getNotificationsHistoryUseCase;
 
-  @Operation(
-      summary = "Get notification history",
-      description = "Retrieves the history of sent notification logs for the authenticated user/tenant")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Notification logs retrieved successfully"),
-    @ApiResponse(responseCode = "401", description = "Unauthorized")
-  })
+  @Operation(summary = "Get notification history", description = "Retrieves the history of sent notification logs for the authenticated user/tenant")
+  @ApiResponses({@ApiResponse(responseCode = "200", description = "Notification logs retrieved successfully"),
+    @ApiResponse(responseCode = "401", description = "Unauthorized")})
   @GetMapping
   @PreAuthorize("isAuthenticated()")
   public Response<List<NotificationLogsDTO>> getNotificationsHistory() {
-    final List<NotificationLogsDTO> logs =
-        this.getNotificationsHistoryUseCase.execute().stream()
-            .map(this.notificationLogsMapper::toDTO)
-            .toList();
+    final List<NotificationLogsDTO> logs = this.getNotificationsHistoryUseCase.execute()
+      .stream()
+      .map(this.notificationLogsMapper::toDTO)
+      .toList();
 
     return Response.ok(logs, NotificationLogsMessages.NOTIFICATION_LOGS_LIST.format());
   }

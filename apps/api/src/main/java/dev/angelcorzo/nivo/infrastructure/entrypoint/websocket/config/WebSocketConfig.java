@@ -13,8 +13,9 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 /**
  * Configuración de WebSocket con autenticación JWT.
  *
- * <p>Esta configuración habilita STOMP sobre WebSocket/SockJS y registra un interceptor para
- * validar tokens JWT en las conexiones entrantes.
+ * <p>
+ * Esta configuración habilita STOMP sobre WebSocket/SockJS y registra un interceptor para validar tokens JWT en las
+ * conexiones entrantes.
  */
 @Configuration
 @EnableWebSocketMessageBroker
@@ -42,7 +43,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   /**
    * Registra el interceptor de autenticación JWT para validar las conexiones WebSocket.
    *
-   * @param registration El registro de canal donde se añade el interceptor
+   * @param registration
+   *          El registro de canal donde se añade el interceptor
    */
   @Override
   public void configureClientInboundChannel(ChannelRegistration registration) {

@@ -2,10 +2,9 @@ package dev.angelcorzo.nivo.domain.usecase.slot;
 
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
-import lombok.RequiredArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class BatchPersistSlotsUseCase {

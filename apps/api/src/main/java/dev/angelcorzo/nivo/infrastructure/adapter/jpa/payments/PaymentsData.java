@@ -1,12 +1,12 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.payments;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dev.angelcorzo.nivo.domain.model.payments.enums.PaymentStatus;
+import dev.angelcorzo.nivo.domain.model.payments.enums.PaymentsMethods;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets.ParkingTicketsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.TenantsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.transactions.TransactionsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.UsersData;
-import dev.angelcorzo.nivo.domain.model.payments.enums.PaymentStatus;
-import dev.angelcorzo.nivo.domain.model.payments.enums.PaymentsMethods;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;

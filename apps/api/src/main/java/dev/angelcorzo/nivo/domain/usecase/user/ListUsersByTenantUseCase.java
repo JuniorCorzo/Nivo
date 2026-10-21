@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 /**
  * Use case for retrieving all users belonging to the currently authenticated tenant.
  *
- * <p><strong>Layer:</strong> Application (Use Case)</p>
+ * <p>
+ * <strong>Layer:</strong> Application (Use Case)
+ * </p>
  *
  * @author Angel Corzo
  * @since 1.0.0

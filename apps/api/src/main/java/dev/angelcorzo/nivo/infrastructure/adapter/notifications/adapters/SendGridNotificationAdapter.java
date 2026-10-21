@@ -5,7 +5,6 @@ import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
 import dev.angelcorzo.nivo.domain.model.commons.notifications.NotificationsData;
-import dev.angelcorzo.nivo.domain.model.commons.notifications.gateway.NotificationGateway;
 import dev.angelcorzo.nivo.domain.model.notificationtemplates.NotificationTemplates;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.clients.EmailProviderClient;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.enums.EmailProviderType;
@@ -24,13 +23,15 @@ import org.springframework.stereotype.Component;
 /**
  * SendGrid implementation of {@link EmailProviderClient} for EMAIL channel delivery.
  *
- * <p>This adapter handles the full lifecycle of sending a transactional email via the SendGrid API:
- * building the request from a dynamic template, dispatching it, and registering the outcome
- * (success or failure) in the notification logs.
+ * <p>
+ * This adapter handles the full lifecycle of sending a transactional email via the SendGrid API: building the request
+ * from a dynamic template, dispatching it, and registering the outcome (success or failure) in the notification logs.
  *
- * <p><strong>Channel coverage:</strong> EMAIL only.
+ * <p>
+ * <strong>Channel coverage:</strong> EMAIL only.
  *
- * <p><strong>Layer:</strong> Infrastructure (Driven Adapter - Notifications Client)
+ * <p>
+ * <strong>Layer:</strong> Infrastructure (Driven Adapter - Notifications Client)
  *
  * @author Angel Corzo
  * @since 1.0.0
@@ -57,37 +58,32 @@ public class SendGridNotificationAdapter implements EmailProviderClient {
   /**
    * Sends a transactional email via the SendGrid API using a dynamic template.
    *
-   * <p>The flow is:
+   * <p>
+   * The flow is:
    * <ol>
-   *   <li>Build a {@link Mail} object from the template reference and notification content.</li>
-   *   <li>Serialize it into a {@link Request} and dispatch it to the SendGrid API.</li>
-   *   <li>On success (2xx), register a {@code SENT} log entry.</li>
-   *   <li>On non-2xx response, register a {@code FAILED} log entry and throw
-   *       {@link SendGridApiException}.</li>
-   *   <li>On IO failure, register a {@code FAILED} log entry and throw
-   *       {@link SendGridRequestBuildException}.</li>
+   * <li>Build a {@link Mail} object from the template reference and notification content.</li>
+   * <li>Serialize it into a {@link Request} and dispatch it to the SendGrid API.</li>
+   * <li>On success (2xx), register a {@code SENT} log entry.</li>
+   * <li>On non-2xx response, register a {@code FAILED} log entry and throw {@link SendGridApiException}.</li>
+   * <li>On IO failure, register a {@code FAILED} log entry and throw {@link SendGridRequestBuildException}.</li>
    * </ol>
    *
-   * @param template The {@link NotificationTemplates} that carries the SendGrid template reference
-   *                 and channel metadata.
-   * @param to       The recipient email address (used as the primary contact identifier for both
-   *                 EMAIL and WHATSAPP channels in this domain).
-   * @param content  The {@link NotificationsData} payload whose fields are injected as dynamic
-   *                 template variables.
-   * @throws SendGridApiException          if SendGrid returns a non-2xx HTTP status.
-   * @throws SendGridRequestBuildException if the request cannot be serialized or an IO error occurs
-   *                                       during the API call.
+   * @param template
+   *          The {@link NotificationTemplates} that carries the SendGrid template reference and channel metadata.
+   * @param to
+   *          The recipient email address (used as the primary contact identifier for both EMAIL and WHATSAPP channels
+   *          in this domain).
+   * @param content
+   *          The {@link NotificationsData} payload whose fields are injected as dynamic template variables.
+   * @throws SendGridApiException
+   *           if SendGrid returns a non-2xx HTTP status.
+   * @throws SendGridRequestBuildException
+   *           if the request cannot be serialized or an IO error occurs during the API call.
    */
   @Override
-  public void sendEmail(
-      final NotificationTemplates template,
-      final String to,
-      final NotificationsData content) {
+  public void sendEmail(final NotificationTemplates template, final String to, final NotificationsData content) {
     final String maskedTo = EmailMaskUtils.mask(to);
-    log.info(
-        "Building email request. to={}, templateReference={}",
-        maskedTo,
-        template.getTemplateReference());
+    log.info("Building email request. to={}, templateReference={}", maskedTo, template.getTemplateReference());
 
     final Mail mail = sendGridMailFactory.buildMail(template, to, content);
     final Request request = sendGridMailFactory.buildRequest(mail);
@@ -100,8 +96,8 @@ public class SendGridNotificationAdapter implements EmailProviderClient {
       final boolean isSuccessful = statusCode >= 200 && statusCode < 300;
 
       if (!isSuccessful) {
-        final String providerError =
-            this.sendGridErrorMessageFormatter.formatProviderError(statusCode, response.getBody());
+        final String providerError = this.sendGridErrorMessageFormatter.formatProviderError(statusCode,
+          response.getBody());
 
         log.error("SendGrid rejected email to {}. {}", maskedTo, providerError);
         this.notificationsLoggerService.registerLog(template, to, providerError);

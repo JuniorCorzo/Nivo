@@ -14,17 +14,16 @@ class SlotSnapshotTest {
   @DisplayName("Should create SlotSnapshot from Slots domain model")
   void shouldCreateSnapshotFromSlot() {
     UUID slotId = UUID.randomUUID();
-    Slots slot =
-        Slots.builder()
-            .id(slotId)
-            .slotNumber("042")
-            .zone("A")
-            .prefix("VIP")
-            .type(SlotType.ELECTRIC_VEHICLE)
-            .hasCharger(true)
-            .isAccessible(true)
-            .isActive(true)
-            .build();
+    Slots slot = Slots.builder()
+      .id(slotId)
+      .slotNumber("042")
+      .zone("A")
+      .prefix("VIP")
+      .type(SlotType.ELECTRIC_VEHICLE)
+      .hasCharger(true)
+      .isAccessible(true)
+      .isActive(true)
+      .build();
 
     SlotSnapshot snapshot = SlotSnapshot.from(slot);
 

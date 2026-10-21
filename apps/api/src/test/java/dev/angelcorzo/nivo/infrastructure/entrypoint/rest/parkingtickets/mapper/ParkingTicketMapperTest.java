@@ -2,9 +2,9 @@ package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkingtickets.mapper
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.TimezoneConverter;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkingtickets.dto.ParkingTicketsDTO;
-import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -15,19 +15,19 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 @SpringJUnitConfig(classes = {ParkingTicketMapperRestImpl.class, TimezoneConverter.class})
 class ParkingTicketMapperTest {
 
-  @Autowired private ParkingTicketMapper mapper;
+  @Autowired
+  private ParkingTicketMapper mapper;
 
   @Test
   void toDtoConvertsDatesToBogotaTimezone() {
     OffsetDateTime utc = OffsetDateTime.of(2025, 5, 3, 0, 20, 37, 0, ZoneOffset.UTC);
-    ParkingTickets model =
-        ParkingTickets.builder()
-            .entryTime(utc)
-            .exitTime(utc)
-            .createdAt(utc)
-            .updatedAt(utc)
-            .deletedAt(utc)
-            .build();
+    ParkingTickets model = ParkingTickets.builder()
+      .entryTime(utc)
+      .exitTime(utc)
+      .createdAt(utc)
+      .updatedAt(utc)
+      .deletedAt(utc)
+      .build();
 
     ParkingTicketsDTO dto = mapper.toDto(model);
 

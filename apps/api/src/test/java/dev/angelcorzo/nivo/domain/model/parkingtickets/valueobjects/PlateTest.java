@@ -45,7 +45,7 @@ class PlateTest {
     @DisplayName("Should reject invalid Colombian plate formats")
     void shouldRejectInvalidPlates(final String rawPlate) {
       assertThatThrownBy(() -> Plate.of(rawPlate, PlateCountry.CO))
-          .isInstanceOf(InvalidPlateFormatException.class);
+        .isInstanceOf(InvalidPlateFormatException.class);
     }
   }
 
@@ -69,7 +69,7 @@ class PlateTest {
     @DisplayName("Should reject invalid Venezuelan plate formats")
     void shouldRejectInvalidPlates(final String rawPlate) {
       assertThatThrownBy(() -> Plate.of(rawPlate, PlateCountry.VE))
-          .isInstanceOf(InvalidPlateFormatException.class);
+        .isInstanceOf(InvalidPlateFormatException.class);
     }
   }
 
@@ -93,7 +93,7 @@ class PlateTest {
     @DisplayName("Should reject invalid synthetic unplated identifiers")
     void shouldRejectInvalidUnplatedCodes(final String code) {
       assertThatThrownBy(() -> Plate.of(code, PlateCountry.UNPLATED))
-          .isInstanceOf(InvalidPlateFormatException.class);
+        .isInstanceOf(InvalidPlateFormatException.class);
     }
   }
 

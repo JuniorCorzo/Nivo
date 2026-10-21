@@ -1,0 +1,5 @@
+version: 2
+secret:
+  ignored_matches:
+    - match: "angel2003"
+      name: "test-database-password-in-jpaconfigtest"

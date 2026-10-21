@@ -53,8 +53,10 @@ class BackendOperationsMetricsManagerTest {
     metricsManager.recordAvailabilityCacheHit();
     metricsManager.recordAvailabilityCacheMiss();
 
-    assertThat(meterRegistry.get("public.api.availability.requests.total").tag("status", "200").counter().count()).isEqualTo(2.0);
-    assertThat(meterRegistry.get("public.api.availability.requests.total").tag("status", "429").counter().count()).isEqualTo(1.0);
+    assertThat(meterRegistry.get("public.api.availability.requests.total").tag("status", "200").counter().count())
+      .isEqualTo(2.0);
+    assertThat(meterRegistry.get("public.api.availability.requests.total").tag("status", "429").counter().count())
+      .isEqualTo(1.0);
     assertThat(meterRegistry.get("public.api.availability.rate_limited.total").counter().count()).isEqualTo(1.0);
     assertThat(meterRegistry.get("public.api.availability.cache.hit").counter().count()).isEqualTo(1.0);
     assertThat(meterRegistry.get("public.api.availability.cache.miss").counter().count()).isEqualTo(1.0);
@@ -64,11 +66,17 @@ class BackendOperationsMetricsManagerTest {
   @DisplayName("Timers de base de datos y CSV: deben registrar latencias con tag de vista")
   void shouldRecordAnalyticsQueryAndCsvExportTimers() {
     metricsManager.recordAnalyticsQueryDuration("hourly", () -> {
-      try { Thread.sleep(10); } catch (InterruptedException ignored) {}
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException ignored) {
+      }
     });
 
     metricsManager.recordCsvExportDuration(() -> {
-      try { Thread.sleep(15); } catch (InterruptedException ignored) {}
+      try {
+        Thread.sleep(15);
+      } catch (InterruptedException ignored) {
+      }
     });
 
     final Timer queryTimer = meterRegistry.get("db.analytics.query.duration").tag("view", "hourly").timer();
@@ -88,9 +96,8 @@ class BackendOperationsMetricsManagerTest {
 
     for (final Meter meter : meterRegistry.getMeters()) {
       final List<String> tagKeys = meter.getId().getTags().stream().map(t -> t.getKey().toLowerCase()).toList();
-      assertThat(tagKeys)
-          .as("Meter '%s' contains high cardinality tags", meter.getId().getName())
-          .doesNotContain("parkingid", "tenantid", "licenseplate", "plate", "userid");
+      assertThat(tagKeys).as("Meter '%s' contains high cardinality tags", meter.getId().getName())
+        .doesNotContain("parkingid", "tenantid", "licenseplate", "plate", "userid");
     }
   }
 }

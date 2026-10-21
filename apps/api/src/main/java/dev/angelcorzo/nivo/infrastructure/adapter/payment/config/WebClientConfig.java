@@ -18,25 +18,16 @@ public class WebClientConfig {
 
   @Bean
   public WebClient webClient() {
-    return WebClient.builder()
-        .baseUrl(this.paymentProviderProperties.getUrl())
-        .filter(this.authFilter())
-        .build();
+    return WebClient.builder().baseUrl(this.paymentProviderProperties.getUrl()).filter(this.authFilter()).build();
   }
 
   ExchangeFilterFunction authFilter() {
-    return ExchangeFilterFunction.ofRequestProcessor(
-        clientRequest -> {
-          ClientRequest authenticatedRequest =
-              ClientRequest.from(clientRequest)
-                  .headers(
-                      httpHeaders ->
-                          httpHeaders.set(
-                              HttpHeaders.AUTHORIZATION,
-                              "Bearer "
-                                  + this.providerAuthenticationContext.getAuthToken().block()))
-                  .build();
-          return Mono.just(authenticatedRequest);
-        });
+    return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
+      ClientRequest authenticatedRequest = ClientRequest.from(clientRequest)
+        .headers(httpHeaders -> httpHeaders
+          .set(HttpHeaders.AUTHORIZATION, "Bearer " + this.providerAuthenticationContext.getAuthToken().block()))
+        .build();
+      return Mono.just(authenticatedRequest);
+    });
   }
 }

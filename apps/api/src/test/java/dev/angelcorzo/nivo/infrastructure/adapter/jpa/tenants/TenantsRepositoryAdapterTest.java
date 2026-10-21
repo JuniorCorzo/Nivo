@@ -3,8 +3,8 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.mappers.TenantsMapper;
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.mappers.TenantsMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

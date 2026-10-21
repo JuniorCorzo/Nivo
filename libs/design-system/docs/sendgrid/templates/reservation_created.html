@@ -13,9 +13,7 @@ Descripción: Confirmación de reserva con resumen de datos y CTA a detalles.
   <p style="margin: 0 0 8px"><strong>Parqueadero:</strong> {{parkingName}}</p>
   <p style="margin: 0 0 8px"><strong>Plaza:</strong> {{spotLabel}}</p>
   <p style="margin: 0 0 8px"><strong>Fecha:</strong> {{reservationDate}}</p>
-  <p style="margin: 0 0 8px">
-    <strong>Horario:</strong> {{startTime}} a {{endTime}}
-  </p>
+  <p style="margin: 0 0 8px"><strong>Horario:</strong> {{startTime}} a {{endTime}}</p>
   <p style="margin: 0 0 16px"><strong>Vehículo:</strong> {{vehiclePlate}}</p>
 
   <p style="margin: 0 0 16px">
@@ -23,8 +21,12 @@ Descripción: Confirmación de reserva con resumen de datos y CTA a detalles.
   </p>
 
   <p style="margin: 0 0 16px">
-    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if
-    socialUrl}}<a href="{{socialUrl}}" class="link">Síguenos</a> |{{/if}}
+    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if socialUrl}}<a
+      href="{{socialUrl}}"
+      class="link"
+      >Síguenos</a
+    >
+    |{{/if}}
   </p>
 
   {{> components/email_footer}}

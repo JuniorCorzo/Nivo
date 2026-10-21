@@ -32,34 +32,33 @@ public class CreateParkingUseCase {
     Tenants currentTenant = this.authenticationContext.getCurrentTenant();
 
     return ParkingLots.builder()
-        .name(parking.name())
-        .address(parking.address())
-        .coordinates(parking.coordinates())
-        .owner(UserReference.of(userReferenceById))
-        .tenant(TenantReference.of(currentTenant))
-        .timezone(parking.timezone())
-        .currency(parking.currency())
-        .operatingHours(parking.operatingHours())
-        .policy(parking.policy() != null ? parking.policy() : ParkingLotPolicy.defaults())
-        .build();
+      .name(parking.name())
+      .address(parking.address())
+      .coordinates(parking.coordinates())
+      .owner(UserReference.of(userReferenceById))
+      .tenant(TenantReference.of(currentTenant))
+      .timezone(parking.timezone())
+      .currency(parking.currency())
+      .operatingHours(parking.operatingHours())
+      .policy(parking.policy() != null ? parking.policy() : ParkingLotPolicy.defaults())
+      .build();
   }
 
   private UUID getOwnerId() {
     Tenants currentTenant = this.authenticationContext.getCurrentTenant();
 
-    return currentTenant.getUsers().stream()
-        .filter(user -> user.role().equals(Roles.OWNER))
-        .map(UserReference::id)
-        .findFirst()
-        .orElseThrow(() -> new NoOwnerInTenantException(currentTenant.getId()));
+    return currentTenant.getUsers()
+      .stream()
+      .filter(user -> user.role().equals(Roles.OWNER))
+      .map(UserReference::id)
+      .findFirst()
+      .orElseThrow(() -> new NoOwnerInTenantException(currentTenant.getId()));
   }
 
-  private void createdSlots(
-      List<CreatedSlots> slotsToCreate, ParkingLots parkingLots) {
+  private void createdSlots(List<CreatedSlots> slotsToCreate, ParkingLots parkingLots) {
 
-    final List<Slots> slots =
-        SlotMapper.toEntities(
-            slotsToCreate, this.authenticationContext.getCurrentTenant(), parkingLots);
+    final List<Slots> slots = SlotMapper.toEntities(slotsToCreate, this.authenticationContext.getCurrentTenant(),
+      parkingLots);
 
     this.batchCreateSlotsUseCase.execute(slots);
   }

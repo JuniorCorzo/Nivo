@@ -1,7 +1,8 @@
+import { setTimeout as sleep } from "node:timers/promises";
+
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
-import { setTimeout as sleep } from "node:timers/promises";
 
 import { PhotoCaptureComponent } from "./photo-capture.component";
 
@@ -118,9 +119,15 @@ describe("PhotoCaptureComponent", () => {
     class MockFileReader {
       onload: ((e: ProgressEvent<FileReader>) => void) | null = null;
       onerror: ((e: ProgressEvent<FileReader>) => void) | null = null;
-      private listeners: Record<string, ((e: ProgressEvent<FileReader>) => void)[]> = {};
+      private listeners: Record<
+        string,
+        ((e: ProgressEvent<FileReader>) => void)[]
+      > = {};
 
-      addEventListener(event: string, listener: (e: ProgressEvent<FileReader>) => void) {
+      addEventListener(
+        event: string,
+        listener: (e: ProgressEvent<FileReader>) => void
+      ) {
         (this.listeners[event] ??= []).push(listener);
       }
 

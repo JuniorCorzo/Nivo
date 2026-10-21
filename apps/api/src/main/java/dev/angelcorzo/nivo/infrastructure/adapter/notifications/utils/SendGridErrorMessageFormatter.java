@@ -11,8 +11,7 @@ public class SendGridErrorMessageFormatter {
 
   public String formatProviderError(int statusCode, String responseBody) {
     final String providerMessage = this.extractProviderErrorMessage(responseBody);
-    return this.sanitizeErrorMessage(
-        "SendGrid status=%d, message=%s".formatted(statusCode, providerMessage));
+    return this.sanitizeErrorMessage("SendGrid status=%d, message=%s".formatted(statusCode, providerMessage));
   }
 
   public String formatIoError(String errorMessage) {
@@ -66,4 +65,3 @@ public class SendGridErrorMessageFormatter {
     return responseBody;
   }
 }
-

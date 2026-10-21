@@ -2,11 +2,11 @@ package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.exception;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.dto.ResponseError;
 import dev.angelcorzo.nivo.domain.model.authentication.exceptions.ExpiredTokenException;
 import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
 import dev.angelcorzo.nivo.domain.model.users.exceptions.UserAlreadyExistsInTenantException;
 import dev.angelcorzo.nivo.domain.model.users.exceptions.UserNotExistsException;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.dto.ResponseError;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -74,12 +74,11 @@ class ExceptionHandlerControllerTest {
   @DisplayName("Should handle generic AppException with custom status code")
   void shouldHandleGenericAppException() {
     // Arrange
-    AppException customEx =
-        new AppException("Payload validation failed", 400, "INVALID_PAYLOAD") {};
+    AppException customEx = new AppException("Payload validation failed", 400, "INVALID_PAYLOAD") {
+    };
 
     // Act
-    ResponseEntity<ResponseError<Object>> response =
-        exceptionHandlerController.appException(customEx);
+    ResponseEntity<ResponseError<Object>> response = exceptionHandlerController.appException(customEx);
 
     // Assert
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -92,13 +91,11 @@ class ExceptionHandlerControllerTest {
   @DisplayName("Should handle SlotCannotBeModifiedException with 409 Conflict")
   void shouldHandleSlotCannotBeModifiedException() {
     // Arrange
-    dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException ex =
-        new dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException(
-            java.util.List.of(UUID.randomUUID()));
+    dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException ex = new dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException(
+      java.util.List.of(UUID.randomUUID()));
 
     // Act
-    ResponseEntity<ResponseError<Object>> response =
-        exceptionHandlerController.handleSlotCannotBeModified(ex);
+    ResponseEntity<ResponseError<Object>> response = exceptionHandlerController.handleSlotCannotBeModified(ex);
 
     // Assert
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
@@ -110,16 +107,15 @@ class ExceptionHandlerControllerTest {
   @DisplayName("Should handle MethodArgumentNotValidException with 400 Bad Request and field errors")
   void shouldHandleMethodArgumentNotValidException() {
     // Arrange
-    org.springframework.web.bind.MethodArgumentNotValidException ex =
-        org.mockito.Mockito.mock(org.springframework.web.bind.MethodArgumentNotValidException.class);
-    org.springframework.validation.BindingResult bindingResult =
-        new org.springframework.validation.BeanPropertyBindingResult(new Object(), "target");
+    org.springframework.web.bind.MethodArgumentNotValidException ex = org.mockito.Mockito
+      .mock(org.springframework.web.bind.MethodArgumentNotValidException.class);
+    org.springframework.validation.BindingResult bindingResult = new org.springframework.validation.BeanPropertyBindingResult(
+      new Object(), "target");
     bindingResult.addError(new org.springframework.validation.FieldError("target", "prefix", "must not be blank"));
     org.mockito.Mockito.when(ex.getBindingResult()).thenReturn(bindingResult);
 
     // Act
-    ResponseEntity<ResponseError<Object>> response =
-        exceptionHandlerController.handleValidationException(ex);
+    ResponseEntity<ResponseError<Object>> response = exceptionHandlerController.handleValidationException(ex);
 
     // Assert
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -132,15 +128,14 @@ class ExceptionHandlerControllerTest {
   @DisplayName("Should handle MethodArgumentNotValidException with default message when no field errors exist")
   void shouldHandleMethodArgumentNotValidExceptionWithDefaultMessage() {
     // Arrange
-    org.springframework.web.bind.MethodArgumentNotValidException ex =
-        org.mockito.Mockito.mock(org.springframework.web.bind.MethodArgumentNotValidException.class);
-    org.springframework.validation.BindingResult bindingResult =
-        new org.springframework.validation.BeanPropertyBindingResult(new Object(), "target");
+    org.springframework.web.bind.MethodArgumentNotValidException ex = org.mockito.Mockito
+      .mock(org.springframework.web.bind.MethodArgumentNotValidException.class);
+    org.springframework.validation.BindingResult bindingResult = new org.springframework.validation.BeanPropertyBindingResult(
+      new Object(), "target");
     org.mockito.Mockito.when(ex.getBindingResult()).thenReturn(bindingResult);
 
     // Act
-    ResponseEntity<ResponseError<Object>> response =
-        exceptionHandlerController.handleValidationException(ex);
+    ResponseEntity<ResponseError<Object>> response = exceptionHandlerController.handleValidationException(ex);
 
     // Assert
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);

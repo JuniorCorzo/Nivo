@@ -4,11 +4,7 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.InvalidDomainExceptio
 import java.time.Duration;
 import java.time.OffsetDateTime;
 
-public record StayInterval(
-    OffsetDateTime entryTime,
-    OffsetDateTime exitTime,
-    Duration duration
-) {
+public record StayInterval(OffsetDateTime entryTime, OffsetDateTime exitTime, Duration duration) {
   public StayInterval {
     if (entryTime == null || exitTime == null) {
       throw new InvalidDomainException("Entry time and exit time cannot be null");

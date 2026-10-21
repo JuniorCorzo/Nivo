@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.mapper.UserMapper;
 import dev.angelcorzo.nivo.domain.model.users.Users;
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.mapper.UserMapper;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +14,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.data.domain.Example;
 
 @DisplayName("UserRepositoryAdapter Unit Tests")
 class UserRepositoryAdapterTest {
@@ -162,10 +161,13 @@ class UserRepositoryAdapterTest {
   void shouldReturnSavedUserDirectly_whenSoftDeleted() {
     UUID userId = UUID.randomUUID();
     OffsetDateTime now = OffsetDateTime.now();
-    Users deletedUser =
-        Users.builder().id(userId).email("deleted@test.com").deletedAt(now).deletedBy(UUID.randomUUID()).build();
-    UsersData deletedUserData =
-        UsersData.builder().id(userId).email("deleted@test.com").deletedAt(now).build();
+    Users deletedUser = Users.builder()
+      .id(userId)
+      .email("deleted@test.com")
+      .deletedAt(now)
+      .deletedBy(UUID.randomUUID())
+      .build();
+    UsersData deletedUserData = UsersData.builder().id(userId).email("deleted@test.com").deletedAt(now).build();
 
     when(mapper.toData(deletedUser)).thenReturn(deletedUserData);
     when(repository.saveAndFlush(deletedUserData)).thenReturn(deletedUserData);

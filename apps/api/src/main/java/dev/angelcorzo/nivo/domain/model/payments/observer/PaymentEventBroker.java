@@ -12,8 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PaymentEventBroker implements Subject<PaymentEvent> {
   private static volatile PaymentEventBroker INSTANCE;
-  private final ConcurrentHashMap<String, Observable<PaymentEvent>> observers =
-      new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, Observable<PaymentEvent>> observers = new ConcurrentHashMap<>();
 
   private final PaymentsRepository paymentsRepository;
 
@@ -31,16 +30,10 @@ public class PaymentEventBroker implements Subject<PaymentEvent> {
 
   @Override
   public void subscribe(String event, Observable<PaymentEvent> observer) {
-    this.paymentsRepository
-        .findById(UUID.fromString(event))
-        .ifPresentOrElse(
-            payment -> {
-              observers.put(event, observer);
-              observer.update(PaymentEvent.of(payment.getId(), payment.getStatus()));
-            },
-            () -> {
-              throw new PaymentNotFound(event);
-            });
+    this.paymentsRepository.findById(UUID.fromString(event)).ifPresentOrElse(payment -> {
+      observers.put(event, observer);
+      observer.update(PaymentEvent.of(payment.getId(), payment.getStatus()));
+    }, () -> { throw new PaymentNotFound(event); });
   }
 
   @Override

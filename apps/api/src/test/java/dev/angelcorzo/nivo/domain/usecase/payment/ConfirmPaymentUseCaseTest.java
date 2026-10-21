@@ -54,14 +54,8 @@ class ConfirmPaymentUseCaseTest {
     parkingTicketsRepository = mock(ParkingTicketsRepository.class);
     paymentNotifier = mock(PaymentNotifier.class);
 
-    useCase =
-        new ConfirmPaymentUseCase(
-            paymentsRepository,
-            transactionsRepository,
-            paymentProviderGateway,
-            paymentEventBroker,
-            parkingTicketsRepository,
-            paymentNotifier);
+    useCase = new ConfirmPaymentUseCase(paymentsRepository, transactionsRepository, paymentProviderGateway,
+      paymentEventBroker, parkingTicketsRepository, paymentNotifier);
   }
 
   @Nested
@@ -78,34 +72,29 @@ class ConfirmPaymentUseCaseTest {
       BigDecimal amount = BigDecimal.valueOf(18000);
 
       ParkingTickets ticket = ParkingTickets.builder().id(ticketId).build();
-      Payments pendingPayment =
-          Payments.builder()
-              .id(paymentId)
-              .parkingTicket(ticket)
-              .amount(amount)
-              .status(PaymentStatus.PENDING_CHECKOUT)
-              .checkoutSessionId(sessionId)
-              .externalPaymentId("ext-999")
-              .build();
+      Payments pendingPayment = Payments.builder()
+        .id(paymentId)
+        .parkingTicket(ticket)
+        .amount(amount)
+        .status(PaymentStatus.PENDING_CHECKOUT)
+        .checkoutSessionId(sessionId)
+        .externalPaymentId("ext-999")
+        .build();
 
-      Transactions transaction =
-          Transactions.builder()
-              .supplierRef(sessionId)
-              .transactionId("ext-999")
-              .amount(amount)
-              .status(TransactionStatus.APPROVED)
-              .build();
+      Transactions transaction = Transactions.builder()
+        .supplierRef(sessionId)
+        .transactionId("ext-999")
+        .amount(amount)
+        .status(TransactionStatus.APPROVED)
+        .build();
 
       Map<String, String> receipt = Map.of("x_ref_payco", "12345");
 
-      when(paymentsRepository.findByCheckoutSessionId(sessionId))
-          .thenReturn(Optional.of(pendingPayment));
-      when(paymentProviderGateway.confirmationPay(receipt))
-          .thenReturn(Result.success(transaction));
+      when(paymentsRepository.findByCheckoutSessionId(sessionId)).thenReturn(Optional.of(pendingPayment));
+      when(paymentProviderGateway.confirmationPay(receipt)).thenReturn(Result.success(transaction));
       when(transactionsRepository.existsBySupplierRef(sessionId)).thenReturn(false);
       when(transactionsRepository.save(any(Transactions.class))).thenReturn(transaction);
-      when(paymentsRepository.processPayment(any(Payments.class)))
-          .thenReturn(Result.success(pendingPayment));
+      when(paymentsRepository.processPayment(any(Payments.class))).thenReturn(Result.success(pendingPayment));
 
       // Act
       Payments result = useCase.execute(receipt, sessionId);
@@ -125,15 +114,13 @@ class ConfirmPaymentUseCaseTest {
     void shouldReturnDirectlyWhenNotPendingCheckout() {
       // Arrange
       String sessionId = "session-already-approved";
-      Payments alreadyPaid =
-          Payments.builder()
-              .id(UUID.randomUUID())
-              .status(PaymentStatus.PAID)
-              .checkoutSessionId(sessionId)
-              .build();
+      Payments alreadyPaid = Payments.builder()
+        .id(UUID.randomUUID())
+        .status(PaymentStatus.PAID)
+        .checkoutSessionId(sessionId)
+        .build();
 
-      when(paymentsRepository.findByCheckoutSessionId(sessionId))
-          .thenReturn(Optional.of(alreadyPaid));
+      when(paymentsRepository.findByCheckoutSessionId(sessionId)).thenReturn(Optional.of(alreadyPaid));
 
       // Act
       Payments result = useCase.execute(Map.of(), sessionId);
@@ -155,80 +142,71 @@ class ConfirmPaymentUseCaseTest {
       String sessionId = "unknown-session";
       when(paymentsRepository.findByCheckoutSessionId(sessionId)).thenReturn(Optional.empty());
 
-      assertThatThrownBy(() -> useCase.execute(Map.of(), sessionId))
-          .isInstanceOf(PaymentNotFound.class);
+      assertThatThrownBy(() -> useCase.execute(Map.of(), sessionId)).isInstanceOf(PaymentNotFound.class);
     }
 
     @Test
     @DisplayName("Should throw ConfirmPaymentException when provider confirmation fails")
     void shouldThrowWhenProviderConfirmationFails() {
       String sessionId = "session-123";
-      Payments pending =
-          Payments.builder()
-              .status(PaymentStatus.PENDING_CHECKOUT)
-              .checkoutSessionId(sessionId)
-              .build();
+      Payments pending = Payments.builder()
+        .status(PaymentStatus.PENDING_CHECKOUT)
+        .checkoutSessionId(sessionId)
+        .build();
 
       when(paymentsRepository.findByCheckoutSessionId(sessionId)).thenReturn(Optional.of(pending));
       when(paymentProviderGateway.confirmationPay(any()))
-          .thenReturn(Result.failure(new PaymentError.ProviderValidation("Invalid signature")));
+        .thenReturn(Result.failure(new PaymentError.ProviderValidation("Invalid signature")));
 
-      assertThatThrownBy(() -> useCase.execute(Map.of(), sessionId))
-          .isInstanceOf(ConfirmPaymentException.class);
+      assertThatThrownBy(() -> useCase.execute(Map.of(), sessionId)).isInstanceOf(ConfirmPaymentException.class);
     }
 
     @Test
     @DisplayName("Should throw ConfirmPaymentException when transaction already exists (duplicate)")
     void shouldThrowWhenTransactionDuplicate() {
       String sessionId = "session-123";
-      Payments pending =
-          Payments.builder()
-              .status(PaymentStatus.PENDING_CHECKOUT)
-              .checkoutSessionId(sessionId)
-              .externalPaymentId("ext-123")
-              .amount(BigDecimal.TEN)
-              .build();
+      Payments pending = Payments.builder()
+        .status(PaymentStatus.PENDING_CHECKOUT)
+        .checkoutSessionId(sessionId)
+        .externalPaymentId("ext-123")
+        .amount(BigDecimal.TEN)
+        .build();
 
-      Transactions transaction =
-          Transactions.builder()
-              .supplierRef(sessionId)
-              .transactionId("ext-123")
-              .amount(BigDecimal.TEN)
-              .build();
+      Transactions transaction = Transactions.builder()
+        .supplierRef(sessionId)
+        .transactionId("ext-123")
+        .amount(BigDecimal.TEN)
+        .build();
 
       when(paymentsRepository.findByCheckoutSessionId(sessionId)).thenReturn(Optional.of(pending));
       when(paymentProviderGateway.confirmationPay(any())).thenReturn(Result.success(transaction));
       when(transactionsRepository.existsBySupplierRef(sessionId)).thenReturn(true);
 
-      assertThatThrownBy(() -> useCase.execute(Map.of(), sessionId))
-          .isInstanceOf(ConfirmPaymentException.class);
+      assertThatThrownBy(() -> useCase.execute(Map.of(), sessionId)).isInstanceOf(ConfirmPaymentException.class);
     }
 
     @Test
     @DisplayName("Should throw ConfirmPaymentException when amount does not match")
     void shouldThrowWhenAmountDoesNotMatch() {
       String sessionId = "session-123";
-      Payments pending =
-          Payments.builder()
-              .status(PaymentStatus.PENDING_CHECKOUT)
-              .checkoutSessionId(sessionId)
-              .externalPaymentId("ext-123")
-              .amount(BigDecimal.valueOf(50000))
-              .build();
+      Payments pending = Payments.builder()
+        .status(PaymentStatus.PENDING_CHECKOUT)
+        .checkoutSessionId(sessionId)
+        .externalPaymentId("ext-123")
+        .amount(BigDecimal.valueOf(50000))
+        .build();
 
-      Transactions transaction =
-          Transactions.builder()
-              .supplierRef(sessionId)
-              .transactionId("ext-123")
-              .amount(BigDecimal.valueOf(10000)) // mismatched amount
-              .build();
+      Transactions transaction = Transactions.builder()
+        .supplierRef(sessionId)
+        .transactionId("ext-123")
+        .amount(BigDecimal.valueOf(10000)) // mismatched amount
+        .build();
 
       when(paymentsRepository.findByCheckoutSessionId(sessionId)).thenReturn(Optional.of(pending));
       when(paymentProviderGateway.confirmationPay(any())).thenReturn(Result.success(transaction));
       when(transactionsRepository.existsBySupplierRef(sessionId)).thenReturn(false);
 
-      assertThatThrownBy(() -> useCase.execute(Map.of(), sessionId))
-          .isInstanceOf(ConfirmPaymentException.class);
+      assertThatThrownBy(() -> useCase.execute(Map.of(), sessionId)).isInstanceOf(ConfirmPaymentException.class);
     }
 
     @Test
@@ -237,23 +215,21 @@ class ConfirmPaymentUseCaseTest {
       String sessionId = "session-123";
       UUID ticketId = UUID.randomUUID();
       ParkingTickets ticket = ParkingTickets.builder().id(ticketId).build();
-      Payments pending =
-          Payments.builder()
-              .id(UUID.randomUUID())
-              .parkingTicket(ticket)
-              .status(PaymentStatus.PENDING_CHECKOUT)
-              .checkoutSessionId(sessionId)
-              .externalPaymentId("ext-123")
-              .amount(BigDecimal.TEN)
-              .build();
+      Payments pending = Payments.builder()
+        .id(UUID.randomUUID())
+        .parkingTicket(ticket)
+        .status(PaymentStatus.PENDING_CHECKOUT)
+        .checkoutSessionId(sessionId)
+        .externalPaymentId("ext-123")
+        .amount(BigDecimal.TEN)
+        .build();
 
-      Transactions transaction =
-          Transactions.builder()
-              .supplierRef(sessionId)
-              .transactionId("ext-123")
-              .amount(BigDecimal.TEN)
-              .status(TransactionStatus.APPROVED)
-              .build();
+      Transactions transaction = Transactions.builder()
+        .supplierRef(sessionId)
+        .transactionId("ext-123")
+        .amount(BigDecimal.TEN)
+        .status(TransactionStatus.APPROVED)
+        .build();
 
       when(paymentsRepository.findByCheckoutSessionId(sessionId)).thenReturn(Optional.of(pending));
       when(paymentProviderGateway.confirmationPay(any())).thenReturn(Result.success(transaction));
@@ -262,8 +238,7 @@ class ConfirmPaymentUseCaseTest {
       when(paymentsRepository.processPayment(any())).thenReturn(Result.success(pending));
       doThrow(new RuntimeException("DB locked on close")).when(parkingTicketsRepository).closeTicket(ticketId);
 
-      assertThatThrownBy(() -> useCase.execute(Map.of(), sessionId))
-          .isInstanceOf(ConfirmPaymentException.class);
+      assertThatThrownBy(() -> useCase.execute(Map.of(), sessionId)).isInstanceOf(ConfirmPaymentException.class);
     }
   }
 }

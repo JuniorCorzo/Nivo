@@ -2,15 +2,13 @@ package dev.angelcorzo.nivo.domain.usecase.slot;
 
 import dev.angelcorzo.nivo.domain.model.parkinglots.exceptions.ParkingNotExistsException;
 import dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository;
-import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotType;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.domain.model.utils.StringUtils;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
-
 import java.util.Objects;
 import java.util.UUID;
+import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class DeleteSlotGroupUseCase {
@@ -22,11 +20,12 @@ public class DeleteSlotGroupUseCase {
     if (!this.parkingLotsRepository.existsById(command.parkingId()))
       throw new ParkingNotExistsException(command.parkingId());
 
-    this.slotsRepository.findAllByParkingLotsId(command.parkingId()).stream()
-        .filter(slot -> slot.getType() == command.slotType()
-            && Objects.equals(StringUtils.normalize(slot.getPrefix()), StringUtils.normalize(command.prefix()))
-            && Objects.equals(StringUtils.normalize(slot.getZone()), StringUtils.normalize(command.zone())))
-        .forEach(slot -> this.slotsRepository.deleteById(slot.getId()));
+    this.slotsRepository.findAllByParkingLotsId(command.parkingId())
+      .stream()
+      .filter(slot -> slot.getType() == command.slotType()
+        && Objects.equals(StringUtils.normalize(slot.getPrefix()), StringUtils.normalize(command.prefix()))
+        && Objects.equals(StringUtils.normalize(slot.getZone()), StringUtils.normalize(command.zone())))
+      .forEach(slot -> this.slotsRepository.deleteById(slot.getId()));
   }
 
   @Builder

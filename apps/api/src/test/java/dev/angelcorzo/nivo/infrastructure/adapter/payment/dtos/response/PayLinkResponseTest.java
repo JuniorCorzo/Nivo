@@ -13,29 +13,8 @@ class PayLinkResponseTest {
   @Test
   void shouldParseDateCorrectly() {
     String expirationDate = "2026-02-26 04:45:01";
-    CreatePayLinkResponse response =
-        new CreatePayLinkResponse(
-            1L,
-            "title",
-            "description",
-            expirationDate,
-            1,
-            "txtCode",
-            1L,
-            1,
-            1,
-            0,
-            "COP",
-            "sell",
-            "url",
-            "url",
-            0,
-            0,
-            1000,
-            "invoice",
-            "qr",
-            "link",
-            expirationDate);
+    CreatePayLinkResponse response = new CreatePayLinkResponse(1L, "title", "description", expirationDate, 1,
+      "txtCode", 1L, 1, 1, 0, "COP", "sell", "url", "url", 0, 0, 1000, "invoice", "qr", "link", expirationDate);
 
     ProviderMetadata metadata = response.toProviderMetadata("epayco");
 

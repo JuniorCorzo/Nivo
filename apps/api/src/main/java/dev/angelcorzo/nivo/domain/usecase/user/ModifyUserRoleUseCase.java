@@ -18,12 +18,15 @@ import lombok.RequiredArgsConstructor;
 /**
  * Use case for modifying the role of an existing user within a specific tenant.
  *
- * <p>This class handles the business logic for updating a user's role, including validation to
- * ensure the user exists within the tenant and the new role is permitted.
+ * <p>
+ * This class handles the business logic for updating a user's role, including validation to ensure the user exists
+ * within the tenant and the new role is permitted.
  *
- * <p><strong>Layer:</strong> Application (Use Case)
+ * <p>
+ * <strong>Layer:</strong> Application (Use Case)
  *
- * <p><strong>Responsibility:</strong> To manage the process of changing a user's role.
+ * <p>
+ * <strong>Responsibility:</strong> To manage the process of changing a user's role.
  *
  * @author Angel Corzo
  * @since 1.0.0
@@ -40,12 +43,17 @@ public class ModifyUserRoleUseCase {
   /**
    * Modifies the role of a user.
    *
-   * @param modifyUserRole The command containing the user ID, new role, and tenant ID.
+   * @param modifyUserRole
+   *          The command containing the user ID, new role, and tenant ID.
    * @return The updated {@link Users} object.
-   * @throws SelfRoleModificationNotAllowedException if the target user is the authenticated user.
-   * @throws UserNotExistsInTenantException if the user does not exist within the specified tenant.
-   * @throws CannotModifyOwnerRoleException if attempting to change an OWNER or SUPERADMIN user's role.
-   * @throws InvalidRoleException if the new role is not permitted (e.g., OWNER, SUPERADMIN).
+   * @throws SelfRoleModificationNotAllowedException
+   *           if the target user is the authenticated user.
+   * @throws UserNotExistsInTenantException
+   *           if the user does not exist within the specified tenant.
+   * @throws CannotModifyOwnerRoleException
+   *           if attempting to change an OWNER or SUPERADMIN user's role.
+   * @throws InvalidRoleException
+   *           if the new role is not permitted (e.g., OWNER, SUPERADMIN).
    */
   public Users modifyRole(final ModifyUserRole modifyUserRole) {
     final UUID tenantId = this.authenticationContextGateway.getCurrentTenantId();
@@ -55,10 +63,8 @@ public class ModifyUserRoleUseCase {
       throw new SelfRoleModificationNotAllowedException();
     }
 
-    Users user =
-        this.usersRepository
-            .findByIdAndTenantId(modifyUserRole.userId(), tenantId)
-            .orElseThrow(UserNotExistsInTenantException::new);
+    final Users user = this.usersRepository.findByIdAndTenantId(modifyUserRole.userId(), tenantId)
+      .orElseThrow(UserNotExistsInTenantException::new);
 
     if (user.getRole() == Roles.OWNER || user.getRole() == Roles.SUPERADMIN) {
       throw new CannotModifyOwnerRoleException();
@@ -67,20 +73,22 @@ public class ModifyUserRoleUseCase {
     this.validateRolePermitted(modifyUserRole.newRole());
     user.setRole(modifyUserRole.newRole());
 
-    user = this.usersRepository.save(user);
-    this.userNotifier.notifyUserRoleAssigned(user);
-    return user;
+    final Users savedUser = this.usersRepository.save(user);
+    this.userNotifier.notifyUserRoleAssigned(savedUser);
+    return savedUser;
   }
 
   /**
-   * Validates if the new role is permitted for assignment. Certain roles (like OWNER, SUPERADMIN)
-   * might not be assignable through this operation.
+   * Validates if the new role is permitted for assignment. Certain roles (like OWNER, SUPERADMIN) might not be
+   * assignable through this operation.
    *
-   * @param role The role to validate.
-   * @throws InvalidRoleException if the role is not permitted.
+   * @param role
+   *          The role to validate.
+   * @throws InvalidRoleException
+   *           if the role is not permitted.
    */
-  private void validateRolePermitted(Roles role) {
-    Set<Roles> rolesNotPermitted = Set.of(Roles.OWNER, Roles.SUPERADMIN);
+  private void validateRolePermitted(final Roles role) {
+    final Set<Roles> rolesNotPermitted = Set.of(Roles.OWNER, Roles.SUPERADMIN);
     if (rolesNotPermitted.contains(role)) {
       throw new InvalidRoleException(role);
     }
@@ -89,10 +97,12 @@ public class ModifyUserRoleUseCase {
   /**
    * Command object for the {@link ModifyUserRoleUseCase}.
    *
-   * @param userId The ID of the user whose role is to be modified.
-   * @param newRole The new role to assign to the user.
-   * @param tenantId The ID of the tenant where the user belongs.
+   * @param userId
+   *          The ID of the user whose role is to be modified.
+   * @param newRole
+   *          The new role to assign to the user.
    */
   @Builder(toBuilder = true)
-  public record ModifyUserRole(UUID userId, Roles newRole, UUID tenantId) {}
+  public record ModifyUserRole(UUID userId, Roles newRole) {
+  }
 }

@@ -11,8 +11,6 @@ public class GetPublicTicketUseCase {
   private final ParkingTicketsRepository parkingTicketsRepository;
 
   public ParkingTickets execute(final UUID ticketId) {
-    return this.parkingTicketsRepository
-        .findById(ticketId)
-        .orElseThrow(() -> new ParkingTicketNotFound(ticketId));
+    return this.parkingTicketsRepository.findById(ticketId).orElseThrow(() -> new ParkingTicketNotFound(ticketId));
   }
 }

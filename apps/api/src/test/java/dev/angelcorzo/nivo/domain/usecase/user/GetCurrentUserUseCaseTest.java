@@ -21,9 +21,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("GetCurrentUserUseCase - Unit Tests")
 class GetCurrentUserUseCaseTest {
 
-  @Mock private AuthenticationContextGateway authenticationContextGateway;
+  @Mock
+  private AuthenticationContextGateway authenticationContextGateway;
 
-  @InjectMocks private GetCurrentUserUseCase getCurrentUserUseCase;
+  @InjectMocks
+  private GetCurrentUserUseCase getCurrentUserUseCase;
 
   // ========== HAPPY PATH ==========
 
@@ -34,17 +36,16 @@ class GetCurrentUserUseCaseTest {
     final UUID userId = UUID.randomUUID();
     final UUID tenantId = UUID.randomUUID();
 
-    Users expectedUser =
-        Users.builder()
-            .id(userId)
-            .fullName("Juan Pérez")
-            .email("juan@example.com")
-            .role(Roles.MANAGER)
-            .tenant(TenantReference.builder().id(tenantId).companyName("Nivo Corp").build())
-            .contactInfo("+5491112345678")
-            .createdAt(OffsetDateTime.now().minusDays(30))
-            .updatedAt(OffsetDateTime.now())
-            .build();
+    Users expectedUser = Users.builder()
+      .id(userId)
+      .fullName("Juan Pérez")
+      .email("juan@example.com")
+      .role(Roles.MANAGER)
+      .tenant(TenantReference.builder().id(tenantId).companyName("Nivo Corp").build())
+      .contactInfo("+5491112345678")
+      .createdAt(OffsetDateTime.now().minusDays(30))
+      .updatedAt(OffsetDateTime.now())
+      .build();
 
     when(authenticationContextGateway.getCurrentUser()).thenReturn(expectedUser);
 
@@ -68,14 +69,11 @@ class GetCurrentUserUseCaseTest {
   @DisplayName("Should throw exception when no authenticated user in context")
   void shouldThrowException_whenNoAuthenticatedUser() {
     // Given
-    when(authenticationContextGateway.getCurrentUser())
-        .thenThrow(new UserAuthenticationContextInvalidException());
+    when(authenticationContextGateway.getCurrentUser()).thenThrow(new UserAuthenticationContextInvalidException());
 
     // When & Then
-    assertThrows(
-        UserAuthenticationContextInvalidException.class,
-        () -> getCurrentUserUseCase.execute(),
-        "Should throw when no authenticated user in context");
+    assertThrows(UserAuthenticationContextInvalidException.class, () -> getCurrentUserUseCase.execute(),
+      "Should throw when no authenticated user in context");
 
     verify(authenticationContextGateway, times(1)).getCurrentUser();
   }
@@ -89,18 +87,17 @@ class GetCurrentUserUseCaseTest {
     final OffsetDateTime createdAt = OffsetDateTime.now().minusMonths(6);
     final OffsetDateTime updatedAt = OffsetDateTime.now().minusDays(1);
 
-    Users expectedUser =
-        Users.builder()
-            .id(userId)
-            .fullName("María García")
-            .email("maria@example.com")
-            .role(Roles.OWNER)
-            .tenant(TenantReference.builder().id(tenantId).companyName("Parking Max").build())
-            .contactInfo("+5491198765432")
-            .createdAt(createdAt)
-            .updatedAt(updatedAt)
-            .deletedAt(null)
-            .build();
+    Users expectedUser = Users.builder()
+      .id(userId)
+      .fullName("María García")
+      .email("maria@example.com")
+      .role(Roles.OWNER)
+      .tenant(TenantReference.builder().id(tenantId).companyName("Parking Max").build())
+      .contactInfo("+5491198765432")
+      .createdAt(createdAt)
+      .updatedAt(updatedAt)
+      .deletedAt(null)
+      .build();
 
     when(authenticationContextGateway.getCurrentUser()).thenReturn(expectedUser);
 

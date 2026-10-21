@@ -1,10 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
 import type { UserModel } from "@core/models/user.model";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
-import {
-  createUserColumns,
-  formatUserDate,
-} from "./user-columns-definition";
+import { describe, expect, it, vi } from "vitest";
+
+import { createUserColumns, formatUserDate } from "./user-columns-definition";
 
 describe("user-columns-definition", () => {
   const mockUser: UserModel = {

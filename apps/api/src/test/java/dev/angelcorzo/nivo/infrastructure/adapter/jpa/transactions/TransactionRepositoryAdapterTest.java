@@ -3,11 +3,11 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.transactions;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.payments.PaymentsData;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.transactions.mappers.TransactionMapper;
 import dev.angelcorzo.nivo.domain.model.payments.Payments;
 import dev.angelcorzo.nivo.domain.model.transactions.Transactions;
 import dev.angelcorzo.nivo.domain.model.transactions.enums.TransactionStatus;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.payments.PaymentsData;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.transactions.mappers.TransactionMapper;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -87,17 +87,16 @@ class TransactionRepositoryAdapterTest {
     PaymentsData paymentData = new PaymentsData();
     paymentData.setId(paymentId);
 
-    Transactions entity =
-        Transactions.builder()
-            .id(transactionId)
-            .payment(payment)
-            .supplierRef("EFF-" + paymentId)
-            .paymentProvider("EFFECTIVE")
-            .amount(BigDecimal.valueOf(25000))
-            .currency("COP")
-            .status(TransactionStatus.APPROVED)
-            .createdAt(OffsetDateTime.now())
-            .build();
+    Transactions entity = Transactions.builder()
+      .id(transactionId)
+      .payment(payment)
+      .supplierRef("EFF-" + paymentId)
+      .paymentProvider("EFFECTIVE")
+      .amount(BigDecimal.valueOf(25000))
+      .currency("COP")
+      .status(TransactionStatus.APPROVED)
+      .createdAt(OffsetDateTime.now())
+      .build();
 
     TransactionsData data = new TransactionsData();
     data.setId(transactionId);

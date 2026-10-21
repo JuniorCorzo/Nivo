@@ -56,8 +56,8 @@ class AuthenticationContextHolderTest {
       UUID tenantId = UUID.randomUUID();
       UserAuthentication userAuth = new UserAuthentication(userId, tenantId, Roles.MANAGER);
 
-      Authentication authentication =
-          new UsernamePasswordAuthenticationToken(userAuth, null, java.util.Collections.emptyList());
+      Authentication authentication = new UsernamePasswordAuthenticationToken(userAuth, null,
+        java.util.Collections.emptyList());
       SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
       securityContext.setAuthentication(authentication);
       SecurityContextHolder.setContext(securityContext);
@@ -80,8 +80,8 @@ class AuthenticationContextHolderTest {
       UUID tenantId = UUID.randomUUID();
       UserAuthentication userAuth = new UserAuthentication(userId, tenantId, Roles.OWNER);
 
-      Authentication authentication =
-          new UsernamePasswordAuthenticationToken(userAuth, null, java.util.Collections.emptyList());
+      Authentication authentication = new UsernamePasswordAuthenticationToken(userAuth, null,
+        java.util.Collections.emptyList());
       SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
       securityContext.setAuthentication(authentication);
       SecurityContextHolder.setContext(securityContext);
@@ -99,8 +99,8 @@ class AuthenticationContextHolderTest {
       UUID tenantId = UUID.randomUUID();
       UserAuthentication userAuth = new UserAuthentication(userId, tenantId, Roles.OPERATOR);
 
-      Authentication authentication =
-          new UsernamePasswordAuthenticationToken(userAuth, null, java.util.Collections.emptyList());
+      Authentication authentication = new UsernamePasswordAuthenticationToken(userAuth, null,
+        java.util.Collections.emptyList());
       SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
       securityContext.setAuthentication(authentication);
       SecurityContextHolder.setContext(securityContext);
@@ -133,36 +133,35 @@ class AuthenticationContextHolderTest {
       SecurityContextHolder.clearContext();
 
       assertThatThrownBy(() -> contextHolder.getCurrentlyAuthenticatedUser())
-          .isInstanceOf(UserAuthenticationContextInvalidException.class);
+        .isInstanceOf(UserAuthenticationContextInvalidException.class);
     }
 
     @Test
     @DisplayName("Should throw UserAuthenticationContextInvalidException when authentication is not authenticated")
     void shouldThrowExceptionWhenNotAuthenticated() {
       // Arrange: unauthenticated token
-      Authentication authentication =
-          new UsernamePasswordAuthenticationToken("anonymousUser", null);
+      Authentication authentication = new UsernamePasswordAuthenticationToken("anonymousUser", null);
       // UsernamePasswordAuthenticationToken(Object, Object) has isAuthenticated = false
       SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
       securityContext.setAuthentication(authentication);
       SecurityContextHolder.setContext(securityContext);
 
       assertThatThrownBy(() -> contextHolder.getCurrentlyAuthenticatedUser())
-          .isInstanceOf(UserAuthenticationContextInvalidException.class);
+        .isInstanceOf(UserAuthenticationContextInvalidException.class);
     }
 
     @Test
     @DisplayName("Should throw UserAuthenticationContextInvalidException when principal is not UserAuthentication")
     void shouldThrowExceptionWhenPrincipalIsNotUserAuthentication() {
       // Arrange: authenticated token but principal is String
-      Authentication authentication =
-          new UsernamePasswordAuthenticationToken("someUsername", "credentials", java.util.Collections.emptyList());
+      Authentication authentication = new UsernamePasswordAuthenticationToken("someUsername", "credentials",
+        java.util.Collections.emptyList());
       SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
       securityContext.setAuthentication(authentication);
       SecurityContextHolder.setContext(securityContext);
 
       assertThatThrownBy(() -> contextHolder.getCurrentlyAuthenticatedUser())
-          .isInstanceOf(UserAuthenticationContextInvalidException.class);
+        .isInstanceOf(UserAuthenticationContextInvalidException.class);
     }
   }
 }

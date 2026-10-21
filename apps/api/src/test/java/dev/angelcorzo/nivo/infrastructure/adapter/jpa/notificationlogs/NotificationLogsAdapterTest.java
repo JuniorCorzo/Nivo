@@ -3,8 +3,8 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.notificationlogs;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.notificationlogs.mappers.NotificationLogsMapper;
 import dev.angelcorzo.nivo.domain.model.notificationlogs.NotificationLogs;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.notificationlogs.mappers.NotificationLogsMapper;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;

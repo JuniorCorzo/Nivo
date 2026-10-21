@@ -23,7 +23,8 @@ class UpdateUserNotificationPreferencesUseCaseTest {
   void setUp() {
     notificationPreferencesRepository = mock(NotificationPreferencesRepository.class);
     authenticationContextGateway = mock(AuthenticationContextGateway.class);
-    useCase = new UpdateUserNotificationPreferencesUseCase(notificationPreferencesRepository, authenticationContextGateway);
+    useCase = new UpdateUserNotificationPreferencesUseCase(notificationPreferencesRepository,
+      authenticationContextGateway);
   }
 
   @Test
@@ -32,13 +33,13 @@ class UpdateUserNotificationPreferencesUseCaseTest {
     UUID userId = UUID.randomUUID();
 
     when(authenticationContextGateway.getCurrentUserId()).thenReturn(userId);
-    when(notificationPreferencesRepository.toggleActiveStatus(
-            userId, NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL))
-        .thenReturn(true);
+    when(notificationPreferencesRepository.toggleActiveStatus(userId, NotificationEvents.TICKET_OPENED,
+      NotificationsChannel.EMAIL)).thenReturn(true);
 
     boolean result = useCase.toggleActiveStatus(NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL);
 
     assertThat(result).isTrue();
-    verify(notificationPreferencesRepository).toggleActiveStatus(userId, NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL);
+    verify(notificationPreferencesRepository).toggleActiveStatus(userId, NotificationEvents.TICKET_OPENED,
+      NotificationsChannel.EMAIL);
   }
 }

@@ -1,10 +1,10 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.notificationlogs.mappers;
 
+import dev.angelcorzo.nivo.domain.model.notificationlogs.NotificationLogs;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.config.MapperStructConfig;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.mappers.BaseMapper;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.notificationlogs.NotificationLogsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.notificationtemplates.NotificationTemplatesData;
-import dev.angelcorzo.nivo.domain.model.notificationlogs.NotificationLogs;
 import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -23,7 +23,8 @@ public interface NotificationLogsMapper extends BaseMapper<NotificationLogs, Not
 
   @Named("uuidToTemplate")
   default NotificationTemplatesData uuidToTemplate(UUID templateId) {
-    if (templateId == null) return null;
+    if (templateId == null)
+      return null;
     return NotificationTemplatesData.builder().id(templateId).build();
   }
 }

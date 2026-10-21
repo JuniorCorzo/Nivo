@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.SlotSummaryData;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotType;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotSummary;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.SlotSummaryData;
 import jakarta.persistence.Tuple;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -102,19 +102,19 @@ class SlotSummaryDataMapperTest {
   void shouldMapSummaryDataToDomainModelWithStatus() {
     UUID id = UUID.randomUUID();
     SlotSummaryData data = SlotSummaryData.builder()
-        .id(id)
-        .parkingName("Parking Central")
-        .type(SlotType.CAR)
-        .prefix("P")
-        .zone("A")
-        .numberSlot("001")
-        .status(SlotStatus.OCCUPIED)
-        .hasTicket(false)
-        .hasHistory(false)
-        .hasCharger(true)
-        .isAccessible(false)
-        .isActive(true)
-        .build();
+      .id(id)
+      .parkingName("Parking Central")
+      .type(SlotType.CAR)
+      .prefix("P")
+      .zone("A")
+      .numberSlot("001")
+      .status(SlotStatus.OCCUPIED)
+      .hasTicket(false)
+      .hasHistory(false)
+      .hasCharger(true)
+      .isAccessible(false)
+      .isActive(true)
+      .build();
 
     SlotSummary result = mapper.toModel(data);
 
@@ -137,16 +137,16 @@ class SlotSummaryDataMapperTest {
   void shouldMapSummaryDataWithTicketAndHistoryToDomainModel() {
     UUID id = UUID.randomUUID();
     SlotSummaryData data = SlotSummaryData.builder()
-        .id(id)
-        .parkingName("Parking Este")
-        .type(SlotType.ELECTRIC_VEHICLE)
-        .prefix("E")
-        .zone("D")
-        .numberSlot("007")
-        .status(SlotStatus.OCCUPIED)
-        .hasTicket(true)
-        .hasHistory(true)
-        .build();
+      .id(id)
+      .parkingName("Parking Este")
+      .type(SlotType.ELECTRIC_VEHICLE)
+      .prefix("E")
+      .zone("D")
+      .numberSlot("007")
+      .status(SlotStatus.OCCUPIED)
+      .hasTicket(true)
+      .hasHistory(true)
+      .build();
 
     SlotSummary result = mapper.toModel(data);
 

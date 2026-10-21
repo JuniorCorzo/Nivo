@@ -15,8 +15,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -40,32 +40,31 @@ class PublicAvailabilityControllerTest {
   void shouldReturnSanitizedAvailabilityWithoutAuth() throws Exception {
     final UUID parkingId = UUID.randomUUID();
     final PublicParkingAvailabilityDTO dto = PublicParkingAvailabilityDTO.builder()
-        .parkingId(parkingId)
-        .parkingName("Sede Central")
-        .totalSlots(100)
-        .availableSlots(40)
-        .occupiedSlots(60)
-        .timestamp(OffsetDateTime.now())
-        .build();
+      .parkingId(parkingId)
+      .parkingName("Sede Central")
+      .totalSlots(100)
+      .availableSlots(40)
+      .occupiedSlots(60)
+      .timestamp(OffsetDateTime.now())
+      .build();
 
     when(availabilityUseCase.execute(parkingId)).thenReturn(Optional.of(dto));
 
-    mockMvc.perform(get("/public/parkings/" + parkingId + "/availability")
-            .with(request -> {
-              request.setRemoteAddr("10.0.0.1");
-              return request;
-            }))
-        .andExpect(status().isOk())
-        .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("max-age=30")))
-        .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("public")))
-        .andExpect(jsonPath("$.parkingId").value(parkingId.toString()))
-        .andExpect(jsonPath("$.parkingName").value("Sede Central"))
-        .andExpect(jsonPath("$.totalSlots").value(100))
-        .andExpect(jsonPath("$.availableSlots").value(40))
-        .andExpect(jsonPath("$.occupiedSlots").value(60))
-        .andExpect(jsonPath("$.tenantId").doesNotExist())
-        .andExpect(jsonPath("$.revenue").doesNotExist())
-        .andExpect(jsonPath("$.tickets").doesNotExist());
+    mockMvc.perform(get("/public/parkings/" + parkingId + "/availability").with(request -> {
+      request.setRemoteAddr("10.0.0.1");
+      return request;
+    }))
+      .andExpect(status().isOk())
+      .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("max-age=30")))
+      .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("public")))
+      .andExpect(jsonPath("$.parkingId").value(parkingId.toString()))
+      .andExpect(jsonPath("$.parkingName").value("Sede Central"))
+      .andExpect(jsonPath("$.totalSlots").value(100))
+      .andExpect(jsonPath("$.availableSlots").value(40))
+      .andExpect(jsonPath("$.occupiedSlots").value(60))
+      .andExpect(jsonPath("$.tenantId").doesNotExist())
+      .andExpect(jsonPath("$.revenue").doesNotExist())
+      .andExpect(jsonPath("$.tickets").doesNotExist());
   }
 
   @Test
@@ -74,12 +73,10 @@ class PublicAvailabilityControllerTest {
     final UUID nonExistent = UUID.randomUUID();
     when(availabilityUseCase.execute(nonExistent)).thenReturn(Optional.empty());
 
-    mockMvc.perform(get("/public/parkings/" + nonExistent + "/availability")
-            .with(request -> {
-              request.setRemoteAddr("10.0.0.2");
-              return request;
-            }))
-        .andExpect(status().isNotFound());
+    mockMvc.perform(get("/public/parkings/" + nonExistent + "/availability").with(request -> {
+      request.setRemoteAddr("10.0.0.2");
+      return request;
+    })).andExpect(status().isNotFound());
   }
 
   @Test
@@ -87,13 +84,13 @@ class PublicAvailabilityControllerTest {
   void shouldReturn429WhenRateLimitExceeded() throws Exception {
     final UUID parkingId = UUID.randomUUID();
     final PublicParkingAvailabilityDTO dto = PublicParkingAvailabilityDTO.builder()
-        .parkingId(parkingId)
-        .parkingName("Sede Rate Limit")
-        .totalSlots(50)
-        .availableSlots(20)
-        .occupiedSlots(30)
-        .timestamp(OffsetDateTime.now())
-        .build();
+      .parkingId(parkingId)
+      .parkingName("Sede Rate Limit")
+      .totalSlots(50)
+      .availableSlots(20)
+      .occupiedSlots(30)
+      .timestamp(OffsetDateTime.now())
+      .build();
 
     when(availabilityUseCase.execute(parkingId)).thenReturn(Optional.of(dto));
 
@@ -103,16 +100,12 @@ class PublicAvailabilityControllerTest {
     // Consumir el bucket (60 req/min) de forma tolerante a tiempos de ejecución lentos en CI.
     // Se itera hasta alcanzar 429 (ocurre normalmente entre la petición 61 y 65 si se rellenan tokens).
     for (int i = 1; i <= 70; i++) {
-      final MvcResult result =
-          mockMvc
-              .perform(
-                  get("/public/parkings/" + parkingId + "/availability")
-                      .with(
-                          request -> {
-                            request.setRemoteAddr(clientIp);
-                            return request;
-                          }))
-              .andReturn();
+      final MvcResult result = mockMvc
+        .perform(get("/public/parkings/" + parkingId + "/availability").with(request -> {
+          request.setRemoteAddr(clientIp);
+          return request;
+        }))
+        .andReturn();
 
       final int status = result.getResponse().getStatus();
       if (status == 429) {
@@ -121,7 +114,7 @@ class PublicAvailabilityControllerTest {
         assertThat(result.getResponse().getHeader("Retry-After")).isNotNull();
         assertThat(result.getResponse().getHeader("X-RateLimit-Remaining")).isEqualTo("0");
         assertThat(result.getResponse().getContentAsString())
-            .contains("Rate limit of 60 requests per minute exceeded");
+          .contains("Rate limit of 60 requests per minute exceeded");
         break;
       }
       assertThat(status).isEqualTo(200);

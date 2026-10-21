@@ -121,9 +121,7 @@
           [slotTypeOptions]="facade.slotTypeOptions"
           (addSlot)="facade.addSlot()"
           (removeSlot)="facade.removeSlot($event)"
-          (slotChange)="
-            facade.updateSlot($event.index, $event.field, $any($event.value))
-          "
+          (slotChange)="facade.updateSlot($event.index, $event.field, $any($event.value))"
         />
       </div>
     </form>

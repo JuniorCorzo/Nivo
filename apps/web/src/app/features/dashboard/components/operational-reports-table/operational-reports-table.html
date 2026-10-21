@@ -13,10 +13,10 @@
         >
           <ng-container
             *flexRender="
-              header.column.columnDef.header;
-              props: header.getContext();
-              let headerRender
-            "
+                  header.column.columnDef.header;
+                  props: header.getContext();
+                  let headerRender
+                "
           >
             <div [innerHTML]="headerRender"></div>
           </ng-container>
@@ -32,11 +32,7 @@
         @for (cell of row.getVisibleCells(); track cell.id) {
         <td nv-table-cell class="px-4 py-3 text-sm">
           <ng-container
-            *flexRender="
-              cell.column.columnDef.cell;
-              props: cell.getContext();
-              let cellRender
-            "
+            *flexRender="cell.column.columnDef.cell; props: cell.getContext(); let cellRender"
           >
             <div [innerHTML]="cellRender"></div>
           </ng-container>

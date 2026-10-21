@@ -36,18 +36,17 @@ class CreateSpecialPolicyUseCaseTest {
     UUID tenantId = UUID.randomUUID();
     Tenants tenant = Tenants.builder().id(tenantId).companyName("Central Parking").build();
 
-    CreateSpecialPolicyUseCase.CreateSpecialPolicyCommand command =
-        CreateSpecialPolicyUseCase.CreateSpecialPolicyCommand.builder()
-            .name("Weekend Discount")
-            .tenantId(tenantId)
-            .modifies(ModifiesTypes.PRICE)
-            .operation(OperationsTypes.PERCENTAGE)
-            .valueToModify(BigDecimal.valueOf(15))
-            .build();
+    CreateSpecialPolicyUseCase.CreateSpecialPolicyCommand command = CreateSpecialPolicyUseCase.CreateSpecialPolicyCommand
+      .builder()
+      .name("Weekend Discount")
+      .tenantId(tenantId)
+      .modifies(ModifiesTypes.PRICE)
+      .operation(OperationsTypes.PERCENTAGE)
+      .valueToModify(BigDecimal.valueOf(15))
+      .build();
 
     when(tenantsRepository.getReferenceById(tenantId)).thenReturn(tenant);
-    when(specialPoliciesRepository.save(any(SpecialPolicies.class)))
-        .thenAnswer(i -> i.getArgument(0));
+    when(specialPoliciesRepository.save(any(SpecialPolicies.class))).thenAnswer(i -> i.getArgument(0));
 
     SpecialPolicies result = useCase.execute(command);
 

@@ -1,12 +1,9 @@
 package dev.angelcorzo.nivo.domain.model.parkinglots;
 
-import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
-import dev.angelcorzo.nivo.domain.model.users.Users;
+import dev.angelcorzo.nivo.domain.model.users.valueobject.UserReference;
 import java.time.OffsetDateTime;
 import java.util.UUID;
-
-import dev.angelcorzo.nivo.domain.model.users.valueobject.UserReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,17 +13,14 @@ import lombok.Setter;
  * Represents a Parking Lot entity within the system.
  *
  * <p>
- * This class is an aggregate root that contains all relevant information about
- * a parking lot,
- * such as its identification, name, location, capacity, and operational
- * settings.
+ * This class is an aggregate root that contains all relevant information about a parking lot, such as its
+ * identification, name, location, capacity, and operational settings.
  *
  * <p>
  * <strong>Layer:</strong> Domain
  *
  * <p>
- * <strong>Responsibility:</strong> To hold the state and invariants of a
- * parking lot.
+ * <strong>Responsibility:</strong> To hold the state and invariants of a parking lot.
  *
  * @author Angel Corzo
  * @since 1.0.0
@@ -39,8 +33,7 @@ import lombok.Setter;
 @Builder(toBuilder = true)
 public class ParkingLots {
   /**
-   * The unique identifier for the parking lot. It is a UUID generated at the time
-   * of creation.
+   * The unique identifier for the parking lot. It is a UUID generated at the time of creation.
    */
   private UUID id;
 

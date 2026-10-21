@@ -1,8 +1,8 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.transactions;
 
+import dev.angelcorzo.nivo.domain.model.transactions.enums.TransactionStatus;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.payments.PaymentsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.transactions.converts.EncryptedResponseConverter;
-import dev.angelcorzo.nivo.domain.model.transactions.enums.TransactionStatus;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;

@@ -76,8 +76,7 @@ class SentryConfigTest {
 
     sentryConfig.init();
 
-    assertThatCode(() -> Sentry.captureException(new Exception("This is a test.")))
-        .doesNotThrowAnyException();
+    assertThatCode(() -> Sentry.captureException(new Exception("This is a test."))).doesNotThrowAnyException();
   }
 
   @Test
@@ -87,8 +86,7 @@ class SentryConfigTest {
 
     sentryConfig.init();
 
-    assertThatCode(() -> Sentry.captureException(new Exception("This is a test.")))
-        .doesNotThrowAnyException();
+    assertThatCode(() -> Sentry.captureException(new Exception("This is a test."))).doesNotThrowAnyException();
   }
 
   @Test

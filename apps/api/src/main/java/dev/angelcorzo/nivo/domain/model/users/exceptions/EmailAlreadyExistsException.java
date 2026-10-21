@@ -5,7 +5,8 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
 /**
  * Thrown when attempting to create a user with an email that already exists.
  *
- * <p><strong>Layer:</strong> Domain
+ * <p>
+ * <strong>Layer:</strong> Domain
  *
  * @author Angel Corzo
  * @since 1.0.0

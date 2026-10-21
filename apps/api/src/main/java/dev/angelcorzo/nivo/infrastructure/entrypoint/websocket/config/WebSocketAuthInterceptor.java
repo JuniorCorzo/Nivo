@@ -22,9 +22,10 @@ import org.springframework.stereotype.Component;
 /**
  * Interceptor para validar tokens JWT en conexiones WebSocket.
  *
- * <p>Intercepta el comando CONNECT de STOMP y valida el token JWT enviado en el header
- * 'Authorization'. Si el token es válido, establece el principal de autenticación en el contexto de
- * Spring Security. Utiliza {@link AuthenticationGateway} para reutilizar la lógica de validación.
+ * <p>
+ * Intercepta el comando CONNECT de STOMP y valida el token JWT enviado en el header 'Authorization'. Si el token es
+ * válido, establece el principal de autenticación en el contexto de Spring Security. Utiliza
+ * {@link AuthenticationGateway} para reutilizar la lógica de validación.
  */
 @Slf4j
 @Component
@@ -35,8 +36,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
   @Override
   public Message<?> preSend(Message<?> message, MessageChannel channel) {
-    StompHeaderAccessor accessor =
-        MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+    StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
     if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
       log.debug("Processing CONNECT command for WebSocket authentication");
@@ -75,26 +75,21 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
         }
 
         // Crear el principal de autenticación
-        UserAuthentication userPrincipal =
-            UserAuthentication.builder()
-                .userId(UUID.fromString(userId))
-                .tenantId(UUID.fromString(tenantId))
-                .role(Roles.valueOf(Roles.class, role.replace("ROLE_", "").toUpperCase()))
-                .build();
+        UserAuthentication userPrincipal = UserAuthentication.builder()
+          .userId(UUID.fromString(userId))
+          .tenantId(UUID.fromString(tenantId))
+          .role(Roles.valueOf(Roles.class, role.replace("ROLE_", "").toUpperCase()))
+          .build();
 
-        List<SimpleGrantedAuthority> authorities =
-            Collections.singletonList(new SimpleGrantedAuthority(role));
+        List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
 
-        UsernamePasswordAuthenticationToken authentication =
-            new UsernamePasswordAuthenticationToken(userPrincipal, null, authorities);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+          userPrincipal, null, authorities);
 
         // Establecer el usuario autenticado en el contexto de Spring Security
         accessor.setUser(authentication);
 
-        log.info(
-            "WebSocket connection authenticated for user: {} with role: {}",
-            userPrincipal.userId(),
-            role);
+        log.info("WebSocket connection authenticated for user: {} with role: {}", userPrincipal.userId(), role);
 
       } catch (IllegalArgumentException e) {
         log.error("Invalid JWT token: {}", e.getMessage());
@@ -111,7 +106,8 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
   /**
    * Extrae el token del header Authorization. Soporta formato "Bearer <token>"
    *
-   * @param authHeader El valor del header Authorization
+   * @param authHeader
+   *          El valor del header Authorization
    * @return El token JWT o null si el formato es inválido
    */
   private String extractToken(String authHeader) {

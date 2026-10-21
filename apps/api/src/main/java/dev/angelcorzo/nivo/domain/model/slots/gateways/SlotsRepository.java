@@ -2,7 +2,6 @@ package dev.angelcorzo.nivo.domain.model.slots.gateways;
 
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotSummary;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

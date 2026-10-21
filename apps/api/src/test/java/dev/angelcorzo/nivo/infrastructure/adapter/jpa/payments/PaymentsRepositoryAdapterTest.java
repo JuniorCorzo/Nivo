@@ -3,12 +3,12 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.payments;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.payments.mapper.PaymentMapper;
 import dev.angelcorzo.nivo.domain.model.commons.result.Result;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.domain.model.payments.Payments;
 import dev.angelcorzo.nivo.domain.model.payments.enums.PaymentStatus;
 import dev.angelcorzo.nivo.domain.model.payments.exceptions.PaymentError;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.payments.mapper.PaymentMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

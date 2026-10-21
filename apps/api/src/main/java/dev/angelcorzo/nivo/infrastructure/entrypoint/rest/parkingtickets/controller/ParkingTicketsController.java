@@ -1,5 +1,13 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkingtickets.controller;
 
+import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
+import dev.angelcorzo.nivo.domain.model.payments.Payments;
+import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.CheckOut;
+import dev.angelcorzo.nivo.domain.usecase.ticket.CheckOutVehicleUseCase;
+import dev.angelcorzo.nivo.domain.usecase.ticket.CheckinVehicleUseCase;
+import dev.angelcorzo.nivo.domain.usecase.ticket.GetActiveParkingTicketBySlotUseCase;
+import dev.angelcorzo.nivo.domain.usecase.ticket.ListParkingTicketsByParkingLotUseCase;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.dto.Response;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkingtickets.dto.CreateTicket;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkingtickets.dto.ParkingTicketsDTO;
@@ -7,14 +15,6 @@ import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkingtickets.mapper.
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.payments.dtos.request.check_out.check_out.CheckOutCommand;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.payments.dtos.response.PaymentsDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.payments.mappers.PaymentsMapper;
-import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
-import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
-import dev.angelcorzo.nivo.domain.model.payments.Payments;
-import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.CheckOut;
-import dev.angelcorzo.nivo.domain.usecase.ticket.CheckinVehicleUseCase;
-import dev.angelcorzo.nivo.domain.usecase.ticket.CheckOutVehicleUseCase;
-import dev.angelcorzo.nivo.domain.usecase.ticket.GetActiveParkingTicketBySlotUseCase;
-import dev.angelcorzo.nivo.domain.usecase.ticket.ListParkingTicketsByParkingLotUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -42,76 +42,58 @@ public class ParkingTicketsController {
   private final ParkingTicketMapper parkingTicketMapper;
   private final PaymentsMapper paymentsMapper;
 
-  @Operation(
-      summary = "List parking tickets by parking lot",
-      description = "Retrieves all parking tickets belonging to a specific parking lot")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Tickets retrieved successfully"),
-    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
-  })
+  @Operation(summary = "List parking tickets by parking lot", description = "Retrieves all parking tickets belonging to a specific parking lot")
+  @ApiResponses({@ApiResponse(responseCode = "200", description = "Tickets retrieved successfully"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")})
   @GetMapping("/list")
   @PreAuthorize("hasRole('OPERATOR')")
   public Response<List<ParkingTicketsDTO>> listTickets(
-      @Parameter(description = "Parking lot ID", required = true) @RequestParam("parking") UUID parkingLotId) {
-    final List<ParkingTicketsDTO> tickets =
-        this.listParkingTicketsByParkingLotUseCase.execute(parkingLotId).stream()
-            .map(this.parkingTicketMapper::toDto)
-            .toList();
+    @Parameter(description = "Parking lot ID", required = true) @RequestParam("parking") UUID parkingLotId) {
+    final List<ParkingTicketsDTO> tickets = this.listParkingTicketsByParkingLotUseCase.execute(parkingLotId)
+      .stream()
+      .map(this.parkingTicketMapper::toDto)
+      .toList();
 
     return Response.ok(tickets, "Tickets retrieved successfully");
   }
 
-  @Operation(
-      summary = "Get active parking ticket by slot",
-      description = "Retrieves the active OPEN ticket for a specific slot, if any")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Active ticket retrieved successfully"),
-    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
-  })
+  @Operation(summary = "Get active parking ticket by slot", description = "Retrieves the active OPEN ticket for a specific slot, if any")
+  @ApiResponses({@ApiResponse(responseCode = "200", description = "Active ticket retrieved successfully"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")})
   @GetMapping("/active")
   @PreAuthorize("hasRole('OPERATOR')")
   public Response<ParkingTicketsDTO> getActiveTicket(
-      @Parameter(description = "Slot ID", required = true) @RequestParam("slot") UUID slotId) {
-    final ParkingTicketsDTO ticket =
-        this.getActiveParkingTicketBySlotUseCase.execute(slotId)
-            .map(this.parkingTicketMapper::toDto)
-            .orElse(null);
+    @Parameter(description = "Slot ID", required = true) @RequestParam("slot") UUID slotId) {
+    final ParkingTicketsDTO ticket = this.getActiveParkingTicketBySlotUseCase.execute(slotId)
+      .map(this.parkingTicketMapper::toDto)
+      .orElse(null);
 
     return Response.ok(ticket, "Active ticket retrieved successfully");
   }
 
-  @Operation(
-      summary = "Vehicle check-in",
-      description = "Registers vehicle entry without prior reservation and generates a parking ticket")
-  @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "Ticket created successfully"),
+  @Operation(summary = "Vehicle check-in", description = "Registers vehicle entry without prior reservation and generates a parking ticket")
+  @ApiResponses({@ApiResponse(responseCode = "201", description = "Ticket created successfully"),
     @ApiResponse(responseCode = "400", description = "Invalid payload or slot unavailable"),
-    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
-  })
+    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")})
   @PostMapping("/check-in")
   @PreAuthorize("hasRole('OPERATOR')")
   @ResponseStatus(HttpStatus.CREATED)
   public Response<ParkingTicketsDTO> createTicket(@RequestBody @Valid CreateTicket createTicket) {
     final UUID tenantId = this.authenticationContext.getCurrentTenantId();
 
-    final ParkingTickets ticket =
-        this.checkinVehicleUseCase.execute(
-            this.parkingTicketMapper.toModel(createTicket).toBuilder()
-                .tenantId(tenantId)
-                .email(createTicket.email())
-                .build());
+    final ParkingTickets ticket = this.checkinVehicleUseCase.execute(this.parkingTicketMapper.toModel(createTicket)
+      .toBuilder()
+      .tenantId(tenantId)
+      .email(createTicket.email())
+      .build());
 
     return Response.created(this.parkingTicketMapper.toDto(ticket), "Ticket created successfully");
   }
 
-  @Operation(
-      summary = "Vehicle check-out",
-      description = "Calculates total charge, processes checkout, and creates a payment record")
-  @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "Vehicle checked out and payment created"),
+  @Operation(summary = "Vehicle check-out", description = "Calculates total charge, processes checkout, and creates a payment record")
+  @ApiResponses({@ApiResponse(responseCode = "201", description = "Vehicle checked out and payment created"),
     @ApiResponse(responseCode = "400", description = "Invalid checkout command"),
-    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
-  })
+    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")})
   @PostMapping("/check-out")
   @PreAuthorize("hasRole('OPERATOR')")
   @ResponseStatus(HttpStatus.CREATED)

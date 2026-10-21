@@ -39,11 +39,7 @@
   }
 
   <!-- Right Bento (6 cols or 12 cols if single parking): Quick Ticket Activity Stream -->
-  <div
-    [class]="
-      isMultiParkingTenant() ? 'lg:col-span-6' : 'lg:col-span-12'
-    "
-  >
+  <div [class]="isMultiParkingTenant() ? 'lg:col-span-6' : 'lg:col-span-12'">
     <nv-card class="flex h-full flex-col justify-between">
       <nv-card-header class="flex flex-row items-center justify-between pb-2">
         <div>

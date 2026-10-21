@@ -15,10 +15,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("NotificationWorker Unit Tests")
 class NotificationWorkerTest {
 
-  @Mock private SendNotificationQueue queue;
-  @Mock private NotificationProcessor notificationProcessor;
+  @Mock
+  private SendNotificationQueue queue;
 
-  @InjectMocks private NotificationWorker worker;
+  @Mock
+  private NotificationProcessor notificationProcessor;
+
+  @InjectMocks
+  private NotificationWorker worker;
 
   @Test
   @DisplayName("Should start application and handle loop without exception")

@@ -9,6 +9,7 @@
 **Tech Stack:** TypeScript 6, Angular 21.2+, Vitest 3.0+, Bun 1.3+, Tailwind CSS 4, `@nivo-sass/design-system`, `@ng-icons/lucide`, Ultracite / Oxlint.
 
 **Spec References:**
+
 - Technical Design: `openspec/changes/2026-10-16-plate-masks-and-live-ops/design.md`
 - Tasks Outline: `openspec/changes/2026-10-16-plate-masks-and-live-ops/tasks.md`
 - Proposal: `openspec/changes/2026-10-16-plate-masks-and-live-ops/proposal.md`
@@ -72,9 +73,11 @@ flowchart TD
 ### Task 1: Write Red Unit Tests for `PlateMaskDirective`
 
 **Target File:**
+
 - Create: `apps/web/src/app/shared/directives/plate-mask.spec.ts`
 
 **Interfaces & Contracts:**
+
 - Host Component: `TestHostComponent` hosting `<input appPlateMask [country]="country" [vehicleType]="vehicleType">`
 - Consumes: `PlateCountry` (`'CO' | 'VE' | 'UNPLATED'`), `VehicleType` (`'CAR' | 'MOTORCYCLE' | 'BIKE'`)
 - Asserts:
@@ -102,13 +105,7 @@ import { PlateMaskDirective } from "./plate-mask";
   imports: [PlateMaskDirective],
   standalone: true,
   template: `
-    <input
-      #inputRef
-      id="test-plate"
-      appPlateMask
-      [country]="country"
-      [vehicleType]="vehicleType"
-    />
+    <input #inputRef id="test-plate" appPlateMask [country]="country" [vehicleType]="vehicleType" />
   `,
 })
 class TestHostComponent {
@@ -332,16 +329,19 @@ describe("PlateMaskDirective", () => {
 ```bash
 rtk bun run --cwd apps/web ng test --include="**/plate-mask.spec.ts" --watch=false
 ```
-*Expected Result: Test runner fails with "Cannot find module './plate-mask'" or compilation error (Red confirmed).*
+
+_Expected Result: Test runner fails with "Cannot find module './plate-mask'" or compilation error (Red confirmed)._
 
 ---
 
 ### Task 2: Implement `PlateMaskDirective` (`apps/web/src/app/shared/directives/`)
 
 **Target File:**
+
 - Create: `apps/web/src/app/shared/directives/plate-mask.ts`
 
 **Interfaces & Logic:**
+
 - `@Directive({ selector: 'input[appPlateMask]', standalone: true })`
 - `country = input<PlateCountry>('CO')`
 - `vehicleType = input<VehicleType>('CAR')`
@@ -361,15 +361,7 @@ rtk bun run --cwd apps/web ng test --include="**/plate-mask.spec.ts" --watch=fal
 - [ ] **Step 1: Implement `apps/web/src/app/shared/directives/plate-mask.ts`**
 
 ```typescript
-import {
-  Directive,
-  ElementRef,
-  HostListener,
-  effect,
-  inject,
-  input,
-  output,
-} from "@angular/core";
+import { Directive, ElementRef, HostListener, effect, inject, input, output } from "@angular/core";
 import type { VehicleType } from "@core/models/rate.model";
 import type { PlateCountry } from "@core/models/ticket.model";
 
@@ -527,7 +519,8 @@ export class PlateMaskDirective {
 ```bash
 rtk bun run --cwd apps/web ng test --include="**/plate-mask.spec.ts" --watch=false
 ```
-*Expected Result: All tests in `plate-mask.spec.ts` pass.*
+
+_Expected Result: All tests in `plate-mask.spec.ts` pass._
 
 - [ ] **Step 3: Commit directive implementation**
 
@@ -543,12 +536,14 @@ rtk git commit -m "feat(web(plate-mask)): implement PlateMaskDirective with dyna
 ### Task 3: Integrate `appPlateMask` in `CheckInModalComponent` & UI Texts
 
 **Target Files:**
+
 - Modify: `apps/web/src/app/shared/constants/app-texts.constant.ts`
 - Modify: `apps/web/src/app/features/operations/components/modals/check-in-modal/check-in-modal.ts`
 - Modify: `apps/web/src/app/features/operations/components/modals/check-in-modal/check-in-modal.html`
 - Modify: `apps/web/src/app/features/operations/components/modals/check-in-modal/check-in-modal.spec.ts`
 
 **Interfaces & Integration:**
+
 - Update `APP_TEXTS.checkIn` placeholders to reflect masked formats:
   - `platePlaceholderCo: "Ej: ABC-123"`
   - `platePlaceholderVe: "Ej: AB-123-CD"`
@@ -570,38 +565,38 @@ rtk git commit -m "feat(web(plate-mask)): implement PlateMaskDirective with dyna
 Add the following tests to `describe("CheckInModalComponent", ...)` in `apps/web/src/app/features/operations/components/modals/check-in-modal/check-in-modal.spec.ts`:
 
 ```typescript
-  it("should apply plate mask directive formatting on plate input", () => {
-    fixture.detectChanges();
-    const input = fixture.nativeElement.querySelector("#plate-input") as HTMLInputElement;
-    input.value = "abc123";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    fixture.detectChanges();
+it("should apply plate mask directive formatting on plate input", () => {
+  fixture.detectChanges();
+  const input = fixture.nativeElement.querySelector("#plate-input") as HTMLInputElement;
+  input.value = "abc123";
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  fixture.detectChanges();
 
-    expect(input.value).toBe("ABC-123");
-    expect(component.facade.plate()).toBe("ABC-123");
-  });
+  expect(input.value).toBe("ABC-123");
+  expect(component.facade.plate()).toBe("ABC-123");
+});
 
-  it("should adapt mask formatting when switching from Colombian to Venezuelan", () => {
-    fixture.detectChanges();
-    const input = fixture.nativeElement.querySelector("#plate-input") as HTMLInputElement;
-    input.value = "ab123cd";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    fixture.detectChanges();
+it("should adapt mask formatting when switching from Colombian to Venezuelan", () => {
+  fixture.detectChanges();
+  const input = fixture.nativeElement.querySelector("#plate-input") as HTMLInputElement;
+  input.value = "ab123cd";
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  fixture.detectChanges();
 
-    // Default CO automobile masks as ABC-123 (AB1-23C)
-    expect(input.value).toBe("AB1-23C");
+  // Default CO automobile masks as ABC-123 (AB1-23C)
+  expect(input.value).toBe("AB1-23C");
 
-    // Switch country to VE
-    component.onPlateCountrySelect("VE");
-    fixture.detectChanges();
+  // Switch country to VE
+  component.onPlateCountrySelect("VE");
+  fixture.detectChanges();
 
-    input.value = "ab123cd";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    fixture.detectChanges();
+  input.value = "ab123cd";
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  fixture.detectChanges();
 
-    expect(input.value).toBe("AB-123-CD");
-    expect(component.facade.plate()).toBe("AB-123-CD");
-  });
+  expect(input.value).toBe("AB-123-CD");
+  expect(component.facade.plate()).toBe("AB-123-CD");
+});
 ```
 
 - [ ] **Step 2: Run test to verify failure before integration (Red)**
@@ -613,6 +608,7 @@ rtk bun run --cwd apps/web ng test --include="**/check-in-modal.spec.ts" --watch
 - [ ] **Step 3: Update `app-texts.constant.ts`, `check-in-modal.ts`, and `check-in-modal.html`**
 
 In `apps/web/src/app/shared/constants/app-texts.constant.ts`:
+
 ```typescript
     plateHintVe: "Formato venezolano ej: AB-123-CD",
     plateLabel: "Placa / Matrícula",
@@ -621,6 +617,7 @@ In `apps/web/src/app/shared/constants/app-texts.constant.ts`:
 ```
 
 In `apps/web/src/app/features/operations/components/modals/check-in-modal/check-in-modal.ts`:
+
 ```typescript
 import { PlateMaskDirective } from "@shared/directives/plate-mask";
 
@@ -642,21 +639,22 @@ export class CheckInModalComponent {
 ```
 
 In `apps/web/src/app/features/operations/components/modals/check-in-modal/check-in-modal.html`:
+
 ```html
-          <input
-            id="plate-input"
-            #plateInput
-            type="text"
-            appPlateMask
-            [country]="facade.plateCountry()"
-            [vehicleType]="facade.vehicleType()"
-            [value]="facade.plate()"
-            (input)="onPlateInput($event)"
-            (keydown.enter)="onEnterKey($event)"
-            [placeholder]="facade.plateCountry() === 'VE' ? texts.platePlaceholderVe : texts.platePlaceholderCo"
-            autocomplete="off"
-            class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-xl border px-4 py-3 font-mono text-base font-bold tracking-widest uppercase transition-all placeholder:font-normal placeholder:tracking-normal focus:outline-hidden sm:text-lg"
-          />
+<input
+  id="plate-input"
+  #plateInput
+  type="text"
+  appPlateMask
+  [country]="facade.plateCountry()"
+  [vehicleType]="facade.vehicleType()"
+  [value]="facade.plate()"
+  (input)="onPlateInput($event)"
+  (keydown.enter)="onEnterKey($event)"
+  [placeholder]="facade.plateCountry() === 'VE' ? texts.platePlaceholderVe : texts.platePlaceholderCo"
+  autocomplete="off"
+  class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-xl border px-4 py-3 font-mono text-base font-bold tracking-widest uppercase transition-all placeholder:font-normal placeholder:tracking-normal focus:outline-hidden sm:text-lg"
+/>
 ```
 
 - [ ] **Step 4: Run unit test to verify it passes (Green)**
@@ -677,9 +675,11 @@ rtk git commit -m "feat(web(operations)): integrate PlateMaskDirective into Chec
 ### Task 4: Verify `CheckInFacade` Validation & Submission with Masked Plates
 
 **Target File:**
+
 - Modify: `apps/web/src/app/features/operations/facades/check-in-facade.spec.ts`
 
 **Details:**
+
 - Verify `CheckInFacade.isValid()` correctly returns `true` for masked plates:
   - Colombian Automobile: `ABC-123`
   - Colombian Motorcycle: `ABC-12D`
@@ -695,59 +695,59 @@ rtk git commit -m "feat(web(operations)): integrate PlateMaskDirective into Chec
 Add tests inside `describe("CheckInFacade", ...)`:
 
 ```typescript
-  it("should validate Colombian motorcycle plate with mask format AAA-00A", () => {
-    facade.init("parking-1");
-    facade.setVehicleType("MOTORCYCLE");
-    facade.setPlateCountry("CO");
+it("should validate Colombian motorcycle plate with mask format AAA-00A", () => {
+  facade.init("parking-1");
+  facade.setVehicleType("MOTORCYCLE");
+  facade.setPlateCountry("CO");
 
-    facade.setPlate("ABC-12D");
-    expect(facade.isValid()).toBe(true);
+  facade.setPlate("ABC-12D");
+  expect(facade.isValid()).toBe(true);
 
-    facade.setPlate("AB-1");
-    expect(facade.isValid()).toBe(false);
+  facade.setPlate("AB-1");
+  expect(facade.isValid()).toBe(false);
+});
+
+it("should validate Venezuelan plate with mask format AA-000-AA", () => {
+  facade.init("parking-1");
+  facade.setVehicleType("CAR");
+  facade.setPlateCountry("VE");
+
+  // Incomplete Venezuelan plate
+  facade.setPlate("AB-123");
+  expect(facade.isValid()).toBe(false);
+
+  // Valid Venezuelan plate
+  facade.setPlate("AB-123-CD");
+  expect(facade.isValid()).toBe(true);
+});
+
+it("should submit check-in with masked plate successfully", () => {
+  const mockTicket: TicketSummary = {
+    entryTime: "2026-10-16T10:00:00Z",
+    id: "ticket-ve",
+    licensePlate: "AB-123-CD",
+    status: "OPEN",
+  };
+  ticketServiceSpy.createTicket.mockReturnValue(of(mockTicket));
+
+  facade.init("parking-1");
+  facade.setVehicleType("CAR");
+  facade.setPlateCountry("VE");
+  facade.setPlate("AB-123-CD");
+
+  facade.submitCheckIn();
+
+  expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith({
+    email: undefined,
+    phoneNumber: undefined,
+    photoUrl: undefined,
+    plate: "AB-123-CD",
+    plateCountry: "VE",
+    rateId: "rate-1",
+    slotId: "slot-1",
   });
-
-  it("should validate Venezuelan plate with mask format AA-000-AA", () => {
-    facade.init("parking-1");
-    facade.setVehicleType("CAR");
-    facade.setPlateCountry("VE");
-
-    // Incomplete Venezuelan plate
-    facade.setPlate("AB-123");
-    expect(facade.isValid()).toBe(false);
-
-    // Valid Venezuelan plate
-    facade.setPlate("AB-123-CD");
-    expect(facade.isValid()).toBe(true);
-  });
-
-  it("should submit check-in with masked plate successfully", () => {
-    const mockTicket: TicketSummary = {
-      entryTime: "2026-10-16T10:00:00Z",
-      id: "ticket-ve",
-      licensePlate: "AB-123-CD",
-      status: "OPEN",
-    };
-    ticketServiceSpy.createTicket.mockReturnValue(of(mockTicket));
-
-    facade.init("parking-1");
-    facade.setVehicleType("CAR");
-    facade.setPlateCountry("VE");
-    facade.setPlate("AB-123-CD");
-
-    facade.submitCheckIn();
-
-    expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith({
-      email: undefined,
-      phoneNumber: undefined,
-      photoUrl: undefined,
-      plate: "AB-123-CD",
-      plateCountry: "VE",
-      rateId: "rate-1",
-      slotId: "slot-1",
-    });
-    expect(facade.lastIssuedTicket()).toEqual(mockTicket);
-  });
+  expect(facade.lastIssuedTicket()).toEqual(mockTicket);
+});
 ```
 
 - [ ] **Step 2: Run facade tests to verify it passes (Green)**
@@ -770,6 +770,7 @@ rtk git commit -m "test(web(operations)): verify CheckInFacade validation with m
 ### Task 5: Scaffold & Implement High-Fidelity Interactive Live Operations Mockup
 
 **Target Files:**
+
 - Create: `openspec/changes/2026-10-16-plate-masks-and-live-ops/mockup.html`
 - Overwrite: `mockup.html` (project root)
 
@@ -858,6 +859,7 @@ rtk git commit -m "feat(web(operations)): create interactive live operations pro
 ### Task 6: Full Web App Test Suite & Static Code Analysis
 
 **Details:**
+
 - Run full Angular unit test suite to ensure no regressions in existing components, services, or facades.
 - Run project linter / Ultracite checks to enforce code quality, strict typing, and style compliance.
 
@@ -866,14 +868,16 @@ rtk git commit -m "feat(web(operations)): create interactive live operations pro
 ```bash
 rtk bun run --cwd apps/web ng test --watch=false
 ```
-*Expected Result: All test suites in `apps/web` pass without failures.*
+
+_Expected Result: All test suites in `apps/web` pass without failures._
 
 - [ ] **Step 2: Run Ultracite / Linter checks**
 
 ```bash
 rtk bun run --cwd apps/web check
 ```
-*Expected Result: Zero lint errors or formatting violations.*
+
+_Expected Result: Zero lint errors or formatting violations._
 
 - [ ] **Step 3: Verify git status is clean**
 

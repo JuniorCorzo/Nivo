@@ -8,11 +8,16 @@ import java.util.UUID;
 
 public interface HourlyOccupancyGateway {
   List<HourlyOccupancyModel> findByParkingLotId(UUID parkingLotId);
+
   Optional<HourlyOccupancyModel> findLatestByParkingLotId(UUID parkingLotId);
+
   List<HourlyOccupancyModel> findByTenantId(UUID tenantId);
+
   List<HourlyOccupancyModel> findByTenantIdAndParkingLotId(UUID tenantId, UUID parkingLotId);
-  List<HourlyOccupancyModel> findByTenantIdAndParkingLotIdAndHourBucketBetween(
-      UUID tenantId, UUID parkingLotId, OffsetDateTime start, OffsetDateTime end);
-  List<HourlyOccupancyModel> findByTenantIdAndHourBucketBetween(
-      UUID tenantId, OffsetDateTime start, OffsetDateTime end);
+
+  List<HourlyOccupancyModel> findByTenantIdAndParkingLotIdAndHourBucketBetween(UUID tenantId, UUID parkingLotId,
+    OffsetDateTime start, OffsetDateTime end);
+
+  List<HourlyOccupancyModel> findByTenantIdAndHourBucketBetween(UUID tenantId, OffsetDateTime start,
+    OffsetDateTime end);
 }

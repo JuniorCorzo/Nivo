@@ -7,18 +7,16 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.TenantsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.UsersData;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
-import lombok.*;
-import org.hibernate.annotations.*;
-import org.hibernate.type.SqlTypes;
-import org.hibernate.proxy.HibernateProxy;
-import org.locationtech.jts.geom.Point;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import lombok.*;
+import org.hibernate.annotations.*;
+import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.type.SqlTypes;
+import org.locationtech.jts.geom.Point;
 
 @Builder(toBuilder = true)
 @Getter
@@ -105,17 +103,24 @@ public class ParkingLotsData {
 
   @Override
   public final boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null) return false;
-    Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-    Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-    if (thisEffectiveClass != oEffectiveClass) return false;
+    if (this == o)
+      return true;
+    if (o == null)
+      return false;
+    Class<?> oEffectiveClass = o instanceof HibernateProxy
+      ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+    Class<?> thisEffectiveClass = this instanceof HibernateProxy
+      ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+    if (thisEffectiveClass != oEffectiveClass)
+      return false;
     ParkingLotsData that = (ParkingLotsData) o;
     return getId() != null && Objects.equals(getId(), that.getId());
   }
 
   @Override
   public final int hashCode() {
-    return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    return this instanceof HibernateProxy
+      ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+      : getClass().hashCode();
   }
 }

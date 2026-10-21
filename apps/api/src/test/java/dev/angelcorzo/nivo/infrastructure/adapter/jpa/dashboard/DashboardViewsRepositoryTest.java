@@ -69,7 +69,8 @@ class DashboardViewsRepositoryTest {
     // 2. Insertar plazas (AVAILABLE, OCCUPIED, MAINTENANCE)
     UUID slot1 = insertSlot(parkingA1, tenantA, "C-01", "AVAILABLE", "CAR");
     UUID slot2 = insertSlot(parkingA1, tenantA, "C-02", "OCCUPIED", "CAR");
-    UUID slot3 = insertSlot(parkingA1, tenantA, "M-01", "MAINTENANCE", "MOTORCYCLE"); // no debe contar en capacidad activa
+    UUID slot3 = insertSlot(parkingA1, tenantA, "M-01", "MAINTENANCE", "MOTORCYCLE"); // no debe contar en capacidad
+                                                                                      // activa
     UUID slotB = insertSlot(parkingB1, tenantB, "B-01", "OCCUPIED", "CAR");
 
     // 3. Insertar tickets con fechas y duraciones controladas para hoy (2026-09-24)
@@ -79,8 +80,10 @@ class DashboardViewsRepositoryTest {
     OffsetDateTime today1130am = OffsetDateTime.of(2026, 9, 24, 11, 30, 0, 0, ZoneOffset.UTC); // 90 min
 
     UUID ticket1 = insertTicket(tenantA, parkingA1, slot2, "AAA-111", today8am, null, "OPEN", BigDecimal.ZERO);
-    UUID ticket2 = insertTicket(tenantA, parkingA1, slot1, "BBB-222", today8am, today9am, "CLOSED", new BigDecimal("15000.00"));
-    UUID ticket3 = insertTicket(tenantA, parkingA1, slot1, "CCC-333", today10am, today1130am, "CLOSED", new BigDecimal("20000.00"));
+    UUID ticket2 = insertTicket(tenantA, parkingA1, slot1, "BBB-222", today8am, today9am, "CLOSED",
+      new BigDecimal("15000.00"));
+    UUID ticket3 = insertTicket(tenantA, parkingA1, slot1, "CCC-333", today10am, today1130am, "CLOSED",
+      new BigDecimal("20000.00"));
     UUID ticketB = insertTicket(tenantB, parkingB1, slotB, "ZZZ-999", today8am, null, "OPEN", BigDecimal.ZERO);
 
     // 4. Insertar pagos (PAID vs FAILED vs PENDING)
@@ -97,7 +100,7 @@ class DashboardViewsRepositoryTest {
   void shouldCalculateExactDailySummaryMetrics() {
     final LocalDate today = LocalDate.of(2026, 9, 24);
     final DailySummaryViewEntity summary = dailyRepository.findByParkingLotIdAndSummaryDate(parkingA1, today)
-        .orElseThrow(() -> new AssertionError("Summary record must exist"));
+      .orElseThrow(() -> new AssertionError("Summary record must exist"));
 
     assertThat(summary.getTotalTickets()).isEqualTo(3);
     assertThat(summary.getCompletedTickets()).isEqualTo(2);
@@ -117,9 +120,9 @@ class DashboardViewsRepositoryTest {
 
     // En la franja de las 08:00 UTC hubo 2 entradas (ticket1 y ticket2)
     final HourlyOccupancyViewEntity bucket8am = hourlyList.stream()
-        .filter(h -> h.getHourBucket().getHour() == 8)
-        .findFirst()
-        .orElseThrow();
+      .filter(h -> h.getHourBucket().getHour() == 8)
+      .findFirst()
+      .orElseThrow();
     assertThat(bucket8am.getCheckins()).isEqualTo(2);
     assertThat(bucket8am.getTotalCapacity()).isEqualTo(2); // slot1 y slot2 activos; slot3 en mantenimiento
     assertThat(bucket8am.getEstimatedOccupancyRate()).isEqualTo(100.00); // 2 tickets / 2 plazas activas
@@ -129,16 +132,14 @@ class DashboardViewsRepositoryTest {
   @DisplayName("Aislamiento multi-tenant: tenantA nunca debe recibir datos pertenecientes a tenantB")
   void shouldStrictlyIsolateTenantsInDailyAndHourlySummaries() {
     final List<DailySummaryViewEntity> summariesA = dailyRepository.findAllByTenantId(tenantA);
-    assertThat(summariesA)
-        .isNotEmpty()
-        .allMatch(s -> s.getTenantId().equals(tenantA))
-        .noneMatch(s -> s.getTenantId().equals(tenantB));
+    assertThat(summariesA).isNotEmpty()
+      .allMatch(s -> s.getTenantId().equals(tenantA))
+      .noneMatch(s -> s.getTenantId().equals(tenantB));
 
     final List<OperationalReportViewEntity> reportsA = operationalRepository.findAllByTenantId(tenantA);
-    assertThat(reportsA)
-        .isNotEmpty()
-        .allMatch(r -> r.getTenantId().equals(tenantA))
-        .noneMatch(r -> r.getLicensePlate().equals("ZZZ-999"));
+    assertThat(reportsA).isNotEmpty()
+      .allMatch(r -> r.getTenantId().equals(tenantA))
+      .noneMatch(r -> r.getLicensePlate().equals("ZZZ-999"));
   }
 
   @Test
@@ -148,7 +149,8 @@ class DashboardViewsRepositoryTest {
     insertParkingLot(emptyParking, tenantA, "Sede Nueva Vacía", "COP");
     insertSlot(emptyParking, tenantA, "V-01", "AVAILABLE", "CAR");
 
-    final Optional<DailySummaryViewEntity> summary = dailyRepository.findByParkingLotIdAndSummaryDate(emptyParking, LocalDate.of(2026, 9, 24));
+    final Optional<DailySummaryViewEntity> summary = dailyRepository.findByParkingLotIdAndSummaryDate(emptyParking,
+      LocalDate.of(2026, 9, 24));
     assertThat(summary).isEmpty();
 
     final List<HourlyOccupancyViewEntity> hourly = hourlyRepository.findByParkingLotId(emptyParking);
@@ -156,42 +158,73 @@ class DashboardViewsRepositoryTest {
   }
 
   private void insertTenant(final UUID id, final String name) {
-    entityManager.createNativeQuery(
+    entityManager
+      .createNativeQuery(
         "INSERT INTO nivo.tenants (id, company_name, created_at) VALUES (?, ?, CURRENT_TIMESTAMP)")
-        .setParameter(1, id).setParameter(2, name).executeUpdate();
+      .setParameter(1, id)
+      .setParameter(2, name)
+      .executeUpdate();
   }
 
   private void insertParkingLot(final UUID id, final UUID tenant, final String name, final String currency) {
     final UUID ownerId = UUID.randomUUID();
     entityManager.createNativeQuery(
-        "INSERT INTO nivo.users (id, full_name, email, password, role, tenant_id, created_at) VALUES (?, 'Owner', 'owner@test.com', 'pwd', 'OWNER', ?, CURRENT_TIMESTAMP)")
-        .setParameter(1, ownerId).setParameter(2, tenant).executeUpdate();
+      "INSERT INTO nivo.users (id, full_name, email, password, role, tenant_id, created_at) VALUES (?, 'Owner', 'owner@test.com', 'pwd', 'OWNER', ?, CURRENT_TIMESTAMP)")
+      .setParameter(1, ownerId)
+      .setParameter(2, tenant)
+      .executeUpdate();
 
     entityManager.createNativeQuery(
-        "INSERT INTO nivo.parking_lots (id, tenant_id, owner_id, name, currency, created_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)")
-        .setParameter(1, id).setParameter(2, tenant).setParameter(3, ownerId).setParameter(4, name).setParameter(5, currency).executeUpdate();
+      "INSERT INTO nivo.parking_lots (id, tenant_id, owner_id, name, currency, created_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)")
+      .setParameter(1, id)
+      .setParameter(2, tenant)
+      .setParameter(3, ownerId)
+      .setParameter(4, name)
+      .setParameter(5, currency)
+      .executeUpdate();
   }
 
-  private UUID insertSlot(final UUID parking, final UUID tenant, final String number, final String status, final String type) {
+  private UUID insertSlot(final UUID parking, final UUID tenant, final String number, final String status,
+    final String type) {
     final UUID id = UUID.randomUUID();
     entityManager.createNativeQuery(
-        "INSERT INTO nivo.slots (id, parking_lot_id, tenant_id, slot_number, status, type, created_at) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)")
-        .setParameter(1, id).setParameter(2, parking).setParameter(3, tenant).setParameter(4, number).setParameter(5, status).setParameter(6, type).executeUpdate();
+      "INSERT INTO nivo.slots (id, parking_lot_id, tenant_id, slot_number, status, type, created_at) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)")
+      .setParameter(1, id)
+      .setParameter(2, parking)
+      .setParameter(3, tenant)
+      .setParameter(4, number)
+      .setParameter(5, status)
+      .setParameter(6, type)
+      .executeUpdate();
     return id;
   }
 
-  private UUID insertTicket(final UUID tenant, final UUID parking, final UUID slot, final String plate, final OffsetDateTime entry, final OffsetDateTime exit, final String status, final BigDecimal charge) {
+  private UUID insertTicket(final UUID tenant, final UUID parking, final UUID slot, final String plate,
+    final OffsetDateTime entry, final OffsetDateTime exit, final String status, final BigDecimal charge) {
     final UUID id = UUID.randomUUID();
     entityManager.createNativeQuery(
-        "INSERT INTO nivo.parking_tickets (id, tenant_id, slot_id, license_plate, entry_time, exit_time, status, total_to_charge, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)")
-        .setParameter(1, id).setParameter(2, tenant).setParameter(3, slot).setParameter(4, plate).setParameter(5, entry).setParameter(6, exit).setParameter(7, status).setParameter(8, charge).executeUpdate();
+      "INSERT INTO nivo.parking_tickets (id, tenant_id, slot_id, license_plate, entry_time, exit_time, status, total_to_charge, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)")
+      .setParameter(1, id)
+      .setParameter(2, tenant)
+      .setParameter(3, slot)
+      .setParameter(4, plate)
+      .setParameter(5, entry)
+      .setParameter(6, exit)
+      .setParameter(7, status)
+      .setParameter(8, charge)
+      .executeUpdate();
     return id;
   }
 
   private void insertPayment(final UUID tenant, final UUID ticketId, final BigDecimal amount, final String status) {
     final UUID id = UUID.randomUUID();
     entityManager.createNativeQuery(
-        "INSERT INTO nivo.payments (id, tenant_id, parking_ticket_id, amount, status, payment_method, created_at) VALUES (?, ?, ?, ?, ?, 'EFFECTIVE', CURRENT_TIMESTAMP)")
-        .setParameter(1, id).setParameter(2, tenant).setParameter(3, ticketId).setParameter(4, amount).setParameter(5, status).executeUpdate();
+      "INSERT INTO nivo.payments (id, tenant_id, parking_ticket_id, amount, status, payment_method, created_at) VALUES (?, ?, ?, ?, ?, 'EFFECTIVE', CURRENT_TIMESTAMP)")
+      .setParameter(1, id)
+      .setParameter(2, tenant)
+      .setParameter(3, ticketId)
+      .setParameter(4, amount)
+      .setParameter(5, status)
+      .executeUpdate();
   }
 }

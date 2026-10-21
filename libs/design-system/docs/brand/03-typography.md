@@ -47,18 +47,18 @@ Space Mono Bold se reserva exclusivamente para el logotipo y la marca tipográfi
 
 ### Para web/app
 
-| Nivel | Fuente | Tamaño | Peso | Line-height | Tracking |
-| --- | --- | --- | --- | --- | --- |
-| **H1** | Inter | 30px / 1.875rem | Bold (700) | 36px | -0.75px |
-| **H2** | Inter | 24px / 1.5rem | Semibold (600) | 32px | -0.5px |
-| **H3** | Inter | 20px / 1.25rem | Semibold (600) | 28px | -0.25px |
-| **H4** | Inter | 18px / 1.125rem | Semibold (600) | 24px | 0 |
-| **H5** | Inter | 16px / 1rem | Semibold (600) | 24px | 0 |
-| **H6** | Inter | 14px / 0.875rem | Semibold (600) | 20px | 0 |
-| **Body Large** | Inter | 16px / 1rem | Regular (400) | 26px | 0 |
-| **Body Regular** | Inter | 14px / 0.875rem | Regular (400) | 22px | 0 |
-| **Caption** | Inter | 12px / 0.75rem | Regular (400) | 18px | 0 |
-| **Button Text** | Inter | 14px / 0.875rem | Medium (500) | 20px | 0 |
-| **Code / Data** | JetBrains Mono | 13px / 0.8125rem | Regular (400) | 20px | 0 |
+| Nivel            | Fuente         | Tamaño           | Peso           | Line-height | Tracking |
+| ---------------- | -------------- | ---------------- | -------------- | ----------- | -------- |
+| **H1**           | Inter          | 30px / 1.875rem  | Bold (700)     | 36px        | -0.75px  |
+| **H2**           | Inter          | 24px / 1.5rem    | Semibold (600) | 32px        | -0.5px   |
+| **H3**           | Inter          | 20px / 1.25rem   | Semibold (600) | 28px        | -0.25px  |
+| **H4**           | Inter          | 18px / 1.125rem  | Semibold (600) | 24px        | 0        |
+| **H5**           | Inter          | 16px / 1rem      | Semibold (600) | 24px        | 0        |
+| **H6**           | Inter          | 14px / 0.875rem  | Semibold (600) | 20px        | 0        |
+| **Body Large**   | Inter          | 16px / 1rem      | Regular (400)  | 26px        | 0        |
+| **Body Regular** | Inter          | 14px / 0.875rem  | Regular (400)  | 22px        | 0        |
+| **Caption**      | Inter          | 12px / 0.75rem   | Regular (400)  | 18px        | 0        |
+| **Button Text**  | Inter          | 14px / 0.875rem  | Medium (500)   | 20px        | 0        |
+| **Code / Data**  | JetBrains Mono | 13px / 0.8125rem | Regular (400)  | 20px        | 0        |
 
 _(Code / Data incluye Font-feature-settings: `"tnum"` para tabular numbers)_

@@ -17,9 +17,7 @@ public class UnplatedTicketSequenceAdapter implements UnplatedTicketSequenceGate
   @Override
   @Transactional
   public String nextTicketCode(final UUID parkingLotId) {
-    final Query query =
-        this.entityManager.createNativeQuery(
-            "SELECT next_unplated_ticket_code(:parkingLotId)");
+    final Query query = this.entityManager.createNativeQuery("SELECT next_unplated_ticket_code(:parkingLotId)");
     query.setParameter("parkingLotId", parkingLotId);
     final Object result = query.getSingleResult();
     return result != null ? result.toString() : "SP-1001";

@@ -4,6 +4,7 @@ import { TestBed } from "@angular/core/testing";
 import type { UserModel } from "@core/models/user.model";
 import { UserService } from "@core/services/user/user-service";
 import { ToastService } from "@nivo-sass/design-system";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { of, throwError } from "rxjs";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -133,7 +134,7 @@ describe("DeactivateUserModalComponent", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain(
-      "No puedes desactivar tu propia cuenta"
+      APP_TEXTS.users.modals.deactivate.selfDeactivationWarning
     );
 
     /* SAFETY: Confirm button is HTMLButtonElement */
@@ -154,7 +155,9 @@ describe("DeactivateUserModalComponent", () => {
 
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain("único propietario activo");
+    expect(compiled.textContent).toContain(
+      APP_TEXTS.users.modals.deactivate.lastOwnerWarning
+    );
   });
 
   it("should call userService.deactivateUser and emit outputs on valid confirmation", () => {

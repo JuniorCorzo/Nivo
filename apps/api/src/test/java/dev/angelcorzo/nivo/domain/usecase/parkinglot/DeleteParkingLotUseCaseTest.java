@@ -36,12 +36,11 @@ class DeleteParkingLotUseCaseTest {
   void shouldDeleteParkingLotSuccessfully() {
     UUID tenantId = UUID.randomUUID();
     UUID parkingId = UUID.randomUUID();
-    ParkingLots parkingLot =
-        ParkingLots.builder()
-            .id(parkingId)
-            .name("Lot A")
-            .tenant(TenantReference.builder().id(tenantId).build())
-            .build();
+    ParkingLots parkingLot = ParkingLots.builder()
+      .id(parkingId)
+      .name("Lot A")
+      .tenant(TenantReference.builder().id(tenantId).build())
+      .build();
 
     when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
 
@@ -56,12 +55,11 @@ class DeleteParkingLotUseCaseTest {
   void shouldDeleteUsingAuthenticationContextGateway() {
     UUID tenantId = UUID.randomUUID();
     UUID parkingId = UUID.randomUUID();
-    ParkingLots parkingLot =
-        ParkingLots.builder()
-            .id(parkingId)
-            .name("Lot A")
-            .tenant(TenantReference.builder().id(tenantId).build())
-            .build();
+    ParkingLots parkingLot = ParkingLots.builder()
+      .id(parkingId)
+      .name("Lot A")
+      .tenant(TenantReference.builder().id(tenantId).build())
+      .build();
 
     when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
     when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
@@ -79,8 +77,7 @@ class DeleteParkingLotUseCaseTest {
     UUID parkingId = UUID.randomUUID();
     when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> useCase.execute(parkingId, tenantId))
-        .isInstanceOf(ParkingNotExistsException.class);
+    assertThatThrownBy(() -> useCase.execute(parkingId, tenantId)).isInstanceOf(ParkingNotExistsException.class);
 
     verify(slotsRepository, never()).softDeleteByParkingLotsId(any());
     verify(parkingLotsRepository, never()).delete(any());
@@ -92,17 +89,15 @@ class DeleteParkingLotUseCaseTest {
     UUID tenantA = UUID.randomUUID();
     UUID tenantB = UUID.randomUUID();
     UUID parkingId = UUID.randomUUID();
-    ParkingLots parkingLot =
-        ParkingLots.builder()
-            .id(parkingId)
-            .name("Lot Tenant A")
-            .tenant(TenantReference.builder().id(tenantA).build())
-            .build();
+    ParkingLots parkingLot = ParkingLots.builder()
+      .id(parkingId)
+      .name("Lot Tenant A")
+      .tenant(TenantReference.builder().id(tenantA).build())
+      .build();
 
     when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
 
-    assertThatThrownBy(() -> useCase.execute(parkingId, tenantB))
-        .isInstanceOf(ParkingNotExistsException.class);
+    assertThatThrownBy(() -> useCase.execute(parkingId, tenantB)).isInstanceOf(ParkingNotExistsException.class);
 
     verify(slotsRepository, never()).softDeleteByParkingLotsId(any());
     verify(parkingLotsRepository, never()).delete(any());
@@ -113,17 +108,11 @@ class DeleteParkingLotUseCaseTest {
   void shouldThrowWhenTenantIsNull() {
     UUID tenantId = UUID.randomUUID();
     UUID parkingId = UUID.randomUUID();
-    ParkingLots parkingLot =
-        ParkingLots.builder()
-            .id(parkingId)
-            .name("Orphan Lot")
-            .tenant(null)
-            .build();
+    ParkingLots parkingLot = ParkingLots.builder().id(parkingId).name("Orphan Lot").tenant(null).build();
 
     when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
 
-    assertThatThrownBy(() -> useCase.execute(parkingId, tenantId))
-        .isInstanceOf(ParkingNotExistsException.class);
+    assertThatThrownBy(() -> useCase.execute(parkingId, tenantId)).isInstanceOf(ParkingNotExistsException.class);
 
     verify(slotsRepository, never()).softDeleteByParkingLotsId(any());
     verify(parkingLotsRepository, never()).delete(any());

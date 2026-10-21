@@ -1,4 +1,5 @@
 import type { Role } from "@core/type/role.type";
+
 import { APP_ROUTES } from "./app-routes.constant";
 
 export interface SidebarNavItem {
@@ -132,7 +133,8 @@ export const APP_TEXTS = {
   },
   checkIn: {
     cancel: "Cancelar",
-    capacityWarning: "No hay cupos disponibles para esta categoría en este momento.",
+    capacityWarning:
+      "No hay cupos disponibles para esta categoría en este momento.",
     countryCo: "Colombia",
     countryUnplated: "Sin Placa",
     countryVe: "Venezuela",
@@ -141,7 +143,8 @@ export const APP_TEXTS = {
     emailPlaceholder: "cliente@ejemplo.com",
     enterKey: "↵ Enter",
     issuing: "Registrando...",
-    noVehicleTypes: "No hay tipos de vehículo con cupos disponibles en este momento.",
+    noVehicleTypes:
+      "No hay tipos de vehículo con cupos disponibles en este momento.",
     originLabel: "Origen / Tipo de Placa",
     phoneHint: "Opcional para recibo móvil",
     phoneLabel: "Teléfono Móvil",
@@ -896,6 +899,8 @@ export const APP_TEXTS = {
         },
         description:
           "Esta acción revocará el acceso al sistema para este usuario. Podrás reactivarlo posteriormente si es necesario.",
+        lastOwnerWarning:
+          "No se puede desactivar al único propietario activo del parqueadero.",
         selfDeactivationWarning:
           "No puedes desactivar tu propia cuenta mientras estés en sesión activa.",
         singleOwnerWarning:
@@ -958,8 +963,7 @@ export const APP_TEXTS = {
             placeholder: "Selecciona el nuevo rol...",
           },
         },
-        ownerRoleNotice:
-          "El rol de Propietario no puede ser modificado.",
+        ownerRoleNotice: "El rol de Propietario no puede ser modificado.",
         subtitle:
           "Modifica el nivel de acceso y permisos del usuario en la plataforma.",
         title: "Modificar Rol de Usuario",

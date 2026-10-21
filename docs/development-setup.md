@@ -7,6 +7,7 @@ This guide explains how to set up, build, and run the **Nivo** application local
 ## 1. Prerequisites
 
 Ensure the following runtimes and tools are installed on your workstation:
+
 - **Java Development Kit (JDK) 25** (or compatible modern OpenJDK)
 - **Bun 1.3+** (Package manager & task runner for frontend & mono-repo)
 - **Docker & Docker Compose** (For running local PostGIS container)
@@ -17,24 +18,29 @@ Ensure the following runtimes and tools are installed on your workstation:
 ## 2. Step-by-Step Setup
 
 ### Step 1: Start the Local PostGIS Database
+
 Run the local development database service:
 
 ```bash
 bun run dev:db
 ```
-*Alternatively: `docker compose -f deployment/compose.dev.yaml up -d`*
+
+_Alternatively: `docker compose -f deployment/compose.dev.yaml up -d`_
 
 To view database logs:
+
 ```bash
 bun run dev:db:logs
 ```
 
 To stop the database:
+
 ```bash
 bun run dev:db:down
 ```
 
 ### Step 2: Generate Cryptographic Keys
+
 Generate local development RSA keys for JWT signing and verification:
 
 ```bash
@@ -48,6 +54,7 @@ openssl rsa -in apps/api/applications/app-service/src/main/resources/keys/privat
 ```
 
 ### Step 3: Run the Spring Boot API
+
 From the repository root or `apps/api` directory:
 
 ```bash
@@ -62,6 +69,7 @@ cd apps/api
 The API will start on `http://localhost:8080/api` with the `dev` profile active.
 
 ### Step 4: Run the Angular Web Frontend
+
 In another terminal, install workspace dependencies and start the development server:
 
 ```bash
@@ -88,6 +96,7 @@ The web client will be accessible at `http://localhost:4200`.
 ## 4. SQL & Flyway Debugging
 
 In `dev` profile (`application-dev.yaml`):
+
 - Hibernate formatted SQL query logging is enabled (`org.hibernate.SQL: DEBUG`, `org.hibernate.orm.jdbc.bind: TRACE`).
 - Flyway schema initialization logs at `DEBUG`.
 

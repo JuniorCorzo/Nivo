@@ -23,9 +23,8 @@ public class PublicApiRateLimitFilter extends OncePerRequestFilter {
   private final BackendOperationsMetricsManager metricsManager;
 
   @Override
-  protected void doFilterInternal(
-      final HttpServletRequest request, final HttpServletResponse response, final FilterChain filterChain)
-      throws ServletException, IOException {
+  protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response,
+    final FilterChain filterChain) throws ServletException, IOException {
 
     final String uri = request.getRequestURI();
     if (!isPublicApi(uri)) {
@@ -52,12 +51,11 @@ public class PublicApiRateLimitFilter extends OncePerRequestFilter {
       metricsManager.recordPublicAvailabilityRateLimited();
       metricsManager.recordPublicAvailabilityRequest(HttpStatus.TOO_MANY_REQUESTS.value());
 
-      response
-          .getWriter()
-          .write(
-              """
-              {"error":"Too Many Requests","message":"Rate limit of 60 requests per minute exceeded. Please try again later."}
-              """);
+      response.getWriter()
+        .write(
+          """
+            {"error":"Too Many Requests","message":"Rate limit of 60 requests per minute exceeded. Please try again later."}
+            """);
     }
   }
 

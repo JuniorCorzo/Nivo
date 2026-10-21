@@ -1,6 +1,7 @@
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import type { UserModel } from "@core/models/user.model";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { describe, expect, it } from "vitest";
 
 import { UserRowActionsComponent } from "./user-row-actions";
@@ -40,45 +41,36 @@ describe("UserRowActionsComponent", () => {
     component = fixture.componentInstance;
   });
 
-  it("should disable changeRole button when user is OWNER", () => {
+  it("should enable changeRole button and emit changeRole when row's target user is OWNER", () => {
     fixture.componentRef.setInput("user", mockOwnerUser);
     fixture.detectChanges();
-
-    expect(component.isOwner()).toBe(true);
 
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
     /* SAFETY: nv-button contains native button element in DOM */
     const changeRoleBtn = compiled.querySelector(
-      'nv-button[aria-label="Cambiar Rol"] button'
+      `nv-button[aria-label="${APP_TEXTS.users.table.actions.changeRole}"] button`
     ) as HTMLButtonElement | null;
-    expect(changeRoleBtn?.disabled).toBe(true);
-  });
+    expect(changeRoleBtn?.disabled).toBe(false);
 
-  it("should not emit changeRole when user is OWNER and onChangeRole is invoked", () => {
-    fixture.componentRef.setInput("user", mockOwnerUser);
-    fixture.detectChanges();
-
-    let emitted = false;
-    component.changeRole.subscribe(() => {
-      emitted = true;
+    let emittedUser: UserModel | null = null;
+    component.changeRole.subscribe((u) => {
+      emittedUser = u;
     });
 
     component.onChangeRole();
-    expect(emitted).toBe(false);
+    expect(emittedUser).toEqual(mockOwnerUser);
   });
 
-  it("should enable changeRole button and emit changeRole when user is OPERATOR", () => {
+  it("should enable changeRole button and emit changeRole when row's target user is OPERATOR", () => {
     fixture.componentRef.setInput("user", mockOperatorUser);
     fixture.detectChanges();
-
-    expect(component.isOwner()).toBe(false);
 
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
     /* SAFETY: nv-button contains native button element in DOM */
     const changeRoleBtn = compiled.querySelector(
-      'nv-button[aria-label="Cambiar Rol"] button'
+      `nv-button[aria-label="${APP_TEXTS.users.table.actions.changeRole}"] button`
     ) as HTMLButtonElement | null;
     expect(changeRoleBtn?.disabled).toBe(false);
 
@@ -89,5 +81,19 @@ describe("UserRowActionsComponent", () => {
 
     component.onChangeRole();
     expect(emittedUser).toEqual(mockOperatorUser);
+  });
+
+  it("should disable deactivate button when row's target user is the logged-in user (isSelf)", () => {
+    fixture.componentRef.setInput("user", mockOperatorUser);
+    fixture.componentRef.setInput("isSelf", true);
+    fixture.detectChanges();
+
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    /* SAFETY: nv-button contains native button element in DOM */
+    const deactivateBtn = compiled.querySelector(
+      `nv-button[aria-label="${APP_TEXTS.users.table.actions.deactivate}"] button`
+    ) as HTMLButtonElement | null;
+    expect(deactivateBtn?.disabled).toBe(true);
   });
 });

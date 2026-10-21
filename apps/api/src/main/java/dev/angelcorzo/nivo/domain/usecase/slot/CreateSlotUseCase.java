@@ -11,7 +11,6 @@ import dev.angelcorzo.nivo.domain.model.tenants.exceptions.TenantNotExistsExcept
 import dev.angelcorzo.nivo.domain.model.tenants.gateways.TenantsRepository;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
 import java.util.UUID;
-
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
@@ -24,18 +23,15 @@ public class CreateSlotUseCase {
   public Slots execute(CreateSlotCommand command) {
     this.validate(command);
 
-    final Slots slot =
-        Slots.builder()
-            .tenant(TenantReference.of(this.tenantsRepository.getReferenceById(command.tenantId())))
-            .parking(
-                ParkingLotsReference.of(
-                    this.parkingLotsRepository.getReferenceById(command.parkingLotId())))
-            .slotNumber(command.slotNumber())
-            .type(command.type())
-            .status(SlotStatus.AVAILABLE)
-            .build();
+    final Slots slot = Slots.builder()
+      .tenant(TenantReference.of(this.tenantsRepository.getReferenceById(command.tenantId())))
+      .parking(ParkingLotsReference.of(this.parkingLotsRepository.getReferenceById(command.parkingLotId())))
+      .slotNumber(command.slotNumber())
+      .type(command.type())
+      .status(SlotStatus.AVAILABLE)
+      .build();
 
-	  return this.slotsRepository.save(slot);
+    return this.slotsRepository.save(slot);
   }
 
   private void validate(CreateSlotCommand command) {
@@ -47,5 +43,6 @@ public class CreateSlotUseCase {
   }
 
   @Builder(toBuilder = true)
-  public record CreateSlotCommand(UUID parkingLotId, UUID tenantId, String slotNumber, SlotType type) {}
+  public record CreateSlotCommand(UUID parkingLotId, UUID tenantId, String slotNumber, SlotType type) {
+  }
 }

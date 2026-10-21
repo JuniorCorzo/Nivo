@@ -53,9 +53,7 @@ El administrador del parqueadero necesita auditar el detalle de cada transacció
         <tr>
           @for (cell of row.getVisibleCells(); track cell.id) {
           <td>
-            <ng-container
-              *flexRender="cell.column.columnDef.cell; props: cell.getContext()"
-            />
+            <ng-container *flexRender="cell.column.columnDef.cell; props: cell.getContext()" />
           </td>
           }
         </tr>

@@ -16,7 +16,8 @@ import org.mockito.MockitoAnnotations;
 
 class EncryptedResponseConverterTest {
 
-  @Mock private EncryptionGateway encryptionGateway;
+  @Mock
+  private EncryptionGateway encryptionGateway;
 
   private EncryptedResponseConverter converter;
 
@@ -41,8 +42,7 @@ class EncryptedResponseConverterTest {
   @Test
   void convertToDatabaseColumn_ShouldThrowException_WhenEncryptionFails() {
     Object attribute = "plainData";
-    when(encryptionGateway.encrypt(attribute))
-        .thenReturn(Result.failure(new EncryptionError.EncryptionFailed()));
+    when(encryptionGateway.encrypt(attribute)).thenReturn(Result.failure(new EncryptionError.EncryptionFailed()));
 
     assertThrows(EncryptionException.class, () -> converter.convertToDatabaseColumn(attribute));
   }
@@ -51,8 +51,7 @@ class EncryptedResponseConverterTest {
   void convertToEntityAttribute_ShouldDecrypt() {
     String dbData = "encryptedData";
     Object decrypted = "decryptedData";
-    when(encryptionGateway.decrypt(eq(dbData), eq(Object.class)))
-        .thenReturn(Result.success(decrypted));
+    when(encryptionGateway.decrypt(eq(dbData), eq(Object.class))).thenReturn(Result.success(decrypted));
 
     Object result = converter.convertToEntityAttribute(dbData);
 
@@ -64,7 +63,7 @@ class EncryptedResponseConverterTest {
   void convertToEntityAttribute_ShouldThrowException_WhenDecryptionFails() {
     String dbData = "encryptedData";
     when(encryptionGateway.decrypt(eq(dbData), eq(Object.class)))
-        .thenReturn(Result.failure(new EncryptionError.DecryptionFailed()));
+      .thenReturn(Result.failure(new EncryptionError.DecryptionFailed()));
 
     assertThrows(EncryptionException.class, () -> converter.convertToEntityAttribute(dbData));
   }

@@ -195,4 +195,3 @@ describe("CheckInModalComponent", () => {
     expect(component.facade.plateCountry()).toBe("CO");
   });
 });
-

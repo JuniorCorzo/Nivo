@@ -3,11 +3,6 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkinglots.mappers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.config.MapperStructConfig;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.mappers.BaseMapper;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.mappers.CoordinatesMapper;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkinglots.ParkingLotSummaryData;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkinglots.ParkingLotsData;
 import dev.angelcorzo.nivo.domain.model.parkinglots.Address;
 import dev.angelcorzo.nivo.domain.model.parkinglots.Coordinates;
 import dev.angelcorzo.nivo.domain.model.parkinglots.OperatingHours;
@@ -15,6 +10,11 @@ import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLotListItem;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLotPolicy;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLots;
 import dev.angelcorzo.nivo.domain.model.parkinglots.SlotDistributionEntry;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.config.MapperStructConfig;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.mappers.BaseMapper;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.mappers.CoordinatesMapper;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkinglots.ParkingLotSummaryData;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkinglots.ParkingLotsData;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -52,19 +52,17 @@ public abstract class ParkingLotsMapper implements BaseMapper<ParkingLots, Parki
   protected ParkingLotPolicy toPolicy(ParkingLotsData data) {
     if (data == null)
       return ParkingLotPolicy.defaults();
-    return new ParkingLotPolicy(
-        data.getGracePeriodMinutes() != null ? data.getGracePeriodMinutes() : 0,
-        data.getGracePeriodPrice() != null ? data.getGracePeriodPrice() : BigDecimal.ZERO,
-        data.getIvaRate() != null ? data.getIvaRate() : new BigDecimal("0.19"));
+    return new ParkingLotPolicy(data.getGracePeriodMinutes() != null ? data.getGracePeriodMinutes() : 0,
+      data.getGracePeriodPrice() != null ? data.getGracePeriodPrice() : BigDecimal.ZERO,
+      data.getIvaRate() != null ? data.getIvaRate() : new BigDecimal("0.19"));
   }
 
   protected ParkingLotPolicy toPolicy(ParkingLotSummaryData data) {
     if (data == null)
       return ParkingLotPolicy.defaults();
-    return new ParkingLotPolicy(
-        data.gracePeriodMinutes() != null ? data.gracePeriodMinutes() : 0,
-        data.gracePeriodPrice() != null ? data.gracePeriodPrice() : BigDecimal.ZERO,
-        data.ivaRate() != null ? data.ivaRate() : new BigDecimal("0.19"));
+    return new ParkingLotPolicy(data.gracePeriodMinutes() != null ? data.gracePeriodMinutes() : 0,
+      data.gracePeriodPrice() != null ? data.gracePeriodPrice() : BigDecimal.ZERO,
+      data.ivaRate() != null ? data.ivaRate() : new BigDecimal("0.19"));
   }
 
   @Mapping(target = "address", expression = "java(toAddress(data))")
@@ -78,19 +76,16 @@ public abstract class ParkingLotsMapper implements BaseMapper<ParkingLots, Parki
 
   protected Address toAddress(ParkingLotSummaryData data) {
     return Address.builder()
-        .street(data.street())
-        .city(data.city())
-        .state(data.state())
-        .country(data.country())
-        .zipCode(data.zipCode())
-        .build();
+      .street(data.street())
+      .city(data.city())
+      .state(data.state())
+      .country(data.country())
+      .zipCode(data.zipCode())
+      .build();
   }
 
   protected Coordinates toCoordinates(ParkingLotSummaryData data) {
-    return Coordinates.builder()
-        .latitude(data.latitude())
-        .longitude(data.longitude())
-        .build();
+    return Coordinates.builder().latitude(data.latitude()).longitude(data.longitude()).build();
   }
 
   protected OperatingHours toOperatingHours(ParkingLotSummaryData data) {
@@ -98,9 +93,9 @@ public abstract class ParkingLotsMapper implements BaseMapper<ParkingLots, Parki
       return null;
     }
     return OperatingHours.builder()
-        .openTime(parseOffsetTime(data.openTime()))
-        .closeTime(parseOffsetTime(data.closeTime()))
-        .build();
+      .openTime(parseOffsetTime(data.openTime()))
+      .closeTime(parseOffsetTime(data.closeTime()))
+      .build();
   }
 
   private OffsetTime parseOffsetTime(String text) {

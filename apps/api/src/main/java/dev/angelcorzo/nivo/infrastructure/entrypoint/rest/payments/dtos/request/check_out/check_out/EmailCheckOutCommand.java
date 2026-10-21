@@ -7,6 +7,6 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record EmailCheckOutCommand(
-    @NotNull UUID ticketId, @NotNull PaymentsMethods paymentMethod, @NotNull @NotEmpty String email)
-    implements CheckOutCommand {}
+public record EmailCheckOutCommand(@NotNull UUID ticketId, @NotNull PaymentsMethods paymentMethod,
+  @NotNull @NotEmpty String email) implements CheckOutCommand {
+}

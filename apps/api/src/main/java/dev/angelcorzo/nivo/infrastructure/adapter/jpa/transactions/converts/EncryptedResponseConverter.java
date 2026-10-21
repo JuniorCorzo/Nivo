@@ -31,8 +31,6 @@ public class EncryptedResponseConverter implements AttributeConverter<Object, St
     if (dbData == null) {
       return null;
     }
-    return this.encryptionGateway
-        .decrypt(dbData, Object.class)
-        .orElseThrow(EncryptionException::new);
+    return this.encryptionGateway.decrypt(dbData, Object.class).orElseThrow(EncryptionException::new);
   }
 }

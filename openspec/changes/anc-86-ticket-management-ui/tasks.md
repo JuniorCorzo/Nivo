@@ -1,19 +1,22 @@
 # Tasks: Ticket Management & History UI (ANC-86)
 
 ## Overview & Review Budget
+
 - **Total Estimated Lines**: ~380 lines
 - **Chained PRs**: Single PR (Diff <= 400 lines budget guard)
 - **Delivery Strategy**: `single-pr`
 - **Scope**: `apps/web` (Core Service, Routing, Signals Facade, Presentational Components, Container Page, Unit Tests)
 
 <!-- WORKLOAD_FORECAST_START -->
-| Metric | Estimate |
-|---|---|
-| Total Tasks | 12 tasks |
-| Phases Count | 5 phases |
-| Total Estimated Diff | ~380 lines |
-| Max Phase Diff | ~130 lines (Phase 3) |
-| Review Budget Exceeded | No (<= 400 lines) |
+
+| Metric                 | Estimate             |
+| ---------------------- | -------------------- |
+| Total Tasks            | 12 tasks             |
+| Phases Count           | 5 phases             |
+| Total Estimated Diff   | ~380 lines           |
+| Max Phase Diff         | ~130 lines (Phase 3) |
+| Review Budget Exceeded | No (<= 400 lines)    |
+
 <!-- WORKLOAD_FORECAST_END -->
 
 ---
@@ -21,6 +24,7 @@
 ## Task Breakdown
 
 ### Phase 1: Core Service Extension & Routing (Est. ~45 lines)
+
 - [x] **Task 1.1: Extend TicketService with listTicketsByParkingLot**
   - Path: `apps/web/src/app/core/services/ticket-service.ts`
   - Action: Implement `listTicketsByParkingLot(parkingLotId: string): Observable<TicketSummary[]>` consuming generated `ParkingTicketsService.listTickets`, mapping DTOs via `mapToTicketSummary` and attaching `AUTHORIZED` HttpContext.
@@ -35,6 +39,7 @@
   - Verify: `cd apps/web && bun test src/app/features/parking/facades/parking-home.facade.spec.ts`
 
 ### Phase 2: Tickets State Management (Est. ~95 lines)
+
 - [x] **Task 2.1: Define Ticket Filter Criteria Model**
   - Path: `apps/web/src/app/features/tickets/models/ticket-filter.model.ts`
   - Action: Define `TicketFilterCriteria` interface with fields for `plate` (string), `status` (`'ALL' | 'OPEN' | 'CLOSED'`), `vehicleType` (string), and `dateRange` (`{ from?: string; to?: string } | null`).
@@ -45,6 +50,7 @@
   - Verify: `cd apps/web && bun test src/app/features/tickets/facades/tickets.facade.spec.ts`
 
 ### Phase 3: Presentational Components (Est. ~130 lines)
+
 - [x] **Task 3.1: Build TicketFiltersComponent using Design System**
   - Path: `apps/web/src/app/features/tickets/components/ticket-filters/ticket-filters.component.ts`
   - Action: Implement standalone presentational filter bar with `ChangeDetectionStrategy.OnPush`. Utilize `@nivo-sass/design-system` primitives (`InputComponent` for plate search with 300ms debounce, `SelectComponent` for status & vehicle type, and `ButtonComponent` for reset). Expose `filters` input, `filtersChange` output, and `reset` output.
@@ -59,6 +65,7 @@
   - Verify: `cd apps/web && bun test src/app/features/tickets/components/ticket-detail-drawer/ticket-detail-drawer.component.spec.ts`
 
 ### Phase 4: Container Page Integration (Est. ~50 lines)
+
 - [x] **Task 4.1: Implement TicketsPageComponent Smart Container**
   - Path: `apps/web/src/app/features/tickets/page/tickets-page.ts`
   - Action: Create `TicketsPageComponent` with `ChangeDetectionStrategy.OnPush`, providing `TicketsFacade`. Inquire `parkingId` from `ActivatedRoute`, invoke `loadTickets()`, and bind reactive signals to `TicketFiltersComponent`, `TicketsTableComponent`, and `TicketDetailDrawerComponent`.
@@ -69,6 +76,7 @@
   - Verify: `cd apps/web && bun test src/app/features/tickets/page/tickets-page.spec.ts`
 
 ### Phase 5: Unit Testing & Ultracite Verification (Est. ~60 lines)
+
 - [x] **Task 5.1: Unit Test Suite for Service, Facade, and Components**
   - Path: `apps/web/src/app/core/services/ticket-service.spec.ts`, `apps/web/src/app/features/tickets/facades/tickets.facade.spec.ts`, `apps/web/src/app/features/tickets/components/**/*.spec.ts`, `apps/web/src/app/features/tickets/page/tickets-page.spec.ts`
   - Action: Write comprehensive Vitest unit tests verifying 100% Gherkin scenarios: plate debounce filtering, status matching, empty states, live price calculation preview, closed ticket presentation, receipt modal lifecycle, and keyboard focus trap.
@@ -81,6 +89,7 @@
 ---
 
 ## Verification Checklist
+
 - [x] 100% Gherkin acceptance scenarios covered by unit and integration tests.
 - [x] `cd apps/web && bun test` passes with zero regressions.
 - [x] `cd apps/web && bun x ultracite check` passes with zero linting/formatting errors.

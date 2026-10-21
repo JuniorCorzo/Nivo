@@ -2,21 +2,18 @@ package dev.angelcorzo.nivo.domain.usecase.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import dev.angelcorzo.nivo.domain.model.authentication.AuthResponse;
 import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationGateway;
-import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
 import dev.angelcorzo.nivo.domain.model.users.Users;
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
 import dev.angelcorzo.nivo.domain.model.users.gateways.PasswordEncodeGateway;
 import dev.angelcorzo.nivo.domain.model.users.gateways.UsersRepository;
 import dev.angelcorzo.nivo.domain.usecase.tenant.exceptions.BadCredentialsException;
-
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,17 +47,15 @@ class LoginUseCaseTest {
     @DisplayName("Should return AuthResponse when credentials are valid")
     void shouldReturnAuthResponseWhenCredentialsAreValid() {
       // Arrange
-      LoginUseCase.UserCredentials credentials =
-          new LoginUseCase.UserCredentials("test@example.com", "password");
-      Users user =
-          Users.builder()
-              .id(UUID.randomUUID())
-              .email("test@example.com")
-              .password("encodedPassword")
-              .fullName("Test User")
-              .tenant(TenantReference.builder().id(UUID.randomUUID()).companyName("Test Company").build())
-              .role(Roles.OWNER)
-              .build();
+      LoginUseCase.UserCredentials credentials = new LoginUseCase.UserCredentials("test@example.com", "password");
+      Users user = Users.builder()
+        .id(UUID.randomUUID())
+        .email("test@example.com")
+        .password("encodedPassword")
+        .fullName("Test User")
+        .tenant(TenantReference.builder().id(UUID.randomUUID()).companyName("Test Company").build())
+        .role(Roles.OWNER)
+        .build();
 
       when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
       when(passwordEncode.matches("password", "encodedPassword")).thenReturn(true);
@@ -85,34 +80,29 @@ class LoginUseCaseTest {
     @DisplayName("Should throw BadCredentialsException when email does not exist")
     void shouldThrowBadCredentialsExceptionWhenEmailDoesNotExist() {
       // Arrange
-      LoginUseCase.UserCredentials credentials =
-          new LoginUseCase.UserCredentials("test@example.com", "password");
+      LoginUseCase.UserCredentials credentials = new LoginUseCase.UserCredentials("test@example.com", "password");
       when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
 
       // Act & Assert
-      assertThatThrownBy(() -> loginUseCase.auth(credentials))
-          .isInstanceOf(BadCredentialsException.class);
+      assertThatThrownBy(() -> loginUseCase.auth(credentials)).isInstanceOf(BadCredentialsException.class);
     }
 
     @Test
     @DisplayName("Should throw BadCredentialsException when password does not match")
     void shouldThrowBadCredentialsExceptionWhenPasswordDoesNotMatch() {
       // Arrange
-      LoginUseCase.UserCredentials credentials =
-          new LoginUseCase.UserCredentials("test@example.com", "password");
-      Users user =
-          Users.builder()
-              .id(UUID.randomUUID())
-              .email("test@example.com")
-              .password("encodedPassword")
-              .build();
+      LoginUseCase.UserCredentials credentials = new LoginUseCase.UserCredentials("test@example.com", "password");
+      Users user = Users.builder()
+        .id(UUID.randomUUID())
+        .email("test@example.com")
+        .password("encodedPassword")
+        .build();
 
       when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
       when(passwordEncode.matches("password", "encodedPassword")).thenReturn(false);
 
       // Act & Assert
-      assertThatThrownBy(() -> loginUseCase.auth(credentials))
-          .isInstanceOf(BadCredentialsException.class);
+      assertThatThrownBy(() -> loginUseCase.auth(credentials)).isInstanceOf(BadCredentialsException.class);
     }
   }
 }

@@ -3,6 +3,7 @@ import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import type { UserModel } from "@core/models/user.model";
 import { DataTableState } from "@shared/components/data-table";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { describe, expect, it } from "vitest";
 
 import { createUserColumns } from "./columns";
@@ -67,24 +68,46 @@ describe("UsersTableComponent", () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const rows = compiled.querySelectorAll("tbody tr");
     expect(rows.length).toBe(2);
-    expect(compiled.textContent).toContain("Carlos Propietario");
-    expect(compiled.textContent).toContain("carlos@nivo.com");
-    expect(compiled.textContent).toContain("Laura Inactiva");
-    expect(compiled.textContent).toContain("laura@nivo.com");
+
+    const firstUserCell = rows[0].querySelector("app-user-info-cell");
+    expect(firstUserCell).not.toBeNull();
+    expect(firstUserCell?.textContent).toContain("Carlos Propietario");
+    expect(firstUserCell?.textContent).toContain("carlos@nivo.com");
+
+    const secondUserCell = rows[1].querySelector("app-user-info-cell");
+    expect(secondUserCell).not.toBeNull();
+    expect(secondUserCell?.textContent).toContain("Laura Inactiva");
+    expect(secondUserCell?.textContent).toContain("laura@nivo.com");
   });
 
   it("should render role badges correctly", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain("Propietario");
-    expect(compiled.textContent).toContain("Operador");
+    const roleBadges = compiled.querySelectorAll(
+      "app-user-role-badge nv-badge"
+    );
+    expect(roleBadges.length).toBe(2);
+    expect(roleBadges[0].textContent?.trim()).toBe(
+      APP_TEXTS.users.table.roles.owner
+    );
+    expect(roleBadges[1].textContent?.trim()).toBe(
+      APP_TEXTS.users.table.roles.operator
+    );
   });
 
   it("should render status badges correctly for active and inactive", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain("Activo");
-    expect(compiled.textContent).toContain("Inactivo");
+    const statusBadges = compiled.querySelectorAll(
+      "app-user-status-badge nv-badge"
+    );
+    expect(statusBadges.length).toBe(2);
+    expect(statusBadges[0].textContent?.trim()).toBe(
+      APP_TEXTS.users.table.status.active
+    );
+    expect(statusBadges[1].textContent?.trim()).toBe(
+      APP_TEXTS.users.table.status.inactive
+    );
   });
 
   it("should show empty state when users array is empty", () => {
@@ -93,7 +116,10 @@ describe("UsersTableComponent", () => {
 
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain("No se encontraron usuarios");
+    const emptyStateHeading = compiled.querySelector("[emptyState] nv-h4");
+    expect(emptyStateHeading?.textContent?.trim()).toBe(
+      APP_TEXTS.users.table.emptyState.title
+    );
   });
 
   it("should show loading skeletons when isLoading is true", () => {
@@ -138,13 +164,16 @@ describe("UsersTableComponent", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
     /* SAFETY: Reset button exists in the rendered empty state */
-    const resetButton = compiled.querySelector("button") as HTMLButtonElement;
-    resetButton.click();
+    const resetButton = compiled.querySelector(
+      "[emptyState] nv-button button, [emptyState] button"
+    ) as HTMLButtonElement | null;
+    expect(resetButton).not.toBeNull();
+    resetButton?.click();
 
     expect(resetCalled).toBe(true);
   });
 
-  it("should disable change role button for OWNER users in the table", () => {
+  it("should enable change role button for users in the table", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
     const rows = compiled.querySelectorAll("tbody tr");
@@ -153,14 +182,14 @@ describe("UsersTableComponent", () => {
     // Row 0 is OWNER
     /* SAFETY: nv-button contains native button element in DOM */
     const ownerChangeRoleBtn = rows[0].querySelector(
-      'nv-button[aria-label="Cambiar Rol"] button'
+      `nv-button[aria-label="${APP_TEXTS.users.table.actions.changeRole}"] button`
     ) as HTMLButtonElement | null;
-    expect(ownerChangeRoleBtn?.disabled).toBe(true);
+    expect(ownerChangeRoleBtn?.disabled).toBe(false);
 
     // Row 1 is OPERATOR
     /* SAFETY: nv-button contains native button element in DOM */
     const operatorChangeRoleBtn = rows[1].querySelector(
-      'nv-button[aria-label="Cambiar Rol"] button'
+      `nv-button[aria-label="${APP_TEXTS.users.table.actions.changeRole}"] button`
     ) as HTMLButtonElement | null;
     expect(operatorChangeRoleBtn?.disabled).toBe(false);
   });

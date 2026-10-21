@@ -11,10 +11,10 @@ import { AvatarComponent } from "@nivo-sass/design-system";
     <div class="flex items-center gap-3">
       <nv-avatar [name]="user().fullName" size="sm" />
       <div class="flex min-w-0 flex-col">
-        <span class="truncate text-sm font-medium text-foreground">
+        <span class="text-foreground truncate text-sm font-medium">
           {{ user().fullName }}
         </span>
-        <span class="truncate text-xs text-muted-foreground">
+        <span class="text-muted-foreground truncate text-xs">
           {{ user().email }}
         </span>
       </div>

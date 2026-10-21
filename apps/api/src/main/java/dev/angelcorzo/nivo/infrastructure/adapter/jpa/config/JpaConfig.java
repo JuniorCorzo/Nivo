@@ -2,35 +2,31 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import java.util.Properties;
+import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.hibernate.SpringBeanContainer;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
-
-import javax.sql.DataSource;
-import java.util.Properties;
 
 /**
  * Configuration class for JPA (Java Persistence API) settings.
  *
  * <p>
- * This class sets up the data source, entity manager factory, and other
- * JPA-related beans required for database interaction in the application.
+ * This class sets up the data source, entity manager factory, and other JPA-related beans required for database
+ * interaction in the application.
  * </p>
  *
  * <p>
  * <strong>Layer:</strong> Infrastructure (Driven Adapter - JPA Config)
  * </p>
  * <p>
- * <strong>Responsibility:</strong> To configure and provide JPA-related
- * components.
+ * <strong>Responsibility:</strong> To configure and provide JPA-related components.
  * </p>
  *
  * @author Angel Corzo
@@ -41,10 +37,10 @@ import java.util.Properties;
 public class JpaConfig {
 
   /**
-   * Creates a {@link DBSecret} bean by extracting database credentials from the
-   * environment.
+   * Creates a {@link DBSecret} bean by extracting database credentials from the environment.
    *
-   * @param env The Spring {@link Environment} to retrieve properties from.
+   * @param env
+   *          The Spring {@link Environment} to retrieve properties from.
    * @return A {@link DBSecret} object containing database connection details.
    */
   @Bean
@@ -63,9 +59,8 @@ public class JpaConfig {
       String name = env.getProperty("DB_NAME", defaultDb != null ? defaultDb : "nivo_db");
       String sslMode = env.getProperty("DB_SSL_MODE", "require");
       String channelBinding = env.getProperty("DB_CHANNEL_BINDING", "require");
-      url = String.format(
-          "jdbc:postgresql://%s:%s/%s?currentSchema=nivo&sslmode=%s&channelBinding=%s",
-          host, port, name, sslMode, channelBinding);
+      url = String.format("jdbc:postgresql://%s:%s/%s?currentSchema=nivo&sslmode=%s&channelBinding=%s", host,
+        port, name, sslMode, channelBinding);
     }
 
     String defaultUser = env.getProperty("DB_USERNAME", "postgres");
@@ -77,28 +72,26 @@ public class JpaConfig {
     String defaultPassword = env.getProperty("DB_PASSWORD", "postgres");
     String password = env.getProperty("spring.datasource.password");
     if (password == null || password.isBlank()) {
-      password = env.getProperty("spring.datasource.password", defaultPassword != null ? defaultPassword : "postgres");
+      password = env.getProperty("spring.datasource.password",
+        defaultPassword != null ? defaultPassword : "postgres");
     }
 
-    return DBSecret.builder()
-        .url(url)
-        .username(username)
-        .password(password)
-        .build();
+    return DBSecret.builder().url(url).username(username).password(password).build();
   }
 
   /**
    * Configures and provides the {@link DataSource} bean using HikariCP.
    *
-   * @param secret      The {@link DBSecret} containing database credentials.
-   * @param driverClass The JDBC driver class name, injected from properties.
+   * @param secret
+   *          The {@link DBSecret} containing database credentials.
+   * @param driverClass
+   *          The JDBC driver class name, injected from properties.
    * @return A configured HikariCP {@link DataSource}.
    */
   @Bean
-  public DataSource datasource(
-      final DBSecret secret,
-      @Value("${spring.datasource.driverClassName:${spring.datasource.driver-class-name:org.postgresql.Driver}}") final String driverClass,
-      @Value("${spring.jpa.properties.hibernate.default_schema:${spring.jpa.properties.hibernate.default-schema:nivo}}") final String defaultSchema) {
+  public DataSource datasource(final DBSecret secret,
+    @Value("${spring.datasource.driverClassName:${spring.datasource.driver-class-name:org.postgresql.Driver}}") final String driverClass,
+    @Value("${spring.jpa.properties.hibernate.default_schema:${spring.jpa.properties.hibernate.default-schema:nivo}}") final String defaultSchema) {
     HikariConfig config = new HikariConfig();
     String searchPath = defaultSchema + ",public";
     config.setJdbcUrl(secret.getUrl());
@@ -112,20 +105,20 @@ public class JpaConfig {
   }
 
   /**
-   * Configures and provides the {@link LocalContainerEntityManagerFactoryBean}.
-   * This bean is responsible for creating the JPA
-   * {@link jakarta.persistence.EntityManagerFactory}.
+   * Configures and provides the {@link LocalContainerEntityManagerFactoryBean}. This bean is responsible for creating
+   * the JPA {@link jakarta.persistence.EntityManagerFactory}.
    *
-   * @param dataSource The configured {@link DataSource}.
-   * @param dialect    The Hibernate dialect, injected from properties.
+   * @param dataSource
+   *          The configured {@link DataSource}.
+   * @param dialect
+   *          The Hibernate dialect, injected from properties.
    * @return A configured {@link LocalContainerEntityManagerFactoryBean}.
    */
   @Bean
-  public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-      final DataSource dataSource,
-      @Value("${spring.jpa.databasePlatform:${spring.jpa.database-platform:org.hibernate.dialect.PostgreSQLDialect}}") final String dialect,
-      @Value("${spring.jpa.properties.hibernate.default_schema:${spring.jpa.properties.hibernate.default-schema:nivo}}") final String defaultSchema,
-      final ConfigurableListableBeanFactory beanFactory) {
+  public LocalContainerEntityManagerFactoryBean entityManagerFactory(final DataSource dataSource,
+    @Value("${spring.jpa.databasePlatform:${spring.jpa.database-platform:org.hibernate.dialect.PostgreSQLDialect}}") final String dialect,
+    @Value("${spring.jpa.properties.hibernate.default_schema:${spring.jpa.properties.hibernate.default-schema:nivo}}") final String defaultSchema,
+    final ConfigurableListableBeanFactory beanFactory) {
     LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
     em.setDataSource(dataSource);
     em.setPackagesToScan("dev.angelcorzo.nivo.infrastructure.adapter.jpa");
@@ -143,5 +136,4 @@ public class JpaConfig {
 
     return em;
   }
-
 }

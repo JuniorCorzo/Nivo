@@ -1,9 +1,8 @@
 package dev.angelcorzo.nivo.domain.model.parkingtickets;
 
+import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
 import dev.angelcorzo.nivo.domain.model.commons.exceptions.ErrorMessagesModel;
 import java.util.UUID;
-
-import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
 
 public class ParkingTicketNotFound extends AppException {
   private static final int STATUS = 404;

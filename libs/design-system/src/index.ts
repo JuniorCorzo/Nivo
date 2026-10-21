@@ -60,3 +60,7 @@ export {
   TableHeadComponent,
   TableCellComponent,
 } from "./lib/components/table/index";
+
+// Modal
+export { ModalComponent } from "./lib/components/modal/index";
+export type { ModalRole, ModalSize } from "./lib/components/modal/index";

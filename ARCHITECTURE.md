@@ -18,6 +18,7 @@ El proyecto utiliza una estructura de monorepo dividida en:
 El backend está construido con **Java 21** y **Spring Boot 3.5.4**, siguiendo estrictamente los principios de **Clean Architecture** mediante el **Scaffold de Bancolombia**.
 
 ### Capas de Clean Architecture:
+
 1.  **Domain**: El núcleo del negocio, sin dependencias externas.
     - `domain/model`: Entidades de negocio y definiciones de `gateways` (interfaces de repositorio).
     - `domain/usecase`: Lógica de negocio pura que orquestra los modelos.

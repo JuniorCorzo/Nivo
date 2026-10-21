@@ -33,11 +33,7 @@ class DeleteRateUseCaseTest {
   void shouldDeleteRateByIdWhenTenantMatches() {
     UUID tenantId = UUID.randomUUID();
     UUID rateId = UUID.randomUUID();
-    Rates rate =
-        Rates.builder()
-            .id(rateId)
-            .tenant(TenantReference.builder().id(tenantId).build())
-            .build();
+    Rates rate = Rates.builder().id(rateId).tenant(TenantReference.builder().id(tenantId).build()).build();
 
     when(ratesRepository.findById(rateId)).thenReturn(Optional.of(rate));
 
@@ -51,11 +47,7 @@ class DeleteRateUseCaseTest {
   void shouldDeleteRateUsingAuthenticationContextGateway() {
     UUID tenantId = UUID.randomUUID();
     UUID rateId = UUID.randomUUID();
-    Rates rate =
-        Rates.builder()
-            .id(rateId)
-            .tenant(TenantReference.builder().id(tenantId).build())
-            .build();
+    Rates rate = Rates.builder().id(rateId).tenant(TenantReference.builder().id(tenantId).build()).build();
 
     when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
     when(ratesRepository.findById(rateId)).thenReturn(Optional.of(rate));
@@ -73,8 +65,7 @@ class DeleteRateUseCaseTest {
 
     when(ratesRepository.findById(rateId)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> useCase.execute(rateId, tenantId))
-        .isInstanceOf(RateNotFoundException.class);
+    assertThatThrownBy(() -> useCase.execute(rateId, tenantId)).isInstanceOf(RateNotFoundException.class);
 
     verify(ratesRepository, never()).deleteById(any());
   }
@@ -85,16 +76,11 @@ class DeleteRateUseCaseTest {
     UUID tenantA = UUID.randomUUID();
     UUID tenantB = UUID.randomUUID();
     UUID rateId = UUID.randomUUID();
-    Rates rate =
-        Rates.builder()
-            .id(rateId)
-            .tenant(TenantReference.builder().id(tenantA).build())
-            .build();
+    Rates rate = Rates.builder().id(rateId).tenant(TenantReference.builder().id(tenantA).build()).build();
 
     when(ratesRepository.findById(rateId)).thenReturn(Optional.of(rate));
 
-    assertThatThrownBy(() -> useCase.execute(rateId, tenantB))
-        .isInstanceOf(RateNotFoundException.class);
+    assertThatThrownBy(() -> useCase.execute(rateId, tenantB)).isInstanceOf(RateNotFoundException.class);
 
     verify(ratesRepository, never()).deleteById(any());
   }
@@ -108,8 +94,7 @@ class DeleteRateUseCaseTest {
 
     when(ratesRepository.findById(rateId)).thenReturn(Optional.of(rate));
 
-    assertThatThrownBy(() -> useCase.execute(rateId, tenantId))
-        .isInstanceOf(RateNotFoundException.class);
+    assertThatThrownBy(() -> useCase.execute(rateId, tenantId)).isInstanceOf(RateNotFoundException.class);
 
     verify(ratesRepository, never()).deleteById(any());
   }

@@ -3,17 +3,22 @@
 ## 1. Context & Business Rules
 
 ### Rule 1: Mandatory Photographic Proof
+
 When `plateCountry == PlateCountry.UNPLATED`, the check-in command MUST provide a non-blank `photoUrl`. If missing, the request is rejected with `UnplatedVehiclePhotoRequiredException` (HTTP 422).
 
 ### Rule 2: Synthetic Sequential Code Assignment
+
 The backend issues a unique sequential license identifier with format `SP-{sequenceNumber}` scoped by facility. The vehicle is tracked under this synthetic plate across its entire parking lifecycle.
 
 ### Rule 3: Public Digital Ticket Sanitization
+
 The endpoint `GET /api/v1/public/tickets/{ticketId}` allows drivers to view their parking voucher without authentication. The payload is strictly sanitized:
+
 - Exposes: `id`, `plate`, `plateCountry`, `photoUrl`, `slotNumber`, `parkingLotName`, `rateName`, `ratePricePerUnit`, `rateTimeUnit`, `entryTime`, `status`.
 - Hides: `tenantId`, `userId`, `financialLedger`, internal operator notes.
 
 ### Rule 4: WhatsApp Integration
+
 If the operator inputs a customer phone number during check-in, the UI compiles a direct `https://wa.me/{phone}?text={encodedMessage}` link containing the public ticket URL.
 
 ## 2. Gherkin Scenarios

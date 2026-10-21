@@ -24,22 +24,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("SendGridMailFactory Unit Tests")
 class SendGridMailFactoryTest {
 
-  @Mock private SendGridProperties sendGridProperties;
+  @Mock
+  private SendGridProperties sendGridProperties;
 
-  @InjectMocks private SendGridMailFactory factory;
+  @InjectMocks
+  private SendGridMailFactory factory;
 
   private NotificationTemplates template;
   private NotificationsData content;
 
   @BeforeEach
   void setUp() {
-    template =
-        NotificationTemplates.builder()
-            .id(UUID.randomUUID())
-            .templateReference("d-123456789")
-            .eventType(NotificationEvents.USER_INVITED)
-            .channel(NotificationsChannel.EMAIL)
-            .build();
+    template = NotificationTemplates.builder()
+      .id(UUID.randomUUID())
+      .templateReference("d-123456789")
+      .eventType(NotificationEvents.USER_INVITED)
+      .channel(NotificationsChannel.EMAIL)
+      .build();
 
     content = UserInvitedData.builder().userName("John Doe").build();
   }

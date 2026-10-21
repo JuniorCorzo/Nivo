@@ -78,10 +78,7 @@ class ParkingLotPolicyTest {
     GracePeriod gracePeriod = GracePeriod.of(10, BigDecimal.ZERO);
     TaxRate taxRate = TaxRate.of(new BigDecimal("0.08"));
 
-    ParkingLotPolicy policy = ParkingLotPolicy.builder()
-        .gracePeriod(gracePeriod)
-        .taxRate(taxRate)
-        .build();
+    ParkingLotPolicy policy = ParkingLotPolicy.builder().gracePeriod(gracePeriod).taxRate(taxRate).build();
 
     assertThat(policy.gracePeriod()).isEqualTo(gracePeriod);
     assertThat(policy.taxRate()).isEqualTo(taxRate);
@@ -93,10 +90,10 @@ class ParkingLotPolicyTest {
   @DisplayName("Builder should support setting primitive / legacy fields")
   void shouldSupportBuilderWithLegacyFields() {
     ParkingLotPolicy policy = ParkingLotPolicy.builder()
-        .gracePeriodMinutes(20)
-        .gracePeriodPrice(new BigDecimal("250.00"))
-        .ivaRate(new BigDecimal("0.15"))
-        .build();
+      .gracePeriodMinutes(20)
+      .gracePeriodPrice(new BigDecimal("250.00"))
+      .ivaRate(new BigDecimal("0.15"))
+      .build();
 
     assertThat(policy.gracePeriodMinutes()).isEqualTo(20);
     assertThat(policy.gracePeriodPrice()).isEqualByComparingTo(new BigDecimal("250.00"));

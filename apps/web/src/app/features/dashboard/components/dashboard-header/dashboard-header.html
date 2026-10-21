@@ -76,9 +76,7 @@
     <button
       nv-button
       class="shrink-0"
-      [variant]="
-        activeScope().mode === 'GLOBAL' ? 'default' : 'outline'
-      "
+      [variant]="activeScope().mode === 'GLOBAL' ? 'default' : 'outline'"
       size="sm"
       (click)="scopeChange.emit({ mode: 'GLOBAL' })"
     >
@@ -90,11 +88,10 @@
       nv-button
       class="shrink-0"
       [variant]="
-        activeScope().mode === 'SINGLE' &&
-        activeScope().parkingId === parking.id
-          ? 'default'
-          : 'outline'
-      "
+            activeScope().mode === 'SINGLE' && activeScope().parkingId === parking.id
+              ? 'default'
+              : 'outline'
+          "
       size="sm"
       (click)="scopeChange.emit({ mode: 'SINGLE', parkingId: parking.id })"
     >

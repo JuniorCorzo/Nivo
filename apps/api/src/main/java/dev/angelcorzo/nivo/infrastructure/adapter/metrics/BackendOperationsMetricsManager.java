@@ -48,7 +48,8 @@ public class BackendOperationsMetricsManager {
   }
 
   public void recordPublicAvailabilityRequest(final int statusCode) {
-    meterRegistry.counter("public.api.availability.requests.total", "status", String.valueOf(statusCode)).increment();
+    meterRegistry.counter("public.api.availability.requests.total", "status", String.valueOf(statusCode))
+      .increment();
   }
 
   public void recordPublicAvailabilityRateLimited() {
@@ -64,10 +65,7 @@ public class BackendOperationsMetricsManager {
   }
 
   public void recordAnalyticsQueryDuration(final String view, final Runnable query) {
-    Timer.builder("db.analytics.query.duration")
-        .tag("view", view)
-        .register(meterRegistry)
-        .record(query);
+    Timer.builder("db.analytics.query.duration").tag("view", view).register(meterRegistry).record(query);
   }
 
   public void recordCsvExportDuration(final Runnable export) {

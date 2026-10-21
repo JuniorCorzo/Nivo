@@ -1,27 +1,29 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.specialpolicies;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.specialpolicies.mappers.SpecialPoliciesMapper;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.SpecialPolicies;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.gateways.SpecialPoliciesRepository;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.specialpolicies.mappers.SpecialPoliciesMapper;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class SpecialPoliciesAdapter
-    extends AdapterOperations<
-        SpecialPolicies, SpecialPoliciesData, UUID, SpecialPoliciesRepositoryData>
-    implements SpecialPoliciesRepository {
+  extends
+    AdapterOperations<SpecialPolicies, SpecialPoliciesData, UUID, SpecialPoliciesRepositoryData>
+  implements
+    SpecialPoliciesRepository {
 
   /**
    * Constructor for AdapterOperations.
    *
-   * @param repository The JPA repository instance.
-   * @param mapper The mapper for converting between domain and data entities.
+   * @param repository
+   *          The JPA repository instance.
+   * @param mapper
+   *          The mapper for converting between domain and data entities.
    */
-  protected SpecialPoliciesAdapter(
-      SpecialPoliciesRepositoryData repository, SpecialPoliciesMapper mapper) {
+  protected SpecialPoliciesAdapter(SpecialPoliciesRepositoryData repository, SpecialPoliciesMapper mapper) {
     super(repository, mapper);
   }
 

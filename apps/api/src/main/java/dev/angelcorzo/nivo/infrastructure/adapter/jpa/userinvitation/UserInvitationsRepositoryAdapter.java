@@ -1,9 +1,9 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.userinvitation;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.userinvitation.mapper.UserInvitationsMapper;
 import dev.angelcorzo.nivo.domain.model.userinvitations.UserInvitations;
 import dev.angelcorzo.nivo.domain.model.userinvitations.gateways.UserInvitationsRepository;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.userinvitation.mapper.UserInvitationsMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,12 +11,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class UserInvitationsRepositoryAdapter
-    extends AdapterOperations<
-        UserInvitations, UserInvitationsData, UUID, UserInvitationsRepositoryData>
-    implements UserInvitationsRepository {
+  extends
+    AdapterOperations<UserInvitations, UserInvitationsData, UUID, UserInvitationsRepositoryData>
+  implements
+    UserInvitationsRepository {
 
-  protected UserInvitationsRepositoryAdapter(
-      UserInvitationsRepositoryData repository, UserInvitationsMapper mapper) {
+  protected UserInvitationsRepositoryAdapter(UserInvitationsRepositoryData repository, UserInvitationsMapper mapper) {
     super(repository, mapper);
   }
 

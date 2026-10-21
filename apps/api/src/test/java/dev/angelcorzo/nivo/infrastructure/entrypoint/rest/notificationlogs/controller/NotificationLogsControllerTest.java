@@ -6,11 +6,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import dev.angelcorzo.nivo.domain.model.notificationlogs.NotificationLogs;
+import dev.angelcorzo.nivo.domain.usecase.notification.GetNotificationsHistoryUseCase;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationlogs.dto.NotificationLogsDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationlogs.enums.NotificationLogsMessages;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationlogs.mappers.NotificationLogsMapper;
-import dev.angelcorzo.nivo.domain.model.notificationlogs.NotificationLogs;
-import dev.angelcorzo.nivo.domain.usecase.notification.GetNotificationsHistoryUseCase;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,10 +32,14 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("NotificationLogsController Unit Tests")
 class NotificationLogsControllerTest {
 
-  @Autowired private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-  @MockitoBean private NotificationLogsMapper notificationLogsMapper;
-  @MockitoBean private GetNotificationsHistoryUseCase getNotificationsHistoryUseCase;
+  @MockitoBean
+  private NotificationLogsMapper notificationLogsMapper;
+
+  @MockitoBean
+  private GetNotificationsHistoryUseCase getNotificationsHistoryUseCase;
 
   @Test
   @DisplayName("GET /notification-logs - Should retrieve notification history")
@@ -46,9 +50,8 @@ class NotificationLogsControllerTest {
     when(getNotificationsHistoryUseCase.execute()).thenReturn(List.of(log));
     when(notificationLogsMapper.toDTO(log)).thenReturn(dto);
 
-    mockMvc
-        .perform(get("/notification-logs"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.message").value(NotificationLogsMessages.NOTIFICATION_LOGS_LIST.format()));
+    mockMvc.perform(get("/notification-logs"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.message").value(NotificationLogsMessages.NOTIFICATION_LOGS_LIST.format()));
   }
 }

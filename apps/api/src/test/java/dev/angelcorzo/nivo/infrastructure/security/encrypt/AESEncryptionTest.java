@@ -28,7 +28,8 @@ class AESEncryptionTest {
     return Base64.toBase64String(key);
   }
 
-  record SampleData(String name, int age, String secret) {}
+  record SampleData(String name, int age, String secret) {
+  }
 
   @BeforeEach
   void setUp() {
@@ -55,8 +56,7 @@ class AESEncryptionTest {
       assertThat(cipherText).isNotBlank();
 
       // Act Decrypt
-      Result<SampleData, EncryptionError> decryptResult =
-          aesEncryption.decrypt(cipherText, SampleData.class);
+      Result<SampleData, EncryptionError> decryptResult = aesEncryption.decrypt(cipherText, SampleData.class);
 
       // Assert Decrypt
       assertThat(decryptResult.isSuccess()).isTrue();
@@ -73,8 +73,7 @@ class AESEncryptionTest {
       Result<String, EncryptionError> encryptResult = aesEncryption.encrypt(data);
       assertThat(encryptResult.isSuccess()).isTrue();
 
-      Result<Map, EncryptionError> decryptResult =
-          aesEncryption.decrypt(encryptResult.get(), Map.class);
+      Result<Map, EncryptionError> decryptResult = aesEncryption.decrypt(encryptResult.get(), Map.class);
 
       // Assert
       assertThat(decryptResult.isSuccess()).isTrue();
@@ -115,8 +114,7 @@ class AESEncryptionTest {
       String tamperedCipher = Base64.toBase64String(cipherBytes);
 
       // Act
-      Result<SampleData, EncryptionError> decryptResult =
-          aesEncryption.decrypt(tamperedCipher, SampleData.class);
+      Result<SampleData, EncryptionError> decryptResult = aesEncryption.decrypt(tamperedCipher, SampleData.class);
 
       // Assert
       assertThat(decryptResult.isSuccess()).isFalse();
@@ -132,8 +130,8 @@ class AESEncryptionTest {
       String cipherText = aesEncryption.encrypt(sample).get();
 
       // Act
-      Result<SampleData, EncryptionError> decryptResult =
-          anotherKeyEncryption.decrypt(cipherText, SampleData.class);
+      Result<SampleData, EncryptionError> decryptResult = anotherKeyEncryption.decrypt(cipherText,
+        SampleData.class);
 
       // Assert
       assertThat(decryptResult.isSuccess()).isFalse();
@@ -144,8 +142,8 @@ class AESEncryptionTest {
     @DisplayName("Should return DecryptionFailed on invalid base64 input")
     void shouldReturnDecryptionFailedOnInvalidBase64Input() {
       // Act
-      Result<SampleData, EncryptionError> decryptResult =
-          aesEncryption.decrypt("not-a-valid-base64-string!!!", SampleData.class);
+      Result<SampleData, EncryptionError> decryptResult = aesEncryption.decrypt("not-a-valid-base64-string!!!",
+        SampleData.class);
 
       // Assert
       assertThat(decryptResult.isSuccess()).isFalse();
@@ -159,8 +157,8 @@ class AESEncryptionTest {
       Result<String, EncryptionError> encryptResult = aesEncryption.encrypt("just a string");
 
       // Act: try to deserialize as an incompatible complex object type
-      Result<SampleData, EncryptionError> decryptResult =
-          aesEncryption.decrypt(encryptResult.get(), SampleData.class);
+      Result<SampleData, EncryptionError> decryptResult = aesEncryption.decrypt(encryptResult.get(),
+        SampleData.class);
 
       // Assert
       assertThat(decryptResult.isSuccess()).isFalse();

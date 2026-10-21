@@ -27,12 +27,12 @@ class PricingContextTest {
     StayInterval interval = StayInterval.of(entry, exit);
 
     RateReference rate = RateReference.builder()
-        .id(UUID.randomUUID())
-        .pricePerUnit(BigDecimal.valueOf(5000))
-        .timeUnit(TimeUnitsRate.HOURS)
-        .minChargeTimeMinutes(0)
-        .vehicleType(VehicleType.CAR)
-        .build();
+      .id(UUID.randomUUID())
+      .pricePerUnit(BigDecimal.valueOf(5000))
+      .timeUnit(TimeUnitsRate.HOURS)
+      .minChargeTimeMinutes(0)
+      .vehicleType(VehicleType.CAR)
+      .build();
 
     PricingContext ctx = PricingContext.of(rate, ParkingLotPolicy.defaults(), interval);
 
@@ -52,12 +52,12 @@ class PricingContextTest {
     OffsetDateTime exit = OffsetDateTime.parse("2026-09-07T11:30:00Z");
 
     RateReference rate = RateReference.builder()
-        .id(UUID.randomUUID())
-        .pricePerUnit(BigDecimal.valueOf(5000))
-        .timeUnit(TimeUnitsRate.HOURS)
-        .minChargeTimeMinutes(0)
-        .vehicleType(VehicleType.CAR)
-        .build();
+      .id(UUID.randomUUID())
+      .pricePerUnit(BigDecimal.valueOf(5000))
+      .timeUnit(TimeUnitsRate.HOURS)
+      .minChargeTimeMinutes(0)
+      .vehicleType(VehicleType.CAR)
+      .build();
 
     PricingContext ctx = PricingContext.of(rate, ParkingLotPolicy.defaults(), entry, exit);
 
@@ -80,8 +80,8 @@ class PricingContextTest {
     RateReference rate = RateReference.builder().build();
 
     assertThatThrownBy(() -> PricingContext.of(rate, ParkingLotPolicy.defaults(), entry, exit))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessage("Exit time cannot be before entry time");
+      .isInstanceOf(InvalidDomainException.class)
+      .hasMessage("Exit time cannot be before entry time");
   }
 
   @Test
@@ -90,8 +90,8 @@ class PricingContextTest {
     RateReference rate = RateReference.builder().build();
 
     assertThatThrownBy(() -> PricingContext.of(rate, ParkingLotPolicy.defaults(), null, null))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessage("Entry time and exit time cannot be null");
+      .isInstanceOf(InvalidDomainException.class)
+      .hasMessage("Entry time and exit time cannot be null");
   }
 
   @Test
@@ -102,7 +102,8 @@ class PricingContextTest {
     RateReference rate = RateReference.builder().build();
 
     PricingContext initial = PricingContext.of(rate, ParkingLotPolicy.defaults(), entry, exit);
-    PricingContext updated = initial.withSubtotal(BigDecimal.valueOf(5000), PriceLine.of("Base Rate", BigDecimal.valueOf(5000)));
+    PricingContext updated = initial.withSubtotal(BigDecimal.valueOf(5000),
+      PriceLine.of("Base Rate", BigDecimal.valueOf(5000)));
 
     assertThat(initial.subtotal()).isEqualByComparingTo(BigDecimal.ZERO);
     assertThat(initial.breakpoints()).isEmpty();
@@ -117,7 +118,8 @@ class PricingContextTest {
   void shouldMarkSettled() {
     OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
     OffsetDateTime exit = OffsetDateTime.parse("2026-09-07T10:10:00Z");
-    PricingContext initial = PricingContext.of(RateReference.builder().build(), ParkingLotPolicy.defaults(), entry, exit);
+    PricingContext initial = PricingContext.of(RateReference.builder().build(), ParkingLotPolicy.defaults(), entry,
+      exit);
 
     PricingContext settled = initial.toSettled();
 
@@ -130,7 +132,8 @@ class PricingContextTest {
   void shouldSupportSettleAliases() {
     OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
     OffsetDateTime exit = OffsetDateTime.parse("2026-09-07T10:10:00Z");
-    PricingContext initial = PricingContext.of(RateReference.builder().build(), ParkingLotPolicy.defaults(), entry, exit);
+    PricingContext initial = PricingContext.of(RateReference.builder().build(), ParkingLotPolicy.defaults(), entry,
+      exit);
 
     PricingContext settledViaSettle = initial.settle();
     PricingContext settledViaWithSettled = initial.withSettled(true);

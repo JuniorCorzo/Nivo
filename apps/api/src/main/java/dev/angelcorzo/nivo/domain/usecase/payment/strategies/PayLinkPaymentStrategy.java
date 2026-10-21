@@ -11,9 +11,9 @@ import dev.angelcorzo.nivo.domain.model.payments.factories.PaymentFactory;
 import dev.angelcorzo.nivo.domain.model.payments.gateways.PaymentProviderGateway;
 import dev.angelcorzo.nivo.domain.model.payments.gateways.PaymentsRepository;
 import dev.angelcorzo.nivo.domain.model.payments.valueobject.ProviderMetadata;
-import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
 import dev.angelcorzo.nivo.domain.usecase.notification.notifier.PaymentNotifier;
 import dev.angelcorzo.nivo.domain.usecase.payment.strategies.commands.PaymentCommand;
+import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
 import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -28,34 +28,28 @@ public class PayLinkPaymentStrategy implements PaymentStrategy {
   @Override
   public Result<Payments, PaymentError> processPayment(PaymentCommand command) {
     final BigDecimal amount = command.amounts().getTotal();
-    final ParkingTickets ticket =
-        this.parkingTicketsRepository
-            .findById(command.ticket().getId())
-            .orElseThrow(() -> new ParkingTicketNotFound(command.ticket().getId()));
+    final ParkingTickets ticket = this.parkingTicketsRepository.findById(command.ticket().getId())
+      .orElseThrow(() -> new ParkingTicketNotFound(command.ticket().getId()));
 
-    Result<Payments, PaymentError> paymentIntent =
-        ResultUtils.combine(
-            () -> this.createPaymentIntent(ticket, amount),
-            () -> this.processPayment(command, ticket, amount),
-            this::updatePaymentsWithMetadata);
+    Result<Payments, PaymentError> paymentIntent = ResultUtils.combine(
+      () -> this.createPaymentIntent(ticket, amount), () -> this.processPayment(command, ticket, amount),
+      this::updatePaymentsWithMetadata);
 
-    return paymentIntent
-        .onSuccess((_) -> this.updateTicketStatus(command.ticket().getId(), amount))
-        .onSuccess(payments -> this.sendNotifications(payments, command.amounts()));
+    return paymentIntent.onSuccess((_) -> this.updateTicketStatus(command.ticket().getId(), amount))
+      .onSuccess(payments -> this.sendNotifications(payments, command.amounts()));
   }
 
-  private Result<Payments, PaymentError> createPaymentIntent(
-      ParkingTickets ticket, BigDecimal amount) {
+  private Result<Payments, PaymentError> createPaymentIntent(ParkingTickets ticket, BigDecimal amount) {
     return this.paymentsRepository.processPayment(PaymentFactory.registerPayLink(ticket, amount));
   }
 
-  private Result<ProviderMetadata, PaymentError> processPayment(
-      PaymentCommand command, ParkingTickets ticket, BigDecimal amount) {
+  private Result<ProviderMetadata, PaymentError> processPayment(PaymentCommand command, ParkingTickets ticket,
+    BigDecimal amount) {
     return this.paymentProviderGateway.processPayment(ticket, amount, command.checkOut());
   }
 
-  private Result<Payments, PaymentError> updatePaymentsWithMetadata(
-      Payments paymentIntent, ProviderMetadata metadata) {
+  private Result<Payments, PaymentError> updatePaymentsWithMetadata(Payments paymentIntent,
+    ProviderMetadata metadata) {
     paymentIntent.startCheckout(metadata);
     return this.paymentsRepository.processPayment(paymentIntent);
   }

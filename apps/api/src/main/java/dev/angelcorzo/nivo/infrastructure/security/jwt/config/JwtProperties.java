@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Type-safe configuration properties for JWT generation and validation.
  * <p>
- * This class maps properties prefixed with {@code jwt} from the application's
- * configuration files (e.g., {@code application.yaml}) into a structured
- * Java object. It provides a secure and convenient way to manage JWT settings.
+ * This class maps properties prefixed with {@code jwt} from the application's configuration files (e.g.,
+ * {@code application.yaml}) into a structured Java object. It provides a secure and convenient way to manage JWT
+ * settings.
  * </p>
  *
  * @author Angel Corzo
@@ -24,8 +24,7 @@ public class JwtProperties {
   /**
    * The issuer of the JWT.
    * <p>
-   * This value is used for the {@code iss} claim in the JWT, identifying the
-   * principal that issued the token.
+   * This value is used for the {@code iss} claim in the JWT, identifying the principal that issued the token.
    * </p>
    */
   private String issue;
@@ -45,5 +44,4 @@ public class JwtProperties {
    * </p>
    */
   private long refreshTokenExpiration;
-
 }

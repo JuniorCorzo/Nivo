@@ -3,8 +3,8 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.rates;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.rates.mapper.RatesMapper;
 import dev.angelcorzo.nivo.domain.model.rates.Rates;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.rates.mapper.RatesMapper;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;

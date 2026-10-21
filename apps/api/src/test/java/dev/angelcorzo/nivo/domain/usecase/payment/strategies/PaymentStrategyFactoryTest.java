@@ -37,15 +37,9 @@ class PaymentStrategyFactoryTest {
   @Test
   @DisplayName("Should return EffectivePaymentStrategy when method is EFFECTIVE")
   void shouldReturnEffectivePaymentStrategy() {
-    PaymentStrategy strategy =
-        PaymentStrategyFactory.getPaymentStrategy(
-            PaymentsMethods.EFFECTIVE,
-            paymentsRepository,
-            parkingTicketsRepository,
-            paymentProviderGateway,
-            transactionsRepository,
-            paymentNotifier,
-            ticketNotifier);
+    PaymentStrategy strategy = PaymentStrategyFactory.getPaymentStrategy(PaymentsMethods.EFFECTIVE,
+      paymentsRepository, parkingTicketsRepository, paymentProviderGateway, transactionsRepository,
+      paymentNotifier, ticketNotifier);
 
     assertThat(strategy).isNotNull().isInstanceOf(EffectivePaymentStrategy.class);
   }
@@ -53,15 +47,9 @@ class PaymentStrategyFactoryTest {
   @Test
   @DisplayName("Should return PayLinkPaymentStrategy when method is PAY_LINK")
   void shouldReturnPayLinkPaymentStrategy() {
-    PaymentStrategy strategy =
-        PaymentStrategyFactory.getPaymentStrategy(
-            PaymentsMethods.PAY_LINK,
-            paymentsRepository,
-            parkingTicketsRepository,
-            paymentProviderGateway,
-            transactionsRepository,
-            paymentNotifier,
-            ticketNotifier);
+    PaymentStrategy strategy = PaymentStrategyFactory.getPaymentStrategy(PaymentsMethods.PAY_LINK,
+      paymentsRepository, parkingTicketsRepository, paymentProviderGateway, transactionsRepository,
+      paymentNotifier, ticketNotifier);
 
     assertThat(strategy).isNotNull().isInstanceOf(PayLinkPaymentStrategy.class);
   }

@@ -47,15 +47,8 @@ class CreateTicketUseCaseTest {
     ticketNotifier = mock(TicketNotifier.class);
     unplatedTicketSequenceGateway = mock(UnplatedTicketSequenceGateway.class);
 
-    useCase =
-        new CreateTicketUseCase(
-            parkingTicketsRepository,
-            tenantsRepository,
-            usersRepository,
-            slotsRepository,
-            ratesRepository,
-            ticketNotifier,
-            unplatedTicketSequenceGateway);
+    useCase = new CreateTicketUseCase(parkingTicketsRepository, tenantsRepository, usersRepository, slotsRepository,
+      ratesRepository, ticketNotifier, unplatedTicketSequenceGateway);
   }
 
   @Test
@@ -67,21 +60,19 @@ class CreateTicketUseCaseTest {
     String email = "driver@example.com";
     String plate = "ABC-123";
 
-    CheckinVehicleUseCase.CreatedParkingTicket command =
-        new CheckinVehicleUseCase.CreatedParkingTicket(
-            slotId, tenantId, email, rateId, plate);
+    CheckinVehicleUseCase.CreatedParkingTicket command = new CheckinVehicleUseCase.CreatedParkingTicket(slotId,
+      tenantId, email, rateId, plate);
 
-    Slots mockSlot =
-        Slots.builder()
-            .id(slotId)
-            .slotNumber("A-01")
-            .zone("Zone-1")
-            .prefix("A")
-            .type(SlotType.CAR)
-            .hasCharger(true)
-            .isAccessible(true)
-            .status(SlotStatus.AVAILABLE)
-            .build();
+    Slots mockSlot = Slots.builder()
+      .id(slotId)
+      .slotNumber("A-01")
+      .zone("Zone-1")
+      .prefix("A")
+      .type(SlotType.CAR)
+      .hasCharger(true)
+      .isAccessible(true)
+      .status(SlotStatus.AVAILABLE)
+      .build();
 
     Tenants mockTenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
     Rates mockRate = Rates.builder().id(rateId).name("Standard").build();
@@ -92,13 +83,13 @@ class CreateTicketUseCaseTest {
     when(ratesRepository.existsById(rateId)).thenReturn(true);
 
     when(slotsRepository.save(any(Slots.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
+      .thenAnswer(invocation -> invocation.getArgument(0));
     when(tenantsRepository.getReferenceById(tenantId)).thenReturn(mockTenant);
     when(ratesRepository.getReferenceById(rateId)).thenReturn(mockRate);
     when(usersRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
 
     when(parkingTicketsRepository.save(any(ParkingTickets.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
+      .thenAnswer(invocation -> invocation.getArgument(0));
 
     ParkingTickets ticket = useCase.execute(command);
 

@@ -18,8 +18,7 @@ public class PaymentEventController {
   @MessageMapping("/payments.info/{paymentId}")
   void status(@DestinationVariable("paymentId") String paymentId) {
 
-    PaymentEventObservable observable =
-        new PaymentEventObservable(UUID.fromString(paymentId), template);
+    PaymentEventObservable observable = new PaymentEventObservable(UUID.fromString(paymentId), template);
 
     paymentEventBroker.subscribe(paymentId, observable);
   }

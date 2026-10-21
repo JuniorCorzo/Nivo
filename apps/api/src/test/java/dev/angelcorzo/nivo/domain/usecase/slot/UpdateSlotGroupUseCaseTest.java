@@ -37,43 +37,39 @@ class UpdateSlotGroupUseCaseTest {
     UUID slot1Id = UUID.randomUUID();
     UUID slot2Id = UUID.randomUUID();
 
-    Slots slot1 =
-        Slots.builder()
-            .id(slot1Id)
-            .zone("Zone-1")
-            .prefix("A")
-            .slotNumber("A-01")
-            .status(SlotStatus.AVAILABLE)
-            .build();
+    Slots slot1 = Slots.builder()
+      .id(slot1Id)
+      .zone("Zone-1")
+      .prefix("A")
+      .slotNumber("A-01")
+      .status(SlotStatus.AVAILABLE)
+      .build();
 
-    Slots slot2 =
-        Slots.builder()
-            .id(slot2Id)
-            .zone("Zone-1")
-            .prefix("A")
-            .slotNumber("A-02")
-            .status(SlotStatus.AVAILABLE)
-            .build();
+    Slots slot2 = Slots.builder()
+      .id(slot2Id)
+      .zone("Zone-1")
+      .prefix("A")
+      .slotNumber("A-02")
+      .status(SlotStatus.AVAILABLE)
+      .build();
 
-    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command =
-        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-            .parkingId(parkingId)
-            .currentZone("Zone-1")
-            .currentPrefix("A")
-            .newZone("Zone-3")
-            .newPrefix("C")
-            .build();
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command = UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
+      .parkingId(parkingId)
+      .currentZone("Zone-1")
+      .currentPrefix("A")
+      .newZone("Zone-3")
+      .newPrefix("C")
+      .build();
 
     when(slotsRepository.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, "Zone-1", "A"))
-        .thenReturn(List.of(slot1, slot2));
+      .thenReturn(List.of(slot1, slot2));
     when(batchPersistSlotsUseCase.execute(anyList())).thenAnswer(inv -> inv.getArgument(0));
 
     List<Slots> result = useCase.execute(command);
 
     assertThat(result).hasSize(2);
     assertThat(result).allMatch(s -> s.getZone().equals("Zone-3") && s.getPrefix().equals("C"));
-    assertThat(result.stream().map(Slots::getSlotNumber).toList())
-        .containsExactlyInAnyOrder("C-01", "C-02");
+    assertThat(result.stream().map(Slots::getSlotNumber).toList()).containsExactlyInAnyOrder("C-01", "C-02");
     verify(batchPersistSlotsUseCase).execute(anyList());
     verify(slotsRepository, never()).saveAll(anyList());
   }
@@ -83,17 +79,16 @@ class UpdateSlotGroupUseCaseTest {
   void shouldReturnEmptyListWhenNoSlotsMatchGroup() {
     UUID parkingId = UUID.randomUUID();
 
-    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command =
-        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-            .parkingId(parkingId)
-            .currentZone("Zone-1")
-            .currentPrefix("A")
-            .newZone("Zone-3")
-            .newPrefix("C")
-            .build();
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command = UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
+      .parkingId(parkingId)
+      .currentZone("Zone-1")
+      .currentPrefix("A")
+      .newZone("Zone-3")
+      .newPrefix("C")
+      .build();
 
     when(slotsRepository.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, "Zone-1", "A"))
-        .thenReturn(Collections.emptyList());
+      .thenReturn(Collections.emptyList());
 
     List<Slots> result = useCase.execute(command);
 
@@ -108,42 +103,38 @@ class UpdateSlotGroupUseCaseTest {
     UUID slot1Id = UUID.randomUUID();
     UUID slot2Id = UUID.randomUUID();
 
-    Slots availableSlot =
-        Slots.builder()
-            .id(slot1Id)
-            .zone("Zone-1")
-            .prefix("A")
-            .slotNumber("A-01")
-            .status(SlotStatus.AVAILABLE)
-            .build();
+    Slots availableSlot = Slots.builder()
+      .id(slot1Id)
+      .zone("Zone-1")
+      .prefix("A")
+      .slotNumber("A-01")
+      .status(SlotStatus.AVAILABLE)
+      .build();
 
-    Slots occupiedSlot =
-        Slots.builder()
-            .id(slot2Id)
-            .zone("Zone-1")
-            .prefix("A")
-            .slotNumber("A-02")
-            .status(SlotStatus.OCCUPIED)
-            .build();
+    Slots occupiedSlot = Slots.builder()
+      .id(slot2Id)
+      .zone("Zone-1")
+      .prefix("A")
+      .slotNumber("A-02")
+      .status(SlotStatus.OCCUPIED)
+      .build();
 
-    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command =
-        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-            .parkingId(parkingId)
-            .currentZone("Zone-1")
-            .currentPrefix("A")
-            .newZone("Zone-2")
-            .newPrefix("B")
-            .build();
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command = UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
+      .parkingId(parkingId)
+      .currentZone("Zone-1")
+      .currentPrefix("A")
+      .newZone("Zone-2")
+      .newPrefix("B")
+      .build();
 
     when(slotsRepository.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, "Zone-1", "A"))
-        .thenReturn(List.of(availableSlot, occupiedSlot));
+      .thenReturn(List.of(availableSlot, occupiedSlot));
 
-    assertThatThrownBy(() -> useCase.execute(command))
-        .isInstanceOf(SlotCannotBeModifiedException.class)
-        .satisfies(ex -> {
-          SlotCannotBeModifiedException slotEx = (SlotCannotBeModifiedException) ex;
-          assertThat(slotEx.getConflictingSlotIds()).containsExactly(slot2Id);
-        });
+    assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(SlotCannotBeModifiedException.class)
+      .satisfies(ex -> {
+        SlotCannotBeModifiedException slotEx = (SlotCannotBeModifiedException) ex;
+        assertThat(slotEx.getConflictingSlotIds()).containsExactly(slot2Id);
+      });
 
     verify(batchPersistSlotsUseCase, never()).execute(anyList());
     verify(slotsRepository, never()).saveAll(anyList());
@@ -158,44 +149,40 @@ class UpdateSlotGroupUseCaseTest {
     UUID slot2Id = UUID.randomUUID();
     UUID slot3Id = UUID.randomUUID();
 
-    Slots slot1 =
-        Slots.builder()
-            .id(slot1Id)
-            .zone("Zone-1")
-            .prefix("A")
-            .slotNumber("A-01")
-            .status(SlotStatus.AVAILABLE)
-            .build();
+    Slots slot1 = Slots.builder()
+      .id(slot1Id)
+      .zone("Zone-1")
+      .prefix("A")
+      .slotNumber("A-01")
+      .status(SlotStatus.AVAILABLE)
+      .build();
 
-    Slots slot2 =
-        Slots.builder()
-            .id(slot2Id)
-            .zone("Zone-1")
-            .prefix("A")
-            .slotNumber("A02")
-            .status(SlotStatus.AVAILABLE)
-            .build();
+    Slots slot2 = Slots.builder()
+      .id(slot2Id)
+      .zone("Zone-1")
+      .prefix("A")
+      .slotNumber("A02")
+      .status(SlotStatus.AVAILABLE)
+      .build();
 
-    Slots slot3 =
-        Slots.builder()
-            .id(slot3Id)
-            .zone("Zone-1")
-            .prefix("A")
-            .slotNumber("03")
-            .status(SlotStatus.AVAILABLE)
-            .build();
+    Slots slot3 = Slots.builder()
+      .id(slot3Id)
+      .zone("Zone-1")
+      .prefix("A")
+      .slotNumber("03")
+      .status(SlotStatus.AVAILABLE)
+      .build();
 
-    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command =
-        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-            .parkingId(parkingId)
-            .currentZone("Zone-1")
-            .currentPrefix("A")
-            .newZone("Zone-1")
-            .newPrefix("VIP")
-            .build();
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command = UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
+      .parkingId(parkingId)
+      .currentZone("Zone-1")
+      .currentPrefix("A")
+      .newZone("Zone-1")
+      .newPrefix("VIP")
+      .build();
 
     when(slotsRepository.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, "Zone-1", "A"))
-        .thenReturn(List.of(slot1, slot2, slot3));
+      .thenReturn(List.of(slot1, slot2, slot3));
     when(batchPersistSlotsUseCase.execute(anyList())).thenAnswer(inv -> inv.getArgument(0));
 
     List<Slots> result = useCase.execute(command);
@@ -212,69 +199,69 @@ class UpdateSlotGroupUseCaseTest {
   @Test
   @DisplayName("Should test UpdateSlotGroupCommand resolution methods")
   void shouldTestCommandResolutionMethods() {
-    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdWithNew =
-        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-            .currentZone("Z1")
-            .currentPrefix("P1")
-            .newZone("Z2")
-            .newPrefix("P2")
-            .build();
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdWithNew = UpdateSlotGroupUseCase.UpdateSlotGroupCommand
+      .builder()
+      .currentZone("Z1")
+      .currentPrefix("P1")
+      .newZone("Z2")
+      .newPrefix("P2")
+      .build();
 
     assertThat(cmdWithNew.resolveTargetZone()).isEqualTo("Z2");
     assertThat(cmdWithNew.resolveTargetPrefix()).isEqualTo("P2");
     assertThat(cmdWithNew.isPrefixChanged()).isTrue();
 
-    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdWithoutNew =
-        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-            .currentZone("Z1")
-            .currentPrefix("P1")
-            .build();
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdWithoutNew = UpdateSlotGroupUseCase.UpdateSlotGroupCommand
+      .builder()
+      .currentZone("Z1")
+      .currentPrefix("P1")
+      .build();
 
     assertThat(cmdWithoutNew.resolveTargetZone()).isEqualTo("Z1");
     assertThat(cmdWithoutNew.resolveTargetPrefix()).isEqualTo("P1");
     assertThat(cmdWithoutNew.isPrefixChanged()).isFalse();
 
-    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdSamePrefix =
-        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-            .currentZone("Z1")
-            .currentPrefix("P1")
-            .newZone("Z2")
-            .newPrefix("P1")
-            .build();
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdSamePrefix = UpdateSlotGroupUseCase.UpdateSlotGroupCommand
+      .builder()
+      .currentZone("Z1")
+      .currentPrefix("P1")
+      .newZone("Z2")
+      .newPrefix("P1")
+      .build();
 
     assertThat(cmdSamePrefix.resolveTargetZone()).isEqualTo("Z2");
     assertThat(cmdSamePrefix.resolveTargetPrefix()).isEqualTo("P1");
     assertThat(cmdSamePrefix.isPrefixChanged()).isFalse();
 
-    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdEmptyNew =
-        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-            .currentZone("Z1")
-            .currentPrefix("P1")
-            .newZone("")
-            .newPrefix("")
-            .build();
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdEmptyNew = UpdateSlotGroupUseCase.UpdateSlotGroupCommand
+      .builder()
+      .currentZone("Z1")
+      .currentPrefix("P1")
+      .newZone("")
+      .newPrefix("")
+      .build();
 
     assertThat(cmdEmptyNew.resolveTargetZone()).isNull();
     assertThat(cmdEmptyNew.resolveTargetPrefix()).isNull();
     assertThat(cmdEmptyNew.isPrefixChanged()).isTrue();
 
-    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdBothEmpty =
-        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-            .currentZone("")
-            .currentPrefix("")
-            .newZone("")
-            .newPrefix("")
-            .build();
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdBothEmpty = UpdateSlotGroupUseCase.UpdateSlotGroupCommand
+      .builder()
+      .currentZone("")
+      .currentPrefix("")
+      .newZone("")
+      .newPrefix("")
+      .build();
 
     assertThat(cmdBothEmpty.isPrefixChanged()).isFalse();
 
-    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdNullCurrentEmptyNew =
-        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-            .currentZone(null)
-            .currentPrefix(null)
-            .newZone("")
-            .newPrefix("")
-            .build();
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand cmdNullCurrentEmptyNew = UpdateSlotGroupUseCase.UpdateSlotGroupCommand
+      .builder()
+      .currentZone(null)
+      .currentPrefix(null)
+      .newZone("")
+      .newPrefix("")
+      .build();
 
     assertThat(cmdNullCurrentEmptyNew.isPrefixChanged()).isFalse();
   }
@@ -285,26 +272,23 @@ class UpdateSlotGroupUseCaseTest {
     UUID parkingId = UUID.randomUUID();
     UUID slotId = UUID.randomUUID();
 
-    Slots slot =
-        Slots.builder()
-            .id(slotId)
-            .zone(null)
-            .prefix(null)
-            .slotNumber("01")
-            .status(SlotStatus.AVAILABLE)
-            .build();
+    Slots slot = Slots.builder()
+      .id(slotId)
+      .zone(null)
+      .prefix(null)
+      .slotNumber("01")
+      .status(SlotStatus.AVAILABLE)
+      .build();
 
-    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command =
-        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-            .parkingId(parkingId)
-            .currentZone(null)
-            .currentPrefix(null)
-            .newZone("Zone-B")
-            .newPrefix("B")
-            .build();
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command = UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
+      .parkingId(parkingId)
+      .currentZone(null)
+      .currentPrefix(null)
+      .newZone("Zone-B")
+      .newPrefix("B")
+      .build();
 
-    when(slotsRepository.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, null, null))
-        .thenReturn(List.of(slot));
+    when(slotsRepository.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, null, null)).thenReturn(List.of(slot));
     when(batchPersistSlotsUseCase.execute(anyList())).thenAnswer(inv -> inv.getArgument(0));
 
     List<Slots> result = useCase.execute(command);
@@ -321,26 +305,24 @@ class UpdateSlotGroupUseCaseTest {
     UUID parkingId = UUID.randomUUID();
     UUID slotId = UUID.randomUUID();
 
-    Slots slot =
-        Slots.builder()
-            .id(slotId)
-            .zone("Zone-A")
-            .prefix("A")
-            .slotNumber("A-01")
-            .status(SlotStatus.AVAILABLE)
-            .build();
+    Slots slot = Slots.builder()
+      .id(slotId)
+      .zone("Zone-A")
+      .prefix("A")
+      .slotNumber("A-01")
+      .status(SlotStatus.AVAILABLE)
+      .build();
 
-    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command =
-        UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-            .parkingId(parkingId)
-            .currentZone("Zone-A")
-            .currentPrefix("A")
-            .newZone("")
-            .newPrefix("")
-            .build();
+    UpdateSlotGroupUseCase.UpdateSlotGroupCommand command = UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
+      .parkingId(parkingId)
+      .currentZone("Zone-A")
+      .currentPrefix("A")
+      .newZone("")
+      .newPrefix("")
+      .build();
 
     when(slotsRepository.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, "Zone-A", "A"))
-        .thenReturn(List.of(slot));
+      .thenReturn(List.of(slot));
     when(batchPersistSlotsUseCase.execute(anyList())).thenAnswer(inv -> inv.getArgument(0));
 
     List<Slots> result = useCase.execute(command);

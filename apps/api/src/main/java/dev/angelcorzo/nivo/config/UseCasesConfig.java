@@ -1,5 +1,7 @@
 package dev.angelcorzo.nivo.config;
 
+import dev.angelcorzo.nivo.domain.usecase.rate.engine.PricingEngine;
+import dev.angelcorzo.nivo.domain.usecase.rate.engine.stages.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -12,39 +14,32 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.interceptor.*;
-import dev.angelcorzo.nivo.domain.usecase.rate.engine.PricingEngine;
-import dev.angelcorzo.nivo.domain.usecase.rate.engine.stages.*;
 
 @Configuration
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-@ComponentScan(
-    basePackages = "dev.angelcorzo.nivo.domain.usecase",
-    includeFilters = {
-      @ComponentScan.Filter(type = FilterType.REGEX, pattern = "^.+UseCase$"),
-      @ComponentScan.Filter(type = FilterType.REGEX, pattern = "^.+Notifier$")
-    },
-    useDefaultFilters = false)
+@ComponentScan(basePackages = "dev.angelcorzo.nivo.domain.usecase", includeFilters = {
+  @ComponentScan.Filter(type = FilterType.REGEX, pattern = "^.+UseCase$"),
+  @ComponentScan.Filter(type = FilterType.REGEX, pattern = "^.+Notifier$")}, useDefaultFilters = false)
 @RequiredArgsConstructor
 public class UseCasesConfig {
   /**
-   * Configures and provides the {@link PlatformTransactionManager} bean. This bean is responsible
-   * for managing transactions in the application.
+   * Configures and provides the {@link PlatformTransactionManager} bean. This bean is responsible for managing
+   * transactions in the application.
    *
-   * @param entityManagerFactory The JPA {@link jakarta.persistence.EntityManagerFactory}.
+   * @param entityManagerFactory
+   *          The JPA {@link jakarta.persistence.EntityManagerFactory}.
    * @return A configured {@link JpaTransactionManager}.
    */
   @Bean
-  public PlatformTransactionManager transactionManager(
-      LocalContainerEntityManagerFactoryBean entityManagerFactory) {
+  public PlatformTransactionManager transactionManager(LocalContainerEntityManagerFactoryBean entityManagerFactory) {
     JpaTransactionManager transactionManager = new JpaTransactionManager();
     transactionManager.setEntityManagerFactory(entityManagerFactory.getObject());
     return transactionManager;
   }
 
   @Bean
-  public TransactionInterceptor customTransactionInterceptor(
-      PlatformTransactionManager transactionManager) {
+  public TransactionInterceptor customTransactionInterceptor(PlatformTransactionManager transactionManager) {
     TransactionInterceptor interceptor = new TransactionInterceptor();
     interceptor.setTransactionManager(transactionManager);
 
@@ -52,8 +47,7 @@ public class UseCasesConfig {
     RuleBasedTransactionAttribute txAttribute = new RuleBasedTransactionAttribute();
     txAttribute.setPropagationBehavior(RuleBasedTransactionAttribute.PROPAGATION_REQUIRED);
 
-    txAttribute.setRollbackRules(
-        Collections.singletonList(new RollbackRuleAttribute(Exception.class)));
+    txAttribute.setRollbackRules(Collections.singletonList(new RollbackRuleAttribute(Exception.class)));
 
     Map<String, TransactionAttribute> txMap = new HashMap<>();
     txMap.put("*", txAttribute);
@@ -75,11 +69,7 @@ public class UseCasesConfig {
 
   @Bean
   public PricingEngine pricingEngine() {
-    return new PricingEngine(List.of(
-        new GracePeriodStage(),
-        new BaseRateStage(),
-        new SpecialPolicyStage(),
-        new DayCapStage()
-    ));
+    return new PricingEngine(
+      List.of(new GracePeriodStage(), new BaseRateStage(), new SpecialPolicyStage(), new DayCapStage()));
   }
 }

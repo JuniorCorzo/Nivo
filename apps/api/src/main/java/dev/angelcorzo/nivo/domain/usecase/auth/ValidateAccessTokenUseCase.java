@@ -8,6 +8,6 @@ public class ValidateAccessTokenUseCase {
   private final AuthenticationGateway authenticationGateway;
 
   public void validate(String accessToken) {
-     this.authenticationGateway.validateToken(accessToken);
+    this.authenticationGateway.validateToken(accessToken);
   }
 }

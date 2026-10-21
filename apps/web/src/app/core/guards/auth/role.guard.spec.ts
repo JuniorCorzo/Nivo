@@ -11,6 +11,7 @@ import { UserService } from "@core/services/user/user-service";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { firstValueFrom, map, of, timer } from "rxjs";
 import type { Observable } from "rxjs";
+
 import { roleGuard } from "./role.guard";
 
 describe("roleGuard", () => {
@@ -95,7 +96,7 @@ describe("roleGuard", () => {
     expect(result).not.toBe(true);
   });
 
-  it("should redirect to parkingLots if user is not logged in (null)", async () => {
+  it("should redirect to login if user is not logged in (null)", async () => {
     currentUserSignal.set(null);
 
     const guard = roleGuard(["MANAGER", "OWNER"]);
@@ -105,9 +106,7 @@ describe("roleGuard", () => {
     ) as Observable<boolean | UrlTree>;
     const result = await firstValueFrom(result$);
 
-    expect(router.createUrlTree).toHaveBeenCalledWith([
-      APP_ROUTES.app.parkingLots,
-    ]);
+    expect(router.createUrlTree).toHaveBeenCalledWith([APP_ROUTES.auth.login]);
     expect(result).not.toBe(true);
   });
 
@@ -138,4 +137,3 @@ describe("roleGuard", () => {
     expect(result).toBe(true);
   });
 });
-

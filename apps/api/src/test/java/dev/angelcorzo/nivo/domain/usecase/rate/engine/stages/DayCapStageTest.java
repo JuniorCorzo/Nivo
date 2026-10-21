@@ -37,8 +37,8 @@ class DayCapStageTest {
     OffsetDateTime exit = entry.plusHours(2);
 
     PricingContext ctx = PricingContext.of(RateReference.builder().build(), policy, entry, exit)
-        .withSubtotal(new BigDecimal("10000.00"), PriceLine.of("Base rate", new BigDecimal("10000.00")))
-        .toSettled();
+      .withSubtotal(new BigDecimal("10000.00"), PriceLine.of("Base rate", new BigDecimal("10000.00")))
+      .toSettled();
 
     PricingContext result = stage.apply(ctx);
 

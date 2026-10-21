@@ -1,15 +1,14 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.rates;
 
+import dev.angelcorzo.nivo.domain.model.rates.enums.TimeUnitsRate;
+import dev.angelcorzo.nivo.domain.model.rates.enums.VehicleType;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkinglots.ParkingLotsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets.ParkingTicketsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.TenantsData;
-import dev.angelcorzo.nivo.domain.model.rates.enums.TimeUnitsRate;
-import dev.angelcorzo.nivo.domain.model.rates.enums.VehicleType;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;

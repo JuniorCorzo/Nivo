@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
@@ -23,12 +22,10 @@ class SwaggerConfigurationTest {
   @DisplayName("OpenAPI debe configurar Bearer Authentication y extensión pre-request para Scalar")
   void shouldConfigureBearerAuthAndScalarPreRequestExtension() {
     // 1. Esquema de seguridad
-    assertThat(openAPI.getComponents().getSecuritySchemes())
-        .containsKey("Bearer Authentication");
+    assertThat(openAPI.getComponents().getSecuritySchemes()).containsKey("Bearer Authentication");
 
     // 2. Extensión OpenAPI para pre-request script de Scalar
-    assertThat(openAPI.getInfo().getExtensions())
-        .containsKey("x-scalar-pre-request");
+    assertThat(openAPI.getInfo().getExtensions()).containsKey("x-scalar-pre-request");
 
     final String preRequestScript = openAPI.getInfo().getExtensions().get("x-scalar-pre-request").toString();
     assertThat(preRequestScript).contains("/api/auth/login");

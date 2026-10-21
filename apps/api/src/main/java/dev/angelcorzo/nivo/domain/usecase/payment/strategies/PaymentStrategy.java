@@ -6,6 +6,5 @@ import dev.angelcorzo.nivo.domain.model.payments.exceptions.PaymentError;
 import dev.angelcorzo.nivo.domain.usecase.payment.strategies.commands.PaymentCommand;
 
 public interface PaymentStrategy {
-  Result<Payments, PaymentError> processPayment(
-      PaymentCommand command);
+  Result<Payments, PaymentError> processPayment(PaymentCommand command);
 }

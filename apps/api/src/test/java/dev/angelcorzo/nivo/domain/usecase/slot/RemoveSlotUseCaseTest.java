@@ -36,11 +36,7 @@ class RemoveSlotUseCaseTest {
   void shouldDeleteSlotByIdWhenTenantMatches() {
     UUID tenantId = UUID.randomUUID();
     UUID slotId = UUID.randomUUID();
-    Slots slot =
-        Slots.builder()
-            .id(slotId)
-            .tenant(TenantReference.builder().id(tenantId).build())
-            .build();
+    Slots slot = Slots.builder().id(slotId).tenant(TenantReference.builder().id(tenantId).build()).build();
 
     when(slotsRepository.findById(slotId)).thenReturn(Optional.of(slot));
 
@@ -54,11 +50,7 @@ class RemoveSlotUseCaseTest {
   void shouldDeleteSlotUsingAuthenticationContextGateway() {
     UUID tenantId = UUID.randomUUID();
     UUID slotId = UUID.randomUUID();
-    Slots slot =
-        Slots.builder()
-            .id(slotId)
-            .tenant(TenantReference.builder().id(tenantId).build())
-            .build();
+    Slots slot = Slots.builder().id(slotId).tenant(TenantReference.builder().id(tenantId).build()).build();
 
     when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
     when(slotsRepository.findById(slotId)).thenReturn(Optional.of(slot));
@@ -76,8 +68,7 @@ class RemoveSlotUseCaseTest {
 
     when(slotsRepository.findById(slotId)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> useCase.execute(slotId, tenantId))
-        .isInstanceOf(SlotNotFoundException.class);
+    assertThatThrownBy(() -> useCase.execute(slotId, tenantId)).isInstanceOf(SlotNotFoundException.class);
 
     verify(slotsRepository, never()).deleteById(any());
   }
@@ -88,16 +79,11 @@ class RemoveSlotUseCaseTest {
     UUID tenantA = UUID.randomUUID();
     UUID tenantB = UUID.randomUUID();
     UUID slotId = UUID.randomUUID();
-    Slots slot =
-        Slots.builder()
-            .id(slotId)
-            .tenant(TenantReference.builder().id(tenantA).build())
-            .build();
+    Slots slot = Slots.builder().id(slotId).tenant(TenantReference.builder().id(tenantA).build()).build();
 
     when(slotsRepository.findById(slotId)).thenReturn(Optional.of(slot));
 
-    assertThatThrownBy(() -> useCase.execute(slotId, tenantB))
-        .isInstanceOf(SlotNotFoundException.class);
+    assertThatThrownBy(() -> useCase.execute(slotId, tenantB)).isInstanceOf(SlotNotFoundException.class);
 
     verify(slotsRepository, never()).deleteById(any());
   }
@@ -111,8 +97,7 @@ class RemoveSlotUseCaseTest {
 
     when(slotsRepository.findById(slotId)).thenReturn(Optional.of(slot));
 
-    assertThatThrownBy(() -> useCase.execute(slotId, tenantId))
-        .isInstanceOf(SlotNotFoundException.class);
+    assertThatThrownBy(() -> useCase.execute(slotId, tenantId)).isInstanceOf(SlotNotFoundException.class);
 
     verify(slotsRepository, never()).deleteById(any());
   }

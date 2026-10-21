@@ -71,13 +71,8 @@ class JwtProviderTest {
       // Arrange
       UUID userId = UUID.randomUUID();
       UUID tenantId = UUID.randomUUID();
-      Map<String, String> claims = Map.of(
-          "sub", userId.toString(),
-          "email", "user@test.com",
-          "tenantId", tenantId.toString(),
-          "role", "OWNER",
-          "purpose", "access-token"
-      );
+      Map<String, String> claims = Map.of("sub", userId.toString(), "email", "user@test.com", "tenantId",
+        tenantId.toString(), "role", "OWNER", "purpose", "access-token");
 
       // Act
       String token = jwtProvider.generateAccessToken(claims);
@@ -98,13 +93,8 @@ class JwtProviderTest {
     @DisplayName("Should extract single claim and email via helper methods")
     void shouldExtractSingleClaimAndEmail() {
       // Arrange
-      Map<String, String> claims = Map.of(
-          "sub", "user-123",
-          "email", "developer@nivo.app",
-          "tenantId", "tenant-456",
-          "role", "MANAGER",
-          "purpose", "access-token"
-      );
+      Map<String, String> claims = Map.of("sub", "user-123", "email", "developer@nivo.app", "tenantId",
+        "tenant-456", "role", "MANAGER", "purpose", "access-token");
       String token = jwtProvider.generateAccessToken(claims);
 
       // Act
@@ -126,11 +116,8 @@ class JwtProviderTest {
     void shouldGenerateAndExtractEncryptedRefreshToken() {
       // Arrange
       UUID userId = UUID.randomUUID();
-      Map<String, String> claims = Map.of(
-          "sub", userId.toString(),
-          "purpose", "refresh-token",
-          "tenantId", UUID.randomUUID().toString()
-      );
+      Map<String, String> claims = Map.of("sub", userId.toString(), "purpose", "refresh-token", "tenantId",
+        UUID.randomUUID().toString());
 
       // Act
       String token = jwtProvider.generateRefreshToken(claims);
@@ -152,12 +139,8 @@ class JwtProviderTest {
     @Test
     @DisplayName("Should pass validation for a valid access token with all required claims")
     void shouldValidateValidAccessTokenSuccessfully() {
-      Map<String, String> claims = Map.of(
-          "sub", UUID.randomUUID().toString(),
-          "tenantId", UUID.randomUUID().toString(),
-          "role", "OPERATOR",
-          "purpose", "access-token"
-      );
+      Map<String, String> claims = Map.of("sub", UUID.randomUUID().toString(), "tenantId",
+        UUID.randomUUID().toString(), "role", "OPERATOR", "purpose", "access-token");
       String token = jwtProvider.generateAccessToken(claims);
 
       // Act & Assert - does not throw
@@ -173,8 +156,7 @@ class JwtProviderTest {
       claims.put("purpose", "access-token");
       String token = jwtProvider.generateAccessToken(claims);
 
-      assertThatThrownBy(() -> jwtProvider.validateToken(token))
-          .isInstanceOf(TokenInvalidException.class);
+      assertThatThrownBy(() -> jwtProvider.validateToken(token)).isInstanceOf(TokenInvalidException.class);
     }
 
     @Test
@@ -186,8 +168,7 @@ class JwtProviderTest {
       claims.put("purpose", "access-token");
       String token = jwtProvider.generateAccessToken(claims);
 
-      assertThatThrownBy(() -> jwtProvider.validateToken(token))
-          .isInstanceOf(TokenInvalidException.class);
+      assertThatThrownBy(() -> jwtProvider.validateToken(token)).isInstanceOf(TokenInvalidException.class);
     }
 
     @Test
@@ -199,8 +180,7 @@ class JwtProviderTest {
       claims.put("purpose", "access-token");
       String token = jwtProvider.generateAccessToken(claims);
 
-      assertThatThrownBy(() -> jwtProvider.validateToken(token))
-          .isInstanceOf(TokenInvalidException.class);
+      assertThatThrownBy(() -> jwtProvider.validateToken(token)).isInstanceOf(TokenInvalidException.class);
     }
 
     @Test
@@ -208,48 +188,36 @@ class JwtProviderTest {
     void shouldThrowExpiredTokenException() {
       // Configure negative expiration so it is already expired
       jwtProperties.setAccessTokenExpiration(-10L);
-      JwtProvider expiredProvider =
-          new JwtProvider(jwtProperties, rsaProperties, privateKey, publicKey);
+      JwtProvider expiredProvider = new JwtProvider(jwtProperties, rsaProperties, privateKey, publicKey);
 
-      Map<String, String> claims = Map.of(
-          "sub", UUID.randomUUID().toString(),
-          "tenantId", UUID.randomUUID().toString(),
-          "role", "OPERATOR",
-          "purpose", "access-token"
-      );
+      Map<String, String> claims = Map.of("sub", UUID.randomUUID().toString(), "tenantId",
+        UUID.randomUUID().toString(), "role", "OPERATOR", "purpose", "access-token");
       String token = expiredProvider.generateAccessToken(claims);
 
-      assertThatThrownBy(() -> jwtProvider.validateToken(token))
-          .isInstanceOf(ExpiredTokenException.class);
+      assertThatThrownBy(() -> jwtProvider.validateToken(token)).isInstanceOf(ExpiredTokenException.class);
     }
 
     @Test
     @DisplayName("Should throw TokenInvalidException when token was signed by a different key")
     void shouldThrowTokenInvalidExceptionWhenSignedByDifferentKey() {
-      JwtProvider untrustedProvider =
-          new JwtProvider(jwtProperties, rsaProperties, differentPrivateKey, differentPublicKey);
+      JwtProvider untrustedProvider = new JwtProvider(jwtProperties, rsaProperties, differentPrivateKey,
+        differentPublicKey);
 
-      Map<String, String> claims = Map.of(
-          "sub", UUID.randomUUID().toString(),
-          "tenantId", UUID.randomUUID().toString(),
-          "role", "OPERATOR",
-          "purpose", "access-token"
-      );
+      Map<String, String> claims = Map.of("sub", UUID.randomUUID().toString(), "tenantId",
+        UUID.randomUUID().toString(), "role", "OPERATOR", "purpose", "access-token");
       String token = untrustedProvider.generateAccessToken(claims);
 
       // Verifying with our publicKey must fail
-      assertThatThrownBy(() -> jwtProvider.validateToken(token))
-          .isInstanceOf(TokenInvalidException.class);
+      assertThatThrownBy(() -> jwtProvider.validateToken(token)).isInstanceOf(TokenInvalidException.class);
     }
 
     @Test
     @DisplayName("Should throw MalformedTokenException on invalid token structure")
     void shouldThrowMalformedTokenExceptionOnInvalidToken() {
       assertThatThrownBy(() -> jwtProvider.extractTokenClaims("not.a.valid.jwt.token.format.here"))
-          .isInstanceOf(MalformedTokenException.class);
+        .isInstanceOf(MalformedTokenException.class);
 
-      assertThatThrownBy(() -> jwtProvider.validateToken("abc.123"))
-          .isInstanceOf(MalformedTokenException.class);
+      assertThatThrownBy(() -> jwtProvider.validateToken("abc.123")).isInstanceOf(MalformedTokenException.class);
     }
   }
 }

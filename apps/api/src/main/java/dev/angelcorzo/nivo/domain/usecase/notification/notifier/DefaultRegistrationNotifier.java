@@ -15,24 +15,18 @@ public class DefaultRegistrationNotifier implements RegistrationNotifier {
 
   @Override
   public void notifyUserSelfRegistered(Users user) {
-    final UserSelfRegisterData content =
-        UserSelfRegisterData.builder()
-            .userName(user.getFullName())
-            .email(user.getEmail())
-            .companyName(user.getTenant().companyName())
-            .ctaUrl(this.appProperties.getCtaUrl())
-            .companyName(this.appProperties.getCompanyName())
-            .companyAddress(this.appProperties.getAddressCompany())
-            .socialUrl(this.appProperties.getSocialUrl())
-            .unsubscribeUrl(this.appProperties.getUnsubscribeUrl())
-            .build();
+    final UserSelfRegisterData content = UserSelfRegisterData.builder()
+      .userName(user.getFullName())
+      .email(user.getEmail())
+      .companyName(user.getTenant().companyName())
+      .ctaUrl(this.appProperties.getCtaUrl())
+      .companyName(this.appProperties.getCompanyName())
+      .companyAddress(this.appProperties.getAddressCompany())
+      .socialUrl(this.appProperties.getSocialUrl())
+      .unsubscribeUrl(this.appProperties.getUnsubscribeUrl())
+      .build();
 
-    this.sendNotificationsUseCase.send(
-        NotificationEvents.USER_SELF_REGISTERED,
-        NotificationsChannel.EMAIL,
-        user.getEmail(),
-        content,
-        user.getTenant().id(),
-        user.getId());
+    this.sendNotificationsUseCase.send(NotificationEvents.USER_SELF_REGISTERED, NotificationsChannel.EMAIL,
+      user.getEmail(), content, user.getTenant().id(), user.getId());
   }
 }

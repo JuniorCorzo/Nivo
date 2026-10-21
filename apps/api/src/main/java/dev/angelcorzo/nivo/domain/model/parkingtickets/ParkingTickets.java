@@ -28,15 +28,19 @@ public class ParkingTickets {
   private UserReference user;
   private RateReference rate;
   private String licensePlate;
+
   @Builder.Default
   private PlateCountry plateCountry = PlateCountry.CO;
+
   private String photoUrl;
   private String phoneNumber;
   private OffsetDateTime entryTime;
   private OffsetDateTime exitTime;
   private BigDecimal totalToCharge;
+
   @Builder.Default
   private ParkingTicketStatus status = ParkingTicketStatus.OPEN;
+
   private SlotSnapshot slotSnapshot;
   private OffsetDateTime closedAt;
   private OffsetDateTime createdAt;

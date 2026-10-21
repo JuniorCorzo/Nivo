@@ -14,7 +14,11 @@ export const roleGuard =
 
     return userService.loadCurrentUser().pipe(
       map((currentUser) => {
-        if (currentUser && allowedRoles.includes(currentUser.role)) {
+        if (!currentUser) {
+          return router.createUrlTree([APP_ROUTES.auth.login]);
+        }
+
+        if (allowedRoles.includes(currentUser.role)) {
           return true;
         }
 
@@ -22,4 +26,3 @@ export const roleGuard =
       })
     );
   };
-

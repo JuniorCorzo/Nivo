@@ -1,6 +1,7 @@
 # Proposal: Internal User & Role Management (ANC-49 / ANC-50)
 
 ## Metadata
+
 - **Status**: Approved
 - **Date**: 2026-10-16
 - **Workflow Mode**: `WORKFLOW_MODE: TEAMWORK`
@@ -15,6 +16,7 @@
 In multi-tenant parking operations, managing staff access, onboarding operators and shift managers, modifying privileges, and enforcing role-based boundaries are fundamental requirements for organizational governance, operational security, and fraud prevention.
 
 Currently, the Nivo platform exhibits critical gaps between backend capabilities and frontend user experience:
+
 1. **Missing Backend Query Pipeline**: Although write operations exist (`POST /users/invite-user`, `PATCH /users/modify-rol`, `DELETE /users/deactivate-user`), there is no query endpoint (`GET /users`) or use case to retrieve all active/inactive users belonging to the authenticated tenant.
 2. **Missing Administrative Web Interface**: Tenant managers and owners have no centralized interface in `apps/web` to view their operational staff, inspect assigned roles, send email invitations, update user roles, or deactivate users.
 3. **Incomplete Client-Side RBAC Enforcement**: Operators currently have visibility into navigation routes that should be restricted to administrative roles (`MANAGER`, `OWNER`, `SUPERADMIN`). Furthermore, there is no route-level `RoleGuard` in `apps/web` to prevent unauthorized direct URL navigation by operators to managerial views.
@@ -34,6 +36,7 @@ Currently, the Nivo platform exhibits critical gaps between backend capabilities
 ## Scope Boundaries
 
 ### In Scope
+
 1. **Backend Query Pipeline (`apps/api`)**:
    - `ListUsersByTenantUseCase`: Clean Architecture domain use case retrieving tenant staff.
    - `UsersRepository.findAllByTenantId(UUID tenantId)`: Port gateway extension.
@@ -54,6 +57,7 @@ Currently, the Nivo platform exhibits critical gaps between backend capabilities
    - Update `app-routes.constant.ts` and `app-texts.constant.ts` with Spanish UI copy.
 
 ### Out of Scope
+
 - Global multi-tenant onboarding or tenant profile mutations (handled in tenant settings).
 - Dynamic custom permissions/ACL builder (roles remain strictly defined by the system enum: `SUPERADMIN`, `OWNER`, `MANAGER`, `OPERATOR`, `DRIVER`, `AUDITOR`).
 - Self-registration workflows outside invitation links (already covered by invitation token validation).

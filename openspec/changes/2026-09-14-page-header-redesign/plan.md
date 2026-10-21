@@ -4,7 +4,8 @@
 
 **Goal:** Implement the dual responsive PageHeader redesign following the design mockup, introduce NavigationContextService with Signals for declarative routes, migrate rates to a dedicated `rates-page`, and integrate the new header across parking-form, parking-home, operations, slots, and tickets.
 
-**Architecture:** 
+**Architecture:**
+
 - `NavigationContextService`: Standalone root service consuming `Router` and `ActiveParkingService` to dynamically resolve `RouteNavContext`, `breadcrumbs`, and `mobilePath` according to scopes (`tenant` vs `parking`).
 - `PageHeaderComponent`: Dual layout with desktop card and mobile 3-row compact container using `@nivo-sass/design-system` primitives.
 - `RatesPageComponent`: Dedicated page container in `features/rates/page/rates-page/` hosting the PageHeader and tabs, delegating the rates grid to `RateListComponent`.
@@ -15,6 +16,7 @@
 **Spec:** `openspec/changes/2026-09-14-page-header-redesign/design.md`
 
 ## Global Constraints
+
 - ChangeDetectionStrategy.OnPush across all Angular components.
 - Design System Mandate: ALWAYS use `@nivo-sass/design-system` components (`nv-button`, `nv-card`, `nv-badge`, `nv-input`, typography) rather than ad-hoc raw HTML replacements.
 - Targeted tests only: execute tests using `bun run test -- --watch=false --include <path/to/test.spec.ts>` inside `apps/web`.
@@ -25,14 +27,17 @@
 ### Task 1: NavigationContextService and Declarative Route Data
 
 **Files:**
+
 - Create: `apps/web/src/app/core/services/navigation-context.service.ts`
 - Test: `apps/web/src/app/core/services/navigation-context.service.spec.ts`
 - Modify: `apps/web/src/app/app.routes.ts`
 
 **Interfaces:**
+
 - Produces:
+
   ```typescript
-  export type NavigationScope = 'tenant' | 'parking';
+  export type NavigationScope = "tenant" | "parking";
 
   export interface RouteNavContext {
     scope: NavigationScope;
@@ -43,7 +48,7 @@
     isRoot?: boolean;
   }
 
-  @Injectable({ providedIn: 'root' })
+  @Injectable({ providedIn: "root" })
   export class NavigationContextService {
     readonly navContext: Signal<RouteNavContext | null>;
     readonly scope: Signal<NavigationScope>;
@@ -57,6 +62,7 @@
 - [ ] **Step 1: Write the failing test for NavigationContextService**
 
 Create `apps/web/src/app/core/services/navigation-context.service.spec.ts` testing:
+
 - Default state when no route context is present.
 - Extraction of `data.navContext` on navigation event.
 - Scope `parking`: resolving breadcrumb prefix using `ActiveParkingService.activeParkingName()`.
@@ -89,12 +95,14 @@ git commit -m "feat(core): implement NavigationContextService and configure rout
 ### Task 2: PageHeaderComponent Dual & Responsive Redesign
 
 **Files:**
+
 - Modify: `apps/web/src/app/shared/components/page-header/page-header.component.ts`
 - Modify: `apps/web/src/app/shared/components/page-header/page-header.component.html`
 - Modify: `apps/web/src/app/shared/components/page-header/page-header.component.css`
 - Test: `apps/web/src/app/shared/components/page-header/page-header.component.spec.ts`
 
 **Interfaces:**
+
 - Consumes:
   - `NavigationContextService`
   - `@nivo-sass/design-system` (`nv-h1`, `nv-muted`, `BadgeComponent`, `ButtonComponent`)
@@ -106,6 +114,7 @@ git commit -m "feat(core): implement NavigationContextService and configure rout
 - [ ] **Step 1: Write failing tests in page-header.component.spec.ts**
 
 Add tests for:
+
 - Desktop structure: unified card class `page-header-desktop`, history pill `< >`, title + badge, projected actions.
 - Mobile structure: 3-row layout class `page-header-mobile`, back button, compact route path, badge, icon, and stacked/grid actions.
 - Interaction with `NavigationContextService` fallback.
@@ -136,6 +145,7 @@ git commit -m "feat(web): redesign PageHeader with dual desktop and mobile respo
 ### Task 3: Rates Page Migration (`features/rates/page/rates-page/`)
 
 **Files:**
+
 - Create: `apps/web/src/app/features/rates/page/rates-page/rates-page.ts`
 - Create: `apps/web/src/app/features/rates/page/rates-page/rates-page.html`
 - Create: `apps/web/src/app/features/rates/page/rates-page/rates-page.spec.ts`
@@ -145,6 +155,7 @@ git commit -m "feat(web): redesign PageHeader with dual desktop and mobile respo
 - Modify: `apps/web/src/app/app.routes.ts`
 
 **Interfaces:**
+
 - Produces:
   - `RatesPageComponent`: Smart component at `rates-page/` hosting `app-page-header`, navigation tabs (`Tarifas`, `Calculadora`, `Políticas`), and delegating the rates list to `RateListComponent`.
   - Cleaned `RateListComponent` focused purely on list filters and grid.
@@ -181,6 +192,7 @@ git commit -m "refactor(rates): migrate rates page to features/rates/page/rates-
 ### Task 4: Integrate PageHeader in Target Views (`parking-form`, `parking-home`, `operations`, `slots`, `tickets`)
 
 **Files:**
+
 - Modify: `apps/web/src/app/features/parking/page/parking-form/parking-form.html`
 - Modify: `apps/web/src/app/features/parking/page/parking-form/parking-form.ts`
 - Modify: `apps/web/src/app/features/parking/page/parking-form/parking-form.spec.ts`
@@ -194,6 +206,7 @@ git commit -m "refactor(rates): migrate rates page to features/rates/page/rates-
 - Modify: `apps/web/src/app/features/tickets/page/tickets-page.spec.ts`
 
 **Interfaces:**
+
 - `parking-form`: Cancel and Submit buttons integrated in the `PageHeader` `[actions]` slot with reactive disabled states.
 - `parking-home`: Title with active parking name, status badge, details in subtitle, and quick action buttons.
 - `operations-page`: Live status badge and quick action buttons for check-in and tickets.

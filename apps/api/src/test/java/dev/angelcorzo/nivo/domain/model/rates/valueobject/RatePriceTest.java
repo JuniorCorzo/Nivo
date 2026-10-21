@@ -40,25 +40,21 @@ class RatePriceTest {
   @Test
   @DisplayName("Should throw InvalidDomainException when value is null")
   void shouldThrowWhenValueIsNull() {
-    assertThatThrownBy(() -> new RatePrice(null))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessageContaining("Rate price cannot be negative or null");
+    assertThatThrownBy(() -> new RatePrice(null)).isInstanceOf(InvalidDomainException.class)
+      .hasMessageContaining("Rate price cannot be negative or null");
 
-    assertThatThrownBy(() -> RatePrice.of((BigDecimal) null))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessageContaining("Rate price cannot be negative or null");
+    assertThatThrownBy(() -> RatePrice.of((BigDecimal) null)).isInstanceOf(InvalidDomainException.class)
+      .hasMessageContaining("Rate price cannot be negative or null");
   }
 
   @Test
   @DisplayName("Should throw InvalidDomainException when value is negative")
   void shouldThrowWhenValueIsNegative() {
-    assertThatThrownBy(() -> RatePrice.of(new BigDecimal("-0.01")))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessageContaining("Rate price cannot be negative or null");
+    assertThatThrownBy(() -> RatePrice.of(new BigDecimal("-0.01"))).isInstanceOf(InvalidDomainException.class)
+      .hasMessageContaining("Rate price cannot be negative or null");
 
-    assertThatThrownBy(() -> RatePrice.of(-100L))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessageContaining("Rate price cannot be negative or null");
+    assertThatThrownBy(() -> RatePrice.of(-100L)).isInstanceOf(InvalidDomainException.class)
+      .hasMessageContaining("Rate price cannot be negative or null");
   }
 
   @Test

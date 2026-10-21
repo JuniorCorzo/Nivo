@@ -1,9 +1,9 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.notificationlogs;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.notificationlogs.mappers.NotificationLogsMapper;
 import dev.angelcorzo.nivo.domain.model.notificationlogs.NotificationLogs;
 import dev.angelcorzo.nivo.domain.model.notificationlogs.gateways.NotificationLogsRepository;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.notificationlogs.mappers.NotificationLogsMapper;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
@@ -11,15 +11,18 @@ import org.springframework.stereotype.Repository;
 /**
  * JPA adapter for {@link NotificationLogsRepository}.
  *
- * <p>This class implements the {@link NotificationLogsRepository} interface, providing concrete
- * persistence operations for {@link NotificationLogs} entities using Spring Data JPA.
+ * <p>
+ * This class implements the {@link NotificationLogsRepository} interface, providing concrete persistence operations for
+ * {@link NotificationLogs} entities using Spring Data JPA.
  *
- * <p>It extends {@link AdapterOperations} to leverage common CRUD and mapping functionalities.
+ * <p>
+ * It extends {@link AdapterOperations} to leverage common CRUD and mapping functionalities.
  *
- * <p><strong>Layer:</strong> Infrastructure (Driven Adapter - JPA)
+ * <p>
+ * <strong>Layer:</strong> Infrastructure (Driven Adapter - JPA)
  *
- * <p><strong>Responsibility:</strong> To provide persistence implementation for NotificationLogs
- * domain operations.
+ * <p>
+ * <strong>Responsibility:</strong> To provide persistence implementation for NotificationLogs domain operations.
  *
  * @author Angel Corzo
  * @since 1.0.0
@@ -30,25 +33,28 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class NotificationLogsAdapter
-    extends AdapterOperations<
-        NotificationLogs, NotificationLogsData, UUID, NotificationLogsRepositoryData>
-    implements NotificationLogsRepository {
+  extends
+    AdapterOperations<NotificationLogs, NotificationLogsData, UUID, NotificationLogsRepositoryData>
+  implements
+    NotificationLogsRepository {
 
   /**
    * Constructs a new NotificationLogsAdapter.
    *
-   * @param repository The Spring Data JPA repository for NotificationLogsData.
-   * @param mapper The MapStruct mapper for NotificationLogs.
+   * @param repository
+   *          The Spring Data JPA repository for NotificationLogsData.
+   * @param mapper
+   *          The MapStruct mapper for NotificationLogs.
    */
-  protected NotificationLogsAdapter(
-      NotificationLogsRepositoryData repository, NotificationLogsMapper mapper) {
+  protected NotificationLogsAdapter(NotificationLogsRepositoryData repository, NotificationLogsMapper mapper) {
     super(repository, mapper);
   }
 
   /**
    * Finds all notification logs associated with a specific user (as actor or recipient).
    *
-   * @param userId The unique identifier of the user.
+   * @param userId
+   *          The unique identifier of the user.
    * @return A list of {@link NotificationLogs} entities involving the user.
    */
   @Override
@@ -59,7 +65,8 @@ public class NotificationLogsAdapter
   /**
    * Finds all notification logs belonging to a specific tenant.
    *
-   * @param tenantId The unique identifier of the tenant.
+   * @param tenantId
+   *          The unique identifier of the tenant.
    * @return A list of {@link NotificationLogs} entities for the tenant.
    */
   @Override

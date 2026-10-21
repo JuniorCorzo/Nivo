@@ -42,7 +42,7 @@
             <span
               class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
             >
-              {{ occupancyPercentage() | number: '1.1-1' }}%
+              {{ occupancyPercentage() | number: "1.1-1" }}%
             </span>
             <span class="text-muted-foreground font-mono text-xs">
               {{ summary()?.occupiedSlots ?? 0 }} / {{ summary()?.totalCapacity
@@ -97,10 +97,10 @@
             <span
               class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
             >
-              ${{ (summary()?.todayRevenue ?? 0) | number: '1.0-0' }}
+              ${{ summary()?.todayRevenue ?? 0 | number: "1.0-0" }}
             </span>
             <span class="text-muted-foreground font-mono text-xs">
-              {{ summary()?.currency ?? 'COP' }}
+              {{ summary()?.currency ?? "COP" }}
             </span>
           </div>
           <p

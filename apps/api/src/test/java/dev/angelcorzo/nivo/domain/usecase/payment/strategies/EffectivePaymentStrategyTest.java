@@ -19,14 +19,13 @@ import dev.angelcorzo.nivo.domain.model.payments.enums.PaymentsMethods;
 import dev.angelcorzo.nivo.domain.model.payments.exceptions.PaymentError;
 import dev.angelcorzo.nivo.domain.model.payments.gateways.PaymentsRepository;
 import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.NoSendCheckOut;
-import dev.angelcorzo.nivo.domain.model.transactions.Transactions;
 import dev.angelcorzo.nivo.domain.model.transactions.enums.TransactionStatus;
 import dev.angelcorzo.nivo.domain.model.transactions.gateways.TransactionsRepository;
-import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
-import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceLine;
 import dev.angelcorzo.nivo.domain.usecase.notification.notifier.PaymentNotifier;
 import dev.angelcorzo.nivo.domain.usecase.notification.notifier.TicketNotifier;
 import dev.angelcorzo.nivo.domain.usecase.payment.strategies.commands.PaymentCommand;
+import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
+import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceLine;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,13 +51,8 @@ class EffectivePaymentStrategyTest {
     paymentNotifier = mock(PaymentNotifier.class);
     ticketNotifier = mock(TicketNotifier.class);
 
-    strategy =
-        new EffectivePaymentStrategy(
-            paymentsRepository,
-            parkingTicketsRepository,
-            transactionsRepository,
-            paymentNotifier,
-            ticketNotifier);
+    strategy = new EffectivePaymentStrategy(paymentsRepository, parkingTicketsRepository, transactionsRepository,
+      paymentNotifier, ticketNotifier);
   }
 
   private PriceDetailed createSamplePriceDetailed(BigDecimal amount) {
@@ -79,20 +73,18 @@ class EffectivePaymentStrategyTest {
       BigDecimal amount = BigDecimal.valueOf(20000);
       ParkingTickets ticket = ParkingTickets.builder().id(ticketId).build();
       PriceDetailed price = createSamplePriceDetailed(amount);
-      PaymentCommand command =
-          PaymentCommand.of(ticket, price, new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.EFFECTIVE));
+      PaymentCommand command = PaymentCommand.of(ticket, price,
+        new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.EFFECTIVE));
 
-      Payments savedPayment =
-          Payments.builder()
-              .id(UUID.randomUUID())
-              .parkingTicket(ticket)
-              .amount(amount)
-              .paymentMethod(PaymentsMethods.EFFECTIVE)
-              .status(PaymentStatus.PAID)
-              .build();
+      Payments savedPayment = Payments.builder()
+        .id(UUID.randomUUID())
+        .parkingTicket(ticket)
+        .amount(amount)
+        .paymentMethod(PaymentsMethods.EFFECTIVE)
+        .status(PaymentStatus.PAID)
+        .build();
 
-      when(paymentsRepository.processPayment(any(Payments.class)))
-          .thenReturn(Result.success(savedPayment));
+      when(paymentsRepository.processPayment(any(Payments.class))).thenReturn(Result.success(savedPayment));
 
       // Act
       Result<Payments, PaymentError> result = strategy.processPayment(command);
@@ -101,19 +93,12 @@ class EffectivePaymentStrategyTest {
       assertThat(result.isSuccess()).isTrue();
       assertThat(result.get()).isEqualTo(savedPayment);
 
-      verify(parkingTicketsRepository)
-          .prepareCheckout(eq(ticketId), argThat(a -> a.compareTo(amount) == 0));
+      verify(parkingTicketsRepository).prepareCheckout(eq(ticketId), argThat(a -> a.compareTo(amount) == 0));
       verify(parkingTicketsRepository).closeTicket(ticketId);
-      verify(transactionsRepository)
-          .save(
-              argThat(
-                  t ->
-                      t.getPayment().equals(savedPayment)
-                          && t.getAmount().compareTo(amount) == 0
-                          && t.getStatus() == TransactionStatus.APPROVED
-                          && "COP".equals(t.getCurrency())
-                          && PaymentsMethods.EFFECTIVE.name().equals(t.getPaymentProvider())
-                          && ("EFF-" + savedPayment.getId()).equals(t.getSupplierRef())));
+      verify(transactionsRepository).save(argThat(t -> t.getPayment().equals(savedPayment)
+        && t.getAmount().compareTo(amount) == 0 && t.getStatus() == TransactionStatus.APPROVED
+        && "COP".equals(t.getCurrency()) && PaymentsMethods.EFFECTIVE.name().equals(t.getPaymentProvider())
+        && ("EFF-" + savedPayment.getId()).equals(t.getSupplierRef())));
       verify(ticketNotifier).notifyTicketClosed(ticket);
       verify(paymentNotifier).notifyPaymentCompleted(savedPayment);
     }
@@ -129,11 +114,11 @@ class EffectivePaymentStrategyTest {
       // Arrange
       UUID ticketId = UUID.randomUUID();
       ParkingTickets ticket = ParkingTickets.builder().id(ticketId).build();
-      PaymentCommand command =
-          PaymentCommand.of(ticket, createSamplePriceDetailed(BigDecimal.TEN), new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.EFFECTIVE));
+      PaymentCommand command = PaymentCommand.of(ticket, createSamplePriceDetailed(BigDecimal.TEN),
+        new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.EFFECTIVE));
 
       when(paymentsRepository.processPayment(any(Payments.class)))
-          .thenReturn(Result.failure(new PaymentError.DatabaseError("DB write error")));
+        .thenReturn(Result.failure(new PaymentError.DatabaseError("DB write error")));
 
       // Act
       Result<Payments, PaymentError> result = strategy.processPayment(command);
@@ -153,20 +138,17 @@ class EffectivePaymentStrategyTest {
       UUID ticketId = UUID.randomUUID();
       BigDecimal amount = BigDecimal.valueOf(10000);
       ParkingTickets ticket = ParkingTickets.builder().id(ticketId).build();
-      PaymentCommand command =
-          PaymentCommand.of(ticket, createSamplePriceDetailed(amount), new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.EFFECTIVE));
+      PaymentCommand command = PaymentCommand.of(ticket, createSamplePriceDetailed(amount),
+        new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.EFFECTIVE));
 
-      Payments savedPayment =
-          Payments.builder()
-              .id(UUID.randomUUID())
-              .parkingTicket(ticket)
-              .amount(amount)
-              .build();
+      Payments savedPayment = Payments.builder()
+        .id(UUID.randomUUID())
+        .parkingTicket(ticket)
+        .amount(amount)
+        .build();
 
-      when(paymentsRepository.processPayment(any(Payments.class)))
-          .thenReturn(Result.success(savedPayment));
-      doThrow(new RuntimeException("DB locked"))
-          .when(parkingTicketsRepository).closeTicket(ticketId);
+      when(paymentsRepository.processPayment(any(Payments.class))).thenReturn(Result.success(savedPayment));
+      doThrow(new RuntimeException("DB locked")).when(parkingTicketsRepository).closeTicket(ticketId);
 
       // Act
       Result<Payments, PaymentError> result = strategy.processPayment(command);

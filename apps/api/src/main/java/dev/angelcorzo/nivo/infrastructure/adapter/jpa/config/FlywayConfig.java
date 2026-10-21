@@ -17,9 +17,8 @@ public class FlywayConfig {
   private final Environment environment;
   private final String locations;
 
-  public FlywayConfig(
-      final Environment environment,
-      @Value("${spring.flyway.locations:classpath:db/migration}") final String locations) {
+  public FlywayConfig(final Environment environment,
+    @Value("${spring.flyway.locations:classpath:db/migration}") final String locations) {
     this.environment = environment;
     this.locations = locations;
   }
@@ -29,12 +28,12 @@ public class FlywayConfig {
     final String[] effectiveLocations = resolveEffectiveLocations();
 
     return Flyway.configure()
-        .dataSource(dataSource)
-        .schemas("nivo", "public")
-        .defaultSchema("nivo")
-        .createSchemas(true)
-        .locations(effectiveLocations)
-        .load();
+      .dataSource(dataSource)
+      .schemas("nivo", "public")
+      .defaultSchema("nivo")
+      .createSchemas(true)
+      .locations(effectiveLocations)
+      .load();
   }
 
   public String[] resolveEffectiveLocations() {
@@ -42,9 +41,9 @@ public class FlywayConfig {
     final boolean isDevOrLocal = activeProfiles.contains("dev") || activeProfiles.contains("local");
 
     return Arrays.stream(locations.split(","))
-        .map(String::trim)
-        .filter(location -> !location.isEmpty())
-        .filter(location -> isDevOrLocal || !location.contains("seeds"))
-        .toArray(String[]::new);
+      .map(String::trim)
+      .filter(location -> !location.isEmpty())
+      .filter(location -> isDevOrLocal || !location.contains("seeds"))
+      .toArray(String[]::new);
   }
 }

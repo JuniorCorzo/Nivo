@@ -7,7 +7,6 @@ import static org.mockito.Mockito.*;
 import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationGateway;
 import dev.angelcorzo.nivo.domain.model.users.UserAuthentication;
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,11 +46,7 @@ class WebSocketAuthInterceptorTest {
     Message<?> message = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
 
     when(authenticationGateway.extractTokenClaims(token))
-        .thenReturn(
-            Map.of(
-                "sub", userId.toString(),
-                "tenantId", tenantId.toString(),
-                "role", "ROLE_MANAGER"));
+      .thenReturn(Map.of("sub", userId.toString(), "tenantId", tenantId.toString(), "role", "ROLE_MANAGER"));
 
     Message<?> result = interceptor.preSend(message, messageChannel);
 
@@ -59,8 +54,7 @@ class WebSocketAuthInterceptorTest {
     StompHeaderAccessor resultAccessor = StompHeaderAccessor.wrap(result);
     assertThat(resultAccessor.getUser()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 
-    UsernamePasswordAuthenticationToken auth =
-        (UsernamePasswordAuthenticationToken) resultAccessor.getUser();
+    UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) resultAccessor.getUser();
     UserAuthentication userAuth = (UserAuthentication) auth.getPrincipal();
     assertThat(userAuth.userId()).isEqualTo(userId);
     assertThat(userAuth.tenantId()).isEqualTo(tenantId);
@@ -75,8 +69,8 @@ class WebSocketAuthInterceptorTest {
     Message<?> message = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
 
     assertThatThrownBy(() -> interceptor.preSend(message, messageChannel))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Missing Authorization header");
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Missing Authorization header");
   }
 
   @Test
@@ -87,8 +81,8 @@ class WebSocketAuthInterceptorTest {
     Message<?> message = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
 
     assertThatThrownBy(() -> interceptor.preSend(message, messageChannel))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Invalid Authorization header format");
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid Authorization header format");
   }
 
   @Test
@@ -99,12 +93,11 @@ class WebSocketAuthInterceptorTest {
     accessor.setNativeHeader("Authorization", "Bearer " + token);
     Message<?> message = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
 
-    when(authenticationGateway.extractTokenClaims(token))
-        .thenReturn(Map.of("sub", UUID.randomUUID().toString()));
+    when(authenticationGateway.extractTokenClaims(token)).thenReturn(Map.of("sub", UUID.randomUUID().toString()));
 
     assertThatThrownBy(() -> interceptor.preSend(message, messageChannel))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("JWT missing required claims");
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("JWT missing required claims");
   }
 
   @Test

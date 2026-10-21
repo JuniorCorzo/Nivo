@@ -25,8 +25,7 @@ public class AESEncryption implements EncryptionGateway {
   private final SecretKey secretKey;
   private final ObjectMapper objectMapper;
 
-  public AESEncryption(
-      @Value("${security.aes.secret-key}") String secretKey, ObjectMapper objectMapper) {
+  public AESEncryption(@Value("${security.aes.secret-key}") String secretKey, ObjectMapper objectMapper) {
     final byte[] key = Base64.decode(secretKey.getBytes());
     this.secretKey = new SecretKeySpec(key, "AES");
     this.objectMapper = objectMapper;

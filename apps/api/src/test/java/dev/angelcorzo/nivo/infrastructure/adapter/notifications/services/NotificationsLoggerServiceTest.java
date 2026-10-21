@@ -1,11 +1,9 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.notifications.services;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import dev.angelcorzo.nivo.domain.model.commons.notifications.enums.NotificationEvents;
 import dev.angelcorzo.nivo.domain.model.commons.notifications.enums.NotificationsChannel;
-import dev.angelcorzo.nivo.domain.model.notificationlogs.NotificationLogs;
 import dev.angelcorzo.nivo.domain.model.notificationlogs.enums.NotificationLogsStatus;
 import dev.angelcorzo.nivo.domain.model.notificationlogs.gateways.NotificationLogsRepository;
 import dev.angelcorzo.nivo.domain.model.notificationtemplates.NotificationTemplates;
@@ -29,13 +27,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("NotificationsLoggerService Unit Tests")
 class NotificationsLoggerServiceTest {
 
-  @Mock private NotificationLogsRepository notificationLogsRepository;
-  @Mock private NotificationRecipientResolver notificationRecipientResolver;
-  @Mock private NotificationExecutionContextHolder executionContextHolder;
-  @Mock private TenantsRepository tenantsRepository;
-  @Mock private UsersRepository usersRepository;
+  @Mock
+  private NotificationLogsRepository notificationLogsRepository;
 
-  @InjectMocks private NotificationsLoggerService service;
+  @Mock
+  private NotificationRecipientResolver notificationRecipientResolver;
+
+  @Mock
+  private NotificationExecutionContextHolder executionContextHolder;
+
+  @Mock
+  private TenantsRepository tenantsRepository;
+
+  @Mock
+  private UsersRepository usersRepository;
+
+  @InjectMocks
+  private NotificationsLoggerService service;
 
   private NotificationTemplates template;
   private UUID tenantId;
@@ -47,13 +55,12 @@ class NotificationsLoggerServiceTest {
   void setUp() {
     tenantId = UUID.randomUUID();
     actorUserId = UUID.randomUUID();
-    template =
-        NotificationTemplates.builder()
-            .id(UUID.randomUUID())
-            .templateReference("d-123")
-            .eventType(NotificationEvents.USER_INVITED)
-            .channel(NotificationsChannel.EMAIL)
-            .build();
+    template = NotificationTemplates.builder()
+      .id(UUID.randomUUID())
+      .templateReference("d-123")
+      .eventType(NotificationEvents.USER_INVITED)
+      .channel(NotificationsChannel.EMAIL)
+      .build();
 
     tenant = Tenants.builder().id(tenantId).build();
     user = Users.builder().id(actorUserId).email("actor@test.com").build();
@@ -63,7 +70,7 @@ class NotificationsLoggerServiceTest {
     when(tenantsRepository.getReferenceById(tenantId)).thenReturn(tenant);
     when(usersRepository.getReferenceById(actorUserId)).thenReturn(user);
     when(notificationRecipientResolver.resolve(user, "recipient@test.com", NotificationsChannel.EMAIL))
-        .thenReturn(UserReference.of(user));
+      .thenReturn(UserReference.of(user));
   }
 
   @Test
@@ -79,7 +86,7 @@ class NotificationsLoggerServiceTest {
   void shouldRegisterFailedLog() {
     service.registerLog(template, "recipient@test.com", "SendGrid error 500");
 
-    verify(notificationLogsRepository).save(argThat(log -> 
-        log.getStatus() == NotificationLogsStatus.FAILED && "SendGrid error 500".equals(log.getErrorMessage())));
+    verify(notificationLogsRepository).save(argThat(log -> log.getStatus() == NotificationLogsStatus.FAILED
+      && "SendGrid error 500".equals(log.getErrorMessage())));
   }
 }

@@ -12,9 +12,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface HourlyOccupancyViewRepository extends JpaRepository<HourlyOccupancyViewEntity, HourlyOccupancyId> {
   List<HourlyOccupancyViewEntity> findByParkingLotId(UUID parkingLotId);
+
   Optional<HourlyOccupancyViewEntity> findFirstByParkingLotIdOrderByHourBucketDesc(UUID parkingLotId);
+
   List<HourlyOccupancyViewEntity> findByTenantIdAndParkingLotId(UUID tenantId, UUID parkingLotId);
+
   List<HourlyOccupancyViewEntity> findByTenantId(UUID tenantId);
-  List<HourlyOccupancyViewEntity> findByTenantIdAndParkingLotIdAndHourBucketBetween(UUID tenantId, UUID parkingLotId, OffsetDateTime start, OffsetDateTime end);
-  List<HourlyOccupancyViewEntity> findByTenantIdAndHourBucketBetween(UUID tenantId, OffsetDateTime start, OffsetDateTime end);
+
+  List<HourlyOccupancyViewEntity> findByTenantIdAndParkingLotIdAndHourBucketBetween(UUID tenantId, UUID parkingLotId,
+    OffsetDateTime start, OffsetDateTime end);
+
+  List<HourlyOccupancyViewEntity> findByTenantIdAndHourBucketBetween(UUID tenantId, OffsetDateTime start,
+    OffsetDateTime end);
 }

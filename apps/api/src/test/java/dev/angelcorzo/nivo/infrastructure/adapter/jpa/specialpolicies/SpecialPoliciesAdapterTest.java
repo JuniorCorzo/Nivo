@@ -3,8 +3,8 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.specialpolicies;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.specialpolicies.mappers.SpecialPoliciesMapper;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.SpecialPolicies;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.specialpolicies.mappers.SpecialPoliciesMapper;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;

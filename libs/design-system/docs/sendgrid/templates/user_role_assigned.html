@@ -6,9 +6,7 @@ Descripción: Notifica nuevo rol y muestra permisos si están disponibles.
 <div style="font-size: 16px; line-height: 1.6">
   <p style="margin: 0 0 16px">Hola {{userName}},</p>
 
-  <p style="margin: 0 0 16px">
-    Se actualizó tu acceso en <strong>{{organizationName}}</strong>.
-  </p>
+  <p style="margin: 0 0 16px">Se actualizó tu acceso en <strong>{{organizationName}}</strong>.</p>
 
   <p style="margin: 0 0 8px"><strong>Nuevo rol:</strong> {{roleName}}</p>
   <p style="margin: 0 0 8px"><strong>Asignado por:</strong> {{assignedBy}}</p>
@@ -28,7 +26,11 @@ Descripción: Notifica nuevo rol y muestra permisos si están disponibles.
   </p>
 
   <p style="margin: 0 0 16px">
-    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if
-    socialUrl}}<a href="{{socialUrl}}" class="link">Síguenos</a> |{{/if}}
+    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if socialUrl}}<a
+      href="{{socialUrl}}"
+      class="link"
+      >Síguenos</a
+    >
+    |{{/if}}
   </p>
 </div>

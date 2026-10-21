@@ -33,10 +33,7 @@
             "index": "",
             "main": "src/storybook-main.ts",
             "tsConfig": "tsconfig.browser.json",
-            "styles": [
-              "node_modules/@ngxpert/hot-toast/src/styles/styles.css",
-              "storybook.css"
-            ],
+            "styles": ["node_modules/@ngxpert/hot-toast/src/styles/styles.css", "storybook.css"],
             "assets": []
           }
         },

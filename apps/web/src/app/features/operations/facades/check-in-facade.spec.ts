@@ -449,4 +449,3 @@ describe("CheckInFacade", () => {
     });
   });
 });
-

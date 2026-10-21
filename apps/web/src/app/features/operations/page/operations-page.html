@@ -3,9 +3,7 @@
   <app-page-header
     icon="lucideCar"
     title="Operaciones de Parqueo"
-    [subtitle]="
-      (parking()?.name || 'Cargando parqueadero...') + ' · Control vehicular'
-    "
+    [subtitle]="(parking()?.name || 'Cargando parqueadero...') + ' · Control vehicular'"
     badge="En vivo"
     badgeVariant="info"
   >
@@ -37,7 +35,8 @@
         <span>Registrar Ingreso</span>
         <kbd
           class="border-primary-foreground/30 bg-primary-foreground/20 text-primary-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
-        >I</kbd>
+          >I</kbd
+        >
       </nv-button>
 
       <nv-button
@@ -50,7 +49,8 @@
         <span>Procesar Salida</span>
         <kbd
           class="border-border bg-background text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
-        >O</kbd>
+          >O</kbd
+        >
       </nv-button>
     </div>
   </app-page-header>
@@ -274,12 +274,8 @@
           [class.bg-success/10]="slot.status === 'AVAILABLE'"
           [class.border-info/30]="slot.status === 'OCCUPIED'"
           [class.bg-info/10]="slot.status === 'OCCUPIED'"
-          [class.border-border]="
-                slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'
-              "
-          [class.bg-muted/40]="
-                slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'
-              "
+          [class.border-border]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+          [class.bg-muted/40]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
         >
           <div class="flex items-center justify-between">
             <span
@@ -418,19 +414,16 @@
                 </span>
                 <nv-badge
                   [variant]="
-                    ticket.plateCountry === 'VE'
-                      ? 'info'
-                      : ticket.plateCountry === 'UNPLATED'
-                      ? 'warning'
-                      : 'outline'
-                  "
+                        ticket.plateCountry === 'VE'
+                          ? 'info'
+                          : ticket.plateCountry === 'UNPLATED'
+                            ? 'warning'
+                            : 'outline'
+                      "
                   class="px-1.5 py-0.5 font-mono text-[10px] font-bold"
                 >
-                  {{
-                    ticket.plateCountry === "UNPLATED"
-                      ? "SP"
-                      : ticket.plateCountry || "CO"
-                  }}
+                  {{ ticket.plateCountry === "UNPLATED" ? "SP" :
+                  ticket.plateCountry || "CO" }}
                 </nv-badge>
               </div>
             </td>
@@ -446,7 +439,7 @@
             </td>
             <td class="px-4 py-3 sm:px-6">
               <div class="text-foreground font-mono text-xs">
-                {{ ticket.entryTime | date : "dd/MM/yyyy HH:mm" }}
+                {{ ticket.entryTime | date: "dd/MM/yyyy HH:mm" }}
               </div>
             </td>
             <td class="px-4 py-3 text-right sm:px-6">

@@ -1,11 +1,13 @@
 # Tasks: Vehicle Check-in and Check-out
 
 <!-- WORKLOAD_FORECAST_START -->
-| Metric | Estimate |
-|---|---|
-| Total Tasks | 11 tasks |
-| Complexity | Medium |
+
+| Metric        | Estimate                                                   |
+| ------------- | ---------------------------------------------------------- |
+| Total Tasks   | 11 tasks                                                   |
+| Complexity    | Medium                                                     |
 | Primary Scope | `apps/web` (Core models, services, facades, modals, tests) |
+
 <!-- WORKLOAD_FORECAST_END -->
 
 ## Phase 1: Foundations / Core Models & Facades

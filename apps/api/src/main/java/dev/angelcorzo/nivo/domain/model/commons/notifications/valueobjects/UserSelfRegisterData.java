@@ -4,13 +4,6 @@ import dev.angelcorzo.nivo.domain.model.commons.notifications.NotificationsData;
 import lombok.Builder;
 
 @Builder
-public record UserSelfRegisterData(
-    String userName,
-		String email,
-		String ctaUrl,
-    String companyName,
-    String supportUrl,
-    String socialUrl,
-    String unsubscribeUrl,
-    String companyAddress)
-    implements NotificationsData {}
+public record UserSelfRegisterData(String userName, String email, String ctaUrl, String companyName, String supportUrl,
+  String socialUrl, String unsubscribeUrl, String companyAddress) implements NotificationsData {
+}

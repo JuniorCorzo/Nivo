@@ -6,10 +6,7 @@ import java.math.BigDecimal;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-public record ParkingLotPolicy(
-    GracePeriod gracePeriod,
-    TaxRate taxRate
-) {
+public record ParkingLotPolicy(GracePeriod gracePeriod, TaxRate taxRate) {
 
   public ParkingLotPolicy {
     gracePeriod = gracePeriod != null ? gracePeriod : GracePeriod.none();
@@ -17,10 +14,8 @@ public record ParkingLotPolicy(
   }
 
   public ParkingLotPolicy(int gracePeriodMinutes, BigDecimal gracePeriodPrice, BigDecimal ivaRate) {
-    this(
-        GracePeriod.of(gracePeriodMinutes, gracePeriodPrice != null ? gracePeriodPrice : BigDecimal.ZERO),
-        ivaRate != null ? TaxRate.of(ivaRate) : TaxRate.standardIva()
-    );
+    this(GracePeriod.of(gracePeriodMinutes, gracePeriodPrice != null ? gracePeriodPrice : BigDecimal.ZERO),
+      ivaRate != null ? TaxRate.of(ivaRate) : TaxRate.standardIva());
   }
 
   public static ParkingLotPolicy defaults() {

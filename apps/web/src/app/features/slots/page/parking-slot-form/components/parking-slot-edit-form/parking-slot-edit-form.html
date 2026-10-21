@@ -99,9 +99,7 @@
       <input
         type="checkbox"
         [checked]="facade.form.hasCharger()"
-        (change)="
-          facade.form.hasCharger.set($any($event.target).checked)
-        "
+        (change)="facade.form.hasCharger.set($any($event.target).checked)"
         class="accent-primary h-4 w-4 cursor-pointer rounded"
       />
     </label>
@@ -128,9 +126,7 @@
       <input
         type="checkbox"
         [checked]="facade.form.isAccessible()"
-        (change)="
-          facade.form.isAccessible.set($any($event.target).checked)
-        "
+        (change)="facade.form.isAccessible.set($any($event.target).checked)"
         class="accent-primary h-4 w-4 cursor-pointer rounded"
       />
     </label>
@@ -157,9 +153,7 @@
       <input
         type="checkbox"
         [checked]="facade.form.isActive()"
-        (change)="
-          facade.form.isActive.set($any($event.target).checked)
-        "
+        (change)="facade.form.isActive.set($any($event.target).checked)"
         class="accent-primary h-4 w-4 cursor-pointer rounded"
       />
     </label>

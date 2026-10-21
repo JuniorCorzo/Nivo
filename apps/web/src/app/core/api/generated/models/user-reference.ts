@@ -6,5 +6,5 @@ export interface UserReference {
   email?: string;
   fullName?: string;
   id?: string;
-  role?: 'SUPERADMIN' | 'OWNER' | 'MANAGER' | 'OPERATOR' | 'DRIVER' | 'AUDITOR';
+  role?: "SUPERADMIN" | "OWNER" | "MANAGER" | "OPERATOR" | "DRIVER" | "AUDITOR";
 }

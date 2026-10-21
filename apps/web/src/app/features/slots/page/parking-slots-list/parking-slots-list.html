@@ -65,15 +65,14 @@
       <div class="border-border overflow-x-auto rounded-xl border">
         <table nv-table class="w-full min-w-190 border-collapse text-left">
           <colgroup>
-            @for ( column of facade.table.getAllLeafColumns(); track column.id )
-            {
+            @for (column of facade.table.getAllLeafColumns(); track column.id) {
             <col [style.width.px]="column.getSize()" />
             }
           </colgroup>
 
           <thead nv-table-header class="bg-muted/80 border-border border-b">
-            @for ( headerGroup of facade.table.getHeaderGroups(); track
-            headerGroup.id ) {
+            @for (headerGroup of facade.table.getHeaderGroups(); track
+            headerGroup.id) {
             <tr nv-table-row>
               @for (header of headerGroup.headers; track header.id) {
               <th

@@ -5,6 +5,7 @@
 This design implements Linear issue **ANC-80** (Vikunja Task ID: 49) by establishing fine-grained infrastructure metadata for parking slots, atomic domain guards preventing mutation of occupied slots, and historical ticket snapshot retention. It also refactors `apps/web/src/app/features/slots` to adhere to the project conventions of isolating `components/`, `facades/`, and `page/`.
 
 ### Core Architectural Decisions
+
 - **`vehicle_type` Immutability**: Slot vehicle type is strictly immutable post-creation to prevent discrepancies in parking lot physical capacity, rates engine mapping, and historical analytics. Converting a space requires deleting and recreating the slot.
 - **Contract Separation**:
   - `PATCH /api/v1/slots/metadata`: Focuses on equipment and availability (`hasCharger`, `isAccessible`, `isActive`) for targeted slot IDs.
@@ -41,7 +42,9 @@ COMMENT ON COLUMN parking_tickets.slot_snapshot IS
 ## 3. Domain Model (`apps/api`)
 
 ### 3.1 Entity Updates: `Slots`
+
 File: `dev.angelcorzo.nivo.domain.model.slots.Slots`
+
 - Added properties:
   - `boolean hasCharger`
   - `boolean isAccessible`
@@ -49,7 +52,9 @@ File: `dev.angelcorzo.nivo.domain.model.slots.Slots`
 - Preserved existing invariants and builder methods.
 
 ### 3.2 Value Object: `SlotSnapshot`
+
 File: `dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot`
+
 - Record containing:
   - `UUID id`
   - `String slotNumber`
@@ -61,7 +66,9 @@ File: `dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot
 - Factory method: `SlotSnapshot.from(Slots slot)`
 
 ### 3.3 Domain Exception: `SlotCannotBeModifiedException`
+
 File: `dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException`
+
 - Extends standard runtime domain exception.
 - Carries: `List<ConflictingSlot> conflictingSlots` (with ID and slotNumber).
 - Mapped in REST exception handler to HTTP 409 Conflict with standard problem detail.
@@ -71,6 +78,7 @@ File: `dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedExce
 ## 4. Domain Use Cases (`apps/api`)
 
 ### 4.1 `UpdateSlotMetadataUseCase`
+
 - Location: `dev.angelcorzo.nivo.domain.usecase.slot.UpdateSlotMetadataUseCase`
 - Command:
   ```java
@@ -94,6 +102,7 @@ File: `dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedExce
   6. Return updated list of `Slots`.
 
 ### 4.2 `UpdateSlotGroupUseCase`
+
 - Location: `dev.angelcorzo.nivo.domain.usecase.slot.UpdateSlotGroupUseCase`
 - Command:
   ```java
@@ -114,6 +123,7 @@ File: `dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedExce
   5. Save batch and return summary.
 
 ### 4.3 Ticket Issuance Integration (`CreateTicketUseCase`)
+
 - Capture `SlotSnapshot.from(slot)` upon ticket creation.
 - Persist `ParkingTickets.slotSnapshot` alongside ticket entity.
 
@@ -124,6 +134,7 @@ File: `dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedExce
 Controller: `dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.controller.SlotsController`
 
 ### 5.1 `PATCH /api/v1/slots/metadata`
+
 - **Operation**: `updateSlotMetadata`
 - **Annotations**:
   - `@Operation(summary = "Batch update equipment metadata for selected slots")`
@@ -138,6 +149,7 @@ Controller: `dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.controller.
 - **Response DTO**: `List<SlotResponse>` (updated with `hasCharger`, `isAccessible`, `isActive`)
 
 ### 5.2 `PATCH /api/v1/slots/groups`
+
 - **Operation**: `updateSlotGroup`
 - **Annotations**:
   - `@Operation(summary = "Rename zone and/or prefix for an entire slot family")`
@@ -151,6 +163,7 @@ Controller: `dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.controller.
   - `String newPrefix` (optional)
 
 ### 5.3 Updated Response DTOs & Projections (OpenAPI & JPA)
+
 1. **`SlotResponse`**:
    - Added fields: `boolean hasCharger`, `boolean isAccessible`, `boolean isActive`.
    - Updated `@Schema` annotations with descriptions, required modes, and OpenAPI examples.
@@ -166,7 +179,9 @@ Controller: `dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.controller.
 ## 6. Frontend Architecture & Folder Refactoring (`apps/web`)
 
 ### 6.1 Folder Structure Standard
+
 Restructure `apps/web/src/app/features/slots` to match project conventions:
+
 ```
 apps/web/src/app/features/slots/
 ├── components/
@@ -186,12 +201,14 @@ apps/web/src/app/features/slots/
 ```
 
 ### 6.2 Service & Model Extensions
+
 - `apps/web/src/app/core/models/slot.model.ts`:
   - `Slot` & `SlotSummary` extended with `hasCharger: boolean`, `isAccessible: boolean`, `isActive: boolean`.
 - `apps/web/src/app/core/services/slot-service.ts`:
   - Methods: `updateSlotMetadata(...)` and `updateSlotGroup(...)`.
 
 ### 6.3 UI Components & Reusability
+
 - Use Design System components (`@nivo-sass/design-system`):
   - `nv-badge` for EV charger ⚡ and PMR accessibility ♿.
   - `nv-modal`, `nv-button`, and form toggles for batch modals.

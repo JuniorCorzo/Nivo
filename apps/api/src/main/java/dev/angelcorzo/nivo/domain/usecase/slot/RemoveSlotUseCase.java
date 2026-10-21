@@ -19,10 +19,7 @@ public class RemoveSlotUseCase {
   }
 
   public void execute(UUID id, UUID tenantId) {
-    final Slots slot =
-        this.slotsRepository
-            .findById(id)
-            .orElseThrow(() -> new SlotNotFoundException(id));
+    final Slots slot = this.slotsRepository.findById(id).orElseThrow(() -> new SlotNotFoundException(id));
 
     if (slot.getTenant() == null || !tenantId.equals(slot.getTenant().id())) {
       throw new SlotNotFoundException(id);

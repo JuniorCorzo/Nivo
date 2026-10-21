@@ -105,7 +105,9 @@ describe("CheckboxComponent", () => {
   });
 
   it("should toggle when clicking label text", () => {
-    const labelSpan = element.querySelector<HTMLSpanElement>("#default-cb label span");
+    const labelSpan = element.querySelector<HTMLSpanElement>(
+      "#default-cb label span"
+    );
     expect(labelSpan).not.toBeNull();
 
     labelSpan?.click();
@@ -129,7 +131,9 @@ describe("CheckboxComponent", () => {
   });
 
   it("should render minus icon and aria-checked='mixed' when indeterminate", () => {
-    const btn = element.querySelector<HTMLButtonElement>("#indeterminate-cb button");
+    const btn = element.querySelector<HTMLButtonElement>(
+      "#indeterminate-cb button"
+    );
     expect(btn).not.toBeNull();
     expect(btn?.getAttribute("aria-checked")).toBe("mixed");
 
@@ -169,7 +173,9 @@ describe("CheckboxComponent", () => {
   });
 
   it("should render label and support content projection", () => {
-    const projectedSpan = element.querySelector("#projected-cb .projected-label");
+    const projectedSpan = element.querySelector(
+      "#projected-cb .projected-label"
+    );
     expect(projectedSpan).not.toBeNull();
     expect(projectedSpan?.textContent?.trim()).toBe("Custom projected text");
   });

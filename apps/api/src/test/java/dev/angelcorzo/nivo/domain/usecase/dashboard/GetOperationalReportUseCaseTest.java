@@ -48,12 +48,12 @@ class GetOperationalReportUseCaseTest {
 
     final OperationalReportModel model = buildSampleModel(tenantId, parkingId);
     final PageResult<OperationalReportModel> pageResult = PageResult.<OperationalReportModel>builder()
-        .content(List.of(model))
-        .pageNumber(0)
-        .pageSize(20)
-        .totalElements(1L)
-        .totalPages(1)
-        .build();
+      .content(List.of(model))
+      .pageNumber(0)
+      .pageSize(20)
+      .totalElements(1L)
+      .totalPages(1)
+      .build();
 
     when(reportGateway.findOperationalReports(tenantId, parkingId, page, size)).thenReturn(pageResult);
 
@@ -80,12 +80,12 @@ class GetOperationalReportUseCaseTest {
 
     final OperationalReportModel model = buildSampleModel(tenantId, parkingId);
     final PageResult<OperationalReportModel> pageResult = PageResult.<OperationalReportModel>builder()
-        .content(List.of(model))
-        .pageNumber(1)
-        .pageSize(10)
-        .totalElements(11L)
-        .totalPages(2)
-        .build();
+      .content(List.of(model))
+      .pageNumber(1)
+      .pageSize(10)
+      .totalElements(11L)
+      .totalPages(2)
+      .build();
 
     when(reportGateway.findOperationalReports(tenantId, parkingId, page, size)).thenReturn(pageResult);
 
@@ -134,28 +134,28 @@ class GetOperationalReportUseCaseTest {
 
   private OperationalReportModel buildSampleModel(final UUID tenantId, final UUID parkingId) {
     return OperationalReportModel.builder()
-        .ticketId(UUID.randomUUID())
-        .tenantId(tenantId)
-        .parkingLotId(parkingId)
-        .parkingName("Sede Principal")
-        .licensePlate("XYZ-789")
-        .slotNumber("A-01")
-        .slotZone("Norte")
-        .slotPrefix("A")
-        .slotType("CAR")
-        .rateName("Tarifa Estándar")
-        .entryTime(OffsetDateTime.now().minusHours(2))
-        .exitTime(OffsetDateTime.now())
-        .durationMinutes(120.0)
-        .ticketStatus("PAID")
-        .totalToCharge(new BigDecimal("15000"))
-        .paymentId(UUID.randomUUID())
-        .paymentStatus("APPROVED")
-        .paymentMethod("CREDIT_CARD")
-        .paidAmount(new BigDecimal("15000"))
-        .paymentDate(OffsetDateTime.now())
-        .operatorOrUserName("Carlos Operador")
-        .userEmail("carlos@nivo.com")
-        .build();
+      .ticketId(UUID.randomUUID())
+      .tenantId(tenantId)
+      .parkingLotId(parkingId)
+      .parkingName("Sede Principal")
+      .licensePlate("XYZ-789")
+      .slotNumber("A-01")
+      .slotZone("Norte")
+      .slotPrefix("A")
+      .slotType("CAR")
+      .rateName("Tarifa Estándar")
+      .entryTime(OffsetDateTime.now().minusHours(2))
+      .exitTime(OffsetDateTime.now())
+      .durationMinutes(120.0)
+      .ticketStatus("PAID")
+      .totalToCharge(new BigDecimal("15000"))
+      .paymentId(UUID.randomUUID())
+      .paymentStatus("APPROVED")
+      .paymentMethod("CREDIT_CARD")
+      .paidAmount(new BigDecimal("15000"))
+      .paymentDate(OffsetDateTime.now())
+      .operatorOrUserName("Carlos Operador")
+      .userEmail("carlos@nivo.com")
+      .build();
   }
 }

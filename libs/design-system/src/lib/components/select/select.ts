@@ -292,7 +292,9 @@ export class SelectComponent<T = unknown> implements ControlValueAccessor {
 
   optionClasses(item: T): string {
     const selected = this.valueFn()(item) === this.internalValue();
-    const selectedClasses = selected ? "bg-accent text-accent-foreground font-medium" : "";
+    const selectedClasses = selected
+      ? "bg-accent text-accent-foreground font-medium"
+      : "";
     return `cursor-pointer px-3 py-2 text-sm font-sans transition-colors hover:bg-accent hover:text-accent-foreground ${selectedClasses}`;
   }
 

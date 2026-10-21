@@ -34,16 +34,10 @@ class UpdateRateUseCaseTest {
   @DisplayName("Should successfully update existing rate")
   void shouldUpdateRateSuccessfully() {
     UUID rateId = UUID.randomUUID();
-    UpdateRateUseCase.UpdateRate command =
-        new UpdateRateUseCase.UpdateRate(
-            rateId, "New Name", "New Desc", BigDecimal.valueOf(6000), TimeUnitsRate.HOURS, 30, VehicleType.CAR);
+    UpdateRateUseCase.UpdateRate command = new UpdateRateUseCase.UpdateRate(rateId, "New Name", "New Desc",
+      BigDecimal.valueOf(6000), TimeUnitsRate.HOURS, 30, VehicleType.CAR);
 
-    Rates existing =
-        Rates.builder()
-            .id(rateId)
-            .name("Old Name")
-            .pricePerUnit(BigDecimal.valueOf(5000))
-            .build();
+    Rates existing = Rates.builder().id(rateId).name("Old Name").pricePerUnit(BigDecimal.valueOf(5000)).build();
 
     when(ratesRepository.findById(rateId)).thenReturn(Optional.of(existing));
     when(ratesRepository.save(any(Rates.class))).thenAnswer(i -> i.getArgument(0));
@@ -60,64 +54,37 @@ class UpdateRateUseCaseTest {
   @DisplayName("Should throw RateNotFoundException when rate does not exist")
   void shouldThrowWhenRateNotFound() {
     UUID rateId = UUID.randomUUID();
-    UpdateRateUseCase.UpdateRate command =
-        new UpdateRateUseCase.UpdateRate(
-            rateId, "New Name", "New Desc", BigDecimal.valueOf(6000), TimeUnitsRate.HOURS, 30, VehicleType.CAR);
+    UpdateRateUseCase.UpdateRate command = new UpdateRateUseCase.UpdateRate(rateId, "New Name", "New Desc",
+      BigDecimal.valueOf(6000), TimeUnitsRate.HOURS, 30, VehicleType.CAR);
 
     when(ratesRepository.findById(rateId)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> useCase.execute(command))
-        .isInstanceOf(RateNotFoundException.class);
+    assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(RateNotFoundException.class);
   }
 
   @Test
   @DisplayName("Should throw InvalidDomainException when pricePerUnit is null")
   void shouldThrowWhenPriceIsNull() {
-    assertThatThrownBy(
-            () ->
-                new UpdateRateUseCase.UpdateRate(
-                    UUID.randomUUID(),
-                    "Name",
-                    "Desc",
-                    null,
-                    TimeUnitsRate.HOURS,
-                    15,
-                    VehicleType.CAR))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessageContaining("Rate price cannot be negative or null");
+    assertThatThrownBy(() -> new UpdateRateUseCase.UpdateRate(UUID.randomUUID(), "Name", "Desc", null,
+      TimeUnitsRate.HOURS, 15, VehicleType.CAR)).isInstanceOf(InvalidDomainException.class)
+      .hasMessageContaining("Rate price cannot be negative or null");
   }
 
   @Test
   @DisplayName("Should throw InvalidDomainException when pricePerUnit is negative")
   void shouldThrowWhenPriceIsNegative() {
-    assertThatThrownBy(
-            () ->
-                new UpdateRateUseCase.UpdateRate(
-                    UUID.randomUUID(),
-                    "Name",
-                    "Desc",
-                    BigDecimal.valueOf(-1),
-                    TimeUnitsRate.HOURS,
-                    15,
-                    VehicleType.CAR))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessageContaining("Rate price cannot be negative or null");
+    assertThatThrownBy(() -> new UpdateRateUseCase.UpdateRate(UUID.randomUUID(), "Name", "Desc",
+      BigDecimal.valueOf(-1), TimeUnitsRate.HOURS, 15, VehicleType.CAR))
+      .isInstanceOf(InvalidDomainException.class)
+      .hasMessageContaining("Rate price cannot be negative or null");
   }
 
   @Test
   @DisplayName("Should throw InvalidDomainException when minChargeTimeMinutes is negative")
   void shouldThrowWhenMinChargeMinutesIsNegative() {
-    assertThatThrownBy(
-            () ->
-                new UpdateRateUseCase.UpdateRate(
-                    UUID.randomUUID(),
-                    "Name",
-                    "Desc",
-                    BigDecimal.valueOf(5000),
-                    TimeUnitsRate.HOURS,
-                    -10,
-                    VehicleType.CAR))
-        .isInstanceOf(InvalidDomainException.class)
-        .hasMessageContaining("Minimum charge minutes cannot be negative");
+    assertThatThrownBy(() -> new UpdateRateUseCase.UpdateRate(UUID.randomUUID(), "Name", "Desc",
+      BigDecimal.valueOf(5000), TimeUnitsRate.HOURS, -10, VehicleType.CAR))
+      .isInstanceOf(InvalidDomainException.class)
+      .hasMessageContaining("Minimum charge minutes cannot be negative");
   }
 }

@@ -45,15 +45,10 @@ class UpdateParkingLotsUseCaseTest {
     Address address = Address.builder().street("New Address 456").city("Bogotá").build();
     Coordinates coordinates = Coordinates.builder().latitude(4.60).longitude(-74.08).build();
     OperatingHours hours = OperatingHours.builder().openTime(OffsetTime.now()).closeTime(OffsetTime.now()).build();
-    UpsertParkingLotsDTO command =
-        new UpsertParkingLotsDTO(
-            parkingId, "Updated Lot", address, coordinates, "America/Bogota", "COP", hours, Collections.emptyList());
+    UpsertParkingLotsDTO command = new UpsertParkingLotsDTO(parkingId, "Updated Lot", address, coordinates,
+      "America/Bogota", "COP", hours, Collections.emptyList());
 
-    ParkingLots existing =
-        ParkingLots.builder()
-            .id(parkingId)
-            .name("Old Lot")
-            .build();
+    ParkingLots existing = ParkingLots.builder().id(parkingId).name("Old Lot").build();
 
     when(parkingLotsRepository.existsById(parkingId)).thenReturn(true);
     when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(existing));
@@ -74,13 +69,11 @@ class UpdateParkingLotsUseCaseTest {
     Address address = Address.builder().street("New Address 456").city("Bogotá").build();
     Coordinates coordinates = Coordinates.builder().latitude(4.60).longitude(-74.08).build();
     OperatingHours hours = OperatingHours.builder().openTime(OffsetTime.now()).closeTime(OffsetTime.now()).build();
-    UpsertParkingLotsDTO command =
-        new UpsertParkingLotsDTO(
-            parkingId, "Updated Lot", address, coordinates, "America/Bogota", "COP", hours, Collections.emptyList());
+    UpsertParkingLotsDTO command = new UpsertParkingLotsDTO(parkingId, "Updated Lot", address, coordinates,
+      "America/Bogota", "COP", hours, Collections.emptyList());
 
     when(parkingLotsRepository.existsById(parkingId)).thenReturn(false);
 
-    assertThatThrownBy(() -> useCase.update(command))
-        .isInstanceOf(ParkingNotExistsException.class);
+    assertThatThrownBy(() -> useCase.update(command)).isInstanceOf(ParkingNotExistsException.class);
   }
 }

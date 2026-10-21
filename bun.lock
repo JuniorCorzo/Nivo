@@ -4,9 +4,6 @@
   "workspaces": {
     "": {
       "name": "nivo",
-      "devDependencies": {
-        "prettier": "^3.8.3",
-      },
     },
     "apps/web": {
       "name": "web",

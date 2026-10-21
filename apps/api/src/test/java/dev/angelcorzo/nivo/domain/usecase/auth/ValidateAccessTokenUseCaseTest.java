@@ -2,7 +2,6 @@ package dev.angelcorzo.nivo.domain.usecase.auth;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import dev.angelcorzo.nivo.domain.model.authentication.exceptions.ExpiredTokenException;
@@ -20,8 +19,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ValidateAccessTokenUseCase Tests")
 class ValidateAccessTokenUseCaseTest {
-  @Mock private AuthenticationGateway authenticationGateway;
-  @InjectMocks private ValidateAccessTokenUseCase validateAccessTokenUseCase;
+  @Mock
+  private AuthenticationGateway authenticationGateway;
+
+  @InjectMocks
+  private ValidateAccessTokenUseCase validateAccessTokenUseCase;
 
   @Nested
   @DisplayName("Happy Path - Casos Exitosos")
@@ -55,7 +57,7 @@ class ValidateAccessTokenUseCaseTest {
 
       // Act & Assert
       assertThatThrownBy(() -> validateAccessTokenUseCase.validate(expiredToken))
-          .isInstanceOf(ExpiredTokenException.class);
+        .isInstanceOf(ExpiredTokenException.class);
 
       // Verify
       verify(authenticationGateway).validateToken(expiredToken);
@@ -66,13 +68,11 @@ class ValidateAccessTokenUseCaseTest {
     void shouldPropagateMalformedTokenException() {
       // Arrange
       String malformedToken = "a-malformed-token";
-      doThrow(new MalformedTokenException())
-          .when(authenticationGateway)
-          .validateToken(malformedToken);
+      doThrow(new MalformedTokenException()).when(authenticationGateway).validateToken(malformedToken);
 
       // Act & Assert
       assertThatThrownBy(() -> validateAccessTokenUseCase.validate(malformedToken))
-          .isInstanceOf(MalformedTokenException.class);
+        .isInstanceOf(MalformedTokenException.class);
 
       // Verify
       verify(authenticationGateway).validateToken(malformedToken);
@@ -83,14 +83,13 @@ class ValidateAccessTokenUseCaseTest {
     void shouldPropagateTokenInvalidException() {
       // Arrange
       String invalidToken = "an-invalid-token-for-other-reasons";
-      doThrow(new TokenInvalidException("Invalid signature"))
-          .when(authenticationGateway)
-          .validateToken(invalidToken);
+      doThrow(new TokenInvalidException("Invalid signature")).when(authenticationGateway)
+        .validateToken(invalidToken);
 
       // Act & Assert
       assertThatThrownBy(() -> validateAccessTokenUseCase.validate(invalidToken))
-          .isInstanceOf(TokenInvalidException.class)
-          .hasMessageContaining("Invalid signature");
+        .isInstanceOf(TokenInvalidException.class)
+        .hasMessageContaining("Invalid signature");
 
       // Verify
       verify(authenticationGateway).validateToken(invalidToken);

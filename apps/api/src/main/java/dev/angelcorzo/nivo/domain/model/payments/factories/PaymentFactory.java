@@ -13,24 +13,24 @@ import lombok.NoArgsConstructor;
 public class PaymentFactory {
   public static Payments registerEffective(ParkingTickets ticket, BigDecimal amount) {
     return Payments.builder()
-        .tenant(ticket.getTenant())
-        .user(ticket.getUser())
-        .parkingTicket(ticket)
-        .amount(amount)
-        .paymentDate(OffsetDateTime.now())
-        .paymentMethod(PaymentsMethods.EFFECTIVE)
-        .status(PaymentStatus.PAID)
-        .build();
+      .tenant(ticket.getTenant())
+      .user(ticket.getUser())
+      .parkingTicket(ticket)
+      .amount(amount)
+      .paymentDate(OffsetDateTime.now())
+      .paymentMethod(PaymentsMethods.EFFECTIVE)
+      .status(PaymentStatus.PAID)
+      .build();
   }
 
   public static Payments registerPayLink(ParkingTickets ticket, BigDecimal amount) {
     return Payments.builder()
-        .tenant(ticket.getTenant())
-        .user(ticket.getUser())
-        .parkingTicket(ticket)
-        .amount(amount)
-        .paymentMethod(PaymentsMethods.PAY_LINK)
-        .status(PaymentStatus.PENDING_CHECKOUT)
-        .build();
+      .tenant(ticket.getTenant())
+      .user(ticket.getUser())
+      .parkingTicket(ticket)
+      .amount(amount)
+      .paymentMethod(PaymentsMethods.PAY_LINK)
+      .status(PaymentStatus.PENDING_CHECKOUT)
+      .build();
   }
 }

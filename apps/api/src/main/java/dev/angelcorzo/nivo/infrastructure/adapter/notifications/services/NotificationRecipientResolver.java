@@ -13,11 +13,10 @@ public class NotificationRecipientResolver {
   private final UsersRepository usersRepository;
 
   public UserReference resolve(Users actorUser, String recipient, NotificationsChannel channel) {
-    final Users resolvedUser =
-        switch (channel) {
-          case EMAIL -> this.resolveByEmail(actorUser, recipient);
-          case WHATSAPP -> null;
-        };
+    final Users resolvedUser = switch (channel) {
+      case EMAIL -> this.resolveByEmail(actorUser, recipient);
+      case WHATSAPP -> null;
+    };
 
     if (resolvedUser == null) {
       return null;
@@ -34,4 +33,3 @@ public class NotificationRecipientResolver {
     return this.usersRepository.findByEmail(recipient).orElse(null);
   }
 }
-

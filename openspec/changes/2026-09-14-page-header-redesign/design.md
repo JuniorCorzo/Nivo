@@ -3,10 +3,12 @@
 ## Arquitectura y Componentes
 
 ### 1. `NavigationContextService`
+
 - **Responsabilidad**: Servicio `@Injectable({ providedIn: 'root' })` que reacciona a los eventos de navegación (`NavigationEnd`) y lee la metadata `data.navContext` de las rutas activas.
 - **Modelo de Datos**:
+
   ```typescript
-  export type NavigationScope = 'tenant' | 'parking';
+  export type NavigationScope = "tenant" | "parking";
 
   export interface RouteNavContext {
     scope: NavigationScope;
@@ -17,6 +19,7 @@
     isRoot?: boolean;
   }
   ```
+
 - **Reactividad con Signals**:
   - `navContext`: Signal con el contexto de ruta actual.
   - `scope`: Signal derivado (`tenant` | `parking`).
@@ -25,6 +28,7 @@
   - `backLink`: Signal con la URL anterior o enlace fallback.
 
 ### 2. `PageHeaderComponent` Dual y Responsivo
+
 - **Modo Desktop (`hidden sm:flex`)**:
   - Contenedor envolvente: tarjeta con bordes redondeados (`rounded-2xl border border-border bg-card p-6 shadow-xs flex items-center justify-between gap-6`).
   - Lado izquierdo:
@@ -40,6 +44,7 @@
   - Fila 3: Contenedor de acciones apiladas o en grilla (`space-y-2 pt-1 border-t border-border/60`).
 
 ### 3. Migración y Reestructuración de `Rates`
+
 - Crear `apps/web/src/app/features/rates/page/rates-page/rates-page.{ts,html,spec.ts}`:
   - Smart container que aloja `app-page-header` y los tabs interactivos (`Tarifas`, `Calculadora`, `Políticas`).
   - Carga diferida en `app.routes.ts` para la ruta `/app/parking-lots/:parkingId/rates`.
@@ -47,6 +52,7 @@
   - Permanece en `apps/web/src/app/features/rates/components/rates-list/` enfocado exclusivamente en renderizar la cuadrícula de tarifas, buscador y filtros.
 
 ### 4. Integración en Vistas
+
 - **`parking-form`**: Mover las acciones `Cancelar` y `Guardar Cambios` al header en el slot `[actions]`, con el enlace atrás y breadcrumbs `Parqueaderos > Configurar Parqueadero`.
 - **`parking-home`**: Header con título de la sede activa, badge `● Abierto`, subtítulo con dirección/plazas/moneda, y acciones agrupadas.
 - **`operations`**: Header con badge animado `● En Vivo`, botón `Registrar Ingreso` y enlace a `Ver Tickets`.

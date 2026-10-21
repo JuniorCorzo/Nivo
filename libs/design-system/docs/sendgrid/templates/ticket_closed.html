@@ -13,9 +13,7 @@ Descripción: Notificación de ticket cerrado para salida de vehículo con resum
 
   <p style="margin: 0 0 8px"><strong>Referencia:</strong> {{ticketSubject}}</p>
   <p style="margin: 0 0 8px"><strong>Hora de salida:</strong> {{closedAt}}</p>
-  <p style="margin: 0 0 16px">
-    <strong>Resumen:</strong> {{resolutionSummary}}
-  </p>
+  <p style="margin: 0 0 16px"><strong>Resumen:</strong> {{resolutionSummary}}</p>
 
   <p style="margin: 0 0 16px">
     <a href="{{ctaUrl}}" class="btn">Ver ticket</a> {{#if satisfactionUrl}}|
@@ -23,7 +21,11 @@ Descripción: Notificación de ticket cerrado para salida de vehículo con resum
   </p>
 
   <p style="margin: 0 0 16px">
-    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if
-    socialUrl}}<a href="{{socialUrl}}" class="link">Síguenos</a> |{{/if}}
+    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if socialUrl}}<a
+      href="{{socialUrl}}"
+      class="link"
+      >Síguenos</a
+    >
+    |{{/if}}
   </p>
 </div>

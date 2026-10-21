@@ -18,8 +18,8 @@ class DashboardDomainEventListenerTest {
 
     UUID tenantId = UUID.randomUUID();
     UUID parkingId = UUID.randomUUID();
-    DashboardUpdateEvent event =
-        new DashboardUpdateEvent(tenantId, parkingId, "occupancy_updated", "{\"occupancy\": 85}");
+    DashboardUpdateEvent event = new DashboardUpdateEvent(tenantId, parkingId, "occupancy_updated",
+      "{\"occupancy\": 85}");
 
     listener.onDashboardUpdate(event);
 

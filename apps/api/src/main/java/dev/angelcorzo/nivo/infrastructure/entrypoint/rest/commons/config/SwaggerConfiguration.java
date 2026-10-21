@@ -14,46 +14,36 @@ public class SwaggerConfiguration {
 
   @Bean
   public OpenAPI customOpenAPI() {
-    final Info info =
-        new Info()
-            .title("Nivo API")
-            .version("1.0")
-            .description("Multi-tenant Parking Management System API")
-            .contact(new Contact().name("Nivo Team"));
+    final Info info = new Info().title("Nivo API")
+      .version("1.0")
+      .description("Multi-tenant Parking Management System API")
+      .contact(new Contact().name("Nivo Team"));
 
-    final String script =
-        """
-        // Auto-login to obtain Bearer token for Scalar
-        const response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: 'admin@nivo.dev', password: 'password123' })
-        });
-        if (response.ok) {
-          const data = await response.json();
-          const token = data.token || data.accessToken || data.access_token;
-          context.setToken('Bearer ' + token);
-        }
-        """;
+    final String script = """
+      // Auto-login to obtain Bearer token for Scalar
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'admin@nivo.dev', password: 'password123' })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const token = data.token || data.accessToken || data.access_token;
+        context.setToken('Bearer ' + token);
+      }
+      """;
 
     info.addExtension("x-scalar-pre-request", script);
 
     return new OpenAPI()
-        .components(
-            new Components()
-                .addSecuritySchemes(
-                    "Bearer Authentication",
-                    new SecurityScheme()
-                        .type(SecurityScheme.Type.HTTP)
-                        .scheme("bearer")
-                        .bearerFormat("JWT"))
-                .addSecuritySchemes(
-                    "refreshToken",
-                    new SecurityScheme()
-                        .type(SecurityScheme.Type.APIKEY)
-                        .in(SecurityScheme.In.COOKIE)
-                        .name("refreshToken")))
-        .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
-        .info(info);
+      .components(new Components()
+        .addSecuritySchemes("Bearer Authentication",
+          new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"))
+        .addSecuritySchemes("refreshToken",
+          new SecurityScheme().type(SecurityScheme.Type.APIKEY)
+            .in(SecurityScheme.In.COOKIE)
+            .name("refreshToken")))
+      .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+      .info(info);
   }
 }

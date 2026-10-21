@@ -29,7 +29,7 @@ public class TestH2Dialect extends H2Dialect {
   public void contributeTypes(TypeContributions typeContributions, ServiceRegistry serviceRegistry) {
     super.contributeTypes(typeContributions, serviceRegistry);
     typeContributions.getTypeConfiguration()
-        .getJdbcTypeRegistry()
-        .addDescriptorIfAbsent(PostgreSQLStructCastingJdbcType.INSTANCE);
+      .getJdbcTypeRegistry()
+      .addDescriptorIfAbsent(PostgreSQLStructCastingJdbcType.INSTANCE);
   }
 }

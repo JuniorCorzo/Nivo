@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.LinkedList;
 import java.util.Objects;
-
 import lombok.Getter;
 
 @Getter
@@ -24,7 +23,8 @@ public final class PriceDetailed {
     return new PriceDetailed(name);
   }
 
-  public static PriceDetailed from(dev.angelcorzo.nivo.domain.usecase.rate.engine.PricingContext context, String tenantName) {
+  public static PriceDetailed from(dev.angelcorzo.nivo.domain.usecase.rate.engine.PricingContext context,
+    String tenantName) {
     PriceDetailed detailed = new PriceDetailed(tenantName);
     if (context.policy() != null && context.policy().ivaRate() != null) {
       detailed.setIvaRate(context.policy().ivaRate());
@@ -56,14 +56,14 @@ public final class PriceDetailed {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
     PriceDetailed that = (PriceDetailed) o;
-    return Objects.equals(ivaRate, that.ivaRate)
-        && java.util.Objects.equals(name, that.name)
-        && java.util.Objects.equals(subtotal, that.subtotal)
-        && java.util.Objects.equals(ivaAmount, that.ivaAmount)
-        && java.util.Objects.equals(total, that.total);
+    return Objects.equals(ivaRate, that.ivaRate) && java.util.Objects.equals(name, that.name)
+      && java.util.Objects.equals(subtotal, that.subtotal) && java.util.Objects.equals(ivaAmount, that.ivaAmount)
+      && java.util.Objects.equals(total, that.total);
   }
 
   @Override
@@ -73,21 +73,7 @@ public final class PriceDetailed {
 
   @Override
   public String toString() {
-    return "PriceDetailed["
-        + "name="
-        + name
-        + ", "
-        + "subtotal="
-        + subtotal
-        + ", "
-        + "ivaRate="
-        + ivaRate
-        + ", "
-        + "ivaAmount="
-        + ivaAmount
-        + ", "
-        + "total="
-        + total
-        + ']';
+    return "PriceDetailed[" + "name=" + name + ", " + "subtotal=" + subtotal + ", " + "ivaRate=" + ivaRate + ", "
+      + "ivaAmount=" + ivaAmount + ", " + "total=" + total + ']';
   }
 }

@@ -16,16 +16,14 @@ public interface NotificationsData {
 
   default Map<String, String> toMap() {
     Map<String, String> dataMap = new java.util.HashMap<>();
-    Arrays.stream(this.getClass().getRecordComponents())
-        .forEach(
-            component -> {
-              try {
-                Object value = component.getAccessor().invoke(this);
-                dataMap.put(component.getName(), value != null ? value.toString() : "null");
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
-            });
+    Arrays.stream(this.getClass().getRecordComponents()).forEach(component -> {
+      try {
+        Object value = component.getAccessor().invoke(this);
+        dataMap.put(component.getName(), value != null ? value.toString() : "null");
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    });
 
     return dataMap;
   }

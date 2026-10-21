@@ -3,9 +3,9 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.userinvitation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.userinvitation.mapper.UserInvitationsMapper;
 import dev.angelcorzo.nivo.domain.model.userinvitations.UserInvitationStatus;
 import dev.angelcorzo.nivo.domain.model.userinvitations.UserInvitations;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.userinvitation.mapper.UserInvitationsMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,8 +64,7 @@ class UserInvitationsRepositoryAdapterTest {
   void shouldAcceptInvitation() {
     UUID id = UUID.randomUUID();
     UserInvitationsData data = new UserInvitationsData();
-    UserInvitations entity =
-        UserInvitations.builder().id(id).status(UserInvitationStatus.ACCEPTED).build();
+    UserInvitations entity = UserInvitations.builder().id(id).status(UserInvitationStatus.ACCEPTED).build();
 
     when(repository.findById(id)).thenReturn(Optional.of(data));
     when(mapper.toEntity(data)).thenReturn(entity);

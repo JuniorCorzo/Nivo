@@ -40,9 +40,7 @@ class DashboardStreamControllerTest {
 
     when(sseRegistry.createEmitter((UUID) null)).thenReturn(emitter);
 
-    mockMvc.perform(get("/dashboard/stream")
-            .accept(MediaType.TEXT_EVENT_STREAM_VALUE))
-        .andExpect(status().isOk());
+    mockMvc.perform(get("/dashboard/stream").accept(MediaType.TEXT_EVENT_STREAM_VALUE)).andExpect(status().isOk());
 
     verify(sseRegistry).createEmitter((UUID) null);
   }
@@ -55,10 +53,9 @@ class DashboardStreamControllerTest {
 
     when(sseRegistry.createEmitter(parkingId)).thenReturn(emitter);
 
-    mockMvc.perform(get("/dashboard/stream")
-            .param("parkingId", parkingId.toString())
-            .accept(MediaType.TEXT_EVENT_STREAM_VALUE))
-        .andExpect(status().isOk());
+    mockMvc.perform(
+      get("/dashboard/stream").param("parkingId", parkingId.toString()).accept(MediaType.TEXT_EVENT_STREAM_VALUE))
+      .andExpect(status().isOk());
 
     verify(sseRegistry).createEmitter(parkingId);
   }

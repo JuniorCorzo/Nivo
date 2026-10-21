@@ -20,9 +20,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("NotificationRecipientResolver Unit Tests")
 class NotificationRecipientResolverTest {
 
-  @Mock private UsersRepository usersRepository;
+  @Mock
+  private UsersRepository usersRepository;
 
-  @InjectMocks private NotificationRecipientResolver resolver;
+  @InjectMocks
+  private NotificationRecipientResolver resolver;
 
   @Test
   @DisplayName("Should return actor user reference when email matches actor user email")

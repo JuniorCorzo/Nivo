@@ -1,11 +1,11 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.notificationlogs;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.notificationtemplates.NotificationTemplatesData;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.TenantsData;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.UsersData;
 import dev.angelcorzo.nivo.domain.model.commons.notifications.enums.NotificationEvents;
 import dev.angelcorzo.nivo.domain.model.commons.notifications.enums.NotificationsChannel;
 import dev.angelcorzo.nivo.domain.model.notificationlogs.enums.NotificationLogsStatus;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.notificationtemplates.NotificationTemplatesData;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.TenantsData;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.UsersData;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

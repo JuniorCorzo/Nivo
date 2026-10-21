@@ -1,11 +1,13 @@
 # Tasks: Slot Infrastructure Metadata Mutation & Ticket Snapshot Integrity
 
 <!-- WORKLOAD_FORECAST_START -->
-| Metric | Estimate |
-|---|---|
-| Total Tasks | 10 tasks |
-| Complexity | Medium-High |
+
+| Metric        | Estimate                                                                                               |
+| ------------- | ------------------------------------------------------------------------------------------------------ |
+| Total Tasks   | 10 tasks                                                                                               |
+| Complexity    | Medium-High                                                                                            |
 | Primary Scope | `apps/api` (Flyway, Domain, Entrypoint, Tests) & `apps/web` (Models, Service, Refactor, Modals, Tests) |
+
 <!-- WORKLOAD_FORECAST_END -->
 
 ## Phase 1: Database Schema & JPA Persistence (`apps/api`)

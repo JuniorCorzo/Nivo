@@ -3,22 +3,26 @@ package dev.angelcorzo.nivo.domain.model.users;
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
-import lombok.Builder;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import dev.angelcorzo.nivo.domain.model.users.exceptions.UserAlreadyDeactivatedException;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Represents a User entity within the system.
  *
- * <p>This class is an aggregate root that holds all information related to a user, including their
- * personal data, credentials, role, and association with a Tenant.
+ * <p>
+ * This class is an aggregate root that holds all information related to a user, including their personal data,
+ * credentials, role, and association with a Tenant.
  *
- * <p><strong>Layer:</strong> Domain
+ * <p>
+ * <strong>Layer:</strong> Domain
  *
- * <p><strong>Responsibility:</strong> To manage the state and business rules of a user.
+ * <p>
+ * <strong>Responsibility:</strong> To manage the state and business rules of a user.
  *
  * @author Angel Corzo
  * @since 1.0.0
@@ -64,4 +68,20 @@ public class Users {
    * The timestamp when the user was soft-deleted. A non-null value indicates the user is inactive.
    */
   private OffsetDateTime deletedAt;
+
+  /**
+   * Deactivates the user and records the actor who performed the action.
+   *
+   * @param actorId
+   *          The ID of the user performing the deactivation.
+   * @throws UserAlreadyDeactivatedException
+   *           if the user is already deactivated.
+   */
+  public void deactivate(final UUID actorId) {
+    if (this.deletedAt != null) {
+      throw new UserAlreadyDeactivatedException(this.id);
+    }
+    this.deletedAt = OffsetDateTime.now();
+    this.deletedBy = actorId;
+  }
 }

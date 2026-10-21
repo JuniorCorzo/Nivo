@@ -385,9 +385,14 @@ describe("OperationsPageComponent", () => {
 
       component.refreshActiveTickets();
 
-      expect(ticketServiceSpy.listTicketsByParkingLot).toHaveBeenCalledWith("p-1");
+      expect(ticketServiceSpy.listTicketsByParkingLot).toHaveBeenCalledWith(
+        "p-1"
+      );
       expect(component.activeTickets().length).toBe(2);
-      expect(component.activeTickets().map((t) => t.id)).toEqual(["t-1", "t-2"]);
+      expect(component.activeTickets().map((t) => t.id)).toEqual([
+        "t-1",
+        "t-2",
+      ]);
     });
 
     it("should filter active tickets by search query against plate and slot number", () => {
@@ -464,7 +469,9 @@ describe("OperationsPageComponent", () => {
       fixture.detectChanges();
 
       const compiled: HTMLElement = fixture.nativeElement;
-      expect(compiled.textContent).toContain("No hay vehículos activos en este momento.");
+      expect(compiled.textContent).toContain(
+        "No hay vehículos activos en este momento."
+      );
     });
 
     it("should trigger hotkeys I and O to open modals when target is not an input", () => {

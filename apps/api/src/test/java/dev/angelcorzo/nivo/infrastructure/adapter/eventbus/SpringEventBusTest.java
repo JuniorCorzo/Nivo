@@ -18,9 +18,11 @@ import org.springframework.context.ApplicationEventPublisher;
 @DisplayName("SpringEventBus Unit Tests")
 class SpringEventBusTest {
 
-  @Mock private ApplicationEventPublisher applicationEventPublisher;
+  @Mock
+  private ApplicationEventPublisher applicationEventPublisher;
 
-  @InjectMocks private SpringEventBus springEventBus;
+  @InjectMocks
+  private SpringEventBus springEventBus;
 
   @Test
   @DisplayName("Should publish event asynchronously through ApplicationEventPublisher")

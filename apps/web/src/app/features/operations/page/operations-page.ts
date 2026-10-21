@@ -129,9 +129,8 @@ export class OperationsPageComponent {
 
   readonly availableCarSlotsCount = computed(
     () =>
-      this.slots().filter(
-        (s) => s.status === "AVAILABLE" && s.type === "CAR"
-      ).length
+      this.slots().filter((s) => s.status === "AVAILABLE" && s.type === "CAR")
+        .length
   );
 
   readonly totalCarSlotsCount = computed(

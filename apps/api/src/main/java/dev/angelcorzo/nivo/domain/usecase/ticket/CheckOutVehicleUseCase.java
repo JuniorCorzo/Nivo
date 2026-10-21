@@ -7,9 +7,9 @@ import dev.angelcorzo.nivo.domain.model.payments.Payments;
 import dev.angelcorzo.nivo.domain.model.payments.exceptions.PaymentError;
 import dev.angelcorzo.nivo.domain.model.payments.exceptions.ProcessPaymentException;
 import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.CheckOut;
+import dev.angelcorzo.nivo.domain.usecase.payment.ProcessPaymentUseCase;
 import dev.angelcorzo.nivo.domain.usecase.rate.CalculateRateUseCase;
 import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
-import dev.angelcorzo.nivo.domain.usecase.payment.ProcessPaymentUseCase;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
@@ -21,11 +21,8 @@ public class CheckOutVehicleUseCase {
 
   public Payments execute(CheckOut command) {
     final UUID ticketId = command.ticketId();
-    final ParkingTickets ticket =
-        this.parkingTicketsRepository
-            .findById(ticketId)
-            .orElseThrow(
-                () -> new ProcessPaymentException(new PaymentError.TicketNotFound(ticketId)));
+    final ParkingTickets ticket = this.parkingTicketsRepository.findById(ticketId)
+      .orElseThrow(() -> new ProcessPaymentException(new PaymentError.TicketNotFound(ticketId)));
 
     if (ticket.getStatus() == ParkingTicketStatus.CLOSED) {
       throw new ProcessPaymentException(new PaymentError.Duplicate(ticketId));

@@ -14,21 +14,9 @@ import lombok.Builder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
-@Schema(requiredProperties = { "id", "name", "address", "coordinates", "owner", "tenant", "timezone", "currency",
-    "operatingHours", "createdAt", "updatedAt", "gracePeriodMinutes", "gracePeriodPrice", "ivaRate" })
-public record ParkingLotsResponse(
-    UUID id,
-    String name,
-    AddressDTO address,
-    CoordinatesDTO coordinates,
-    UserInfo owner,
-    TenantInfo tenant,
-    String timezone,
-    String currency,
-    OperatingHoursDTO operatingHours,
-    OffsetDateTime createdAt,
-    OffsetDateTime updatedAt,
-    Integer gracePeriodMinutes,
-    BigDecimal gracePeriodPrice,
-    BigDecimal ivaRate) {
+@Schema(requiredProperties = {"id", "name", "address", "coordinates", "owner", "tenant", "timezone", "currency",
+  "operatingHours", "createdAt", "updatedAt", "gracePeriodMinutes", "gracePeriodPrice", "ivaRate"})
+public record ParkingLotsResponse(UUID id, String name, AddressDTO address, CoordinatesDTO coordinates, UserInfo owner,
+  TenantInfo tenant, String timezone, String currency, OperatingHoursDTO operatingHours, OffsetDateTime createdAt,
+  OffsetDateTime updatedAt, Integer gracePeriodMinutes, BigDecimal gracePeriodPrice, BigDecimal ivaRate) {
 }

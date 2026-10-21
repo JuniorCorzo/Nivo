@@ -25,8 +25,7 @@ public class EpaycoResponseDeserializer extends StdDeserializer<EpaycoResponse<?
   }
 
   @Override
-  public EpaycoResponseDeserializer createContextual(
-      DeserializationContext ctxt, BeanProperty property) {
+  public EpaycoResponseDeserializer createContextual(DeserializationContext ctxt, BeanProperty property) {
     JavaType type = ctxt.getContextualType();
     if (type != null && type.containedTypeCount() > 0) {
       JavaType innerType = type.containedType(0);
@@ -66,8 +65,7 @@ public class EpaycoResponseDeserializer extends StdDeserializer<EpaycoResponse<?
         if (dataNode != null) {
           error = ctxt.readTreeAsValue(dataNode, EpaycoError.class);
         }
-        return new EpaycoResponse.Failure<>(
-            false, titleResponse, textResponse, lastResponse, error);
+        return new EpaycoResponse.Failure<>(false, titleResponse, textResponse, lastResponse, error);
       }
     } catch (Exception e) {
       throw new PaymentProviderDeserializationException("Error deserializando EpaycoResponse", e);

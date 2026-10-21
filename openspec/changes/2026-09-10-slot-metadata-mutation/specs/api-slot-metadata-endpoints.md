@@ -1,10 +1,13 @@
 <!-- TAG: ADDED -->
+
 # Delta Spec: API Slot Metadata & Group Mutation Endpoints
 
 ## Motivation
+
 Expose dedicated endpoints for batch updating slot equipment metadata and slot family topology with atomic transactional guarantees.
 
 ## Requirements
+
 1. **Endpoint `PATCH /api/v1/slots/metadata`**:
    - Accepts a list of slot UUIDs and optional flags: `hasCharger`, `isAccessible`, `isActive`.
    - Rejects the operation with `409 Conflict` if any slot in `slotIds` has `status != AVAILABLE`.

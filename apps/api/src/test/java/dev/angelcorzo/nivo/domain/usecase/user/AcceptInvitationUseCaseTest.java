@@ -1,5 +1,11 @@
 package dev.angelcorzo.nivo.domain.usecase.user;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
 import dev.angelcorzo.nivo.domain.model.userinvitations.InvitationNotFoundException;
@@ -13,6 +19,9 @@ import dev.angelcorzo.nivo.domain.model.users.gateways.PasswordEncodeGateway;
 import dev.angelcorzo.nivo.domain.model.users.gateways.UsersRepository;
 import dev.angelcorzo.nivo.domain.usecase.user.exceptions.InvitationAlreadyAcceptedException;
 import dev.angelcorzo.nivo.domain.usecase.user.exceptions.InvitationExpiredException;
+import java.time.OffsetDateTime;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,25 +30,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.OffsetDateTime;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class AcceptInvitationUseCaseTest {
 
-  @Mock private UserInvitationsRepository invitationsRepository;
-  @Mock private UsersRepository usersRepository;
-  @Mock private PasswordEncodeGateway passwordEncode;
-  @Mock private dev.angelcorzo.nivo.domain.usecase.notification.notifier.UserNotifier userNotifier;
+  @Mock
+  private UserInvitationsRepository invitationsRepository;
 
-  @InjectMocks private AcceptInvitationUseCase useCase;
+  @Mock
+  private UsersRepository usersRepository;
+
+  @Mock
+  private PasswordEncodeGateway passwordEncode;
+
+  @Mock
+  private dev.angelcorzo.nivo.domain.usecase.notification.notifier.UserNotifier userNotifier;
+
+  @InjectMocks
+  private AcceptInvitationUseCase useCase;
 
   @Test
   @DisplayName("Should create new user and accept invitation when token is valid and user is new")
@@ -49,16 +56,15 @@ class AcceptInvitationUseCaseTest {
     UUID tenantId = UUID.randomUUID();
     Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-    UserInvitations pendingInvitation =
-        UserInvitations.builder()
-            .id(UUID.randomUUID())
-            .invitedEmail("test@example.com")
-            .tenant(tenant)
-            .role(Roles.OPERATOR)
-            .token(token)
-            .status(UserInvitationStatus.PENDING)
-            .expiredAt(OffsetDateTime.now().plusDays(3))
-            .build();
+    UserInvitations pendingInvitation = UserInvitations.builder()
+      .id(UUID.randomUUID())
+      .invitedEmail("test@example.com")
+      .tenant(tenant)
+      .role(Roles.OPERATOR)
+      .token(token)
+      .status(UserInvitationStatus.PENDING)
+      .expiredAt(OffsetDateTime.now().plusDays(3))
+      .build();
 
     Users newUser = Users.builder().password("newStrongPassword123").fullName("Test User").build();
 
@@ -85,46 +91,41 @@ class AcceptInvitationUseCaseTest {
   }
 
   @Test
-  @DisplayName(
-      "Should update user and accept invitation when token is valid and user already exists")
+  @DisplayName("Should update user and accept invitation when token is valid and user already exists")
   void shouldUpdateUserAndAcceptInvitationWhenUserExists() {
     // Given
     UUID token = UUID.randomUUID();
     UUID tenantId = UUID.randomUUID();
     Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-    Tenants differentTenant =
-        Tenants.builder().id(UUID.randomUUID()).companyName("Different Company").build();
+    Tenants differentTenant = Tenants.builder().id(UUID.randomUUID()).companyName("Different Company").build();
 
-    UserInvitations pendingInvitation =
-        UserInvitations.builder()
-            .id(UUID.randomUUID())
-            .invitedEmail("test@example.com")
-            .tenant(tenant)
-            .role(Roles.OPERATOR)
-            .token(token)
-            .status(UserInvitationStatus.PENDING)
-            .expiredAt(OffsetDateTime.now().plusDays(3))
-            .build();
+    UserInvitations pendingInvitation = UserInvitations.builder()
+      .id(UUID.randomUUID())
+      .invitedEmail("test@example.com")
+      .tenant(tenant)
+      .role(Roles.OPERATOR)
+      .token(token)
+      .status(UserInvitationStatus.PENDING)
+      .expiredAt(OffsetDateTime.now().plusDays(3))
+      .build();
 
-    Users existingUser =
-        Users.builder()
-            .id(UUID.randomUUID())
-            .email("test@example.com")
-            .fullName("Existing User")
-            .password("oldPassword")
-            .tenant(TenantReference.of(differentTenant))
-            .role(Roles.AUDITOR)
-            .build();
+    Users existingUser = Users.builder()
+      .id(UUID.randomUUID())
+      .email("test@example.com")
+      .fullName("Existing User")
+      .password("oldPassword")
+      .tenant(TenantReference.of(differentTenant))
+      .role(Roles.AUDITOR)
+      .build();
 
     when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(pendingInvitation));
     when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId)).thenReturn(false);
     when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(existingUser));
 
     // When
-    useCase.accept(
-        new AcceptInvitationUseCase.Accept(
-            null, token)); // User details are not needed when the user exists
+    useCase.accept(new AcceptInvitationUseCase.Accept(null, token)); // User details are not needed when the user
+                                                                     // exists
 
     // Then
     ArgumentCaptor<Users> userCaptor = ArgumentCaptor.forClass(Users.class);
@@ -159,12 +160,11 @@ class AcceptInvitationUseCaseTest {
     final UUID tenantId = UUID.randomUUID();
     final Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-    UserInvitations expiredInvitation =
-        UserInvitations.builder()
-            .status(UserInvitationStatus.PENDING)
-            .tenant(tenant)
-            .expiredAt(OffsetDateTime.now().minusSeconds(1)) // Expired 1 sec ago
-            .build();
+    UserInvitations expiredInvitation = UserInvitations.builder()
+      .status(UserInvitationStatus.PENDING)
+      .tenant(tenant)
+      .expiredAt(OffsetDateTime.now().minusSeconds(1)) // Expired 1 sec ago
+      .build();
 
     when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(expiredInvitation));
 
@@ -181,12 +181,11 @@ class AcceptInvitationUseCaseTest {
     final UUID tenantId = UUID.randomUUID();
     final Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-    UserInvitations acceptedInvitation =
-        UserInvitations.builder()
-            .status(UserInvitationStatus.ACCEPTED)
-            .tenant(tenant)
-            .expiredAt(OffsetDateTime.now().plusDays(3))
-            .build();
+    UserInvitations acceptedInvitation = UserInvitations.builder()
+      .status(UserInvitationStatus.ACCEPTED)
+      .tenant(tenant)
+      .expiredAt(OffsetDateTime.now().plusDays(3))
+      .build();
 
     when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(acceptedInvitation));
 
@@ -203,13 +202,12 @@ class AcceptInvitationUseCaseTest {
     UUID tenantId = UUID.randomUUID();
     Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-    UserInvitations pendingInvitation =
-        UserInvitations.builder()
-            .invitedEmail("test@example.com")
-            .tenant(tenant)
-            .status(UserInvitationStatus.PENDING)
-            .expiredAt(OffsetDateTime.now().plusDays(3))
-            .build();
+    UserInvitations pendingInvitation = UserInvitations.builder()
+      .invitedEmail("test@example.com")
+      .tenant(tenant)
+      .status(UserInvitationStatus.PENDING)
+      .expiredAt(OffsetDateTime.now().plusDays(3))
+      .build();
 
     when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(pendingInvitation));
     when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId)).thenReturn(true);

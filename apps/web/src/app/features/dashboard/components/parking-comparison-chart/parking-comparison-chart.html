@@ -39,13 +39,13 @@
             class="inline-flex items-center rounded px-2 py-0.5 font-mono text-xs font-semibold"
             [class]="getThresholdBadge(item.occupancyRate).classes"
           >
-            {{ item.occupancyRate | number: '1.1-1' }}% {{
+            {{ item.occupancyRate | number: "1.1-1" }}% {{
             getThresholdBadge(item.occupancyRate).label }}
           </span>
           <span
             class="text-muted-foreground mt-0.5 block font-mono text-[11px]"
           >
-            ${{ item.todayRevenue | number: '1.0-0' }} COP
+            ${{ item.todayRevenue | number: "1.0-0" }} COP
           </span>
         </div>
       </div>

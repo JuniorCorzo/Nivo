@@ -21,10 +21,10 @@ import dev.angelcorzo.nivo.domain.model.payments.gateways.PaymentsRepository;
 import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.CheckOut;
 import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.NoSendCheckOut;
 import dev.angelcorzo.nivo.domain.model.transactions.gateways.TransactionsRepository;
-import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
-import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceLine;
 import dev.angelcorzo.nivo.domain.usecase.notification.notifier.PaymentNotifier;
 import dev.angelcorzo.nivo.domain.usecase.notification.notifier.TicketNotifier;
+import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
+import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceLine;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
@@ -53,14 +53,8 @@ class ProcessPaymentUseCaseTest {
     paymentNotifier = mock(PaymentNotifier.class);
     ticketNotifier = mock(TicketNotifier.class);
 
-    useCase =
-        new ProcessPaymentUseCase(
-            paymentsRepository,
-            parkingTicketsRepository,
-            paymentProviderGateway,
-            transactionsRepository,
-            paymentNotifier,
-            ticketNotifier);
+    useCase = new ProcessPaymentUseCase(paymentsRepository, parkingTicketsRepository, paymentProviderGateway,
+      transactionsRepository, paymentNotifier, ticketNotifier);
   }
 
   private PriceDetailed createSamplePriceDetailed(BigDecimal amount) {
@@ -79,16 +73,14 @@ class ProcessPaymentUseCaseTest {
       // Arrange
       UUID ticketId = UUID.randomUUID();
       ParkingTickets ticket = ParkingTickets.builder().id(ticketId).build();
-      Payments existingPayment =
-          Payments.builder()
-              .id(UUID.randomUUID())
-              .parkingTicket(ticket)
-              .amount(BigDecimal.valueOf(10000))
-              .status(PaymentStatus.PAID)
-              .build();
+      Payments existingPayment = Payments.builder()
+        .id(UUID.randomUUID())
+        .parkingTicket(ticket)
+        .amount(BigDecimal.valueOf(10000))
+        .status(PaymentStatus.PAID)
+        .build();
 
-      when(paymentsRepository.findByParkingTicketId(ticketId))
-          .thenReturn(Optional.of(existingPayment));
+      when(paymentsRepository.findByParkingTicketId(ticketId)).thenReturn(Optional.of(existingPayment));
 
       CheckOut checkOut = new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.EFFECTIVE);
       PriceDetailed price = createSamplePriceDetailed(BigDecimal.valueOf(10000));
@@ -116,18 +108,16 @@ class ProcessPaymentUseCaseTest {
       PriceDetailed price = createSamplePriceDetailed(amount);
       CheckOut checkOut = new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.EFFECTIVE);
 
-      Payments processedPayment =
-          Payments.builder()
-              .id(UUID.randomUUID())
-              .parkingTicket(ticket)
-              .amount(amount)
-              .paymentMethod(PaymentsMethods.EFFECTIVE)
-              .status(PaymentStatus.PAID)
-              .build();
+      Payments processedPayment = Payments.builder()
+        .id(UUID.randomUUID())
+        .parkingTicket(ticket)
+        .amount(amount)
+        .paymentMethod(PaymentsMethods.EFFECTIVE)
+        .status(PaymentStatus.PAID)
+        .build();
 
       when(paymentsRepository.findByParkingTicketId(ticketId)).thenReturn(Optional.empty());
-      when(paymentsRepository.processPayment(any(Payments.class)))
-          .thenReturn(Result.success(processedPayment));
+      when(paymentsRepository.processPayment(any(Payments.class))).thenReturn(Result.success(processedPayment));
 
       // Act
       Payments result = useCase.execute(ticket, price, checkOut);
@@ -149,11 +139,11 @@ class ProcessPaymentUseCaseTest {
 
       when(paymentsRepository.findByParkingTicketId(ticketId)).thenReturn(Optional.empty());
       when(paymentsRepository.processPayment(any(Payments.class)))
-          .thenReturn(Result.failure(new PaymentError.DatabaseError("Failure in DB")));
+        .thenReturn(Result.failure(new PaymentError.DatabaseError("Failure in DB")));
 
       // Act & Assert
       assertThatThrownBy(() -> useCase.execute(ticket, price, checkOut))
-          .isInstanceOf(ProcessPaymentException.class);
+        .isInstanceOf(ProcessPaymentException.class);
     }
   }
 }

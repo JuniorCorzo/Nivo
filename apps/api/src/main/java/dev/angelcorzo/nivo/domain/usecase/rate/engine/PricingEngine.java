@@ -6,10 +6,10 @@ import java.util.List;
 /**
  * Executes an ordered pipeline of {@link PricingStage} steps to compute parking fees.
  *
- * <p>The sequential stage pipeline acts as the extensible hook for fee calculation and discount
- * policies. Future subscriber plans, commercial validation stamps, or partner loyalty stages
- * can be plugged in as modular {@link PricingStage} implementations without modifying the core
- * execution loop.
+ * <p>
+ * The sequential stage pipeline acts as the extensible hook for fee calculation and discount policies. Future
+ * subscriber plans, commercial validation stamps, or partner loyalty stages can be plugged in as modular
+ * {@link PricingStage} implementations without modifying the core execution loop.
  */
 public class PricingEngine {
   private final List<PricingStage> stages;

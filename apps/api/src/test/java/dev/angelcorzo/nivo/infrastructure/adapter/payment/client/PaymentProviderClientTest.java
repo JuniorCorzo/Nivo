@@ -28,15 +28,20 @@ import reactor.core.publisher.Mono;
 @ExtendWith(MockitoExtension.class)
 class PaymentProviderClientTest {
 
-  @Mock private WebClient webClient;
-  @Mock private WebClient.RequestBodyUriSpec requestBodyUriSpec;
-  @Mock private WebClient.RequestBodySpec requestBodySpec;
+  @Mock
+  private WebClient webClient;
 
   @Mock
-  private WebClient.RequestHeadersSpec
-      requestHeadersSpec; // raw type avoids wildcard capture issues
+  private WebClient.RequestBodyUriSpec requestBodyUriSpec;
 
-  @Mock private WebClient.ResponseSpec responseSpec;
+  @Mock
+  private WebClient.RequestBodySpec requestBodySpec;
+
+  @Mock
+  private WebClient.RequestHeadersSpec requestHeadersSpec; // raw type avoids wildcard capture issues
+
+  @Mock
+  private WebClient.ResponseSpec responseSpec;
 
   private PaymentProviderProperties properties;
   private PaymentProviderClient client;
@@ -51,12 +56,12 @@ class PaymentProviderClientTest {
 
   private CreatePayLink dummyRequest() {
     return CreatePayLink.builder()
-        .id(0)
-        .title("Test")
-        .description("Test payment")
-        .quantity(1)
-        .currency("COP")
-        .build();
+      .id(0)
+      .title("Test")
+      .description("Test payment")
+      .quantity(1)
+      .currency("COP")
+      .build();
   }
 
   @SuppressWarnings("unchecked")
@@ -65,8 +70,7 @@ class PaymentProviderClientTest {
     when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
     when(requestBodySpec.bodyValue(any())).thenReturn(requestHeadersSpec);
     when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
-    when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-        .thenReturn(Mono.error(exception));
+    when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.error(exception));
   }
 
   @SuppressWarnings("unchecked")
@@ -75,8 +79,7 @@ class PaymentProviderClientTest {
     when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
     when(requestBodySpec.bodyValue(any())).thenReturn(requestHeadersSpec);
     when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
-    when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-        .thenReturn(Mono.justOrEmpty(response));
+    when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.justOrEmpty(response));
   }
 
   // --- Success ---
@@ -85,8 +88,7 @@ class PaymentProviderClientTest {
   @DisplayName("Should return success when provider responds with valid pay link")
   void shouldReturnSuccessOnValidResponse() {
     CreatePayLinkResponse payLink = buildPayLinkResponse();
-    EpaycoResponse<CreatePayLinkResponse> response =
-        new EpaycoResponse.Success<>(true, "OK", "OK", "OK", payLink);
+    EpaycoResponse<CreatePayLinkResponse> response = new EpaycoResponse.Success<>(true, "OK", "OK", "OK", payLink);
 
     stubWebClientToReturn(response);
 
@@ -115,10 +117,9 @@ class PaymentProviderClientTest {
   @Test
   @DisplayName("Should return ProviderValidation when provider responds with error")
   void shouldReturnProviderValidationOnEpaycoError() {
-    EpaycoError error =
-        new EpaycoError("1", List.of(new EpaycoError.ErrorDetail(100, "Some error")));
-    EpaycoResponse<CreatePayLinkResponse> response =
-        new EpaycoResponse.Failure<>(false, "Error", "Error", "Error", error);
+    EpaycoError error = new EpaycoError("1", List.of(new EpaycoError.ErrorDetail(100, "Some error")));
+    EpaycoResponse<CreatePayLinkResponse> response = new EpaycoResponse.Failure<>(false, "Error", "Error", "Error",
+      error);
 
     stubWebClientToReturn(response);
 
@@ -134,9 +135,8 @@ class PaymentProviderClientTest {
   @Test
   @DisplayName("Should return ProviderValidation on HTTP 400")
   void shouldReturnProviderValidationOnBadRequest() {
-    WebClientResponseException exception =
-        WebClientResponseException.create(
-            400, "Bad Request", null, "invalid body".getBytes(), null);
+    WebClientResponseException exception = WebClientResponseException.create(400, "Bad Request", null,
+      "invalid body".getBytes(), null);
 
     stubWebClientToThrow(exception);
 
@@ -152,8 +152,8 @@ class PaymentProviderClientTest {
   @Test
   @DisplayName("Should return ProviderRateLimited on HTTP 429")
   void shouldReturnProviderRateLimitedOnTooManyRequests() {
-    WebClientResponseException exception =
-        WebClientResponseException.create(429, "Too Many Requests", null, null, null);
+    WebClientResponseException exception = WebClientResponseException.create(429, "Too Many Requests", null, null,
+      null);
 
     stubWebClientToThrow(exception);
 
@@ -170,9 +170,8 @@ class PaymentProviderClientTest {
   @Test
   @DisplayName("Should return ProviderServerError on HTTP 500")
   void shouldReturnProviderServerErrorOnInternalServerError() {
-    WebClientResponseException exception =
-        WebClientResponseException.create(
-            500, "Internal Server Error", null, "server failure".getBytes(), null);
+    WebClientResponseException exception = WebClientResponseException.create(500, "Internal Server Error", null,
+      "server failure".getBytes(), null);
 
     stubWebClientToThrow(exception);
 
@@ -189,8 +188,8 @@ class PaymentProviderClientTest {
   @Test
   @DisplayName("Should return ProviderServerError on unexpected HTTP status")
   void shouldReturnProviderServerErrorOnUnexpectedStatus() {
-    WebClientResponseException exception =
-        WebClientResponseException.create(503, "Service Unavailable", null, null, null);
+    WebClientResponseException exception = WebClientResponseException.create(503, "Service Unavailable", null, null,
+      null);
 
     stubWebClientToThrow(exception);
 
@@ -251,27 +250,7 @@ class PaymentProviderClientTest {
   }
 
   private CreatePayLinkResponse buildPayLinkResponse() {
-    return new CreatePayLinkResponse(
-        1L,
-        "title",
-        "desc",
-        "2026-03-01 12:00:00",
-        1,
-        "txtCode",
-        1L,
-        1,
-        1,
-        0,
-        "COP",
-        "sell",
-        "url",
-        "url",
-        0,
-        0,
-        1000,
-        "invoice",
-        "qr",
-        "link",
-        "2026-03-01 13:00:00");
+    return new CreatePayLinkResponse(1L, "title", "desc", "2026-03-01 12:00:00", 1, "txtCode", 1L, 1, 1, 0, "COP",
+      "sell", "url", "url", 0, 0, 1000, "invoice", "qr", "link", "2026-03-01 13:00:00");
   }
 }

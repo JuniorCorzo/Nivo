@@ -1,13 +1,13 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.payments;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.payments.mapper.PaymentMapper;
 import dev.angelcorzo.nivo.domain.model.commons.result.Result;
 import dev.angelcorzo.nivo.domain.model.payments.Payments;
 import dev.angelcorzo.nivo.domain.model.payments.enums.PaymentStatus;
 import dev.angelcorzo.nivo.domain.model.payments.exceptions.PaymentError;
 import dev.angelcorzo.nivo.domain.model.payments.exceptions.PaymentNotFound;
 import dev.angelcorzo.nivo.domain.model.payments.gateways.PaymentsRepository;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.payments.mapper.PaymentMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Slf4j
-public class PaymentsRepositoryAdapter
-    extends AdapterOperations<Payments, PaymentsData, UUID, PaymentsRepositoryData>
-    implements PaymentsRepository {
+public class PaymentsRepositoryAdapter extends AdapterOperations<Payments, PaymentsData, UUID, PaymentsRepositoryData>
+  implements
+    PaymentsRepository {
 
   protected PaymentsRepositoryAdapter(PaymentsRepositoryData repository, PaymentMapper mapper) {
     super(repository, mapper);
@@ -74,8 +74,8 @@ public class PaymentsRepositoryAdapter
     try {
       super.repository.processPayment(paymentId, newStatus);
 
-      return Result.success(
-          super.findById(paymentId).orElseThrow(() -> new PaymentNotFound(paymentId.toString())));
+      return Result
+        .success(super.findById(paymentId).orElseThrow(() -> new PaymentNotFound(paymentId.toString())));
     } catch (Exception e) {
       log.error("Error processing payment with ID {}: {}", paymentId, e.getMessage());
       return Result.failure(new PaymentError.DatabaseError(e.getMessage()));

@@ -1,16 +1,16 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.payments.mappers;
 
+import dev.angelcorzo.nivo.domain.model.payments.Payments;
+import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.CheckOut;
+import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.EmailCheckOut;
+import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.NoSendCheckOut;
+import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.SMSCheckOut;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.config.MapperStructConfig;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.payments.dtos.request.check_out.check_out.CheckOutCommand;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.payments.dtos.request.check_out.check_out.EmailCheckOutCommand;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.payments.dtos.request.check_out.check_out.NoSendCheckOutCommand;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.payments.dtos.request.check_out.check_out.SMSCheckOutCommand;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.payments.dtos.response.PaymentsDTO;
-import dev.angelcorzo.nivo.domain.model.payments.Payments;
-import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.CheckOut;
-import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.EmailCheckOut;
-import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.NoSendCheckOut;
-import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.SMSCheckOut;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,11 +19,9 @@ import org.mapstruct.SubclassMappings;
 
 @Mapper(config = MapperStructConfig.class)
 public interface PaymentsMapper {
-  @SubclassMappings({
-    @SubclassMapping(source = EmailCheckOutCommand.class, target = EmailCheckOut.class),
+  @SubclassMappings({@SubclassMapping(source = EmailCheckOutCommand.class, target = EmailCheckOut.class),
     @SubclassMapping(source = SMSCheckOutCommand.class, target = SMSCheckOut.class),
-    @SubclassMapping(source = NoSendCheckOutCommand.class, target = NoSendCheckOut.class),
-  })
+    @SubclassMapping(source = NoSendCheckOutCommand.class, target = NoSendCheckOut.class),})
   CheckOut toModel(CheckOutCommand command);
 
   @InheritConfiguration(name = "toModel")

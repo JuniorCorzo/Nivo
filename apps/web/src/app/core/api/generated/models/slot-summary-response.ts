@@ -11,7 +11,7 @@ export interface SlotSummaryResponse {
   numberSlot?: string;
   parkingName?: string;
   prefix?: string;
-  status?: 'AVAILABLE' | 'OCCUPIED' | 'RESERVED' | 'MAINTENANCE';
-  type?: 'CAR' | 'MOTORCYCLE' | 'BIKE' | 'ELECTRIC_VEHICLE' | 'DISABLED';
+  status?: "AVAILABLE" | "OCCUPIED" | "RESERVED" | "MAINTENANCE";
+  type?: "CAR" | "MOTORCYCLE" | "BIKE" | "ELECTRIC_VEHICLE" | "DISABLED";
   zone?: string;
 }

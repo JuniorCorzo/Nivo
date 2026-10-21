@@ -10,20 +10,22 @@ Descripción: Confirmación de pago exitoso con detalles y enlace a comprobante/
     Confirmamos tu pago con referencia <strong>{{paymentReference}}</strong>.
   </p>
 
-  <p style="margin: 0 0 8px">
-    <strong>Monto:</strong> {{paymentAmount}} {{paymentCurrency}}
-  </p>
+  <p style="margin: 0 0 8px"><strong>Monto:</strong> {{paymentAmount}} {{paymentCurrency}}</p>
   <p style="margin: 0 0 8px"><strong>Método:</strong> {{paymentMethod}}</p>
   <p style="margin: 0 0 8px"><strong>Fecha:</strong> {{paymentDate}}</p>
   <p style="margin: 0 0 16px"><strong>Concepto:</strong> {{description}}</p>
 
   <p style="margin: 0 0 16px">
-    <a href="{{ctaUrl}}" class="btn">Descargar comprobante</a> {{#if
-    invoiceUrl}}| <a href="{{invoiceUrl}}" class="link">Ver factura</a>{{/if}}
+    <a href="{{ctaUrl}}" class="btn">Descargar comprobante</a> {{#if invoiceUrl}}|
+    <a href="{{invoiceUrl}}" class="link">Ver factura</a>{{/if}}
   </p>
 
   <p style="margin: 0 0 16px">
-    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if
-    socialUrl}}<a href="{{socialUrl}}" class="link">Síguenos</a> |{{/if}}
+    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if socialUrl}}<a
+      href="{{socialUrl}}"
+      class="link"
+      >Síguenos</a
+    >
+    |{{/if}}
   </p>
 </div>
