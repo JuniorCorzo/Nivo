@@ -13,9 +13,14 @@ import { APP_ROUTE_PATHS } from "./shared/constants/app-routes.constant";
 
 export const routes: Routes = [
   {
+    canActivate: [publicGuard],
+    loadComponent: async () => {
+      const m = await import("@features/landing/landing-page.component");
+      return m.LandingPageComponent;
+    },
     path: "",
     pathMatch: "full",
-    redirectTo: "app/dashboard",
+    title: "Nivo - Software para Parqueaderos",
   },
   {
     canActivate: [publicGuard],
