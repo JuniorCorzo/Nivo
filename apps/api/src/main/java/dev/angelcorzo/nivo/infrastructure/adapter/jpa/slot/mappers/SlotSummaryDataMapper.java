@@ -12,35 +12,20 @@ import org.springframework.stereotype.Component;
 public class SlotSummaryDataMapper {
 
     public SlotSummaryData toSummaryData(Tuple row) {
-        return SlotSummaryData.builder()
-                .id(row.get("id", UUID.class))
-                .parkingName(row.get("parkingName", String.class))
-                .type(row.get("type", SlotType.class))
-                .prefix(row.get("prefix", String.class))
-                .zone(row.get("zone", String.class))
-                .numberSlot(row.get("numberSlot", String.class))
-                .status(row.get("status", SlotStatus.class))
-                .hasTicket(Boolean.TRUE.equals(row.get("hasTicket", Boolean.class)))
-                .hasHistory(Boolean.TRUE.equals(row.get("hasHistory", Boolean.class)))
-                .hasCharger(Boolean.TRUE.equals(row.get("hasCharger", Boolean.class)))
-                .isAccessible(Boolean.TRUE.equals(row.get("isAccessible", Boolean.class)))
-                .isActive(Boolean.TRUE.equals(row.get("isActive", Boolean.class)))
-                .build();
+        return SlotSummaryData.builder().id(row.get("id", UUID.class)).parkingName(row.get("parkingName", String.class))
+            .type(row.get("type", SlotType.class)).prefix(row.get("prefix", String.class))
+            .zone(row.get("zone", String.class)).numberSlot(row.get("numberSlot", String.class))
+            .status(row.get("status", SlotStatus.class))
+            .hasTicket(Boolean.TRUE.equals(row.get("hasTicket", Boolean.class)))
+            .hasHistory(Boolean.TRUE.equals(row.get("hasHistory", Boolean.class)))
+            .hasCharger(Boolean.TRUE.equals(row.get("hasCharger", Boolean.class)))
+            .isAccessible(Boolean.TRUE.equals(row.get("isAccessible", Boolean.class)))
+            .isActive(Boolean.TRUE.equals(row.get("isActive", Boolean.class))).build();
     }
 
     public SlotSummary toModel(SlotSummaryData data) {
-        return new SlotSummary(
-                data.id(),
-                data.parkingName(),
-                data.type(),
-                data.prefix(),
-                data.zone(),
-                data.numberSlot(),
-                data.status(),
-                data.hasTicket(),
-                data.hasHistory(),
-                data.hasCharger(),
-                data.isAccessible(),
-                data.isActive());
+        return new SlotSummary(data.id(), data.parkingName(), data.type(), data.prefix(), data.zone(),
+            data.numberSlot(), data.status(), data.hasTicket(), data.hasHistory(), data.hasCharger(),
+            data.isAccessible(), data.isActive());
     }
 }

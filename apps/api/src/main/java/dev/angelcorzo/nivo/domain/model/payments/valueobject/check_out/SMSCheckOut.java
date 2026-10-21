@@ -5,5 +5,6 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record SMSCheckOut(UUID ticketId, UUID tenantId, PaymentsMethods paymentMethod, String mobilePhone)
-        implements CheckOut {}
+public record SMSCheckOut(UUID ticketId, UUID tenantId, PaymentsMethods paymentMethod,
+    String mobilePhone) implements CheckOut {
+}

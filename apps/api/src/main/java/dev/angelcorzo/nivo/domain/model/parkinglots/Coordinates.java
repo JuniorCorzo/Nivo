@@ -8,10 +8,16 @@ import lombok.Setter;
 /**
  * Represents geographic coordinates as a Value Object.
  *
- * <p>Uses WGS84 (SRID 4326) coordinate reference system.</p>
+ * <p>
+ * Uses WGS84 (SRID 4326) coordinate reference system.
+ * </p>
  *
- * <p><strong>Layer:</strong> Domain</p>
- * <p><strong>Responsibility:</strong> To represent a geographic point on Earth.</p>
+ * <p>
+ * <strong>Layer:</strong> Domain
+ * </p>
+ * <p>
+ * <strong>Responsibility:</strong> To represent a geographic point on Earth.
+ * </p>
  *
  * @author Angel Corzo
  * @since 1.0.0

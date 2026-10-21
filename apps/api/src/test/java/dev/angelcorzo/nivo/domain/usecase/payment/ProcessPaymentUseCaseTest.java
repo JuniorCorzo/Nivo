@@ -53,13 +53,8 @@ class ProcessPaymentUseCaseTest {
         paymentNotifier = mock(PaymentNotifier.class);
         ticketNotifier = mock(TicketNotifier.class);
 
-        useCase = new ProcessPaymentUseCase(
-                paymentsRepository,
-                parkingTicketsRepository,
-                paymentProviderGateway,
-                transactionsRepository,
-                paymentNotifier,
-                ticketNotifier);
+        useCase = new ProcessPaymentUseCase(paymentsRepository, parkingTicketsRepository, paymentProviderGateway,
+            transactionsRepository, paymentNotifier, ticketNotifier);
     }
 
     private PriceDetailed createSamplePriceDetailed(BigDecimal amount) {
@@ -78,12 +73,8 @@ class ProcessPaymentUseCaseTest {
             // Arrange
             UUID ticketId = UUID.randomUUID();
             ParkingTickets ticket = ParkingTickets.builder().id(ticketId).build();
-            Payments existingPayment = Payments.builder()
-                    .id(UUID.randomUUID())
-                    .parkingTicket(ticket)
-                    .amount(BigDecimal.valueOf(10000))
-                    .status(PaymentStatus.PAID)
-                    .build();
+            Payments existingPayment = Payments.builder().id(UUID.randomUUID()).parkingTicket(ticket)
+                .amount(BigDecimal.valueOf(10000)).status(PaymentStatus.PAID).build();
 
             when(paymentsRepository.findByParkingTicketId(ticketId)).thenReturn(Optional.of(existingPayment));
 
@@ -113,13 +104,8 @@ class ProcessPaymentUseCaseTest {
             PriceDetailed price = createSamplePriceDetailed(amount);
             CheckOut checkOut = new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.EFFECTIVE);
 
-            Payments processedPayment = Payments.builder()
-                    .id(UUID.randomUUID())
-                    .parkingTicket(ticket)
-                    .amount(amount)
-                    .paymentMethod(PaymentsMethods.EFFECTIVE)
-                    .status(PaymentStatus.PAID)
-                    .build();
+            Payments processedPayment = Payments.builder().id(UUID.randomUUID()).parkingTicket(ticket).amount(amount)
+                .paymentMethod(PaymentsMethods.EFFECTIVE).status(PaymentStatus.PAID).build();
 
             when(paymentsRepository.findByParkingTicketId(ticketId)).thenReturn(Optional.empty());
             when(paymentsRepository.processPayment(any(Payments.class))).thenReturn(Result.success(processedPayment));
@@ -144,11 +130,11 @@ class ProcessPaymentUseCaseTest {
 
             when(paymentsRepository.findByParkingTicketId(ticketId)).thenReturn(Optional.empty());
             when(paymentsRepository.processPayment(any(Payments.class)))
-                    .thenReturn(Result.failure(new PaymentError.DatabaseError("Failure in DB")));
+                .thenReturn(Result.failure(new PaymentError.DatabaseError("Failure in DB")));
 
             // Act & Assert
             assertThatThrownBy(() -> useCase.execute(ticket, price, checkOut))
-                    .isInstanceOf(ProcessPaymentException.class);
+                .isInstanceOf(ProcessPaymentException.class);
         }
     }
 }

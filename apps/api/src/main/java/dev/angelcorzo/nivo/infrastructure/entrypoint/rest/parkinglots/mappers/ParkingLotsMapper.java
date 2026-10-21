@@ -22,15 +22,9 @@ public interface ParkingLotsMapper {
     @Mapping(target = "ivaRate", expression = "java(model.getPolicy().ivaRate())")
     ParkingLotsResponse toDTO(ParkingLots model);
 
-    @Mapping(
-            target = "gracePeriodMinutes",
-            expression = "java(model.policy() != null ? model.policy().gracePeriodMinutes() : 0)")
-    @Mapping(
-            target = "gracePeriodPrice",
-            expression = "java(model.policy() != null ? model.policy().gracePeriodPrice() : java.math.BigDecimal.ZERO)")
-    @Mapping(
-            target = "ivaRate",
-            expression = "java(model.policy() != null ? model.policy().ivaRate() : new java.math.BigDecimal(\"0.19\"))")
+    @Mapping(target = "gracePeriodMinutes", expression = "java(model.policy() != null ? model.policy().gracePeriodMinutes() : 0)")
+    @Mapping(target = "gracePeriodPrice", expression = "java(model.policy() != null ? model.policy().gracePeriodPrice() : java.math.BigDecimal.ZERO)")
+    @Mapping(target = "ivaRate", expression = "java(model.policy() != null ? model.policy().ivaRate() : new java.math.BigDecimal(\"0.19\"))")
     ParkingLotListItemResponse toListItemResponse(ParkingLotListItem model);
 
     default ParkingLotPolicy toPolicy(UpsertParkingLotsRequest dto) {

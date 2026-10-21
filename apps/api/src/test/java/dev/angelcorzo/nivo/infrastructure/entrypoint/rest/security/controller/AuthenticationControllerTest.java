@@ -62,24 +62,23 @@ class AuthenticationControllerTest {
         void shouldLoginSuccessfully() throws Exception {
             // Arrange
             UserCredentialsDTO credentials = new UserCredentialsDTO("admin@nivo.app", "Password123!");
-            LoginUseCase.UserCredentials modelCredentials =
-                    new LoginUseCase.UserCredentials("admin@nivo.app", "Password123!");
+            LoginUseCase.UserCredentials modelCredentials = new LoginUseCase.UserCredentials("admin@nivo.app",
+                "Password123!");
             AuthResponse authResponse = new AuthResponse("access-token-xyz", "refresh-token-abc");
-            AuthenticationResponseDTO responseDTO =
-                    new AuthenticationResponseDTO("access-token-xyz", "refresh-token-abc");
+            AuthenticationResponseDTO responseDTO = new AuthenticationResponseDTO("access-token-xyz",
+                "refresh-token-abc");
 
             when(authenticationMapper.toModel(any(UserCredentialsDTO.class))).thenReturn(modelCredentials);
             when(loginUseCase.auth(modelCredentials)).thenReturn(authResponse);
             when(authenticationMapper.toDTO(authResponse)).thenReturn(responseDTO);
 
             // Act & Assert
-            mockMvc.perform(post("/auth/login")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(credentials)))
-                    .andExpect(status().isOk())
-                    .andExpect(header().exists("Set-Cookie"))
-                    .andExpect(jsonPath("$.data.accessToken").value("access-token-xyz"))
-                    .andExpect(jsonPath("$.message").value("Login successful"));
+            mockMvc
+                .perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(credentials)))
+                .andExpect(status().isOk()).andExpect(header().exists("Set-Cookie"))
+                .andExpect(jsonPath("$.data.accessToken").value("access-token-xyz"))
+                .andExpect(jsonPath("$.message").value("Login successful"));
         }
 
         @Test
@@ -87,10 +86,8 @@ class AuthenticationControllerTest {
         void shouldReturn400WhenEmailIsInvalid() throws Exception {
             UserCredentialsDTO invalidCredentials = new UserCredentialsDTO("not-an-email", "Password123!");
 
-            mockMvc.perform(post("/auth/login")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(invalidCredentials)))
-                    .andExpect(status().isBadRequest());
+            mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidCredentials))).andExpect(status().isBadRequest());
         }
 
         @Test
@@ -98,10 +95,10 @@ class AuthenticationControllerTest {
         void shouldReturn400WhenPasswordIsEmpty() throws Exception {
             UserCredentialsDTO emptyPasswordCredentials = new UserCredentialsDTO("admin@nivo.app", "");
 
-            mockMvc.perform(post("/auth/login")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(emptyPasswordCredentials)))
-                    .andExpect(status().isBadRequest());
+            mockMvc
+                .perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(emptyPasswordCredentials)))
+                .andExpect(status().isBadRequest());
         }
     }
 
@@ -115,18 +112,17 @@ class AuthenticationControllerTest {
             // Arrange
             String refreshToken = "valid-refresh-token";
             AuthResponse newTokens = new AuthResponse("new-access-token", "new-refresh-token");
-            AuthenticationResponseDTO responseDTO =
-                    new AuthenticationResponseDTO("new-access-token", "new-refresh-token");
+            AuthenticationResponseDTO responseDTO = new AuthenticationResponseDTO("new-access-token",
+                "new-refresh-token");
 
             when(refreshSessionUseCase.refreshAccessToken(refreshToken)).thenReturn(newTokens);
             when(authenticationMapper.toDTO(newTokens)).thenReturn(responseDTO);
 
             // Act & Assert
             mockMvc.perform(post("/auth/refresh").cookie(new Cookie("refreshToken", refreshToken)))
-                    .andExpect(status().isOk())
-                    .andExpect(header().exists("Set-Cookie"))
-                    .andExpect(jsonPath("$.data.accessToken").value("new-access-token"))
-                    .andExpect(jsonPath("$.message").value("Refresh successful"));
+                .andExpect(status().isOk()).andExpect(header().exists("Set-Cookie"))
+                .andExpect(jsonPath("$.data.accessToken").value("new-access-token"))
+                .andExpect(jsonPath("$.message").value("Refresh successful"));
         }
     }
 

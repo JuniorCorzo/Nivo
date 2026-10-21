@@ -12,4 +12,5 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 @Retention(RetentionPolicy.RUNTIME)
 @JacksonAnnotationsInside
 @JsonDeserialize(using = StripDoubleQuotesDeserializer.class)
-public @interface StripQuotes {}
+public @interface StripQuotes {
+}

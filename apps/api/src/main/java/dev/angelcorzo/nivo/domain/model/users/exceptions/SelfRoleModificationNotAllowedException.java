@@ -6,7 +6,8 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.ErrorMessagesModel;
 /**
  * Thrown when a user attempts to modify their own role.
  *
- * <p><strong>Layer:</strong> Domain
+ * <p>
+ * <strong>Layer:</strong> Domain
  *
  * @author Angel Corzo
  * @since 1.0.0

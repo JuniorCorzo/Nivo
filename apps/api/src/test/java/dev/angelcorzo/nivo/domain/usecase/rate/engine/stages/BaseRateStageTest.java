@@ -22,15 +22,12 @@ class BaseRateStageTest {
     @Test
     @DisplayName("Should skip calculation if context is already settled")
     void shouldSkipWhenSettled() {
-        RateReference rate = RateReference.builder()
-                .pricePerUnit(BigDecimal.valueOf(5000))
-                .timeUnit(TimeUnitsRate.HOURS)
-                .minChargeTimeMinutes(0)
-                .build();
+        RateReference rate = RateReference.builder().pricePerUnit(BigDecimal.valueOf(5000))
+            .timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(0).build();
 
         OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
         PricingContext ctx = PricingContext.of(rate, ParkingLotPolicy.defaults(), entry, entry.plusMinutes(120))
-                .toSettled();
+            .toSettled();
 
         PricingContext result = stage.apply(ctx);
 
@@ -41,17 +38,13 @@ class BaseRateStageTest {
     @Test
     @DisplayName("Should skip calculation and preserve existing values if context settled with previous charge")
     void shouldSkipAndPreserveWhenSettledWithCharge() {
-        RateReference rate = RateReference.builder()
-                .pricePerUnit(BigDecimal.valueOf(5000))
-                .timeUnit(TimeUnitsRate.HOURS)
-                .minChargeTimeMinutes(0)
-                .build();
+        RateReference rate = RateReference.builder().pricePerUnit(BigDecimal.valueOf(5000))
+            .timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(0).build();
 
         OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
         PriceLine existingLine = PriceLine.of("Grace period", new BigDecimal("500.00"));
         PricingContext ctx = PricingContext.of(rate, ParkingLotPolicy.defaults(), entry, entry.plusMinutes(10))
-                .withSubtotal(new BigDecimal("500.00"), existingLine)
-                .toSettled();
+            .withSubtotal(new BigDecimal("500.00"), existingLine).toSettled();
 
         PricingContext result = stage.apply(ctx);
 
@@ -62,14 +55,9 @@ class BaseRateStageTest {
     @Test
     @DisplayName("Should calculate base rate with ceil fraction and min charge")
     void shouldCalculateBaseRate() {
-        RateReference rate = RateReference.builder()
-                .id(UUID.randomUUID())
-                .name("Car Hourly")
-                .pricePerUnit(BigDecimal.valueOf(3000))
-                .timeUnit(TimeUnitsRate.HOURS)
-                .minChargeTimeMinutes(60)
-                .vehicleType(VehicleType.CAR)
-                .build();
+        RateReference rate = RateReference.builder().id(UUID.randomUUID()).name("Car Hourly")
+            .pricePerUnit(BigDecimal.valueOf(3000)).timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(60)
+            .vehicleType(VehicleType.CAR).build();
 
         OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
         // 90 minutes = 2 hours billed with ceil (60 min minCharge respected)
@@ -87,14 +75,9 @@ class BaseRateStageTest {
     @Test
     @DisplayName("Should respect minimum charge time when actual duration is shorter")
     void shouldRespectMinChargeTimeWhenDurationIsShorter() {
-        RateReference rate = RateReference.builder()
-                .id(UUID.randomUUID())
-                .name("Motorcycle Hourly")
-                .pricePerUnit(BigDecimal.valueOf(2000))
-                .timeUnit(TimeUnitsRate.HOURS)
-                .minChargeTimeMinutes(60)
-                .vehicleType(VehicleType.MOTORCYCLE)
-                .build();
+        RateReference rate = RateReference.builder().id(UUID.randomUUID()).name("Motorcycle Hourly")
+            .pricePerUnit(BigDecimal.valueOf(2000)).timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(60)
+            .vehicleType(VehicleType.MOTORCYCLE).build();
 
         OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
         // 25 minutes < 60 min minCharge -> effective is 60 min -> 1 hour billed
@@ -112,14 +95,9 @@ class BaseRateStageTest {
     @Test
     @DisplayName("Should calculate base rate for minute time unit")
     void shouldCalculateWithMinuteTimeUnit() {
-        RateReference rate = RateReference.builder()
-                .id(UUID.randomUUID())
-                .name("Car Per Minute")
-                .pricePerUnit(BigDecimal.valueOf(100))
-                .timeUnit(TimeUnitsRate.MINUTES)
-                .minChargeTimeMinutes(10)
-                .vehicleType(VehicleType.CAR)
-                .build();
+        RateReference rate = RateReference.builder().id(UUID.randomUUID()).name("Car Per Minute")
+            .pricePerUnit(BigDecimal.valueOf(100)).timeUnit(TimeUnitsRate.MINUTES).minChargeTimeMinutes(10)
+            .vehicleType(VehicleType.CAR).build();
 
         OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
         // 25 minutes >= 10 min minCharge -> 25 minutes billed
@@ -137,14 +115,9 @@ class BaseRateStageTest {
     @Test
     @DisplayName("Should calculate base rate for day time unit with ceiling")
     void shouldCalculateWithDayTimeUnit() {
-        RateReference rate = RateReference.builder()
-                .id(UUID.randomUUID())
-                .name("Car Daily")
-                .pricePerUnit(BigDecimal.valueOf(25000))
-                .timeUnit(TimeUnitsRate.DAYS)
-                .minChargeTimeMinutes(0)
-                .vehicleType(VehicleType.CAR)
-                .build();
+        RateReference rate = RateReference.builder().id(UUID.randomUUID()).name("Car Daily")
+            .pricePerUnit(BigDecimal.valueOf(25000)).timeUnit(TimeUnitsRate.DAYS).minChargeTimeMinutes(0)
+            .vehicleType(VehicleType.CAR).build();
 
         OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
         // 36 hours = 1.5 days -> ceiling 2 days

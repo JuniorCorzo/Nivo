@@ -12,13 +12,8 @@ import java.util.List;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-public record PricingContext(
-        RateReference rate,
-        ParkingLotPolicy policy,
-        StayInterval stayInterval,
-        BigDecimal subtotal,
-        List<PriceLine> breakpoints,
-        boolean settled) {
+public record PricingContext(RateReference rate, ParkingLotPolicy policy, StayInterval stayInterval,
+    BigDecimal subtotal, List<PriceLine> breakpoints, boolean settled) {
     public PricingContext {
         subtotal = subtotal != null ? subtotal : BigDecimal.ZERO;
         breakpoints = breakpoints != null ? Collections.unmodifiableList(breakpoints) : List.of();
@@ -28,8 +23,8 @@ public record PricingContext(
         return new PricingContext(rate, policy, stayInterval, BigDecimal.ZERO, List.of(), false);
     }
 
-    public static PricingContext of(
-            RateReference rate, ParkingLotPolicy policy, OffsetDateTime entryTime, OffsetDateTime exitTime) {
+    public static PricingContext of(RateReference rate, ParkingLotPolicy policy, OffsetDateTime entryTime,
+        OffsetDateTime exitTime) {
         return of(rate, policy, StayInterval.of(entryTime, exitTime));
     }
 
@@ -50,10 +45,7 @@ public record PricingContext(
         if (line != null) {
             newLines.add(line);
         }
-        return this.toBuilder()
-                .subtotal(newSubtotal)
-                .breakpoints(Collections.unmodifiableList(newLines))
-                .build();
+        return this.toBuilder().subtotal(newSubtotal).breakpoints(Collections.unmodifiableList(newLines)).build();
     }
 
     public PricingContext toSettled() {

@@ -18,20 +18,17 @@ import org.springframework.transaction.interceptor.*;
 @Configuration
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-@ComponentScan(
-        basePackages = "dev.angelcorzo.nivo.domain.usecase",
-        includeFilters = {
-            @ComponentScan.Filter(type = FilterType.REGEX, pattern = "^.+UseCase$"),
-            @ComponentScan.Filter(type = FilterType.REGEX, pattern = "^.+Notifier$")
-        },
-        useDefaultFilters = false)
+@ComponentScan(basePackages = "dev.angelcorzo.nivo.domain.usecase", includeFilters = {
+    @ComponentScan.Filter(type = FilterType.REGEX, pattern = "^.+UseCase$"),
+    @ComponentScan.Filter(type = FilterType.REGEX, pattern = "^.+Notifier$")}, useDefaultFilters = false)
 @RequiredArgsConstructor
 public class UseCasesConfig {
     /**
-     * Configures and provides the {@link PlatformTransactionManager} bean. This bean is responsible
-     * for managing transactions in the application.
+     * Configures and provides the {@link PlatformTransactionManager} bean. This bean is responsible for managing
+     * transactions in the application.
      *
-     * @param entityManagerFactory The JPA {@link jakarta.persistence.EntityManagerFactory}.
+     * @param entityManagerFactory
+     *            The JPA {@link jakarta.persistence.EntityManagerFactory}.
      * @return A configured {@link JpaTransactionManager}.
      */
     @Bean
@@ -73,6 +70,6 @@ public class UseCasesConfig {
     @Bean
     public PricingEngine pricingEngine() {
         return new PricingEngine(
-                List.of(new GracePeriodStage(), new BaseRateStage(), new SpecialPolicyStage(), new DayCapStage()));
+            List.of(new GracePeriodStage(), new BaseRateStage(), new SpecialPolicyStage(), new DayCapStage()));
     }
 }

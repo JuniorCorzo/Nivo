@@ -8,4 +8,5 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.rates.RateData;
 import org.mapstruct.Mapper;
 
 @Mapper(config = MapperStructConfig.class, uses = CoordinatesMapper.class)
-public interface RatesMapper extends BaseMapper<Rates, RateData> {}
+public interface RatesMapper extends BaseMapper<Rates, RateData> {
+}

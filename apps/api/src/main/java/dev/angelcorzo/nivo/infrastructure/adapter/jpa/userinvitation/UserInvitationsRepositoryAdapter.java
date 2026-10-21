@@ -11,8 +11,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class UserInvitationsRepositoryAdapter
-        extends AdapterOperations<UserInvitations, UserInvitationsData, UUID, UserInvitationsRepositoryData>
-        implements UserInvitationsRepository {
+    extends
+        AdapterOperations<UserInvitations, UserInvitationsData, UUID, UserInvitationsRepositoryData>
+    implements
+        UserInvitationsRepository {
 
     protected UserInvitationsRepositoryAdapter(UserInvitationsRepositoryData repository, UserInvitationsMapper mapper) {
         super(repository, mapper);
@@ -20,9 +22,7 @@ public class UserInvitationsRepositoryAdapter
 
     @Override
     public List<UserInvitations> findAllInvitationsByTenantId(UUID tenantId) {
-        return this.repository.findAllByTenantId(tenantId).stream()
-                .map(super::toEntity)
-                .toList();
+        return this.repository.findAllByTenantId(tenantId).stream().map(super::toEntity).toList();
     }
 
     @Override

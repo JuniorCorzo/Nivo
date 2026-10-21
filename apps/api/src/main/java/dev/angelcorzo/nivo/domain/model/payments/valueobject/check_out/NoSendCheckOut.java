@@ -5,4 +5,5 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record NoSendCheckOut(UUID ticketId, UUID tenantId, PaymentsMethods paymentMethod) implements CheckOut {}
+public record NoSendCheckOut(UUID ticketId, UUID tenantId, PaymentsMethods paymentMethod) implements CheckOut {
+}

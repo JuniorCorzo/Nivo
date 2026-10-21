@@ -30,20 +30,14 @@ public class RateConfigurationUseCase {
         this.validate(tariff);
 
         final Rates rate = Rates.builder()
-                .tenant(TenantReference.of(this.tenantsRepository.getReferenceById(tariff.tenantId())))
-                .parking(ParkingLotsReference.of(this.parkingLotsRepository.getReferenceById(tariff.parkingLotId())))
-                .name(tariff.name())
-                .description(tariff.description())
-                .pricePerUnit(tariff.pricePerUnit())
-                .timeUnit(tariff.timeUnit())
-                .minChargeTimeMinutes(tariff.minChargeTimeMinutes())
-                .vehicleType(tariff.vehicleType())
-                .specialPolicy(
-                        tariff.specialPolicyId() == null
-                                ? null
-                                : SpecialPoliciesReference.of(
-                                        this.specialPoliciesRepository.getReferenceById(tariff.specialPolicyId())))
-                .build();
+            .tenant(TenantReference.of(this.tenantsRepository.getReferenceById(tariff.tenantId())))
+            .parking(ParkingLotsReference.of(this.parkingLotsRepository.getReferenceById(tariff.parkingLotId())))
+            .name(tariff.name()).description(tariff.description()).pricePerUnit(tariff.pricePerUnit())
+            .timeUnit(tariff.timeUnit()).minChargeTimeMinutes(tariff.minChargeTimeMinutes())
+            .vehicleType(tariff.vehicleType())
+            .specialPolicy(tariff.specialPolicyId() == null ? null : SpecialPoliciesReference
+                .of(this.specialPoliciesRepository.getReferenceById(tariff.specialPolicyId())))
+            .build();
 
         return this.ratesRepository.save(rate);
     }
@@ -57,16 +51,9 @@ public class RateConfigurationUseCase {
     }
 
     @Builder(toBuilder = true)
-    public record CreateTariff(
-            UUID tenantId,
-            UUID parkingLotId,
-            String name,
-            String description,
-            BigDecimal pricePerUnit,
-            TimeUnitsRate timeUnit,
-            int minChargeTimeMinutes,
-            VehicleType vehicleType,
-            UUID specialPolicyId) {
+    public record CreateTariff(UUID tenantId, UUID parkingLotId, String name, String description,
+        BigDecimal pricePerUnit, TimeUnitsRate timeUnit, int minChargeTimeMinutes, VehicleType vehicleType,
+        UUID specialPolicyId) {
 
         public CreateTariff {
             RatePrice.of(pricePerUnit);

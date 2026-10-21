@@ -15,13 +15,15 @@ public sealed interface EpaycoResponse<T> permits EpaycoResponse.Success, Epayco
     String lastResponse();
 
     default T get() {
-        if (this.isFailure()) return null;
+        if (this.isFailure())
+            return null;
 
         return ((Success<T>) this).data;
     }
 
     default EpaycoError error() {
-        if (this.isSuccess()) return null;
+        if (this.isSuccess())
+            return null;
 
         return ((Failure<T>) this).data;
     }
@@ -38,9 +40,11 @@ public sealed interface EpaycoResponse<T> permits EpaycoResponse.Success, Epayco
         return this instanceof EpaycoResponse.Failure;
     }
 
-    record Success<T>(boolean success, String titleResponse, String textResponse, String lastResponse, T data)
-            implements EpaycoResponse<T> {}
+    record Success<T>(boolean success, String titleResponse, String textResponse, String lastResponse,
+        T data) implements EpaycoResponse<T> {
+    }
 
-    record Failure<T>(boolean success, String titleResponse, String textResponse, String lastResponse, EpaycoError data)
-            implements EpaycoResponse<T> {}
+    record Failure<T>(boolean success, String titleResponse, String textResponse, String lastResponse,
+        EpaycoError data) implements EpaycoResponse<T> {
+    }
 }

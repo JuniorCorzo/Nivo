@@ -122,12 +122,8 @@ class UserRepositoryAdapterTest {
     @DisplayName("Should find all users by tenant ID and return mapped domain entities")
     void shouldFindAllByTenantId() {
         UUID tenantId = UUID.randomUUID();
-        UsersData userData = UsersData.builder()
-                .id(UUID.randomUUID())
-                .email("staff@tenant.com")
-                .build();
-        Users userEntity =
-                Users.builder().id(userData.getId()).email(userData.getEmail()).build();
+        UsersData userData = UsersData.builder().id(UUID.randomUUID()).email("staff@tenant.com").build();
+        Users userEntity = Users.builder().id(userData.getId()).email(userData.getEmail()).build();
 
         when(repository.findAllByTenantId(tenantId)).thenReturn(List.of(userData));
         when(mapper.toEntity(userData)).thenReturn(userEntity);
@@ -145,8 +141,7 @@ class UserRepositoryAdapterTest {
     void shouldSaveAndRefetchUser_whenNotDeleted() {
         UUID userId = UUID.randomUUID();
         Users activeUser = Users.builder().id(userId).email("active@test.com").build();
-        UsersData activeUserData =
-                UsersData.builder().id(userId).email("active@test.com").build();
+        UsersData activeUserData = UsersData.builder().id(userId).email("active@test.com").build();
 
         when(mapper.toData(activeUser)).thenReturn(activeUserData);
         when(repository.saveAndFlush(activeUserData)).thenReturn(activeUserData);
@@ -166,17 +161,9 @@ class UserRepositoryAdapterTest {
     void shouldReturnSavedUserDirectly_whenSoftDeleted() {
         UUID userId = UUID.randomUUID();
         OffsetDateTime now = OffsetDateTime.now();
-        Users deletedUser = Users.builder()
-                .id(userId)
-                .email("deleted@test.com")
-                .deletedAt(now)
-                .deletedBy(UUID.randomUUID())
-                .build();
-        UsersData deletedUserData = UsersData.builder()
-                .id(userId)
-                .email("deleted@test.com")
-                .deletedAt(now)
-                .build();
+        Users deletedUser = Users.builder().id(userId).email("deleted@test.com").deletedAt(now)
+            .deletedBy(UUID.randomUUID()).build();
+        UsersData deletedUserData = UsersData.builder().id(userId).email("deleted@test.com").deletedAt(now).build();
 
         when(mapper.toData(deletedUser)).thenReturn(deletedUserData);
         when(repository.saveAndFlush(deletedUserData)).thenReturn(deletedUserData);

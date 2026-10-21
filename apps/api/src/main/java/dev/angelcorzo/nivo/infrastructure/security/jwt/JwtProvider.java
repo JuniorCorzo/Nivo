@@ -24,13 +24,13 @@ import org.springframework.context.annotation.Configuration;
 /**
  * JWT provider implementing the AuthenticationGateway interface.
  *
- * <p>This class provides a concrete implementation for generating, validating, and extracting
- * claims from JWT tokens. It handles both signed (JWS) and encrypted (JWE) tokens, using RSA keys
- * for cryptographic operations.
+ * <p>
+ * This class provides a concrete implementation for generating, validating, and extracting claims from JWT tokens. It
+ * handles both signed (JWS) and encrypted (JWE) tokens, using RSA keys for cryptographic operations.
  *
- * <p>This provider is part of the infrastructure layer and depends on the domain layer through the
- * {@link AuthenticationGateway} interface, following the Dependency Inversion Principle of Clean
- * Architecture.
+ * <p>
+ * This provider is part of the infrastructure layer and depends on the domain layer through the
+ * {@link AuthenticationGateway} interface, following the Dependency Inversion Principle of Clean Architecture.
  *
  * @author Angel Corzo
  * @version 1.0
@@ -52,58 +52,44 @@ public class JwtProvider implements AuthenticationGateway {
     /**
      * {@inheritDoc}
      *
-     * <p>This implementation generates a signed JWT (JWS) using the RS256 algorithm. The token
-     * includes standard claims such as issuer, expiration time, and issued-at, along with custom
-     * claims provided in the method argument.
+     * <p>
+     * This implementation generates a signed JWT (JWS) using the RS256 algorithm. The token includes standard claims
+     * such as issuer, expiration time, and issued-at, along with custom claims provided in the method argument.
      */
     @Override
     public String generateAccessToken(Map<String, String> claims) {
         Instant expiredTime = Instant.now().plusSeconds(jwtProperties.getAccessTokenExpiration());
 
-        return Jwts.builder()
-                .header()
-                .type("JWT")
-                .keyId(rsaProperties.getKeyId())
-                .and()
-                .issuer(jwtProperties.getIssue())
-                .expiration(Date.from(expiredTime))
-                .notBefore(Date.from(Instant.now()))
-                .issuedAt(new Date())
-                .claims(claims)
-                .signWith(privateKey, Jwts.SIG.RS256)
-                .compact();
+        return Jwts.builder().header().type("JWT").keyId(rsaProperties.getKeyId()).and()
+            .issuer(jwtProperties.getIssue()).expiration(Date.from(expiredTime)).notBefore(Date.from(Instant.now()))
+            .issuedAt(new Date()).claims(claims).signWith(privateKey, Jwts.SIG.RS256).compact();
     }
 
     /**
      * {@inheritDoc}
      *
-     * <p>This implementation generates an encrypted JWT (JWE) using RSA-OAEP-256 for key encryption
-     * and A256GCM for content encryption. This ensures that the token's payload is confidential.
+     * <p>
+     * This implementation generates an encrypted JWT (JWE) using RSA-OAEP-256 for key encryption and A256GCM for
+     * content encryption. This ensures that the token's payload is confidential.
      */
     @Override
     public String generateRefreshToken(Map<String, String> claims) {
         final Date expiredTime = Date.from(Instant.now().plusSeconds(jwtProperties.getRefreshTokenExpiration()));
 
-        return Jwts.builder()
-                .header()
-                .keyId(rsaProperties.getKeyId())
-                .and()
-                .issuer(jwtProperties.getIssue())
-                .issuedAt(new Date())
-                .expiration(expiredTime)
-                .notBefore(new Date())
-                .claims(claims)
-                .encryptWith(publicKey, Jwts.KEY.RSA_OAEP_256, Jwts.ENC.A256GCM)
-                .compact();
+        return Jwts.builder().header().keyId(rsaProperties.getKeyId()).and().issuer(jwtProperties.getIssue())
+            .issuedAt(new Date()).expiration(expiredTime).notBefore(new Date()).claims(claims)
+            .encryptWith(publicKey, Jwts.KEY.RSA_OAEP_256, Jwts.ENC.A256GCM).compact();
     }
 
     /**
      * {@inheritDoc}
      *
-     * <p>This method determines whether the token is a JWS (3 parts) or a JWE (5 parts) and calls the
-     * appropriate private method to extract the claims.
+     * <p>
+     * This method determines whether the token is a JWS (3 parts) or a JWE (5 parts) and calls the appropriate private
+     * method to extract the claims.
      *
-     * @throws MalformedTokenException if the token format is invalid.
+     * @throws MalformedTokenException
+     *             if the token format is invalid.
      */
     @Override
     public Map<String, String> extractTokenClaims(String token) {
@@ -131,23 +117,25 @@ public class JwtProvider implements AuthenticationGateway {
     /**
      * {@inheritDoc}
      *
-     * <p>This implementation validates the signature of the access token and ensures that essential
-     * claims (subject, tenantId, role) are present. It handles various exceptions related to token
-     * validation, such as expiration or malformation, and wraps them in domain-specific exceptions.
+     * <p>
+     * This implementation validates the signature of the access token and ensures that essential claims (subject,
+     * tenantId, role) are present. It handles various exceptions related to token validation, such as expiration or
+     * malformation, and wraps them in domain-specific exceptions.
      *
-     * @throws ExpiredTokenException if the token has expired.
-     * @throws MalformedTokenException if the token is structurally invalid.
-     * @throws TokenInvalidException if the token signature is invalid or required claims are missing.
+     * @throws ExpiredTokenException
+     *             if the token has expired.
+     * @throws MalformedTokenException
+     *             if the token is structurally invalid.
+     * @throws TokenInvalidException
+     *             if the token signature is invalid or required claims are missing.
      */
     @Override
     public void validateToken(String accessToken) {
         try {
             final Map<String, String> claims = this.extractTokenClaims(accessToken);
 
-            if (claims.isEmpty()
-                    || claims.get("sub") == null
-                    || claims.get("tenantId") == null
-                    || (claims.get("purpose").equals("access-token") && claims.get("role") == null))
+            if (claims.isEmpty() || claims.get("sub") == null || claims.get("tenantId") == null
+                || (claims.get("purpose").equals("access-token") && claims.get("role") == null))
                 throw new TokenInvalidException(TokenErrorMessages.INVALID_TOKEN.toString());
 
         } catch (ExpiredJwtException e) {
@@ -165,28 +153,24 @@ public class JwtProvider implements AuthenticationGateway {
     /**
      * Extracts claims from a signed JWT (JWS).
      *
-     * @param token the JWS token string.
+     * @param token
+     *            the JWS token string.
      * @return a map of claims.
      */
     private Map<String, String> extractClaims(String token) {
         return Jwts.parser().verifyWith(publicKey).build().parseSignedClaims(token).getPayload().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
     }
 
     /**
      * Extracts claims from an encrypted JWT (JWE).
      *
-     * @param token the JWE token string.
+     * @param token
+     *            the JWE token string.
      * @return a map of claims.
      */
     private Map<String, String> extractEncryptedClaims(String token) {
-        return Jwts.parser()
-                .decryptWith(privateKey)
-                .build()
-                .parseEncryptedClaims(token)
-                .getPayload()
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        return Jwts.parser().decryptWith(privateKey).build().parseEncryptedClaims(token).getPayload().entrySet()
+            .stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
     }
 }

@@ -50,19 +50,19 @@ public abstract class ParkingLotsMapper implements BaseMapper<ParkingLots, Parki
     public abstract ParkingLotsData toData(ParkingLots entity);
 
     protected ParkingLotPolicy toPolicy(ParkingLotsData data) {
-        if (data == null) return ParkingLotPolicy.defaults();
-        return new ParkingLotPolicy(
-                data.getGracePeriodMinutes() != null ? data.getGracePeriodMinutes() : 0,
-                data.getGracePeriodPrice() != null ? data.getGracePeriodPrice() : BigDecimal.ZERO,
-                data.getIvaRate() != null ? data.getIvaRate() : new BigDecimal("0.19"));
+        if (data == null)
+            return ParkingLotPolicy.defaults();
+        return new ParkingLotPolicy(data.getGracePeriodMinutes() != null ? data.getGracePeriodMinutes() : 0,
+            data.getGracePeriodPrice() != null ? data.getGracePeriodPrice() : BigDecimal.ZERO,
+            data.getIvaRate() != null ? data.getIvaRate() : new BigDecimal("0.19"));
     }
 
     protected ParkingLotPolicy toPolicy(ParkingLotSummaryData data) {
-        if (data == null) return ParkingLotPolicy.defaults();
-        return new ParkingLotPolicy(
-                data.gracePeriodMinutes() != null ? data.gracePeriodMinutes() : 0,
-                data.gracePeriodPrice() != null ? data.gracePeriodPrice() : BigDecimal.ZERO,
-                data.ivaRate() != null ? data.ivaRate() : new BigDecimal("0.19"));
+        if (data == null)
+            return ParkingLotPolicy.defaults();
+        return new ParkingLotPolicy(data.gracePeriodMinutes() != null ? data.gracePeriodMinutes() : 0,
+            data.gracePeriodPrice() != null ? data.gracePeriodPrice() : BigDecimal.ZERO,
+            data.ivaRate() != null ? data.ivaRate() : new BigDecimal("0.19"));
     }
 
     @Mapping(target = "address", expression = "java(toAddress(data))")
@@ -75,34 +75,25 @@ public abstract class ParkingLotsMapper implements BaseMapper<ParkingLots, Parki
     public abstract ParkingLotListItem toListItem(ParkingLotSummaryData data);
 
     protected Address toAddress(ParkingLotSummaryData data) {
-        return Address.builder()
-                .street(data.street())
-                .city(data.city())
-                .state(data.state())
-                .country(data.country())
-                .zipCode(data.zipCode())
-                .build();
+        return Address.builder().street(data.street()).city(data.city()).state(data.state()).country(data.country())
+            .zipCode(data.zipCode()).build();
     }
 
     protected Coordinates toCoordinates(ParkingLotSummaryData data) {
-        return Coordinates.builder()
-                .latitude(data.latitude())
-                .longitude(data.longitude())
-                .build();
+        return Coordinates.builder().latitude(data.latitude()).longitude(data.longitude()).build();
     }
 
     protected OperatingHours toOperatingHours(ParkingLotSummaryData data) {
         if (data.openTime() == null && data.closeTime() == null) {
             return null;
         }
-        return OperatingHours.builder()
-                .openTime(parseOffsetTime(data.openTime()))
-                .closeTime(parseOffsetTime(data.closeTime()))
-                .build();
+        return OperatingHours.builder().openTime(parseOffsetTime(data.openTime()))
+            .closeTime(parseOffsetTime(data.closeTime())).build();
     }
 
     private OffsetTime parseOffsetTime(String text) {
-        if (text == null || text.isBlank()) return null;
+        if (text == null || text.isBlank())
+            return null;
         // Postgres devuelve offsets como -05 (sin minutos).
         // OffsetTime.parse() espera ISO-8601: -05:00
         String normalized = text.replaceFirst("([+-]\\d{2})$", "$1:00");
@@ -119,7 +110,8 @@ public abstract class ParkingLotsMapper implements BaseMapper<ParkingLots, Parki
         }
 
         try {
-            return objectMapper.readValue(slotDistribution, new TypeReference<>() {});
+            return objectMapper.readValue(slotDistribution, new TypeReference<>() {
+            });
         } catch (JsonProcessingException e) {
             LOGGER.warn("Failed to parse slot distribution JSON: {}", slotDistribution, e);
             return List.of();

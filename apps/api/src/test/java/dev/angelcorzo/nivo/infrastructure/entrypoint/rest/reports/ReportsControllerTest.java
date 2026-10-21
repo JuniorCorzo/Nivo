@@ -48,25 +48,13 @@ class ReportsControllerTest {
     @Test
     @DisplayName("GET /reports/operational debe retornar página de reporte operacional")
     void shouldReturnPaginatedOperationalReport() throws Exception {
-        final OperationalReportDTO sampleReport = OperationalReportDTO.builder()
-                .ticketId(UUID.randomUUID())
-                .licensePlate("ABC-123")
-                .slotNumber("10")
-                .slotType("CAR")
-                .entryTime(OffsetDateTime.now())
-                .durationMinutes(30.0)
-                .ticketStatus("ACTIVE")
-                .parkingName("Sede Centro")
-                .build();
+        final OperationalReportDTO sampleReport = OperationalReportDTO.builder().ticketId(UUID.randomUUID())
+            .licensePlate("ABC-123").slotNumber("10").slotType("CAR").entryTime(OffsetDateTime.now())
+            .durationMinutes(30.0).ticketStatus("ACTIVE").parkingName("Sede Centro").build();
 
-        final dev.angelcorzo.nivo.domain.model.dashboard.PageResult<OperationalReportDTO> pageResult =
-                dev.angelcorzo.nivo.domain.model.dashboard.PageResult.<OperationalReportDTO>builder()
-                        .content(List.of(sampleReport))
-                        .totalElements(1L)
-                        .pageNumber(0)
-                        .pageSize(20)
-                        .totalPages(1)
-                        .build();
+        final dev.angelcorzo.nivo.domain.model.dashboard.PageResult<OperationalReportDTO> pageResult = dev.angelcorzo.nivo.domain.model.dashboard.PageResult
+            .<OperationalReportDTO>builder().content(List.of(sampleReport)).totalElements(1L).pageNumber(0).pageSize(20)
+            .totalPages(1).build();
 
         when(reportUseCase.execute(any(), eq(0), eq(20))).thenReturn(pageResult);
 
@@ -78,32 +66,21 @@ class ReportsControllerTest {
     @Test
     @DisplayName("GET /reports/operational/csv debe emitir stream CSV con cabeceras correctas y columnas requeridas")
     void shouldStreamCsvWithCorrectHeadersAndFormat() throws Exception {
-        final OperationalReportDTO sampleReport = OperationalReportDTO.builder()
-                .ticketId(UUID.randomUUID())
-                .licensePlate("ABC-123")
-                .slotNumber("10")
-                .slotType("CAR")
-                .entryTime(OffsetDateTime.now())
-                .exitTime(OffsetDateTime.now())
-                .durationMinutes(60.0)
-                .ticketStatus("CLOSED")
-                .totalToCharge(new BigDecimal("10000"))
-                .paymentMethod("EFFECTIVE")
-                .parkingName("Sede Centro")
-                .build();
+        final OperationalReportDTO sampleReport = OperationalReportDTO.builder().ticketId(UUID.randomUUID())
+            .licensePlate("ABC-123").slotNumber("10").slotType("CAR").entryTime(OffsetDateTime.now())
+            .exitTime(OffsetDateTime.now()).durationMinutes(60.0).ticketStatus("CLOSED")
+            .totalToCharge(new BigDecimal("10000")).paymentMethod("EFFECTIVE").parkingName("Sede Centro").build();
 
         when(reportUseCase.executeForExport(any())).thenReturn(List.of(sampleReport));
 
-        mockMvc.perform(get("/reports/operational/csv"))
-                .andExpect(status().isOk())
-                .andExpect(header().string("Content-Type", "text/csv;charset=UTF-8"))
-                .andExpect(header().string(
-                                "Content-Disposition", containsString("attachment; filename=\"operational-report-")))
-                .andExpect(content()
-                        .string(containsString(
-                                "Ticket ID,Placa,Plaza,Tipo,Entrada,Salida,Minutos,Estado,Total,Metodo Pago,Sede")))
-                .andExpect(content().string(containsString("ABC-123")))
-                .andExpect(content().string(containsString("Sede Centro")));
+        mockMvc.perform(get("/reports/operational/csv")).andExpect(status().isOk())
+            .andExpect(header().string("Content-Type", "text/csv;charset=UTF-8"))
+            .andExpect(
+                header().string("Content-Disposition", containsString("attachment; filename=\"operational-report-")))
+            .andExpect(content().string(
+                containsString("Ticket ID,Placa,Plaza,Tipo,Entrada,Salida,Minutos,Estado,Total,Metodo Pago,Sede")))
+            .andExpect(content().string(containsString("ABC-123")))
+            .andExpect(content().string(containsString("Sede Centro")));
 
         verify(reportUseCase).executeForExport(any());
     }

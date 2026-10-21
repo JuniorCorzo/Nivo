@@ -15,9 +15,7 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Hourly timeseries point of parking occupancy and traffic flow")
 public class HourlyOccupancyDTO {
 
-    @Schema(
-            description = "Parking facility ID if single scope, null if consolidated tenant scope",
-            example = "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d")
+    @Schema(description = "Parking facility ID if single scope, null if consolidated tenant scope", example = "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d")
     private UUID parkingId;
 
     @Schema(description = "Hour bucket timestamp with timezone", example = "2026-09-25T14:00:00Z")

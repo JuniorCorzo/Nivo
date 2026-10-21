@@ -28,31 +28,28 @@ public class PayLinkPaymentStrategy implements PaymentStrategy {
     @Override
     public Result<Payments, PaymentError> processPayment(PaymentCommand command) {
         final BigDecimal amount = command.amounts().getTotal();
-        final ParkingTickets ticket = this.parkingTicketsRepository
-                .findById(command.ticket().getId())
-                .orElseThrow(() -> new ParkingTicketNotFound(command.ticket().getId()));
+        final ParkingTickets ticket = this.parkingTicketsRepository.findById(command.ticket().getId())
+            .orElseThrow(() -> new ParkingTicketNotFound(command.ticket().getId()));
 
         Result<Payments, PaymentError> paymentIntent = ResultUtils.combine(
-                () -> this.createPaymentIntent(ticket, amount),
-                () -> this.processPayment(command, ticket, amount),
-                this::updatePaymentsWithMetadata);
+            () -> this.createPaymentIntent(ticket, amount), () -> this.processPayment(command, ticket, amount),
+            this::updatePaymentsWithMetadata);
 
-        return paymentIntent
-                .onSuccess((_) -> this.updateTicketStatus(command.ticket().getId(), amount))
-                .onSuccess(payments -> this.sendNotifications(payments, command.amounts()));
+        return paymentIntent.onSuccess((_) -> this.updateTicketStatus(command.ticket().getId(), amount))
+            .onSuccess(payments -> this.sendNotifications(payments, command.amounts()));
     }
 
     private Result<Payments, PaymentError> createPaymentIntent(ParkingTickets ticket, BigDecimal amount) {
         return this.paymentsRepository.processPayment(PaymentFactory.registerPayLink(ticket, amount));
     }
 
-    private Result<ProviderMetadata, PaymentError> processPayment(
-            PaymentCommand command, ParkingTickets ticket, BigDecimal amount) {
+    private Result<ProviderMetadata, PaymentError> processPayment(PaymentCommand command, ParkingTickets ticket,
+        BigDecimal amount) {
         return this.paymentProviderGateway.processPayment(ticket, amount, command.checkOut());
     }
 
-    private Result<Payments, PaymentError> updatePaymentsWithMetadata(
-            Payments paymentIntent, ProviderMetadata metadata) {
+    private Result<Payments, PaymentError> updatePaymentsWithMetadata(Payments paymentIntent,
+        ProviderMetadata metadata) {
         paymentIntent.startCheckout(metadata);
         return this.paymentsRepository.processPayment(paymentIntent);
     }

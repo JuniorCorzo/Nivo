@@ -32,15 +32,11 @@ class EditSlotUseCaseTest {
     @DisplayName("Should edit slot successfully from AVAILABLE to MAINTENANCE and persist")
     void shouldEditSlotFromAvailableToMaintenance() {
         UUID slotId = UUID.randomUUID();
-        EditSlotUseCase.UpdateSlotCommand command =
-                new EditSlotUseCase.UpdateSlotCommand(slotId, "S-202", SlotType.MOTORCYCLE, SlotStatus.MAINTENANCE);
+        EditSlotUseCase.UpdateSlotCommand command = new EditSlotUseCase.UpdateSlotCommand(slotId, "S-202",
+            SlotType.MOTORCYCLE, SlotStatus.MAINTENANCE);
 
-        Slots existing = Slots.builder()
-                .id(slotId)
-                .slotNumber("S-101")
-                .type(SlotType.CAR)
-                .status(SlotStatus.AVAILABLE)
-                .build();
+        Slots existing = Slots.builder().id(slotId).slotNumber("S-101").type(SlotType.CAR).status(SlotStatus.AVAILABLE)
+            .build();
 
         when(slotsRepository.findById(slotId)).thenReturn(Optional.of(existing));
         when(slotsRepository.save(any(Slots.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -61,15 +57,11 @@ class EditSlotUseCaseTest {
     @DisplayName("Should edit slot successfully from MAINTENANCE to AVAILABLE and persist")
     void shouldEditSlotFromMaintenanceToAvailable() {
         UUID slotId = UUID.randomUUID();
-        EditSlotUseCase.UpdateSlotCommand command =
-                new EditSlotUseCase.UpdateSlotCommand(slotId, "S-101", SlotType.CAR, SlotStatus.AVAILABLE);
+        EditSlotUseCase.UpdateSlotCommand command = new EditSlotUseCase.UpdateSlotCommand(slotId, "S-101", SlotType.CAR,
+            SlotStatus.AVAILABLE);
 
-        Slots existing = Slots.builder()
-                .id(slotId)
-                .slotNumber("S-101")
-                .type(SlotType.CAR)
-                .status(SlotStatus.MAINTENANCE)
-                .build();
+        Slots existing = Slots.builder().id(slotId).slotNumber("S-101").type(SlotType.CAR)
+            .status(SlotStatus.MAINTENANCE).build();
 
         when(slotsRepository.findById(slotId)).thenReturn(Optional.of(existing));
         when(slotsRepository.save(any(Slots.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -86,15 +78,11 @@ class EditSlotUseCaseTest {
     @DisplayName("Should edit slot successfully from AVAILABLE to RESERVED and persist")
     void shouldEditSlotFromAvailableToReserved() {
         UUID slotId = UUID.randomUUID();
-        EditSlotUseCase.UpdateSlotCommand command =
-                new EditSlotUseCase.UpdateSlotCommand(slotId, "S-101", SlotType.CAR, SlotStatus.RESERVED);
+        EditSlotUseCase.UpdateSlotCommand command = new EditSlotUseCase.UpdateSlotCommand(slotId, "S-101", SlotType.CAR,
+            SlotStatus.RESERVED);
 
-        Slots existing = Slots.builder()
-                .id(slotId)
-                .slotNumber("S-101")
-                .type(SlotType.CAR)
-                .status(SlotStatus.AVAILABLE)
-                .build();
+        Slots existing = Slots.builder().id(slotId).slotNumber("S-101").type(SlotType.CAR).status(SlotStatus.AVAILABLE)
+            .build();
 
         when(slotsRepository.findById(slotId)).thenReturn(Optional.of(existing));
         when(slotsRepository.save(any(Slots.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -111,15 +99,11 @@ class EditSlotUseCaseTest {
     @DisplayName("Should edit slot configuration keeping AVAILABLE status and persist")
     void shouldEditSlotConfigurationKeepingSameStatus() {
         UUID slotId = UUID.randomUUID();
-        EditSlotUseCase.UpdateSlotCommand command =
-                new EditSlotUseCase.UpdateSlotCommand(slotId, "S-102", SlotType.BIKE, SlotStatus.AVAILABLE);
+        EditSlotUseCase.UpdateSlotCommand command = new EditSlotUseCase.UpdateSlotCommand(slotId, "S-102",
+            SlotType.BIKE, SlotStatus.AVAILABLE);
 
-        Slots existing = Slots.builder()
-                .id(slotId)
-                .slotNumber("S-101")
-                .type(SlotType.CAR)
-                .status(SlotStatus.AVAILABLE)
-                .build();
+        Slots existing = Slots.builder().id(slotId).slotNumber("S-101").type(SlotType.CAR).status(SlotStatus.AVAILABLE)
+            .build();
 
         when(slotsRepository.findById(slotId)).thenReturn(Optional.of(existing));
         when(slotsRepository.save(any(Slots.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -138,21 +122,16 @@ class EditSlotUseCaseTest {
     @DisplayName("Should throw SlotCannotBeModifiedException when existing slot is OCCUPIED")
     void shouldThrowWhenExistingSlotIsOccupied() {
         UUID slotId = UUID.randomUUID();
-        EditSlotUseCase.UpdateSlotCommand command =
-                new EditSlotUseCase.UpdateSlotCommand(slotId, "S-101", SlotType.CAR, SlotStatus.MAINTENANCE);
+        EditSlotUseCase.UpdateSlotCommand command = new EditSlotUseCase.UpdateSlotCommand(slotId, "S-101", SlotType.CAR,
+            SlotStatus.MAINTENANCE);
 
-        Slots existing = Slots.builder()
-                .id(slotId)
-                .slotNumber("S-101")
-                .type(SlotType.CAR)
-                .status(SlotStatus.OCCUPIED)
-                .build();
+        Slots existing = Slots.builder().id(slotId).slotNumber("S-101").type(SlotType.CAR).status(SlotStatus.OCCUPIED)
+            .build();
 
         when(slotsRepository.findById(slotId)).thenReturn(Optional.of(existing));
 
-        assertThatThrownBy(() -> useCase.execute(command))
-                .isInstanceOf(SlotCannotBeModifiedException.class)
-                .hasMessageContaining("Slot cannot be modified because it is currently OCCUPIED: " + slotId);
+        assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(SlotCannotBeModifiedException.class)
+            .hasMessageContaining("Slot cannot be modified because it is currently OCCUPIED: " + slotId);
 
         verify(slotsRepository, never()).save(any());
     }
@@ -161,22 +140,16 @@ class EditSlotUseCaseTest {
     @DisplayName("Should throw SlotCannotBeModifiedException when target status is OCCUPIED")
     void shouldThrowWhenTargetStatusIsOccupied() {
         UUID slotId = UUID.randomUUID();
-        EditSlotUseCase.UpdateSlotCommand command =
-                new EditSlotUseCase.UpdateSlotCommand(slotId, "S-101", SlotType.CAR, SlotStatus.OCCUPIED);
+        EditSlotUseCase.UpdateSlotCommand command = new EditSlotUseCase.UpdateSlotCommand(slotId, "S-101", SlotType.CAR,
+            SlotStatus.OCCUPIED);
 
-        Slots existing = Slots.builder()
-                .id(slotId)
-                .slotNumber("S-101")
-                .type(SlotType.CAR)
-                .status(SlotStatus.AVAILABLE)
-                .build();
+        Slots existing = Slots.builder().id(slotId).slotNumber("S-101").type(SlotType.CAR).status(SlotStatus.AVAILABLE)
+            .build();
 
         when(slotsRepository.findById(slotId)).thenReturn(Optional.of(existing));
 
-        assertThatThrownBy(() -> useCase.execute(command))
-                .isInstanceOf(SlotCannotBeModifiedException.class)
-                .hasMessageContaining(
-                        "Slot cannot be manually transitioned to OCCUPIED. Vehicle check-in is required.");
+        assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(SlotCannotBeModifiedException.class)
+            .hasMessageContaining("Slot cannot be manually transitioned to OCCUPIED. Vehicle check-in is required.");
 
         verify(slotsRepository, never()).save(any());
     }
@@ -185,8 +158,8 @@ class EditSlotUseCaseTest {
     @DisplayName("Should throw SlotNotFoundException when slot does not exist")
     void shouldThrowWhenSlotNotFound() {
         UUID slotId = UUID.randomUUID();
-        EditSlotUseCase.UpdateSlotCommand command =
-                new EditSlotUseCase.UpdateSlotCommand(slotId, "S-202", SlotType.MOTORCYCLE, SlotStatus.MAINTENANCE);
+        EditSlotUseCase.UpdateSlotCommand command = new EditSlotUseCase.UpdateSlotCommand(slotId, "S-202",
+            SlotType.MOTORCYCLE, SlotStatus.MAINTENANCE);
 
         when(slotsRepository.findById(slotId)).thenReturn(Optional.empty());
 

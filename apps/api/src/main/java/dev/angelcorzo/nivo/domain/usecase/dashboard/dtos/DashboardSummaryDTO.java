@@ -15,14 +15,10 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Aggregated operational and financial summary for dashboard KPIs")
 public class DashboardSummaryDTO {
 
-    @Schema(
-            description = "Scope of the summary (GLOBAL across tenant or SINGLE for specific parking)",
-            example = "GLOBAL")
+    @Schema(description = "Scope of the summary (GLOBAL across tenant or SINGLE for specific parking)", example = "GLOBAL")
     private String scope;
 
-    @Schema(
-            description = "Parking lot identifier when in SINGLE scope, null when in GLOBAL scope",
-            example = "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d")
+    @Schema(description = "Parking lot identifier when in SINGLE scope, null when in GLOBAL scope", example = "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d")
     private UUID parkingId;
 
     @Schema(description = "Total capacity of parking slots", example = "150")

@@ -6,17 +6,7 @@ import lombok.Builder;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record CreatePayLink(
-        Integer id,
-        String title,
-        String description,
-        int quantity,
-        String currency,
-        BigDecimal amount,
-        byte typeSell,
-        String email,
-        String mobilePhone,
-        String indicative,
-        String urlConfirmation,
-        String methodConfirmation,
-        String expirationDate) {}
+public record CreatePayLink(Integer id, String title, String description, int quantity, String currency,
+    BigDecimal amount, byte typeSell, String email, String mobilePhone, String indicative, String urlConfirmation,
+    String methodConfirmation, String expirationDate) {
+}

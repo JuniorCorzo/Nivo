@@ -7,7 +7,8 @@ import java.util.UUID;
 /**
  * Thrown when a tenant has no user with the OWNER role assigned.
  *
- * <p><strong>Layer:</strong> Domain
+ * <p>
+ * <strong>Layer:</strong> Domain
  *
  * @author Angel Corzo
  * @since 1.0.0

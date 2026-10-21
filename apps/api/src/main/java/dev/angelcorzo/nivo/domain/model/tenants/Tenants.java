@@ -10,12 +10,15 @@ import lombok.*;
 /**
  * Represents a Tenant, which is a top-level customer entity in this multi-tenant system.
  *
- * <p>A Tenant typically corresponds to a company or organization that subscribes to the Nivo
- * service. All other resources, such as Users and Parking Lots, are scoped under a Tenant.
+ * <p>
+ * A Tenant typically corresponds to a company or organization that subscribes to the Nivo service. All other resources,
+ * such as Users and Parking Lots, are scoped under a Tenant.
  *
- * <p><strong>Layer:</strong> Domain
+ * <p>
+ * <strong>Layer:</strong> Domain
  *
- * <p><strong>Responsibility:</strong> To hold the state and invariants of a Tenant.
+ * <p>
+ * <strong>Responsibility:</strong> To hold the state and invariants of a Tenant.
  *
  * @author Angel Corzo
  * @since 1.0.0
@@ -41,8 +44,7 @@ public class Tenants {
     private OffsetDateTime updatedAt;
 
     /**
-     * The timestamp when the Tenant was soft-deleted. A non-null value indicates the Tenant is
-     * considered deleted.
+     * The timestamp when the Tenant was soft-deleted. A non-null value indicates the Tenant is considered deleted.
      */
     private OffsetDateTime deletedAt;
 

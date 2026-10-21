@@ -13,18 +13,21 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class SlotsRepositoryAdapter extends AdapterOperations<Slots, SlotsData, UUID, SlotsRepositoryData>
-        implements SlotsRepository {
+    implements
+        SlotsRepository {
 
     private final SlotSummaryDataMapper slotSummaryDataMapper;
 
     /**
      * Constructor for AdapterOperations.
      *
-     * @param repository The JPA repository instance.
-     * @param mapper     The mapper for converting between domain and data entities.
+     * @param repository
+     *            The JPA repository instance.
+     * @param mapper
+     *            The mapper for converting between domain and data entities.
      */
-    protected SlotsRepositoryAdapter(
-            SlotsRepositoryData repository, SlotsMappers mapper, SlotSummaryDataMapper slotSummaryDataMapper) {
+    protected SlotsRepositoryAdapter(SlotsRepositoryData repository, SlotsMappers mapper,
+        SlotSummaryDataMapper slotSummaryDataMapper) {
         super(repository, mapper);
         this.slotSummaryDataMapper = slotSummaryDataMapper;
     }
@@ -36,34 +39,24 @@ public class SlotsRepositoryAdapter extends AdapterOperations<Slots, SlotsData, 
 
     @Override
     public List<Slots> findAllByIdInAndTenantId(List<UUID> ids, UUID tenantId) {
-        return super.repository.findAllByIdInAndTenant_Id(ids, tenantId).stream()
-                .map(super::toEntity)
-                .toList();
+        return super.repository.findAllByIdInAndTenant_Id(ids, tenantId).stream().map(super::toEntity).toList();
     }
 
     @Override
     public List<Slots> findAllByParkingLotsId(UUID parkingLotsId) {
-        return super.repository.findAllByParking_Id(parkingLotsId).stream()
-                .map(super::toEntity)
-                .toList();
+        return super.repository.findAllByParking_Id(parkingLotsId).stream().map(super::toEntity).toList();
     }
 
     @Override
     public List<Slots> findAllByParkingLotsIdAndZoneAndPrefix(UUID parkingLotsId, String zone, String prefix) {
-        return super.repository
-                .findAllByParking_IdAndZoneAndPrefix(
-                        parkingLotsId, StringUtils.normalize(zone), StringUtils.normalize(prefix))
-                .stream()
-                .map(super::toEntity)
-                .toList();
+        return super.repository.findAllByParking_IdAndZoneAndPrefix(parkingLotsId, StringUtils.normalize(zone),
+            StringUtils.normalize(prefix)).stream().map(super::toEntity).toList();
     }
 
     @Override
     public List<SlotSummary> findAllSummaryByParkingLotsId(UUID parkingLotsId) {
         return super.repository.findAllSummaryByParking_Id(parkingLotsId).stream()
-                .map(this.slotSummaryDataMapper::toSummaryData)
-                .map(this.slotSummaryDataMapper::toModel)
-                .toList();
+            .map(this.slotSummaryDataMapper::toSummaryData).map(this.slotSummaryDataMapper::toModel).toList();
     }
 
     @Override

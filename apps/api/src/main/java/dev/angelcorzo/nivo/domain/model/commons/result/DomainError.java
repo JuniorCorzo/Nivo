@@ -10,9 +10,6 @@ public interface DomainError {
     Severity severity();
 
     enum Severity {
-        INFO,
-        WARNING,
-        ERROR,
-        CRITICAL
+        INFO, WARNING, ERROR, CRITICAL
     }
 }

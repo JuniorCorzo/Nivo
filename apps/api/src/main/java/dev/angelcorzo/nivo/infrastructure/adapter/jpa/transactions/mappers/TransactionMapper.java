@@ -8,7 +8,6 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.payments.mapper.PaymentMap
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.transactions.TransactionsData;
 import org.mapstruct.Mapper;
 
-@Mapper(
-        config = MapperStructConfig.class,
-        uses = {JacksonConverter.class, PaymentMapper.class})
-public interface TransactionMapper extends BaseMapper<Transactions, TransactionsData> {}
+@Mapper(config = MapperStructConfig.class, uses = {JacksonConverter.class, PaymentMapper.class})
+public interface TransactionMapper extends BaseMapper<Transactions, TransactionsData> {
+}

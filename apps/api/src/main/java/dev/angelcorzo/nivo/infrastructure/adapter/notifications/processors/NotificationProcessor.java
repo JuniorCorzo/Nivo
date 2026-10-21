@@ -25,13 +25,8 @@ public class NotificationProcessor {
     private final NotificationTemplateCache notificationTemplatesCache;
     private final NotificationExecutionContextHolder executionContextHolder;
 
-    @Retryable(
-            maxRetries = 5,
-            includes = {SendGridRequestBuildException.class},
-            predicate = EmailExceptionPredicate.class,
-            delay = RETRY_INITIAL_DELAY_MILLIS,
-            multiplier = RETRY_DELAY_MULTIPLIER,
-            maxDelay = RETRY_MAX_DELAY_MILLIS)
+    @Retryable(maxRetries = 5, includes = {
+        SendGridRequestBuildException.class}, predicate = EmailExceptionPredicate.class, delay = RETRY_INITIAL_DELAY_MILLIS, multiplier = RETRY_DELAY_MULTIPLIER, maxDelay = RETRY_MAX_DELAY_MILLIS)
     public void processEvent(SendNotificationEvent event) {
         if (event.tenantId() == null || event.actorUserId() == null) {
             throw new IllegalStateException("Notification event missing execution context ids");
@@ -41,14 +36,11 @@ public class NotificationProcessor {
 
         final String maskedTo = EmailMaskUtils.mask(event.to());
         try {
-            log.info(
-                    "Processing notification event. eventType={}, channel={}, to={}",
-                    event.notificationEvent(),
-                    event.channel(),
-                    maskedTo);
+            log.info("Processing notification event. eventType={}, channel={}, to={}", event.notificationEvent(),
+                event.channel(), maskedTo);
 
-            final NotificationImmutableKey key =
-                    NotificationImmutableKey.of(event.notificationEvent(), event.channel());
+            final NotificationImmutableKey key = NotificationImmutableKey.of(event.notificationEvent(),
+                event.channel());
 
             this.notificationTemplatesCache.getTemplate(key).ifPresent(template -> {
                 log.debug("Template cache hit for key={}", key);

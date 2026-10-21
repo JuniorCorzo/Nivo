@@ -74,7 +74,8 @@ class ExceptionHandlerControllerTest {
     @DisplayName("Should handle generic AppException with custom status code")
     void shouldHandleGenericAppException() {
         // Arrange
-        AppException customEx = new AppException("Payload validation failed", 400, "INVALID_PAYLOAD") {};
+        AppException customEx = new AppException("Payload validation failed", 400, "INVALID_PAYLOAD") {
+        };
 
         // Act
         ResponseEntity<ResponseError<Object>> response = exceptionHandlerController.appException(customEx);
@@ -90,9 +91,8 @@ class ExceptionHandlerControllerTest {
     @DisplayName("Should handle SlotCannotBeModifiedException with 409 Conflict")
     void shouldHandleSlotCannotBeModifiedException() {
         // Arrange
-        dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException ex =
-                new dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException(
-                        java.util.List.of(UUID.randomUUID()));
+        dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException ex = new dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException(
+            java.util.List.of(UUID.randomUUID()));
 
         // Act
         ResponseEntity<ResponseError<Object>> response = exceptionHandlerController.handleSlotCannotBeModified(ex);
@@ -107,10 +107,10 @@ class ExceptionHandlerControllerTest {
     @DisplayName("Should handle MethodArgumentNotValidException with 400 Bad Request and field errors")
     void shouldHandleMethodArgumentNotValidException() {
         // Arrange
-        org.springframework.web.bind.MethodArgumentNotValidException ex =
-                org.mockito.Mockito.mock(org.springframework.web.bind.MethodArgumentNotValidException.class);
-        org.springframework.validation.BindingResult bindingResult =
-                new org.springframework.validation.BeanPropertyBindingResult(new Object(), "target");
+        org.springframework.web.bind.MethodArgumentNotValidException ex = org.mockito.Mockito
+            .mock(org.springframework.web.bind.MethodArgumentNotValidException.class);
+        org.springframework.validation.BindingResult bindingResult = new org.springframework.validation.BeanPropertyBindingResult(
+            new Object(), "target");
         bindingResult.addError(new org.springframework.validation.FieldError("target", "prefix", "must not be blank"));
         org.mockito.Mockito.when(ex.getBindingResult()).thenReturn(bindingResult);
 
@@ -128,10 +128,10 @@ class ExceptionHandlerControllerTest {
     @DisplayName("Should handle MethodArgumentNotValidException with default message when no field errors exist")
     void shouldHandleMethodArgumentNotValidExceptionWithDefaultMessage() {
         // Arrange
-        org.springframework.web.bind.MethodArgumentNotValidException ex =
-                org.mockito.Mockito.mock(org.springframework.web.bind.MethodArgumentNotValidException.class);
-        org.springframework.validation.BindingResult bindingResult =
-                new org.springframework.validation.BeanPropertyBindingResult(new Object(), "target");
+        org.springframework.web.bind.MethodArgumentNotValidException ex = org.mockito.Mockito
+            .mock(org.springframework.web.bind.MethodArgumentNotValidException.class);
+        org.springframework.validation.BindingResult bindingResult = new org.springframework.validation.BeanPropertyBindingResult(
+            new Object(), "target");
         org.mockito.Mockito.when(ex.getBindingResult()).thenReturn(bindingResult);
 
         // Act

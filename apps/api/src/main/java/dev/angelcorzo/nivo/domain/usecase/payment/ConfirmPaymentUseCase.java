@@ -27,10 +27,9 @@ public class ConfirmPaymentUseCase {
     private final PaymentNotifier paymentNotifier;
 
     public Payments execute(Map<String, String> receipt, String transactionId) {
-        return this.paymentsRepository
-                .findByCheckoutSessionId(transactionId)
-                .map(payment -> this.processConfirmation(receipt, payment))
-                .orElseThrow(() -> new PaymentNotFound(transactionId));
+        return this.paymentsRepository.findByCheckoutSessionId(transactionId)
+            .map(payment -> this.processConfirmation(receipt, payment))
+            .orElseThrow(() -> new PaymentNotFound(transactionId));
     }
 
     private Payments processConfirmation(Map<String, String> receipt, Payments payment) {
@@ -38,14 +37,10 @@ public class ConfirmPaymentUseCase {
             return payment;
         }
 
-        return this.paymentProviderGateway
-                .confirmationPay(receipt)
-                .flatMap(transaction -> this.validateAndAssociate(payment, transaction))
-                .flatMap(this::saveTransaction)
-                .flatMap(transaction -> this.finalizePayment(transaction, payment))
-                .onSuccess(this::closeTicket)
-                .onSuccess(this::notify)
-                .orElseThrow(ConfirmPaymentException::new);
+        return this.paymentProviderGateway.confirmationPay(receipt)
+            .flatMap(transaction -> this.validateAndAssociate(payment, transaction)).flatMap(this::saveTransaction)
+            .flatMap(transaction -> this.finalizePayment(transaction, payment)).onSuccess(this::closeTicket)
+            .onSuccess(this::notify).orElseThrow(ConfirmPaymentException::new);
     }
 
     private Result<Transactions, PaymentError> validateAndAssociate(Payments payment, Transactions transaction) {
@@ -76,7 +71,7 @@ public class ConfirmPaymentUseCase {
             return Result.success(this.transactionsRepository.save(transaction));
         } catch (Exception ex) {
             return Result.failure(
-                    new PaymentError.DatabaseError(String.format("Failed to create transaction: %s", ex.getMessage())));
+                new PaymentError.DatabaseError(String.format("Failed to create transaction: %s", ex.getMessage())));
         }
     }
 
@@ -93,12 +88,10 @@ public class ConfirmPaymentUseCase {
 
     private void closeTicket(Payments currentPayment) {
         try {
-            this.parkingTicketsRepository.closeTicket(
-                    currentPayment.getParkingTicket().getId());
+            this.parkingTicketsRepository.closeTicket(currentPayment.getParkingTicket().getId());
         } catch (Exception ex) {
-            throw new ConfirmPaymentException(new PaymentError.DatabaseError(String.format(
-                    "Failed to close ticket %s: %s",
-                    currentPayment.getParkingTicket().getId(), ex.getMessage())));
+            throw new ConfirmPaymentException(new PaymentError.DatabaseError(String
+                .format("Failed to close ticket %s: %s", currentPayment.getParkingTicket().getId(), ex.getMessage())));
         }
     }
 }

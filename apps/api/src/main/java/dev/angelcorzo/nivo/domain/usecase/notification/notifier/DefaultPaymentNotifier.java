@@ -23,37 +23,21 @@ public class DefaultPaymentNotifier implements PaymentNotifier {
         }
 
         final List<PaymentCheckoutData.Item> items = priceDetailed.getBreakpoint().stream()
-                .map(breakpoint -> PaymentCheckoutData.Item.builder()
-                        .name(breakpoint.concept())
-                        .amount(breakpoint.amount().toPlainString())
-                        .build())
-                .toList();
+            .map(breakpoint -> PaymentCheckoutData.Item.builder().name(breakpoint.concept())
+                .amount(breakpoint.amount().toPlainString()).build())
+            .toList();
 
-        final PaymentCheckoutData content = PaymentCheckoutData.builder()
-                .userName(payment.getUser().fullName())
-                .paymentReference(payment.getExternalPaymentId())
-                .paymentAmount(payment.getAmount().toPlainString())
-                .paymentCurrency(appProperties.getCurrency())
-                .items(items)
-                .dueDate(
-                        payment.getCheckoutExpiresAt() != null
-                                ? payment.getCheckoutExpiresAt().toString()
-                                : null)
-                .ctaUrl(payment.getCheckoutUrl())
-                .companyName(this.appProperties.getCompanyName())
-                .supportUrl(this.appProperties.getSupportUrl())
-                .socialUrl(this.appProperties.getSocialUrl())
-                .unsubscribeUrl(this.appProperties.getUnsubscribeUrl())
-                .companyAddress(this.appProperties.getAddressCompany())
-                .build();
+        final PaymentCheckoutData content = PaymentCheckoutData.builder().userName(payment.getUser().fullName())
+            .paymentReference(payment.getExternalPaymentId()).paymentAmount(payment.getAmount().toPlainString())
+            .paymentCurrency(appProperties.getCurrency()).items(items)
+            .dueDate(payment.getCheckoutExpiresAt() != null ? payment.getCheckoutExpiresAt().toString() : null)
+            .ctaUrl(payment.getCheckoutUrl()).companyName(this.appProperties.getCompanyName())
+            .supportUrl(this.appProperties.getSupportUrl()).socialUrl(this.appProperties.getSocialUrl())
+            .unsubscribeUrl(this.appProperties.getUnsubscribeUrl())
+            .companyAddress(this.appProperties.getAddressCompany()).build();
 
-        this.sendNotificationsUseCase.send(
-                NotificationEvents.PAYMENT_CHECKOUT,
-                NotificationsChannel.EMAIL,
-                payment.getUser().email(),
-                content,
-                payment.getTenant().id(),
-                payment.getUser().id());
+        this.sendNotificationsUseCase.send(NotificationEvents.PAYMENT_CHECKOUT, NotificationsChannel.EMAIL,
+            payment.getUser().email(), content, payment.getTenant().id(), payment.getUser().id());
     }
 
     @Override
@@ -62,32 +46,16 @@ public class DefaultPaymentNotifier implements PaymentNotifier {
             return;
         }
 
-        final PaymentCompletedData content = PaymentCompletedData.builder()
-                .userName(payment.getUser().fullName())
-                .paymentReference(payment.getExternalPaymentId())
-                .paymentAmount(payment.getAmount().toPlainString())
-                .paymentMethod(
-                        payment.getPaymentMethod() != null
-                                ? payment.getPaymentMethod().name()
-                                : null)
-                .paymentDate(
-                        payment.getPaymentDate() != null
-                                ? payment.getPaymentDate().toString()
-                                : null)
-                .ctaUrl(this.appProperties.getCtaUrl())
-                .companyName(this.appProperties.getCompanyName())
-                .supportUrl(this.appProperties.getSupportUrl())
-                .socialUrl(this.appProperties.getSocialUrl())
-                .unsubscribeUrl(this.appProperties.getUnsubscribeUrl())
-                .companyAddress(this.appProperties.getAddressCompany())
-                .build();
+        final PaymentCompletedData content = PaymentCompletedData.builder().userName(payment.getUser().fullName())
+            .paymentReference(payment.getExternalPaymentId()).paymentAmount(payment.getAmount().toPlainString())
+            .paymentMethod(payment.getPaymentMethod() != null ? payment.getPaymentMethod().name() : null)
+            .paymentDate(payment.getPaymentDate() != null ? payment.getPaymentDate().toString() : null)
+            .ctaUrl(this.appProperties.getCtaUrl()).companyName(this.appProperties.getCompanyName())
+            .supportUrl(this.appProperties.getSupportUrl()).socialUrl(this.appProperties.getSocialUrl())
+            .unsubscribeUrl(this.appProperties.getUnsubscribeUrl())
+            .companyAddress(this.appProperties.getAddressCompany()).build();
 
-        this.sendNotificationsUseCase.send(
-                NotificationEvents.PAYMENT_COMPLETED,
-                NotificationsChannel.EMAIL,
-                payment.getUser().email(),
-                content,
-                payment.getTenant().id(),
-                payment.getUser().id());
+        this.sendNotificationsUseCase.send(NotificationEvents.PAYMENT_COMPLETED, NotificationsChannel.EMAIL,
+            payment.getUser().email(), content, payment.getTenant().id(), payment.getUser().id());
     }
 }

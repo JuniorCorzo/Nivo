@@ -22,8 +22,8 @@ public class SendGridMailFactory {
     private final SendGridProperties sendGridProperties;
 
     /**
-     * Builds a {@link Mail} object populated with the sender, dynamic template ID, recipient, and
-     * dynamic template variables from the notification content.
+     * Builds a {@link Mail} object populated with the sender, dynamic template ID, recipient, and dynamic template
+     * variables from the notification content.
      */
     public Mail buildMail(NotificationTemplates template, String to, NotificationsData content) {
         final Mail mail = new Mail();
@@ -41,7 +41,8 @@ public class SendGridMailFactory {
     /**
      * Serializes a {@link Mail} into a SendGrid {@link Request} ready to be dispatched.
      *
-     * @throws SendGridRequestBuildException if the mail body cannot be serialized
+     * @throws SendGridRequestBuildException
+     *             if the mail body cannot be serialized
      */
     public Request buildRequest(Mail mail) {
         final Request request = new Request();

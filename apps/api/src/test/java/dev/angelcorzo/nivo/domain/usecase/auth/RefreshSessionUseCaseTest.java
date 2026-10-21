@@ -53,16 +53,9 @@ class RefreshSessionUseCaseTest {
 
             Map<String, String> claims = Map.of("sub", userId.toString(), "tenantId", tenantId.toString());
 
-            Users mockUser = Users.builder()
-                    .id(userId)
-                    .email("user@example.com")
-                    .fullName("Test User")
-                    .role(dev.angelcorzo.nivo.domain.model.users.enums.Roles.OWNER)
-                    .tenant(TenantReference.builder()
-                            .id(tenantId)
-                            .companyName("test company")
-                            .build())
-                    .build();
+            Users mockUser = Users.builder().id(userId).email("user@example.com").fullName("Test User")
+                .role(dev.angelcorzo.nivo.domain.model.users.enums.Roles.OWNER)
+                .tenant(TenantReference.builder().id(tenantId).companyName("test company").build()).build();
 
             doNothing().when(authenticationGateway).validateToken(validRefreshToken);
             when(authenticationGateway.extractTokenClaims(validRefreshToken)).thenReturn(claims);
@@ -95,13 +88,11 @@ class RefreshSessionUseCaseTest {
         void shouldThrowExceptionWhenTokenIsInvalid() {
             // Arrange
             String invalidToken = "invalid-token";
-            doThrow(new TokenInvalidException("Invalid"))
-                    .when(authenticationGateway)
-                    .validateToken(invalidToken);
+            doThrow(new TokenInvalidException("Invalid")).when(authenticationGateway).validateToken(invalidToken);
 
             // Act & Assert
             assertThatThrownBy(() -> refreshSessionUseCase.refreshAccessToken(invalidToken))
-                    .isInstanceOf(TokenInvalidException.class);
+                .isInstanceOf(TokenInvalidException.class);
 
             verify(usersRepository, never()).findByIdAndTenantId(any(), any());
         }
@@ -116,13 +107,12 @@ class RefreshSessionUseCaseTest {
             Map<String, String> claims = Map.of("sub", userId.toString(), "tenantId", tenantId.toString());
 
             doNothing().when(authenticationGateway).validateToken(validTokenWithNonExistentUser);
-            when(authenticationGateway.extractTokenClaims(validTokenWithNonExistentUser))
-                    .thenReturn(claims);
+            when(authenticationGateway.extractTokenClaims(validTokenWithNonExistentUser)).thenReturn(claims);
             when(usersRepository.findByIdAndTenantId(userId, tenantId)).thenReturn(Optional.empty());
 
             // Act & Assert
             assertThatThrownBy(() -> refreshSessionUseCase.refreshAccessToken(validTokenWithNonExistentUser))
-                    .isInstanceOf(UserNotExistsInTenantException.class);
+                .isInstanceOf(UserNotExistsInTenantException.class);
 
             verify(authenticationGateway, never()).generateAccessToken(any());
             verify(authenticationGateway, never()).generateRefreshToken(any());

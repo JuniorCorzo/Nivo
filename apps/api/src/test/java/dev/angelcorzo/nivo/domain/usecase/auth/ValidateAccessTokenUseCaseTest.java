@@ -57,7 +57,7 @@ class ValidateAccessTokenUseCaseTest {
 
             // Act & Assert
             assertThatThrownBy(() -> validateAccessTokenUseCase.validate(expiredToken))
-                    .isInstanceOf(ExpiredTokenException.class);
+                .isInstanceOf(ExpiredTokenException.class);
 
             // Verify
             verify(authenticationGateway).validateToken(expiredToken);
@@ -72,7 +72,7 @@ class ValidateAccessTokenUseCaseTest {
 
             // Act & Assert
             assertThatThrownBy(() -> validateAccessTokenUseCase.validate(malformedToken))
-                    .isInstanceOf(MalformedTokenException.class);
+                .isInstanceOf(MalformedTokenException.class);
 
             // Verify
             verify(authenticationGateway).validateToken(malformedToken);
@@ -83,14 +83,12 @@ class ValidateAccessTokenUseCaseTest {
         void shouldPropagateTokenInvalidException() {
             // Arrange
             String invalidToken = "an-invalid-token-for-other-reasons";
-            doThrow(new TokenInvalidException("Invalid signature"))
-                    .when(authenticationGateway)
-                    .validateToken(invalidToken);
+            doThrow(new TokenInvalidException("Invalid signature")).when(authenticationGateway)
+                .validateToken(invalidToken);
 
             // Act & Assert
             assertThatThrownBy(() -> validateAccessTokenUseCase.validate(invalidToken))
-                    .isInstanceOf(TokenInvalidException.class)
-                    .hasMessageContaining("Invalid signature");
+                .isInstanceOf(TokenInvalidException.class).hasMessageContaining("Invalid signature");
 
             // Verify
             verify(authenticationGateway).validateToken(invalidToken);

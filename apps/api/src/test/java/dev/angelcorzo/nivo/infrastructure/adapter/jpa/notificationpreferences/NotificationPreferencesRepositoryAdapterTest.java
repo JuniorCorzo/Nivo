@@ -31,12 +31,11 @@ class NotificationPreferencesRepositoryAdapterTest {
     @Test
     @DisplayName("Should check if notification is enabled")
     void shouldCheckIsEnable() {
-        when(repository.existsByEventTypeAndChannelAndUser_EmailAndIsEnabledTrue(
-                        NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL, "user@example.com"))
-                .thenReturn(true);
+        when(repository.existsByEventTypeAndChannelAndUser_EmailAndIsEnabledTrue(NotificationEvents.TICKET_OPENED,
+            NotificationsChannel.EMAIL, "user@example.com")).thenReturn(true);
 
-        boolean enabled =
-                adapter.isEnable(NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL, "user@example.com");
+        boolean enabled = adapter.isEnable(NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL,
+            "user@example.com");
 
         assertThat(enabled).isTrue();
     }
@@ -46,8 +45,7 @@ class NotificationPreferencesRepositoryAdapterTest {
     void shouldFindAllByUserId() {
         UUID userId = UUID.randomUUID();
         NotificationPreferencesData data = new NotificationPreferencesData();
-        NotificationPreferences entity =
-                NotificationPreferences.builder().id(UUID.randomUUID()).build();
+        NotificationPreferences entity = NotificationPreferences.builder().id(UUID.randomUUID()).build();
 
         when(repository.findAllByUser_Id(userId)).thenReturn(List.of(data));
         when(mapper.toEntity(data)).thenReturn(entity);
@@ -65,12 +63,11 @@ class NotificationPreferencesRepositoryAdapterTest {
         NotificationPreferencesData data = new NotificationPreferencesData();
         data.setIsEnabled(false);
 
-        when(repository.findByUser_IdAndEventTypeAndChannel(
-                        userId, NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL))
-                .thenReturn(Optional.of(data));
+        when(repository.findByUser_IdAndEventTypeAndChannel(userId, NotificationEvents.TICKET_OPENED,
+            NotificationsChannel.EMAIL)).thenReturn(Optional.of(data));
 
-        boolean newStatus =
-                adapter.toggleActiveStatus(userId, NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL);
+        boolean newStatus = adapter.toggleActiveStatus(userId, NotificationEvents.TICKET_OPENED,
+            NotificationsChannel.EMAIL);
 
         assertThat(newStatus).isTrue();
         assertThat(data.getIsEnabled()).isTrue();

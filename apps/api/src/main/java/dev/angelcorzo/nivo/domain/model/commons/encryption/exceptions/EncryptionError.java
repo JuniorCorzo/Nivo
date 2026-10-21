@@ -3,7 +3,7 @@ package dev.angelcorzo.nivo.domain.model.commons.encryption.exceptions;
 import dev.angelcorzo.nivo.domain.model.commons.result.DomainError;
 
 public sealed interface EncryptionError extends DomainError
-        permits EncryptionError.EncryptionFailed, EncryptionError.DecryptionFailed {
+    permits EncryptionError.EncryptionFailed, EncryptionError.DecryptionFailed {
 
     record EncryptionFailed(int status, String code, String message, Severity severity) implements EncryptionError {
         public EncryptionFailed() {

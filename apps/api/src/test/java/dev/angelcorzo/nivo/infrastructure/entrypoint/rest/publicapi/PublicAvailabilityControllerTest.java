@@ -39,32 +39,23 @@ class PublicAvailabilityControllerTest {
     @DisplayName("Endpoint público no requiere cabecera Authorization y devuelve JSON sanitizado sin datos privados")
     void shouldReturnSanitizedAvailabilityWithoutAuth() throws Exception {
         final UUID parkingId = UUID.randomUUID();
-        final PublicParkingAvailabilityDTO dto = PublicParkingAvailabilityDTO.builder()
-                .parkingId(parkingId)
-                .parkingName("Sede Central")
-                .totalSlots(100)
-                .availableSlots(40)
-                .occupiedSlots(60)
-                .timestamp(OffsetDateTime.now())
-                .build();
+        final PublicParkingAvailabilityDTO dto = PublicParkingAvailabilityDTO.builder().parkingId(parkingId)
+            .parkingName("Sede Central").totalSlots(100).availableSlots(40).occupiedSlots(60)
+            .timestamp(OffsetDateTime.now()).build();
 
         when(availabilityUseCase.execute(parkingId)).thenReturn(Optional.of(dto));
 
         mockMvc.perform(get("/public/parkings/" + parkingId + "/availability").with(request -> {
-                    request.setRemoteAddr("10.0.0.1");
-                    return request;
-                }))
-                .andExpect(status().isOk())
-                .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("max-age=30")))
-                .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("public")))
-                .andExpect(jsonPath("$.parkingId").value(parkingId.toString()))
-                .andExpect(jsonPath("$.parkingName").value("Sede Central"))
-                .andExpect(jsonPath("$.totalSlots").value(100))
-                .andExpect(jsonPath("$.availableSlots").value(40))
-                .andExpect(jsonPath("$.occupiedSlots").value(60))
-                .andExpect(jsonPath("$.tenantId").doesNotExist())
-                .andExpect(jsonPath("$.revenue").doesNotExist())
-                .andExpect(jsonPath("$.tickets").doesNotExist());
+            request.setRemoteAddr("10.0.0.1");
+            return request;
+        })).andExpect(status().isOk())
+            .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("max-age=30")))
+            .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("public")))
+            .andExpect(jsonPath("$.parkingId").value(parkingId.toString()))
+            .andExpect(jsonPath("$.parkingName").value("Sede Central")).andExpect(jsonPath("$.totalSlots").value(100))
+            .andExpect(jsonPath("$.availableSlots").value(40)).andExpect(jsonPath("$.occupiedSlots").value(60))
+            .andExpect(jsonPath("$.tenantId").doesNotExist()).andExpect(jsonPath("$.revenue").doesNotExist())
+            .andExpect(jsonPath("$.tickets").doesNotExist());
     }
 
     @Test
@@ -74,24 +65,18 @@ class PublicAvailabilityControllerTest {
         when(availabilityUseCase.execute(nonExistent)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/public/parkings/" + nonExistent + "/availability").with(request -> {
-                    request.setRemoteAddr("10.0.0.2");
-                    return request;
-                }))
-                .andExpect(status().isNotFound());
+            request.setRemoteAddr("10.0.0.2");
+            return request;
+        })).andExpect(status().isNotFound());
     }
 
     @Test
     @DisplayName("Exceder tasa de 60 req/min genera HTTP 429 con Retry-After")
     void shouldReturn429WhenRateLimitExceeded() throws Exception {
         final UUID parkingId = UUID.randomUUID();
-        final PublicParkingAvailabilityDTO dto = PublicParkingAvailabilityDTO.builder()
-                .parkingId(parkingId)
-                .parkingName("Sede Rate Limit")
-                .totalSlots(50)
-                .availableSlots(20)
-                .occupiedSlots(30)
-                .timestamp(OffsetDateTime.now())
-                .build();
+        final PublicParkingAvailabilityDTO dto = PublicParkingAvailabilityDTO.builder().parkingId(parkingId)
+            .parkingName("Sede Rate Limit").totalSlots(50).availableSlots(20).occupiedSlots(30)
+            .timestamp(OffsetDateTime.now()).build();
 
         when(availabilityUseCase.execute(parkingId)).thenReturn(Optional.of(dto));
 
@@ -101,22 +86,20 @@ class PublicAvailabilityControllerTest {
         // Consumir el bucket (60 req/min) de forma tolerante a tiempos de ejecución lentos en CI.
         // Se itera hasta alcanzar 429 (ocurre normalmente entre la petición 61 y 65 si se rellenan tokens).
         for (int i = 1; i <= 70; i++) {
-            final MvcResult result = mockMvc.perform(get("/public/parkings/" + parkingId + "/availability")
-                            .with(request -> {
-                                request.setRemoteAddr(clientIp);
-                                return request;
-                            }))
-                    .andReturn();
+            final MvcResult result = mockMvc
+                .perform(get("/public/parkings/" + parkingId + "/availability").with(request -> {
+                    request.setRemoteAddr(clientIp);
+                    return request;
+                })).andReturn();
 
             final int status = result.getResponse().getStatus();
             if (status == 429) {
                 rateLimitHit = true;
                 assertThat(i).isGreaterThanOrEqualTo(61);
                 assertThat(result.getResponse().getHeader("Retry-After")).isNotNull();
-                assertThat(result.getResponse().getHeader("X-RateLimit-Remaining"))
-                        .isEqualTo("0");
+                assertThat(result.getResponse().getHeader("X-RateLimit-Remaining")).isEqualTo("0");
                 assertThat(result.getResponse().getContentAsString())
-                        .contains("Rate limit of 60 requests per minute exceeded");
+                    .contains("Rate limit of 60 requests per minute exceeded");
                 break;
             }
             assertThat(status).isEqualTo(200);

@@ -42,26 +42,13 @@ class UpdateParkingLotsUseCaseTest {
     @DisplayName("Should update parking lot successfully")
     void shouldUpdateParkingLotSuccessfully() {
         UUID parkingId = UUID.randomUUID();
-        Address address =
-                Address.builder().street("New Address 456").city("Bogotá").build();
-        Coordinates coordinates =
-                Coordinates.builder().latitude(4.60).longitude(-74.08).build();
-        OperatingHours hours = OperatingHours.builder()
-                .openTime(OffsetTime.now())
-                .closeTime(OffsetTime.now())
-                .build();
-        UpsertParkingLotsDTO command = new UpsertParkingLotsDTO(
-                parkingId,
-                "Updated Lot",
-                address,
-                coordinates,
-                "America/Bogota",
-                "COP",
-                hours,
-                Collections.emptyList());
+        Address address = Address.builder().street("New Address 456").city("Bogotá").build();
+        Coordinates coordinates = Coordinates.builder().latitude(4.60).longitude(-74.08).build();
+        OperatingHours hours = OperatingHours.builder().openTime(OffsetTime.now()).closeTime(OffsetTime.now()).build();
+        UpsertParkingLotsDTO command = new UpsertParkingLotsDTO(parkingId, "Updated Lot", address, coordinates,
+            "America/Bogota", "COP", hours, Collections.emptyList());
 
-        ParkingLots existing =
-                ParkingLots.builder().id(parkingId).name("Old Lot").build();
+        ParkingLots existing = ParkingLots.builder().id(parkingId).name("Old Lot").build();
 
         when(parkingLotsRepository.existsById(parkingId)).thenReturn(true);
         when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(existing));
@@ -79,23 +66,11 @@ class UpdateParkingLotsUseCaseTest {
     @DisplayName("Should throw ParkingNotExistsException when parking lot does not exist")
     void shouldThrowWhenParkingLotNotFound() {
         UUID parkingId = UUID.randomUUID();
-        Address address =
-                Address.builder().street("New Address 456").city("Bogotá").build();
-        Coordinates coordinates =
-                Coordinates.builder().latitude(4.60).longitude(-74.08).build();
-        OperatingHours hours = OperatingHours.builder()
-                .openTime(OffsetTime.now())
-                .closeTime(OffsetTime.now())
-                .build();
-        UpsertParkingLotsDTO command = new UpsertParkingLotsDTO(
-                parkingId,
-                "Updated Lot",
-                address,
-                coordinates,
-                "America/Bogota",
-                "COP",
-                hours,
-                Collections.emptyList());
+        Address address = Address.builder().street("New Address 456").city("Bogotá").build();
+        Coordinates coordinates = Coordinates.builder().latitude(4.60).longitude(-74.08).build();
+        OperatingHours hours = OperatingHours.builder().openTime(OffsetTime.now()).closeTime(OffsetTime.now()).build();
+        UpsertParkingLotsDTO command = new UpsertParkingLotsDTO(parkingId, "Updated Lot", address, coordinates,
+            "America/Bogota", "COP", hours, Collections.emptyList());
 
         when(parkingLotsRepository.existsById(parkingId)).thenReturn(false);
 

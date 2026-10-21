@@ -10,14 +10,11 @@ import lombok.Builder;
 @Builder(toBuilder = true)
 @Schema(description = "Request payload for batch updating equipment metadata on slots")
 public record UpdateSlotMetadataRequest(
-        @Schema(description = "List of slot IDs to update", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotNull @NotEmpty List<UUID> slotIds,
+    @Schema(description = "List of slot IDs to update", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull @NotEmpty List<UUID> slotIds,
 
-        @Schema(description = "Whether the slots have EV charging equipment", example = "true")
-        Boolean hasCharger,
+    @Schema(description = "Whether the slots have EV charging equipment", example = "true") Boolean hasCharger,
 
-        @Schema(description = "Whether the slots are PMR / accessible", example = "false")
-        Boolean isAccessible,
+    @Schema(description = "Whether the slots are PMR / accessible", example = "false") Boolean isAccessible,
 
-        @Schema(description = "Whether the slots are active / operational", example = "true")
-        Boolean isActive) {}
+    @Schema(description = "Whether the slots are active / operational", example = "true") Boolean isActive) {
+}

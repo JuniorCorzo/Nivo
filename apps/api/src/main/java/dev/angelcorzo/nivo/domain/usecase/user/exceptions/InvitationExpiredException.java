@@ -13,10 +13,10 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.ErrorMessagesModel;
 import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
 
 public class InvitationExpiredException extends AppException {
-  private static final int STATUS = 410;
-  private static final String CODE = "INVITATION_EXPIRED";
+    private static final int STATUS = 410;
+    private static final String CODE = "INVITATION_EXPIRED";
 
-  public InvitationExpiredException() {
-    super(ErrorMessagesModel.INVITATION_EXPIRED.toString(), STATUS, CODE);
-  }
+    public InvitationExpiredException() {
+        super(ErrorMessagesModel.INVITATION_EXPIRED.toString(), STATUS, CODE);
+    }
 }

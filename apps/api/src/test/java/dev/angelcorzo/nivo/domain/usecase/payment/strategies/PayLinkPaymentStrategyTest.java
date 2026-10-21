@@ -52,8 +52,8 @@ class PayLinkPaymentStrategyTest {
         paymentProviderGateway = mock(PaymentProviderGateway.class);
         paymentNotifier = mock(PaymentNotifier.class);
 
-        strategy = new PayLinkPaymentStrategy(
-                paymentsRepository, parkingTicketsRepository, paymentProviderGateway, paymentNotifier);
+        strategy = new PayLinkPaymentStrategy(paymentsRepository, parkingTicketsRepository, paymentProviderGateway,
+            paymentNotifier);
     }
 
     private PriceDetailed createSamplePriceDetailed(BigDecimal amount) {
@@ -73,42 +73,25 @@ class PayLinkPaymentStrategyTest {
             UUID ticketId = UUID.randomUUID();
             UUID tenantId = UUID.randomUUID();
             BigDecimal amount = BigDecimal.valueOf(15000);
-            ParkingTickets ticket = ParkingTickets.builder()
-                    .id(ticketId)
-                    .licensePlate("ABC-123")
-                    .build();
+            ParkingTickets ticket = ParkingTickets.builder().id(ticketId).licensePlate("ABC-123").build();
 
             CheckOut checkOut = new NoSendCheckOut(ticketId, tenantId, PaymentsMethods.PAY_LINK);
             PriceDetailed price = createSamplePriceDetailed(amount);
             PaymentCommand command = PaymentCommand.of(ticket, price, checkOut);
 
-            Payments initialPayment = Payments.builder()
-                    .id(UUID.randomUUID())
-                    .parkingTicket(ticket)
-                    .amount(amount)
-                    .status(PaymentStatus.PENDING_CHECKOUT)
-                    .build();
+            Payments initialPayment = Payments.builder().id(UUID.randomUUID()).parkingTicket(ticket).amount(amount)
+                .status(PaymentStatus.PENDING_CHECKOUT).build();
 
-            ProviderMetadata metadata = new ProviderMetadata(
-                    "epayco",
-                    "ext-pay-123",
-                    "session-456",
-                    "https://checkout.epayco.co/123",
-                    OffsetDateTime.now().plusHours(1),
-                    "rawResponse");
+            ProviderMetadata metadata = new ProviderMetadata("epayco", "ext-pay-123", "session-456",
+                "https://checkout.epayco.co/123", OffsetDateTime.now().plusHours(1), "rawResponse");
 
-            Payments updatedPayment = initialPayment.toBuilder()
-                    .status(PaymentStatus.PENDING_PAYMENT)
-                    .provider("epayco")
-                    .externalPaymentId("ext-pay-123")
-                    .checkoutSessionId("session-456")
-                    .checkoutUrl("https://checkout.epayco.co/123")
-                    .build();
+            Payments updatedPayment = initialPayment.toBuilder().status(PaymentStatus.PENDING_PAYMENT)
+                .provider("epayco").externalPaymentId("ext-pay-123").checkoutSessionId("session-456")
+                .checkoutUrl("https://checkout.epayco.co/123").build();
 
             when(parkingTicketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
-            when(paymentsRepository.processPayment(any(Payments.class)))
-                    .thenReturn(Result.success(initialPayment))
-                    .thenReturn(Result.success(updatedPayment));
+            when(paymentsRepository.processPayment(any(Payments.class))).thenReturn(Result.success(initialPayment))
+                .thenReturn(Result.success(updatedPayment));
             when(paymentProviderGateway.processPayment(any(), any(), any())).thenReturn(Result.success(metadata));
 
             // Act
@@ -133,10 +116,8 @@ class PayLinkPaymentStrategyTest {
             // Arrange
             UUID ticketId = UUID.randomUUID();
             ParkingTickets ticket = ParkingTickets.builder().id(ticketId).build();
-            PaymentCommand command = PaymentCommand.of(
-                    ticket,
-                    createSamplePriceDetailed(BigDecimal.TEN),
-                    new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.PAY_LINK));
+            PaymentCommand command = PaymentCommand.of(ticket, createSamplePriceDetailed(BigDecimal.TEN),
+                new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.PAY_LINK));
 
             when(parkingTicketsRepository.findById(ticketId)).thenReturn(Optional.empty());
 
@@ -152,14 +133,12 @@ class PayLinkPaymentStrategyTest {
             // Arrange
             UUID ticketId = UUID.randomUUID();
             ParkingTickets ticket = ParkingTickets.builder().id(ticketId).build();
-            PaymentCommand command = PaymentCommand.of(
-                    ticket,
-                    createSamplePriceDetailed(BigDecimal.TEN),
-                    new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.PAY_LINK));
+            PaymentCommand command = PaymentCommand.of(ticket, createSamplePriceDetailed(BigDecimal.TEN),
+                new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.PAY_LINK));
 
             when(parkingTicketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
             when(paymentsRepository.processPayment(any(Payments.class)))
-                    .thenReturn(Result.failure(new PaymentError.DatabaseError("DB connection failed")));
+                .thenReturn(Result.failure(new PaymentError.DatabaseError("DB connection failed")));
 
             // Act
             Result<Payments, PaymentError> result = strategy.processPayment(command);
@@ -177,20 +156,15 @@ class PayLinkPaymentStrategyTest {
             // Arrange
             UUID ticketId = UUID.randomUUID();
             ParkingTickets ticket = ParkingTickets.builder().id(ticketId).build();
-            PaymentCommand command = PaymentCommand.of(
-                    ticket,
-                    createSamplePriceDetailed(BigDecimal.TEN),
-                    new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.PAY_LINK));
+            PaymentCommand command = PaymentCommand.of(ticket, createSamplePriceDetailed(BigDecimal.TEN),
+                new NoSendCheckOut(ticketId, UUID.randomUUID(), PaymentsMethods.PAY_LINK));
 
-            Payments initialPayment = Payments.builder()
-                    .id(UUID.randomUUID())
-                    .parkingTicket(ticket)
-                    .build();
+            Payments initialPayment = Payments.builder().id(UUID.randomUUID()).parkingTicket(ticket).build();
 
             when(parkingTicketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
             when(paymentsRepository.processPayment(any(Payments.class))).thenReturn(Result.success(initialPayment));
             when(paymentProviderGateway.processPayment(any(), any(), any()))
-                    .thenReturn(Result.failure(new PaymentError.ProviderServerError("Epayco", "502 Bad Gateway")));
+                .thenReturn(Result.failure(new PaymentError.ProviderServerError("Epayco", "502 Bad Gateway")));
 
             // Act
             Result<Payments, PaymentError> result = strategy.processPayment(command);

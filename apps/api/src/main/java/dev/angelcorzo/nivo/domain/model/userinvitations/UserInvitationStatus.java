@@ -3,11 +3,17 @@ package dev.angelcorzo.nivo.domain.model.userinvitations;
 /**
  * Represents the status of a user invitation.
  *
- * <p>This enum tracks the lifecycle of an invitation from its creation until it is
- * resolved (accepted, expired, or revoked).</p>
+ * <p>
+ * This enum tracks the lifecycle of an invitation from its creation until it is resolved (accepted, expired, or
+ * revoked).
+ * </p>
  *
- * <p><strong>Layer:</strong> Domain</p>
- * <p><strong>Responsibility:</strong> To provide a type-safe representation of invitation states.</p>
+ * <p>
+ * <strong>Layer:</strong> Domain
+ * </p>
+ * <p>
+ * <strong>Responsibility:</strong> To provide a type-safe representation of invitation states.
+ * </p>
  *
  * @author Angel Corzo
  * @since 1.0.0

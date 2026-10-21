@@ -35,8 +35,7 @@ class TransactionRepositoryAdapterTest {
     void shouldFindBySupplierRef() {
         String ref = "TX-9999";
         TransactionsData data = new TransactionsData();
-        Transactions entity =
-                Transactions.builder().id(UUID.randomUUID()).supplierRef(ref).build();
+        Transactions entity = Transactions.builder().id(UUID.randomUUID()).supplierRef(ref).build();
 
         when(repository.findBySupplierRef(ref)).thenReturn(Optional.of(data));
         when(mapper.toEntity(data)).thenReturn(entity);
@@ -88,16 +87,9 @@ class TransactionRepositoryAdapterTest {
         PaymentsData paymentData = new PaymentsData();
         paymentData.setId(paymentId);
 
-        Transactions entity = Transactions.builder()
-                .id(transactionId)
-                .payment(payment)
-                .supplierRef("EFF-" + paymentId)
-                .paymentProvider("EFFECTIVE")
-                .amount(BigDecimal.valueOf(25000))
-                .currency("COP")
-                .status(TransactionStatus.APPROVED)
-                .createdAt(OffsetDateTime.now())
-                .build();
+        Transactions entity = Transactions.builder().id(transactionId).payment(payment).supplierRef("EFF-" + paymentId)
+            .paymentProvider("EFFECTIVE").amount(BigDecimal.valueOf(25000)).currency("COP")
+            .status(TransactionStatus.APPROVED).createdAt(OffsetDateTime.now()).build();
 
         TransactionsData data = new TransactionsData();
         data.setId(transactionId);

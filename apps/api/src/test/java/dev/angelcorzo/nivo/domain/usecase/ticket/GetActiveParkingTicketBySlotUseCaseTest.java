@@ -28,10 +28,7 @@ class GetActiveParkingTicketBySlotUseCaseTest {
     @DisplayName("Should return active ticket when slot has an open ticket")
     void shouldReturnActiveTicketWhenPresent() {
         UUID slotId = UUID.randomUUID();
-        ParkingTickets ticket = ParkingTickets.builder()
-                .id(UUID.randomUUID())
-                .status(ParkingTicketStatus.OPEN)
-                .build();
+        ParkingTickets ticket = ParkingTickets.builder().id(UUID.randomUUID()).status(ParkingTicketStatus.OPEN).build();
 
         when(parkingTicketsRepository.findActiveBySlotId(slotId)).thenReturn(Optional.of(ticket));
 

@@ -15,11 +15,8 @@ public class DashboardDomainEventListener {
 
     @EventListener
     public void onDashboardUpdate(final DashboardUpdateEvent event) {
-        log.debug(
-                "Broadcasting DashboardUpdateEvent: tenant={}, parking={}, event={}",
-                event.tenantId(),
-                event.parkingId(),
-                event.eventName());
+        log.debug("Broadcasting DashboardUpdateEvent: tenant={}, parking={}, event={}", event.tenantId(),
+            event.parkingId(), event.eventName());
         sseRegistry.broadcast(event.tenantId(), event.parkingId(), event.eventName(), event.data());
     }
 }

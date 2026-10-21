@@ -70,24 +70,17 @@ class RateControllerTest {
 
         when(calculateRateUseCase.execute(ticketId)).thenReturn(price);
 
-        mockMvc.perform(get("/rates/{ticketId}/calculate", ticketId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value(RateMessages.CALCULATE_PRICE.format()));
+        mockMvc.perform(get("/rates/{ticketId}/calculate", ticketId)).andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(RateMessages.CALCULATE_PRICE.format()));
     }
 
     @Test
     @DisplayName("PUT /rates/update - Should update tariff rate")
     void shouldUpdateRate() throws Exception {
         UUID rateId = UUID.randomUUID();
-        UpdateRate request = UpdateRate.builder()
-                .id(rateId)
-                .name("Day Rate")
-                .description("Daytime rate")
-                .pricePerUnit(BigDecimal.valueOf(5000))
-                .timeUnit(TimeUnitsRate.HOURS)
-                .minChargeTimeMinutes(15)
-                .vehicleType(VehicleType.CAR)
-                .build();
+        UpdateRate request = UpdateRate.builder().id(rateId).name("Day Rate").description("Daytime rate")
+            .pricePerUnit(BigDecimal.valueOf(5000)).timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(15)
+            .vehicleType(VehicleType.CAR).build();
 
         UpdateRateUseCase.UpdateRate domainCommand = mock(UpdateRateUseCase.UpdateRate.class);
         Rates updatedRate = Rates.builder().id(rateId).build();
@@ -97,11 +90,11 @@ class RateControllerTest {
         when(updateRateUseCase.execute(domainCommand)).thenReturn(updatedRate);
         when(ratesMapper.toDTO(updatedRate)).thenReturn(responseDto);
 
-        mockMvc.perform(put("/rates/update")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value(RateMessages.UPDATED_RATE_SUCCESSFULLY.format()));
+        mockMvc
+            .perform(put("/rates/update").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(RateMessages.UPDATED_RATE_SUCCESSFULLY.format()));
     }
 
     @Test
@@ -112,9 +105,8 @@ class RateControllerTest {
 
         when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
-        mockMvc.perform(delete("/rates/{id}/delete", rateId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value(RateMessages.DELETE_RATE_SUCCESSFULLY.format()));
+        mockMvc.perform(delete("/rates/{id}/delete", rateId)).andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(RateMessages.DELETE_RATE_SUCCESSFULLY.format()));
 
         verify(deleteRateUseCase).execute(rateId, tenantId);
     }

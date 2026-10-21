@@ -3,37 +3,37 @@ package dev.angelcorzo.nivo.domain.model.commons.exceptions;
 /**
  * Enum to standardize error message templates across the domain layer.
  *
- * <p><strong>Layer:</strong> Domain
+ * <p>
+ * <strong>Layer:</strong> Domain
  *
- * <p><strong>Responsibility:</strong> To provide a single source of truth for error message
- * formats.
+ * <p>
+ * <strong>Responsibility:</strong> To provide a single source of truth for error message formats.
  *
  * @author Angel Corzo
  * @since 1.0.0
  */
 public enum ErrorMessagesModel {
-    INVITATION_NOT_FOUND("Invitación no encontrada"),
-    INVITATION_EXPIRED("La invitación expiró"),
-    INVITATION_ALREADY_ACCEPTED("La invitación fue aceptada el %s"),
-    USER_NOT_EXIST_EMAIL("El usuario con email %s no existe"),
-    USER_NOT_EXIST_ID("El usuario con ID %s no existe"),
-    USER_NOT_EXIST_IN_TENANT("El usuario no está asociado al tenant"),
-    USER_AUTHENTICATION_INVALID("Error en la autentificación del usuario."),
-    USER_ALREADY_DEACTIVATED("El usuario %s ya fue desactivado"),
-    USER_BAD_CREDENTIALS("Credenciales incorrectas"),
-    LAST_OWNER_CANNOT_BE_DEACTIVATED("El último dueño no puede ser desactivado"),
-    TENANT_NOT_EXISTS("El inquilino con ID %s no está registrado"),
-    PARKING_NOT_EXISTS("El parking con ID %s no está registrado"),
-    SLOT_NOT_EXISTS("El slot con ID %s no está registrado"),
-    SPECIAL_POLICY_NOT_FOUNT("La política especial con ID %s no está registrada"),
-    PARKING_TICKET_NOT_FOUND("La reserva con ID %s no está registrada"),
-    RATE_NOT_FOUND("La tarifa con ID %s no está registrada"),
-    PAYMENT_NOT_FOUND_BY_TRANSACTION_ID("El pago con ID de transacción %s no está registrado"),
-    NO_OWNER_IN_TENANT("No se encontró un usuario con rol OWNER en el tenant %s"),
-    SELF_DEACTIVATION_NOT_ALLOWED("Un usuario no puede desactivarse a sí mismo"),
-    CANNOT_MODIFY_OWNER_ROLE("El rol de un usuario OWNER no puede ser modificado"),
-    SELF_ROLE_MODIFICATION_NOT_ALLOWED("Un usuario no puede modificar su propio rol"),
-    USER_ALREADY_EXISTS_IN_TENANT("El usuario %s ya existe en el tenant");
+    INVITATION_NOT_FOUND("Invitación no encontrada"), INVITATION_EXPIRED(
+        "La invitación expiró"), INVITATION_ALREADY_ACCEPTED("La invitación fue aceptada el %s"), USER_NOT_EXIST_EMAIL(
+            "El usuario con email %s no existe"), USER_NOT_EXIST_ID(
+                "El usuario con ID %s no existe"), USER_NOT_EXIST_IN_TENANT(
+                    "El usuario no está asociado al tenant"), USER_AUTHENTICATION_INVALID(
+                        "Error en la autentificación del usuario."), USER_ALREADY_DEACTIVATED(
+                            "El usuario %s ya fue desactivado"), USER_BAD_CREDENTIALS(
+                                "Credenciales incorrectas"), LAST_OWNER_CANNOT_BE_DEACTIVATED(
+                                    "El último dueño no puede ser desactivado"), TENANT_NOT_EXISTS(
+                                        "El inquilino con ID %s no está registrado"), PARKING_NOT_EXISTS(
+                                            "El parking con ID %s no está registrado"), SLOT_NOT_EXISTS(
+                                                "El slot con ID %s no está registrado"), SPECIAL_POLICY_NOT_FOUNT(
+                                                    "La política especial con ID %s no está registrada"), PARKING_TICKET_NOT_FOUND(
+                                                        "La reserva con ID %s no está registrada"), RATE_NOT_FOUND(
+                                                            "La tarifa con ID %s no está registrada"), PAYMENT_NOT_FOUND_BY_TRANSACTION_ID(
+                                                                "El pago con ID de transacción %s no está registrado"), NO_OWNER_IN_TENANT(
+                                                                    "No se encontró un usuario con rol OWNER en el tenant %s"), SELF_DEACTIVATION_NOT_ALLOWED(
+                                                                        "Un usuario no puede desactivarse a sí mismo"), CANNOT_MODIFY_OWNER_ROLE(
+                                                                            "El rol de un usuario OWNER no puede ser modificado"), SELF_ROLE_MODIFICATION_NOT_ALLOWED(
+                                                                                "Un usuario no puede modificar su propio rol"), USER_ALREADY_EXISTS_IN_TENANT(
+                                                                                    "El usuario %s ya existe en el tenant");
 
     private final String template;
 

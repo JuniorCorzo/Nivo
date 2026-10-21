@@ -14,9 +14,7 @@ public class GracePeriodStage implements PricingStage {
         }
 
         ParkingLotPolicy policy = context.policy();
-        if (policy == null
-                || policy.gracePeriod() == null
-                || !policy.gracePeriod().covers(context.duration())) {
+        if (policy == null || policy.gracePeriod() == null || !policy.gracePeriod().covers(context.duration())) {
             return context;
         }
 

@@ -21,9 +21,8 @@ public class CheckOutVehicleUseCase {
 
     public Payments execute(CheckOut command) {
         final UUID ticketId = command.ticketId();
-        final ParkingTickets ticket = this.parkingTicketsRepository
-                .findById(ticketId)
-                .orElseThrow(() -> new ProcessPaymentException(new PaymentError.TicketNotFound(ticketId)));
+        final ParkingTickets ticket = this.parkingTicketsRepository.findById(ticketId)
+            .orElseThrow(() -> new ProcessPaymentException(new PaymentError.TicketNotFound(ticketId)));
 
         if (ticket.getStatus() == ParkingTicketStatus.CLOSED) {
             throw new ProcessPaymentException(new PaymentError.Duplicate(ticketId));

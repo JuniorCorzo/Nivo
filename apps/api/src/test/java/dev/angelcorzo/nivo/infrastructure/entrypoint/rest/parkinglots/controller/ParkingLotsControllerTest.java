@@ -91,9 +91,8 @@ class ParkingLotsControllerTest {
         when(listParkingLotsUseCase.listParkingLots(tenantId)).thenReturn(List.of(item));
         when(parkingLotsMapper.toListItemResponse(item)).thenReturn(response);
 
-        mockMvc.perform(get("/parking-lots/list"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value(ParkingLotsMessages.PARKING_LOTS_LIST.format()));
+        mockMvc.perform(get("/parking-lots/list")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(ParkingLotsMessages.PARKING_LOTS_LIST.format()));
     }
 
     @Test
@@ -106,9 +105,8 @@ class ParkingLotsControllerTest {
         when(showRatesByParkingLotUseCase.execute(parkingId)).thenReturn(List.of(rate));
         when(ratesMapper.toDTO(rate)).thenReturn(dto);
 
-        mockMvc.perform(get("/parking-lots/{parkingId}/rates", parkingId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value(RateMessages.SHOW_RATES_BY_TENANT.format()));
+        mockMvc.perform(get("/parking-lots/{parkingId}/rates", parkingId)).andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(RateMessages.SHOW_RATES_BY_TENANT.format()));
     }
 
     @Test
@@ -119,9 +117,8 @@ class ParkingLotsControllerTest {
 
         when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
-        mockMvc.perform(delete("/parking-lots/{parkingId}", parkingId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value(ParkingLotsMessages.PARKING_LOT_DELETED.format()));
+        mockMvc.perform(delete("/parking-lots/{parkingId}", parkingId)).andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(ParkingLotsMessages.PARKING_LOT_DELETED.format()));
 
         verify(deleteParkingLotUseCase).execute(parkingId, tenantId);
     }
@@ -131,12 +128,11 @@ class ParkingLotsControllerTest {
     void shouldDeleteSlotGroup() throws Exception {
         UUID parkingId = UUID.randomUUID();
 
-        mockMvc.perform(delete("/parking-lots/{parkingId}/slots/groups", parkingId)
-                        .param("slotType", "CAR")
-                        .param("prefix", "A")
-                        .param("zone", "NORTH"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value(ParkingLotsMessages.SLOT_GROUP_DELETED.format()));
+        mockMvc
+            .perform(delete("/parking-lots/{parkingId}/slots/groups", parkingId).param("slotType", "CAR")
+                .param("prefix", "A").param("zone", "NORTH"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(ParkingLotsMessages.SLOT_GROUP_DELETED.format()));
 
         verify(deleteSlotGroupUseCase).execute(any(DeleteSlotGroupUseCase.DeleteSlotGroupCommand.class));
     }

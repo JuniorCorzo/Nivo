@@ -33,11 +33,11 @@ class NotificationTemplatesRepositoryAdapterTest {
         NotificationTemplates entity = NotificationTemplates.builder().build();
 
         when(repository.findByEventTypeAndChannel(NotificationEvents.PAYMENT_COMPLETED, NotificationsChannel.EMAIL))
-                .thenReturn(Optional.of(data));
+            .thenReturn(Optional.of(data));
         when(mapper.toEntity(data)).thenReturn(entity);
 
-        Optional<NotificationTemplates> result =
-                adapter.findByEventTypeAndChannel(NotificationEvents.PAYMENT_COMPLETED, NotificationsChannel.EMAIL);
+        Optional<NotificationTemplates> result = adapter.findByEventTypeAndChannel(NotificationEvents.PAYMENT_COMPLETED,
+            NotificationsChannel.EMAIL);
 
         assertThat(result).isPresent();
         assertThat(result.get()).isEqualTo(entity);

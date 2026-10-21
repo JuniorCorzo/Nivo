@@ -8,4 +8,5 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.SlotsData;
 import org.mapstruct.Mapper;
 
 @Mapper(config = MapperStructConfig.class, uses = CoordinatesMapper.class)
-public interface SlotsMappers extends BaseMapper<Slots, SlotsData> {}
+public interface SlotsMappers extends BaseMapper<Slots, SlotsData> {
+}

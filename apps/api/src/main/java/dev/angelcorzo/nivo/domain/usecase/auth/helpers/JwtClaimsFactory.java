@@ -10,12 +10,13 @@ import lombok.NoArgsConstructor;
 /**
  * Factory class for creating JWT (JSON Web Token) claims.
  *
- * <p>This utility class provides a centralized way to construct the claims maps for different types
- * of tokens, such as access tokens and refresh tokens. It ensures consistency in the claims that
- * are included in each token and abstracts the creation logic away from the use cases that generate
- * tokens.
+ * <p>
+ * This utility class provides a centralized way to construct the claims maps for different types of tokens, such as
+ * access tokens and refresh tokens. It ensures consistency in the claims that are included in each token and abstracts
+ * the creation logic away from the use cases that generate tokens.
  *
- * <p>The class is non-instantiable and all its methods are static.
+ * <p>
+ * The class is non-instantiable and all its methods are static.
  *
  * @author Angel Corzo
  * @version 1.0
@@ -48,10 +49,12 @@ public class JwtClaimsFactory {
     /**
      * Builds the claims for a standard access token.
      *
-     * <p>Access tokens are intended for accessing protected resources and contain detailed user
-     * information such as full name and role.
+     * <p>
+     * Access tokens are intended for accessing protected resources and contain detailed user information such as full
+     * name and role.
      *
-     * @param user the user for whom the token is being created.
+     * @param user
+     *            the user for whom the token is being created.
      * @return a map of claims for the access token.
      */
     public static Map<String, String> buildAccessTokenClaims(Users user) {
@@ -65,10 +68,12 @@ public class JwtClaimsFactory {
     /**
      * Builds the claims for a refresh token.
      *
-     * <p>Refresh tokens are used to obtain new access tokens and contain a minimal set of claims to
-     * identify the user and the token's purpose.
+     * <p>
+     * Refresh tokens are used to obtain new access tokens and contain a minimal set of claims to identify the user and
+     * the token's purpose.
      *
-     * @param user the user for whom the token is being created.
+     * @param user
+     *            the user for whom the token is being created.
      * @return a map of claims for the refresh token.
      */
     public static Map<String, String> buildRefreshTokenClaims(Users user) {
@@ -80,10 +85,11 @@ public class JwtClaimsFactory {
     /**
      * Builds the base set of claims common to all token types.
      *
-     * <p>This includes essential information such as the token ID (jti), subject (user ID), tenant
-     * ID, and email.
+     * <p>
+     * This includes essential information such as the token ID (jti), subject (user ID), tenant ID, and email.
      *
-     * @param user the user for whom the token is being created.
+     * @param user
+     *            the user for whom the token is being created.
      * @return a map of base claims.
      */
     private static Map<String, String> buildBaseClaims(Users user) {

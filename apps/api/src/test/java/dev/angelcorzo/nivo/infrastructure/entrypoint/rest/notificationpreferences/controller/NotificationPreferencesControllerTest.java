@@ -56,25 +56,22 @@ class NotificationPreferencesControllerTest {
         when(getNotificationPreferencesByUserUseCase.execute()).thenReturn(List.of(pref));
         when(notificationPreferencesMapper.toDTO(pref)).thenReturn(dto);
 
-        mockMvc.perform(get("/notification-preferences"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message")
-                        .value(NotificationPreferencesMessages.NOTIFICATION_PREFERENCES_LIST.format()));
+        mockMvc.perform(get("/notification-preferences")).andExpect(status().isOk()).andExpect(
+            jsonPath("$.message").value(NotificationPreferencesMessages.NOTIFICATION_PREFERENCES_LIST.format()));
     }
 
     @Test
     @DisplayName("PATCH /notification-preferences/toggle - Should toggle preference")
     void shouldTogglePreference() throws Exception {
-        when(updateUserNotificationPreferencesUseCase.toggleActiveStatus(
-                        NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL))
-                .thenReturn(true);
+        when(updateUserNotificationPreferencesUseCase.toggleActiveStatus(NotificationEvents.TICKET_OPENED,
+            NotificationsChannel.EMAIL)).thenReturn(true);
 
-        mockMvc.perform(patch("/notification-preferences/toggle")
-                        .param("event", "TICKET_OPENED")
-                        .param("channel", "EMAIL"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message")
-                        .value(NotificationPreferencesMessages.NOTIFICATION_PREFERENCES_TOGGLED.format()))
-                .andExpect(jsonPath("$.data").value(true));
+        mockMvc
+            .perform(
+                patch("/notification-preferences/toggle").param("event", "TICKET_OPENED").param("channel", "EMAIL"))
+            .andExpect(status().isOk())
+            .andExpect(
+                jsonPath("$.message").value(NotificationPreferencesMessages.NOTIFICATION_PREFERENCES_TOGGLED.format()))
+            .andExpect(jsonPath("$.data").value(true));
     }
 }

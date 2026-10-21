@@ -26,16 +26,16 @@ public class CalculateRateUseCase {
     private final Clock clock;
 
     public PriceDetailed execute(UUID ticketId) {
-        final ParkingTickets parkingTicket =
-                this.parkingTicketsRepository.findById(ticketId).orElseThrow(() -> new ParkingTicketNotFound(ticketId));
+        final ParkingTickets parkingTicket = this.parkingTicketsRepository.findById(ticketId)
+            .orElseThrow(() -> new ParkingTicketNotFound(ticketId));
 
         UUID parkingId = parkingTicket.getSlot() != null ? resolveParkingIdFromTicket(parkingTicket) : null;
         return calculate(parkingTicket, parkingId);
     }
 
     public PriceDetailed execute(UUID ticketId, UUID parkingLotId) {
-        final ParkingTickets parkingTicket =
-                this.parkingTicketsRepository.findById(ticketId).orElseThrow(() -> new ParkingTicketNotFound(ticketId));
+        final ParkingTickets parkingTicket = this.parkingTicketsRepository.findById(ticketId)
+            .orElseThrow(() -> new ParkingTicketNotFound(ticketId));
 
         return calculate(parkingTicket, parkingLotId);
     }
@@ -43,15 +43,12 @@ public class CalculateRateUseCase {
     private PriceDetailed calculate(ParkingTickets parkingTicket, UUID parkingLotId) {
         ParkingLotPolicy policy = ParkingLotPolicy.defaults();
         if (parkingLotId != null) {
-            policy = this.parkingLotsRepository
-                    .findById(parkingLotId)
-                    .map(ParkingLots::getPolicy)
-                    .orElse(ParkingLotPolicy.defaults());
+            policy = this.parkingLotsRepository.findById(parkingLotId).map(ParkingLots::getPolicy)
+                .orElse(ParkingLotPolicy.defaults());
         }
 
         final String tenantName = this.authenticationContextGateway.getCurrentTenant() != null
-                ? this.authenticationContextGateway.getCurrentTenant().getCompanyName()
-                : "Nivo Parking";
+            ? this.authenticationContextGateway.getCurrentTenant().getCompanyName() : "Nivo Parking";
         final RateReference rate = parkingTicket.getRate();
         final StayInterval stayInterval = StayInterval.of(parkingTicket.getEntryTime(), OffsetDateTime.now(this.clock));
 

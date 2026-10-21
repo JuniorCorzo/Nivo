@@ -41,8 +41,8 @@ class EmailExceptionPredicateTest {
     @Test
     @DisplayName("Should retry on SendGridRequestBuildException")
     void shouldRetryOnRequestBuildException() {
-        SendGridRequestBuildException exception =
-                new SendGridRequestBuildException("Failed build", new RuntimeException());
+        SendGridRequestBuildException exception = new SendGridRequestBuildException("Failed build",
+            new RuntimeException());
 
         boolean result = predicate.shouldRetry(dummyMethod, exception);
 

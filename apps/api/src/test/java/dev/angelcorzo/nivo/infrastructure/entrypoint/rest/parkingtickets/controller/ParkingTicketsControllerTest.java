@@ -84,13 +84,12 @@ class ParkingTicketsControllerTest {
         when(listParkingTicketsByParkingLotUseCase.execute(parkingLotId)).thenReturn(List.of(ticket));
         when(parkingTicketMapper.toDto(ticket)).thenReturn(dto);
 
-        mockMvc.perform(get("/tickets/list")
-                        .param("parking", parkingLotId.toString())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.message").value("Tickets retrieved successfully"));
+        mockMvc
+            .perform(
+                get("/tickets/list").param("parking", parkingLotId.toString()).contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.data").isArray())
+            .andExpect(jsonPath("$.data.length()").value(1))
+            .andExpect(jsonPath("$.message").value("Tickets retrieved successfully"));
     }
 
     @Test
@@ -104,9 +103,8 @@ class ParkingTicketsControllerTest {
         when(parkingTicketMapper.toDto(ticket)).thenReturn(dto);
 
         mockMvc.perform(get("/tickets/active").param("slot", slotId.toString()).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.id").value(ticket.getId().toString()))
-                .andExpect(jsonPath("$.message").value("Active ticket retrieved successfully"));
+            .andExpect(status().isOk()).andExpect(jsonPath("$.data.id").value(ticket.getId().toString()))
+            .andExpect(jsonPath("$.message").value("Active ticket retrieved successfully"));
     }
 
     @Test
@@ -117,9 +115,8 @@ class ParkingTicketsControllerTest {
         when(getActiveParkingTicketBySlotUseCase.execute(slotId)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/tickets/active").param("slot", slotId.toString()).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").doesNotExist())
-                .andExpect(jsonPath("$.message").value("Active ticket retrieved successfully"));
+            .andExpect(status().isOk()).andExpect(jsonPath("$.data").doesNotExist())
+            .andExpect(jsonPath("$.message").value("Active ticket retrieved successfully"));
     }
 
     @Test
@@ -131,15 +128,9 @@ class ParkingTicketsControllerTest {
         CreateTicket request = new CreateTicket(slotId, rateId, "user@example.com", "ABC123");
 
         CheckinVehicleUseCase.CreatedParkingTicket command = CheckinVehicleUseCase.CreatedParkingTicket.builder()
-                .slotId(slotId)
-                .rateId(rateId)
-                .email("user@example.com")
-                .plate("ABC123")
-                .tenantId(tenantId)
-                .build();
+            .slotId(slotId).rateId(rateId).email("user@example.com").plate("ABC123").tenantId(tenantId).build();
 
-        ParkingTickets createdTicket =
-                ParkingTickets.builder().id(UUID.randomUUID()).build();
+        ParkingTickets createdTicket = ParkingTickets.builder().id(UUID.randomUUID()).build();
         ParkingTicketsDTO responseDto = mock(ParkingTicketsDTO.class);
 
         when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
@@ -147,27 +138,20 @@ class ParkingTicketsControllerTest {
         when(checkinVehicleUseCase.execute(any())).thenReturn(createdTicket);
         when(parkingTicketMapper.toDto(createdTicket)).thenReturn(responseDto);
 
-        mockMvc.perform(post("/tickets/check-in")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("Ticket created successfully"));
+        mockMvc
+            .perform(post("/tickets/check-in").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated()).andExpect(jsonPath("$.message").value("Ticket created successfully"));
     }
 
     @Test
     @DisplayName("POST /tickets/check-out - Should checkout vehicle successfully")
     void shouldCheckoutVehicle() throws Exception {
         UUID ticketId = UUID.randomUUID();
-        EmailCheckOutCommand command = EmailCheckOutCommand.builder()
-                .ticketId(ticketId)
-                .paymentMethod(PaymentsMethods.EFFECTIVE)
-                .email("test@example.com")
-                .build();
-        EmailCheckOut domainCheckOut = EmailCheckOut.builder()
-                .ticketId(ticketId)
-                .paymentMethod(PaymentsMethods.EFFECTIVE)
-                .email("test@example.com")
-                .build();
+        EmailCheckOutCommand command = EmailCheckOutCommand.builder().ticketId(ticketId)
+            .paymentMethod(PaymentsMethods.EFFECTIVE).email("test@example.com").build();
+        EmailCheckOut domainCheckOut = EmailCheckOut.builder().ticketId(ticketId)
+            .paymentMethod(PaymentsMethods.EFFECTIVE).email("test@example.com").build();
         Payments payment = Payments.builder().id(UUID.randomUUID()).build();
         PaymentsDTO responseDto = mock(PaymentsDTO.class);
 
@@ -175,10 +159,9 @@ class ParkingTicketsControllerTest {
         when(checkOutVehicleUseCase.execute(domainCheckOut)).thenReturn(payment);
         when(paymentsMapper.toDto(payment)).thenReturn(responseDto);
 
-        mockMvc.perform(post("/tickets/check-out")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(command)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("Checkout processed successfully"));
+        mockMvc
+            .perform(post("/tickets/check-out").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(command)))
+            .andExpect(status().isCreated()).andExpect(jsonPath("$.message").value("Checkout processed successfully"));
     }
 }

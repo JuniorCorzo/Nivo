@@ -8,10 +8,12 @@ public final class TimezoneConverter {
 
     private static final ZoneId BOGOTA = ZoneId.of("America/Bogota");
 
-    private TimezoneConverter() {}
+    private TimezoneConverter() {
+    }
 
     public static ZonedDateTime toBogota(OffsetDateTime utc) {
-        if (utc == null) return null;
+        if (utc == null)
+            return null;
         return utc.atZoneSameInstant(BOGOTA);
     }
 }

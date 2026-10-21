@@ -14,11 +14,17 @@ import lombok.Setter;
 /**
  * Represents a user invitation to join a tenant.
  *
- * <p>This class holds all information related to an invitation, including who was invited,
- * to which tenant, with what role, and the status of the invitation.</p>
+ * <p>
+ * This class holds all information related to an invitation, including who was invited, to which tenant, with what
+ * role, and the status of the invitation.
+ * </p>
  *
- * <p><strong>Layer:</strong> Domain</p>
- * <p><strong>Responsibility:</strong> To manage the state and business rules of a user invitation.</p>
+ * <p>
+ * <strong>Layer:</strong> Domain
+ * </p>
+ * <p>
+ * <strong>Responsibility:</strong> To manage the state and business rules of a user invitation.
+ * </p>
  *
  * @author Angel Corzo
  * @since 1.0.0

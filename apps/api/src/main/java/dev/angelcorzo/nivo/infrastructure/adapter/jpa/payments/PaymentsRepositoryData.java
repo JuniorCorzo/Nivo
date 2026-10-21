@@ -21,26 +21,26 @@ public interface PaymentsRepositoryData extends JpaRepository<PaymentsData, UUID
     Optional<PaymentsData> findByCheckoutSessionId(@Param("checkoutSessionId") String checkoutSessionId);
 
     @Query(value = """
-          SELECT p FROM PaymentsData p
-          WHERE p.parkingTicket.id = :parkingTicketId
-          AND p.status IN ('PENDING_PAYMENT', 'PENDING_CHECKOUT')
-          """)
+        SELECT p FROM PaymentsData p
+        WHERE p.parkingTicket.id = :parkingTicketId
+        AND p.status IN ('PENDING_PAYMENT', 'PENDING_CHECKOUT')
+        """)
     Optional<PaymentsData> findByParkingTicketId(@Param("parkingTicketId") UUID parkingTicketId);
 
     @Query(value = """
-            SELECT p.checkoutSessionId FROM PaymentsData p
-            WHERE p.checkoutSessionId IS NOT NULL
-            AND p.status IN ('PENDING_PAYMENT', 'PENDING_CHECKOUT')
-          """)
+          SELECT p.checkoutSessionId FROM PaymentsData p
+          WHERE p.checkoutSessionId IS NOT NULL
+          AND p.status IN ('PENDING_PAYMENT', 'PENDING_CHECKOUT')
+        """)
     List<String> findAllCheckoutSessionIds();
 
     boolean existsByParkingTicketId(UUID parkingTicketId);
 
     @Modifying
     @Query(value = """
-          UPDATE PaymentsData p
-          SET p.status = :newStatus
-          WHERE p.id = :paymentId
-          """)
+        UPDATE PaymentsData p
+        SET p.status = :newStatus
+        WHERE p.id = :paymentId
+        """)
     void processPayment(@Param("paymentId") UUID paymentId, @Param("newStatus") PaymentStatus newStatus);
 }

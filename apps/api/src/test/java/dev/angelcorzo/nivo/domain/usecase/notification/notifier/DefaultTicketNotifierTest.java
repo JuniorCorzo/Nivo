@@ -34,8 +34,8 @@ class DefaultTicketNotifierTest {
     private final UUID tenantId = UUID.randomUUID();
     private final UUID userId = UUID.randomUUID();
     private final UUID ticketId = UUID.randomUUID();
-    private final UserReference user =
-            new UserReference(userId, "John Doe", "john@example.com", Roles.DRIVER, "1234567890");
+    private final UserReference user = new UserReference(userId, "John Doe", "john@example.com", Roles.DRIVER,
+        "1234567890");
     private final TenantReference tenant = new TenantReference(tenantId, "Tenant Name");
 
     @BeforeEach
@@ -59,24 +59,13 @@ class DefaultTicketNotifierTest {
         @Test
         @DisplayName("Should send notification when ticket and user are present")
         void shouldSendNotificationWhenTicketAndUserArePresent() {
-            ParkingTickets ticket = ParkingTickets.builder()
-                    .id(ticketId)
-                    .licensePlate("ABC-123")
-                    .tenant(tenant)
-                    .user(user)
-                    .createdAt(OffsetDateTime.now())
-                    .build();
+            ParkingTickets ticket = ParkingTickets.builder().id(ticketId).licensePlate("ABC-123").tenant(tenant)
+                .user(user).createdAt(OffsetDateTime.now()).build();
 
             notifier.notifyTicketOpened(ticket);
 
-            verify(sendNotificationsUseCase)
-                    .send(
-                            eq(NotificationEvents.TICKET_OPENED),
-                            eq(NotificationsChannel.EMAIL),
-                            eq("john@example.com"),
-                            any(TicketOpenedData.class),
-                            eq(tenantId),
-                            eq(userId));
+            verify(sendNotificationsUseCase).send(eq(NotificationEvents.TICKET_OPENED), eq(NotificationsChannel.EMAIL),
+                eq("john@example.com"), any(TicketOpenedData.class), eq(tenantId), eq(userId));
         }
 
         @Test
@@ -90,12 +79,8 @@ class DefaultTicketNotifierTest {
         @Test
         @DisplayName("Should not send notification when ticket user is null")
         void shouldNotSendNotificationWhenTicketUserIsNull() {
-            ParkingTickets ticket = ParkingTickets.builder()
-                    .id(ticketId)
-                    .licensePlate("ABC-123")
-                    .tenant(tenant)
-                    .user(null)
-                    .build();
+            ParkingTickets ticket = ParkingTickets.builder().id(ticketId).licensePlate("ABC-123").tenant(tenant)
+                .user(null).build();
 
             notifier.notifyTicketOpened(ticket);
 
@@ -110,24 +95,13 @@ class DefaultTicketNotifierTest {
         @Test
         @DisplayName("Should send notification when ticket and user are present")
         void shouldSendNotificationWhenTicketAndUserArePresent() {
-            ParkingTickets ticket = ParkingTickets.builder()
-                    .id(ticketId)
-                    .licensePlate("ABC-123")
-                    .tenant(tenant)
-                    .user(user)
-                    .closedAt(OffsetDateTime.now())
-                    .build();
+            ParkingTickets ticket = ParkingTickets.builder().id(ticketId).licensePlate("ABC-123").tenant(tenant)
+                .user(user).closedAt(OffsetDateTime.now()).build();
 
             notifier.notifyTicketClosed(ticket);
 
-            verify(sendNotificationsUseCase)
-                    .send(
-                            eq(NotificationEvents.TICKET_CLOSED),
-                            eq(NotificationsChannel.EMAIL),
-                            eq("john@example.com"),
-                            any(TicketClosedData.class),
-                            eq(tenantId),
-                            eq(userId));
+            verify(sendNotificationsUseCase).send(eq(NotificationEvents.TICKET_CLOSED), eq(NotificationsChannel.EMAIL),
+                eq("john@example.com"), any(TicketClosedData.class), eq(tenantId), eq(userId));
         }
 
         @Test
@@ -141,12 +115,8 @@ class DefaultTicketNotifierTest {
         @Test
         @DisplayName("Should not send notification when ticket user is null")
         void shouldNotSendNotificationWhenTicketUserIsNull() {
-            ParkingTickets ticket = ParkingTickets.builder()
-                    .id(ticketId)
-                    .licensePlate("ABC-123")
-                    .tenant(tenant)
-                    .user(null)
-                    .build();
+            ParkingTickets ticket = ParkingTickets.builder().id(ticketId).licensePlate("ABC-123").tenant(tenant)
+                .user(null).build();
 
             notifier.notifyTicketClosed(ticket);
 

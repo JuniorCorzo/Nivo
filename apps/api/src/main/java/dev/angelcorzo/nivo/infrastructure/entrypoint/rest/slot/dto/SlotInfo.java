@@ -6,4 +6,5 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-public record SlotInfo(UUID id, String slotNumber, SlotType type, SlotStatus status) {}
+public record SlotInfo(UUID id, String slotNumber, SlotType type, SlotStatus status) {
+}

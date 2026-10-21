@@ -20,26 +20,16 @@ public class DefaultTicketNotifier implements TicketNotifier {
             return;
         }
 
-        final TicketOpenedData content = TicketOpenedData.builder()
-                .userName(ticket.getUser().fullName())
-                .ticketNumber(ticket.getId().toString())
-                .ticketSubject(ticket.getLicensePlate())
-                .createdAt(ticket.getCreatedAt() != null ? ticket.getCreatedAt().toString() : null)
-                .ctaUrl(this.appProperties.getCtaUrl())
-                .companyName(this.appProperties.getCompanyName())
-                .supportUrl(this.appProperties.getSupportUrl())
-                .socialUrl(this.appProperties.getSocialUrl())
-                .unsubscribeUrl(this.appProperties.getUnsubscribeUrl())
-                .companyAddress(this.appProperties.getAddressCompany())
-                .build();
+        final TicketOpenedData content = TicketOpenedData.builder().userName(ticket.getUser().fullName())
+            .ticketNumber(ticket.getId().toString()).ticketSubject(ticket.getLicensePlate())
+            .createdAt(ticket.getCreatedAt() != null ? ticket.getCreatedAt().toString() : null)
+            .ctaUrl(this.appProperties.getCtaUrl()).companyName(this.appProperties.getCompanyName())
+            .supportUrl(this.appProperties.getSupportUrl()).socialUrl(this.appProperties.getSocialUrl())
+            .unsubscribeUrl(this.appProperties.getUnsubscribeUrl())
+            .companyAddress(this.appProperties.getAddressCompany()).build();
 
-        this.sendNotificationsUseCase.send(
-                NotificationEvents.TICKET_OPENED,
-                NotificationsChannel.EMAIL,
-                ticket.getUser().email(),
-                content,
-                ticket.getTenant().id(),
-                ticket.getUser().id());
+        this.sendNotificationsUseCase.send(NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL,
+            ticket.getUser().email(), content, ticket.getTenant().id(), ticket.getUser().id());
     }
 
     @Override
@@ -48,25 +38,15 @@ public class DefaultTicketNotifier implements TicketNotifier {
             return;
         }
 
-        final TicketClosedData content = TicketClosedData.builder()
-                .userName(ticket.getUser().fullName())
-                .ticketNumber(ticket.getId().toString())
-                .ticketSubject(ticket.getLicensePlate())
-                .closedAt(ticket.getClosedAt() != null ? ticket.getClosedAt().toString() : null)
-                .ctaUrl(this.appProperties.getCtaUrl())
-                .companyName(this.appProperties.getCompanyName())
-                .supportUrl(this.appProperties.getSupportUrl())
-                .socialUrl(this.appProperties.getSocialUrl())
-                .unsubscribeUrl(this.appProperties.getUnsubscribeUrl())
-                .companyAddress(this.appProperties.getAddressCompany())
-                .build();
+        final TicketClosedData content = TicketClosedData.builder().userName(ticket.getUser().fullName())
+            .ticketNumber(ticket.getId().toString()).ticketSubject(ticket.getLicensePlate())
+            .closedAt(ticket.getClosedAt() != null ? ticket.getClosedAt().toString() : null)
+            .ctaUrl(this.appProperties.getCtaUrl()).companyName(this.appProperties.getCompanyName())
+            .supportUrl(this.appProperties.getSupportUrl()).socialUrl(this.appProperties.getSocialUrl())
+            .unsubscribeUrl(this.appProperties.getUnsubscribeUrl())
+            .companyAddress(this.appProperties.getAddressCompany()).build();
 
-        this.sendNotificationsUseCase.send(
-                NotificationEvents.TICKET_CLOSED,
-                NotificationsChannel.EMAIL,
-                ticket.getUser().email(),
-                content,
-                ticket.getTenant().id(),
-                ticket.getUser().id());
+        this.sendNotificationsUseCase.send(NotificationEvents.TICKET_CLOSED, NotificationsChannel.EMAIL,
+            ticket.getUser().email(), content, ticket.getTenant().id(), ticket.getUser().id());
     }
 }

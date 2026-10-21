@@ -7,12 +7,15 @@ import lombok.RequiredArgsConstructor;
 /**
  * Use case for retrieving the currently authenticated user's profile.
  *
- * <p>This class delegates to the {@link AuthenticationContextGateway} to resolve the
- * authenticated user from the security context and return their full domain entity.
+ * <p>
+ * This class delegates to the {@link AuthenticationContextGateway} to resolve the authenticated user from the security
+ * context and return their full domain entity.
  *
- * <p><strong>Layer:</strong> Application (Use Case)
+ * <p>
+ * <strong>Layer:</strong> Application (Use Case)
  *
- * <p><strong>Responsibility:</strong> To provide the current user's profile information.
+ * <p>
+ * <strong>Responsibility:</strong> To provide the current user's profile information.
  *
  * @author Angel Corzo
  * @since 1.0.0

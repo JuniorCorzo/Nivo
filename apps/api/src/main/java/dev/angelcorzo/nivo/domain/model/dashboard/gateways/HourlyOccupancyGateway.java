@@ -15,9 +15,9 @@ public interface HourlyOccupancyGateway {
 
     List<HourlyOccupancyModel> findByTenantIdAndParkingLotId(UUID tenantId, UUID parkingLotId);
 
-    List<HourlyOccupancyModel> findByTenantIdAndParkingLotIdAndHourBucketBetween(
-            UUID tenantId, UUID parkingLotId, OffsetDateTime start, OffsetDateTime end);
+    List<HourlyOccupancyModel> findByTenantIdAndParkingLotIdAndHourBucketBetween(UUID tenantId, UUID parkingLotId,
+        OffsetDateTime start, OffsetDateTime end);
 
-    List<HourlyOccupancyModel> findByTenantIdAndHourBucketBetween(
-            UUID tenantId, OffsetDateTime start, OffsetDateTime end);
+    List<HourlyOccupancyModel> findByTenantIdAndHourBucketBetween(UUID tenantId, OffsetDateTime start,
+        OffsetDateTime end);
 }

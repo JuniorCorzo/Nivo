@@ -69,10 +69,7 @@ class ParkingTicketsAdapterTest {
     void shouldChangeStatus() {
         UUID ticketId = UUID.randomUUID();
         ParkingTicketsData data = new ParkingTicketsData();
-        ParkingTickets entity = ParkingTickets.builder()
-                .id(ticketId)
-                .status(ParkingTicketStatus.CLOSED)
-                .build();
+        ParkingTickets entity = ParkingTickets.builder().id(ticketId).status(ParkingTicketStatus.CLOSED).build();
 
         when(repository.findById(ticketId)).thenReturn(Optional.of(data));
         when(mapper.toEntity(data)).thenReturn(entity);
@@ -92,10 +89,7 @@ class ParkingTicketsAdapterTest {
         slotData.setStatus(SlotStatus.OCCUPIED);
         data.setSlot(slotData);
 
-        ParkingTickets entity = ParkingTickets.builder()
-                .id(ticketId)
-                .status(ParkingTicketStatus.CLOSED)
-                .build();
+        ParkingTickets entity = ParkingTickets.builder().id(ticketId).status(ParkingTicketStatus.CLOSED).build();
 
         when(repository.findById(ticketId)).thenReturn(Optional.of(data));
         when(repository.save(data)).thenReturn(data);
@@ -144,10 +138,7 @@ class ParkingTicketsAdapterTest {
     void shouldFindActiveBySlotId() {
         UUID slotId = UUID.randomUUID();
         ParkingTicketsData data = new ParkingTicketsData();
-        ParkingTickets entity = ParkingTickets.builder()
-                .id(UUID.randomUUID())
-                .status(ParkingTicketStatus.OPEN)
-                .build();
+        ParkingTickets entity = ParkingTickets.builder().id(UUID.randomUUID()).status(ParkingTicketStatus.OPEN).build();
 
         when(repository.findActiveBySlotId(slotId)).thenReturn(Optional.of(data));
         when(mapper.toEntity(data)).thenReturn(entity);

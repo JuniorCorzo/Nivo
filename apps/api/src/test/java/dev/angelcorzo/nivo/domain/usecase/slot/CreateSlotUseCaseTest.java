@@ -42,13 +42,11 @@ class CreateSlotUseCaseTest {
         UUID tenantId = UUID.randomUUID();
         UUID parkingId = UUID.randomUUID();
 
-        CreateSlotUseCase.CreateSlotCommand command =
-                new CreateSlotUseCase.CreateSlotCommand(parkingId, tenantId, "S-101", SlotType.CAR);
+        CreateSlotUseCase.CreateSlotCommand command = new CreateSlotUseCase.CreateSlotCommand(parkingId, tenantId,
+            "S-101", SlotType.CAR);
 
-        Tenants tenant =
-                Tenants.builder().id(tenantId).companyName("Central Park").build();
-        ParkingLots parking =
-                ParkingLots.builder().id(parkingId).name("Main Lot").build();
+        Tenants tenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
+        ParkingLots parking = ParkingLots.builder().id(parkingId).name("Main Lot").build();
 
         when(tenantsRepository.existsById(tenantId)).thenReturn(true);
         when(parkingLotsRepository.existsById(parkingId)).thenReturn(true);
@@ -69,8 +67,8 @@ class CreateSlotUseCaseTest {
     void shouldThrowWhenTenantNotFound() {
         UUID tenantId = UUID.randomUUID();
         UUID parkingId = UUID.randomUUID();
-        CreateSlotUseCase.CreateSlotCommand command =
-                new CreateSlotUseCase.CreateSlotCommand(parkingId, tenantId, "S-101", SlotType.CAR);
+        CreateSlotUseCase.CreateSlotCommand command = new CreateSlotUseCase.CreateSlotCommand(parkingId, tenantId,
+            "S-101", SlotType.CAR);
 
         when(tenantsRepository.existsById(tenantId)).thenReturn(false);
 
@@ -82,8 +80,8 @@ class CreateSlotUseCaseTest {
     void shouldThrowWhenParkingNotFound() {
         UUID tenantId = UUID.randomUUID();
         UUID parkingId = UUID.randomUUID();
-        CreateSlotUseCase.CreateSlotCommand command =
-                new CreateSlotUseCase.CreateSlotCommand(parkingId, tenantId, "S-101", SlotType.CAR);
+        CreateSlotUseCase.CreateSlotCommand command = new CreateSlotUseCase.CreateSlotCommand(parkingId, tenantId,
+            "S-101", SlotType.CAR);
 
         when(tenantsRepository.existsById(tenantId)).thenReturn(true);
         when(parkingLotsRepository.existsById(parkingId)).thenReturn(false);

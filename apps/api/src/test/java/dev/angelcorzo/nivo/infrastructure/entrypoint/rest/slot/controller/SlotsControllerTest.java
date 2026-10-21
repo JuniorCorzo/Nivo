@@ -99,9 +99,8 @@ class SlotsControllerTest {
         when(listSlotsUseCase.execute(parkingId)).thenReturn(List.of(slot));
         when(slotsMapper.toDto(slot)).thenReturn(response);
 
-        mockMvc.perform(get("/slots/list").param("parking", parkingId.toString()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Slots retrieved successfully"));
+        mockMvc.perform(get("/slots/list").param("parking", parkingId.toString())).andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Slots retrieved successfully"));
     }
 
     @Test
@@ -114,9 +113,8 @@ class SlotsControllerTest {
         when(listSlotsSummaryUseCase.execute(parkingId)).thenReturn(List.of(summary));
         when(slotsMapper.toDto(summary)).thenReturn(response);
 
-        mockMvc.perform(get("/slots/list/summary").param("parking", parkingId.toString()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Slots retrieved successfully"));
+        mockMvc.perform(get("/slots/list/summary").param("parking", parkingId.toString())).andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Slots retrieved successfully"));
     }
 
     @Test
@@ -124,9 +122,8 @@ class SlotsControllerTest {
     void shouldDeleteSlot() throws Exception {
         UUID slotId = UUID.randomUUID();
 
-        mockMvc.perform(delete("/slots/delete/{slotId}", slotId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Slot deleted successfully"));
+        mockMvc.perform(delete("/slots/delete/{slotId}", slotId)).andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Slot deleted successfully"));
 
         verify(removeSlotUseCase).execute(slotId);
     }
@@ -136,11 +133,10 @@ class SlotsControllerTest {
     void shouldBatchDeleteSlots() throws Exception {
         List<UUID> ids = List.of(UUID.randomUUID(), UUID.randomUUID());
 
-        mockMvc.perform(post("/slots/delete-batch")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(ids)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Slots deleted successfully"));
+        mockMvc
+            .perform(post("/slots/delete-batch").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(ids)))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.message").value("Slots deleted successfully"));
 
         verify(batchDeleteSlotsUseCase).execute(ids);
     }
@@ -150,26 +146,19 @@ class SlotsControllerTest {
     void shouldUpdateSlotMetadata() throws Exception {
         UUID slotId = UUID.randomUUID();
         UpdateSlotMetadataRequest request = new UpdateSlotMetadataRequest(List.of(slotId), true, false, true);
-        UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand command =
-                UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand.builder()
-                        .slotIds(List.of(slotId))
-                        .hasCharger(true)
-                        .isAccessible(false)
-                        .isActive(true)
-                        .build();
-        Slots updatedSlot =
-                Slots.builder().id(slotId).hasCharger(true).isActive(true).build();
+        UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand command = UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand
+            .builder().slotIds(List.of(slotId)).hasCharger(true).isAccessible(false).isActive(true).build();
+        Slots updatedSlot = Slots.builder().id(slotId).hasCharger(true).isActive(true).build();
         SlotResponse slotResponse = mock(SlotResponse.class);
 
         when(slotsMapper.toCommand(request)).thenReturn(command);
         when(updateSlotMetadataUseCase.execute(command)).thenReturn(List.of(updatedSlot));
         when(slotsMapper.toDto(updatedSlot)).thenReturn(slotResponse);
 
-        mockMvc.perform(patch("/slots/metadata")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Slot metadata updated successfully"));
+        mockMvc
+            .perform(patch("/slots/metadata").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.message").value("Slot metadata updated successfully"));
 
         verify(updateSlotMetadataUseCase).execute(command);
     }
@@ -179,19 +168,14 @@ class SlotsControllerTest {
     void shouldReturn409WhenSlotCannotBeModified() throws Exception {
         UUID slotId = UUID.randomUUID();
         UpdateSlotMetadataRequest request = new UpdateSlotMetadataRequest(List.of(slotId), true, null, null);
-        UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand command =
-                UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand.builder()
-                        .slotIds(List.of(slotId))
-                        .hasCharger(true)
-                        .build();
+        UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand command = UpdateSlotMetadataUseCase.UpdateSlotMetadataCommand
+            .builder().slotIds(List.of(slotId)).hasCharger(true).build();
 
         when(slotsMapper.toCommand(request)).thenReturn(command);
         when(updateSlotMetadataUseCase.execute(command)).thenThrow(new SlotCannotBeModifiedException(List.of(slotId)));
 
-        mockMvc.perform(patch("/slots/metadata")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isConflict());
+        mockMvc.perform(patch("/slots/metadata").contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))).andExpect(status().isConflict());
     }
 
     @Test
@@ -200,24 +184,16 @@ class SlotsControllerTest {
         UUID parkingId = UUID.randomUUID();
         UpdateSlotGroupRequest request = new UpdateSlotGroupRequest(parkingId, "ZONE-A", "A", "ZONE-B", "B");
         UpdateSlotGroupUseCase.UpdateSlotGroupCommand command = UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-                .parkingId(parkingId)
-                .currentZone("ZONE-A")
-                .currentPrefix("A")
-                .newZone("ZONE-B")
-                .newPrefix("B")
-                .build();
-        Slots updatedSlot =
-                Slots.builder().id(UUID.randomUUID()).zone("ZONE-B").prefix("B").build();
+            .parkingId(parkingId).currentZone("ZONE-A").currentPrefix("A").newZone("ZONE-B").newPrefix("B").build();
+        Slots updatedSlot = Slots.builder().id(UUID.randomUUID()).zone("ZONE-B").prefix("B").build();
         SlotResponse slotResponse = mock(SlotResponse.class);
 
         when(slotsMapper.toCommand(request)).thenReturn(command);
         when(updateSlotGroupUseCase.execute(command)).thenReturn(List.of(updatedSlot));
         when(slotsMapper.toDto(updatedSlot)).thenReturn(slotResponse);
 
-        mockMvc.perform(patch("/slots/groups")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+        mockMvc.perform(patch("/slots/groups").contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))).andExpect(status().isOk());
 
         verify(updateSlotGroupUseCase).execute(command);
     }
@@ -228,25 +204,18 @@ class SlotsControllerTest {
         UUID parkingId = UUID.randomUUID();
         UpdateSlotGroupRequest request = new UpdateSlotGroupRequest(parkingId, "", "", "ZONE-A", "A");
         UpdateSlotGroupUseCase.UpdateSlotGroupCommand command = UpdateSlotGroupUseCase.UpdateSlotGroupCommand.builder()
-                .parkingId(parkingId)
-                .currentZone("")
-                .currentPrefix("")
-                .newZone("ZONE-A")
-                .newPrefix("A")
-                .build();
-        Slots updatedSlot =
-                Slots.builder().id(UUID.randomUUID()).zone("ZONE-A").prefix("A").build();
+            .parkingId(parkingId).currentZone("").currentPrefix("").newZone("ZONE-A").newPrefix("A").build();
+        Slots updatedSlot = Slots.builder().id(UUID.randomUUID()).zone("ZONE-A").prefix("A").build();
         SlotResponse slotResponse = mock(SlotResponse.class);
 
         when(slotsMapper.toCommand(request)).thenReturn(command);
         when(updateSlotGroupUseCase.execute(command)).thenReturn(List.of(updatedSlot));
         when(slotsMapper.toDto(updatedSlot)).thenReturn(slotResponse);
 
-        mockMvc.perform(patch("/slots/groups")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Slot group updated successfully"));
+        mockMvc
+            .perform(patch("/slots/groups").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.message").value("Slot group updated successfully"));
 
         verify(updateSlotGroupUseCase).execute(command);
     }
@@ -256,25 +225,20 @@ class SlotsControllerTest {
     void shouldUpdateSlotSuccessfully() throws Exception {
         UUID slotId = UUID.randomUUID();
         UpdateSlotRequest request = new UpdateSlotRequest(slotId, "A-101", SlotType.CAR, SlotStatus.MAINTENANCE);
-        EditSlotUseCase.UpdateSlotCommand command =
-                new EditSlotUseCase.UpdateSlotCommand(slotId, "A-101", SlotType.CAR, SlotStatus.MAINTENANCE);
-        Slots updatedSlot = Slots.builder()
-                .id(slotId)
-                .slotNumber("A-101")
-                .type(SlotType.CAR)
-                .status(SlotStatus.MAINTENANCE)
-                .build();
+        EditSlotUseCase.UpdateSlotCommand command = new EditSlotUseCase.UpdateSlotCommand(slotId, "A-101", SlotType.CAR,
+            SlotStatus.MAINTENANCE);
+        Slots updatedSlot = Slots.builder().id(slotId).slotNumber("A-101").type(SlotType.CAR)
+            .status(SlotStatus.MAINTENANCE).build();
         SlotResponse slotResponse = mock(SlotResponse.class);
 
         when(slotsMapper.toModel(request)).thenReturn(command);
         when(editSlotUseCase.execute(command)).thenReturn(updatedSlot);
         when(slotsMapper.toDto(updatedSlot)).thenReturn(slotResponse);
 
-        mockMvc.perform(put("/slots/update")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Slot updated successfully"));
+        mockMvc
+            .perform(put("/slots/update").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.message").value("Slot updated successfully"));
 
         verify(editSlotUseCase).execute(command);
     }
@@ -284,18 +248,15 @@ class SlotsControllerTest {
     void shouldReturn409WhenSlotCannotBeModifiedOnUpdate() throws Exception {
         UUID slotId = UUID.randomUUID();
         UpdateSlotRequest request = new UpdateSlotRequest(slotId, "A-101", SlotType.CAR, SlotStatus.MAINTENANCE);
-        EditSlotUseCase.UpdateSlotCommand command =
-                new EditSlotUseCase.UpdateSlotCommand(slotId, "A-101", SlotType.CAR, SlotStatus.MAINTENANCE);
+        EditSlotUseCase.UpdateSlotCommand command = new EditSlotUseCase.UpdateSlotCommand(slotId, "A-101", SlotType.CAR,
+            SlotStatus.MAINTENANCE);
 
         when(slotsMapper.toModel(request)).thenReturn(command);
-        when(editSlotUseCase.execute(command))
-                .thenThrow(new SlotCannotBeModifiedException(
-                        "Slot cannot be modified because it is currently OCCUPIED: " + slotId, List.of(slotId)));
+        when(editSlotUseCase.execute(command)).thenThrow(new SlotCannotBeModifiedException(
+            "Slot cannot be modified because it is currently OCCUPIED: " + slotId, List.of(slotId)));
 
-        mockMvc.perform(put("/slots/update")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isConflict());
+        mockMvc.perform(put("/slots/update").contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))).andExpect(status().isConflict());
 
         verify(editSlotUseCase).execute(command);
     }

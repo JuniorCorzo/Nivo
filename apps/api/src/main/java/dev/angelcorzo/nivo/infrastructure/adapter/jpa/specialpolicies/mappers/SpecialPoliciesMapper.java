@@ -7,4 +7,5 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.specialpolicies.SpecialPol
 import org.mapstruct.Mapper;
 
 @Mapper(config = MapperStructConfig.class)
-public interface SpecialPoliciesMapper extends BaseMapper<SpecialPolicies, SpecialPoliciesData> {}
+public interface SpecialPoliciesMapper extends BaseMapper<SpecialPolicies, SpecialPoliciesData> {
+}

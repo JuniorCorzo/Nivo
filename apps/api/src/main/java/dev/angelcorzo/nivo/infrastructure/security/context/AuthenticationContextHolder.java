@@ -31,7 +31,8 @@ public class AuthenticationContextHolder implements AuthenticationContextGateway
 
         final Object principal = authentication.getPrincipal();
 
-        if (principal instanceof UserAuthentication userAuthentication) return userAuthentication;
+        if (principal instanceof UserAuthentication userAuthentication)
+            return userAuthentication;
 
         throw new UserAuthenticationContextInvalidException();
     }

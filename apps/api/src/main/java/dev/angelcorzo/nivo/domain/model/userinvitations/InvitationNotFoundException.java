@@ -13,10 +13,10 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.ErrorMessagesModel;
 import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
 
 public class InvitationNotFoundException extends AppException {
-  private static final int STATUS = 404;
-  private static final String CODE = "INVITATION_NOT_FOUND";
+    private static final int STATUS = 404;
+    private static final String CODE = "INVITATION_NOT_FOUND";
 
-  public InvitationNotFoundException() {
-    super(ErrorMessagesModel.INVITATION_NOT_FOUND.toString(), STATUS, CODE);
-  }
+    public InvitationNotFoundException() {
+        super(ErrorMessagesModel.INVITATION_NOT_FOUND.toString(), STATUS, CODE);
+    }
 }

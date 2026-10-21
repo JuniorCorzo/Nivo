@@ -13,10 +13,10 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.ErrorMessagesModel;
 import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
 
 public class LastOwnerCannotBeDeactivatedException extends AppException {
-  private static final int STATUS = 403;
-  private static final String CODE = "LAST_OWNER_CANNOT_BE_DEACTIVATED";
+    private static final int STATUS = 403;
+    private static final String CODE = "LAST_OWNER_CANNOT_BE_DEACTIVATED";
 
-  public LastOwnerCannotBeDeactivatedException() {
-    super(ErrorMessagesModel.LAST_OWNER_CANNOT_BE_DEACTIVATED.toString(), STATUS, CODE);
-  }
+    public LastOwnerCannotBeDeactivatedException() {
+        super(ErrorMessagesModel.LAST_OWNER_CANNOT_BE_DEACTIVATED.toString(), STATUS, CODE);
+    }
 }

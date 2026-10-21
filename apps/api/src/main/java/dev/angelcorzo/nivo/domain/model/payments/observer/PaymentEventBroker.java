@@ -30,16 +30,10 @@ public class PaymentEventBroker implements Subject<PaymentEvent> {
 
     @Override
     public void subscribe(String event, Observable<PaymentEvent> observer) {
-        this.paymentsRepository
-                .findById(UUID.fromString(event))
-                .ifPresentOrElse(
-                        payment -> {
-                            observers.put(event, observer);
-                            observer.update(PaymentEvent.of(payment.getId(), payment.getStatus()));
-                        },
-                        () -> {
-                            throw new PaymentNotFound(event);
-                        });
+        this.paymentsRepository.findById(UUID.fromString(event)).ifPresentOrElse(payment -> {
+            observers.put(event, observer);
+            observer.update(PaymentEvent.of(payment.getId(), payment.getStatus()));
+        }, () -> { throw new PaymentNotFound(event); });
     }
 
     @Override

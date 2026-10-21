@@ -11,21 +11,8 @@ import org.springframework.web.socket.handler.WebSocketHandlerDecorator;
 
 @Slf4j
 public class StompFrameNormalizeDecorator extends WebSocketHandlerDecorator {
-    private static final Set<String> STOMP_COMMANDS = Set.of(
-            "CONNECT",
-            "STOMP",
-            "SEND",
-            "SUBSCRIBE",
-            "UNSUBSCRIBE",
-            "BEGIN",
-            "COMMIT",
-            "ABORT",
-            "ACK",
-            "NACK",
-            "DISCONNECT",
-            "MESSAGE",
-            "RECEIPT",
-            "ERROR");
+    private static final Set<String> STOMP_COMMANDS = Set.of("CONNECT", "STOMP", "SEND", "SUBSCRIBE", "UNSUBSCRIBE",
+        "BEGIN", "COMMIT", "ABORT", "ACK", "NACK", "DISCONNECT", "MESSAGE", "RECEIPT", "ERROR");
 
     public StompFrameNormalizeDecorator(WebSocketHandler delegate) {
         super(delegate);
@@ -33,17 +20,19 @@ public class StompFrameNormalizeDecorator extends WebSocketHandlerDecorator {
 
     @Override
     public void handleMessage(@NonNull WebSocketSession session, @NonNull WebSocketMessage<?> message)
-            throws Exception {
+        throws Exception {
         super.handleMessage(session, this.updateFrameIfNeeded(message));
     }
 
     private WebSocketMessage<?> updateFrameIfNeeded(WebSocketMessage<?> message) {
-        if (!(message instanceof TextMessage textMessage)) return message;
+        if (!(message instanceof TextMessage textMessage))
+            return message;
 
         String payload = textMessage.getPayload();
         String normalizedPayload = this.normalizePayload(payload);
 
-        if (normalizedPayload.equals(payload)) return message;
+        if (normalizedPayload.equals(payload))
+            return message;
 
         log.debug("Normalized incoming STOMP frame. payloadLength={}", message.getPayloadLength());
         return new TextMessage(normalizedPayload);
@@ -69,10 +58,12 @@ public class StompFrameNormalizeDecorator extends WebSocketHandlerDecorator {
 
     private boolean looksLikeEscapedStompFrame(String payload) {
         int firstSeparator = payload.indexOf('\\');
-        if (firstSeparator < 0) return false;
+        if (firstSeparator < 0)
+            return false;
 
         String command = payload.substring(0, firstSeparator);
-        if (!STOMP_COMMANDS.contains(command)) return false;
+        if (!STOMP_COMMANDS.contains(command))
+            return false;
 
         return payload.startsWith("\\n", firstSeparator) || payload.startsWith("\\r", firstSeparator);
     }

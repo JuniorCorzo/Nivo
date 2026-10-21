@@ -9,10 +9,11 @@ import lombok.RequiredArgsConstructor;
 /**
  * Use case to list all parking tickets for a given parking lot.
  *
- * <p><strong>Layer:</strong> Application (Use Case)
+ * <p>
+ * <strong>Layer:</strong> Application (Use Case)
  *
- * <p><strong>Responsibility:</strong> Retrieve all parking tickets associated with the specified
- * parking lot.
+ * <p>
+ * <strong>Responsibility:</strong> Retrieve all parking tickets associated with the specified parking lot.
  */
 @RequiredArgsConstructor
 public class ListParkingTicketsByParkingLotUseCase {
@@ -21,7 +22,8 @@ public class ListParkingTicketsByParkingLotUseCase {
     /**
      * Retrieves all parking tickets belonging to the given parking lot ID.
      *
-     * @param parkingLotId The unique identifier of the parking lot.
+     * @param parkingLotId
+     *            The unique identifier of the parking lot.
      * @return A list of {@link ParkingTickets}.
      */
     public List<ParkingTickets> execute(UUID parkingLotId) {

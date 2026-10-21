@@ -14,10 +14,10 @@ import java.time.OffsetDateTime;
 import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
 
 public class InvitationAlreadyAcceptedException extends AppException {
-  private static final int STATUS = 409;
-  private static final String CODE = "INVITATION_ALREADY_ACCEPTED";
+    private static final int STATUS = 409;
+    private static final String CODE = "INVITATION_ALREADY_ACCEPTED";
 
-  public InvitationAlreadyAcceptedException(OffsetDateTime acceptedAt) {
-    super(ErrorMessagesModel.INVITATION_ALREADY_ACCEPTED.format(acceptedAt), STATUS, CODE);
-  }
+    public InvitationAlreadyAcceptedException(OffsetDateTime acceptedAt) {
+        super(ErrorMessagesModel.INVITATION_ALREADY_ACCEPTED.format(acceptedAt), STATUS, CODE);
+    }
 }

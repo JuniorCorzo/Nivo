@@ -20,10 +20,7 @@ public class DashboardStreamController {
     private final DashboardSseRegistry sseRegistry;
 
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @Operation(
-            summary = "Subscribe to SSE dashboard updates",
-            description =
-                    "Dual-scope SSE streaming: single facility if parkingId provided, else consolidated global tenant stream")
+    @Operation(summary = "Subscribe to SSE dashboard updates", description = "Dual-scope SSE streaming: single facility if parkingId provided, else consolidated global tenant stream")
     public SseEmitter subscribe(@RequestParam(required = false) final UUID parkingId) {
         return sseRegistry.createEmitter(parkingId);
     }

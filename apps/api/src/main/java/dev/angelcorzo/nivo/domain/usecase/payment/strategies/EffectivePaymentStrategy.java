@@ -29,17 +29,13 @@ public class EffectivePaymentStrategy implements PaymentStrategy {
         final BigDecimal amountToCharge = command.amounts().getTotal();
         final Payments payment = PaymentFactory.registerEffective(command.ticket(), amountToCharge);
 
-        return this.paymentsRepository
-                .processPayment(payment)
-                .flatMap(this::handlerSuccess)
-                .onSuccess(this::registerTransaction)
-                .onSuccess(this::sendNotifications);
+        return this.paymentsRepository.processPayment(payment).flatMap(this::handlerSuccess)
+            .onSuccess(this::registerTransaction).onSuccess(this::sendNotifications);
     }
 
     private Result<Payments, PaymentError> handlerSuccess(Payments payment) {
         try {
-            this.parkingTicketsRepository.prepareCheckout(
-                    payment.getParkingTicket().getId(), payment.getAmount());
+            this.parkingTicketsRepository.prepareCheckout(payment.getParkingTicket().getId(), payment.getAmount());
 
             this.parkingTicketsRepository.closeTicket(payment.getParkingTicket().getId());
 
@@ -55,17 +51,10 @@ public class EffectivePaymentStrategy implements PaymentStrategy {
     }
 
     private void registerTransaction(Payments payment) {
-        Transactions transaction = Transactions.builder()
-                .payment(payment)
-                .amount(payment.getAmount())
-                .currency("COP")
-                .paymentProvider(
-                        payment.getPaymentMethod() != null
-                                ? payment.getPaymentMethod().name()
-                                : PaymentsMethods.EFFECTIVE.name())
-                .supplierRef("EFF-" + payment.getId())
-                .status(TransactionStatus.APPROVED)
-                .build();
+        Transactions transaction = Transactions.builder().payment(payment).amount(payment.getAmount()).currency("COP")
+            .paymentProvider(payment.getPaymentMethod() != null ? payment.getPaymentMethod().name()
+                : PaymentsMethods.EFFECTIVE.name())
+            .supplierRef("EFF-" + payment.getId()).status(TransactionStatus.APPROVED).build();
 
         this.transactionsRepository.save(transaction);
     }

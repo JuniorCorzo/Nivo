@@ -35,13 +35,8 @@ class SendNotificationsUseCaseTest {
         UUID actorId = UUID.randomUUID();
         NotificationsData content = mock(NotificationsData.class);
 
-        useCase.send(
-                NotificationEvents.USER_INVITED,
-                NotificationsChannel.EMAIL,
-                "test@example.com",
-                content,
-                tenantId,
-                actorId);
+        useCase.send(NotificationEvents.USER_INVITED, NotificationsChannel.EMAIL, "test@example.com", content, tenantId,
+            actorId);
 
         verify(eventBus).publish(any(SendNotificationEvent.class));
     }
@@ -53,17 +48,11 @@ class SendNotificationsUseCaseTest {
         UUID actorId = UUID.randomUUID();
         NotificationsData content = mock(NotificationsData.class);
 
-        when(notificationPreferencesRepository.isEnable(
-                        any(NotificationEvents.class), any(NotificationsChannel.class), anyString()))
-                .thenReturn(true);
+        when(notificationPreferencesRepository.isEnable(any(NotificationEvents.class), any(NotificationsChannel.class),
+            anyString())).thenReturn(true);
 
-        useCase.send(
-                NotificationEvents.TICKET_OPENED,
-                NotificationsChannel.EMAIL,
-                "user@example.com",
-                content,
-                tenantId,
-                actorId);
+        useCase.send(NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL, "user@example.com", content,
+            tenantId, actorId);
 
         verify(eventBus).publish(any(SendNotificationEvent.class));
     }

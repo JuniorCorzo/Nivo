@@ -49,8 +49,8 @@ class GetDashboardSummaryUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        useCase = new GetDashboardSummaryUseCase(
-                dailyGateway, hourlyGateway, parkingLotsRepository, authenticationContext);
+        useCase = new GetDashboardSummaryUseCase(dailyGateway, hourlyGateway, parkingLotsRepository,
+            authenticationContext);
     }
 
     @Test
@@ -61,34 +61,18 @@ class GetDashboardSummaryUseCaseTest {
         when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
         final TenantReference tenant = TenantReference.builder().id(tenantId).build();
-        final ParkingLots parkingLot = ParkingLots.builder()
-                .id(parkingId)
-                .name("Sede Central")
-                .tenant(tenant)
-                .build();
+        final ParkingLots parkingLot = ParkingLots.builder().id(parkingId).name("Sede Central").tenant(tenant).build();
         when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
 
-        final DailySummaryModel dailyModel = DailySummaryModel.builder()
-                .parkingLotId(parkingId)
-                .tenantId(tenantId)
-                .summaryDate(LocalDate.now())
-                .totalTickets(40L)
-                .completedTickets(30L)
-                .ongoingTickets(10L)
-                .totalRevenue(new BigDecimal("120000.00"))
-                .avgDurationMinutes(45.0)
-                .currency("COP")
-                .build();
+        final DailySummaryModel dailyModel = DailySummaryModel.builder().parkingLotId(parkingId).tenantId(tenantId)
+            .summaryDate(LocalDate.now()).totalTickets(40L).completedTickets(30L).ongoingTickets(10L)
+            .totalRevenue(new BigDecimal("120000.00")).avgDurationMinutes(45.0).currency("COP").build();
         when(dailyGateway.findByParkingLotIdAndSummaryDate(eq(parkingId), any(LocalDate.class)))
-                .thenReturn(Optional.of(dailyModel));
+            .thenReturn(Optional.of(dailyModel));
 
-        final HourlyOccupancyModel hourlyModel = HourlyOccupancyModel.builder()
-                .parkingLotId(parkingId)
-                .tenantId(tenantId)
-                .hourBucket(OffsetDateTime.now())
-                .totalCapacity(100L)
-                .estimatedOccupancyRate(50.0)
-                .build();
+        final HourlyOccupancyModel hourlyModel = HourlyOccupancyModel.builder().parkingLotId(parkingId)
+            .tenantId(tenantId).hourBucket(OffsetDateTime.now()).totalCapacity(100L).estimatedOccupancyRate(50.0)
+            .build();
         when(hourlyGateway.findLatestByParkingLotId(parkingId)).thenReturn(Optional.of(hourlyModel));
 
         final DashboardSummaryDTO summary = useCase.execute(parkingId);
@@ -112,41 +96,21 @@ class GetDashboardSummaryUseCaseTest {
         final UUID tenantId = UUID.randomUUID();
         when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
-        final DailySummaryModel daily1 = DailySummaryModel.builder()
-                .parkingLotId(UUID.randomUUID())
-                .tenantId(tenantId)
-                .summaryDate(LocalDate.now())
-                .totalTickets(50L)
-                .completedTickets(35L)
-                .ongoingTickets(15L)
-                .totalRevenue(new BigDecimal("200000.00"))
-                .avgDurationMinutes(60.0)
-                .currency("COP")
-                .build();
+        final DailySummaryModel daily1 = DailySummaryModel.builder().parkingLotId(UUID.randomUUID()).tenantId(tenantId)
+            .summaryDate(LocalDate.now()).totalTickets(50L).completedTickets(35L).ongoingTickets(15L)
+            .totalRevenue(new BigDecimal("200000.00")).avgDurationMinutes(60.0).currency("COP").build();
 
-        final DailySummaryModel daily2 = DailySummaryModel.builder()
-                .parkingLotId(UUID.randomUUID())
-                .tenantId(tenantId)
-                .summaryDate(LocalDate.now())
-                .totalTickets(30L)
-                .completedTickets(20L)
-                .ongoingTickets(10L)
-                .totalRevenue(new BigDecimal("150000.00"))
-                .avgDurationMinutes(40.0)
-                .currency("COP")
-                .build();
+        final DailySummaryModel daily2 = DailySummaryModel.builder().parkingLotId(UUID.randomUUID()).tenantId(tenantId)
+            .summaryDate(LocalDate.now()).totalTickets(30L).completedTickets(20L).ongoingTickets(10L)
+            .totalRevenue(new BigDecimal("150000.00")).avgDurationMinutes(40.0).currency("COP").build();
 
         when(dailyGateway.findAllByTenantIdAndSummaryDate(eq(tenantId), any(LocalDate.class)))
-                .thenReturn(List.of(daily1, daily2));
+            .thenReturn(List.of(daily1, daily2));
 
-        final HourlyOccupancyModel hourly1 = HourlyOccupancyModel.builder()
-                .totalCapacity(100L)
-                .estimatedOccupancyRate(50.0)
-                .build();
-        final HourlyOccupancyModel hourly2 = HourlyOccupancyModel.builder()
-                .totalCapacity(100L)
-                .estimatedOccupancyRate(70.0)
-                .build();
+        final HourlyOccupancyModel hourly1 = HourlyOccupancyModel.builder().totalCapacity(100L)
+            .estimatedOccupancyRate(50.0).build();
+        final HourlyOccupancyModel hourly2 = HourlyOccupancyModel.builder().totalCapacity(100L)
+            .estimatedOccupancyRate(70.0).build();
         when(hourlyGateway.findByTenantId(tenantId)).thenReturn(List.of(hourly1, hourly2));
 
         final DashboardSummaryDTO summary = useCase.execute(null);
@@ -184,10 +148,8 @@ class GetDashboardSummaryUseCaseTest {
         final UUID parkingId = UUID.randomUUID();
         when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
-        final TenantReference foreignTenant =
-                TenantReference.builder().id(foreignTenantId).build();
-        final ParkingLots foreignParkingLot =
-                ParkingLots.builder().id(parkingId).tenant(foreignTenant).build();
+        final TenantReference foreignTenant = TenantReference.builder().id(foreignTenantId).build();
+        final ParkingLots foreignParkingLot = ParkingLots.builder().id(parkingId).tenant(foreignTenant).build();
         when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(foreignParkingLot));
 
         assertThatThrownBy(() -> useCase.execute(parkingId)).isInstanceOf(ParkingNotExistsException.class);
@@ -199,34 +161,18 @@ class GetDashboardSummaryUseCaseTest {
         final UUID tenantId = UUID.randomUUID();
         when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
-        final ParkingLotListItem parking1 = ParkingLotListItem.builder()
-                .id(UUID.randomUUID())
-                .name("Sede A")
-                .totalCapacity(100L)
-                .occuppationRate(40.0)
-                .build();
-        final ParkingLotListItem parking2 = ParkingLotListItem.builder()
-                .id(UUID.randomUUID())
-                .name("Sede B")
-                .totalCapacity(100L)
-                .occuppationRate(60.0)
-                .build();
+        final ParkingLotListItem parking1 = ParkingLotListItem.builder().id(UUID.randomUUID()).name("Sede A")
+            .totalCapacity(100L).occuppationRate(40.0).build();
+        final ParkingLotListItem parking2 = ParkingLotListItem.builder().id(UUID.randomUUID()).name("Sede B")
+            .totalCapacity(100L).occuppationRate(60.0).build();
 
         when(parkingLotsRepository.findByTenantId(tenantId)).thenReturn(List.of(parking1, parking2));
 
-        final DailySummaryModel daily = DailySummaryModel.builder()
-                .parkingLotId(parking1.id())
-                .tenantId(tenantId)
-                .summaryDate(LocalDate.now())
-                .totalTickets(50L)
-                .completedTickets(35L)
-                .ongoingTickets(15L)
-                .totalRevenue(new BigDecimal("100000.00"))
-                .avgDurationMinutes(45.0)
-                .currency("COP")
-                .build();
+        final DailySummaryModel daily = DailySummaryModel.builder().parkingLotId(parking1.id()).tenantId(tenantId)
+            .summaryDate(LocalDate.now()).totalTickets(50L).completedTickets(35L).ongoingTickets(15L)
+            .totalRevenue(new BigDecimal("100000.00")).avgDurationMinutes(45.0).currency("COP").build();
         when(dailyGateway.findAllByTenantIdAndSummaryDate(eq(tenantId), any(LocalDate.class)))
-                .thenReturn(List.of(daily));
+            .thenReturn(List.of(daily));
 
         final DashboardSummaryDTO summary = useCase.execute(null);
 
@@ -246,19 +192,11 @@ class GetDashboardSummaryUseCaseTest {
         when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
         final TenantReference tenant = TenantReference.builder().id(tenantId).build();
-        final ParkingLots parkingLot = ParkingLots.builder()
-                .id(parkingId)
-                .name("Sede Express")
-                .tenant(tenant)
-                .build();
+        final ParkingLots parkingLot = ParkingLots.builder().id(parkingId).name("Sede Express").tenant(tenant).build();
         when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
 
-        final ParkingLotListItem parkingItem = ParkingLotListItem.builder()
-                .id(parkingId)
-                .name("Sede Express")
-                .totalCapacity(80L)
-                .occuppationRate(25.0)
-                .build();
+        final ParkingLotListItem parkingItem = ParkingLotListItem.builder().id(parkingId).name("Sede Express")
+            .totalCapacity(80L).occuppationRate(25.0).build();
         when(parkingLotsRepository.findByTenantId(tenantId)).thenReturn(List.of(parkingItem));
         when(hourlyGateway.findLatestByParkingLotId(parkingId)).thenReturn(Optional.empty());
 
@@ -280,49 +218,24 @@ class GetDashboardSummaryUseCaseTest {
         when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
 
         final TenantReference tenant = TenantReference.builder().id(tenantId).build();
-        final ParkingLots parkingLot = ParkingLots.builder()
-                .id(parkingId)
-                .name("Sede Fallback")
-                .tenant(tenant)
-                .build();
+        final ParkingLots parkingLot = ParkingLots.builder().id(parkingId).name("Sede Fallback").tenant(tenant).build();
         when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parkingLot));
 
         when(dailyGateway.findByParkingLotIdAndSummaryDate(eq(parkingId), any(LocalDate.class)))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
-        final ParkingLotListItem parkingItem = ParkingLotListItem.builder()
-                .id(parkingId)
-                .name("Sede Fallback")
-                .totalCapacity(50L)
-                .occuppationRate(0.0)
-                .currency("COP")
-                .build();
+        final ParkingLotListItem parkingItem = ParkingLotListItem.builder().id(parkingId).name("Sede Fallback")
+            .totalCapacity(50L).occuppationRate(0.0).currency("COP").build();
         when(parkingLotsRepository.findByTenantId(tenantId)).thenReturn(List.of(parkingItem));
         when(hourlyGateway.findLatestByParkingLotId(parkingId)).thenReturn(Optional.empty());
 
-        final DailySummaryModel s1 = DailySummaryModel.builder()
-                .parkingLotId(parkingId)
-                .tenantId(tenantId)
-                .summaryDate(LocalDate.now().minusDays(2))
-                .totalRevenue(new BigDecimal("50000.00"))
-                .totalTickets(10L)
-                .ongoingTickets(3L)
-                .completedTickets(7L)
-                .avgDurationMinutes(30.0)
-                .currency("COP")
-                .build();
+        final DailySummaryModel s1 = DailySummaryModel.builder().parkingLotId(parkingId).tenantId(tenantId)
+            .summaryDate(LocalDate.now().minusDays(2)).totalRevenue(new BigDecimal("50000.00")).totalTickets(10L)
+            .ongoingTickets(3L).completedTickets(7L).avgDurationMinutes(30.0).currency("COP").build();
 
-        final DailySummaryModel s2 = DailySummaryModel.builder()
-                .parkingLotId(parkingId)
-                .tenantId(tenantId)
-                .summaryDate(LocalDate.now().minusDays(1))
-                .totalRevenue(new BigDecimal("70000.00"))
-                .totalTickets(15L)
-                .ongoingTickets(2L)
-                .completedTickets(13L)
-                .avgDurationMinutes(50.0)
-                .currency("COP")
-                .build();
+        final DailySummaryModel s2 = DailySummaryModel.builder().parkingLotId(parkingId).tenantId(tenantId)
+            .summaryDate(LocalDate.now().minusDays(1)).totalRevenue(new BigDecimal("70000.00")).totalTickets(15L)
+            .ongoingTickets(2L).completedTickets(13L).avgDurationMinutes(50.0).currency("COP").build();
 
         when(dailyGateway.findAllByTenantIdAndParkingLotId(tenantId, parkingId)).thenReturn(List.of(s1, s2));
 

@@ -27,10 +27,7 @@ class ShowSpecialPoliciesByTenantUseCaseTest {
     @DisplayName("Should return special policies for tenant")
     void shouldReturnSpecialPoliciesForTenant() {
         UUID tenantId = UUID.randomUUID();
-        SpecialPolicies policy = SpecialPolicies.builder()
-                .id(UUID.randomUUID())
-                .name("Weekend Promo")
-                .build();
+        SpecialPolicies policy = SpecialPolicies.builder().id(UUID.randomUUID()).name("Weekend Promo").build();
 
         when(specialPoliciesRepository.findAllByTenantId(tenantId)).thenReturn(List.of(policy));
 

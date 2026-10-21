@@ -13,10 +13,11 @@ import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
 import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
 
 public class InvalidRoleException extends AppException {
-  private static final int STATUS = 400;
-  private static final String CODE = "INVALID_ROLE";
+    private static final int STATUS = 400;
+    private static final String CODE = "INVALID_ROLE";
 
-  public InvalidRoleException(Roles rol) {
-    super(String.format("El rol %s no esta permitido en este tipo de invitaciones", rol.toString().toLowerCase()), STATUS, CODE);
-  }
+    public InvalidRoleException(Roles rol) {
+        super(String.format("El rol %s no esta permitido en este tipo de invitaciones", rol.toString().toLowerCase()),
+            STATUS, CODE);
+    }
 }

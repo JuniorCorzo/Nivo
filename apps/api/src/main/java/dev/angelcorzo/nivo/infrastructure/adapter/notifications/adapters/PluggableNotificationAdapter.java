@@ -14,10 +14,11 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 /**
- * Pluggable {@link NotificationGateway} implementation that dynamically routes email dispatches
- * to the configured {@link EmailProviderClient} strategy (SendGrid, Resend, Brevo, or Mock).
+ * Pluggable {@link NotificationGateway} implementation that dynamically routes email dispatches to the configured
+ * {@link EmailProviderClient} strategy (SendGrid, Resend, Brevo, or Mock).
  *
- * <p><strong>Layer:</strong> Infrastructure (Driven Adapter - Pluggable Notification Dispatcher)
+ * <p>
+ * <strong>Layer:</strong> Infrastructure (Driven Adapter - Pluggable Notification Dispatcher)
  *
  * @author Angel Corzo
  * @since 1.0.0
@@ -30,18 +31,15 @@ public class PluggableNotificationAdapter implements NotificationGateway {
     private final Map<EmailProviderType, EmailProviderClient> clientsByProvider;
     private final EmailProviderType activeProvider;
 
-    public PluggableNotificationAdapter(
-            final List<EmailProviderClient> clients,
-            @Value("${nivo.notification.email.provider:SENDGRID}") final String activeProviderName) {
+    public PluggableNotificationAdapter(final List<EmailProviderClient> clients,
+        @Value("${nivo.notification.email.provider:SENDGRID}") final String activeProviderName) {
         this.clientsByProvider = new EnumMap<>(EmailProviderType.class);
         for (EmailProviderClient client : clients) {
             this.clientsByProvider.put(client.getProviderType(), client);
         }
         this.activeProvider = resolveProviderType(activeProviderName);
-        log.info(
-                "Initialized PluggableNotificationAdapter with active email provider: {} (registered providers: {})",
-                this.activeProvider,
-                this.clientsByProvider.keySet());
+        log.info("Initialized PluggableNotificationAdapter with active email provider: {} (registered providers: {})",
+            this.activeProvider, this.clientsByProvider.keySet());
     }
 
     @Override
@@ -49,13 +47,11 @@ public class PluggableNotificationAdapter implements NotificationGateway {
         final EmailProviderClient client = this.clientsByProvider.get(this.activeProvider);
         if (client == null) {
             throw new IllegalStateException(
-                    "No EmailProviderClient registered for active provider: " + this.activeProvider);
+                "No EmailProviderClient registered for active provider: " + this.activeProvider);
         }
 
-        log.debug(
-                "Delegating email dispatch to provider={} for template={}",
-                this.activeProvider,
-                template != null ? template.getTemplateReference() : "N/A");
+        log.debug("Delegating email dispatch to provider={} for template={}", this.activeProvider,
+            template != null ? template.getTemplateReference() : "N/A");
 
         client.sendEmail(template, to, content);
     }

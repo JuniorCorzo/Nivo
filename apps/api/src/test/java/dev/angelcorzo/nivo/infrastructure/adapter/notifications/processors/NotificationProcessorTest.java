@@ -53,42 +53,27 @@ class NotificationProcessorTest {
     @Test
     @DisplayName("Should throw IllegalStateException when execution context ids are missing")
     void shouldThrowWhenContextIdsMissing() {
-        SendNotificationEvent event = SendNotificationEvent.builder()
-                .event("USER_INVITED")
-                .notificationEvent(NotificationEvents.USER_INVITED)
-                .channel(NotificationsChannel.EMAIL)
-                .actorUserId(actorUserId)
-                .to("to@test.com")
-                .content(content)
-                .build();
+        SendNotificationEvent event = SendNotificationEvent.builder().event("USER_INVITED")
+            .notificationEvent(NotificationEvents.USER_INVITED).channel(NotificationsChannel.EMAIL)
+            .actorUserId(actorUserId).to("to@test.com").content(content).build();
 
-        assertThatThrownBy(() -> notificationProcessor.processEvent(event))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Notification event missing execution context ids");
+        assertThatThrownBy(() -> notificationProcessor.processEvent(event)).isInstanceOf(IllegalStateException.class)
+            .hasMessage("Notification event missing execution context ids");
     }
 
     @Test
     @DisplayName("Should process event and send email when template is cached")
     void shouldProcessEventSuccessfully() {
-        SendNotificationEvent event = SendNotificationEvent.builder()
-                .event("USER_INVITED")
-                .notificationEvent(NotificationEvents.USER_INVITED)
-                .channel(NotificationsChannel.EMAIL)
-                .tenantId(tenantId)
-                .actorUserId(actorUserId)
-                .to("to@test.com")
-                .content(content)
-                .build();
+        SendNotificationEvent event = SendNotificationEvent.builder().event("USER_INVITED")
+            .notificationEvent(NotificationEvents.USER_INVITED).channel(NotificationsChannel.EMAIL).tenantId(tenantId)
+            .actorUserId(actorUserId).to("to@test.com").content(content).build();
 
-        NotificationTemplates template = NotificationTemplates.builder()
-                .id(UUID.randomUUID())
-                .templateReference("d-123")
-                .eventType(NotificationEvents.USER_INVITED)
-                .channel(NotificationsChannel.EMAIL)
-                .build();
+        NotificationTemplates template = NotificationTemplates.builder().id(UUID.randomUUID())
+            .templateReference("d-123").eventType(NotificationEvents.USER_INVITED).channel(NotificationsChannel.EMAIL)
+            .build();
 
-        NotificationImmutableKey key =
-                NotificationImmutableKey.of(NotificationEvents.USER_INVITED, NotificationsChannel.EMAIL);
+        NotificationImmutableKey key = NotificationImmutableKey.of(NotificationEvents.USER_INVITED,
+            NotificationsChannel.EMAIL);
 
         when(notificationTemplatesCache.getTemplate(key)).thenReturn(Optional.of(template));
 
@@ -102,18 +87,12 @@ class NotificationProcessorTest {
     @Test
     @DisplayName("Should skip sending email when template is not found in cache")
     void shouldSkipWhenTemplateNotFound() {
-        SendNotificationEvent event = SendNotificationEvent.builder()
-                .event("USER_INVITED")
-                .notificationEvent(NotificationEvents.USER_INVITED)
-                .channel(NotificationsChannel.EMAIL)
-                .tenantId(tenantId)
-                .actorUserId(actorUserId)
-                .to("to@test.com")
-                .content(content)
-                .build();
+        SendNotificationEvent event = SendNotificationEvent.builder().event("USER_INVITED")
+            .notificationEvent(NotificationEvents.USER_INVITED).channel(NotificationsChannel.EMAIL).tenantId(tenantId)
+            .actorUserId(actorUserId).to("to@test.com").content(content).build();
 
-        NotificationImmutableKey key =
-                NotificationImmutableKey.of(NotificationEvents.USER_INVITED, NotificationsChannel.EMAIL);
+        NotificationImmutableKey key = NotificationImmutableKey.of(NotificationEvents.USER_INVITED,
+            NotificationsChannel.EMAIL);
 
         when(notificationTemplatesCache.getTemplate(key)).thenReturn(Optional.empty());
 

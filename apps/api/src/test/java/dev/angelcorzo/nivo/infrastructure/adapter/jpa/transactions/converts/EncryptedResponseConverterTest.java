@@ -63,7 +63,7 @@ class EncryptedResponseConverterTest {
     void convertToEntityAttribute_ShouldThrowException_WhenDecryptionFails() {
         String dbData = "encryptedData";
         when(encryptionGateway.decrypt(eq(dbData), eq(Object.class)))
-                .thenReturn(Result.failure(new EncryptionError.DecryptionFailed()));
+            .thenReturn(Result.failure(new EncryptionError.DecryptionFailed()));
 
         assertThrows(EncryptionException.class, () -> converter.convertToEntityAttribute(dbData));
     }

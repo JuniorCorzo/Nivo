@@ -54,27 +54,16 @@ class AcceptInvitationUseCaseTest {
         // Given
         UUID token = UUID.randomUUID();
         UUID tenantId = UUID.randomUUID();
-        Tenants tenant =
-                Tenants.builder().id(tenantId).companyName("Test Company").build();
+        Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-        UserInvitations pendingInvitation = UserInvitations.builder()
-                .id(UUID.randomUUID())
-                .invitedEmail("test@example.com")
-                .tenant(tenant)
-                .role(Roles.OPERATOR)
-                .token(token)
-                .status(UserInvitationStatus.PENDING)
-                .expiredAt(OffsetDateTime.now().plusDays(3))
-                .build();
+        UserInvitations pendingInvitation = UserInvitations.builder().id(UUID.randomUUID())
+            .invitedEmail("test@example.com").tenant(tenant).role(Roles.OPERATOR).token(token)
+            .status(UserInvitationStatus.PENDING).expiredAt(OffsetDateTime.now().plusDays(3)).build();
 
-        Users newUser = Users.builder()
-                .password("newStrongPassword123")
-                .fullName("Test User")
-                .build();
+        Users newUser = Users.builder().password("newStrongPassword123").fullName("Test User").build();
 
         when(invitationsRepository.findByToken(any())).thenReturn(Optional.of(pendingInvitation));
-        when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId))
-                .thenReturn(false);
+        when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId)).thenReturn(false);
         when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
         when(passwordEncode.encrypt(anyString())).thenReturn("encryptedPassword");
 
@@ -88,8 +77,7 @@ class AcceptInvitationUseCaseTest {
 
         assertEquals(newUser.getFullName(), savedUser.getFullName());
         assertEquals(pendingInvitation.getInvitedEmail(), savedUser.getEmail());
-        assertEquals(
-                pendingInvitation.getTenant().getId(), savedUser.getTenant().id());
+        assertEquals(pendingInvitation.getTenant().getId(), savedUser.getTenant().id());
         assertEquals(pendingInvitation.getRole(), savedUser.getRole());
         assertNotNull(savedUser.getPassword());
 
@@ -102,41 +90,24 @@ class AcceptInvitationUseCaseTest {
         // Given
         UUID token = UUID.randomUUID();
         UUID tenantId = UUID.randomUUID();
-        Tenants tenant =
-                Tenants.builder().id(tenantId).companyName("Test Company").build();
+        Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-        Tenants differentTenant = Tenants.builder()
-                .id(UUID.randomUUID())
-                .companyName("Different Company")
-                .build();
+        Tenants differentTenant = Tenants.builder().id(UUID.randomUUID()).companyName("Different Company").build();
 
-        UserInvitations pendingInvitation = UserInvitations.builder()
-                .id(UUID.randomUUID())
-                .invitedEmail("test@example.com")
-                .tenant(tenant)
-                .role(Roles.OPERATOR)
-                .token(token)
-                .status(UserInvitationStatus.PENDING)
-                .expiredAt(OffsetDateTime.now().plusDays(3))
-                .build();
+        UserInvitations pendingInvitation = UserInvitations.builder().id(UUID.randomUUID())
+            .invitedEmail("test@example.com").tenant(tenant).role(Roles.OPERATOR).token(token)
+            .status(UserInvitationStatus.PENDING).expiredAt(OffsetDateTime.now().plusDays(3)).build();
 
-        Users existingUser = Users.builder()
-                .id(UUID.randomUUID())
-                .email("test@example.com")
-                .fullName("Existing User")
-                .password("oldPassword")
-                .tenant(TenantReference.of(differentTenant))
-                .role(Roles.AUDITOR)
-                .build();
+        Users existingUser = Users.builder().id(UUID.randomUUID()).email("test@example.com").fullName("Existing User")
+            .password("oldPassword").tenant(TenantReference.of(differentTenant)).role(Roles.AUDITOR).build();
 
         when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(pendingInvitation));
-        when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId))
-                .thenReturn(false);
+        when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId)).thenReturn(false);
         when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(existingUser));
 
         // When
-        useCase.accept(
-                new AcceptInvitationUseCase.Accept(null, token)); // User details are not needed when the user exists
+        useCase.accept(new AcceptInvitationUseCase.Accept(null, token)); // User details are not needed when the user
+                                                                         // exists
 
         // Then
         ArgumentCaptor<Users> userCaptor = ArgumentCaptor.forClass(Users.class);
@@ -144,8 +115,7 @@ class AcceptInvitationUseCaseTest {
         Users updatedUser = userCaptor.getValue();
 
         assertEquals(existingUser.getId(), updatedUser.getId());
-        assertEquals(
-                pendingInvitation.getTenant().getId(), updatedUser.getTenant().id());
+        assertEquals(pendingInvitation.getTenant().getId(), updatedUser.getTenant().id());
         assertEquals(pendingInvitation.getRole(), updatedUser.getRole());
         assertEquals(existingUser.getFullName(), updatedUser.getFullName()); // Name should not change
 
@@ -170,14 +140,11 @@ class AcceptInvitationUseCaseTest {
         // Given
         final UUID token = UUID.randomUUID();
         final UUID tenantId = UUID.randomUUID();
-        final Tenants tenant =
-                Tenants.builder().id(tenantId).companyName("Test Company").build();
+        final Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-        UserInvitations expiredInvitation = UserInvitations.builder()
-                .status(UserInvitationStatus.PENDING)
-                .tenant(tenant)
-                .expiredAt(OffsetDateTime.now().minusSeconds(1)) // Expired 1 sec ago
-                .build();
+        UserInvitations expiredInvitation = UserInvitations.builder().status(UserInvitationStatus.PENDING)
+            .tenant(tenant).expiredAt(OffsetDateTime.now().minusSeconds(1)) // Expired 1 sec ago
+            .build();
 
         when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(expiredInvitation));
 
@@ -192,14 +159,10 @@ class AcceptInvitationUseCaseTest {
         // Given
         UUID token = UUID.randomUUID();
         final UUID tenantId = UUID.randomUUID();
-        final Tenants tenant =
-                Tenants.builder().id(tenantId).companyName("Test Company").build();
+        final Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-        UserInvitations acceptedInvitation = UserInvitations.builder()
-                .status(UserInvitationStatus.ACCEPTED)
-                .tenant(tenant)
-                .expiredAt(OffsetDateTime.now().plusDays(3))
-                .build();
+        UserInvitations acceptedInvitation = UserInvitations.builder().status(UserInvitationStatus.ACCEPTED)
+            .tenant(tenant).expiredAt(OffsetDateTime.now().plusDays(3)).build();
 
         when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(acceptedInvitation));
 
@@ -214,19 +177,13 @@ class AcceptInvitationUseCaseTest {
         // Given
         UUID token = UUID.randomUUID();
         UUID tenantId = UUID.randomUUID();
-        Tenants tenant =
-                Tenants.builder().id(tenantId).companyName("Test Company").build();
+        Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-        UserInvitations pendingInvitation = UserInvitations.builder()
-                .invitedEmail("test@example.com")
-                .tenant(tenant)
-                .status(UserInvitationStatus.PENDING)
-                .expiredAt(OffsetDateTime.now().plusDays(3))
-                .build();
+        UserInvitations pendingInvitation = UserInvitations.builder().invitedEmail("test@example.com").tenant(tenant)
+            .status(UserInvitationStatus.PENDING).expiredAt(OffsetDateTime.now().plusDays(3)).build();
 
         when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(pendingInvitation));
-        when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId))
-                .thenReturn(true);
+        when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId)).thenReturn(true);
 
         // When & Then
         AcceptInvitationUseCase.Accept command = new AcceptInvitationUseCase.Accept(null, token);

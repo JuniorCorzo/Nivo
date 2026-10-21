@@ -192,9 +192,8 @@ tasks.matching { it.name.startsWith("sentryUploadSourceBundle") }.configureEach 
 spotless {
     java {
         target 'src/*/java/**/*.java'
-        targetExclude '**/*Exception.java'
-        palantirJavaFormat('2.102.0')
-        formatAnnotations()
+        eclipse().configFile('config/spotless/eclipse-formatter.xml')
+        removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()
     }

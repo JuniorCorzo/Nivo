@@ -6,5 +6,6 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record NoSendCheckOutCommand(
-        @NotNull UUID ticketId, @NotNull PaymentsMethods paymentMethod) implements CheckOutCommand {}
+public record NoSendCheckOutCommand(@NotNull UUID ticketId,
+    @NotNull PaymentsMethods paymentMethod) implements CheckOutCommand {
+}

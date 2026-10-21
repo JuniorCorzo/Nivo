@@ -17,14 +17,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class ParkingTicketsAdapter
-        extends AdapterOperations<ParkingTickets, ParkingTicketsData, UUID, ParkingTicketsRepositoryData>
-        implements ParkingTicketsRepository {
+    extends
+        AdapterOperations<ParkingTickets, ParkingTicketsData, UUID, ParkingTicketsRepositoryData>
+    implements
+        ParkingTicketsRepository {
 
     /**
      * Constructor for AdapterOperations.
      *
-     * @param repository The JPA repository instance.
-     * @param mapper The mapper for converting between domain and data entities.
+     * @param repository
+     *            The JPA repository instance.
+     * @param mapper
+     *            The mapper for converting between domain and data entities.
      */
     protected ParkingTicketsAdapter(ParkingTicketsRepositoryData repository, ParkingTicketMapper mapper) {
         super(repository, mapper);
@@ -80,9 +84,7 @@ public class ParkingTicketsAdapter
 
     @Override
     public List<ParkingTickets> findAllByParkingLotId(UUID parkingLotId) {
-        return super.repository.findAllBySlot_Parking_Id(parkingLotId).stream()
-                .map(super::toEntity)
-                .toList();
+        return super.repository.findAllBySlot_Parking_Id(parkingLotId).stream().map(super::toEntity).toList();
     }
 
     @Override

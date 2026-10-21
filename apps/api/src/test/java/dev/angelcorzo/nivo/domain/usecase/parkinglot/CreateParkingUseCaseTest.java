@@ -43,8 +43,8 @@ class CreateParkingUseCaseTest {
         usersRepository = mock(UsersRepository.class);
         authenticationContext = mock(AuthenticationContextGateway.class);
 
-        useCase = new CreateParkingUseCase(
-                batchCreateSlotsUseCase, parkingLotsRepository, usersRepository, authenticationContext);
+        useCase = new CreateParkingUseCase(batchCreateSlotsUseCase, parkingLotsRepository, usersRepository,
+            authenticationContext);
     }
 
     @Test
@@ -54,28 +54,15 @@ class CreateParkingUseCaseTest {
         UUID tenantId = UUID.randomUUID();
 
         UserReference ownerRef = new UserReference(ownerId, "Owner User", "owner@nivo.com", Roles.OWNER, "12345");
-        Tenants tenant = Tenants.builder()
-                .id(tenantId)
-                .companyName("Nivo Corp")
-                .users(List.of(ownerRef))
-                .build();
+        Tenants tenant = Tenants.builder().id(tenantId).companyName("Nivo Corp").users(List.of(ownerRef)).build();
 
-        Users ownerUser = Users.builder()
-                .id(ownerId)
-                .fullName("Owner User")
-                .role(Roles.OWNER)
-                .build();
-        Address address =
-                Address.builder().street("Downtown 123").city("Bogotá").build();
-        Coordinates coordinates =
-                Coordinates.builder().latitude(4.6097).longitude(-74.0817).build();
-        OperatingHours hours = OperatingHours.builder()
-                .openTime(OffsetTime.now())
-                .closeTime(OffsetTime.now())
-                .build();
+        Users ownerUser = Users.builder().id(ownerId).fullName("Owner User").role(Roles.OWNER).build();
+        Address address = Address.builder().street("Downtown 123").city("Bogotá").build();
+        Coordinates coordinates = Coordinates.builder().latitude(4.6097).longitude(-74.0817).build();
+        OperatingHours hours = OperatingHours.builder().openTime(OffsetTime.now()).closeTime(OffsetTime.now()).build();
 
-        UpsertParkingLotsDTO dto = new UpsertParkingLotsDTO(
-                null, "Central Lot", address, coordinates, "America/Bogota", "COP", hours, Collections.emptyList());
+        UpsertParkingLotsDTO dto = new UpsertParkingLotsDTO(null, "Central Lot", address, coordinates, "America/Bogota",
+            "COP", hours, Collections.emptyList());
 
         when(authenticationContext.getCurrentTenant()).thenReturn(tenant);
         when(usersRepository.getReferenceById(ownerId)).thenReturn(ownerUser);
@@ -93,22 +80,13 @@ class CreateParkingUseCaseTest {
     @DisplayName("Should throw NoOwnerInTenantException when tenant has no owner")
     void shouldThrowWhenNoOwnerInTenant() {
         UUID tenantId = UUID.randomUUID();
-        Tenants tenant = Tenants.builder()
-                .id(tenantId)
-                .companyName("Nivo Corp")
-                .users(Collections.emptyList())
-                .build();
+        Tenants tenant = Tenants.builder().id(tenantId).companyName("Nivo Corp").users(Collections.emptyList()).build();
 
-        Address address =
-                Address.builder().street("Downtown 123").city("Bogotá").build();
-        Coordinates coordinates =
-                Coordinates.builder().latitude(4.6097).longitude(-74.0817).build();
-        OperatingHours hours = OperatingHours.builder()
-                .openTime(OffsetTime.now())
-                .closeTime(OffsetTime.now())
-                .build();
-        UpsertParkingLotsDTO dto = new UpsertParkingLotsDTO(
-                null, "Central Lot", address, coordinates, "America/Bogota", "COP", hours, Collections.emptyList());
+        Address address = Address.builder().street("Downtown 123").city("Bogotá").build();
+        Coordinates coordinates = Coordinates.builder().latitude(4.6097).longitude(-74.0817).build();
+        OperatingHours hours = OperatingHours.builder().openTime(OffsetTime.now()).closeTime(OffsetTime.now()).build();
+        UpsertParkingLotsDTO dto = new UpsertParkingLotsDTO(null, "Central Lot", address, coordinates, "America/Bogota",
+            "COP", hours, Collections.emptyList());
 
         when(authenticationContext.getCurrentTenant()).thenReturn(tenant);
 

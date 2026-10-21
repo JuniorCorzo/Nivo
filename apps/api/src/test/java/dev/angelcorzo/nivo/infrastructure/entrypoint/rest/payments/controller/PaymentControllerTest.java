@@ -36,11 +36,8 @@ class PaymentControllerTest {
     @Test
     @DisplayName("POST /payments/confirmation - Should confirm payment via webhook")
     void shouldConfirmPaymentWebhook() throws Exception {
-        mockMvc.perform(post("/payments/confirmation")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .param("x_transaction_id", "tx_12345")
-                        .param("x_amount", "10000"))
-                .andExpect(status().isOk());
+        mockMvc.perform(post("/payments/confirmation").contentType(MediaType.APPLICATION_FORM_URLENCODED)
+            .param("x_transaction_id", "tx_12345").param("x_amount", "10000")).andExpect(status().isOk());
 
         verify(confirmPaymentUseCase).execute(any(), any());
     }

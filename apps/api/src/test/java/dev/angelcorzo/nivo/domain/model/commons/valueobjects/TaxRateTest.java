@@ -40,25 +40,22 @@ class TaxRateTest {
     @Test
     @DisplayName("Should throw InvalidDomainException when value is null")
     void shouldThrowWhenValueIsNull() {
-        assertThatThrownBy(() -> new TaxRate(null))
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessageContaining("Tax rate cannot be null");
+        assertThatThrownBy(() -> new TaxRate(null)).isInstanceOf(InvalidDomainException.class)
+            .hasMessageContaining("Tax rate cannot be null");
     }
 
     @Test
     @DisplayName("Should throw InvalidDomainException when value is negative")
     void shouldThrowWhenValueIsNegative() {
-        assertThatThrownBy(() -> new TaxRate(new BigDecimal("-0.01")))
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessageContaining("Tax rate must be between 0.00 and 1.00");
+        assertThatThrownBy(() -> new TaxRate(new BigDecimal("-0.01"))).isInstanceOf(InvalidDomainException.class)
+            .hasMessageContaining("Tax rate must be between 0.00 and 1.00");
     }
 
     @Test
     @DisplayName("Should throw InvalidDomainException when value is greater than 1.00")
     void shouldThrowWhenValueIsGreaterThanOne() {
-        assertThatThrownBy(() -> new TaxRate(new BigDecimal("1.01")))
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessageContaining("Tax rate must be between 0.00 and 1.00");
+        assertThatThrownBy(() -> new TaxRate(new BigDecimal("1.01"))).isInstanceOf(InvalidDomainException.class)
+            .hasMessageContaining("Tax rate must be between 0.00 and 1.00");
     }
 
     @Test
@@ -84,8 +81,7 @@ class TaxRateTest {
     void shouldThrowWhenSubtotalIsNull() {
         TaxRate iva = TaxRate.standardIva();
 
-        assertThatThrownBy(() -> iva.calculateTax(null))
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessageContaining("Subtotal cannot be null");
+        assertThatThrownBy(() -> iva.calculateTax(null)).isInstanceOf(InvalidDomainException.class)
+            .hasMessageContaining("Subtotal cannot be null");
     }
 }

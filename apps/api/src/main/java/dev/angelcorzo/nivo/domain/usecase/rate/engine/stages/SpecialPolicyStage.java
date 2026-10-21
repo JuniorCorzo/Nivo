@@ -37,12 +37,11 @@ public class SpecialPolicyStage implements PricingStage {
         RateReference rate = context.rate();
         Duration minDuration = Duration.of(rate.minChargeTimeMinutes(), ChronoUnit.MINUTES);
 
-        BigDecimal newFee = ParkingFeeCalculator.calculateFee(
-                adjustedDuration,
-                rate.pricePerUnit(), // FIX: use rate.pricePerUnit(), NOT accumulated subtotal
-                minDuration,
-                rate.timeUnit().getChronoUnit(),
-                RoundingMode.HALF_UP);
+        BigDecimal newFee = ParkingFeeCalculator.calculateFee(adjustedDuration, rate.pricePerUnit(), // FIX: use
+            // rate.pricePerUnit(),
+            // NOT accumulated
+            // subtotal
+            minDuration, rate.timeUnit().getChronoUnit(), RoundingMode.HALF_UP);
 
         BigDecimal delta = newFee.subtract(context.subtotal());
         return context.withSubtotal(newFee, PriceLine.of(policy.name(), delta));
@@ -67,8 +66,8 @@ public class SpecialPolicyStage implements PricingStage {
             case SET -> policy.valueToModify();
             case SUBTRACT -> current.subtract(policy.valueToModify());
             case PERCENTAGE -> {
-                BigDecimal discount = current.multiply(
-                        policy.valueToModify().divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
+                BigDecimal discount = current
+                    .multiply(policy.valueToModify().divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
                 yield current.subtract(discount);
             }
         };
@@ -93,10 +92,9 @@ public class SpecialPolicyStage implements PricingStage {
                 yield subtracted.isNegative() ? Duration.ZERO : subtracted;
             }
             case PERCENTAGE -> {
-                BigDecimal factor = BigDecimal.ONE.subtract(
-                        policy.valueToModify().divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
-                long newMillis =
-                        BigDecimal.valueOf(current.toMillis()).multiply(factor).longValue();
+                BigDecimal factor = BigDecimal.ONE
+                    .subtract(policy.valueToModify().divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
+                long newMillis = BigDecimal.valueOf(current.toMillis()).multiply(factor).longValue();
                 yield Duration.ofMillis(Math.max(0, newMillis));
             }
         };

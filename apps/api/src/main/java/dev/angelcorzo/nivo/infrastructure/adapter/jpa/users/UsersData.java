@@ -21,12 +21,15 @@ import org.hibernate.proxy.HibernateProxy;
 /**
  * Represents the JPA data entity for a User.
  *
- * <p>This class maps to the "users" table in the database and includes auditing fields for
- * creation, update, and soft deletion.
+ * <p>
+ * This class maps to the "users" table in the database and includes auditing fields for creation, update, and soft
+ * deletion.
  *
- * <p><strong>Layer:</strong> Infrastructure (Driven Adapter - JPA)
+ * <p>
+ * <strong>Layer:</strong> Infrastructure (Driven Adapter - JPA)
  *
- * <p><strong>Responsibility:</strong> To persist and retrieve User data from the database.
+ * <p>
+ * <strong>Responsibility:</strong> To persist and retrieve User data from the database.
  *
  * @author Angel Corzo
  * @since 1.0.0
@@ -68,10 +71,7 @@ public class UsersData {
 
     /** The tenant to which this user belongs. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "tenant_id",
-            referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "users_tenant_id_fkey"))
+    @JoinColumn(name = "tenant_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "users_tenant_id_fkey"))
     @JsonBackReference("user-tenant")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -111,15 +111,16 @@ public class UsersData {
 
     @Override
     public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
+        if (this == o)
+            return true;
+        if (o == null)
+            return false;
         Class<?> oEffectiveClass = o instanceof HibernateProxy
-                ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
-                : o.getClass();
+            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
-                : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass)
+            return false;
         UsersData usersData = (UsersData) o;
         return getId() != null && Objects.equals(getId(), usersData.getId());
     }
@@ -127,10 +128,7 @@ public class UsersData {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy
-                ? ((HibernateProxy) this)
-                        .getHibernateLazyInitializer()
-                        .getPersistentClass()
-                        .hashCode()
-                : getClass().hashCode();
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+            : getClass().hashCode();
     }
 }

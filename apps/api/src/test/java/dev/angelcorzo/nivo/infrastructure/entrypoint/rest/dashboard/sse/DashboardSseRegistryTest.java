@@ -42,8 +42,7 @@ class DashboardSseRegistryTest {
     }
 
     @Test
-    @DisplayName(
-            "Emisión dual: debe enviar evento a suscriptor de la sede y a suscriptor global del tenant, pero no a sedes ajenas")
+    @DisplayName("Emisión dual: debe enviar evento a suscriptor de la sede y a suscriptor global del tenant, pero no a sedes ajenas")
     void shouldBroadcastEventToMatchingFacilityAndTenantSubscribersOnly() {
         final UUID tenantA = UUID.randomUUID();
         final UUID tenantB = UUID.randomUUID();
@@ -62,8 +61,8 @@ class DashboardSseRegistryTest {
         assertThat(sseRegistry.getActiveCount(tenantA)).isEqualTo(3);
 
         // Disparar evento para parking1 de tenantA
-        sseRegistry.broadcast(
-                tenantA, parking1, "occupancy-update", "{\"parkingId\":\"" + parking1 + "\",\"occupancyRate\":80.0}");
+        sseRegistry.broadcast(tenantA, parking1, "occupancy-update",
+            "{\"parkingId\":\"" + parking1 + "\",\"occupancyRate\":80.0}");
 
         // Se verifica que metricsManager registró las emisiones broadcast
         verify(metricsManager).recordSseEventBroadcast();

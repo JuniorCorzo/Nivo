@@ -113,8 +113,7 @@ class SlotsRepositoryAdapterTest {
         SlotsData data = new SlotsData();
         Slots slot = Slots.builder().id(UUID.randomUUID()).build();
 
-        when(repository.findAllByParking_IdAndZoneAndPrefix(parkingId, zone, prefix))
-                .thenReturn(List.of(data));
+        when(repository.findAllByParking_IdAndZoneAndPrefix(parkingId, zone, prefix)).thenReturn(List.of(data));
         when(mapper.toEntity(data)).thenReturn(slot);
 
         List<Slots> result = adapter.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, zone, prefix);
@@ -131,8 +130,7 @@ class SlotsRepositoryAdapterTest {
         SlotsData data = new SlotsData();
         Slots slot = Slots.builder().id(UUID.randomUUID()).build();
 
-        when(repository.findAllByParking_IdAndZoneAndPrefix(parkingId, null, null))
-                .thenReturn(List.of(data));
+        when(repository.findAllByParking_IdAndZoneAndPrefix(parkingId, null, null)).thenReturn(List.of(data));
         when(mapper.toEntity(data)).thenReturn(slot);
 
         List<Slots> result = adapter.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, "", "   ");

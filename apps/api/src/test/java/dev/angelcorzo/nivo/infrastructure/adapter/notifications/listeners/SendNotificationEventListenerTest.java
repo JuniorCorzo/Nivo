@@ -28,15 +28,10 @@ class SendNotificationEventListenerTest {
     @Test
     @DisplayName("Should enqueue received notification event")
     void shouldEnqueueEvent() {
-        SendNotificationEvent event = SendNotificationEvent.builder()
-                .event("USER_INVITED")
-                .notificationEvent(NotificationEvents.USER_INVITED)
-                .channel(NotificationsChannel.EMAIL)
-                .tenantId(UUID.randomUUID())
-                .actorUserId(UUID.randomUUID())
-                .to("user@test.com")
-                .content(UserInvitedData.builder().userName("John").build())
-                .build();
+        SendNotificationEvent event = SendNotificationEvent.builder().event("USER_INVITED")
+            .notificationEvent(NotificationEvents.USER_INVITED).channel(NotificationsChannel.EMAIL)
+            .tenantId(UUID.randomUUID()).actorUserId(UUID.randomUUID()).to("user@test.com")
+            .content(UserInvitedData.builder().userName("John").build()).build();
 
         listener.onSendNotificationEvent(event);
 

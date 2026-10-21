@@ -21,13 +21,13 @@ public class DeleteSlotGroupUseCase {
             throw new ParkingNotExistsException(command.parkingId());
 
         this.slotsRepository.findAllByParkingLotsId(command.parkingId()).stream()
-                .filter(slot -> slot.getType() == command.slotType()
-                        && Objects.equals(
-                                StringUtils.normalize(slot.getPrefix()), StringUtils.normalize(command.prefix()))
-                        && Objects.equals(StringUtils.normalize(slot.getZone()), StringUtils.normalize(command.zone())))
-                .forEach(slot -> this.slotsRepository.deleteById(slot.getId()));
+            .filter(slot -> slot.getType() == command.slotType()
+                && Objects.equals(StringUtils.normalize(slot.getPrefix()), StringUtils.normalize(command.prefix()))
+                && Objects.equals(StringUtils.normalize(slot.getZone()), StringUtils.normalize(command.zone())))
+            .forEach(slot -> this.slotsRepository.deleteById(slot.getId()));
     }
 
     @Builder
-    public record DeleteSlotGroupCommand(UUID parkingId, SlotType slotType, String prefix, String zone) {}
+    public record DeleteSlotGroupCommand(UUID parkingId, SlotType slotType, String prefix, String zone) {
+    }
 }

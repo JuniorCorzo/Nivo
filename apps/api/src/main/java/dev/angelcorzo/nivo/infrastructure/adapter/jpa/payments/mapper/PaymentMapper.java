@@ -7,9 +7,7 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.mappers.JacksonConverter;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.payments.PaymentsData;
 import org.mapstruct.Mapper;
 
-@Mapper(
-        config = MapperStructConfig.class,
-        uses = {JacksonConverter.class})
+@Mapper(config = MapperStructConfig.class, uses = {JacksonConverter.class})
 public interface PaymentMapper extends BaseMapper<Payments, PaymentsData> {
     @Override
     Payments toEntity(PaymentsData data);

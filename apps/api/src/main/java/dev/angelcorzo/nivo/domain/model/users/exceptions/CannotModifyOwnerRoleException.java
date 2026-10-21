@@ -6,7 +6,8 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.ErrorMessagesModel;
 /**
  * Thrown when an attempt is made to modify the role of an OWNER or SUPERADMIN user.
  *
- * <p><strong>Layer:</strong> Domain
+ * <p>
+ * <strong>Layer:</strong> Domain
  *
  * @author Angel Corzo
  * @since 1.0.0

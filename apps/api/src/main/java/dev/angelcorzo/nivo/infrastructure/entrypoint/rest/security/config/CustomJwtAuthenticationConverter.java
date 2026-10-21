@@ -44,14 +44,12 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
 
         List<SimpleGrantedAuthority> authority = Collections.singletonList(new SimpleGrantedAuthority(role));
 
-        final UserAuthentication userPrincipal = UserAuthentication.builder()
-                .userId(UUID.fromString(userId))
-                .tenantId(UUID.fromString(tenantId))
-                .role(Roles.valueOf(Roles.class, role.replace("ROLE_", "").toUpperCase()))
-                .build();
+        final UserAuthentication userPrincipal = UserAuthentication.builder().userId(UUID.fromString(userId))
+            .tenantId(UUID.fromString(tenantId))
+            .role(Roles.valueOf(Roles.class, role.replace("ROLE_", "").toUpperCase())).build();
 
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(userPrincipal, source, authority);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userPrincipal,
+            source, authority);
 
         log.debug("Converted JWT to Authentication: {}", authenticationToken);
         return authenticationToken;

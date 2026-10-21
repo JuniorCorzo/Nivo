@@ -25,21 +25,14 @@ public class ProcessPaymentUseCase {
     private final TicketNotifier ticketNotifier;
 
     public Payments execute(ParkingTickets ticket, PriceDetailed amounts, CheckOut command) {
-        return this.paymentsRepository
-                .findByParkingTicketId(ticket.getId())
-                .orElseGet(() -> this.processNewPaymentIntent(ticket, amounts, command));
+        return this.paymentsRepository.findByParkingTicketId(ticket.getId())
+            .orElseGet(() -> this.processNewPaymentIntent(ticket, amounts, command));
     }
 
     private Payments processNewPaymentIntent(ParkingTickets ticket, PriceDetailed amounts, CheckOut command) {
-        return PaymentStrategyFactory.getPaymentStrategy(
-                        command.paymentMethod(),
-                        paymentsRepository,
-                        parkingTicketsRepository,
-                        paymentProviderGateway,
-                        transactionsRepository,
-                        paymentNotifier,
-                        ticketNotifier)
-                .processPayment(PaymentCommand.of(ticket, amounts, command))
-                .orElseThrow(ProcessPaymentException::new);
+        return PaymentStrategyFactory
+            .getPaymentStrategy(command.paymentMethod(), paymentsRepository, parkingTicketsRepository,
+                paymentProviderGateway, transactionsRepository, paymentNotifier, ticketNotifier)
+            .processPayment(PaymentCommand.of(ticket, amounts, command)).orElseThrow(ProcessPaymentException::new);
     }
 }

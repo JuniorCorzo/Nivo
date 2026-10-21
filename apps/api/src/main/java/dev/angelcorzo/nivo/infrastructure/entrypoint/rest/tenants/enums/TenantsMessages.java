@@ -1,8 +1,7 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.tenants.enums;
 
 public enum TenantsMessages {
-    TENANT_CREATED_SUCCESSFULLY("El usuario fue creado con éxito"),
-    ;
+    TENANT_CREATED_SUCCESSFULLY("El usuario fue creado con éxito"),;
 
     private final String template;
 

@@ -33,10 +33,7 @@ class DeleteRateUseCaseTest {
     void shouldDeleteRateByIdWhenTenantMatches() {
         UUID tenantId = UUID.randomUUID();
         UUID rateId = UUID.randomUUID();
-        Rates rate = Rates.builder()
-                .id(rateId)
-                .tenant(TenantReference.builder().id(tenantId).build())
-                .build();
+        Rates rate = Rates.builder().id(rateId).tenant(TenantReference.builder().id(tenantId).build()).build();
 
         when(ratesRepository.findById(rateId)).thenReturn(Optional.of(rate));
 
@@ -50,10 +47,7 @@ class DeleteRateUseCaseTest {
     void shouldDeleteRateUsingAuthenticationContextGateway() {
         UUID tenantId = UUID.randomUUID();
         UUID rateId = UUID.randomUUID();
-        Rates rate = Rates.builder()
-                .id(rateId)
-                .tenant(TenantReference.builder().id(tenantId).build())
-                .build();
+        Rates rate = Rates.builder().id(rateId).tenant(TenantReference.builder().id(tenantId).build()).build();
 
         when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
         when(ratesRepository.findById(rateId)).thenReturn(Optional.of(rate));
@@ -82,10 +76,7 @@ class DeleteRateUseCaseTest {
         UUID tenantA = UUID.randomUUID();
         UUID tenantB = UUID.randomUUID();
         UUID rateId = UUID.randomUUID();
-        Rates rate = Rates.builder()
-                .id(rateId)
-                .tenant(TenantReference.builder().id(tenantA).build())
-                .build();
+        Rates rate = Rates.builder().id(rateId).tenant(TenantReference.builder().id(tenantA).build()).build();
 
         when(ratesRepository.findById(rateId)).thenReturn(Optional.of(rate));
 

@@ -23,15 +23,11 @@ public class BaseRateStage implements PricingStage {
         TimeUnitsRate timeUnit = rate.timeUnit();
         Duration minDuration = Duration.of(rate.minChargeTimeMinutes(), ChronoUnit.MINUTES);
 
-        BigDecimal fee = ParkingFeeCalculator.calculateFee(
-                context.duration(), rate.pricePerUnit(), minDuration, timeUnit.getChronoUnit(), RoundingMode.HALF_UP);
+        BigDecimal fee = ParkingFeeCalculator.calculateFee(context.duration(), rate.pricePerUnit(), minDuration,
+            timeUnit.getChronoUnit(), RoundingMode.HALF_UP);
 
-        String concept = String.format(
-                "%s (%s * %d COP/%s)",
-                rate.name(),
-                timeUnit.getDurationTime(context.duration()),
-                rate.pricePerUnit().intValue(),
-                timeUnit.getName());
+        String concept = String.format("%s (%s * %d COP/%s)", rate.name(), timeUnit.getDurationTime(context.duration()),
+            rate.pricePerUnit().intValue(), timeUnit.getName());
 
         return context.withSubtotal(fee, PriceLine.of(concept, fee));
     }

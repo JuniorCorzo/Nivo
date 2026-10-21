@@ -53,10 +53,10 @@ class CalculateRateUseCaseTest {
         fixedClock = Clock.fixed(Instant.parse("2026-09-07T12:00:00Z"), ZoneOffset.UTC);
 
         PricingEngine engine = new PricingEngine(
-                List.of(new GracePeriodStage(), new BaseRateStage(), new SpecialPolicyStage(), new DayCapStage()));
+            List.of(new GracePeriodStage(), new BaseRateStage(), new SpecialPolicyStage(), new DayCapStage()));
 
-        calculateRateUseCase =
-                new CalculateRateUseCase(ticketsRepository, parkingLotsRepository, authGateway, engine, fixedClock);
+        calculateRateUseCase = new CalculateRateUseCase(ticketsRepository, parkingLotsRepository, authGateway, engine,
+            fixedClock);
     }
 
     private RateReference createRateReference() {
@@ -64,12 +64,8 @@ class CalculateRateUseCaseTest {
     }
 
     private RateReference createRateReference(final BigDecimal pricePerUnit) {
-        return RateReference.builder()
-                .pricePerUnit(pricePerUnit)
-                .timeUnit(TimeUnitsRate.HOURS)
-                .minChargeTimeMinutes(0)
-                .vehicleType(VehicleType.CAR)
-                .build();
+        return RateReference.builder().pricePerUnit(pricePerUnit).timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(0)
+            .vehicleType(VehicleType.CAR).build();
     }
 
     @Test
@@ -79,21 +75,17 @@ class CalculateRateUseCaseTest {
         final UUID parkingId = UUID.randomUUID();
 
         final ParkingLotPolicy policy = new ParkingLotPolicy(15, BigDecimal.ZERO, new BigDecimal("0.19"));
-        final ParkingLots parking =
-                ParkingLots.builder().id(parkingId).policy(policy).build();
+        final ParkingLots parking = ParkingLots.builder().id(parkingId).policy(policy).build();
 
         final RateReference rate = createRateReference();
 
-        final ParkingTickets ticket = ParkingTickets.builder()
-                .id(ticketId)
-                .rate(rate)
-                .entryTime(OffsetDateTime.parse("2026-09-07T11:50:00Z")) // 10 min stay <= 15 min grace
-                .build();
+        final ParkingTickets ticket = ParkingTickets.builder().id(ticketId).rate(rate)
+            .entryTime(OffsetDateTime.parse("2026-09-07T11:50:00Z")) // 10 min stay <= 15 min grace
+            .build();
 
         when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
         when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parking));
-        when(authGateway.getCurrentTenant())
-                .thenReturn(Tenants.builder().companyName("Central Parking").build());
+        when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
         final PriceDetailed price = calculateRateUseCase.execute(ticketId, parkingId);
 
@@ -108,21 +100,17 @@ class CalculateRateUseCaseTest {
         final UUID parkingId = UUID.randomUUID();
 
         final ParkingLotPolicy policy = new ParkingLotPolicy(15, new BigDecimal("500.00"), new BigDecimal("0.19"));
-        final ParkingLots parking =
-                ParkingLots.builder().id(parkingId).policy(policy).build();
+        final ParkingLots parking = ParkingLots.builder().id(parkingId).policy(policy).build();
 
         final RateReference rate = createRateReference();
 
-        final ParkingTickets ticket = ParkingTickets.builder()
-                .id(ticketId)
-                .rate(rate)
-                .entryTime(OffsetDateTime.parse("2026-09-07T11:50:00Z")) // 10 min stay <= 15 min grace
-                .build();
+        final ParkingTickets ticket = ParkingTickets.builder().id(ticketId).rate(rate)
+            .entryTime(OffsetDateTime.parse("2026-09-07T11:50:00Z")) // 10 min stay <= 15 min grace
+            .build();
 
         when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
         when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parking));
-        when(authGateway.getCurrentTenant())
-                .thenReturn(Tenants.builder().companyName("Central Parking").build());
+        when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
         final PriceDetailed price = calculateRateUseCase.execute(ticketId, parkingId);
 
@@ -139,7 +127,7 @@ class CalculateRateUseCaseTest {
         when(ticketsRepository.findById(ticketId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> calculateRateUseCase.execute(ticketId, parkingId))
-                .isInstanceOf(ParkingTicketNotFound.class);
+            .isInstanceOf(ParkingTicketNotFound.class);
     }
 
     @Test
@@ -149,15 +137,12 @@ class CalculateRateUseCaseTest {
 
         final RateReference rate = createRateReference();
 
-        final ParkingTickets ticket = ParkingTickets.builder()
-                .id(ticketId)
-                .rate(rate)
-                .entryTime(OffsetDateTime.parse("2026-09-07T10:00:00Z")) // 2 hours stay
-                .build();
+        final ParkingTickets ticket = ParkingTickets.builder().id(ticketId).rate(rate)
+            .entryTime(OffsetDateTime.parse("2026-09-07T10:00:00Z")) // 2 hours stay
+            .build();
 
         when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
-        when(authGateway.getCurrentTenant())
-                .thenReturn(Tenants.builder().companyName("Central Parking").build());
+        when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
         final PriceDetailed price = calculateRateUseCase.execute(ticketId);
 
@@ -173,19 +158,14 @@ class CalculateRateUseCaseTest {
         RateReference rate = RateReference.builder().build();
 
         // fixedClock is at 12:00:00Z, entry time 13:00:00Z is after exitTime (clock now)
-        ParkingTickets ticket = ParkingTickets.builder()
-                .id(ticketId)
-                .rate(rate)
-                .entryTime(OffsetDateTime.parse("2026-09-07T13:00:00Z"))
-                .build();
+        ParkingTickets ticket = ParkingTickets.builder().id(ticketId).rate(rate)
+            .entryTime(OffsetDateTime.parse("2026-09-07T13:00:00Z")).build();
 
         when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
-        when(authGateway.getCurrentTenant())
-                .thenReturn(Tenants.builder().companyName("Central Parking").build());
+        when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
-        assertThatThrownBy(() -> calculateRateUseCase.execute(ticketId))
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessage("Exit time cannot be before entry time");
+        assertThatThrownBy(() -> calculateRateUseCase.execute(ticketId)).isInstanceOf(InvalidDomainException.class)
+            .hasMessage("Exit time cannot be before entry time");
     }
 
     @Nested
@@ -199,23 +179,13 @@ class CalculateRateUseCaseTest {
             // fixedClock is 12:00:00Z, entryTime 10:55:00Z -> exactly 65 minutes stay
             OffsetDateTime entryTime = OffsetDateTime.parse("2026-09-07T10:55:00Z");
 
-            RateReference rate = RateReference.builder()
-                    .name("Standard Hourly")
-                    .pricePerUnit(BigDecimal.valueOf(3000))
-                    .timeUnit(TimeUnitsRate.HOURS)
-                    .minChargeTimeMinutes(0)
-                    .vehicleType(VehicleType.CAR)
-                    .build();
+            RateReference rate = RateReference.builder().name("Standard Hourly").pricePerUnit(BigDecimal.valueOf(3000))
+                .timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(0).vehicleType(VehicleType.CAR).build();
 
-            ParkingTickets ticket = ParkingTickets.builder()
-                    .id(ticketId)
-                    .rate(rate)
-                    .entryTime(entryTime)
-                    .build();
+            ParkingTickets ticket = ParkingTickets.builder().id(ticketId).rate(rate).entryTime(entryTime).build();
 
             when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
-            when(authGateway.getCurrentTenant())
-                    .thenReturn(Tenants.builder().companyName("Central Parking").build());
+            when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
             // Act
             PriceDetailed price = calculateRateUseCase.execute(ticketId);
@@ -235,23 +205,13 @@ class CalculateRateUseCaseTest {
             // fixedClock is 12:00:00Z, entryTime 11:50:00Z -> 10 minutes stay
             OffsetDateTime entryTime = OffsetDateTime.parse("2026-09-07T11:50:00Z");
 
-            RateReference rate = RateReference.builder()
-                    .name("Motorcycle Minute")
-                    .pricePerUnit(BigDecimal.valueOf(100))
-                    .timeUnit(TimeUnitsRate.MINUTES)
-                    .minChargeTimeMinutes(30)
-                    .vehicleType(VehicleType.MOTORCYCLE)
-                    .build();
+            RateReference rate = RateReference.builder().name("Motorcycle Minute").pricePerUnit(BigDecimal.valueOf(100))
+                .timeUnit(TimeUnitsRate.MINUTES).minChargeTimeMinutes(30).vehicleType(VehicleType.MOTORCYCLE).build();
 
-            ParkingTickets ticket = ParkingTickets.builder()
-                    .id(ticketId)
-                    .rate(rate)
-                    .entryTime(entryTime)
-                    .build();
+            ParkingTickets ticket = ParkingTickets.builder().id(ticketId).rate(rate).entryTime(entryTime).build();
 
             when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
-            when(authGateway.getCurrentTenant())
-                    .thenReturn(Tenants.builder().companyName("Central Parking").build());
+            when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
             PriceDetailed price = calculateRateUseCase.execute(ticketId);
 
@@ -270,27 +230,16 @@ class CalculateRateUseCaseTest {
             OffsetDateTime entryTime = OffsetDateTime.parse("2026-09-07T11:44:00Z");
 
             ParkingLotPolicy policy = new ParkingLotPolicy(15, BigDecimal.ZERO, new BigDecimal("0.19"));
-            ParkingLots parking =
-                    ParkingLots.builder().id(parkingId).policy(policy).build();
+            ParkingLots parking = ParkingLots.builder().id(parkingId).policy(policy).build();
 
-            RateReference rate = RateReference.builder()
-                    .name("Car Hourly")
-                    .pricePerUnit(BigDecimal.valueOf(4000))
-                    .timeUnit(TimeUnitsRate.HOURS)
-                    .minChargeTimeMinutes(0)
-                    .vehicleType(VehicleType.CAR)
-                    .build();
+            RateReference rate = RateReference.builder().name("Car Hourly").pricePerUnit(BigDecimal.valueOf(4000))
+                .timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(0).vehicleType(VehicleType.CAR).build();
 
-            ParkingTickets ticket = ParkingTickets.builder()
-                    .id(ticketId)
-                    .rate(rate)
-                    .entryTime(entryTime)
-                    .build();
+            ParkingTickets ticket = ParkingTickets.builder().id(ticketId).rate(rate).entryTime(entryTime).build();
 
             when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
             when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parking));
-            when(authGateway.getCurrentTenant())
-                    .thenReturn(Tenants.builder().companyName("Central Parking").build());
+            when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
             PriceDetailed price = calculateRateUseCase.execute(ticketId, parkingId);
 
@@ -306,39 +255,24 @@ class CalculateRateUseCaseTest {
     class SpecialPolicyIntegrationScenarios {
 
         @Test
-        @DisplayName(
-                "TIME SUBTRACT policy: 4 hours stay with 1 hour free subtracts time and recalculates fee with pricePerUnit")
+        @DisplayName("TIME SUBTRACT policy: 4 hours stay with 1 hour free subtracts time and recalculates fee with pricePerUnit")
         void shouldApplyTimeSubtractSpecialPolicyEndToEnd() {
             final UUID ticketId = UUID.randomUUID();
             // fixedClock is 12:00:00Z, entryTime 08:00:00Z -> exactly 4 hours stay
             final OffsetDateTime entryTime = OffsetDateTime.parse("2026-09-07T08:00:00Z");
 
-            final SpecialPoliciesReference policy = SpecialPoliciesReference.builder()
-                    .name("First Hour Free")
-                    .modifies(ModifiesTypes.TIME)
-                    .operation(OperationsTypes.SUBTRACT)
-                    .valueToModify(BigDecimal.valueOf(1)) // minus 1 hour
-                    .active(true)
-                    .build();
+            final SpecialPoliciesReference policy = SpecialPoliciesReference.builder().name("First Hour Free")
+                .modifies(ModifiesTypes.TIME).operation(OperationsTypes.SUBTRACT).valueToModify(BigDecimal.valueOf(1)) // minus 1 hour
+                .active(true).build();
 
-            final RateReference rate = RateReference.builder()
-                    .name("Downtown Parking")
-                    .pricePerUnit(BigDecimal.valueOf(5000))
-                    .timeUnit(TimeUnitsRate.HOURS)
-                    .minChargeTimeMinutes(0)
-                    .vehicleType(VehicleType.CAR)
-                    .specialPolicy(policy)
-                    .build();
+            final RateReference rate = RateReference.builder().name("Downtown Parking")
+                .pricePerUnit(BigDecimal.valueOf(5000)).timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(0)
+                .vehicleType(VehicleType.CAR).specialPolicy(policy).build();
 
-            final ParkingTickets ticket = ParkingTickets.builder()
-                    .id(ticketId)
-                    .rate(rate)
-                    .entryTime(entryTime)
-                    .build();
+            final ParkingTickets ticket = ParkingTickets.builder().id(ticketId).rate(rate).entryTime(entryTime).build();
 
             when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
-            when(authGateway.getCurrentTenant())
-                    .thenReturn(Tenants.builder().companyName("Central Parking").build());
+            when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
             final PriceDetailed price = calculateRateUseCase.execute(ticketId);
 
@@ -356,39 +290,25 @@ class CalculateRateUseCaseTest {
         }
 
         @Test
-        @DisplayName(
-                "SURCHARGE PERCENTAGE policy: 2 hours stay with 20% night surcharge increases subtotal and records delta")
+        @DisplayName("SURCHARGE PERCENTAGE policy: 2 hours stay with 20% night surcharge increases subtotal and records delta")
         void shouldApplySurchargeSpecialPolicyEndToEnd() {
             final UUID ticketId = UUID.randomUUID();
             // fixedClock is 12:00:00Z, entryTime 10:00:00Z -> 2 hours stay
             final OffsetDateTime entryTime = OffsetDateTime.parse("2026-09-07T10:00:00Z");
 
-            final SpecialPoliciesReference policy = SpecialPoliciesReference.builder()
-                    .name("Night Shift Surcharge")
-                    .modifies(ModifiesTypes.SURCHARGE)
-                    .operation(OperationsTypes.PERCENTAGE)
-                    .valueToModify(BigDecimal.valueOf(20)) // +20%
-                    .active(true)
-                    .build();
+            final SpecialPoliciesReference policy = SpecialPoliciesReference.builder().name("Night Shift Surcharge")
+                .modifies(ModifiesTypes.SURCHARGE).operation(OperationsTypes.PERCENTAGE)
+                .valueToModify(BigDecimal.valueOf(20)) // +20%
+                .active(true).build();
 
-            final RateReference rate = RateReference.builder()
-                    .name("Night Rate")
-                    .pricePerUnit(BigDecimal.valueOf(4000))
-                    .timeUnit(TimeUnitsRate.HOURS)
-                    .minChargeTimeMinutes(0)
-                    .vehicleType(VehicleType.CAR)
-                    .specialPolicy(policy)
-                    .build();
+            final RateReference rate = RateReference.builder().name("Night Rate").pricePerUnit(BigDecimal.valueOf(4000))
+                .timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(0).vehicleType(VehicleType.CAR)
+                .specialPolicy(policy).build();
 
-            final ParkingTickets ticket = ParkingTickets.builder()
-                    .id(ticketId)
-                    .rate(rate)
-                    .entryTime(entryTime)
-                    .build();
+            final ParkingTickets ticket = ParkingTickets.builder().id(ticketId).rate(rate).entryTime(entryTime).build();
 
             when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
-            when(authGateway.getCurrentTenant())
-                    .thenReturn(Tenants.builder().companyName("Central Parking").build());
+            when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
             final PriceDetailed price = calculateRateUseCase.execute(ticketId);
 
@@ -410,32 +330,19 @@ class CalculateRateUseCaseTest {
             // fixedClock is 12:00:00Z, entryTime 11:00:00Z -> 1 hour stay
             final OffsetDateTime entryTime = OffsetDateTime.parse("2026-09-07T11:00:00Z");
 
-            final SpecialPoliciesReference policy = SpecialPoliciesReference.builder()
-                    .name("Big Welcome Coupon")
-                    .modifies(ModifiesTypes.PRICE)
-                    .operation(OperationsTypes.SUBTRACT)
-                    .valueToModify(BigDecimal.valueOf(10000)) // $10,000 off
-                    .active(true)
-                    .build();
+            final SpecialPoliciesReference policy = SpecialPoliciesReference.builder().name("Big Welcome Coupon")
+                .modifies(ModifiesTypes.PRICE).operation(OperationsTypes.SUBTRACT)
+                .valueToModify(BigDecimal.valueOf(10000)) // $10,000 off
+                .active(true).build();
 
-            final RateReference rate = RateReference.builder()
-                    .name("Hourly")
-                    .pricePerUnit(BigDecimal.valueOf(3000)) // $3,000 base
-                    .timeUnit(TimeUnitsRate.HOURS)
-                    .minChargeTimeMinutes(0)
-                    .vehicleType(VehicleType.CAR)
-                    .specialPolicy(policy)
-                    .build();
+            final RateReference rate = RateReference.builder().name("Hourly").pricePerUnit(BigDecimal.valueOf(3000)) // $3,000 base
+                .timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(0).vehicleType(VehicleType.CAR)
+                .specialPolicy(policy).build();
 
-            final ParkingTickets ticket = ParkingTickets.builder()
-                    .id(ticketId)
-                    .rate(rate)
-                    .entryTime(entryTime)
-                    .build();
+            final ParkingTickets ticket = ParkingTickets.builder().id(ticketId).rate(rate).entryTime(entryTime).build();
 
             when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
-            when(authGateway.getCurrentTenant())
-                    .thenReturn(Tenants.builder().companyName("Central Parking").build());
+            when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
 
             final PriceDetailed price = calculateRateUseCase.execute(ticketId);
 

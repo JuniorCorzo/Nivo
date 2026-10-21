@@ -48,8 +48,7 @@ class UserInvitationsRepositoryAdapterTest {
     void shouldFindByToken() {
         UUID token = UUID.randomUUID();
         UserInvitationsData data = new UserInvitationsData();
-        UserInvitations entity =
-                UserInvitations.builder().id(UUID.randomUUID()).token(token).build();
+        UserInvitations entity = UserInvitations.builder().id(UUID.randomUUID()).token(token).build();
 
         when(repository.findByToken(token)).thenReturn(Optional.of(data));
         when(mapper.toEntity(data)).thenReturn(entity);
@@ -65,10 +64,7 @@ class UserInvitationsRepositoryAdapterTest {
     void shouldAcceptInvitation() {
         UUID id = UUID.randomUUID();
         UserInvitationsData data = new UserInvitationsData();
-        UserInvitations entity = UserInvitations.builder()
-                .id(id)
-                .status(UserInvitationStatus.ACCEPTED)
-                .build();
+        UserInvitations entity = UserInvitations.builder().id(id).status(UserInvitationStatus.ACCEPTED).build();
 
         when(repository.findById(id)).thenReturn(Optional.of(data));
         when(mapper.toEntity(data)).thenReturn(entity);

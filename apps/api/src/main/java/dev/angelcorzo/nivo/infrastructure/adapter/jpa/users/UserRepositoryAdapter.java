@@ -15,15 +15,18 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * JPA adapter for {@link UsersRepository}.
  *
- * <p>This class implements the {@link UsersRepository} interface, providing concrete persistence
- * operations for {@link Users} entities using Spring Data JPA.
+ * <p>
+ * This class implements the {@link UsersRepository} interface, providing concrete persistence operations for
+ * {@link Users} entities using Spring Data JPA.
  *
- * <p>It extends {@link AdapterOperations} to leverage common CRUD and mapping functionalities.
+ * <p>
+ * It extends {@link AdapterOperations} to leverage common CRUD and mapping functionalities.
  *
- * <p><strong>Layer:</strong> Infrastructure (Driven Adapter - JPA)
+ * <p>
+ * <strong>Layer:</strong> Infrastructure (Driven Adapter - JPA)
  *
- * <p><strong>Responsibility:</strong> To provide persistence implementation for User domain
- * operations.
+ * <p>
+ * <strong>Responsibility:</strong> To provide persistence implementation for User domain operations.
  *
  * @author Angel Corzo
  * @since 1.0.0
@@ -34,13 +37,16 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 public class UserRepositoryAdapter extends AdapterOperations<Users, UsersData, UUID, UserRepositoryData>
-        implements UsersRepository {
+    implements
+        UsersRepository {
 
     /**
      * Constructs a new UserRepositoryAdapter.
      *
-     * @param repository The Spring Data JPA repository for UsersData.
-     * @param mapper The MapStruct mapper for Users.
+     * @param repository
+     *            The Spring Data JPA repository for UsersData.
+     * @param mapper
+     *            The MapStruct mapper for Users.
      */
     protected UserRepositoryAdapter(final UserRepositoryData repository, final UserMapper mapper) {
         super(repository, mapper);
@@ -49,7 +55,8 @@ public class UserRepositoryAdapter extends AdapterOperations<Users, UsersData, U
     /**
      * Finds a user by their email address.
      *
-     * @param email The email address of the user.
+     * @param email
+     *            The email address of the user.
      * @return An {@link Optional} containing the found {@link Users} entity, or empty if not found.
      */
     @Override
@@ -60,9 +67,9 @@ public class UserRepositoryAdapter extends AdapterOperations<Users, UsersData, U
     /**
      * Finds a user by their unique identifier, eagerly fetching their associated tenant.
      *
-     * @param id The unique identifier of the user.
-     * @return An {@link Optional} containing the found {@link Users} entity with tenant, or empty if
-     *     not found.
+     * @param id
+     *            The unique identifier of the user.
+     * @return An {@link Optional} containing the found {@link Users} entity with tenant, or empty if not found.
      */
     @Override
     public Optional<Users> findById(UUID id) {
@@ -73,10 +80,12 @@ public class UserRepositoryAdapter extends AdapterOperations<Users, UsersData, U
     /**
      * Finds a user by their ID and tenant ID, eagerly fetching the tenant.
      *
-     * @param id The unique identifier of the user.
-     * @param tenantId The unique identifier of the tenant.
-     * @return An {@link Optional} containing the found {@link Users} entity with tenant, or empty if
-     *     not found or not in the tenant.
+     * @param id
+     *            The unique identifier of the user.
+     * @param tenantId
+     *            The unique identifier of the tenant.
+     * @return An {@link Optional} containing the found {@link Users} entity with tenant, or empty if not found or not
+     *         in the tenant.
      */
     @Override
     public Optional<Users> findByIdAndTenantId(UUID id, UUID tenantId) {
@@ -90,10 +99,11 @@ public class UserRepositoryAdapter extends AdapterOperations<Users, UsersData, U
     }
 
     /**
-     * Saves (creates or updates) a user entity. After saving, it re-fetches the user to ensure the
-     * associated tenant is loaded.
+     * Saves (creates or updates) a user entity. After saving, it re-fetches the user to ensure the associated tenant is
+     * loaded.
      *
-     * @param entity The {@link Users} entity to save.
+     * @param entity
+     *            The {@link Users} entity to save.
      * @return The saved {@link Users} entity with its tenant loaded.
      */
     @Override
@@ -108,7 +118,8 @@ public class UserRepositoryAdapter extends AdapterOperations<Users, UsersData, U
     /**
      * Counts the number of active users with the 'OWNER' role within a specific tenant.
      *
-     * @param tenantId The unique identifier of the tenant.
+     * @param tenantId
+     *            The unique identifier of the tenant.
      * @return The total count of active owners.
      */
     @Override
@@ -119,7 +130,8 @@ public class UserRepositoryAdapter extends AdapterOperations<Users, UsersData, U
     /**
      * Checks if a user with the given ID exists.
      *
-     * @param id The unique identifier of the user to check.
+     * @param id
+     *            The unique identifier of the user to check.
      * @return {@code true} if a user with the specified ID exists, {@code false} otherwise.
      */
     @Override
@@ -135,13 +147,13 @@ public class UserRepositoryAdapter extends AdapterOperations<Users, UsersData, U
     /**
      * Checks if a user with the given email address exists.
      *
-     * @param email The email address to check.
+     * @param email
+     *            The email address to check.
      * @return {@code true} if a user with the specified email exists, {@code false} otherwise.
      */
     @Override
     public Boolean existsByEmail(String email) {
-        Example<UsersData> filterEmail =
-                Example.of(UsersData.builder().email(email).build());
+        Example<UsersData> filterEmail = Example.of(UsersData.builder().email(email).build());
 
         return this.repository.exists(filterEmail);
     }
@@ -149,10 +161,11 @@ public class UserRepositoryAdapter extends AdapterOperations<Users, UsersData, U
     /**
      * Checks if a user with the given email address exists within a specific tenant.
      *
-     * @param email The email address to check.
-     * @param tenantId The unique identifier of the tenant.
-     * @return {@code true} if a user with the specified email exists in the tenant, {@code false}
-     *     otherwise.
+     * @param email
+     *            The email address to check.
+     * @param tenantId
+     *            The unique identifier of the tenant.
+     * @return {@code true} if a user with the specified email exists in the tenant, {@code false} otherwise.
      */
     @Override
     public Boolean existsByEmailAndTenantId(String email, UUID tenantId) {
@@ -160,11 +173,12 @@ public class UserRepositoryAdapter extends AdapterOperations<Users, UsersData, U
     }
 
     /**
-     * Assigns a user to a specific tenant. This is typically used when an existing user is invited to
-     * a new tenant.
+     * Assigns a user to a specific tenant. This is typically used when an existing user is invited to a new tenant.
      *
-     * @param userId The unique identifier of the user to assign.
-     * @param tenantId The unique identifier of the tenant to assign the user to.
+     * @param userId
+     *            The unique identifier of the user to assign.
+     * @param tenantId
+     *            The unique identifier of the tenant to assign the user to.
      * @return The number of rows affected by the update.
      */
     @Override
@@ -175,7 +189,8 @@ public class UserRepositoryAdapter extends AdapterOperations<Users, UsersData, U
     /**
      * Deletes a user by their unique identifier.
      *
-     * @param id The unique identifier of the user to delete.
+     * @param id
+     *            The unique identifier of the user to delete.
      */
     @Override
     public void deleteById(UUID id) {

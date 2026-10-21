@@ -7,4 +7,5 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.notificationtemplates.Noti
 import org.mapstruct.Mapper;
 
 @Mapper(config = MapperStructConfig.class)
-public interface NotificationTemplateMapper extends BaseMapper<NotificationTemplates, NotificationTemplatesData> {}
+public interface NotificationTemplateMapper extends BaseMapper<NotificationTemplates, NotificationTemplatesData> {
+}

@@ -21,6 +21,6 @@ public interface DailySummaryViewRepository extends JpaRepository<DailySummaryVi
 
     List<DailySummaryViewEntity> findAllByTenantIdAndSummaryDateBetween(UUID tenantId, LocalDate start, LocalDate end);
 
-    List<DailySummaryViewEntity> findAllByTenantIdAndParkingLotIdAndSummaryDateBetween(
-            UUID tenantId, UUID parkingLotId, LocalDate start, LocalDate end);
+    List<DailySummaryViewEntity> findAllByTenantIdAndParkingLotIdAndSummaryDateBetween(UUID tenantId, UUID parkingLotId,
+        LocalDate start, LocalDate end);
 }

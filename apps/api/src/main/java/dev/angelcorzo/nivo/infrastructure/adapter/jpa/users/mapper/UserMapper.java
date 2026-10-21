@@ -7,16 +7,17 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.UsersData;
 import org.mapstruct.Mapper;
 
 /**
- * MapStruct mapper for converting between {@link Users} domain entity and {@link UsersData} JPA
- * entity.
+ * MapStruct mapper for converting between {@link Users} domain entity and {@link UsersData} JPA entity.
  *
- * <p>This interface extends {@link BaseMapper} to provide generic mapping methods and is configured
- * with {@link MapperStructConfig} for consistent behavior.
+ * <p>
+ * This interface extends {@link BaseMapper} to provide generic mapping methods and is configured with
+ * {@link MapperStructConfig} for consistent behavior.
  *
- * <p><strong>Layer:</strong> Infrastructure (Driven Adapter - Mapper)
+ * <p>
+ * <strong>Layer:</strong> Infrastructure (Driven Adapter - Mapper)
  *
- * <p><strong>Responsibility:</strong> To facilitate data transfer between the domain and
- * persistence layers for Users.
+ * <p>
+ * <strong>Responsibility:</strong> To facilitate data transfer between the domain and persistence layers for Users.
  *
  * @author Angel Corzo
  * @since 1.0.0
@@ -26,4 +27,5 @@ import org.mapstruct.Mapper;
  * @see MapperStructConfig
  */
 @Mapper(config = MapperStructConfig.class)
-public interface UserMapper extends BaseMapper<Users, UsersData> {}
+public interface UserMapper extends BaseMapper<Users, UsersData> {
+}

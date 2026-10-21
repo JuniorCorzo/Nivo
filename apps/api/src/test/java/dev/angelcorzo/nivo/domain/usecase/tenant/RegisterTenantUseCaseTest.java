@@ -50,18 +50,12 @@ class RegisterTenantUseCaseTest {
     @BeforeEach
     void setUp() {
         // Input data for tests
-        tenantToRegister =
-                Tenants.builder().id(tenantId).companyName("Test Tenant").build();
+        tenantToRegister = Tenants.builder().id(tenantId).companyName("Test Tenant").build();
 
         tenant = Tenants.builder().id(tenantId).companyName("Test Tenant").build();
 
-        userToRegister = Users.builder()
-                .id(userId)
-                .fullName("Test User")
-                .email("test@example.com")
-                .password("password123")
-                .contactInfo("3000000000")
-                .build();
+        userToRegister = Users.builder().id(userId).fullName("Test User").email("test@example.com")
+            .password("password123").contactInfo("3000000000").build();
     }
 
     @Test

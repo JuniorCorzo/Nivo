@@ -32,16 +32,14 @@ public class ReportsController {
     private final BackendOperationsMetricsManager metricsManager;
 
     @GetMapping("/operational")
-    @Operation(
-            summary = "Get operational report paginated",
-            description = "Paginated tickets report across single or all parking facilities")
+    @Operation(summary = "Get operational report paginated", description = "Paginated tickets report across single or all parking facilities")
     public ResponseEntity<Page<OperationalReportDTO>> getOperationalReport(
-            @RequestParam(required = false) final UUID parkingId, @PageableDefault(size = 20) final Pageable pageable) {
+        @RequestParam(required = false) final UUID parkingId, @PageableDefault(size = 20) final Pageable pageable) {
         try {
-            final dev.angelcorzo.nivo.domain.model.dashboard.PageResult<OperationalReportDTO> domainPage =
-                    reportUseCase.execute(parkingId, pageable.getPageNumber(), pageable.getPageSize());
+            final dev.angelcorzo.nivo.domain.model.dashboard.PageResult<OperationalReportDTO> domainPage = reportUseCase
+                .execute(parkingId, pageable.getPageNumber(), pageable.getPageSize());
             final Page<OperationalReportDTO> page = new org.springframework.data.domain.PageImpl<>(
-                    domainPage.getContent(), pageable, domainPage.getTotalElements());
+                domainPage.getContent(), pageable, domainPage.getTotalElements());
             return ResponseEntity.ok(page);
         } finally {
             if (metricsManager != null) {
@@ -51,12 +49,9 @@ public class ReportsController {
     }
 
     @GetMapping("/operational/csv")
-    @Operation(
-            summary = "Export operational report to CSV",
-            description = "Continuous streaming CSV download with zero buffer accumulation")
-    public void exportOperationalReportCsv(
-            @RequestParam(required = false) final UUID parkingId, final HttpServletResponse response)
-            throws IOException {
+    @Operation(summary = "Export operational report to CSV", description = "Continuous streaming CSV download with zero buffer accumulation")
+    public void exportOperationalReportCsv(@RequestParam(required = false) final UUID parkingId,
+        final HttpServletResponse response) throws IOException {
 
         response.setContentType("text/csv;charset=UTF-8");
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -69,19 +64,10 @@ public class ReportsController {
 
             final List<OperationalReportDTO> records = reportUseCase.executeForExport(parkingId);
             for (final OperationalReportDTO r : records) {
-                writer.printf(
-                        "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
-                        safe(r.getTicketId()),
-                        safe(r.getLicensePlate()),
-                        safe(r.getSlotNumber()),
-                        safe(r.getSlotType()),
-                        safe(r.getEntryTime()),
-                        safe(r.getExitTime()),
-                        safe(r.getDurationMinutes()),
-                        safe(r.getTicketStatus()),
-                        safe(r.getTotalToCharge()),
-                        safe(r.getPaymentMethod()),
-                        safe(r.getParkingName()));
+                writer.printf("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n", safe(r.getTicketId()), safe(r.getLicensePlate()),
+                    safe(r.getSlotNumber()), safe(r.getSlotType()), safe(r.getEntryTime()), safe(r.getExitTime()),
+                    safe(r.getDurationMinutes()), safe(r.getTicketStatus()), safe(r.getTotalToCharge()),
+                    safe(r.getPaymentMethod()), safe(r.getParkingName()));
             }
             writer.flush();
         } finally {

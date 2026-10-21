@@ -12,10 +12,7 @@ class ParkingLotsTest {
     @Test
     @DisplayName("Should use default policy when not provided")
     void shouldDefaultPolicyWhenNotProvided() {
-        ParkingLots parkingLot = ParkingLots.builder()
-                .id(UUID.randomUUID())
-                .name("Central Parking")
-                .build();
+        ParkingLots parkingLot = ParkingLots.builder().id(UUID.randomUUID()).name("Central Parking").build();
 
         ParkingLotPolicy policy = parkingLot.getPolicy();
         assertThat(policy).isNotNull();
@@ -27,17 +24,11 @@ class ParkingLotsTest {
     @Test
     @DisplayName("Should use provided custom policy")
     void shouldUseProvidedCustomPolicy() {
-        ParkingLotPolicy customPolicy = ParkingLotPolicy.builder()
-                .gracePeriodMinutes(15)
-                .gracePeriodPrice(new BigDecimal("2000.00"))
-                .ivaRate(new BigDecimal("0.1900"))
-                .build();
+        ParkingLotPolicy customPolicy = ParkingLotPolicy.builder().gracePeriodMinutes(15)
+            .gracePeriodPrice(new BigDecimal("2000.00")).ivaRate(new BigDecimal("0.1900")).build();
 
-        ParkingLots parkingLot = ParkingLots.builder()
-                .id(UUID.randomUUID())
-                .name("Central Parking")
-                .policy(customPolicy)
-                .build();
+        ParkingLots parkingLot = ParkingLots.builder().id(UUID.randomUUID()).name("Central Parking")
+            .policy(customPolicy).build();
 
         assertThat(parkingLot.getPolicy()).isEqualTo(customPolicy);
     }
@@ -45,11 +36,8 @@ class ParkingLotsTest {
     @Test
     @DisplayName("Should return defaults when policy is explicitly set to null")
     void shouldReturnDefaultsWhenPolicyIsNull() {
-        ParkingLots parkingLot = ParkingLots.builder()
-                .id(UUID.randomUUID())
-                .name("Central Parking")
-                .policy(null)
-                .build();
+        ParkingLots parkingLot = ParkingLots.builder().id(UUID.randomUUID()).name("Central Parking").policy(null)
+            .build();
 
         ParkingLotPolicy policy = parkingLot.getPolicy();
         assertThat(policy).isNotNull();

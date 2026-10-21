@@ -48,17 +48,10 @@ class LoginUseCaseTest {
         void shouldReturnAuthResponseWhenCredentialsAreValid() {
             // Arrange
             LoginUseCase.UserCredentials credentials = new LoginUseCase.UserCredentials("test@example.com", "password");
-            Users user = Users.builder()
-                    .id(UUID.randomUUID())
-                    .email("test@example.com")
-                    .password("encodedPassword")
-                    .fullName("Test User")
-                    .tenant(TenantReference.builder()
-                            .id(UUID.randomUUID())
-                            .companyName("Test Company")
-                            .build())
-                    .role(Roles.OWNER)
-                    .build();
+            Users user = Users.builder().id(UUID.randomUUID()).email("test@example.com").password("encodedPassword")
+                .fullName("Test User")
+                .tenant(TenantReference.builder().id(UUID.randomUUID()).companyName("Test Company").build())
+                .role(Roles.OWNER).build();
 
             when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
             when(passwordEncode.matches("password", "encodedPassword")).thenReturn(true);
@@ -95,11 +88,8 @@ class LoginUseCaseTest {
         void shouldThrowBadCredentialsExceptionWhenPasswordDoesNotMatch() {
             // Arrange
             LoginUseCase.UserCredentials credentials = new LoginUseCase.UserCredentials("test@example.com", "password");
-            Users user = Users.builder()
-                    .id(UUID.randomUUID())
-                    .email("test@example.com")
-                    .password("encodedPassword")
-                    .build();
+            Users user = Users.builder().id(UUID.randomUUID()).email("test@example.com").password("encodedPassword")
+                .build();
 
             when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
             when(passwordEncode.matches("password", "encodedPassword")).thenReturn(false);

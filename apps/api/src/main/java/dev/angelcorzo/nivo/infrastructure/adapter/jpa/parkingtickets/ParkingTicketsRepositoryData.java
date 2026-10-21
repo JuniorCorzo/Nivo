@@ -14,9 +14,7 @@ public interface ParkingTicketsRepositoryData extends JpaRepository<ParkingTicke
     Optional<ParkingTicketsData> findByTenant_IdAndId(UUID tenantId, UUID id);
 
     @Modifying
-    @Query(
-            value = "UPDATE nivo.parking_tickets SET total_to_charge = ?2, exit_time = CURRENT_TIMESTAMP WHERE id = ?1",
-            nativeQuery = true)
+    @Query(value = "UPDATE nivo.parking_tickets SET total_to_charge = ?2, exit_time = CURRENT_TIMESTAMP WHERE id = ?1", nativeQuery = true)
     void prepareCheckout(UUID ticketId, BigDecimal amountToCharge);
 
     @Modifying
@@ -24,14 +22,11 @@ public interface ParkingTicketsRepositoryData extends JpaRepository<ParkingTicke
     void changeStatus(UUID ticketId, ParkingTicketStatus status);
 
     @Modifying
-    @Query(
-            value = "UPDATE nivo.parking_tickets SET status = 'CLOSED', closed_at = CURRENT_TIMESTAMP WHERE id = ?1",
-            nativeQuery = true)
+    @Query(value = "UPDATE nivo.parking_tickets SET status = 'CLOSED', closed_at = CURRENT_TIMESTAMP WHERE id = ?1", nativeQuery = true)
     void closeTicket(UUID ticketId);
 
     List<ParkingTicketsData> findAllBySlot_Parking_Id(UUID parkingLotId);
 
-    @Query(
-            "SELECT p FROM ParkingTicketsData p WHERE p.slot.id = ?1 AND p.status = dev.angelcorzo.nivo.domain.model.parkingtickets.enums.ParkingTicketStatus.OPEN")
+    @Query("SELECT p FROM ParkingTicketsData p WHERE p.slot.id = ?1 AND p.status = dev.angelcorzo.nivo.domain.model.parkingtickets.enums.ParkingTicketStatus.OPEN")
     Optional<ParkingTicketsData> findActiveBySlotId(UUID slotId);
 }

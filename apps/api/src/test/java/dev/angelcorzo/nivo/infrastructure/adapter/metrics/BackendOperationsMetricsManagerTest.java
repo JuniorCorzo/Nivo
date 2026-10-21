@@ -27,17 +27,11 @@ class BackendOperationsMetricsManagerTest {
     void shouldTrackSseActiveConnectionsLifecycle() {
         metricsManager.recordSseConnectionOpened();
         metricsManager.recordSseConnectionOpened();
-        assertThat(meterRegistry.get("sse.dashboard.active.connections").gauge().value())
-                .isEqualTo(2.0);
+        assertThat(meterRegistry.get("sse.dashboard.active.connections").gauge().value()).isEqualTo(2.0);
 
         metricsManager.recordSseDisconnect(); // debe decrementar conexiones activas y subir contador de desconexión
-        assertThat(meterRegistry.get("sse.dashboard.active.connections").gauge().value())
-                .isEqualTo(1.0);
-        assertThat(meterRegistry
-                        .get("sse.dashboard.disconnects.total")
-                        .counter()
-                        .count())
-                .isEqualTo(1.0);
+        assertThat(meterRegistry.get("sse.dashboard.active.connections").gauge().value()).isEqualTo(1.0);
+        assertThat(meterRegistry.get("sse.dashboard.disconnects.total").counter().count()).isEqualTo(1.0);
     }
 
     @Test
@@ -46,11 +40,7 @@ class BackendOperationsMetricsManagerTest {
         metricsManager.recordSseEventBroadcast();
         metricsManager.recordSseEventBroadcast();
         metricsManager.recordSseEventBroadcast();
-        assertThat(meterRegistry
-                        .get("sse.dashboard.events.broadcast.total")
-                        .counter()
-                        .count())
-                .isEqualTo(3.0);
+        assertThat(meterRegistry.get("sse.dashboard.events.broadcast.total").counter().count()).isEqualTo(3.0);
     }
 
     @Test
@@ -63,33 +53,13 @@ class BackendOperationsMetricsManagerTest {
         metricsManager.recordAvailabilityCacheHit();
         metricsManager.recordAvailabilityCacheMiss();
 
-        assertThat(meterRegistry
-                        .get("public.api.availability.requests.total")
-                        .tag("status", "200")
-                        .counter()
-                        .count())
-                .isEqualTo(2.0);
-        assertThat(meterRegistry
-                        .get("public.api.availability.requests.total")
-                        .tag("status", "429")
-                        .counter()
-                        .count())
-                .isEqualTo(1.0);
-        assertThat(meterRegistry
-                        .get("public.api.availability.rate_limited.total")
-                        .counter()
-                        .count())
-                .isEqualTo(1.0);
-        assertThat(meterRegistry
-                        .get("public.api.availability.cache.hit")
-                        .counter()
-                        .count())
-                .isEqualTo(1.0);
-        assertThat(meterRegistry
-                        .get("public.api.availability.cache.miss")
-                        .counter()
-                        .count())
-                .isEqualTo(1.0);
+        assertThat(meterRegistry.get("public.api.availability.requests.total").tag("status", "200").counter().count())
+            .isEqualTo(2.0);
+        assertThat(meterRegistry.get("public.api.availability.requests.total").tag("status", "429").counter().count())
+            .isEqualTo(1.0);
+        assertThat(meterRegistry.get("public.api.availability.rate_limited.total").counter().count()).isEqualTo(1.0);
+        assertThat(meterRegistry.get("public.api.availability.cache.hit").counter().count()).isEqualTo(1.0);
+        assertThat(meterRegistry.get("public.api.availability.cache.miss").counter().count()).isEqualTo(1.0);
     }
 
     @Test
@@ -109,10 +79,7 @@ class BackendOperationsMetricsManagerTest {
             }
         });
 
-        final Timer queryTimer = meterRegistry
-                .get("db.analytics.query.duration")
-                .tag("view", "hourly")
-                .timer();
+        final Timer queryTimer = meterRegistry.get("db.analytics.query.duration").tag("view", "hourly").timer();
         assertThat(queryTimer.count()).isEqualTo(1);
         assertThat(queryTimer.totalTime(TimeUnit.MILLISECONDS)).isGreaterThanOrEqualTo(9.0);
 
@@ -121,22 +88,16 @@ class BackendOperationsMetricsManagerTest {
     }
 
     @Test
-    @DisplayName(
-            "Restricción estricta de cardinalidad: NINGUNA métrica debe incluir tags parkingId, tenantId ni licensePlate")
+    @DisplayName("Restricción estricta de cardinalidad: NINGUNA métrica debe incluir tags parkingId, tenantId ni licensePlate")
     void shouldNeverRegisterHighCardinalityTagsInPrometheusMetrics() {
         // Ejecutar varias operaciones de registro
         metricsManager.recordPublicAvailabilityRequest(200);
         metricsManager.recordAnalyticsQueryDuration("daily", () -> {});
 
         for (final Meter meter : meterRegistry.getMeters()) {
-            final List<String> tagKeys = meter.getId().getTags().stream()
-                    .map(t -> t.getKey().toLowerCase())
-                    .toList();
-            assertThat(tagKeys)
-                    .as(
-                            "Meter '%s' contains high cardinality tags",
-                            meter.getId().getName())
-                    .doesNotContain("parkingid", "tenantid", "licenseplate", "plate", "userid");
+            final List<String> tagKeys = meter.getId().getTags().stream().map(t -> t.getKey().toLowerCase()).toList();
+            assertThat(tagKeys).as("Meter '%s' contains high cardinality tags", meter.getId().getName())
+                .doesNotContain("parkingid", "tenantid", "licenseplate", "plate", "userid");
         }
     }
 }

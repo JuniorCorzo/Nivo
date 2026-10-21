@@ -23,16 +23,15 @@ class GetNotificationPreferencesByUserUseCaseTest {
     void setUp() {
         notificationPreferencesRepository = mock(NotificationPreferencesRepository.class);
         authenticationContextGateway = mock(AuthenticationContextGateway.class);
-        useCase = new GetNotificationPreferencesByUserUseCase(
-                notificationPreferencesRepository, authenticationContextGateway);
+        useCase = new GetNotificationPreferencesByUserUseCase(notificationPreferencesRepository,
+            authenticationContextGateway);
     }
 
     @Test
     @DisplayName("Should return user notification preferences")
     void shouldReturnPreferences() {
         UUID userId = UUID.randomUUID();
-        NotificationPreferences pref =
-                NotificationPreferences.builder().id(UUID.randomUUID()).build();
+        NotificationPreferences pref = NotificationPreferences.builder().id(UUID.randomUUID()).build();
 
         when(authenticationContextGateway.getCurrentUserId()).thenReturn(userId);
         when(notificationPreferencesRepository.findAllByUserId(userId)).thenReturn(List.of(pref));

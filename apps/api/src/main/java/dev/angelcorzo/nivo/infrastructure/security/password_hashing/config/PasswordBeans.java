@@ -8,9 +8,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 /**
  * Configuration class for password encoding beans.
  * <p>
- * This class provides the necessary Spring beans for password hashing throughout the application.
- * It centralizes the configuration of the password encoding algorithm, making it easy to
- * update or replace in the future.
+ * This class provides the necessary Spring beans for password hashing throughout the application. It centralizes the
+ * configuration of the password encoding algorithm, making it easy to update or replace in the future.
  * </p>
  *
  * @author Angel Corzo
@@ -23,9 +22,9 @@ public class PasswordBeans {
     /**
      * Provides a {@link PasswordEncoder} bean for the application.
      * <p>
-     * This method configures and returns an instance of {@link Argon2PasswordEncoder},
-     * which is a strong, modern, and recommended hashing algorithm for password storage.
-     * The defaults for Spring Security 5.8 are used to ensure secure and up-to-date parameters.
+     * This method configures and returns an instance of {@link Argon2PasswordEncoder}, which is a strong, modern, and
+     * recommended hashing algorithm for password storage. The defaults for Spring Security 5.8 are used to ensure
+     * secure and up-to-date parameters.
      * </p>
      *
      * @return a configured {@link PasswordEncoder} instance.

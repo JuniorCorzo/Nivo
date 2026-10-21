@@ -12,16 +12,16 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class ParkingLotsRepositoryAdapter
-        extends AdapterOperations<ParkingLots, ParkingLotsData, UUID, ParkingLotsRepositoryData>
-        implements ParkingLotsRepository {
+    extends
+        AdapterOperations<ParkingLots, ParkingLotsData, UUID, ParkingLotsRepositoryData>
+    implements
+        ParkingLotsRepository {
 
     private final ParkingLotSummaryDataMapper parkingLotSummaryDataMapper;
     private final ParkingLotsMapper parkingLotsMapper;
 
-    protected ParkingLotsRepositoryAdapter(
-            ParkingLotsRepositoryData repository,
-            ParkingLotSummaryDataMapper parkingLotSummaryDataMapper,
-            ParkingLotsMapper mapper) {
+    protected ParkingLotsRepositoryAdapter(ParkingLotsRepositoryData repository,
+        ParkingLotSummaryDataMapper parkingLotSummaryDataMapper, ParkingLotsMapper mapper) {
         super(repository, mapper);
         this.parkingLotSummaryDataMapper = parkingLotSummaryDataMapper;
         this.parkingLotsMapper = mapper;
@@ -29,17 +29,13 @@ public class ParkingLotsRepositoryAdapter
 
     @Override
     public List<ParkingLotListItem> findByTenantId(UUID tenantId) {
-        return super.repository.findAllByTenantId(tenantId).stream()
-                .map(parkingLotSummaryDataMapper::toSummaryData)
-                .map(parkingLotsMapper::toListItem)
-                .toList();
+        return super.repository.findAllByTenantId(tenantId).stream().map(parkingLotSummaryDataMapper::toSummaryData)
+            .map(parkingLotsMapper::toListItem).toList();
     }
 
     @Override
     public List<ParkingLots> findByOwnerId(UUID ownerId) {
-        return super.repository.findAllByOwnerId(ownerId).stream()
-                .map(super::toEntity)
-                .toList();
+        return super.repository.findAllByOwnerId(ownerId).stream().map(super::toEntity).toList();
     }
 
     @Override

@@ -47,19 +47,12 @@ class SecurityChainTest {
         assertThat(hierarchy).isNotNull();
 
         // SUPERADMIN should imply OWNER, MANAGER, OPERATOR, DRIVER, AUDITOR
-        final java.util.Collection<? extends org.springframework.security.core.GrantedAuthority> reachable =
-                hierarchy.getReachableGrantedAuthorities(
-                        java.util.List.of(new SimpleGrantedAuthority("ROLE_" + Roles.SUPERADMIN.name())));
+        final java.util.Collection<? extends org.springframework.security.core.GrantedAuthority> reachable = hierarchy
+            .getReachableGrantedAuthorities(
+                java.util.List.of(new SimpleGrantedAuthority("ROLE_" + Roles.SUPERADMIN.name())));
 
-        assertThat(reachable)
-                .extracting("authority")
-                .contains(
-                        "ROLE_SUPERADMIN",
-                        "ROLE_OWNER",
-                        "ROLE_MANAGER",
-                        "ROLE_OPERATOR",
-                        "ROLE_DRIVER",
-                        "ROLE_AUDITOR");
+        assertThat(reachable).extracting("authority").contains("ROLE_SUPERADMIN", "ROLE_OWNER", "ROLE_MANAGER",
+            "ROLE_OPERATOR", "ROLE_DRIVER", "ROLE_AUDITOR");
     }
 
     @Test
@@ -69,8 +62,8 @@ class SecurityChainTest {
         AuthorizationManagerFactory<?> factory = securityChain.authorizationManagerFactory(hierarchy);
         assertThat(factory).isNotNull();
 
-        MethodSecurityExpressionHandler handler =
-                securityChain.methodSecurityExpressionHandler((AuthorizationManagerFactory) factory);
+        MethodSecurityExpressionHandler handler = securityChain
+            .methodSecurityExpressionHandler((AuthorizationManagerFactory) factory);
         assertThat(handler).isNotNull();
     }
 

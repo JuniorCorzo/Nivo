@@ -31,9 +31,8 @@ class SecurityHeadersFilterTest {
     void testDoFilter() throws IOException, ServletException {
         filter.doFilter(request, response, chain);
 
-        assertEquals(
-                "default-src 'self'; frame-ancestors 'self'; form-action 'self'",
-                response.getHeader("Content-Security-Policy"));
+        assertEquals("default-src 'self'; frame-ancestors 'self'; form-action 'self'",
+            response.getHeader("Content-Security-Policy"));
         assertEquals("max-age=31536000;", response.getHeader("Strict-Transport-Security"));
         assertEquals("nosniff", response.getHeader("X-Content-Type-Options"));
         assertEquals("", response.getHeader("Server"));

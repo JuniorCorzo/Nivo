@@ -28,14 +28,14 @@ class PricingEngineTest {
         when(stage1.apply(any())).thenAnswer(inv -> {
             PricingContext c = inv.getArgument(0);
             return c.withSubtotal(new BigDecimal("500.00"), PriceLine.of("Grace", new BigDecimal("500.00")))
-                    .toSettled();
+                .toSettled();
         });
 
         PricingEngine engine = new PricingEngine(List.of(stage1, stage2));
 
         OffsetDateTime now = OffsetDateTime.now();
-        PricingContext ctx = PricingContext.of(
-                RateReference.builder().build(), ParkingLotPolicy.defaults(), now.minusMinutes(5), now);
+        PricingContext ctx = PricingContext.of(RateReference.builder().build(), ParkingLotPolicy.defaults(),
+            now.minusMinutes(5), now);
 
         PriceDetailed detailed = engine.calculate(ctx, "Test Parking");
 
@@ -66,8 +66,8 @@ class PricingEngineTest {
         PricingEngine engine = new PricingEngine(List.of(stage1, stage2));
 
         OffsetDateTime now = OffsetDateTime.now();
-        PricingContext ctx =
-                PricingContext.of(RateReference.builder().build(), ParkingLotPolicy.defaults(), now.minusHours(1), now);
+        PricingContext ctx = PricingContext.of(RateReference.builder().build(), ParkingLotPolicy.defaults(),
+            now.minusHours(1), now);
 
         PriceDetailed detailed = engine.calculate(ctx, "Central Parking");
 
@@ -99,8 +99,8 @@ class PricingEngineTest {
         mutableList.add(stage2);
 
         OffsetDateTime now = OffsetDateTime.now();
-        PricingContext ctx = PricingContext.of(
-                RateReference.builder().build(), ParkingLotPolicy.defaults(), now.minusMinutes(10), now);
+        PricingContext ctx = PricingContext.of(RateReference.builder().build(), ParkingLotPolicy.defaults(),
+            now.minusMinutes(10), now);
 
         engine.calculate(ctx, "Test Parking");
 
@@ -115,10 +115,9 @@ class PricingEngineTest {
         PricingEngine engine = new PricingEngine(List.of(stage1));
 
         OffsetDateTime now = OffsetDateTime.now();
-        PricingContext ctx = PricingContext.of(
-                        RateReference.builder().build(), ParkingLotPolicy.defaults(), now.minusMinutes(5), now)
-                .withSubtotal(new BigDecimal("200.00"), PriceLine.of("Prior", new BigDecimal("200.00")))
-                .toSettled();
+        PricingContext ctx = PricingContext
+            .of(RateReference.builder().build(), ParkingLotPolicy.defaults(), now.minusMinutes(5), now)
+            .withSubtotal(new BigDecimal("200.00"), PriceLine.of("Prior", new BigDecimal("200.00"))).toSettled();
 
         PriceDetailed detailed = engine.calculate(ctx, "Already Settled Parking");
 
@@ -130,15 +129,12 @@ class PricingEngineTest {
     @DisplayName("PriceDetailed.from should correctly populate fields from PricingContext")
     void shouldPopulatePriceDetailedFromContext() {
         OffsetDateTime now = OffsetDateTime.now();
-        ParkingLotPolicy policy = ParkingLotPolicy.builder()
-                .gracePeriodMinutes(15)
-                .gracePeriodPrice(BigDecimal.ZERO)
-                .ivaRate(new BigDecimal("0.10"))
-                .build();
+        ParkingLotPolicy policy = ParkingLotPolicy.builder().gracePeriodMinutes(15).gracePeriodPrice(BigDecimal.ZERO)
+            .ivaRate(new BigDecimal("0.10")).build();
 
         PricingContext ctx = PricingContext.of(RateReference.builder().build(), policy, now.minusHours(2), now)
-                .withSubtotal(new BigDecimal("1000.00"), PriceLine.of("Step 1", new BigDecimal("1000.00")))
-                .withSubtotal(new BigDecimal("1500.00"), PriceLine.of("Step 2", new BigDecimal("500.00")));
+            .withSubtotal(new BigDecimal("1000.00"), PriceLine.of("Step 1", new BigDecimal("1000.00")))
+            .withSubtotal(new BigDecimal("1500.00"), PriceLine.of("Step 2", new BigDecimal("500.00")));
 
         PriceDetailed detailed = PriceDetailed.from(ctx, "Custom Tenant");
 

@@ -51,31 +51,19 @@ class DeactivateUserUseCaseTest {
             final UUID actorId = UUID.randomUUID();
             final UUID tenantId = UUID.randomUUID();
 
-            final TenantReference tenant = TenantReference.builder()
-                    .id(tenantId)
-                    .companyName("Test Company")
-                    .build();
+            final TenantReference tenant = TenantReference.builder().id(tenantId).companyName("Test Company").build();
 
-            final Users userToDeactivate = Users.builder()
-                    .id(userToDeactivateId)
-                    .email("operator@example.com")
-                    .fullName("Operator User")
-                    .role(Roles.OPERATOR)
-                    .tenant(tenant)
-                    .createdAt(OffsetDateTime.now().minusDays(10))
-                    .deletedAt(null)
-                    .build();
+            final Users userToDeactivate = Users.builder().id(userToDeactivateId).email("operator@example.com")
+                .fullName("Operator User").role(Roles.OPERATOR).tenant(tenant)
+                .createdAt(OffsetDateTime.now().minusDays(10)).deletedAt(null).build();
 
-            final DeactivateUserUseCase.DeactivateUserCommand command =
-                    DeactivateUserUseCase.DeactivateUserCommand.builder()
-                            .userIdToDeactivate(userToDeactivateId)
-                            .reason("Contract ended")
-                            .build();
+            final DeactivateUserUseCase.DeactivateUserCommand command = DeactivateUserUseCase.DeactivateUserCommand
+                .builder().userIdToDeactivate(userToDeactivateId).reason("Contract ended").build();
 
             when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
             when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
             when(usersRepository.findByIdAndTenantId(userToDeactivateId, tenantId))
-                    .thenReturn(Optional.of(userToDeactivate));
+                .thenReturn(Optional.of(userToDeactivate));
             when(usersRepository.save(any(Users.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
@@ -100,28 +88,18 @@ class DeactivateUserUseCaseTest {
             final UUID actorId = UUID.randomUUID();
             final UUID tenantId = UUID.randomUUID();
 
-            final TenantReference tenant = TenantReference.builder()
-                    .id(tenantId)
-                    .companyName("Test Company")
-                    .build();
+            final TenantReference tenant = TenantReference.builder().id(tenantId).companyName("Test Company").build();
 
-            final Users ownerToDeactivate = Users.builder()
-                    .id(ownerToDeactivateId)
-                    .email("owner1@example.com")
-                    .role(Roles.OWNER)
-                    .tenant(tenant)
-                    .deletedAt(null)
-                    .build();
+            final Users ownerToDeactivate = Users.builder().id(ownerToDeactivateId).email("owner1@example.com")
+                .role(Roles.OWNER).tenant(tenant).deletedAt(null).build();
 
-            final DeactivateUserUseCase.DeactivateUserCommand command =
-                    DeactivateUserUseCase.DeactivateUserCommand.builder()
-                            .userIdToDeactivate(ownerToDeactivateId)
-                            .build();
+            final DeactivateUserUseCase.DeactivateUserCommand command = DeactivateUserUseCase.DeactivateUserCommand
+                .builder().userIdToDeactivate(ownerToDeactivateId).build();
 
             when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
             when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
             when(usersRepository.findByIdAndTenantId(ownerToDeactivateId, tenantId))
-                    .thenReturn(Optional.of(ownerToDeactivate));
+                .thenReturn(Optional.of(ownerToDeactivate));
             when(usersRepository.countActiveOwnersByTenantId(tenantId)).thenReturn(2L);
             when(usersRepository.save(any(Users.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -137,33 +115,20 @@ class DeactivateUserUseCaseTest {
         }
 
         @Test
-        @DisplayName(
-                "Should deactivate Operator in tenant with only one active owner without throwing LastOwnerCannotBeDeactivatedException")
+        @DisplayName("Should deactivate Operator in tenant with only one active owner without throwing LastOwnerCannotBeDeactivatedException")
         void shouldDeactivateOperatorWhenTenantHasOnlyOneActiveOwner() {
             // Arrange
             final UUID operatorId = UUID.randomUUID();
             final UUID actorId = UUID.randomUUID();
             final UUID tenantId = UUID.randomUUID();
 
-            final TenantReference tenant = TenantReference.builder()
-                    .id(tenantId)
-                    .companyName("Test Company")
-                    .build();
+            final TenantReference tenant = TenantReference.builder().id(tenantId).companyName("Test Company").build();
 
-            final Users operatorUser = Users.builder()
-                    .id(operatorId)
-                    .email("operator@example.com")
-                    .fullName("Operator User")
-                    .role(Roles.OPERATOR)
-                    .tenant(tenant)
-                    .deletedAt(null)
-                    .build();
+            final Users operatorUser = Users.builder().id(operatorId).email("operator@example.com")
+                .fullName("Operator User").role(Roles.OPERATOR).tenant(tenant).deletedAt(null).build();
 
-            final DeactivateUserUseCase.DeactivateUserCommand command =
-                    DeactivateUserUseCase.DeactivateUserCommand.builder()
-                            .userIdToDeactivate(operatorId)
-                            .reason("Deactivating operator")
-                            .build();
+            final DeactivateUserUseCase.DeactivateUserCommand command = DeactivateUserUseCase.DeactivateUserCommand
+                .builder().userIdToDeactivate(operatorId).reason("Deactivating operator").build();
 
             when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
             when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
@@ -195,17 +160,15 @@ class DeactivateUserUseCaseTest {
             final UUID actorId = UUID.randomUUID();
             final UUID tenantId = UUID.randomUUID();
 
-            final DeactivateUserUseCase.DeactivateUserCommand command =
-                    DeactivateUserUseCase.DeactivateUserCommand.builder()
-                            .userIdToDeactivate(actorId)
-                            .build();
+            final DeactivateUserUseCase.DeactivateUserCommand command = DeactivateUserUseCase.DeactivateUserCommand
+                .builder().userIdToDeactivate(actorId).build();
 
             when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
             when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
 
             // Act & Assert
             assertThatThrownBy(() -> deactivateUserUseCase.deactivate(command))
-                    .isInstanceOf(SelfDeactivationNotAllowedException.class);
+                .isInstanceOf(SelfDeactivationNotAllowedException.class);
 
             verify(usersRepository, never()).findByIdAndTenantId(any(), any());
             verify(usersRepository, never()).save(any(Users.class));
@@ -218,23 +181,13 @@ class DeactivateUserUseCaseTest {
             final UUID lastOwnerId = UUID.randomUUID();
             final UUID actorId = UUID.randomUUID();
             final UUID tenantId = UUID.randomUUID();
-            final TenantReference tenant = TenantReference.builder()
-                    .id(tenantId)
-                    .companyName("Test Company")
-                    .build();
+            final TenantReference tenant = TenantReference.builder().id(tenantId).companyName("Test Company").build();
 
-            final Users lastOwner = Users.builder()
-                    .id(lastOwnerId)
-                    .email("lastowner@example.com")
-                    .role(Roles.OWNER)
-                    .tenant(tenant)
-                    .deletedAt(null)
-                    .build();
+            final Users lastOwner = Users.builder().id(lastOwnerId).email("lastowner@example.com").role(Roles.OWNER)
+                .tenant(tenant).deletedAt(null).build();
 
-            final DeactivateUserUseCase.DeactivateUserCommand command =
-                    DeactivateUserUseCase.DeactivateUserCommand.builder()
-                            .userIdToDeactivate(lastOwnerId)
-                            .build();
+            final DeactivateUserUseCase.DeactivateUserCommand command = DeactivateUserUseCase.DeactivateUserCommand
+                .builder().userIdToDeactivate(lastOwnerId).build();
 
             when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
             when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
@@ -243,7 +196,7 @@ class DeactivateUserUseCaseTest {
 
             // Act & Assert
             assertThatThrownBy(() -> deactivateUserUseCase.deactivate(command))
-                    .isInstanceOf(LastOwnerCannotBeDeactivatedException.class);
+                .isInstanceOf(LastOwnerCannotBeDeactivatedException.class);
 
             verify(usersRepository, never()).save(any(Users.class));
         }
@@ -255,23 +208,13 @@ class DeactivateUserUseCaseTest {
             final UUID userId = UUID.randomUUID();
             final UUID actorId = UUID.randomUUID();
             final UUID tenantId = UUID.randomUUID();
-            final TenantReference tenant = TenantReference.builder()
-                    .id(tenantId)
-                    .companyName("Test Company")
-                    .build();
+            final TenantReference tenant = TenantReference.builder().id(tenantId).companyName("Test Company").build();
 
-            final Users alreadyDeactivatedUser = Users.builder()
-                    .id(userId)
-                    .email("deactivated@example.com")
-                    .role(Roles.MANAGER)
-                    .tenant(tenant)
-                    .deletedAt(OffsetDateTime.now().minusDays(5))
-                    .build();
+            final Users alreadyDeactivatedUser = Users.builder().id(userId).email("deactivated@example.com")
+                .role(Roles.MANAGER).tenant(tenant).deletedAt(OffsetDateTime.now().minusDays(5)).build();
 
-            final DeactivateUserUseCase.DeactivateUserCommand command =
-                    DeactivateUserUseCase.DeactivateUserCommand.builder()
-                            .userIdToDeactivate(userId)
-                            .build();
+            final DeactivateUserUseCase.DeactivateUserCommand command = DeactivateUserUseCase.DeactivateUserCommand
+                .builder().userIdToDeactivate(userId).build();
 
             when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
             when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
@@ -279,7 +222,7 @@ class DeactivateUserUseCaseTest {
 
             // Act & Assert
             assertThatThrownBy(() -> deactivateUserUseCase.deactivate(command))
-                    .isInstanceOf(UserAlreadyDeactivatedException.class);
+                .isInstanceOf(UserAlreadyDeactivatedException.class);
 
             verify(usersRepository, never()).save(any(Users.class));
         }
@@ -292,19 +235,16 @@ class DeactivateUserUseCaseTest {
             final UUID actorId = UUID.randomUUID();
             final UUID tenantId = UUID.randomUUID();
 
-            final DeactivateUserUseCase.DeactivateUserCommand command =
-                    DeactivateUserUseCase.DeactivateUserCommand.builder()
-                            .userIdToDeactivate(nonExistentUserId)
-                            .build();
+            final DeactivateUserUseCase.DeactivateUserCommand command = DeactivateUserUseCase.DeactivateUserCommand
+                .builder().userIdToDeactivate(nonExistentUserId).build();
 
             when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
             when(authenticationContextGateway.getCurrentUserId()).thenReturn(actorId);
-            when(usersRepository.findByIdAndTenantId(nonExistentUserId, tenantId))
-                    .thenReturn(Optional.empty());
+            when(usersRepository.findByIdAndTenantId(nonExistentUserId, tenantId)).thenReturn(Optional.empty());
 
             // Act & Assert
             assertThatThrownBy(() -> deactivateUserUseCase.deactivate(command))
-                    .isInstanceOf(UserNotExistsInTenantException.class);
+                .isInstanceOf(UserNotExistsInTenantException.class);
 
             verify(usersRepository, never()).save(any(Users.class));
         }
@@ -317,27 +257,19 @@ class DeactivateUserUseCaseTest {
             final UUID contextActorId = UUID.randomUUID();
             final UUID contextTenantId = UUID.randomUUID();
 
-            final TenantReference tenant = TenantReference.builder()
-                    .id(contextTenantId)
-                    .companyName("Test Company")
-                    .build();
+            final TenantReference tenant = TenantReference.builder().id(contextTenantId).companyName("Test Company")
+                .build();
 
-            final Users targetUser = Users.builder()
-                    .id(targetUserId)
-                    .email("operator@example.com")
-                    .role(Roles.OPERATOR)
-                    .tenant(tenant)
-                    .build();
+            final Users targetUser = Users.builder().id(targetUserId).email("operator@example.com").role(Roles.OPERATOR)
+                .tenant(tenant).build();
 
-            final DeactivateUserUseCase.DeactivateUserCommand command =
-                    DeactivateUserUseCase.DeactivateUserCommand.builder()
-                            .userIdToDeactivate(targetUserId)
-                            .build();
+            final DeactivateUserUseCase.DeactivateUserCommand command = DeactivateUserUseCase.DeactivateUserCommand
+                .builder().userIdToDeactivate(targetUserId).build();
 
             when(authenticationContextGateway.getCurrentTenantId()).thenReturn(contextTenantId);
             when(authenticationContextGateway.getCurrentUserId()).thenReturn(contextActorId);
             when(usersRepository.findByIdAndTenantId(targetUserId, contextTenantId))
-                    .thenReturn(Optional.of(targetUser));
+                .thenReturn(Optional.of(targetUser));
             when(usersRepository.save(any(Users.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act

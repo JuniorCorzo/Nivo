@@ -33,12 +33,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @EnableJpaRepositories(basePackageClasses = SlotsRepositoryData.class)
-@Import({
-    SlotsRepositoryAdapter.class,
-    SlotsMappersJpaImpl.class,
-    SlotSummaryDataMapper.class,
-    CoordinatesMapperJpaImpl.class
-})
+@Import({SlotsRepositoryAdapter.class, SlotsMappersJpaImpl.class, SlotSummaryDataMapper.class,
+    CoordinatesMapperJpaImpl.class})
 @DisplayName("SlotsRepositoryPersistenceIntegrationTest")
 class SlotsRepositoryPersistenceIntegrationTest {
 
@@ -63,24 +59,14 @@ class SlotsRepositoryPersistenceIntegrationTest {
         entityManager.persist(testTenant);
         entityManager.flush();
 
-        UsersData testOwner = UsersData.builder()
-                .fullName("Slot Owner")
-                .email("owner-" + UUID.randomUUID() + "@test.com")
-                .password("secretHash")
-                .role(Roles.MANAGER)
-                .tenant(testTenant)
-                .build();
+        UsersData testOwner = UsersData.builder().fullName("Slot Owner")
+            .email("owner-" + UUID.randomUUID() + "@test.com").password("secretHash").role(Roles.MANAGER)
+            .tenant(testTenant).build();
         entityManager.persist(testOwner);
         entityManager.flush();
 
-        this.testParkingLot = ParkingLotsData.builder()
-                .name("Main Lot")
-                .owner(testOwner)
-                .tenant(testTenant)
-                .gracePeriodMinutes(0)
-                .gracePeriodPrice(BigDecimal.ZERO)
-                .ivaRate(BigDecimal.valueOf(0.19))
-                .build();
+        this.testParkingLot = ParkingLotsData.builder().name("Main Lot").owner(testOwner).tenant(testTenant)
+            .gracePeriodMinutes(0).gracePeriodPrice(BigDecimal.ZERO).ivaRate(BigDecimal.valueOf(0.19)).build();
         entityManager.persist(testParkingLot);
         entityManager.flush();
     }
@@ -88,18 +74,9 @@ class SlotsRepositoryPersistenceIntegrationTest {
     @Test
     @DisplayName("Should persist slot update to database when executed via EditSlotUseCase")
     void shouldPersistSlotUpdateToDatabaseViaUseCase() {
-        SlotsData initialSlot = SlotsData.builder()
-                .parking(testParkingLot)
-                .tenant(testTenant)
-                .slotNumber("A-01")
-                .zone("A")
-                .prefix("A")
-                .type(SlotType.CAR)
-                .status(SlotStatus.AVAILABLE)
-                .hasCharger(false)
-                .isAccessible(false)
-                .isActive(true)
-                .build();
+        SlotsData initialSlot = SlotsData.builder().parking(testParkingLot).tenant(testTenant).slotNumber("A-01")
+            .zone("A").prefix("A").type(SlotType.CAR).status(SlotStatus.AVAILABLE).hasCharger(false).isAccessible(false)
+            .isActive(true).build();
         entityManager.persist(initialSlot);
         entityManager.flush();
         UUID slotId = initialSlot.getId();
@@ -107,8 +84,8 @@ class SlotsRepositoryPersistenceIntegrationTest {
         // Clear entityManager cache to ensure find comes from DB
         entityManager.clear();
 
-        EditSlotUseCase.UpdateSlotCommand command = new EditSlotUseCase.UpdateSlotCommand(
-                slotId, "A-01-UPDATED", SlotType.ELECTRIC_VEHICLE, SlotStatus.MAINTENANCE);
+        EditSlotUseCase.UpdateSlotCommand command = new EditSlotUseCase.UpdateSlotCommand(slotId, "A-01-UPDATED",
+            SlotType.ELECTRIC_VEHICLE, SlotStatus.MAINTENANCE);
 
         Slots updatedSlot = editSlotUseCase.execute(command);
 
@@ -139,18 +116,9 @@ class SlotsRepositoryPersistenceIntegrationTest {
     @Test
     @DisplayName("Should persist slot update directly through SlotsRepositoryAdapter.save()")
     void shouldPersistSlotUpdateDirectlyThroughAdapter() {
-        SlotsData initialSlot = SlotsData.builder()
-                .parking(testParkingLot)
-                .tenant(testTenant)
-                .slotNumber("B-01")
-                .zone("B")
-                .prefix("B")
-                .type(SlotType.MOTORCYCLE)
-                .status(SlotStatus.MAINTENANCE)
-                .hasCharger(false)
-                .isAccessible(false)
-                .isActive(true)
-                .build();
+        SlotsData initialSlot = SlotsData.builder().parking(testParkingLot).tenant(testTenant).slotNumber("B-01")
+            .zone("B").prefix("B").type(SlotType.MOTORCYCLE).status(SlotStatus.MAINTENANCE).hasCharger(false)
+            .isAccessible(false).isActive(true).build();
         entityManager.persist(initialSlot);
         entityManager.flush();
         UUID slotId = initialSlot.getId();
@@ -158,11 +126,8 @@ class SlotsRepositoryPersistenceIntegrationTest {
         entityManager.clear();
 
         Slots domainSlot = slotsRepositoryAdapter.findById(slotId).orElseThrow();
-        Slots modifiedSlot = domainSlot.toBuilder()
-                .status(SlotStatus.AVAILABLE)
-                .slotNumber("B-01-RENAMED")
-                .type(SlotType.BIKE)
-                .build();
+        Slots modifiedSlot = domainSlot.toBuilder().status(SlotStatus.AVAILABLE).slotNumber("B-01-RENAMED")
+            .type(SlotType.BIKE).build();
 
         Slots saved = slotsRepositoryAdapter.save(modifiedSlot);
         assertThat(saved.getStatus()).isEqualTo(SlotStatus.AVAILABLE);

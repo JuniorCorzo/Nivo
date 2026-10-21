@@ -41,8 +41,7 @@ public final class Plate {
         final String normalized = rawPlate.replaceAll("[\\s-]", "").toUpperCase();
 
         if (resolvedCountry == PlateCountry.CO) {
-            if (!CO_CAR_PATTERN.matcher(normalized).matches()
-                    && !CO_MOTO_PATTERN.matcher(normalized).matches()) {
+            if (!CO_CAR_PATTERN.matcher(normalized).matches() && !CO_MOTO_PATTERN.matcher(normalized).matches()) {
                 throw new InvalidPlateFormatException(rawPlate, "Invalid Colombian plate format");
             }
             return new Plate(normalized, PlateCountry.CO);

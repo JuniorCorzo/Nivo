@@ -31,49 +31,38 @@ public class AuthenticationController {
     private final RefreshSessionUseCase refreshSessionUseCase;
     private final AuthenticationMapper authenticationMapper;
 
-    public AuthenticationController(
-            @Value("${jwt.refresh-token-expiration}") int refreshTokenExpiration,
-            LoginUseCase loginUseCase,
-            RefreshSessionUseCase refreshSessionUseCase,
-            AuthenticationMapper authenticationMapper) {
+    public AuthenticationController(@Value("${jwt.refresh-token-expiration}") int refreshTokenExpiration,
+        LoginUseCase loginUseCase, RefreshSessionUseCase refreshSessionUseCase,
+        AuthenticationMapper authenticationMapper) {
         this.refreshTokenExpiration = refreshTokenExpiration;
         this.loginUseCase = loginUseCase;
         this.refreshSessionUseCase = refreshSessionUseCase;
         this.authenticationMapper = authenticationMapper;
     }
 
-    @Operation(
-            summary = "User login",
-            description = "Authenticates user credentials and returns JWT access token with refresh token cookie",
-            security = {})
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Login successful"),
+    @Operation(summary = "User login", description = "Authenticates user credentials and returns JWT access token with refresh token cookie", security = {})
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Login successful"),
         @ApiResponse(responseCode = "400", description = "Invalid credentials or payload"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized")
-    })
+        @ApiResponse(responseCode = "401", description = "Unauthorized")})
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    Response<AuthenticationResponseDTO> login(
-            @RequestBody @Valid UserCredentialsDTO userCredentials, HttpServletResponse response) {
+    Response<AuthenticationResponseDTO> login(@RequestBody @Valid UserCredentialsDTO userCredentials,
+        HttpServletResponse response) {
         AuthResponse authResponse = this.loginUseCase.auth(this.authenticationMapper.toModel(userCredentials));
 
-        final ResponseCookie refreshTokenCookie =
-                this.createCookie(authResponse.refreshToken(), refreshTokenExpiration);
+        final ResponseCookie refreshTokenCookie = this.createCookie(authResponse.refreshToken(),
+            refreshTokenExpiration);
         response.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
         return Response.ok(this.authenticationMapper.toDTO(authResponse), "Login successful");
     }
 
-    @Operation(
-            summary = "Refresh session tokens",
-            description = "Generates new JWT access and refresh tokens using the refreshToken cookie",
-            security = {@SecurityRequirement(name = "refreshToken")})
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Session refreshed successfully"),
-        @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
-    })
+    @Operation(summary = "Refresh session tokens", description = "Generates new JWT access and refresh tokens using the refreshToken cookie", security = {
+        @SecurityRequirement(name = "refreshToken")})
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Session refreshed successfully"),
+        @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")})
     @PostMapping(value = "/refresh", produces = MediaType.APPLICATION_JSON_VALUE)
-    Response<AuthenticationResponseDTO> refreshSession(
-            @CookieValue("refreshToken") String refreshToken, HttpServletResponse response) {
+    Response<AuthenticationResponseDTO> refreshSession(@CookieValue("refreshToken") String refreshToken,
+        HttpServletResponse response) {
         AuthResponse newTokens = this.refreshSessionUseCase.refreshAccessToken(refreshToken);
 
         final ResponseCookie refreshTokenCookie = this.createCookie(newTokens.refreshToken(), refreshTokenExpiration);
@@ -82,10 +71,7 @@ public class AuthenticationController {
         return Response.ok(this.authenticationMapper.toDTO(newTokens), "Refresh successful");
     }
 
-    @Operation(
-            summary = "User logout",
-            description = "Clears the authentication session and refresh token cookie",
-            security = {})
+    @Operation(summary = "User logout", description = "Clears the authentication session and refresh token cookie", security = {})
     @ApiResponse(responseCode = "200", description = "Logged out successfully")
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.OK)
@@ -95,12 +81,7 @@ public class AuthenticationController {
     }
 
     private ResponseCookie createCookie(String value, int maxAgeSeconds) {
-        return ResponseCookie.from("refreshToken", value)
-                .httpOnly(true)
-                .secure(false)
-                .path("/api")
-                .sameSite("Lax")
-                .maxAge(Duration.ofSeconds(maxAgeSeconds))
-                .build();
+        return ResponseCookie.from("refreshToken", value).httpOnly(true).secure(false).path("/api").sameSite("Lax")
+            .maxAge(Duration.ofSeconds(maxAgeSeconds)).build();
     }
 }

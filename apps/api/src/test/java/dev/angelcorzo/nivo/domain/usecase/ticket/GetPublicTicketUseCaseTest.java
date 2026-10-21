@@ -42,8 +42,7 @@ class GetPublicTicketUseCaseTest {
     class HappyPath {
 
         @Test
-        @DisplayName(
-                "Should return public ticket when found by UUID including unplated motorcycle fields, snapshot and rate")
+        @DisplayName("Should return public ticket when found by UUID including unplated motorcycle fields, snapshot and rate")
         void shouldReturnPublicTicketWhenFound() {
             // Arrange
             final UUID ticketId = UUID.randomUUID();
@@ -53,38 +52,17 @@ class GetPublicTicketUseCaseTest {
             final String photoUrl = "https://storage.nivo.dev/photos/bike-sp1042.jpg";
             final OffsetDateTime entryTime = OffsetDateTime.now();
 
-            final SlotSnapshot slotSnapshot = SlotSnapshot.builder()
-                    .id(slotId)
-                    .slotNumber("M-05")
-                    .zone("ZONE-M")
-                    .prefix("M")
-                    .type(SlotType.MOTORCYCLE)
-                    .hasCharger(false)
-                    .isAccessible(true)
-                    .build();
+            final SlotSnapshot slotSnapshot = SlotSnapshot.builder().id(slotId).slotNumber("M-05").zone("ZONE-M")
+                .prefix("M").type(SlotType.MOTORCYCLE).hasCharger(false).isAccessible(true).build();
 
-            final RateReference rate = RateReference.builder()
-                    .id(rateId)
-                    .name("Tarifa Moto Frontera")
-                    .description("Tarifa horaria para motocicletas")
-                    .pricePerUnit(new BigDecimal("2000.00"))
-                    .timeUnit(TimeUnitsRate.HOURS)
-                    .minChargeTimeMinutes(15)
-                    .vehicleType(VehicleType.MOTORCYCLE)
-                    .build();
+            final RateReference rate = RateReference.builder().id(rateId).name("Tarifa Moto Frontera")
+                .description("Tarifa horaria para motocicletas").pricePerUnit(new BigDecimal("2000.00"))
+                .timeUnit(TimeUnitsRate.HOURS).minChargeTimeMinutes(15).vehicleType(VehicleType.MOTORCYCLE).build();
 
-            final ParkingTickets ticket = ParkingTickets.builder()
-                    .id(ticketId)
-                    .licensePlate(syntheticPlate)
-                    .plateCountry(PlateCountry.UNPLATED)
-                    .photoUrl(photoUrl)
-                    .phoneNumber("+573001234567")
-                    .entryTime(entryTime)
-                    .status(ParkingTicketStatus.OPEN)
-                    .slotSnapshot(slotSnapshot)
-                    .rate(rate)
-                    .totalToCharge(new BigDecimal("2000.00"))
-                    .build();
+            final ParkingTickets ticket = ParkingTickets.builder().id(ticketId).licensePlate(syntheticPlate)
+                .plateCountry(PlateCountry.UNPLATED).photoUrl(photoUrl).phoneNumber("+573001234567")
+                .entryTime(entryTime).status(ParkingTicketStatus.OPEN).slotSnapshot(slotSnapshot).rate(rate)
+                .totalToCharge(new BigDecimal("2000.00")).build();
 
             when(parkingTicketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
 

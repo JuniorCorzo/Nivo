@@ -19,9 +19,9 @@ public interface HourlyOccupancyViewRepository extends JpaRepository<HourlyOccup
 
     List<HourlyOccupancyViewEntity> findByTenantId(UUID tenantId);
 
-    List<HourlyOccupancyViewEntity> findByTenantIdAndParkingLotIdAndHourBucketBetween(
-            UUID tenantId, UUID parkingLotId, OffsetDateTime start, OffsetDateTime end);
+    List<HourlyOccupancyViewEntity> findByTenantIdAndParkingLotIdAndHourBucketBetween(UUID tenantId, UUID parkingLotId,
+        OffsetDateTime start, OffsetDateTime end);
 
-    List<HourlyOccupancyViewEntity> findByTenantIdAndHourBucketBetween(
-            UUID tenantId, OffsetDateTime start, OffsetDateTime end);
+    List<HourlyOccupancyViewEntity> findByTenantIdAndHourBucketBetween(UUID tenantId, OffsetDateTime start,
+        OffsetDateTime end);
 }

@@ -29,18 +29,15 @@ public class PublicAvailabilityController {
     private final Map<UUID, CachedAvailability> cache = new ConcurrentHashMap<>();
 
     @GetMapping("/{parkingId}/availability")
-    @Operation(
-            summary = "Get parking availability",
-            description = "Public endpoint returning sanitized slot availability")
+    @Operation(summary = "Get parking availability", description = "Public endpoint returning sanitized slot availability")
     public ResponseEntity<PublicParkingAvailabilityDTO> getAvailability(@PathVariable final UUID parkingId) {
         final long now = System.currentTimeMillis();
         final CachedAvailability cached = cache.get(parkingId);
         if (cached != null && (now - cached.cachedAt()) < 30_000L) {
             metricsManager.recordAvailabilityCacheHit();
             metricsManager.recordPublicAvailabilityRequest(200);
-            return ResponseEntity.ok()
-                    .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePublic())
-                    .body(cached.dto());
+            return ResponseEntity.ok().cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePublic())
+                .body(cached.dto());
         }
 
         metricsManager.recordAvailabilityCacheMiss();
@@ -54,10 +51,9 @@ public class PublicAvailabilityController {
         cache.put(parkingId, new CachedAvailability(dto, now));
         metricsManager.recordPublicAvailabilityRequest(200);
 
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePublic())
-                .body(dto);
+        return ResponseEntity.ok().cacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePublic()).body(dto);
     }
 
-    private record CachedAvailability(PublicParkingAvailabilityDTO dto, long cachedAt) {}
+    private record CachedAvailability(PublicParkingAvailabilityDTO dto, long cachedAt) {
+    }
 }

@@ -55,12 +55,8 @@ class NotificationsLoggerServiceTest {
     void setUp() {
         tenantId = UUID.randomUUID();
         actorUserId = UUID.randomUUID();
-        template = NotificationTemplates.builder()
-                .id(UUID.randomUUID())
-                .templateReference("d-123")
-                .eventType(NotificationEvents.USER_INVITED)
-                .channel(NotificationsChannel.EMAIL)
-                .build();
+        template = NotificationTemplates.builder().id(UUID.randomUUID()).templateReference("d-123")
+            .eventType(NotificationEvents.USER_INVITED).channel(NotificationsChannel.EMAIL).build();
 
         tenant = Tenants.builder().id(tenantId).build();
         user = Users.builder().id(actorUserId).email("actor@test.com").build();
@@ -70,7 +66,7 @@ class NotificationsLoggerServiceTest {
         when(tenantsRepository.getReferenceById(tenantId)).thenReturn(tenant);
         when(usersRepository.getReferenceById(actorUserId)).thenReturn(user);
         when(notificationRecipientResolver.resolve(user, "recipient@test.com", NotificationsChannel.EMAIL))
-                .thenReturn(UserReference.of(user));
+            .thenReturn(UserReference.of(user));
     }
 
     @Test
@@ -86,8 +82,7 @@ class NotificationsLoggerServiceTest {
     void shouldRegisterFailedLog() {
         service.registerLog(template, "recipient@test.com", "SendGrid error 500");
 
-        verify(notificationLogsRepository)
-                .save(argThat(log -> log.getStatus() == NotificationLogsStatus.FAILED
-                        && "SendGrid error 500".equals(log.getErrorMessage())));
+        verify(notificationLogsRepository).save(argThat(log -> log.getStatus() == NotificationLogsStatus.FAILED
+            && "SendGrid error 500".equals(log.getErrorMessage())));
     }
 }

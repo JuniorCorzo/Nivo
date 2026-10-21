@@ -35,22 +35,13 @@ class DeleteSlotGroupUseCaseTest {
         UUID slot1Id = UUID.randomUUID();
         UUID slot2Id = UUID.randomUUID();
 
-        DeleteSlotGroupUseCase.DeleteSlotGroupCommand command =
-                new DeleteSlotGroupUseCase.DeleteSlotGroupCommand(parkingId, SlotType.CAR, "A", "Zone-1");
+        DeleteSlotGroupUseCase.DeleteSlotGroupCommand command = new DeleteSlotGroupUseCase.DeleteSlotGroupCommand(
+            parkingId, SlotType.CAR, "A", "Zone-1");
 
-        Slots matchingSlot = Slots.builder()
-                .id(slot1Id)
-                .type(SlotType.CAR)
-                .prefix("A")
-                .zone("Zone-1")
-                .build();
+        Slots matchingSlot = Slots.builder().id(slot1Id).type(SlotType.CAR).prefix("A").zone("Zone-1").build();
 
-        Slots nonMatchingSlot = Slots.builder()
-                .id(slot2Id)
-                .type(SlotType.MOTORCYCLE)
-                .prefix("B")
-                .zone("Zone-2")
-                .build();
+        Slots nonMatchingSlot = Slots.builder().id(slot2Id).type(SlotType.MOTORCYCLE).prefix("B").zone("Zone-2")
+            .build();
 
         when(parkingLotsRepository.existsById(parkingId)).thenReturn(true);
         when(slotsRepository.findAllByParkingLotsId(parkingId)).thenReturn(List.of(matchingSlot, nonMatchingSlot));
@@ -65,8 +56,8 @@ class DeleteSlotGroupUseCaseTest {
     @DisplayName("Should throw ParkingNotExistsException when parking does not exist")
     void shouldThrowWhenParkingNotExists() {
         UUID parkingId = UUID.randomUUID();
-        DeleteSlotGroupUseCase.DeleteSlotGroupCommand command =
-                new DeleteSlotGroupUseCase.DeleteSlotGroupCommand(parkingId, SlotType.CAR, "A", "Zone-1");
+        DeleteSlotGroupUseCase.DeleteSlotGroupCommand command = new DeleteSlotGroupUseCase.DeleteSlotGroupCommand(
+            parkingId, SlotType.CAR, "A", "Zone-1");
 
         when(parkingLotsRepository.existsById(parkingId)).thenReturn(false);
 

@@ -29,8 +29,7 @@ class NotificationRecipientResolverTest {
     @Test
     @DisplayName("Should return actor user reference when email matches actor user email")
     void shouldReturnActorWhenEmailMatches() {
-        Users actor =
-                Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
+        Users actor = Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
 
         UserReference ref = resolver.resolve(actor, "actor@test.com", NotificationsChannel.EMAIL);
 
@@ -41,10 +40,8 @@ class NotificationRecipientResolverTest {
     @Test
     @DisplayName("Should search repository when email does not match actor user")
     void shouldSearchRepositoryWhenEmailDiffers() {
-        Users actor =
-                Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
-        Users recipient =
-                Users.builder().id(UUID.randomUUID()).email("other@test.com").build();
+        Users actor = Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
+        Users recipient = Users.builder().id(UUID.randomUUID()).email("other@test.com").build();
 
         when(usersRepository.findByEmail("other@test.com")).thenReturn(Optional.of(recipient));
 
@@ -57,8 +54,7 @@ class NotificationRecipientResolverTest {
     @Test
     @DisplayName("Should return null when recipient is not found in repository")
     void shouldReturnNullWhenUserNotFound() {
-        Users actor =
-                Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
+        Users actor = Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
 
         when(usersRepository.findByEmail("unknown@test.com")).thenReturn(Optional.empty());
 
@@ -70,8 +66,7 @@ class NotificationRecipientResolverTest {
     @Test
     @DisplayName("Should return null for WhatsApp channel")
     void shouldReturnNullForWhatsApp() {
-        Users actor =
-                Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
+        Users actor = Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
 
         UserReference ref = resolver.resolve(actor, "+573001234567", NotificationsChannel.WHATSAPP);
 

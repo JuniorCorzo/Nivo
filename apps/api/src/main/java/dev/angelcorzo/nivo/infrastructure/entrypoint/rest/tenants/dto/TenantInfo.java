@@ -6,4 +6,5 @@ import lombok.Builder;
 
 @Builder
 @Schema(requiredProperties = {"id", "companyName"})
-public record TenantInfo(UUID id, String companyName) {}
+public record TenantInfo(UUID id, String companyName) {
+}

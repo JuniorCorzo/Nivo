@@ -23,7 +23,8 @@ public interface NotificationLogsMapper extends BaseMapper<NotificationLogs, Not
 
     @Named("uuidToTemplate")
     default NotificationTemplatesData uuidToTemplate(UUID templateId) {
-        if (templateId == null) return null;
+        if (templateId == null)
+            return null;
         return NotificationTemplatesData.builder().id(templateId).build();
     }
 }

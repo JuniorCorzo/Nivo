@@ -57,14 +57,8 @@ class BatchUpsertSlotsUseCaseTest {
 
         List<Slots> existing = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            existing.add(Slots.builder()
-                    .id(UUID.randomUUID())
-                    .prefix("A")
-                    .zone("Zone-1")
-                    .type(SlotType.CAR)
-                    .slotNumber("A-0" + (i + 1))
-                    .createdAt(OffsetDateTime.now())
-                    .build());
+            existing.add(Slots.builder().id(UUID.randomUUID()).prefix("A").zone("Zone-1").type(SlotType.CAR)
+                .slotNumber("A-0" + (i + 1)).createdAt(OffsetDateTime.now()).build());
         }
 
         CreatedSlots incoming = new CreatedSlots("A", "Zone-1", SlotType.CAR, 5, 0);
@@ -85,14 +79,8 @@ class BatchUpsertSlotsUseCaseTest {
 
         List<Slots> existing = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            existing.add(Slots.builder()
-                    .id(UUID.randomUUID())
-                    .prefix("A")
-                    .zone("Zone-1")
-                    .type(SlotType.CAR)
-                    .slotNumber("A-0" + (i + 1))
-                    .createdAt(OffsetDateTime.now().minusMinutes(i))
-                    .build());
+            existing.add(Slots.builder().id(UUID.randomUUID()).prefix("A").zone("Zone-1").type(SlotType.CAR)
+                .slotNumber("A-0" + (i + 1)).createdAt(OffsetDateTime.now().minusMinutes(i)).build());
         }
 
         CreatedSlots incoming = new CreatedSlots("A", "Zone-1", SlotType.CAR, 3, 0);

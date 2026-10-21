@@ -17,11 +17,7 @@ import org.hibernate.annotations.SQLRestriction;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(
-        check =
-                @CheckConstraint(
-                        name = "valid_percentage",
-                        constraint = "operation = 'PERCENTAGE' AND (value_to_modify > 0 AND value_to_modify <= 100)"))
+@Table(check = @CheckConstraint(name = "valid_percentage", constraint = "operation = 'PERCENTAGE' AND (value_to_modify > 0 AND value_to_modify <= 100)"))
 @Entity(name = "special_policies")
 @SQLRestriction(value = "active IS TRUE")
 public class SpecialPoliciesData {

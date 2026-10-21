@@ -30,8 +30,7 @@ class NotificationLogsAdapterTest {
     void shouldFindAllByUserId() {
         UUID userId = UUID.randomUUID();
         NotificationLogsData data = new NotificationLogsData();
-        NotificationLogs entity =
-                NotificationLogs.builder().id(UUID.randomUUID()).build();
+        NotificationLogs entity = NotificationLogs.builder().id(UUID.randomUUID()).build();
 
         when(repository.findByUserId(userId)).thenReturn(List.of(data));
         when(mapper.toEntity(data)).thenReturn(entity);
@@ -47,8 +46,7 @@ class NotificationLogsAdapterTest {
     void shouldFindAllByTenantId() {
         UUID tenantId = UUID.randomUUID();
         NotificationLogsData data = new NotificationLogsData();
-        NotificationLogs entity =
-                NotificationLogs.builder().id(UUID.randomUUID()).build();
+        NotificationLogs entity = NotificationLogs.builder().id(UUID.randomUUID()).build();
 
         when(repository.findByTenant_Id(tenantId)).thenReturn(List.of(data));
         when(mapper.toEntity(data)).thenReturn(entity);

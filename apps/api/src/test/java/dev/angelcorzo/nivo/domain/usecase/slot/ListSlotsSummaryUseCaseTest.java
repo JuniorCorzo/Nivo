@@ -30,19 +30,8 @@ class ListSlotsSummaryUseCaseTest {
     void shouldReturnSlotsSummary() {
         UUID parkingId = UUID.randomUUID();
         UUID slotId = UUID.randomUUID();
-        SlotSummary summary = new SlotSummary(
-                slotId,
-                "Main Lot",
-                SlotType.CAR,
-                "A",
-                "Zone-1",
-                "A-01",
-                SlotStatus.AVAILABLE,
-                false,
-                false,
-                false,
-                false,
-                true);
+        SlotSummary summary = new SlotSummary(slotId, "Main Lot", SlotType.CAR, "A", "Zone-1", "A-01",
+            SlotStatus.AVAILABLE, false, false, false, false, true);
 
         when(slotsRepository.findAllSummaryByParkingLotsId(parkingId)).thenReturn(List.of(summary));
 

@@ -19,11 +19,9 @@ import org.mapstruct.SubclassMappings;
 
 @Mapper(config = MapperStructConfig.class)
 public interface PaymentsMapper {
-    @SubclassMappings({
-        @SubclassMapping(source = EmailCheckOutCommand.class, target = EmailCheckOut.class),
+    @SubclassMappings({@SubclassMapping(source = EmailCheckOutCommand.class, target = EmailCheckOut.class),
         @SubclassMapping(source = SMSCheckOutCommand.class, target = SMSCheckOut.class),
-        @SubclassMapping(source = NoSendCheckOutCommand.class, target = NoSendCheckOut.class),
-    })
+        @SubclassMapping(source = NoSendCheckOutCommand.class, target = NoSendCheckOut.class),})
     CheckOut toModel(CheckOutCommand command);
 
     @InheritConfiguration(name = "toModel")

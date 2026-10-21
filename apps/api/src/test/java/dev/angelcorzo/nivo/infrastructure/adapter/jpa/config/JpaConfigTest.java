@@ -37,11 +37,8 @@ class JpaConfigTest {
 
         jpaConfigUnderTest = new JpaConfig();
 
-        dbSecretUnderTest = DBSecret.builder()
-                .username("postgres")
-                .password("angel2003")
-                .url("jdbc:postgresql://localhost:5432/nivo_db?currentSchema=test_scheme")
-                .build();
+        dbSecretUnderTest = DBSecret.builder().username("postgres").password("angel2003")
+            .url("jdbc:postgresql://localhost:5432/nivo_db?currentSchema=test_scheme").build();
     }
 
     @Test
@@ -49,7 +46,7 @@ class JpaConfigTest {
         Environment env = Mockito.mock(Environment.class);
 
         when(env.getProperty("spring.datasource.url"))
-                .thenReturn("jdbc:postgresql://localhost:5432/nivo_db?currentSchema=test_scheme");
+            .thenReturn("jdbc:postgresql://localhost:5432/nivo_db?currentSchema=test_scheme");
         when(env.getProperty("spring.datasource.username")).thenReturn("postgres");
         when(env.getProperty("spring.datasource.password")).thenReturn("angel2003");
 
@@ -64,12 +61,10 @@ class JpaConfigTest {
     void datasourceTest() {
         AtomicReference<HikariConfig> capturedConfig = new AtomicReference<>();
 
-        try (MockedConstruction<HikariDataSource> mockedConstruction = Mockito.mockConstruction(
-                HikariDataSource.class,
-                (mock, context) ->
-                        capturedConfig.set((HikariConfig) context.arguments().getFirst()))) {
-            HikariDataSource result = (HikariDataSource)
-                    jpaConfigUnderTest.datasource(dbSecretUnderTest, "org.postgresql.Driver", "nivo");
+        try (MockedConstruction<HikariDataSource> mockedConstruction = Mockito.mockConstruction(HikariDataSource.class,
+            (mock, context) -> capturedConfig.set((HikariConfig) context.arguments().getFirst()))) {
+            HikariDataSource result = (HikariDataSource) jpaConfigUnderTest.datasource(dbSecretUnderTest,
+                "org.postgresql.Driver", "nivo");
 
             assertNotNull(result);
             assertEquals(1, mockedConstruction.constructed().size());
@@ -88,8 +83,8 @@ class JpaConfigTest {
 
     @Test
     void entityManagerFactoryTest() {
-        LocalContainerEntityManagerFactoryBean result =
-                jpaConfigUnderTest.entityManagerFactory(dataSource, "dialect", "nivo", beanFactory);
+        LocalContainerEntityManagerFactoryBean result = jpaConfigUnderTest.entityManagerFactory(dataSource, "dialect",
+            "nivo", beanFactory);
 
         assertNotNull(result);
         assertEquals("dialect", result.getJpaPropertyMap().get("hibernate.dialect"));
@@ -112,8 +107,8 @@ class JpaConfigTest {
         DBSecret secret = jpaConfigUnderTest.dbSecret(env);
         assertNotNull(secret);
         assertEquals(
-                "jdbc:postgresql://custom-host:5432/nivo_db?currentSchema=nivo&sslmode=require&channelBinding=require",
-                secret.getUrl());
+            "jdbc:postgresql://custom-host:5432/nivo_db?currentSchema=nivo&sslmode=require&channelBinding=require",
+            secret.getUrl());
     }
 
     @Test
@@ -132,7 +127,7 @@ class JpaConfigTest {
         DBSecret secret = jpaConfigUnderTest.dbSecret(env);
         assertNotNull(secret);
         assertEquals(
-                "jdbc:postgresql://database:5432/nivo_db?currentSchema=nivo&sslmode=require&channelBinding=require",
-                secret.getUrl());
+            "jdbc:postgresql://database:5432/nivo_db?currentSchema=nivo&sslmode=require&channelBinding=require",
+            secret.getUrl());
     }
 }

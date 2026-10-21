@@ -50,8 +50,7 @@ class NotificationLogsControllerTest {
         when(getNotificationsHistoryUseCase.execute()).thenReturn(List.of(log));
         when(notificationLogsMapper.toDTO(log)).thenReturn(dto);
 
-        mockMvc.perform(get("/notification-logs"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value(NotificationLogsMessages.NOTIFICATION_LOGS_LIST.format()));
+        mockMvc.perform(get("/notification-logs")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(NotificationLogsMessages.NOTIFICATION_LOGS_LIST.format()));
     }
 }

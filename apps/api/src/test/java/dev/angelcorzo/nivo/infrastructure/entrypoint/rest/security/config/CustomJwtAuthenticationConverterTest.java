@@ -34,14 +34,15 @@ class CustomJwtAuthenticationConverterTest {
     }
 
     private Jwt createJwt(String tokenValue, String sub, String tenantId, String role) {
-        Jwt.Builder builder = Jwt.withTokenValue(tokenValue)
-                .header("alg", "RS256")
-                .issuedAt(Instant.now())
-                .expiresAt(Instant.now().plusSeconds(3600));
+        Jwt.Builder builder = Jwt.withTokenValue(tokenValue).header("alg", "RS256").issuedAt(Instant.now())
+            .expiresAt(Instant.now().plusSeconds(3600));
 
-        if (sub != null) builder.subject(sub);
-        if (tenantId != null) builder.claim("tenantId", tenantId);
-        if (role != null) builder.claim("role", role);
+        if (sub != null)
+            builder.subject(sub);
+        if (tenantId != null)
+            builder.claim("tenantId", tenantId);
+        if (role != null)
+            builder.claim("role", role);
 
         return builder.build();
     }
@@ -116,14 +117,9 @@ class CustomJwtAuthenticationConverterTest {
         @DisplayName("Should propagate ExpiredTokenException when use case validation fails")
         void shouldPropagateExpiredTokenException() {
             // Arrange
-            Jwt jwt = createJwt(
-                    "expired-token",
-                    UUID.randomUUID().toString(),
-                    UUID.randomUUID().toString(),
-                    "ROLE_DRIVER");
-            doThrow(new ExpiredTokenException())
-                    .when(validateAccessTokenUseCase)
-                    .validate("expired-token");
+            Jwt jwt = createJwt("expired-token", UUID.randomUUID().toString(), UUID.randomUUID().toString(),
+                "ROLE_DRIVER");
+            doThrow(new ExpiredTokenException()).when(validateAccessTokenUseCase).validate("expired-token");
 
             // Act & Assert
             assertThatThrownBy(() -> converter.convert(jwt)).isInstanceOf(ExpiredTokenException.class);
@@ -148,8 +144,7 @@ class CustomJwtAuthenticationConverterTest {
         @Test
         @DisplayName("Should throw TokenInvalidException when role claim is missing")
         void shouldThrowWhenRoleMissing() {
-            Jwt jwt = createJwt(
-                    "token", UUID.randomUUID().toString(), UUID.randomUUID().toString(), null);
+            Jwt jwt = createJwt("token", UUID.randomUUID().toString(), UUID.randomUUID().toString(), null);
 
             assertThatThrownBy(() -> converter.convert(jwt)).isInstanceOf(TokenInvalidException.class);
         }

@@ -101,20 +101,9 @@ class SlotSummaryDataMapperTest {
     @DisplayName("Should map summary data into domain model including status")
     void shouldMapSummaryDataToDomainModelWithStatus() {
         UUID id = UUID.randomUUID();
-        SlotSummaryData data = SlotSummaryData.builder()
-                .id(id)
-                .parkingName("Parking Central")
-                .type(SlotType.CAR)
-                .prefix("P")
-                .zone("A")
-                .numberSlot("001")
-                .status(SlotStatus.OCCUPIED)
-                .hasTicket(false)
-                .hasHistory(false)
-                .hasCharger(true)
-                .isAccessible(false)
-                .isActive(true)
-                .build();
+        SlotSummaryData data = SlotSummaryData.builder().id(id).parkingName("Parking Central").type(SlotType.CAR)
+            .prefix("P").zone("A").numberSlot("001").status(SlotStatus.OCCUPIED).hasTicket(false).hasHistory(false)
+            .hasCharger(true).isAccessible(false).isActive(true).build();
 
         SlotSummary result = mapper.toModel(data);
 
@@ -136,17 +125,9 @@ class SlotSummaryDataMapperTest {
     @DisplayName("Should map summary data with ticket and history into domain model")
     void shouldMapSummaryDataWithTicketAndHistoryToDomainModel() {
         UUID id = UUID.randomUUID();
-        SlotSummaryData data = SlotSummaryData.builder()
-                .id(id)
-                .parkingName("Parking Este")
-                .type(SlotType.ELECTRIC_VEHICLE)
-                .prefix("E")
-                .zone("D")
-                .numberSlot("007")
-                .status(SlotStatus.OCCUPIED)
-                .hasTicket(true)
-                .hasHistory(true)
-                .build();
+        SlotSummaryData data = SlotSummaryData.builder().id(id).parkingName("Parking Este")
+            .type(SlotType.ELECTRIC_VEHICLE).prefix("E").zone("D").numberSlot("007").status(SlotStatus.OCCUPIED)
+            .hasTicket(true).hasHistory(true).build();
 
         SlotSummary result = mapper.toModel(data);
 

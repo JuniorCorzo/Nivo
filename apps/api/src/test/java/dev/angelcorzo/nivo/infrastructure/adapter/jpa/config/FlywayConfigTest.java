@@ -19,7 +19,7 @@ class FlywayConfigTest {
     @Test
     @DisplayName("Should include seeds location when 'dev' profile is active")
     void shouldIncludeSeedsWhenDevProfileIsActive() {
-        when(environment.getActiveProfiles()).thenReturn(new String[] {"dev"});
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"dev"});
         final String locations = "classpath:db/migration,classpath:db/seeds";
         final FlywayConfig flywayConfig = new FlywayConfig(environment, locations);
 
@@ -31,7 +31,7 @@ class FlywayConfigTest {
     @Test
     @DisplayName("Should include seeds location when 'local' profile is active")
     void shouldIncludeSeedsWhenLocalProfileIsActive() {
-        when(environment.getActiveProfiles()).thenReturn(new String[] {"local"});
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"local"});
         final String locations = "classpath:db/migration,classpath:db/seeds";
         final FlywayConfig flywayConfig = new FlywayConfig(environment, locations);
 
@@ -43,7 +43,7 @@ class FlywayConfigTest {
     @Test
     @DisplayName("Should filter out seeds location when 'prod' profile is active")
     void shouldFilterOutSeedsWhenProdProfileIsActive() {
-        when(environment.getActiveProfiles()).thenReturn(new String[] {"prod"});
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"prod"});
         final String locations = "classpath:db/migration,classpath:db/seeds";
         final FlywayConfig flywayConfig = new FlywayConfig(environment, locations);
 
@@ -55,7 +55,7 @@ class FlywayConfigTest {
     @Test
     @DisplayName("Should filter out seeds location when running without dev or local profile (e.g. test or default)")
     void shouldFilterOutSeedsWhenNoDevProfileIsActive() {
-        when(environment.getActiveProfiles()).thenReturn(new String[] {"test"});
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
         final String locations = "classpath:db/migration,classpath:db/seeds";
         final FlywayConfig flywayConfig = new FlywayConfig(environment, locations);
 

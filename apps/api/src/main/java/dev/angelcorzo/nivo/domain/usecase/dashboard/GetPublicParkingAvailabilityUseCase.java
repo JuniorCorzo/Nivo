@@ -44,13 +44,8 @@ public class GetPublicParkingAvailabilityUseCase {
         final long occupiedSlots = Math.round(totalSlots * (occupancyRate / 100.0));
         final long availableSlots = Math.max(0L, totalSlots - occupiedSlots);
 
-        return Optional.of(PublicParkingAvailabilityDTO.builder()
-                .parkingId(parkingId)
-                .parkingName(parking.getName() != null ? parking.getName() : "Parqueadero")
-                .totalSlots(totalSlots)
-                .availableSlots(availableSlots)
-                .occupiedSlots(occupiedSlots)
-                .timestamp(OffsetDateTime.now())
-                .build());
+        return Optional.of(PublicParkingAvailabilityDTO.builder().parkingId(parkingId)
+            .parkingName(parking.getName() != null ? parking.getName() : "Parqueadero").totalSlots(totalSlots)
+            .availableSlots(availableSlots).occupiedSlots(occupiedSlots).timestamp(OffsetDateTime.now()).build());
     }
 }

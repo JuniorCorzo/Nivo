@@ -14,9 +14,8 @@ public record ParkingLotPolicy(GracePeriod gracePeriod, TaxRate taxRate) {
     }
 
     public ParkingLotPolicy(int gracePeriodMinutes, BigDecimal gracePeriodPrice, BigDecimal ivaRate) {
-        this(
-                GracePeriod.of(gracePeriodMinutes, gracePeriodPrice != null ? gracePeriodPrice : BigDecimal.ZERO),
-                ivaRate != null ? TaxRate.of(ivaRate) : TaxRate.standardIva());
+        this(GracePeriod.of(gracePeriodMinutes, gracePeriodPrice != null ? gracePeriodPrice : BigDecimal.ZERO),
+            ivaRate != null ? TaxRate.of(ivaRate) : TaxRate.standardIva());
     }
 
     public static ParkingLotPolicy defaults() {
@@ -32,9 +31,7 @@ public record ParkingLotPolicy(GracePeriod gracePeriod, TaxRate taxRate) {
     }
 
     public BigDecimal ivaRate() {
-        return this.taxRate != null
-                ? this.taxRate.value()
-                : TaxRate.standardIva().value();
+        return this.taxRate != null ? this.taxRate.value() : TaxRate.standardIva().value();
     }
 
     public boolean hasGracePeriod() {

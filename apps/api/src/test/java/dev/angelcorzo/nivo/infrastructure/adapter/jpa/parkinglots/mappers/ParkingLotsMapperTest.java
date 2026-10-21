@@ -22,12 +22,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@SpringJUnitConfig(
-        classes = {
-            ParkingLotsMapperJpaImpl.class,
-            CoordinatesMapperJpaImpl.class,
-            ParkingLotsMapperTest.TestConfig.class
-        })
+@SpringJUnitConfig(classes = {ParkingLotsMapperJpaImpl.class, CoordinatesMapperJpaImpl.class,
+    ParkingLotsMapperTest.TestConfig.class})
 class ParkingLotsMapperTest {
 
     @Autowired
@@ -39,28 +35,13 @@ class ParkingLotsMapperTest {
         Instant createdAt = Instant.parse("2026-04-18T10:15:30Z");
         Instant updatedAt = Instant.parse("2026-04-18T11:15:30Z");
 
-        ParkingLotSummaryData summaryData = ParkingLotSummaryData.builder()
-                .id(UUID.randomUUID())
-                .name("Parking Norte")
-                .currency("COP")
-                .createdAt(createdAt)
-                .updatedAt(updatedAt)
-                .street("Calle 11")
-                .city("Cúcuta")
-                .state("Norte de Santander")
-                .country("Colombia")
-                .zipCode("540001")
-                .latitude(7.8899)
-                .longitude(-72.4967)
-                .slotDistribution("[{\"type\":\"CAR\",\"count\":12},{\"type\":\"MOTORCYCLE\",\"count\":4}]")
-                .ownerName("Juan Pérez")
-                .totalCapacity(16L)
-                .openTime("06:00:00-05:00")
-                .closeTime("22:00:00-05:00")
-                .gracePeriodMinutes(15)
-                .gracePeriodPrice(new BigDecimal("5000.00"))
-                .ivaRate(new BigDecimal("0.1900"))
-                .build();
+        ParkingLotSummaryData summaryData = ParkingLotSummaryData.builder().id(UUID.randomUUID()).name("Parking Norte")
+            .currency("COP").createdAt(createdAt).updatedAt(updatedAt).street("Calle 11").city("Cúcuta")
+            .state("Norte de Santander").country("Colombia").zipCode("540001").latitude(7.8899).longitude(-72.4967)
+            .slotDistribution("[{\"type\":\"CAR\",\"count\":12},{\"type\":\"MOTORCYCLE\",\"count\":4}]")
+            .ownerName("Juan Pérez").totalCapacity(16L).openTime("06:00:00-05:00").closeTime("22:00:00-05:00")
+            .gracePeriodMinutes(15).gracePeriodPrice(new BigDecimal("5000.00")).ivaRate(new BigDecimal("0.1900"))
+            .build();
 
         final ParkingLotListItem result = parkingLotsMapper.toListItem(summaryData);
 
@@ -85,9 +66,9 @@ class ParkingLotsMapperTest {
         assertThat(result.slotDistribution().get(1).count()).isEqualTo(4L);
         assertThat(result.operatingHours()).isNotNull();
         assertThat(result.operatingHours().getOpenTime())
-                .isEqualTo(java.time.OffsetTime.of(6, 0, 0, 0, ZoneOffset.ofHours(-5)));
+            .isEqualTo(java.time.OffsetTime.of(6, 0, 0, 0, ZoneOffset.ofHours(-5)));
         assertThat(result.operatingHours().getCloseTime())
-                .isEqualTo(java.time.OffsetTime.of(22, 0, 0, 0, ZoneOffset.ofHours(-5)));
+            .isEqualTo(java.time.OffsetTime.of(22, 0, 0, 0, ZoneOffset.ofHours(-5)));
         assertThat(result.policy()).isNotNull();
         assertThat(result.policy().gracePeriodMinutes()).isEqualTo(15);
         assertThat(result.policy().gracePeriodPrice()).isEqualByComparingTo(new BigDecimal("5000.00"));
@@ -97,13 +78,9 @@ class ParkingLotsMapperTest {
     @Test
     @DisplayName("Should map ParkingLotsData to ParkingLots domain entity including policy")
     void shouldMapDataToEntityWithPolicy() {
-        ParkingLotsData data = ParkingLotsData.builder()
-                .id(UUID.randomUUID())
-                .name("Parking Central")
-                .gracePeriodMinutes(15)
-                .gracePeriodPrice(new BigDecimal("2000.00"))
-                .ivaRate(new BigDecimal("0.1900"))
-                .build();
+        ParkingLotsData data = ParkingLotsData.builder().id(UUID.randomUUID()).name("Parking Central")
+            .gracePeriodMinutes(15).gracePeriodPrice(new BigDecimal("2000.00")).ivaRate(new BigDecimal("0.1900"))
+            .build();
 
         ParkingLots entity = parkingLotsMapper.toEntity(data);
 
@@ -119,13 +96,8 @@ class ParkingLotsMapperTest {
     @Test
     @DisplayName("Should fallback to default policy when ParkingLotsData has null policy fields")
     void shouldMapDataToEntityWithNullPolicyFieldsUsingDefaults() {
-        ParkingLotsData data = ParkingLotsData.builder()
-                .id(UUID.randomUUID())
-                .name("Parking Central")
-                .gracePeriodMinutes(null)
-                .gracePeriodPrice(null)
-                .ivaRate(null)
-                .build();
+        ParkingLotsData data = ParkingLotsData.builder().id(UUID.randomUUID()).name("Parking Central")
+            .gracePeriodMinutes(null).gracePeriodPrice(null).ivaRate(null).build();
 
         ParkingLots entity = parkingLotsMapper.toEntity(data);
 
@@ -139,17 +111,10 @@ class ParkingLotsMapperTest {
     @Test
     @DisplayName("Should map ParkingLots domain entity to ParkingLotsData including policy fields")
     void shouldMapEntityToDataWithPolicy() {
-        ParkingLotPolicy policy = ParkingLotPolicy.builder()
-                .gracePeriodMinutes(20)
-                .gracePeriodPrice(new BigDecimal("1500.00"))
-                .ivaRate(new BigDecimal("0.1900"))
-                .build();
+        ParkingLotPolicy policy = ParkingLotPolicy.builder().gracePeriodMinutes(20)
+            .gracePeriodPrice(new BigDecimal("1500.00")).ivaRate(new BigDecimal("0.1900")).build();
 
-        ParkingLots entity = ParkingLots.builder()
-                .id(UUID.randomUUID())
-                .name("Parking Express")
-                .policy(policy)
-                .build();
+        ParkingLots entity = ParkingLots.builder().id(UUID.randomUUID()).name("Parking Express").policy(policy).build();
 
         ParkingLotsData data = parkingLotsMapper.toData(entity);
 

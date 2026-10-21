@@ -11,5 +11,6 @@ class MainApplicationTest {
 
     @Test
     @DisplayName("Should successfully load full Spring Boot application context")
-    void contextLoads() {}
+    void contextLoads() {
+    }
 }

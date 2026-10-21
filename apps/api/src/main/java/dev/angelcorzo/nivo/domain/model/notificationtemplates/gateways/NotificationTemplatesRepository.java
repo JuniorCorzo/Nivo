@@ -6,6 +6,6 @@ import dev.angelcorzo.nivo.domain.model.notificationtemplates.NotificationTempla
 import java.util.Optional;
 
 public interface NotificationTemplatesRepository {
-    Optional<NotificationTemplates> findByEventTypeAndChannel(
-            NotificationEvents eventType, NotificationsChannel channel);
+    Optional<NotificationTemplates> findByEventTypeAndChannel(NotificationEvents eventType,
+        NotificationsChannel channel);
 }

@@ -8,22 +8,11 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record ParkingLotsReference(
-        UUID id,
-        String name,
-        Address address,
-        Coordinates coordinates,
-        String timezone,
-        String currency,
-        OperatingHours operatingHours) {
+public record ParkingLotsReference(UUID id, String name, Address address, Coordinates coordinates, String timezone,
+    String currency, OperatingHours operatingHours) {
     public static ParkingLotsReference of(ParkingLots parkingLots) {
-        return new ParkingLotsReference(
-                parkingLots.getId(),
-                parkingLots.getName(),
-                parkingLots.getAddress(),
-                parkingLots.getCoordinates(),
-                parkingLots.getTimezone(),
-                parkingLots.getCurrency(),
-                parkingLots.getOperatingHours());
+        return new ParkingLotsReference(parkingLots.getId(), parkingLots.getName(), parkingLots.getAddress(),
+            parkingLots.getCoordinates(), parkingLots.getTimezone(), parkingLots.getCurrency(),
+            parkingLots.getOperatingHours());
     }
 }

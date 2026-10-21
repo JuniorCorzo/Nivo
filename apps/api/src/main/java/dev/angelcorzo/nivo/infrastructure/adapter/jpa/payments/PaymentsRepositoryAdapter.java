@@ -19,7 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Slf4j
 public class PaymentsRepositoryAdapter extends AdapterOperations<Payments, PaymentsData, UUID, PaymentsRepositoryData>
-        implements PaymentsRepository {
+    implements
+        PaymentsRepository {
 
     protected PaymentsRepositoryAdapter(PaymentsRepositoryData repository, PaymentMapper mapper) {
         super(repository, mapper);
@@ -60,8 +61,7 @@ public class PaymentsRepositoryAdapter extends AdapterOperations<Payments, Payme
             return Result.success(payment);
         } catch (DataIntegrityViolationException exception) {
             log.error("Payment duplicate: {}", exception.getMessage());
-            return Result.failure(
-                    new PaymentError.Duplicate(entity.getParkingTicket().getId()));
+            return Result.failure(new PaymentError.Duplicate(entity.getParkingTicket().getId()));
         } catch (Exception e) {
             log.error("Error saving payment: {}", e.getMessage());
             return Result.failure(new PaymentError.DatabaseError(e.getMessage()));
@@ -74,8 +74,8 @@ public class PaymentsRepositoryAdapter extends AdapterOperations<Payments, Payme
         try {
             super.repository.processPayment(paymentId, newStatus);
 
-            return Result.success(
-                    super.findById(paymentId).orElseThrow(() -> new PaymentNotFound(paymentId.toString())));
+            return Result
+                .success(super.findById(paymentId).orElseThrow(() -> new PaymentNotFound(paymentId.toString())));
         } catch (Exception e) {
             log.error("Error processing payment with ID {}: {}", paymentId, e.getMessage());
             return Result.failure(new PaymentError.DatabaseError(e.getMessage()));

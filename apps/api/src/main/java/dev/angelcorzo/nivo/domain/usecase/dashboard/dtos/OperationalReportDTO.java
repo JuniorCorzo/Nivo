@@ -46,9 +46,7 @@ public class OperationalReportDTO {
     @Schema(description = "Ticket check-in timestamp with timezone", example = "2026-09-25T08:30:00Z")
     private OffsetDateTime entryTime;
 
-    @Schema(
-            description = "Ticket check-out timestamp with timezone, null if still open",
-            example = "2026-09-25T10:15:00Z")
+    @Schema(description = "Ticket check-out timestamp with timezone, null if still open", example = "2026-09-25T10:15:00Z")
     private OffsetDateTime exitTime;
 
     @Schema(description = "Parking stay duration in minutes", example = "105.0")
@@ -60,9 +58,7 @@ public class OperationalReportDTO {
     @Schema(description = "Total amount to charge or charged", example = "7500.00")
     private BigDecimal totalToCharge;
 
-    @Schema(
-            description = "Associated payment transaction ID, null if unpaid",
-            example = "c2d3e4f5-a6b7-8c9d-0e1f-2a3b4c5d6e7f")
+    @Schema(description = "Associated payment transaction ID, null if unpaid", example = "c2d3e4f5-a6b7-8c9d-0e1f-2a3b4c5d6e7f")
     private UUID paymentId;
 
     @Schema(description = "Payment processing status (PAID, PENDING, FAILED)", example = "PAID")

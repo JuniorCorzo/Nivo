@@ -17,7 +17,8 @@ public class JacksonConverter {
     }
 
     public Object toObject(JsonNode jsonNode) {
-        if (jsonNode == null || jsonNode.isNull()) return null;
+        if (jsonNode == null || jsonNode.isNull())
+            return null;
 
         try {
             return objectMapper.treeToValue(jsonNode, Object.class);
@@ -27,7 +28,8 @@ public class JacksonConverter {
     }
 
     public Object toObject(String str) {
-        if (str == null || str.isBlank()) return null;
+        if (str == null || str.isBlank())
+            return null;
 
         try {
             return this.objectMapper.readValue(str, Object.class);
@@ -37,10 +39,12 @@ public class JacksonConverter {
     }
 
     public String toString(Object object) {
-        if (object == null) return null;
+        if (object == null)
+            return null;
 
         try {
-            if (object instanceof String) return (String) object;
+            if (object instanceof String)
+                return (String) object;
 
             return this.objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
@@ -49,7 +53,8 @@ public class JacksonConverter {
     }
 
     public <T> T toTypedObject(JsonNode jsonNode, Class<T> clazz) {
-        if (jsonNode == null || jsonNode.isNull()) return null;
+        if (jsonNode == null || jsonNode.isNull())
+            return null;
 
         try {
             return objectMapper.treeToValue(jsonNode, clazz);

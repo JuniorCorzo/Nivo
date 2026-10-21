@@ -14,10 +14,10 @@ import java.util.UUID;
 import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
 
 public class TenantNotExistsException extends AppException {
-  private static final int STATUS = 404;
-  private static final String CODE = "TENANT_NOT_FOUND";
+    private static final int STATUS = 404;
+    private static final String CODE = "TENANT_NOT_FOUND";
 
-  public TenantNotExistsException(UUID uuid) {
-    super(ErrorMessagesModel.TENANT_NOT_EXISTS.format(uuid), STATUS, CODE);
-  }
+    public TenantNotExistsException(UUID uuid) {
+        super(ErrorMessagesModel.TENANT_NOT_EXISTS.format(uuid), STATUS, CODE);
+    }
 }

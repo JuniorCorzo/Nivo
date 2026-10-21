@@ -55,13 +55,8 @@ class PaymentProviderClientTest {
     }
 
     private CreatePayLink dummyRequest() {
-        return CreatePayLink.builder()
-                .id(0)
-                .title("Test")
-                .description("Test payment")
-                .quantity(1)
-                .currency("COP")
-                .build();
+        return CreatePayLink.builder().id(0).title("Test").description("Test payment").quantity(1).currency("COP")
+            .build();
     }
 
     @SuppressWarnings("unchecked")
@@ -118,8 +113,8 @@ class PaymentProviderClientTest {
     @DisplayName("Should return ProviderValidation when provider responds with error")
     void shouldReturnProviderValidationOnEpaycoError() {
         EpaycoError error = new EpaycoError("1", List.of(new EpaycoError.ErrorDetail(100, "Some error")));
-        EpaycoResponse<CreatePayLinkResponse> response =
-                new EpaycoResponse.Failure<>(false, "Error", "Error", "Error", error);
+        EpaycoResponse<CreatePayLinkResponse> response = new EpaycoResponse.Failure<>(false, "Error", "Error", "Error",
+            error);
 
         stubWebClientToReturn(response);
 
@@ -135,8 +130,8 @@ class PaymentProviderClientTest {
     @Test
     @DisplayName("Should return ProviderValidation on HTTP 400")
     void shouldReturnProviderValidationOnBadRequest() {
-        WebClientResponseException exception =
-                WebClientResponseException.create(400, "Bad Request", null, "invalid body".getBytes(), null);
+        WebClientResponseException exception = WebClientResponseException.create(400, "Bad Request", null,
+            "invalid body".getBytes(), null);
 
         stubWebClientToThrow(exception);
 
@@ -152,8 +147,8 @@ class PaymentProviderClientTest {
     @Test
     @DisplayName("Should return ProviderRateLimited on HTTP 429")
     void shouldReturnProviderRateLimitedOnTooManyRequests() {
-        WebClientResponseException exception =
-                WebClientResponseException.create(429, "Too Many Requests", null, null, null);
+        WebClientResponseException exception = WebClientResponseException.create(429, "Too Many Requests", null, null,
+            null);
 
         stubWebClientToThrow(exception);
 
@@ -170,8 +165,8 @@ class PaymentProviderClientTest {
     @Test
     @DisplayName("Should return ProviderServerError on HTTP 500")
     void shouldReturnProviderServerErrorOnInternalServerError() {
-        WebClientResponseException exception = WebClientResponseException.create(
-                500, "Internal Server Error", null, "server failure".getBytes(), null);
+        WebClientResponseException exception = WebClientResponseException.create(500, "Internal Server Error", null,
+            "server failure".getBytes(), null);
 
         stubWebClientToThrow(exception);
 
@@ -188,8 +183,8 @@ class PaymentProviderClientTest {
     @Test
     @DisplayName("Should return ProviderServerError on unexpected HTTP status")
     void shouldReturnProviderServerErrorOnUnexpectedStatus() {
-        WebClientResponseException exception =
-                WebClientResponseException.create(503, "Service Unavailable", null, null, null);
+        WebClientResponseException exception = WebClientResponseException.create(503, "Service Unavailable", null, null,
+            null);
 
         stubWebClientToThrow(exception);
 
@@ -250,27 +245,7 @@ class PaymentProviderClientTest {
     }
 
     private CreatePayLinkResponse buildPayLinkResponse() {
-        return new CreatePayLinkResponse(
-                1L,
-                "title",
-                "desc",
-                "2026-03-01 12:00:00",
-                1,
-                "txtCode",
-                1L,
-                1,
-                1,
-                0,
-                "COP",
-                "sell",
-                "url",
-                "url",
-                0,
-                0,
-                1000,
-                "invoice",
-                "qr",
-                "link",
-                "2026-03-01 13:00:00");
+        return new CreatePayLinkResponse(1L, "title", "desc", "2026-03-01 12:00:00", 1, "txtCode", 1L, 1, 1, 0, "COP",
+            "sell", "url", "url", 0, 0, 1000, "invoice", "qr", "link", "2026-03-01 13:00:00");
     }
 }

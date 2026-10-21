@@ -21,13 +21,8 @@ class ParkingTicketMapperTest {
     @Test
     void toDtoConvertsDatesToBogotaTimezone() {
         OffsetDateTime utc = OffsetDateTime.of(2025, 5, 3, 0, 20, 37, 0, ZoneOffset.UTC);
-        ParkingTickets model = ParkingTickets.builder()
-                .entryTime(utc)
-                .exitTime(utc)
-                .createdAt(utc)
-                .updatedAt(utc)
-                .deletedAt(utc)
-                .build();
+        ParkingTickets model = ParkingTickets.builder().entryTime(utc).exitTime(utc).createdAt(utc).updatedAt(utc)
+            .deletedAt(utc).build();
 
         ParkingTicketsDTO dto = mapper.toDto(model);
 

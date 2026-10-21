@@ -7,4 +7,5 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets.ParkingTick
 import org.mapstruct.Mapper;
 
 @Mapper(config = MapperStructConfig.class)
-public interface ParkingTicketMapper extends BaseMapper<ParkingTickets, ParkingTicketsData> {}
+public interface ParkingTicketMapper extends BaseMapper<ParkingTickets, ParkingTicketsData> {
+}

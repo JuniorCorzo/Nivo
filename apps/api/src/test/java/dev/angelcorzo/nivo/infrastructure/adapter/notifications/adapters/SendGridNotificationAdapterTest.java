@@ -54,12 +54,8 @@ class SendGridNotificationAdapterTest {
 
     @BeforeEach
     void setUp() {
-        template = NotificationTemplates.builder()
-                .id(UUID.randomUUID())
-                .templateReference("d-12345")
-                .eventType(NotificationEvents.USER_INVITED)
-                .channel(NotificationsChannel.EMAIL)
-                .build();
+        template = NotificationTemplates.builder().id(UUID.randomUUID()).templateReference("d-12345")
+            .eventType(NotificationEvents.USER_INVITED).channel(NotificationsChannel.EMAIL).build();
 
         content = UserInvitedData.builder().userName("John Doe").build();
         mail = new Mail();
@@ -88,11 +84,10 @@ class SendGridNotificationAdapterTest {
 
         Response response = new Response(400, "Bad Request", Map.of());
         when(sendGrid.api(request)).thenReturn(response);
-        when(sendGridErrorMessageFormatter.formatProviderError(400, "Bad Request"))
-                .thenReturn("Formatted Error");
+        when(sendGridErrorMessageFormatter.formatProviderError(400, "Bad Request")).thenReturn("Formatted Error");
 
         assertThatThrownBy(() -> adapter.sendEmail(template, "user@test.com", content))
-                .isInstanceOf(SendGridApiException.class);
+            .isInstanceOf(SendGridApiException.class);
 
         verify(notificationsLoggerService).registerLog(template, "user@test.com", "Formatted Error");
     }
@@ -107,7 +102,7 @@ class SendGridNotificationAdapterTest {
         when(sendGridErrorMessageFormatter.formatIoError("Network error")).thenReturn("Formatted IO Error");
 
         assertThatThrownBy(() -> adapter.sendEmail(template, "user@test.com", content))
-                .isInstanceOf(SendGridRequestBuildException.class);
+            .isInstanceOf(SendGridRequestBuildException.class);
 
         verify(notificationsLoggerService).registerLog(template, "user@test.com", "Formatted IO Error");
     }
@@ -116,6 +111,6 @@ class SendGridNotificationAdapterTest {
     @DisplayName("Should return SENDGRID provider type")
     void shouldReturnSendGridProviderType() {
         org.assertj.core.api.Assertions.assertThat(adapter.getProviderType())
-                .isEqualTo(dev.angelcorzo.nivo.infrastructure.adapter.notifications.enums.EmailProviderType.SENDGRID);
+            .isEqualTo(dev.angelcorzo.nivo.infrastructure.adapter.notifications.enums.EmailProviderType.SENDGRID);
     }
 }

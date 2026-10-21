@@ -72,8 +72,7 @@ class PaymentsRepositoryAdapterTest {
     void shouldProcessPaymentSuccessfully() {
         UUID ticketId = UUID.randomUUID();
         ParkingTickets ticket = ParkingTickets.builder().id(ticketId).build();
-        Payments payment =
-                Payments.builder().id(UUID.randomUUID()).parkingTicket(ticket).build();
+        Payments payment = Payments.builder().id(UUID.randomUUID()).parkingTicket(ticket).build();
         PaymentsData data = new PaymentsData();
 
         when(mapper.toData(payment)).thenReturn(data);
@@ -91,8 +90,7 @@ class PaymentsRepositoryAdapterTest {
     void shouldReturnDuplicateErrorOnConstraintViolation() {
         UUID ticketId = UUID.randomUUID();
         ParkingTickets ticket = ParkingTickets.builder().id(ticketId).build();
-        Payments payment =
-                Payments.builder().id(UUID.randomUUID()).parkingTicket(ticket).build();
+        Payments payment = Payments.builder().id(UUID.randomUUID()).parkingTicket(ticket).build();
         PaymentsData data = new PaymentsData();
 
         when(mapper.toData(payment)).thenReturn(data);
@@ -109,8 +107,7 @@ class PaymentsRepositoryAdapterTest {
     void shouldProcessPaymentStatusUpdate() {
         UUID paymentId = UUID.randomUUID();
         PaymentsData data = new PaymentsData();
-        Payments payment =
-                Payments.builder().id(paymentId).status(PaymentStatus.PAID).build();
+        Payments payment = Payments.builder().id(paymentId).status(PaymentStatus.PAID).build();
 
         when(repository.findById(paymentId)).thenReturn(Optional.of(data));
         when(mapper.toEntity(data)).thenReturn(payment);

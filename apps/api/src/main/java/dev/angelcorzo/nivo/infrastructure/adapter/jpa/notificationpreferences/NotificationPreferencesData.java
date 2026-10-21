@@ -34,13 +34,15 @@ import org.hibernate.proxy.HibernateProxy;
 /**
  * Represents the JPA data entity for a Notification Preference.
  *
- * <p>This class maps to the {@code notification_preferences} table in the database and
- * stores per-user, per-event, per-channel notification opt-in/opt-out preferences.
+ * <p>
+ * This class maps to the {@code notification_preferences} table in the database and stores per-user, per-event,
+ * per-channel notification opt-in/opt-out preferences.
  *
- * <p><strong>Layer:</strong> Infrastructure (Driven Adapter - JPA)
+ * <p>
+ * <strong>Layer:</strong> Infrastructure (Driven Adapter - JPA)
  *
- * <p><strong>Responsibility:</strong> To persist and retrieve Notification Preference data from
- * the database.
+ * <p>
+ * <strong>Responsibility:</strong> To persist and retrieve Notification Preference data from the database.
  *
  * @author Angel Corzo
  * @since 1.0.0
@@ -56,12 +58,8 @@ import org.hibernate.proxy.HibernateProxy;
 @Setter
 @ToString
 @Entity
-@Table(
-        name = "notification_preferences",
-        uniqueConstraints =
-                @UniqueConstraint(
-                        name = "uq_notification_preference_user_event_channel",
-                        columnNames = {"user_id", "event_type", "channel"}))
+@Table(name = "notification_preferences", uniqueConstraints = @UniqueConstraint(name = "uq_notification_preference_user_event_channel", columnNames = {
+    "user_id", "event_type", "channel"}))
 public class NotificationPreferencesData {
 
     /** Unique identifier for the notification preference. */
@@ -71,21 +69,13 @@ public class NotificationPreferencesData {
 
     /** The user this preference belongs to. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "user_id",
-            referencedColumnName = "id",
-            nullable = false,
-            foreignKey = @ForeignKey(name = "notification_preferences_user_id_fkey"))
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, foreignKey = @ForeignKey(name = "notification_preferences_user_id_fkey"))
     @ToString.Exclude
     private UsersData user;
 
     /** The tenant this preference is scoped to. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "tenant_id",
-            referencedColumnName = "id",
-            nullable = false,
-            foreignKey = @ForeignKey(name = "notification_preferences_tenant_id_fkey"))
+    @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false, foreignKey = @ForeignKey(name = "notification_preferences_tenant_id_fkey"))
     @ToString.Exclude
     private TenantsData tenant;
 
@@ -116,15 +106,16 @@ public class NotificationPreferencesData {
 
     @Override
     public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
+        if (this == o)
+            return true;
+        if (o == null)
+            return false;
         Class<?> oEffectiveClass = o instanceof HibernateProxy
-                ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
-                : o.getClass();
+            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
-                : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass)
+            return false;
         NotificationPreferencesData that = (NotificationPreferencesData) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
@@ -132,10 +123,7 @@ public class NotificationPreferencesData {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy
-                ? ((HibernateProxy) this)
-                        .getHibernateLazyInitializer()
-                        .getPersistentClass()
-                        .hashCode()
-                : getClass().hashCode();
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+            : getClass().hashCode();
     }
 }

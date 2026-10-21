@@ -31,8 +31,7 @@ class TenantsRepositoryAdapterTest {
     void shouldFindTenantById() {
         UUID tenantId = UUID.randomUUID();
         TenantsData data = new TenantsData();
-        Tenants entity =
-                Tenants.builder().id(tenantId).companyName("Company One").build();
+        Tenants entity = Tenants.builder().id(tenantId).companyName("Company One").build();
 
         when(repository.findById(tenantId)).thenReturn(Optional.of(data));
         when(mapper.toEntity(data)).thenReturn(entity);
@@ -47,10 +46,7 @@ class TenantsRepositoryAdapterTest {
     @DisplayName("Should find all tenants")
     void shouldFindAllTenants() {
         TenantsData data = new TenantsData();
-        Tenants entity = Tenants.builder()
-                .id(UUID.randomUUID())
-                .companyName("Company One")
-                .build();
+        Tenants entity = Tenants.builder().id(UUID.randomUUID()).companyName("Company One").build();
 
         when(repository.findAll()).thenReturn(List.of(data));
         when(mapper.toEntity(data)).thenReturn(entity);

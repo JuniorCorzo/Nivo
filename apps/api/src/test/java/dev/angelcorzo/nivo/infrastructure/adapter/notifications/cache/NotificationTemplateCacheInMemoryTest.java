@@ -34,19 +34,15 @@ class NotificationTemplateCacheInMemoryTest {
     @BeforeEach
     void setUp() {
         key = NotificationImmutableKey.of(NotificationEvents.USER_INVITED, NotificationsChannel.EMAIL);
-        template = NotificationTemplates.builder()
-                .id(UUID.randomUUID())
-                .templateReference("d-12345")
-                .eventType(NotificationEvents.USER_INVITED)
-                .channel(NotificationsChannel.EMAIL)
-                .build();
+        template = NotificationTemplates.builder().id(UUID.randomUUID()).templateReference("d-12345")
+            .eventType(NotificationEvents.USER_INVITED).channel(NotificationsChannel.EMAIL).build();
     }
 
     @Test
     @DisplayName("Should fetch from repository and cache template on first access")
     void shouldFetchAndCacheOnFirstAccess() {
         when(templatesRepository.findByEventTypeAndChannel(key.event(), key.channel()))
-                .thenReturn(Optional.of(template));
+            .thenReturn(Optional.of(template));
 
         Optional<NotificationTemplates> result1 = cache.getTemplate(key);
         Optional<NotificationTemplates> result2 = cache.getTemplate(key);
@@ -59,8 +55,7 @@ class NotificationTemplateCacheInMemoryTest {
     @Test
     @DisplayName("Should return empty when template is not found in database")
     void shouldReturnEmptyWhenNotFound() {
-        when(templatesRepository.findByEventTypeAndChannel(key.event(), key.channel()))
-                .thenReturn(Optional.empty());
+        when(templatesRepository.findByEventTypeAndChannel(key.event(), key.channel())).thenReturn(Optional.empty());
 
         Optional<NotificationTemplates> result = cache.getTemplate(key);
 

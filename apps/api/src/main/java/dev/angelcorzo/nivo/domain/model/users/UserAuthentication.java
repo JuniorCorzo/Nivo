@@ -5,4 +5,5 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record UserAuthentication(UUID userId, UUID tenantId, Roles role) {}
+public record UserAuthentication(UUID userId, UUID tenantId, Roles role) {
+}

@@ -84,8 +84,7 @@ class GracePeriodStageTest {
         OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
         OffsetDateTime exit = entry.plusMinutes(5);
 
-        PricingContext ctx = PricingContext.of(RateReference.builder().build(), policy, entry, exit)
-                .toSettled();
+        PricingContext ctx = PricingContext.of(RateReference.builder().build(), policy, entry, exit).toSettled();
         PricingContext result = stage.apply(ctx);
 
         assertThat(result.settled()).isTrue();

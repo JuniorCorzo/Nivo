@@ -27,9 +27,8 @@ public class PaymentSubscriptionEventListener {
         }
 
         String paymentId = destination.substring("/topic/payment/".length());
-        this.subscriptions
-                .computeIfAbsent(accessor.getSessionId(), k -> new ConcurrentHashMap<>())
-                .put(accessor.getSubscriptionId(), paymentId);
+        this.subscriptions.computeIfAbsent(accessor.getSessionId(), k -> new ConcurrentHashMap<>())
+            .put(accessor.getSubscriptionId(), paymentId);
     }
 
     @EventListener
@@ -41,10 +40,10 @@ public class PaymentSubscriptionEventListener {
         final boolean hasSession = this.subscriptions.containsKey(sessionId);
         final boolean hasSubscription = this.subscriptions.get(sessionId).containsKey(subscriptionId);
 
-        if (!hasSession || !hasSubscription) return;
+        if (!hasSession || !hasSubscription)
+            return;
 
-        this.transactionEventBroker.unsubscribe(
-                this.subscriptions.get(sessionId).get(subscriptionId));
+        this.transactionEventBroker.unsubscribe(this.subscriptions.get(sessionId).get(subscriptionId));
         this.subscriptions.get(sessionId).remove(subscriptionId);
     }
 
@@ -53,7 +52,8 @@ public class PaymentSubscriptionEventListener {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         final String sessionId = accessor.getSessionId();
 
-        if (!this.subscriptions.containsKey(sessionId)) return;
+        if (!this.subscriptions.containsKey(sessionId))
+            return;
 
         this.subscriptions.get(sessionId).forEach((subscriptionId, paymentId) -> {
             this.transactionEventBroker.unsubscribe(paymentId);

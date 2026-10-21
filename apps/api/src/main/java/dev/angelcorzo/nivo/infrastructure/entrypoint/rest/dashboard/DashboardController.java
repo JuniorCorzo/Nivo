@@ -33,10 +33,7 @@ public class DashboardController {
     private final BackendOperationsMetricsManager metricsManager;
 
     @GetMapping("/summary")
-    @Operation(
-            summary = "Get dashboard summary",
-            description =
-                    "Dual-scope summary: single parking if parkingId provided, else consolidated global tenant summary")
+    @Operation(summary = "Get dashboard summary", description = "Dual-scope summary: single parking if parkingId provided, else consolidated global tenant summary")
     public ResponseEntity<DashboardSummaryDTO> getSummary(@RequestParam(required = false) final UUID parkingId) {
         try {
             return ResponseEntity.ok(summaryUseCase.execute(parkingId));
@@ -48,15 +45,11 @@ public class DashboardController {
     }
 
     @GetMapping("/occupancy-hourly")
-    @Operation(
-            summary = "Get hourly occupancy",
-            description = "Time-series occupancy curve for single facility or tenant consolidated scope")
+    @Operation(summary = "Get hourly occupancy", description = "Time-series occupancy curve for single facility or tenant consolidated scope")
     public ResponseEntity<List<HourlyOccupancyDTO>> getHourlyOccupancy(
-            @RequestParam(required = false) final UUID parkingId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                    final OffsetDateTime startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                    final OffsetDateTime endDate) {
+        @RequestParam(required = false) final UUID parkingId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final OffsetDateTime startDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final OffsetDateTime endDate) {
         try {
             return ResponseEntity.ok(hourlyUseCase.execute(parkingId, startDate, endDate));
         } finally {
@@ -67,12 +60,10 @@ public class DashboardController {
     }
 
     @GetMapping("/parkings-comparison")
-    @Operation(
-            summary = "Get parkings comparison",
-            description = "Ranking comparison across all parking facilities of tenant")
+    @Operation(summary = "Get parkings comparison", description = "Ranking comparison across all parking facilities of tenant")
     public ResponseEntity<List<ParkingComparisonDTO>> getParkingsComparison(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate endDate) {
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate startDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate endDate) {
         try {
             return ResponseEntity.ok(comparisonUseCase.execute(startDate, endDate));
         } finally {

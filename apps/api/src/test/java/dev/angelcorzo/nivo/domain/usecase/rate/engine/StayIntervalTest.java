@@ -42,9 +42,8 @@ class StayIntervalTest {
     void shouldThrowWhenEntryTimeIsNull() {
         OffsetDateTime exit = OffsetDateTime.parse("2026-09-07T11:00:00Z");
 
-        assertThatThrownBy(() -> StayInterval.of(null, exit))
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessage("Entry time and exit time cannot be null");
+        assertThatThrownBy(() -> StayInterval.of(null, exit)).isInstanceOf(InvalidDomainException.class)
+            .hasMessage("Entry time and exit time cannot be null");
     }
 
     @Test
@@ -52,17 +51,15 @@ class StayIntervalTest {
     void shouldThrowWhenExitTimeIsNull() {
         OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
 
-        assertThatThrownBy(() -> StayInterval.of(entry, null))
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessage("Entry time and exit time cannot be null");
+        assertThatThrownBy(() -> StayInterval.of(entry, null)).isInstanceOf(InvalidDomainException.class)
+            .hasMessage("Entry time and exit time cannot be null");
     }
 
     @Test
     @DisplayName("Should throw InvalidDomainException when both times are null")
     void shouldThrowWhenBothTimesAreNull() {
-        assertThatThrownBy(() -> StayInterval.of(null, null))
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessage("Entry time and exit time cannot be null");
+        assertThatThrownBy(() -> StayInterval.of(null, null)).isInstanceOf(InvalidDomainException.class)
+            .hasMessage("Entry time and exit time cannot be null");
     }
 
     @Test
@@ -71,9 +68,8 @@ class StayIntervalTest {
         OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T12:00:00Z");
         OffsetDateTime exit = OffsetDateTime.parse("2026-09-07T11:00:00Z");
 
-        assertThatThrownBy(() -> StayInterval.of(entry, exit))
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessage("Exit time cannot be before entry time");
+        assertThatThrownBy(() -> StayInterval.of(entry, exit)).isInstanceOf(InvalidDomainException.class)
+            .hasMessage("Exit time cannot be before entry time");
     }
 
     @Test
@@ -82,12 +78,10 @@ class StayIntervalTest {
         OffsetDateTime entry = OffsetDateTime.parse("2026-09-07T10:00:00Z");
 
         assertThatThrownBy(() -> new StayInterval(null, entry, Duration.ofMinutes(10)))
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessage("Entry time and exit time cannot be null");
+            .isInstanceOf(InvalidDomainException.class).hasMessage("Entry time and exit time cannot be null");
 
         assertThatThrownBy(() -> new StayInterval(entry, null, Duration.ofMinutes(10)))
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessage("Entry time and exit time cannot be null");
+            .isInstanceOf(InvalidDomainException.class).hasMessage("Entry time and exit time cannot be null");
     }
 
     @Test
@@ -97,8 +91,7 @@ class StayIntervalTest {
         OffsetDateTime exit = OffsetDateTime.parse("2026-09-07T11:00:00Z");
 
         assertThatThrownBy(() -> new StayInterval(entry, exit, Duration.ofMinutes(10)))
-                .isInstanceOf(InvalidDomainException.class)
-                .hasMessage("Exit time cannot be before entry time");
+            .isInstanceOf(InvalidDomainException.class).hasMessage("Exit time cannot be before entry time");
     }
 
     @Test

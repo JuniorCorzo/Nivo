@@ -28,8 +28,7 @@ public class ExceptionHandlerController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<ResponseError<Object>> handleValidationException(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.joining(", "));
+            .map(error -> error.getField() + ": " + error.getDefaultMessage()).collect(Collectors.joining(", "));
         if (message.isBlank()) {
             message = "Validation error";
         }

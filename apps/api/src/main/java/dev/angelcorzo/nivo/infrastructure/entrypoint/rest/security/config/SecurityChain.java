@@ -36,48 +36,26 @@ public class SecurityChain {
     @Bean
     @Order(1)
     public SecurityFilterChain publicSecurityFilterChain(final HttpSecurity http) throws Exception {
-        return http.securityMatcher(
-                        "/tenants/register",
-                        "/users/accept-invitation/**",
-                        "/actuator",
-                        "/actuator/**",
-                        "/health",
-                        "/health/**",
-                        "/scalar",
-                        "/scalar/**",
-                        "/docs",
-                        "/docs/**",
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        "/v3/api-docs",
-                        "/v3/api-docs/**",
-                        "/api-docs",
-                        "/api-docs/**",
-                        "/swagger-resources/**",
-                        "/swagger-resources",
-                        "/webjars/**",
-                        "/context-path/**",
-                        "/auth/**",
-                        "/public/**",
-                        "/favicon.ico")
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(
-                        sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .build();
+        return http
+            .securityMatcher("/tenants/register", "/users/accept-invitation/**", "/actuator", "/actuator/**", "/health",
+                "/health/**", "/scalar", "/scalar/**", "/docs", "/docs/**", "/swagger-ui/**", "/swagger-ui.html",
+                "/v3/api-docs", "/v3/api-docs/**", "/api-docs", "/api-docs/**", "/swagger-resources/**",
+                "/swagger-resources", "/webjars/**", "/context-path/**", "/auth/**", "/public/**", "/favicon.ico")
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(
+                sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll()).build();
     }
 
     @Bean
     @Order(2)
     public SecurityFilterChain apiSecurityFilterChain(final HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(
-                        sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .oauth2ResourceServer(
-                        oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)
-                                .decoder(jwtDecoder())))
-                .build();
+            .sessionManagement(
+                sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth.anyRequest().authenticated()).oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter).decoder(jwtDecoder())))
+            .build();
     }
 
     @Bean
@@ -87,18 +65,10 @@ public class SecurityChain {
 
     @Bean
     RoleHierarchy roleHierarchy() {
-        return RoleHierarchyImpl.withRolePrefix("ROLE_")
-                .role(Roles.SUPERADMIN.name())
-                .implies(Roles.OWNER.name())
-                .role(Roles.OWNER.name())
-                .implies(Roles.MANAGER.name())
-                .role(Roles.MANAGER.name())
-                .implies(Roles.OPERATOR.name())
-                .role(Roles.OPERATOR.name())
-                .implies(Roles.DRIVER.name())
-                .role(Roles.DRIVER.name())
-                .implies(Roles.AUDITOR.name())
-                .build();
+        return RoleHierarchyImpl.withRolePrefix("ROLE_").role(Roles.SUPERADMIN.name()).implies(Roles.OWNER.name())
+            .role(Roles.OWNER.name()).implies(Roles.MANAGER.name()).role(Roles.MANAGER.name())
+            .implies(Roles.OPERATOR.name()).role(Roles.OPERATOR.name()).implies(Roles.DRIVER.name())
+            .role(Roles.DRIVER.name()).implies(Roles.AUDITOR.name()).build();
     }
 
     @Bean
@@ -111,7 +81,7 @@ public class SecurityChain {
 
     @Bean
     public MethodSecurityExpressionHandler methodSecurityExpressionHandler(
-            final AuthorizationManagerFactory<MethodInvocation> authorizationManagerFactory) {
+        final AuthorizationManagerFactory<MethodInvocation> authorizationManagerFactory) {
         final DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
         expressionHandler.setAuthorizationManagerFactory(authorizationManagerFactory);

@@ -24,12 +24,9 @@ public class CreateSlotUseCase {
         this.validate(command);
 
         final Slots slot = Slots.builder()
-                .tenant(TenantReference.of(this.tenantsRepository.getReferenceById(command.tenantId())))
-                .parking(ParkingLotsReference.of(this.parkingLotsRepository.getReferenceById(command.parkingLotId())))
-                .slotNumber(command.slotNumber())
-                .type(command.type())
-                .status(SlotStatus.AVAILABLE)
-                .build();
+            .tenant(TenantReference.of(this.tenantsRepository.getReferenceById(command.tenantId())))
+            .parking(ParkingLotsReference.of(this.parkingLotsRepository.getReferenceById(command.parkingLotId())))
+            .slotNumber(command.slotNumber()).type(command.type()).status(SlotStatus.AVAILABLE).build();
 
         return this.slotsRepository.save(slot);
     }
@@ -43,5 +40,6 @@ public class CreateSlotUseCase {
     }
 
     @Builder(toBuilder = true)
-    public record CreateSlotCommand(UUID parkingLotId, UUID tenantId, String slotNumber, SlotType type) {}
+    public record CreateSlotCommand(UUID parkingLotId, UUID tenantId, String slotNumber, SlotType type) {
+    }
 }
