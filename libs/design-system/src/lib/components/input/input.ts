@@ -35,15 +35,10 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
   template: `
     <div class="flex flex-col gap-1.5">
       @if (label()) {
-        <label
-          [for]="id()"
-          class="font-sans text-sm font-medium text-(--foreground)"
-        >
+        <label [for]="id()" class="font-sans text-sm font-medium text-(--foreground)">
           {{ label() }}
           @if (required()) {
-            <span class="ml-0.5 text-(--destructive)" aria-hidden="true"
-              >*</span
-            >
+            <span class="ml-0.5 text-(--destructive)" aria-hidden="true">*</span>
           }
         </label>
       }
@@ -74,10 +69,7 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
               class="absolute top-1/2 right-3 -translate-y-1/2 text-(--muted-foreground) transition-colors hover:text-(--foreground)"
               (click)="togglePasswordVisibility()"
             >
-              <ng-icon
-                [name]="showPassword() ? 'lucideEyeClosed' : 'lucideEye'"
-                size="16"
-              />
+              <ng-icon [name]="showPassword() ? 'lucideEyeClosed' : 'lucideEye'" size="16" />
             </button>
           }
         </div>
@@ -105,9 +97,7 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
   `,
 })
 export class InputComponent implements ControlValueAccessor {
-  readonly id = input<string>(
-    `nv-input-${Math.random().toString(36).slice(2)}`
-  );
+  readonly id = input<string>(`nv-input-${Math.random().toString(36).slice(2)}`);
   readonly ariaDescribedBy = computed(() => `${this.id()}-error`);
   readonly label = input<string>("");
   readonly required = input<boolean>(false);
@@ -121,7 +111,7 @@ export class InputComponent implements ControlValueAccessor {
 
   readonly showPassword = signal(false);
   readonly actualType = computed(() =>
-    this.type() === "password" && this.showPassword() ? "text" : this.type()
+    this.type() === "password" && this.showPassword() ? "text" : this.type(),
   );
 
   readonly value = signal("");
@@ -157,9 +147,7 @@ export class InputComponent implements ControlValueAccessor {
   readonly classes = computed(() => {
     const base =
       "flex h-10 w-full rounded-md border bg-transparent px-3 py-2 text-sm font-sans transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50";
-    const errorClass = this.hasErrors()
-      ? "border-[var(--destructive)]"
-      : "border-[var(--input)]";
+    const errorClass = this.hasErrors() ? "border-[var(--destructive)]" : "border-[var(--input)]";
     const startIconClass = this.startIcon() ? "pl-9" : "";
     const passwordClass = this.type() === "password" ? "pr-10" : "";
 

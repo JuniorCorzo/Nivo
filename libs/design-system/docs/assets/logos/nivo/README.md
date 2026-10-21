@@ -8,11 +8,11 @@
 
 ## Assets finales
 
-| Archivo | Tipo | Dimensiones | Uso principal |
-| --- | --- | --- | --- |
-| `nivo-logo-horizontal.svg` | Isotipo + wordmark | 180 x 68 | Logo principal, headers, firmas |
-| `nivo-logo-stacked.svg` | Isotipo + wordmark apilado | 180 x 148 | Formatos cuadrados, tarjetas |
-| `nivo-logo-icon.svg` | Isotipo solo | 64 x 64 | Favicon, avatar, app icon |
+| Archivo                    | Tipo                       | Dimensiones | Uso principal                   |
+| -------------------------- | -------------------------- | ----------- | ------------------------------- |
+| `nivo-logo-horizontal.svg` | Isotipo + wordmark         | 180 x 68    | Logo principal, headers, firmas |
+| `nivo-logo-stacked.svg`    | Isotipo + wordmark apilado | 180 x 148   | Formatos cuadrados, tarjetas    |
+| `nivo-logo-icon.svg`       | Isotipo solo               | 64 x 64     | Favicon, avatar, app icon       |
 
 ## Especificaciones tecnicas
 

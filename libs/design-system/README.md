@@ -71,10 +71,7 @@ En una app Angular, agregalo en `angular.json`:
 
 ```json
 {
-  "styles": [
-    "src/styles.css",
-    "node_modules/@nivo-sass/design-system/styles/tokens.css"
-  ]
+  "styles": ["src/styles.css", "node_modules/@nivo-sass/design-system/styles/tokens.css"]
 }
 ```
 

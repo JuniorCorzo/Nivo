@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
 export type DividerOrientation = "horizontal" | "vertical";
 export type DividerThickness = "thin" | "default" | "thick";
@@ -20,10 +15,7 @@ const DIMENSIONS = {
     thick: "w-[3px] h-6 rounded-full",
     thin: "w-[1px] h-6 rounded-full",
   },
-} as const satisfies Record<
-  DividerOrientation,
-  Record<DividerThickness, string>
->;
+} as const satisfies Record<DividerOrientation, Record<DividerThickness, string>>;
 
 const VARIANTS = {
   default: "bg-neutral-300 dark:bg-neutral-700",
@@ -34,8 +26,7 @@ const VARIANTS = {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    "[attr.aria-orientation]":
-      "orientation() === 'vertical' ? 'vertical' : undefined",
+    "[attr.aria-orientation]": "orientation() === 'vertical' ? 'vertical' : undefined",
     "[attr.role]": "role()",
     "[class]": "classes()",
   },

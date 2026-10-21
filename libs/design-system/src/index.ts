@@ -17,10 +17,7 @@ export { BadgeComponent } from "./lib/components/badge/badge";
 export { InputComponent } from "./lib/components/input/input";
 export { ComboboxComponent } from "./lib/components/combobox/index";
 export { SelectComponent } from "./lib/components/select/index";
-export {
-  DividerComponent,
-  DivisorComponent,
-} from "./lib/components/divider/index";
+export { DividerComponent, DivisorComponent } from "./lib/components/divider/index";
 export type {
   DividerOrientation,
   DividerThickness,

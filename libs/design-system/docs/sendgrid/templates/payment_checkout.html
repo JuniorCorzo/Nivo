@@ -9,8 +9,8 @@ Descripción: Recordatorio de pago pendiente con detalle de items y CTA a checko
   <p style="margin: 0 0 16px">
     Tienes un pago pendiente con referencia
     <strong>{{paymentReference}}</strong> por
-    <strong>{{paymentAmount}} {{paymentCurrency}}</strong>. {{#if dueDate}}Fecha
-    límite: {{dueDate}}.{{/if}}
+    <strong>{{paymentAmount}} {{paymentCurrency}}</strong>. {{#if dueDate}}Fecha límite:
+    {{dueDate}}.{{/if}}
   </p>
 
   <p style="margin: 0 0 8px"><strong>Concepto:</strong> {{description}}</p>
@@ -21,15 +21,14 @@ Descripción: Recordatorio de pago pendiente con detalle de items y CTA a checko
     {{#each items}}
     <li style="margin: 0 0 10px">
       <strong>{{this.name}}</strong>
-      {{#if this.description}}<br /><span>{{this.description}}</span>{{/if}}
-      {{#if this.parkingName}}<br />Parqueadero:
-      <span>{{this.parkingName}}</span>{{/if}} {{#if this.spotLabel}}<br />Plaza:
-      <span>{{this.spotLabel}}</span>{{/if}} {{#if this.vehiclePlate}}<br />Vehículo:
-      <span>{{this.vehiclePlate}}</span>{{/if}} {{#if this.startTime}}<br />Inicio:
-      <span>{{this.startTime}}</span>{{/if}} {{#if this.endTime}}<br />Fin:
+      {{#if this.description}}<br /><span>{{this.description}}</span>{{/if}} {{#if
+      this.parkingName}}<br />Parqueadero: <span>{{this.parkingName}}</span>{{/if}} {{#if
+      this.spotLabel}}<br />Plaza: <span>{{this.spotLabel}}</span>{{/if}} {{#if
+      this.vehiclePlate}}<br />Vehículo: <span>{{this.vehiclePlate}}</span>{{/if}} {{#if
+      this.startTime}}<br />Inicio: <span>{{this.startTime}}</span>{{/if}} {{#if this.endTime}}<br />Fin:
       <span>{{this.endTime}}</span>{{/if}} {{#if this.quantity}}<br />Cantidad:
-      <span>{{this.quantity}}</span>{{/if}} {{#if this.unitAmount}}<br />Valor
-      unitario: <span>{{this.unitAmount}}</span>{{/if}} {{#if this.amount}}<br />Subtotal:
+      <span>{{this.quantity}}</span>{{/if}} {{#if this.unitAmount}}<br />Valor unitario:
+      <span>{{this.unitAmount}}</span>{{/if}} {{#if this.amount}}<br />Subtotal:
       <span>{{this.amount}}</span>{{/if}}
     </li>
     {{/each}}
@@ -45,8 +44,12 @@ Descripción: Recordatorio de pago pendiente con detalle de items y CTA a checko
   </p>
 
   <p style="margin: 0 0 16px">
-    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if
-    socialUrl}}<a href="{{socialUrl}}" class="link">Síguenos</a> |{{/if}}
+    <a href="{{supportUrl}}" class="link">Centro de Ayuda</a> | {{#if socialUrl}}<a
+      href="{{socialUrl}}"
+      class="link"
+      >Síguenos</a
+    >
+    |{{/if}}
   </p>
 
   {{> components/email_footer}}

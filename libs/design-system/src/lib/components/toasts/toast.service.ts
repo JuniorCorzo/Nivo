@@ -17,10 +17,7 @@ export class ToastService {
     });
   }
 
-  showObservableToast<T>(
-    observable$: Observable<T>,
-    data: ToastObservableData
-  ) {
+  showObservableToast<T>(observable$: Observable<T>, data: ToastObservableData) {
     const toastRef = this.hotToastService.show(ToastsComponent, {
       data: data.loading,
     });

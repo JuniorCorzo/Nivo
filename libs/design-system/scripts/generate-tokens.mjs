@@ -13,9 +13,7 @@ import path from "node:path";
 const root = path.resolve(import.meta.dirname, "..");
 
 // --- Leer colors.json ---
-const colors = JSON.parse(
-  readFileSync(path.resolve(root, "src/lib/tokens/colors.json"), "utf-8")
-);
+const colors = JSON.parse(readFileSync(path.resolve(root, "src/lib/tokens/colors.json"), "utf-8"));
 
 // --- Helpers ---
 

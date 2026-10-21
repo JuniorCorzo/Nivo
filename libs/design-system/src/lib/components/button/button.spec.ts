@@ -14,10 +14,7 @@ import { ButtonComponent } from "./button";
     <nv-button id="loading-btn" [loading]="isLoading()">Submit</nv-button>
     <nv-button id="loading-sm-btn" [loading]="true" size="sm">Small</nv-button>
     <nv-button id="loading-lg-btn" [loading]="true" size="lg">Large</nv-button>
-    <nv-button
-      id="loading-destructive-btn"
-      [loading]="true"
-      variant="destructive"
+    <nv-button id="loading-destructive-btn" [loading]="true" variant="destructive"
       >Delete</nv-button
     >
   `,
@@ -54,9 +51,7 @@ describe("ButtonComponent", () => {
   });
 
   it("should disable button when disabled input is true", () => {
-    const btn = element.querySelector<HTMLButtonElement>(
-      "#disabled-btn button"
-    );
+    const btn = element.querySelector<HTMLButtonElement>("#disabled-btn button");
     expect(btn).not.toBeNull();
     expect(btn?.disabled).toBe(true);
     expect(btn?.querySelector("nv-loader")).toBeNull();
@@ -70,9 +65,7 @@ describe("ButtonComponent", () => {
 
     const loader = btn?.querySelector("nv-loader");
     expect(loader).not.toBeNull();
-    expect(
-      loader?.querySelector("svg")?.classList.contains("animate-spin")
-    ).toBe(true);
+    expect(loader?.querySelector("svg")?.classList.contains("animate-spin")).toBe(true);
     expect(btn?.textContent?.includes("Submit")).toBe(true);
   });
 
@@ -87,16 +80,12 @@ describe("ButtonComponent", () => {
   });
 
   it("should render matching loader size based on button size", () => {
-    const smBtn = element.querySelector<HTMLButtonElement>(
-      "#loading-sm-btn button"
-    );
+    const smBtn = element.querySelector<HTMLButtonElement>("#loading-sm-btn button");
     const smLoaderSvg = smBtn?.querySelector("nv-loader svg");
     expect(smLoaderSvg?.classList.contains("h-4")).toBe(true);
     expect(smLoaderSvg?.classList.contains("w-4")).toBe(true);
 
-    const lgBtn = element.querySelector<HTMLButtonElement>(
-      "#loading-lg-btn button"
-    );
+    const lgBtn = element.querySelector<HTMLButtonElement>("#loading-lg-btn button");
     const lgLoaderSvg = lgBtn?.querySelector("nv-loader svg");
     expect(lgLoaderSvg?.classList.contains("h-6")).toBe(true);
     expect(lgLoaderSvg?.classList.contains("w-6")).toBe(true);
@@ -104,7 +93,7 @@ describe("ButtonComponent", () => {
 
   it("should render white loader for destructive variant", () => {
     const destructiveBtn = element.querySelector<HTMLButtonElement>(
-      "#loading-destructive-btn button"
+      "#loading-destructive-btn button",
     );
     const loaderSvg = destructiveBtn?.querySelector("nv-loader svg");
     expect(loaderSvg?.classList.contains("text-white")).toBe(true);

@@ -51,16 +51,12 @@ describe("ModalComponent", () => {
   let dialogEl: HTMLDialogElement;
 
   beforeAll(() => {
-    HTMLDialogElement.prototype.showModal = vi.fn(
-      function mockShowModal(this: HTMLDialogElement) {
-        this.open = true;
-      }
-    );
-    HTMLDialogElement.prototype.close = vi.fn(
-      function mockClose(this: HTMLDialogElement) {
-        this.open = false;
-      }
-    );
+    HTMLDialogElement.prototype.showModal = vi.fn(function mockShowModal(this: HTMLDialogElement) {
+      this.open = true;
+    });
+    HTMLDialogElement.prototype.close = vi.fn(function mockClose(this: HTMLDialogElement) {
+      this.open = false;
+    });
   });
 
   beforeEach(async () => {
@@ -181,18 +177,10 @@ describe("ModalComponent", () => {
   });
 
   it("should project header, body, default, and footer content", () => {
-    expect(element.querySelector("#projected-header")?.textContent).toBe(
-      "Header Title"
-    );
-    expect(element.querySelector("#projected-body")?.textContent).toBe(
-      "Body Content"
-    );
-    expect(element.querySelector("#projected-default")?.textContent).toBe(
-      "Default Content"
-    );
-    expect(element.querySelector("#projected-footer")?.textContent).toBe(
-      "Footer Action"
-    );
+    expect(element.querySelector("#projected-header")?.textContent).toBe("Header Title");
+    expect(element.querySelector("#projected-body")?.textContent).toBe("Body Content");
+    expect(element.querySelector("#projected-default")?.textContent).toBe("Default Content");
+    expect(element.querySelector("#projected-footer")?.textContent).toBe("Footer Action");
   });
 
   it("should close dialog on ngOnDestroy if open", () => {

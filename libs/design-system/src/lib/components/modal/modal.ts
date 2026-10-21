@@ -85,10 +85,7 @@ export class ModalComponent implements OnDestroy {
   }
 
   onDialogClick(event: MouseEvent): void {
-    if (
-      this.closeOnBackdropClick() &&
-      event.target === this.dialogRef()?.nativeElement
-    ) {
+    if (this.closeOnBackdropClick() && event.target === this.dialogRef()?.nativeElement) {
       this.closed.emit();
     }
   }

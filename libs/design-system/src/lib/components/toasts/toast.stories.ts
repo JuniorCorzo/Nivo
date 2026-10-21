@@ -14,9 +14,7 @@ import { ToastService } from "./toast.service";
   template: `
     <div class="inline-flex gap-2">
       <nv-button (click)="this.showToast()">Show Toast</nv-button>
-      <nv-button (click)="this.showObservableToast()"
-        >Show Observable Toast</nv-button
-      >
+      <nv-button (click)="this.showObservableToast()">Show Observable Toast</nv-button>
     </div>
   `,
 })
