@@ -1,17 +1,11 @@
-<dialog
-  #dialog
-  class="deactivate-user-dialog"
+<nv-modal
+  [isOpen]="isOpen()"
   role="alertdialog"
-  aria-modal="true"
-  [attr.aria-labelledby]="titleId"
-  [attr.aria-describedby]="descriptionId"
-  (cancel)="onCancel($event)"
-  (click)="onBackdropClick($event)"
+  [titleId]="titleId"
+  [descriptionId]="descriptionId"
+  (closed)="onCancel()"
 >
   @if (user(); as targetUser) {
-  <div
-    class="border-border bg-card text-card-foreground relative w-full rounded-2xl border p-5 shadow-2xl transition-all"
-  >
     <!-- Header -->
     <div
       class="border-border flex items-center justify-between border-b pb-3.5"
@@ -35,7 +29,7 @@
         type="button"
         class="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border transition-colors"
         (click)="onCancel()"
-        aria-label="Cerrar"
+        [attr.aria-label]="texts.actions.cancel"
       >
         <ng-icon name="lucideX" size="16" />
       </button>
@@ -51,25 +45,27 @@
 
     <!-- Warnings -->
     @if (isSelfDeactivation()) {
-    <div
-      class="border-destructive/30 bg-destructive/10 text-destructive mt-3.5 flex items-start gap-2.5 rounded-xl border p-3 text-xs"
-      role="alert"
-    >
-      <ng-icon name="lucideAlertTriangle" size="16" class="mt-0.5 shrink-0" />
-      <span>{{ texts.selfDeactivationWarning }}</span>
-    </div>
+      <div
+        class="border-destructive/30 bg-destructive/10 text-destructive mt-3.5 flex items-start gap-2.5 rounded-xl border p-3 text-xs"
+        role="alert"
+      >
+        <ng-icon name="lucideAlertTriangle" size="16" class="mt-0.5 shrink-0" />
+        <span>{{ texts.selfDeactivationWarning }}</span>
+      </div>
     } @else if (isSoleOwner()) {
-    <div
-      class="border-destructive/30 bg-destructive/10 text-destructive mt-3.5 flex items-start gap-2.5 rounded-xl border p-3 text-xs"
-      role="alert"
-    >
-      <ng-icon name="lucideAlertTriangle" size="16" class="mt-0.5 shrink-0" />
-      <span>{{ texts.singleOwnerWarning }}</span>
-    </div>
+      <div
+        class="border-destructive/30 bg-destructive/10 text-destructive mt-3.5 flex items-start gap-2.5 rounded-xl border p-3 text-xs"
+        role="alert"
+      >
+        <ng-icon name="lucideAlertTriangle" size="16" class="mt-0.5 shrink-0" />
+        <span>{{ texts.singleOwnerWarning }}</span>
+      </div>
     }
 
     <!-- Actions -->
-    <div class="border-border mt-5 flex justify-end gap-2.5 border-t pt-3.5">
+    <div
+      class="border-border mt-5 flex justify-end gap-2.5 border-t pt-3.5"
+    >
       <nv-button type="button" variant="outline" (click)="onCancel()">
         {{ texts.actions.cancel }}
       </nv-button>
@@ -82,6 +78,5 @@
         {{ texts.actions.confirm }}
       </nv-button>
     </div>
-  </div>
   }
-</dialog>
+</nv-modal>

@@ -170,6 +170,31 @@ describe("UsersPageComponent", () => {
     expect(component.facade.isInviteModalOpen()).toBe(true);
   });
 
+  it("should render child section components app-users-kpi-grid and app-users-filters", () => {
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector("app-users-kpi-grid")).not.toBeNull();
+    expect(compiled.querySelector("app-users-filters")).not.toBeNull();
+  });
+
+  it("should emit search query when typing in filters search input", () => {
+    const setSearchSpy = vi.spyOn(component.facade, "setSearchQuery");
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    /* SAFETY: app-users-filters contains an input element for search query */
+    const searchInput = compiled.querySelector(
+      "app-users-filters input"
+    ) as HTMLInputElement | null;
+    expect(searchInput).not.toBeNull();
+
+    if (searchInput) {
+      searchInput.value = "Auditor";
+      searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+      expect(setSearchSpy).toHaveBeenCalledWith("Auditor");
+      expect(component.facade.searchQuery()).toBe("Auditor");
+    }
+  });
+
   it("should contain zero emojis in rendered template", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;

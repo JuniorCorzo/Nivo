@@ -1,0 +1,77 @@
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <!-- Total Users -->
+  <nv-card>
+    <nv-card-content class="flex items-center gap-4 p-5">
+      <div
+        class="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-xl"
+      >
+        <ng-icon name="lucideUsers" size="24" />
+      </div>
+      <div>
+        <nv-muted class="text-xs font-semibold uppercase tracking-wider">
+          {{ texts.totalUsers }}
+        </nv-muted>
+        <div class="font-mono text-2xl font-bold">
+          {{ total() }}
+        </div>
+      </div>
+    </nv-card-content>
+  </nv-card>
+
+  <!-- Active Operators -->
+  <nv-card>
+    <nv-card-content class="flex items-center gap-4 p-5">
+      <div
+        class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+      >
+        <ng-icon name="lucideShieldCheck" size="24" />
+      </div>
+      <div>
+        <nv-muted class="text-xs font-semibold uppercase tracking-wider">
+          {{ texts.activeOperators }}
+        </nv-muted>
+        <div class="font-mono text-2xl font-bold">
+          {{ activeOperators() }}
+        </div>
+      </div>
+    </nv-card-content>
+  </nv-card>
+
+  <!-- Managers -->
+  <nv-card>
+    <nv-card-content class="flex items-center gap-4 p-5">
+      <div
+        class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400"
+      >
+        <ng-icon name="lucideShield" size="24" />
+      </div>
+      <div>
+        <nv-muted class="text-xs font-semibold uppercase tracking-wider">
+          {{ texts.managers }}
+        </nv-muted>
+        <div class="font-mono text-2xl font-bold">
+          {{ managers() }}
+        </div>
+      </div>
+    </nv-card-content>
+  </nv-card>
+
+  <!-- Deactivated Users -->
+  <nv-card>
+    <nv-card-content class="flex items-center gap-4 p-5">
+      <div
+        class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-500/10 text-slate-600 dark:text-slate-400"
+      >
+        <ng-icon name="lucideUserX" size="24" />
+      </div>
+      <div>
+        <nv-muted class="text-xs font-semibold uppercase tracking-wider">
+          {{ texts.deactivated }}
+        </nv-muted>
+        <div class="font-mono text-2xl font-bold">
+          {{ deactivated() }}
+        </div>
+      </div>
+    </nv-card-content>
+  </nv-card>
+</div>

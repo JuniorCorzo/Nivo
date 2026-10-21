@@ -1,13 +1,10 @@
-import type { ElementRef, OnDestroy } from "@angular/core";
 import {
   ChangeDetectionStrategy,
   Component,
-  effect,
   inject,
   input,
   output,
   signal,
-  viewChild,
 } from "@angular/core";
 import {
   FormControl,
@@ -28,6 +25,7 @@ import {
 import {
   ButtonComponent,
   InputComponent,
+  ModalComponent,
   SelectComponent,
   ToastService,
   TypographyH3,
@@ -59,6 +57,7 @@ const roleOptionValue = (item: RoleOption): string => item.value;
   imports: [
     ButtonComponent,
     InputComponent,
+    ModalComponent,
     NgIcon,
     ReactiveFormsModule,
     SelectComponent,
@@ -75,10 +74,9 @@ const roleOptionValue = (item: RoleOption): string => item.value;
   ],
   selector: "app-invite-user-modal",
   standalone: true,
-  styleUrl: "./invite-user-modal.css",
   templateUrl: "./invite-user-modal.html",
 })
-export class InviteUserModalComponent implements OnDestroy {
+export class InviteUserModalComponent {
   private readonly userService = inject(UserService);
   private readonly toastService = inject(ToastService);
 
@@ -91,8 +89,6 @@ export class InviteUserModalComponent implements OnDestroy {
 
   protected readonly titleId = "invite-user-title";
   protected readonly descriptionId = "invite-user-description";
-
-  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>("dialog");
 
   readonly roleOptions: RoleOption[] = [
     { label: APP_TEXTS.users.table.roles.operator, value: "OPERATOR" },
@@ -119,21 +115,6 @@ export class InviteUserModalComponent implements OnDestroy {
     }),
   });
 
-  constructor() {
-    effect(() => {
-      const open = this.isOpen();
-      const dialogEl = this.dialog()?.nativeElement;
-      if (!dialogEl) {
-        return;
-      }
-      if (open && !dialogEl.open) {
-        dialogEl.showModal();
-      } else if (!open && dialogEl.open) {
-        dialogEl.close();
-      }
-    });
-  }
-
   onRoleChange(newRole: unknown): void {
     if (isRole(newRole)) {
       this.form.controls.role.setValue(newRole);
@@ -149,12 +130,6 @@ export class InviteUserModalComponent implements OnDestroy {
       role: "OPERATOR",
     });
     this.closed.emit();
-  }
-
-  protected onBackdropClick(event: MouseEvent): void {
-    if (event.target === this.dialog()?.nativeElement) {
-      this.onCancel();
-    }
   }
 
   onSubmit(): void {
@@ -190,12 +165,5 @@ export class InviteUserModalComponent implements OnDestroy {
         this.closed.emit();
       },
     });
-  }
-
-  ngOnDestroy(): void {
-    const dialogEl = this.dialog()?.nativeElement;
-    if (dialogEl?.open) {
-      dialogEl.close();
-    }
   }
 }

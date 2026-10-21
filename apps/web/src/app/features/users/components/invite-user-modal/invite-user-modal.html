@@ -1,92 +1,86 @@
-<dialog
-  #dialog
-  class="invite-user-dialog"
+<nv-modal
+  [isOpen]="isOpen()"
   role="dialog"
-  aria-modal="true"
-  [attr.aria-labelledby]="titleId"
-  [attr.aria-describedby]="descriptionId"
-  (cancel)="onCancel($event)"
-  (click)="onBackdropClick($event)"
+  [titleId]="titleId"
+  [descriptionId]="descriptionId"
+  (closed)="onCancel()"
 >
+  <!-- Header -->
   <div
-    class="border-border bg-card text-card-foreground relative w-full rounded-2xl border p-5 shadow-2xl transition-all"
+    modal-header
+    class="border-border flex items-center justify-between border-b pb-3.5"
   >
-    <!-- Header -->
-    <div
-      class="border-border flex items-center justify-between border-b pb-3.5"
-    >
-      <div class="flex items-center gap-2.5">
-        <div
-          class="bg-primary/10 text-primary grid h-9 w-9 place-items-center rounded-lg"
-        >
-          <ng-icon name="lucideUserPlus" size="18" />
-        </div>
-        <div>
-          <nv-h3 [id]="titleId" class="text-foreground text-base font-bold">
-            {{ texts.title }}
-          </nv-h3>
-          <span [id]="descriptionId" class="text-muted-foreground text-xs">
-            {{ texts.subtitle }}
-          </span>
-        </div>
-      </div>
-      <button
-        type="button"
-        class="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border transition-colors"
-        (click)="onCancel()"
-        aria-label="Cerrar"
+    <div class="flex items-center gap-2.5">
+      <div
+        class="bg-primary/10 text-primary grid h-9 w-9 place-items-center rounded-lg"
       >
-        <ng-icon name="lucideX" size="16" />
-      </button>
-    </div>
-
-    <!-- Form -->
-    <form
-      [formGroup]="form"
-      (ngSubmit)="onSubmit()"
-      class="mt-4 flex flex-col gap-3.5"
-    >
-      <nv-input
-        [label]="texts.form.fullName.label"
-        [placeholder]="texts.form.fullName.placeholder"
-        formControlName="fullName"
-        startIcon="lucideUser"
-      />
-
-      <nv-input
-        [label]="texts.form.email.label"
-        [placeholder]="texts.form.email.placeholder"
-        type="email"
-        formControlName="email"
-        startIcon="lucideMail"
-      />
-
-      <nv-input
-        [label]="texts.form.contactInfo.label"
-        [placeholder]="texts.form.contactInfo.placeholder"
-        formControlName="contactInfo"
-        startIcon="lucidePhone"
-      />
-
-      <nv-select
-        [label]="texts.form.role.label"
-        [placeholder]="texts.form.role.placeholder"
-        [items]="roleOptions"
-        [displayFn]="displayRole"
-        [valueFn]="roleValue"
-        [value]="form.controls.role.value"
-        (valueChange)="onRoleChange($event)"
-      />
-
-      <!-- Actions -->
-      <div class="border-border mt-5 flex justify-end gap-2.5 border-t pt-3.5">
-        <nv-button type="button" variant="outline" (click)="onCancel()">
-          {{ texts.actions.cancel }}
-        </nv-button>
-        <nv-button type="submit" [disabled]="isSubmitting()">
-          {{ texts.actions.submit }}
-        </nv-button>
+        <ng-icon name="lucideUserPlus" size="18" />
       </div>
-    </form>
+      <div>
+        <nv-h3 [id]="titleId" class="text-foreground text-base font-bold">
+          {{ texts.title }}
+        </nv-h3>
+        <span [id]="descriptionId" class="text-muted-foreground text-xs">
+          {{ texts.subtitle }}
+        </span>
+      </div>
+    </div>
+    <button
+      type="button"
+      class="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border transition-colors"
+      (click)="onCancel()"
+      [attr.aria-label]="texts.actions.cancel"
+    >
+      <ng-icon name="lucideX" size="16" />
+    </button>
   </div>
-</dialog>
+
+  <!-- Form -->
+  <form
+    [formGroup]="form"
+    (ngSubmit)="onSubmit()"
+    class="mt-4 flex flex-col gap-3.5"
+  >
+    <nv-input
+      [label]="texts.form.fullName.label"
+      [placeholder]="texts.form.fullName.placeholder"
+      formControlName="fullName"
+      startIcon="lucideUser"
+    />
+
+    <nv-input
+      [label]="texts.form.email.label"
+      [placeholder]="texts.form.email.placeholder"
+      type="email"
+      formControlName="email"
+      startIcon="lucideMail"
+    />
+
+    <nv-input
+      [label]="texts.form.contactInfo.label"
+      [placeholder]="texts.form.contactInfo.placeholder"
+      formControlName="contactInfo"
+      startIcon="lucidePhone"
+    />
+
+    <nv-select
+      [label]="texts.form.role.label"
+      [placeholder]="texts.form.role.placeholder"
+      [items]="roleOptions"
+      [displayFn]="displayRole"
+      [valueFn]="roleValue"
+      [value]="form.controls.role.value"
+      (valueChange)="onRoleChange($event)"
+    />
+
+    <!-- Actions -->
+    <div class="border-border mt-5 flex justify-end gap-2.5 border-t pt-3.5">
+      <nv-button type="button" variant="outline" (click)="onCancel()">
+        {{ texts.actions.cancel }}
+      </nv-button>
+      <nv-button type="submit" [disabled]="isSubmitting()">
+        {{ texts.actions.submit }}
+      </nv-button>
+    </div>
+  </form>
+</nv-modal>
