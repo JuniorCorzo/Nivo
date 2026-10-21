@@ -11,18 +11,18 @@ import org.junit.jupiter.params.provider.ValueSource;
 @DisplayName("EmailMaskUtils Unit Tests")
 class EmailMaskUtilsTest {
 
-  @Test
-  @DisplayName("Should mask valid email properly")
-  void shouldMaskValidEmail() {
-    assertThat(EmailMaskUtils.mask("john.doe@example.com")).isEqualTo("j***@example.com");
-    assertThat(EmailMaskUtils.mask("a@b.com")).isEqualTo("a***@b.com");
-  }
+    @Test
+    @DisplayName("Should mask valid email properly")
+    void shouldMaskValidEmail() {
+        assertThat(EmailMaskUtils.mask("john.doe@example.com")).isEqualTo("j***@example.com");
+        assertThat(EmailMaskUtils.mask("a@b.com")).isEqualTo("a***@b.com");
+    }
 
-  @ParameterizedTest
-  @NullAndEmptySource
-  @ValueSource(strings = {"   ", "invalid", "invalid@", "@invalid"})
-  @DisplayName("Should return *** for invalid or blank emails")
-  void shouldReturnStarsForInvalid(String input) {
-    assertThat(EmailMaskUtils.mask(input)).isEqualTo("***");
-  }
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"   ", "invalid", "invalid@", "@invalid"})
+    @DisplayName("Should return *** for invalid or blank emails")
+    void shouldReturnStarsForInvalid(String input) {
+        assertThat(EmailMaskUtils.mask(input)).isEqualTo("***");
+    }
 }

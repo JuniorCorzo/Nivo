@@ -15,29 +15,31 @@ import org.junit.jupiter.api.Test;
 @DisplayName("GetNotificationPreferencesByUserUseCase Tests")
 class GetNotificationPreferencesByUserUseCaseTest {
 
-  private NotificationPreferencesRepository notificationPreferencesRepository;
-  private AuthenticationContextGateway authenticationContextGateway;
-  private GetNotificationPreferencesByUserUseCase useCase;
+    private NotificationPreferencesRepository notificationPreferencesRepository;
+    private AuthenticationContextGateway authenticationContextGateway;
+    private GetNotificationPreferencesByUserUseCase useCase;
 
-  @BeforeEach
-  void setUp() {
-    notificationPreferencesRepository = mock(NotificationPreferencesRepository.class);
-    authenticationContextGateway = mock(AuthenticationContextGateway.class);
-    useCase = new GetNotificationPreferencesByUserUseCase(notificationPreferencesRepository, authenticationContextGateway);
-  }
+    @BeforeEach
+    void setUp() {
+        notificationPreferencesRepository = mock(NotificationPreferencesRepository.class);
+        authenticationContextGateway = mock(AuthenticationContextGateway.class);
+        useCase = new GetNotificationPreferencesByUserUseCase(
+                notificationPreferencesRepository, authenticationContextGateway);
+    }
 
-  @Test
-  @DisplayName("Should return user notification preferences")
-  void shouldReturnPreferences() {
-    UUID userId = UUID.randomUUID();
-    NotificationPreferences pref = NotificationPreferences.builder().id(UUID.randomUUID()).build();
+    @Test
+    @DisplayName("Should return user notification preferences")
+    void shouldReturnPreferences() {
+        UUID userId = UUID.randomUUID();
+        NotificationPreferences pref =
+                NotificationPreferences.builder().id(UUID.randomUUID()).build();
 
-    when(authenticationContextGateway.getCurrentUserId()).thenReturn(userId);
-    when(notificationPreferencesRepository.findAllByUserId(userId)).thenReturn(List.of(pref));
+        when(authenticationContextGateway.getCurrentUserId()).thenReturn(userId);
+        when(notificationPreferencesRepository.findAllByUserId(userId)).thenReturn(List.of(pref));
 
-    List<NotificationPreferences> result = useCase.execute();
+        List<NotificationPreferences> result = useCase.execute();
 
-    assertThat(result).hasSize(1);
-    verify(notificationPreferencesRepository).findAllByUserId(userId);
-  }
+        assertThat(result).hasSize(1);
+        verify(notificationPreferencesRepository).findAllByUserId(userId);
+    }
 }

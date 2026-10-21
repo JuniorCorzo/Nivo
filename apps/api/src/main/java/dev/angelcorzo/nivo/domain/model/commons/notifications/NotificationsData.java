@@ -4,29 +4,27 @@ import java.util.Arrays;
 import java.util.Map;
 
 public interface NotificationsData {
-  String companyName();
+    String companyName();
 
-  String supportUrl();
+    String supportUrl();
 
-  String socialUrl();
+    String socialUrl();
 
-  String unsubscribeUrl();
+    String unsubscribeUrl();
 
-  String companyAddress();
+    String companyAddress();
 
-  default Map<String, String> toMap() {
-    Map<String, String> dataMap = new java.util.HashMap<>();
-    Arrays.stream(this.getClass().getRecordComponents())
-        .forEach(
-            component -> {
-              try {
+    default Map<String, String> toMap() {
+        Map<String, String> dataMap = new java.util.HashMap<>();
+        Arrays.stream(this.getClass().getRecordComponents()).forEach(component -> {
+            try {
                 Object value = component.getAccessor().invoke(this);
                 dataMap.put(component.getName(), value != null ? value.toString() : "null");
-              } catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
-              }
-            });
+            }
+        });
 
-    return dataMap;
-  }
+        return dataMap;
+    }
 }

@@ -1,16 +1,16 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationlogs.enums;
 
 public enum NotificationLogsMessages {
-  NOTIFICATION_LOGS_LIST("Historial de notificaciones obtenido con exito"),
-  ;
+    NOTIFICATION_LOGS_LIST("Historial de notificaciones obtenido con exito"),
+    ;
 
-  private final String template;
+    private final String template;
 
-  NotificationLogsMessages(String template) {
-    this.template = template;
-  }
+    NotificationLogsMessages(String template) {
+        this.template = template;
+    }
 
-  public String format(Object... args) {
-    return String.format(this.template, args);
-  }
+    public String format(Object... args) {
+        return String.format(this.template, args);
+    }
 }

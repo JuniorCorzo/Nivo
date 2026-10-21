@@ -5,10 +5,9 @@ import lombok.Builder;
 
 @Builder(toBuilder = true)
 public record ProviderMetadata(
-    String provider,
-    String externalPaymentId,
-    String checkoutSessionId,
-    String checkoutUrl,
-    OffsetDateTime checkoutExpiresAt,
-    Object rawResponse) {
-}
+        String provider,
+        String externalPaymentId,
+        String checkoutSessionId,
+        String checkoutUrl,
+        OffsetDateTime checkoutExpiresAt,
+        Object rawResponse) {}

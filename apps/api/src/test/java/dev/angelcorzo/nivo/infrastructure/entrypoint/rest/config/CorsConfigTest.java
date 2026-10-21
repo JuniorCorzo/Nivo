@@ -13,22 +13,22 @@ import org.springframework.web.filter.CorsFilter;
 @DisplayName("CorsConfig Tests")
 class CorsConfigTest {
 
-  private CorsConfig corsConfig;
+    private CorsConfig corsConfig;
 
-  @BeforeEach
-  void setUp() {
-    corsConfig = new CorsConfig();
-  }
+    @BeforeEach
+    void setUp() {
+        corsConfig = new CorsConfig();
+    }
 
-  @Test
-  @DisplayName("Should create CorsFilter bean with highest precedence and configured origins")
-  void shouldCreateCorsFilterWithHighestPrecedence() {
-    String origins = "http://localhost:4200,https://app.nivo.dev";
+    @Test
+    @DisplayName("Should create CorsFilter bean with highest precedence and configured origins")
+    void shouldCreateCorsFilterWithHighestPrecedence() {
+        String origins = "http://localhost:4200,https://app.nivo.dev";
 
-    FilterRegistrationBean<CorsFilter> registrationBean = corsConfig.corsFilter(origins);
+        FilterRegistrationBean<CorsFilter> registrationBean = corsConfig.corsFilter(origins);
 
-    assertThat(registrationBean).isNotNull();
-    assertThat(registrationBean.getFilter()).isNotNull();
-    assertThat(registrationBean.getOrder()).isEqualTo(Ordered.HIGHEST_PRECEDENCE);
-  }
+        assertThat(registrationBean).isNotNull();
+        assertThat(registrationBean.getFilter()).isNotNull();
+        assertThat(registrationBean.getOrder()).isEqualTo(Ordered.HIGHEST_PRECEDENCE);
+    }
 }

@@ -5,21 +5,21 @@ import java.time.Duration;
 
 public record MinChargeDuration(int minutes) {
 
-  public MinChargeDuration {
-    if (minutes < 0) {
-      throw new InvalidDomainException("Minimum charge minutes cannot be negative");
+    public MinChargeDuration {
+        if (minutes < 0) {
+            throw new InvalidDomainException("Minimum charge minutes cannot be negative");
+        }
     }
-  }
 
-  public static MinChargeDuration of(int minutes) {
-    return new MinChargeDuration(minutes);
-  }
+    public static MinChargeDuration of(int minutes) {
+        return new MinChargeDuration(minutes);
+    }
 
-  public static MinChargeDuration zero() {
-    return new MinChargeDuration(0);
-  }
+    public static MinChargeDuration zero() {
+        return new MinChargeDuration(0);
+    }
 
-  public Duration toDuration() {
-    return Duration.ofMinutes(this.minutes);
-  }
+    public Duration toDuration() {
+        return Duration.ofMinutes(this.minutes);
+    }
 }

@@ -1,18 +1,16 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.config;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.config.SecurityHeadersFilter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-
+import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SecurityHeadersFilterTest {
 
@@ -33,7 +31,9 @@ class SecurityHeadersFilterTest {
     void testDoFilter() throws IOException, ServletException {
         filter.doFilter(request, response, chain);
 
-        assertEquals("default-src 'self'; frame-ancestors 'self'; form-action 'self'", response.getHeader("Content-Security-Policy"));
+        assertEquals(
+                "default-src 'self'; frame-ancestors 'self'; form-action 'self'",
+                response.getHeader("Content-Security-Policy"));
         assertEquals("max-age=31536000;", response.getHeader("Strict-Transport-Security"));
         assertEquals("nosniff", response.getHeader("X-Content-Type-Options"));
         assertEquals("", response.getHeader("Server"));

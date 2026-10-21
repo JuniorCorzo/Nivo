@@ -1,6 +1,9 @@
 package dev.angelcorzo.nivo.domain.usecase.tenant;
 
-import dev.angelcorzo.nivo.domain.model.commons.valueobjects.AppProperties;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.model.tenants.gateways.TenantsRepository;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
@@ -9,7 +12,7 @@ import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
 import dev.angelcorzo.nivo.domain.model.users.exceptions.EmailAlreadyExistsException;
 import dev.angelcorzo.nivo.domain.model.users.gateways.PasswordEncodeGateway;
 import dev.angelcorzo.nivo.domain.model.users.gateways.UsersRepository;
-import dev.angelcorzo.nivo.domain.usecase.notification.SendNotificationsUseCase;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,12 +22,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class RegisterTenantUseCaseTest {
 
@@ -33,15 +30,19 @@ class RegisterTenantUseCaseTest {
     // Mocks for dependencies (ports in hexagonal architecture)
     @Mock
     private UsersRepository usersRepository;
+
     @Mock
     private TenantsRepository tenantsRepository;
+
     @Mock
     private PasswordEncodeGateway passwordEncode;
+
     @Mock
     private dev.angelcorzo.nivo.domain.usecase.notification.notifier.RegistrationNotifier registrationNotifier;
 
     @InjectMocks
     private RegisterTenantUseCase registerTenantUseCase;
+
     private Users userToRegister;
     private Tenants tenantToRegister;
     private Tenants tenant;
@@ -49,15 +50,10 @@ class RegisterTenantUseCaseTest {
     @BeforeEach
     void setUp() {
         // Input data for tests
-        tenantToRegister = Tenants.builder()
-                .id(tenantId)
-                .companyName("Test Tenant")
-                .build();
+        tenantToRegister =
+                Tenants.builder().id(tenantId).companyName("Test Tenant").build();
 
-        tenant = Tenants.builder()
-                .id(tenantId)
-                .companyName("Test Tenant")
-                .build();
+        tenant = Tenants.builder().id(tenantId).companyName("Test Tenant").build();
 
         userToRegister = Users.builder()
                 .id(userId)

@@ -8,5 +8,6 @@ import lombok.Builder;
 
 @Builder
 public record SMSCheckOutCommand(
-    @NotNull UUID ticketId, @NotNull PaymentsMethods paymentMethod, @NotNull @NotEmpty String mobilePhone)
-    implements CheckOutCommand {}
+        @NotNull UUID ticketId,
+        @NotNull PaymentsMethods paymentMethod,
+        @NotNull @NotEmpty String mobilePhone) implements CheckOutCommand {}

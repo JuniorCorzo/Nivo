@@ -14,57 +14,61 @@ import lombok.*;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Slots {
-  private UUID id;
-  private ParkingLotsReference parking;
-  private TenantReference tenant;
-  private String slotNumber;
-  private String zone;
-  private String prefix;
-  private SlotType type;
-  private SlotStatus status;
-  @Builder.Default
-  private boolean hasCharger = false;
-  @Builder.Default
-  private boolean isAccessible = false;
-  @Builder.Default
-  private boolean isActive = true;
-  private OffsetDateTime createdAt;
-  private OffsetDateTime updatedAt;
-  private OffsetDateTime deletedAt;
+    private UUID id;
+    private ParkingLotsReference parking;
+    private TenantReference tenant;
+    private String slotNumber;
+    private String zone;
+    private String prefix;
+    private SlotType type;
+    private SlotStatus status;
 
-  public boolean isHasCharger() {
-    return hasCharger;
-  }
+    @Builder.Default
+    private boolean hasCharger = false;
 
-  public boolean getHasCharger() {
-    return hasCharger;
-  }
+    @Builder.Default
+    private boolean isAccessible = false;
 
-  public boolean hasCharger() {
-    return hasCharger;
-  }
+    @Builder.Default
+    private boolean isActive = true;
 
-  public boolean isAccessible() {
-    return isAccessible;
-  }
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime deletedAt;
 
-  public void setIsAccessible(boolean isAccessible) {
-    this.isAccessible = isAccessible;
-  }
+    public boolean isHasCharger() {
+        return hasCharger;
+    }
 
-  public boolean getIsAccessible() {
-    return isAccessible;
-  }
+    public boolean getHasCharger() {
+        return hasCharger;
+    }
 
-  public boolean isActive() {
-    return isActive;
-  }
+    public boolean hasCharger() {
+        return hasCharger;
+    }
 
-  public void setIsActive(boolean isActive) {
-    this.isActive = isActive;
-  }
+    public boolean isAccessible() {
+        return isAccessible;
+    }
 
-  public boolean getIsActive() {
-    return isActive;
-  }
+    public void setIsAccessible(boolean isAccessible) {
+        this.isAccessible = isAccessible;
+    }
+
+    public boolean getIsAccessible() {
+        return isAccessible;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public boolean getIsActive() {
+        return isActive;
+    }
 }

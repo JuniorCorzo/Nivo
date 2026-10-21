@@ -1,5 +1,9 @@
 package dev.angelcorzo.nivo.architecture;
 
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
+
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
@@ -7,10 +11,6 @@ import com.tngtech.archunit.lang.ArchRule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
-import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 
 class ArchitectureTest {
 
@@ -35,8 +35,7 @@ class ArchitectureTest {
                         "org.springframework..",
                         "jakarta.persistence..",
                         "dev.angelcorzo.nivo.infrastructure..",
-                        "dev.angelcorzo.nivo.config.."
-                );
+                        "dev.angelcorzo.nivo.config..");
 
         rule.check(importedClasses);
     }
@@ -46,14 +45,22 @@ class ArchitectureTest {
     void layeredArchitectureRules() {
         ArchRule rule = layeredArchitecture()
                 .consideringOnlyDependenciesInLayers()
-                .layer("DomainModel").definedBy("dev.angelcorzo.nivo.domain.model..")
-                .layer("DomainUseCase").definedBy("dev.angelcorzo.nivo.domain.usecase..")
-                .layer("Infrastructure").definedBy("dev.angelcorzo.nivo.infrastructure..")
-                .layer("Config").definedBy("dev.angelcorzo.nivo.config..")
-                .whereLayer("DomainModel").mayOnlyBeAccessedByLayers("DomainUseCase", "Infrastructure", "Config")
-                .whereLayer("DomainUseCase").mayOnlyBeAccessedByLayers("Infrastructure", "Config")
-                .whereLayer("Infrastructure").mayNotBeAccessedByAnyLayer()
-                .whereLayer("Config").mayNotBeAccessedByAnyLayer();
+                .layer("DomainModel")
+                .definedBy("dev.angelcorzo.nivo.domain.model..")
+                .layer("DomainUseCase")
+                .definedBy("dev.angelcorzo.nivo.domain.usecase..")
+                .layer("Infrastructure")
+                .definedBy("dev.angelcorzo.nivo.infrastructure..")
+                .layer("Config")
+                .definedBy("dev.angelcorzo.nivo.config..")
+                .whereLayer("DomainModel")
+                .mayOnlyBeAccessedByLayers("DomainUseCase", "Infrastructure", "Config")
+                .whereLayer("DomainUseCase")
+                .mayOnlyBeAccessedByLayers("Infrastructure", "Config")
+                .whereLayer("Infrastructure")
+                .mayNotBeAccessedByAnyLayer()
+                .whereLayer("Config")
+                .mayNotBeAccessedByAnyLayer();
 
         rule.check(importedClasses);
     }

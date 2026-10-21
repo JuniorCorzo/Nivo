@@ -17,5 +17,4 @@ import lombok.Builder;
  * @param count The total number of slots of this type
  */
 @Builder(toBuilder = true)
-public record SlotDistributionEntry(String prefix, String zone, SlotType type, Long count) {
-}
+public record SlotDistributionEntry(String prefix, String zone, SlotType type, Long count) {}

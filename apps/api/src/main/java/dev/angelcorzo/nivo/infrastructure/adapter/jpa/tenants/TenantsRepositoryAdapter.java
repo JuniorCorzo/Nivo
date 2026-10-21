@@ -1,9 +1,9 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.mappers.TenantsMapper;
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.model.tenants.gateways.TenantsRepository;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.mappers.TenantsMapper;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,44 +29,43 @@ import org.springframework.transaction.annotation.Transactional;
  * @see AdapterOperations
  */
 @Repository
-public class TenantsRepositoryAdapter
-    extends AdapterOperations<Tenants, TenantsData, UUID, TenantsRepositoryData>
-    implements TenantsRepository {
+public class TenantsRepositoryAdapter extends AdapterOperations<Tenants, TenantsData, UUID, TenantsRepositoryData>
+        implements TenantsRepository {
 
-  /**
-   * Constructs a new TenantsRepositoryAdapter.
-   *
-   * @param repository The Spring Data JPA repository for TenantsData.
-   * @param mapper The MapStruct mapper for Tenants.
-   */
-  protected TenantsRepositoryAdapter(TenantsRepositoryData repository, TenantsMapper mapper) {
-    super(repository, mapper);
-  }
+    /**
+     * Constructs a new TenantsRepositoryAdapter.
+     *
+     * @param repository The Spring Data JPA repository for TenantsData.
+     * @param mapper The MapStruct mapper for Tenants.
+     */
+    protected TenantsRepositoryAdapter(TenantsRepositoryData repository, TenantsMapper mapper) {
+        super(repository, mapper);
+    }
 
-  @Override
-  @Transactional(readOnly = true)
-  public Tenants getReferenceById(UUID id) {
-    return super.mapper.toEntity(super.repository.getReferenceById(id));
-  }
+    @Override
+    @Transactional(readOnly = true)
+    public Tenants getReferenceById(UUID id) {
+        return super.mapper.toEntity(super.repository.getReferenceById(id));
+    }
 
-  /**
-   * Checks if a tenant with the given ID exists in the database.
-   *
-   * @param id The unique identifier of the tenant.
-   * @return {@code true} if a tenant with the specified ID exists, {@code false} otherwise.
-   */
-  @Override
-  public Boolean existsById(UUID id) {
-    return this.repository.existsById(id);
-  }
+    /**
+     * Checks if a tenant with the given ID exists in the database.
+     *
+     * @param id The unique identifier of the tenant.
+     * @return {@code true} if a tenant with the specified ID exists, {@code false} otherwise.
+     */
+    @Override
+    public Boolean existsById(UUID id) {
+        return this.repository.existsById(id);
+    }
 
-  /**
-   * Deletes a tenant by its unique identifier from the database.
-   *
-   * @param id The unique identifier of the tenant to delete.
-   */
-  @Override
-  public void deleteById(UUID id) {
-    this.repository.deleteById(id);
-  }
+    /**
+     * Deletes a tenant by its unique identifier from the database.
+     *
+     * @param id The unique identifier of the tenant to delete.
+     */
+    @Override
+    public void deleteById(UUID id) {
+        this.repository.deleteById(id);
+    }
 }

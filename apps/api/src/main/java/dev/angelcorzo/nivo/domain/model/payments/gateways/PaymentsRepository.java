@@ -9,19 +9,19 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PaymentsRepository {
-  Optional<Payments> findById(UUID id);
+    Optional<Payments> findById(UUID id);
 
-  Optional<Payments> findByCheckoutSessionId(String checkoutSessionId);
+    Optional<Payments> findByCheckoutSessionId(String checkoutSessionId);
 
-  Optional<Payments> findByParkingTicketId(UUID parkingTicketId);
+    Optional<Payments> findByParkingTicketId(UUID parkingTicketId);
 
-  List<String> findAllCheckoutSessionIds();
+    List<String> findAllCheckoutSessionIds();
 
-  boolean existsByParkingTicketId(UUID parkingTicketId);
+    boolean existsByParkingTicketId(UUID parkingTicketId);
 
-  Payments getReferenceById(UUID id);
+    Payments getReferenceById(UUID id);
 
-  Result<Payments, PaymentError> processPayment(Payments payment);
+    Result<Payments, PaymentError> processPayment(Payments payment);
 
-  Result<Payments, PaymentError> processPayment(UUID paymentId, PaymentStatus newStatus);
+    Result<Payments, PaymentError> processPayment(UUID paymentId, PaymentStatus newStatus);
 }

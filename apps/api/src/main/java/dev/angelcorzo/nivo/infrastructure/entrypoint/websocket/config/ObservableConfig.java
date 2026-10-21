@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ObservableConfig {
-  @Bean
-  PaymentEventBroker transactionEventBroker(PaymentsRepository paymentsRepository) {
-    return PaymentEventBroker.getInstance(paymentsRepository);
-  }
+    @Bean
+    PaymentEventBroker transactionEventBroker(PaymentsRepository paymentsRepository) {
+        return PaymentEventBroker.getInstance(paymentsRepository);
+    }
 }

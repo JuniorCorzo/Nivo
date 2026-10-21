@@ -18,53 +18,46 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @RequiredArgsConstructor
 public class NotificationProcessor {
-  private static final int RETRY_INITIAL_DELAY_MILLIS = 500;
-  private static final int RETRY_DELAY_MULTIPLIER = 2;
-  private static final int RETRY_MAX_DELAY_MILLIS = 2_000;
-  private final NotificationGateway notificationGateway;
-  private final NotificationTemplateCache notificationTemplatesCache;
-  private final NotificationExecutionContextHolder executionContextHolder;
+    private static final int RETRY_INITIAL_DELAY_MILLIS = 500;
+    private static final int RETRY_DELAY_MULTIPLIER = 2;
+    private static final int RETRY_MAX_DELAY_MILLIS = 2_000;
+    private final NotificationGateway notificationGateway;
+    private final NotificationTemplateCache notificationTemplatesCache;
+    private final NotificationExecutionContextHolder executionContextHolder;
 
-  @Retryable(
-      maxRetries = 5,
-      includes = {SendGridRequestBuildException.class},
-      predicate = EmailExceptionPredicate.class,
-      delay = RETRY_INITIAL_DELAY_MILLIS,
-      multiplier = RETRY_DELAY_MULTIPLIER,
-      maxDelay = RETRY_MAX_DELAY_MILLIS)
-  public void processEvent(SendNotificationEvent event) {
-    if (event.tenantId() == null || event.actorUserId() == null) {
-      throw new IllegalStateException("Notification event missing execution context ids");
-    }
+    @Retryable(
+            maxRetries = 5,
+            includes = {SendGridRequestBuildException.class},
+            predicate = EmailExceptionPredicate.class,
+            delay = RETRY_INITIAL_DELAY_MILLIS,
+            multiplier = RETRY_DELAY_MULTIPLIER,
+            maxDelay = RETRY_MAX_DELAY_MILLIS)
+    public void processEvent(SendNotificationEvent event) {
+        if (event.tenantId() == null || event.actorUserId() == null) {
+            throw new IllegalStateException("Notification event missing execution context ids");
+        }
 
-    this.executionContextHolder.set(
-        new NotificationExecutionContext(event.tenantId(), event.actorUserId()));
+        this.executionContextHolder.set(new NotificationExecutionContext(event.tenantId(), event.actorUserId()));
 
-    final String maskedTo = EmailMaskUtils.mask(event.to());
-    try {
-      log.info(
-          "Processing notification event. eventType={}, channel={}, to={}",
-          event.notificationEvent(),
-          event.channel(),
-          maskedTo);
-
-      final NotificationImmutableKey key =
-          NotificationImmutableKey.of(event.notificationEvent(), event.channel());
-
-      this.notificationTemplatesCache
-          .getTemplate(key)
-          .ifPresent(
-              template -> {
-                log.debug("Template cache hit for key={}", key);
-                log.debug(
-                    "Sending email using templateReference={} to={}",
-                    template.getTemplateReference(),
+        final String maskedTo = EmailMaskUtils.mask(event.to());
+        try {
+            log.info(
+                    "Processing notification event. eventType={}, channel={}, to={}",
+                    event.notificationEvent(),
+                    event.channel(),
                     maskedTo);
 
+            final NotificationImmutableKey key =
+                    NotificationImmutableKey.of(event.notificationEvent(), event.channel());
+
+            this.notificationTemplatesCache.getTemplate(key).ifPresent(template -> {
+                log.debug("Template cache hit for key={}", key);
+                log.debug("Sending email using templateReference={} to={}", template.getTemplateReference(), maskedTo);
+
                 this.notificationGateway.sendEmail(template, event.to(), event.content());
-              });
-    } finally {
-      this.executionContextHolder.clear();
+            });
+        } finally {
+            this.executionContextHolder.clear();
+        }
     }
-  }
 }

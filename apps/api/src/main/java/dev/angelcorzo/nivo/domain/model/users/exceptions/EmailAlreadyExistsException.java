@@ -11,7 +11,7 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
  * @since 1.0.0
  */
 public final class EmailAlreadyExistsException extends AppException {
-  public EmailAlreadyExistsException(final String email) {
-    super(String.format("El email %s ya existe", email), 409, "EMAIL_ALREADY_EXISTS");
-  }
+    public EmailAlreadyExistsException(final String email) {
+        super(String.format("El email %s ya existe", email), 409, "EMAIL_ALREADY_EXISTS");
+    }
 }

@@ -22,24 +22,28 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class ParkingTickets {
-  private UUID id;
-  private SlotsReference slot;
-  private TenantReference tenant;
-  private UserReference user;
-  private RateReference rate;
-  private String licensePlate;
-  @Builder.Default
-  private PlateCountry plateCountry = PlateCountry.CO;
-  private String photoUrl;
-  private String phoneNumber;
-  private OffsetDateTime entryTime;
-  private OffsetDateTime exitTime;
-  private BigDecimal totalToCharge;
-  @Builder.Default
-  private ParkingTicketStatus status = ParkingTicketStatus.OPEN;
-  private SlotSnapshot slotSnapshot;
-  private OffsetDateTime closedAt;
-  private OffsetDateTime createdAt;
-  private OffsetDateTime updatedAt;
-  private OffsetDateTime deletedAt;
+    private UUID id;
+    private SlotsReference slot;
+    private TenantReference tenant;
+    private UserReference user;
+    private RateReference rate;
+    private String licensePlate;
+
+    @Builder.Default
+    private PlateCountry plateCountry = PlateCountry.CO;
+
+    private String photoUrl;
+    private String phoneNumber;
+    private OffsetDateTime entryTime;
+    private OffsetDateTime exitTime;
+    private BigDecimal totalToCharge;
+
+    @Builder.Default
+    private ParkingTicketStatus status = ParkingTicketStatus.OPEN;
+
+    private SlotSnapshot slotSnapshot;
+    private OffsetDateTime closedAt;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime deletedAt;
 }

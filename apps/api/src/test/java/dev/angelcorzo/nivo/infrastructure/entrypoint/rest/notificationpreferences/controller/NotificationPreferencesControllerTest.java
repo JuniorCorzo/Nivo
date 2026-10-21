@@ -6,14 +6,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationpreferences.dto.NotificationPreferencesDTO;
-import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationpreferences.enums.NotificationPreferencesMessages;
-import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationpreferences.mappers.NotificationPreferencesMapper;
 import dev.angelcorzo.nivo.domain.model.commons.notifications.enums.NotificationEvents;
 import dev.angelcorzo.nivo.domain.model.commons.notifications.enums.NotificationsChannel;
 import dev.angelcorzo.nivo.domain.model.notificationpreferences.NotificationPreferences;
 import dev.angelcorzo.nivo.domain.usecase.notification.GetNotificationPreferencesByUserUseCase;
 import dev.angelcorzo.nivo.domain.usecase.notification.UpdateUserNotificationPreferencesUseCase;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationpreferences.dto.NotificationPreferencesDTO;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationpreferences.enums.NotificationPreferencesMessages;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationpreferences.mappers.NotificationPreferencesMapper;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,41 +35,46 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("NotificationPreferencesController Unit Tests")
 class NotificationPreferencesControllerTest {
 
-  @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  @MockitoBean private NotificationPreferencesMapper notificationPreferencesMapper;
-  @MockitoBean private GetNotificationPreferencesByUserUseCase getNotificationPreferencesByUserUseCase;
-  @MockitoBean private UpdateUserNotificationPreferencesUseCase updateUserNotificationPreferencesUseCase;
+    @MockitoBean
+    private NotificationPreferencesMapper notificationPreferencesMapper;
 
-  @Test
-  @DisplayName("GET /notification-preferences - Should get user preferences")
-  void shouldGetPreferences() throws Exception {
-    NotificationPreferences pref = NotificationPreferences.builder().build();
-    NotificationPreferencesDTO dto = mock(NotificationPreferencesDTO.class);
+    @MockitoBean
+    private GetNotificationPreferencesByUserUseCase getNotificationPreferencesByUserUseCase;
 
-    when(getNotificationPreferencesByUserUseCase.execute()).thenReturn(List.of(pref));
-    when(notificationPreferencesMapper.toDTO(pref)).thenReturn(dto);
+    @MockitoBean
+    private UpdateUserNotificationPreferencesUseCase updateUserNotificationPreferencesUseCase;
 
-    mockMvc
-        .perform(get("/notification-preferences"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.message").value(NotificationPreferencesMessages.NOTIFICATION_PREFERENCES_LIST.format()));
-  }
+    @Test
+    @DisplayName("GET /notification-preferences - Should get user preferences")
+    void shouldGetPreferences() throws Exception {
+        NotificationPreferences pref = NotificationPreferences.builder().build();
+        NotificationPreferencesDTO dto = mock(NotificationPreferencesDTO.class);
 
-  @Test
-  @DisplayName("PATCH /notification-preferences/toggle - Should toggle preference")
-  void shouldTogglePreference() throws Exception {
-    when(updateUserNotificationPreferencesUseCase.toggleActiveStatus(
-            NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL))
-        .thenReturn(true);
+        when(getNotificationPreferencesByUserUseCase.execute()).thenReturn(List.of(pref));
+        when(notificationPreferencesMapper.toDTO(pref)).thenReturn(dto);
 
-    mockMvc
-        .perform(
-            patch("/notification-preferences/toggle")
-                .param("event", "TICKET_OPENED")
-                .param("channel", "EMAIL"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.message").value(NotificationPreferencesMessages.NOTIFICATION_PREFERENCES_TOGGLED.format()))
-        .andExpect(jsonPath("$.data").value(true));
-  }
+        mockMvc.perform(get("/notification-preferences"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message")
+                        .value(NotificationPreferencesMessages.NOTIFICATION_PREFERENCES_LIST.format()));
+    }
+
+    @Test
+    @DisplayName("PATCH /notification-preferences/toggle - Should toggle preference")
+    void shouldTogglePreference() throws Exception {
+        when(updateUserNotificationPreferencesUseCase.toggleActiveStatus(
+                        NotificationEvents.TICKET_OPENED, NotificationsChannel.EMAIL))
+                .thenReturn(true);
+
+        mockMvc.perform(patch("/notification-preferences/toggle")
+                        .param("event", "TICKET_OPENED")
+                        .param("channel", "EMAIL"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message")
+                        .value(NotificationPreferencesMessages.NOTIFICATION_PREFERENCES_TOGGLED.format()))
+                .andExpect(jsonPath("$.data").value(true));
+    }
 }

@@ -28,85 +28,82 @@ import org.junit.jupiter.api.Test;
 @DisplayName("CreateTicketUseCase Tests")
 class CreateTicketUseCaseTest {
 
-  private ParkingTicketsRepository parkingTicketsRepository;
-  private TenantsRepository tenantsRepository;
-  private UsersRepository usersRepository;
-  private SlotsRepository slotsRepository;
-  private RatesRepository ratesRepository;
-  private TicketNotifier ticketNotifier;
-  private UnplatedTicketSequenceGateway unplatedTicketSequenceGateway;
-  private CreateTicketUseCase useCase;
+    private ParkingTicketsRepository parkingTicketsRepository;
+    private TenantsRepository tenantsRepository;
+    private UsersRepository usersRepository;
+    private SlotsRepository slotsRepository;
+    private RatesRepository ratesRepository;
+    private TicketNotifier ticketNotifier;
+    private UnplatedTicketSequenceGateway unplatedTicketSequenceGateway;
+    private CreateTicketUseCase useCase;
 
-  @BeforeEach
-  void setUp() {
-    parkingTicketsRepository = mock(ParkingTicketsRepository.class);
-    tenantsRepository = mock(TenantsRepository.class);
-    usersRepository = mock(UsersRepository.class);
-    slotsRepository = mock(SlotsRepository.class);
-    ratesRepository = mock(RatesRepository.class);
-    ticketNotifier = mock(TicketNotifier.class);
-    unplatedTicketSequenceGateway = mock(UnplatedTicketSequenceGateway.class);
+    @BeforeEach
+    void setUp() {
+        parkingTicketsRepository = mock(ParkingTicketsRepository.class);
+        tenantsRepository = mock(TenantsRepository.class);
+        usersRepository = mock(UsersRepository.class);
+        slotsRepository = mock(SlotsRepository.class);
+        ratesRepository = mock(RatesRepository.class);
+        ticketNotifier = mock(TicketNotifier.class);
+        unplatedTicketSequenceGateway = mock(UnplatedTicketSequenceGateway.class);
 
-    useCase =
-        new CreateTicketUseCase(
-            parkingTicketsRepository,
-            tenantsRepository,
-            usersRepository,
-            slotsRepository,
-            ratesRepository,
-            ticketNotifier,
-            unplatedTicketSequenceGateway);
-  }
+        useCase = new CreateTicketUseCase(
+                parkingTicketsRepository,
+                tenantsRepository,
+                usersRepository,
+                slotsRepository,
+                ratesRepository,
+                ticketNotifier,
+                unplatedTicketSequenceGateway);
+    }
 
-  @Test
-  @DisplayName("Should capture immutable slot snapshot when creating ticket")
-  void shouldCaptureImmutableSlotSnapshotWhenCreatingTicket() {
-    UUID slotId = UUID.randomUUID();
-    UUID tenantId = UUID.randomUUID();
-    UUID rateId = UUID.randomUUID();
-    String email = "driver@example.com";
-    String plate = "ABC-123";
+    @Test
+    @DisplayName("Should capture immutable slot snapshot when creating ticket")
+    void shouldCaptureImmutableSlotSnapshotWhenCreatingTicket() {
+        UUID slotId = UUID.randomUUID();
+        UUID tenantId = UUID.randomUUID();
+        UUID rateId = UUID.randomUUID();
+        String email = "driver@example.com";
+        String plate = "ABC-123";
 
-    CheckinVehicleUseCase.CreatedParkingTicket command =
-        new CheckinVehicleUseCase.CreatedParkingTicket(
-            slotId, tenantId, email, rateId, plate);
+        CheckinVehicleUseCase.CreatedParkingTicket command =
+                new CheckinVehicleUseCase.CreatedParkingTicket(slotId, tenantId, email, rateId, plate);
 
-    Slots mockSlot =
-        Slots.builder()
-            .id(slotId)
-            .slotNumber("A-01")
-            .zone("Zone-1")
-            .prefix("A")
-            .type(SlotType.CAR)
-            .hasCharger(true)
-            .isAccessible(true)
-            .status(SlotStatus.AVAILABLE)
-            .build();
+        Slots mockSlot = Slots.builder()
+                .id(slotId)
+                .slotNumber("A-01")
+                .zone("Zone-1")
+                .prefix("A")
+                .type(SlotType.CAR)
+                .hasCharger(true)
+                .isAccessible(true)
+                .status(SlotStatus.AVAILABLE)
+                .build();
 
-    Tenants mockTenant = Tenants.builder().id(tenantId).companyName("Central Park").build();
-    Rates mockRate = Rates.builder().id(rateId).name("Standard").build();
-    Users mockUser = Users.builder().id(UUID.randomUUID()).email(email).build();
+        Tenants mockTenant =
+                Tenants.builder().id(tenantId).companyName("Central Park").build();
+        Rates mockRate = Rates.builder().id(rateId).name("Standard").build();
+        Users mockUser = Users.builder().id(UUID.randomUUID()).email(email).build();
 
-    when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
-    when(tenantsRepository.existsById(tenantId)).thenReturn(true);
-    when(ratesRepository.existsById(rateId)).thenReturn(true);
+        when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
+        when(tenantsRepository.existsById(tenantId)).thenReturn(true);
+        when(ratesRepository.existsById(rateId)).thenReturn(true);
 
-    when(slotsRepository.save(any(Slots.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-    when(tenantsRepository.getReferenceById(tenantId)).thenReturn(mockTenant);
-    when(ratesRepository.getReferenceById(rateId)).thenReturn(mockRate);
-    when(usersRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
+        when(slotsRepository.save(any(Slots.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(tenantsRepository.getReferenceById(tenantId)).thenReturn(mockTenant);
+        when(ratesRepository.getReferenceById(rateId)).thenReturn(mockRate);
+        when(usersRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
 
-    when(parkingTicketsRepository.save(any(ParkingTickets.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
+        when(parkingTicketsRepository.save(any(ParkingTickets.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-    ParkingTickets ticket = useCase.execute(command);
+        ParkingTickets ticket = useCase.execute(command);
 
-    assertThat(ticket).isNotNull();
-    assertThat(ticket.getSlotSnapshot()).isNotNull();
-    assertThat(ticket.getSlotSnapshot()).isEqualTo(SlotSnapshot.from(mockSlot));
-    assertThat(ticket.getSlotSnapshot().hasCharger()).isTrue();
-    assertThat(ticket.getSlotSnapshot().isAccessible()).isTrue();
-    assertThat(ticket.getSlotSnapshot().slotNumber()).isEqualTo("A-01");
-  }
+        assertThat(ticket).isNotNull();
+        assertThat(ticket.getSlotSnapshot()).isNotNull();
+        assertThat(ticket.getSlotSnapshot()).isEqualTo(SlotSnapshot.from(mockSlot));
+        assertThat(ticket.getSlotSnapshot().hasCharger()).isTrue();
+        assertThat(ticket.getSlotSnapshot().isAccessible()).isTrue();
+        assertThat(ticket.getSlotSnapshot().slotNumber()).isEqualTo("A-01");
+    }
 }

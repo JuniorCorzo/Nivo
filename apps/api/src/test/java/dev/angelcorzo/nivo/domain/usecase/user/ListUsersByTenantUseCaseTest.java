@@ -23,67 +23,75 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("ListUsersByTenantUseCase - Unit Tests")
 class ListUsersByTenantUseCaseTest {
 
-  @Mock private UsersRepository usersRepository;
-  @Mock private AuthenticationContextGateway authenticationContextGateway;
+    @Mock
+    private UsersRepository usersRepository;
 
-  @InjectMocks private ListUsersByTenantUseCase listUsersByTenantUseCase;
+    @Mock
+    private AuthenticationContextGateway authenticationContextGateway;
 
-  @Test
-  @DisplayName("Should return list of users for authenticated tenant")
-  void shouldReturnListOfUsers_whenTenantHasUsers() {
-    final UUID tenantId = UUID.randomUUID();
-    final Users user1 = Users.builder()
-        .id(UUID.randomUUID())
-        .fullName("Alice Manager")
-        .email("alice@test.com")
-        .role(Roles.MANAGER)
-        .tenant(TenantReference.builder().id(tenantId).companyName("Nivo Corp").build())
-        .createdAt(OffsetDateTime.now())
-        .build();
-    final Users user2 = Users.builder()
-        .id(UUID.randomUUID())
-        .fullName("Bob Operator")
-        .email("bob@test.com")
-        .role(Roles.OPERATOR)
-        .tenant(TenantReference.builder().id(tenantId).companyName("Nivo Corp").build())
-        .createdAt(OffsetDateTime.now().minusDays(1))
-        .build();
+    @InjectMocks
+    private ListUsersByTenantUseCase listUsersByTenantUseCase;
 
-    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
-    when(usersRepository.findAllByTenantId(tenantId)).thenReturn(List.of(user1, user2));
+    @Test
+    @DisplayName("Should return list of users for authenticated tenant")
+    void shouldReturnListOfUsers_whenTenantHasUsers() {
+        final UUID tenantId = UUID.randomUUID();
+        final Users user1 = Users.builder()
+                .id(UUID.randomUUID())
+                .fullName("Alice Manager")
+                .email("alice@test.com")
+                .role(Roles.MANAGER)
+                .tenant(TenantReference.builder()
+                        .id(tenantId)
+                        .companyName("Nivo Corp")
+                        .build())
+                .createdAt(OffsetDateTime.now())
+                .build();
+        final Users user2 = Users.builder()
+                .id(UUID.randomUUID())
+                .fullName("Bob Operator")
+                .email("bob@test.com")
+                .role(Roles.OPERATOR)
+                .tenant(TenantReference.builder()
+                        .id(tenantId)
+                        .companyName("Nivo Corp")
+                        .build())
+                .createdAt(OffsetDateTime.now().minusDays(1))
+                .build();
 
-    List<Users> result = listUsersByTenantUseCase.execute();
+        when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+        when(usersRepository.findAllByTenantId(tenantId)).thenReturn(List.of(user1, user2));
 
-    assertNotNull(result);
-    assertEquals(2, result.size());
-    assertEquals("Alice Manager", result.get(0).getFullName());
-    verify(authenticationContextGateway, times(1)).getCurrentTenantId();
-    verify(usersRepository, times(1)).findAllByTenantId(tenantId);
-  }
+        List<Users> result = listUsersByTenantUseCase.execute();
 
-  @Test
-  @DisplayName("Should return empty list when tenant has no additional users")
-  void shouldReturnEmptyList_whenTenantHasNoUsers() {
-    final UUID tenantId = UUID.randomUUID();
-    when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
-    when(usersRepository.findAllByTenantId(tenantId)).thenReturn(List.of());
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("Alice Manager", result.get(0).getFullName());
+        verify(authenticationContextGateway, times(1)).getCurrentTenantId();
+        verify(usersRepository, times(1)).findAllByTenantId(tenantId);
+    }
 
-    List<Users> result = listUsersByTenantUseCase.execute();
+    @Test
+    @DisplayName("Should return empty list when tenant has no additional users")
+    void shouldReturnEmptyList_whenTenantHasNoUsers() {
+        final UUID tenantId = UUID.randomUUID();
+        when(authenticationContextGateway.getCurrentTenantId()).thenReturn(tenantId);
+        when(usersRepository.findAllByTenantId(tenantId)).thenReturn(List.of());
 
-    assertNotNull(result);
-    assertTrue(result.isEmpty());
-    verify(usersRepository, times(1)).findAllByTenantId(tenantId);
-  }
+        List<Users> result = listUsersByTenantUseCase.execute();
 
-  @Test
-  @DisplayName("Should propagate exception when authentication context fails")
-  void shouldPropagateException_whenAuthenticationContextFails() {
-    when(authenticationContextGateway.getCurrentTenantId())
-        .thenThrow(new UserAuthenticationContextInvalidException());
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(usersRepository, times(1)).findAllByTenantId(tenantId);
+    }
 
-    assertThrows(
-        UserAuthenticationContextInvalidException.class,
-        () -> listUsersByTenantUseCase.execute());
-    verifyNoInteractions(usersRepository);
-  }
+    @Test
+    @DisplayName("Should propagate exception when authentication context fails")
+    void shouldPropagateException_whenAuthenticationContextFails() {
+        when(authenticationContextGateway.getCurrentTenantId())
+                .thenThrow(new UserAuthenticationContextInvalidException());
+
+        assertThrows(UserAuthenticationContextInvalidException.class, () -> listUsersByTenantUseCase.execute());
+        verifyNoInteractions(usersRepository);
+    }
 }

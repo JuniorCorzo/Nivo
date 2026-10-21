@@ -21,29 +21,28 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "jwt")
 public class JwtProperties {
 
-  /**
-   * The issuer of the JWT.
-   * <p>
-   * This value is used for the {@code iss} claim in the JWT, identifying the
-   * principal that issued the token.
-   * </p>
-   */
-  private String issue;
+    /**
+     * The issuer of the JWT.
+     * <p>
+     * This value is used for the {@code iss} claim in the JWT, identifying the
+     * principal that issued the token.
+     * </p>
+     */
+    private String issue;
 
-  /**
-   * The expiration time for access tokens, in seconds.
-   * <p>
-   * This value determines the validity duration of a generated access token.
-   * </p>
-   */
-  private long accessTokenExpiration;
+    /**
+     * The expiration time for access tokens, in seconds.
+     * <p>
+     * This value determines the validity duration of a generated access token.
+     * </p>
+     */
+    private long accessTokenExpiration;
 
-  /**
-   * The expiration time for refresh tokens, in seconds.
-   * <p>
-   * This value determines the validity duration of a generated refresh token.
-   * </p>
-   */
-  private long refreshTokenExpiration;
-
+    /**
+     * The expiration time for refresh tokens, in seconds.
+     * <p>
+     * This value determines the validity duration of a generated refresh token.
+     * </p>
+     */
+    private long refreshTokenExpiration;
 }

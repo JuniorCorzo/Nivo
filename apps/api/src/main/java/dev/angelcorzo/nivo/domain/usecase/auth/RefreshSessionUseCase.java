@@ -8,7 +8,6 @@ import dev.angelcorzo.nivo.domain.model.users.gateways.UsersRepository;
 import dev.angelcorzo.nivo.domain.usecase.auth.helpers.JwtClaimsFactory;
 import java.util.Map;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -44,17 +43,15 @@ public class RefreshSessionUseCase {
         final UUID userId = UUID.fromString(claims.get("sub"));
         final UUID tenantId = UUID.fromString(claims.get("tenantId"));
 
-        final Users user =
-                this.usersRepository
-                        .findByIdAndTenantId(userId, tenantId)
-                        .orElseThrow(UserNotExistsInTenantException::new);
+        final Users user = this.usersRepository
+                .findByIdAndTenantId(userId, tenantId)
+                .orElseThrow(UserNotExistsInTenantException::new);
 
         final Map<String, String> accessTokenClaims = JwtClaimsFactory.buildAccessTokenClaims(user);
         final Map<String, String> refreshTokenClaims = JwtClaimsFactory.buildRefreshTokenClaims(user);
 
         final String newAccessToken = this.authenticationGateway.generateAccessToken(accessTokenClaims);
-        final String newRefreshToken =
-                this.authenticationGateway.generateRefreshToken(refreshTokenClaims);
+        final String newRefreshToken = this.authenticationGateway.generateRefreshToken(refreshTokenClaims);
 
         return AuthResponse.of(newAccessToken, newRefreshToken);
     }

@@ -22,42 +22,42 @@ import java.util.UUID;
  */
 public interface ParkingLotsRepository {
 
-  Optional<ParkingLots> findById(UUID id);
+    Optional<ParkingLots> findById(UUID id);
 
-  /**
-   * Finds all parking lots associated with a specific tenant, enriched with slot distribution
-   * and owner information.
-   *
-   * @param tenantId The unique identifier of the tenant.
-   * @return A list of {@link ParkingLotListItem} enriched read models. Can be empty if none is found.
-   */
-  List<ParkingLotListItem> findByTenantId(UUID tenantId);
+    /**
+     * Finds all parking lots associated with a specific tenant, enriched with slot distribution
+     * and owner information.
+     *
+     * @param tenantId The unique identifier of the tenant.
+     * @return A list of {@link ParkingLotListItem} enriched read models. Can be empty if none is found.
+     */
+    List<ParkingLotListItem> findByTenantId(UUID tenantId);
 
-  /**
-   * Finds all parking lots owned by a specific user.
-   *
-   * @param ownerId The unique identifier of the owner user.
-   * @return A list of {@link ParkingLots} owned by the user. Can be empty if none is found.
-   */
-  List<ParkingLots> findByOwnerId(UUID ownerId);
+    /**
+     * Finds all parking lots owned by a specific user.
+     *
+     * @param ownerId The unique identifier of the owner user.
+     * @return A list of {@link ParkingLots} owned by the user. Can be empty if none is found.
+     */
+    List<ParkingLots> findByOwnerId(UUID ownerId);
 
-  ParkingLots getReferenceById(UUID id);
+    ParkingLots getReferenceById(UUID id);
 
-  Boolean existsById(UUID id);
+    Boolean existsById(UUID id);
 
-  /**
-   * Saves (creates or updates) a parking lot entity.
-   *
-   * @param parkingLots The {@link ParkingLots} entity to save.
-   * @return {@link ParkingLots}
-   */
-  ParkingLots save(ParkingLots parkingLots);
+    /**
+     * Saves (creates or updates) a parking lot entity.
+     *
+     * @param parkingLots The {@link ParkingLots} entity to save.
+     * @return {@link ParkingLots}
+     */
+    ParkingLots save(ParkingLots parkingLots);
 
-  /**
-   * Deletes a parking lot entity. This could be soft or hardly deleted depending on the
-   * implementation.
-   *
-   * @param parkingLots The {@link ParkingLots} entity to delete.
-   */
-  void delete(ParkingLots parkingLots);
+    /**
+     * Deletes a parking lot entity. This could be soft or hardly deleted depending on the
+     * implementation.
+     *
+     * @param parkingLots The {@link ParkingLots} entity to delete.
+     */
+    void delete(ParkingLots parkingLots);
 }

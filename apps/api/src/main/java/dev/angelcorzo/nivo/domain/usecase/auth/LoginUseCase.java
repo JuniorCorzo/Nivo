@@ -37,11 +37,10 @@ public class LoginUseCase {
      * @throws BadCredentialsException if the email or password is incorrect.
      */
     public AuthResponse auth(UserCredentials credentials) {
-        final Users user =
-                this.userRepository
-                        .findByEmail(credentials.email())
-                        .filter(u -> this.passwordEncode.matches(credentials.password(), u.getPassword()))
-                        .orElseThrow(BadCredentialsException::new);
+        final Users user = this.userRepository
+                .findByEmail(credentials.email())
+                .filter(u -> this.passwordEncode.matches(credentials.password(), u.getPassword()))
+                .orElseThrow(BadCredentialsException::new);
 
         final Map<String, String> accessTokenClaims = JwtClaimsFactory.buildAccessTokenClaims(user);
         final Map<String, String> refreshTokenClaims = JwtClaimsFactory.buildRefreshTokenClaims(user);

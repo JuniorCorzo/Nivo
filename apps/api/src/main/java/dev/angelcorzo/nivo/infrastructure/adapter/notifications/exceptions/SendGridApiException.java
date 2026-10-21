@@ -9,12 +9,15 @@ import lombok.Getter;
 @Getter
 public class SendGridApiException extends SendGridException {
 
-  private final int statusCode;
-  private final String responseBody;
+    private final int statusCode;
+    private final String responseBody;
 
-  public SendGridApiException(int statusCode, String responseBody) {
-    super("SendGrid API returned non-2xx status " + statusCode + ". Body: " + responseBody, statusCode, "SENDGRID_API_ERROR");
-    this.statusCode = statusCode;
-    this.responseBody = responseBody;
-  }
+    public SendGridApiException(int statusCode, String responseBody) {
+        super(
+                "SendGrid API returned non-2xx status " + statusCode + ". Body: " + responseBody,
+                statusCode,
+                "SENDGRID_API_ERROR");
+        this.statusCode = statusCode;
+        this.responseBody = responseBody;
+    }
 }

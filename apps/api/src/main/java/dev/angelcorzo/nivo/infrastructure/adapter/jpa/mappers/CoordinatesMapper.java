@@ -1,13 +1,12 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.mappers;
 
 import dev.angelcorzo.nivo.domain.model.parkinglots.Coordinates;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.config.MapperStructConfig;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.mapstruct.Mapper;
-
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.config.MapperStructConfig;
 
 @Mapper(config = MapperStructConfig.class)
 public interface CoordinatesMapper {

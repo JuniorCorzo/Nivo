@@ -9,19 +9,19 @@ import lombok.Builder;
 
 @Builder(toBuilder = true)
 public record SpecialPoliciesReference(
-    UUID id,
-    String name,
-    ModifiesTypes modifies,
-    OperationsTypes operation,
-    BigDecimal valueToModify,
-    boolean active) {
-  public static SpecialPoliciesReference of(SpecialPolicies specialPolicies) {
-    return new SpecialPoliciesReference(
-        specialPolicies.getId(),
-        specialPolicies.getName(),
-        specialPolicies.getModifies(),
-        specialPolicies.getOperation(),
-        specialPolicies.getValueToModify(),
-        specialPolicies.isActive());
-  }
+        UUID id,
+        String name,
+        ModifiesTypes modifies,
+        OperationsTypes operation,
+        BigDecimal valueToModify,
+        boolean active) {
+    public static SpecialPoliciesReference of(SpecialPolicies specialPolicies) {
+        return new SpecialPoliciesReference(
+                specialPolicies.getId(),
+                specialPolicies.getName(),
+                specialPolicies.getModifies(),
+                specialPolicies.getOperation(),
+                specialPolicies.getValueToModify(),
+                specialPolicies.isActive());
+    }
 }

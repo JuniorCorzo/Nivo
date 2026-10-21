@@ -20,54 +20,61 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("NotificationRecipientResolver Unit Tests")
 class NotificationRecipientResolverTest {
 
-  @Mock private UsersRepository usersRepository;
+    @Mock
+    private UsersRepository usersRepository;
 
-  @InjectMocks private NotificationRecipientResolver resolver;
+    @InjectMocks
+    private NotificationRecipientResolver resolver;
 
-  @Test
-  @DisplayName("Should return actor user reference when email matches actor user email")
-  void shouldReturnActorWhenEmailMatches() {
-    Users actor = Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
+    @Test
+    @DisplayName("Should return actor user reference when email matches actor user email")
+    void shouldReturnActorWhenEmailMatches() {
+        Users actor =
+                Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
 
-    UserReference ref = resolver.resolve(actor, "actor@test.com", NotificationsChannel.EMAIL);
+        UserReference ref = resolver.resolve(actor, "actor@test.com", NotificationsChannel.EMAIL);
 
-    assertThat(ref).isNotNull();
-    assertThat(ref.id()).isEqualTo(actor.getId());
-  }
+        assertThat(ref).isNotNull();
+        assertThat(ref.id()).isEqualTo(actor.getId());
+    }
 
-  @Test
-  @DisplayName("Should search repository when email does not match actor user")
-  void shouldSearchRepositoryWhenEmailDiffers() {
-    Users actor = Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
-    Users recipient = Users.builder().id(UUID.randomUUID()).email("other@test.com").build();
+    @Test
+    @DisplayName("Should search repository when email does not match actor user")
+    void shouldSearchRepositoryWhenEmailDiffers() {
+        Users actor =
+                Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
+        Users recipient =
+                Users.builder().id(UUID.randomUUID()).email("other@test.com").build();
 
-    when(usersRepository.findByEmail("other@test.com")).thenReturn(Optional.of(recipient));
+        when(usersRepository.findByEmail("other@test.com")).thenReturn(Optional.of(recipient));
 
-    UserReference ref = resolver.resolve(actor, "other@test.com", NotificationsChannel.EMAIL);
+        UserReference ref = resolver.resolve(actor, "other@test.com", NotificationsChannel.EMAIL);
 
-    assertThat(ref).isNotNull();
-    assertThat(ref.id()).isEqualTo(recipient.getId());
-  }
+        assertThat(ref).isNotNull();
+        assertThat(ref.id()).isEqualTo(recipient.getId());
+    }
 
-  @Test
-  @DisplayName("Should return null when recipient is not found in repository")
-  void shouldReturnNullWhenUserNotFound() {
-    Users actor = Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
+    @Test
+    @DisplayName("Should return null when recipient is not found in repository")
+    void shouldReturnNullWhenUserNotFound() {
+        Users actor =
+                Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
 
-    when(usersRepository.findByEmail("unknown@test.com")).thenReturn(Optional.empty());
+        when(usersRepository.findByEmail("unknown@test.com")).thenReturn(Optional.empty());
 
-    UserReference ref = resolver.resolve(actor, "unknown@test.com", NotificationsChannel.EMAIL);
+        UserReference ref = resolver.resolve(actor, "unknown@test.com", NotificationsChannel.EMAIL);
 
-    assertThat(ref).isNull();
-  }
+        assertThat(ref).isNull();
+    }
 
-  @Test
-  @DisplayName("Should return null for WhatsApp channel")
-  void shouldReturnNullForWhatsApp() {
-    Users actor = Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
+    @Test
+    @DisplayName("Should return null for WhatsApp channel")
+    void shouldReturnNullForWhatsApp() {
+        Users actor =
+                Users.builder().id(UUID.randomUUID()).email("actor@test.com").build();
 
-    UserReference ref = resolver.resolve(actor, "+573001234567", NotificationsChannel.WHATSAPP);
+        UserReference ref = resolver.resolve(actor, "+573001234567", NotificationsChannel.WHATSAPP);
 
-    assertThat(ref).isNull();
-  }
+        assertThat(ref).isNull();
+    }
 }

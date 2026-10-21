@@ -1,5 +1,11 @@
 package dev.angelcorzo.nivo.domain.usecase.user;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
 import dev.angelcorzo.nivo.domain.model.userinvitations.InvitationNotFoundException;
@@ -13,6 +19,9 @@ import dev.angelcorzo.nivo.domain.model.users.gateways.PasswordEncodeGateway;
 import dev.angelcorzo.nivo.domain.model.users.gateways.UsersRepository;
 import dev.angelcorzo.nivo.domain.usecase.user.exceptions.InvitationAlreadyAcceptedException;
 import dev.angelcorzo.nivo.domain.usecase.user.exceptions.InvitationExpiredException;
+import java.time.OffsetDateTime;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,201 +30,206 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.OffsetDateTime;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class AcceptInvitationUseCaseTest {
 
-  @Mock private UserInvitationsRepository invitationsRepository;
-  @Mock private UsersRepository usersRepository;
-  @Mock private PasswordEncodeGateway passwordEncode;
-  @Mock private dev.angelcorzo.nivo.domain.usecase.notification.notifier.UserNotifier userNotifier;
+    @Mock
+    private UserInvitationsRepository invitationsRepository;
 
-  @InjectMocks private AcceptInvitationUseCase useCase;
+    @Mock
+    private UsersRepository usersRepository;
 
-  @Test
-  @DisplayName("Should create new user and accept invitation when token is valid and user is new")
-  void shouldCreateNewUserAndAcceptInvitation() {
-    // Given
-    UUID token = UUID.randomUUID();
-    UUID tenantId = UUID.randomUUID();
-    Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
+    @Mock
+    private PasswordEncodeGateway passwordEncode;
 
-    UserInvitations pendingInvitation =
-        UserInvitations.builder()
-            .id(UUID.randomUUID())
-            .invitedEmail("test@example.com")
-            .tenant(tenant)
-            .role(Roles.OPERATOR)
-            .token(token)
-            .status(UserInvitationStatus.PENDING)
-            .expiredAt(OffsetDateTime.now().plusDays(3))
-            .build();
+    @Mock
+    private dev.angelcorzo.nivo.domain.usecase.notification.notifier.UserNotifier userNotifier;
 
-    Users newUser = Users.builder().password("newStrongPassword123").fullName("Test User").build();
+    @InjectMocks
+    private AcceptInvitationUseCase useCase;
 
-    when(invitationsRepository.findByToken(any())).thenReturn(Optional.of(pendingInvitation));
-    when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId)).thenReturn(false);
-    when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
-    when(passwordEncode.encrypt(anyString())).thenReturn("encryptedPassword");
+    @Test
+    @DisplayName("Should create new user and accept invitation when token is valid and user is new")
+    void shouldCreateNewUserAndAcceptInvitation() {
+        // Given
+        UUID token = UUID.randomUUID();
+        UUID tenantId = UUID.randomUUID();
+        Tenants tenant =
+                Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-    // When
-    useCase.accept(new AcceptInvitationUseCase.Accept(newUser, token));
+        UserInvitations pendingInvitation = UserInvitations.builder()
+                .id(UUID.randomUUID())
+                .invitedEmail("test@example.com")
+                .tenant(tenant)
+                .role(Roles.OPERATOR)
+                .token(token)
+                .status(UserInvitationStatus.PENDING)
+                .expiredAt(OffsetDateTime.now().plusDays(3))
+                .build();
 
-    // Then
-    ArgumentCaptor<Users> userCaptor = ArgumentCaptor.forClass(Users.class);
-    verify(usersRepository).save(userCaptor.capture());
-    Users savedUser = userCaptor.getValue();
+        Users newUser = Users.builder()
+                .password("newStrongPassword123")
+                .fullName("Test User")
+                .build();
 
-    assertEquals(newUser.getFullName(), savedUser.getFullName());
-    assertEquals(pendingInvitation.getInvitedEmail(), savedUser.getEmail());
-    assertEquals(pendingInvitation.getTenant().getId(), savedUser.getTenant().id());
-    assertEquals(pendingInvitation.getRole(), savedUser.getRole());
-    assertNotNull(savedUser.getPassword());
+        when(invitationsRepository.findByToken(any())).thenReturn(Optional.of(pendingInvitation));
+        when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId))
+                .thenReturn(false);
+        when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
+        when(passwordEncode.encrypt(anyString())).thenReturn("encryptedPassword");
 
-    verify(invitationsRepository).acceptedInvitation(pendingInvitation.getId());
-  }
+        // When
+        useCase.accept(new AcceptInvitationUseCase.Accept(newUser, token));
 
-  @Test
-  @DisplayName(
-      "Should update user and accept invitation when token is valid and user already exists")
-  void shouldUpdateUserAndAcceptInvitationWhenUserExists() {
-    // Given
-    UUID token = UUID.randomUUID();
-    UUID tenantId = UUID.randomUUID();
-    Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
+        // Then
+        ArgumentCaptor<Users> userCaptor = ArgumentCaptor.forClass(Users.class);
+        verify(usersRepository).save(userCaptor.capture());
+        Users savedUser = userCaptor.getValue();
 
-    Tenants differentTenant =
-        Tenants.builder().id(UUID.randomUUID()).companyName("Different Company").build();
+        assertEquals(newUser.getFullName(), savedUser.getFullName());
+        assertEquals(pendingInvitation.getInvitedEmail(), savedUser.getEmail());
+        assertEquals(
+                pendingInvitation.getTenant().getId(), savedUser.getTenant().id());
+        assertEquals(pendingInvitation.getRole(), savedUser.getRole());
+        assertNotNull(savedUser.getPassword());
 
-    UserInvitations pendingInvitation =
-        UserInvitations.builder()
-            .id(UUID.randomUUID())
-            .invitedEmail("test@example.com")
-            .tenant(tenant)
-            .role(Roles.OPERATOR)
-            .token(token)
-            .status(UserInvitationStatus.PENDING)
-            .expiredAt(OffsetDateTime.now().plusDays(3))
-            .build();
+        verify(invitationsRepository).acceptedInvitation(pendingInvitation.getId());
+    }
 
-    Users existingUser =
-        Users.builder()
-            .id(UUID.randomUUID())
-            .email("test@example.com")
-            .fullName("Existing User")
-            .password("oldPassword")
-            .tenant(TenantReference.of(differentTenant))
-            .role(Roles.AUDITOR)
-            .build();
+    @Test
+    @DisplayName("Should update user and accept invitation when token is valid and user already exists")
+    void shouldUpdateUserAndAcceptInvitationWhenUserExists() {
+        // Given
+        UUID token = UUID.randomUUID();
+        UUID tenantId = UUID.randomUUID();
+        Tenants tenant =
+                Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-    when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(pendingInvitation));
-    when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId)).thenReturn(false);
-    when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(existingUser));
+        Tenants differentTenant = Tenants.builder()
+                .id(UUID.randomUUID())
+                .companyName("Different Company")
+                .build();
 
-    // When
-    useCase.accept(
-        new AcceptInvitationUseCase.Accept(
-            null, token)); // User details are not needed when the user exists
+        UserInvitations pendingInvitation = UserInvitations.builder()
+                .id(UUID.randomUUID())
+                .invitedEmail("test@example.com")
+                .tenant(tenant)
+                .role(Roles.OPERATOR)
+                .token(token)
+                .status(UserInvitationStatus.PENDING)
+                .expiredAt(OffsetDateTime.now().plusDays(3))
+                .build();
 
-    // Then
-    ArgumentCaptor<Users> userCaptor = ArgumentCaptor.forClass(Users.class);
-    verify(usersRepository).save(userCaptor.capture());
-    Users updatedUser = userCaptor.getValue();
+        Users existingUser = Users.builder()
+                .id(UUID.randomUUID())
+                .email("test@example.com")
+                .fullName("Existing User")
+                .password("oldPassword")
+                .tenant(TenantReference.of(differentTenant))
+                .role(Roles.AUDITOR)
+                .build();
 
-    assertEquals(existingUser.getId(), updatedUser.getId());
-    assertEquals(pendingInvitation.getTenant().getId(), updatedUser.getTenant().id());
-    assertEquals(pendingInvitation.getRole(), updatedUser.getRole());
-    assertEquals(existingUser.getFullName(), updatedUser.getFullName()); // Name should not change
+        when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(pendingInvitation));
+        when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId))
+                .thenReturn(false);
+        when(usersRepository.findByEmail("test@example.com")).thenReturn(Optional.of(existingUser));
 
-    verify(invitationsRepository).acceptedInvitation(pendingInvitation.getId());
-  }
+        // When
+        useCase.accept(
+                new AcceptInvitationUseCase.Accept(null, token)); // User details are not needed when the user exists
 
-  @Test
-  @DisplayName("Should throw InvitationNotFoundException when token is invalid")
-  void shouldThrowExceptionForInvalidToken() {
-    // Given
-    UUID invalidToken = UUID.randomUUID();
-    when(invitationsRepository.findByToken(invalidToken)).thenReturn(Optional.empty());
+        // Then
+        ArgumentCaptor<Users> userCaptor = ArgumentCaptor.forClass(Users.class);
+        verify(usersRepository).save(userCaptor.capture());
+        Users updatedUser = userCaptor.getValue();
 
-    // When & Then
-    AcceptInvitationUseCase.Accept command = new AcceptInvitationUseCase.Accept(null, invalidToken);
-    assertThrows(InvitationNotFoundException.class, () -> useCase.accept(command));
-  }
+        assertEquals(existingUser.getId(), updatedUser.getId());
+        assertEquals(
+                pendingInvitation.getTenant().getId(), updatedUser.getTenant().id());
+        assertEquals(pendingInvitation.getRole(), updatedUser.getRole());
+        assertEquals(existingUser.getFullName(), updatedUser.getFullName()); // Name should not change
 
-  @Test
-  @DisplayName("Should throw InvitationExpiredException when token has expired")
-  void shouldThrowExceptionForExpiredToken() {
-    // Given
-    final UUID token = UUID.randomUUID();
-    final UUID tenantId = UUID.randomUUID();
-    final Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
+        verify(invitationsRepository).acceptedInvitation(pendingInvitation.getId());
+    }
 
-    UserInvitations expiredInvitation =
-        UserInvitations.builder()
-            .status(UserInvitationStatus.PENDING)
-            .tenant(tenant)
-            .expiredAt(OffsetDateTime.now().minusSeconds(1)) // Expired 1 sec ago
-            .build();
+    @Test
+    @DisplayName("Should throw InvitationNotFoundException when token is invalid")
+    void shouldThrowExceptionForInvalidToken() {
+        // Given
+        UUID invalidToken = UUID.randomUUID();
+        when(invitationsRepository.findByToken(invalidToken)).thenReturn(Optional.empty());
 
-    when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(expiredInvitation));
+        // When & Then
+        AcceptInvitationUseCase.Accept command = new AcceptInvitationUseCase.Accept(null, invalidToken);
+        assertThrows(InvitationNotFoundException.class, () -> useCase.accept(command));
+    }
 
-    // When & Then
-    AcceptInvitationUseCase.Accept command = new AcceptInvitationUseCase.Accept(null, token);
-    assertThrows(InvitationExpiredException.class, () -> useCase.accept(command));
-  }
+    @Test
+    @DisplayName("Should throw InvitationExpiredException when token has expired")
+    void shouldThrowExceptionForExpiredToken() {
+        // Given
+        final UUID token = UUID.randomUUID();
+        final UUID tenantId = UUID.randomUUID();
+        final Tenants tenant =
+                Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-  @Test
-  @DisplayName("Should throw InvitationAlreadyAcceptedException for an already accepted invitation")
-  void shouldThrowExceptionForAlreadyAcceptedInvitation() {
-    // Given
-    UUID token = UUID.randomUUID();
-    final UUID tenantId = UUID.randomUUID();
-    final Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
+        UserInvitations expiredInvitation = UserInvitations.builder()
+                .status(UserInvitationStatus.PENDING)
+                .tenant(tenant)
+                .expiredAt(OffsetDateTime.now().minusSeconds(1)) // Expired 1 sec ago
+                .build();
 
-    UserInvitations acceptedInvitation =
-        UserInvitations.builder()
-            .status(UserInvitationStatus.ACCEPTED)
-            .tenant(tenant)
-            .expiredAt(OffsetDateTime.now().plusDays(3))
-            .build();
+        when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(expiredInvitation));
 
-    when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(acceptedInvitation));
+        // When & Then
+        AcceptInvitationUseCase.Accept command = new AcceptInvitationUseCase.Accept(null, token);
+        assertThrows(InvitationExpiredException.class, () -> useCase.accept(command));
+    }
 
-    // When & Then
-    AcceptInvitationUseCase.Accept command = new AcceptInvitationUseCase.Accept(null, token);
-    assertThrows(InvitationAlreadyAcceptedException.class, () -> useCase.accept(command));
-  }
+    @Test
+    @DisplayName("Should throw InvitationAlreadyAcceptedException for an already accepted invitation")
+    void shouldThrowExceptionForAlreadyAcceptedInvitation() {
+        // Given
+        UUID token = UUID.randomUUID();
+        final UUID tenantId = UUID.randomUUID();
+        final Tenants tenant =
+                Tenants.builder().id(tenantId).companyName("Test Company").build();
 
-  @Test
-  @DisplayName("Should throw UserAlreadyExistsInTenantException when user is already in tenant")
-  void shouldThrowExceptionWhenUserAlreadyInTenant() {
-    // Given
-    UUID token = UUID.randomUUID();
-    UUID tenantId = UUID.randomUUID();
-    Tenants tenant = Tenants.builder().id(tenantId).companyName("Test Company").build();
+        UserInvitations acceptedInvitation = UserInvitations.builder()
+                .status(UserInvitationStatus.ACCEPTED)
+                .tenant(tenant)
+                .expiredAt(OffsetDateTime.now().plusDays(3))
+                .build();
 
-    UserInvitations pendingInvitation =
-        UserInvitations.builder()
-            .invitedEmail("test@example.com")
-            .tenant(tenant)
-            .status(UserInvitationStatus.PENDING)
-            .expiredAt(OffsetDateTime.now().plusDays(3))
-            .build();
+        when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(acceptedInvitation));
 
-    when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(pendingInvitation));
-    when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId)).thenReturn(true);
+        // When & Then
+        AcceptInvitationUseCase.Accept command = new AcceptInvitationUseCase.Accept(null, token);
+        assertThrows(InvitationAlreadyAcceptedException.class, () -> useCase.accept(command));
+    }
 
-    // When & Then
-    AcceptInvitationUseCase.Accept command = new AcceptInvitationUseCase.Accept(null, token);
-    assertThrows(UserAlreadyExistsInTenantException.class, () -> useCase.accept(command));
-  }
+    @Test
+    @DisplayName("Should throw UserAlreadyExistsInTenantException when user is already in tenant")
+    void shouldThrowExceptionWhenUserAlreadyInTenant() {
+        // Given
+        UUID token = UUID.randomUUID();
+        UUID tenantId = UUID.randomUUID();
+        Tenants tenant =
+                Tenants.builder().id(tenantId).companyName("Test Company").build();
+
+        UserInvitations pendingInvitation = UserInvitations.builder()
+                .invitedEmail("test@example.com")
+                .tenant(tenant)
+                .status(UserInvitationStatus.PENDING)
+                .expiredAt(OffsetDateTime.now().plusDays(3))
+                .build();
+
+        when(invitationsRepository.findByToken(token)).thenReturn(Optional.of(pendingInvitation));
+        when(usersRepository.existsByEmailAndTenantId("test@example.com", tenantId))
+                .thenReturn(true);
+
+        // When & Then
+        AcceptInvitationUseCase.Accept command = new AcceptInvitationUseCase.Accept(null, token);
+        assertThrows(UserAlreadyExistsInTenantException.class, () -> useCase.accept(command));
+    }
 }

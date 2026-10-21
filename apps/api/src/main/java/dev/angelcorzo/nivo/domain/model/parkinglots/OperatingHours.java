@@ -1,11 +1,10 @@
 package dev.angelcorzo.nivo.domain.model.parkinglots;
 
+import java.time.OffsetTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.OffsetTime;
 
 /**
  * Represents the operating hours of a parking lot as a Value Object.

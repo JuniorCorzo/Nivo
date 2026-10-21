@@ -13,108 +13,108 @@ import org.springframework.test.util.ReflectionTestUtils;
 @DisplayName("SentryConfig Tests")
 class SentryConfigTest {
 
-  private SentryConfig sentryConfig;
+    private SentryConfig sentryConfig;
 
-  @BeforeEach
-  void setUp() {
-    Sentry.close();
-    sentryConfig = new SentryConfig();
-  }
+    @BeforeEach
+    void setUp() {
+        Sentry.close();
+        sentryConfig = new SentryConfig();
+    }
 
-  @AfterEach
-  void tearDown() {
-    Sentry.close();
-  }
+    @AfterEach
+    void tearDown() {
+        Sentry.close();
+    }
 
-  @Test
-  @DisplayName("Should initialize and enable Sentry when DSN is provided")
-  void shouldInitializeSentryWhenDsnIsProvided() {
-    ReflectionTestUtils.setField(sentryConfig, "dsn", "https://key@sentry.example.com/12345");
-    ReflectionTestUtils.setField(sentryConfig, "tracesSampleRate", 0.5);
-    ReflectionTestUtils.setField(sentryConfig, "environment", "test");
+    @Test
+    @DisplayName("Should initialize and enable Sentry when DSN is provided")
+    void shouldInitializeSentryWhenDsnIsProvided() {
+        ReflectionTestUtils.setField(sentryConfig, "dsn", "https://key@sentry.example.com/12345");
+        ReflectionTestUtils.setField(sentryConfig, "tracesSampleRate", 0.5);
+        ReflectionTestUtils.setField(sentryConfig, "environment", "test");
 
-    sentryConfig.init();
+        sentryConfig.init();
 
-    assertThat(Sentry.isEnabled()).isTrue();
-  }
+        assertThat(Sentry.isEnabled()).isTrue();
+    }
 
-  @Test
-  @DisplayName("Should wire sendDefaultPii option correctly when enabled")
-  void shouldWireSendDefaultPiiOptionWhenEnabled() {
-    ReflectionTestUtils.setField(sentryConfig, "dsn", "https://key@sentry.example.com/12345");
-    ReflectionTestUtils.setField(sentryConfig, "tracesSampleRate", 1.0);
-    ReflectionTestUtils.setField(sentryConfig, "environment", "production");
-    ReflectionTestUtils.setField(sentryConfig, "sendDefaultPii", true);
+    @Test
+    @DisplayName("Should wire sendDefaultPii option correctly when enabled")
+    void shouldWireSendDefaultPiiOptionWhenEnabled() {
+        ReflectionTestUtils.setField(sentryConfig, "dsn", "https://key@sentry.example.com/12345");
+        ReflectionTestUtils.setField(sentryConfig, "tracesSampleRate", 1.0);
+        ReflectionTestUtils.setField(sentryConfig, "environment", "production");
+        ReflectionTestUtils.setField(sentryConfig, "sendDefaultPii", true);
 
-    sentryConfig.init();
+        sentryConfig.init();
 
-    assertThat(Sentry.isEnabled()).isTrue();
-    assertThat(Sentry.getCurrentScopes().getOptions().isSendDefaultPii()).isTrue();
-  }
+        assertThat(Sentry.isEnabled()).isTrue();
+        assertThat(Sentry.getCurrentScopes().getOptions().isSendDefaultPii()).isTrue();
+    }
 
-  @Test
-  @DisplayName("Should wire sendDefaultPii option correctly when disabled")
-  void shouldWireSendDefaultPiiOptionWhenDisabled() {
-    ReflectionTestUtils.setField(sentryConfig, "dsn", "https://key@sentry.example.com/12345");
-    ReflectionTestUtils.setField(sentryConfig, "tracesSampleRate", 1.0);
-    ReflectionTestUtils.setField(sentryConfig, "environment", "production");
-    ReflectionTestUtils.setField(sentryConfig, "sendDefaultPii", false);
+    @Test
+    @DisplayName("Should wire sendDefaultPii option correctly when disabled")
+    void shouldWireSendDefaultPiiOptionWhenDisabled() {
+        ReflectionTestUtils.setField(sentryConfig, "dsn", "https://key@sentry.example.com/12345");
+        ReflectionTestUtils.setField(sentryConfig, "tracesSampleRate", 1.0);
+        ReflectionTestUtils.setField(sentryConfig, "environment", "production");
+        ReflectionTestUtils.setField(sentryConfig, "sendDefaultPii", false);
 
-    sentryConfig.init();
+        sentryConfig.init();
 
-    assertThat(Sentry.isEnabled()).isTrue();
-    assertThat(Sentry.getCurrentScopes().getOptions().isSendDefaultPii()).isFalse();
-  }
+        assertThat(Sentry.isEnabled()).isTrue();
+        assertThat(Sentry.getCurrentScopes().getOptions().isSendDefaultPii()).isFalse();
+    }
 
-  @Test
-  @DisplayName("Should cleanly capture exception without throwing")
-  void shouldCaptureExceptionWithoutThrowing() {
-    ReflectionTestUtils.setField(sentryConfig, "dsn", "https://key@sentry.example.com/12345");
-    ReflectionTestUtils.setField(sentryConfig, "tracesSampleRate", 1.0);
-    ReflectionTestUtils.setField(sentryConfig, "environment", "production");
-    ReflectionTestUtils.setField(sentryConfig, "sendDefaultPii", true);
+    @Test
+    @DisplayName("Should cleanly capture exception without throwing")
+    void shouldCaptureExceptionWithoutThrowing() {
+        ReflectionTestUtils.setField(sentryConfig, "dsn", "https://key@sentry.example.com/12345");
+        ReflectionTestUtils.setField(sentryConfig, "tracesSampleRate", 1.0);
+        ReflectionTestUtils.setField(sentryConfig, "environment", "production");
+        ReflectionTestUtils.setField(sentryConfig, "sendDefaultPii", true);
 
-    sentryConfig.init();
+        sentryConfig.init();
 
-    assertThatCode(() -> Sentry.captureException(new Exception("This is a test.")))
-        .doesNotThrowAnyException();
-  }
+        assertThatCode(() -> Sentry.captureException(new Exception("This is a test.")))
+                .doesNotThrowAnyException();
+    }
 
-  @Test
-  @DisplayName("Should cleanly capture exception without throwing when Sentry is disabled")
-  void shouldCaptureExceptionWithoutThrowingWhenDisabled() {
-    ReflectionTestUtils.setField(sentryConfig, "dsn", "");
+    @Test
+    @DisplayName("Should cleanly capture exception without throwing when Sentry is disabled")
+    void shouldCaptureExceptionWithoutThrowingWhenDisabled() {
+        ReflectionTestUtils.setField(sentryConfig, "dsn", "");
 
-    sentryConfig.init();
+        sentryConfig.init();
 
-    assertThatCode(() -> Sentry.captureException(new Exception("This is a test.")))
-        .doesNotThrowAnyException();
-  }
+        assertThatCode(() -> Sentry.captureException(new Exception("This is a test.")))
+                .doesNotThrowAnyException();
+    }
 
-  @Test
-  @DisplayName("Should not throw and keep Sentry disabled when DSN is empty")
-  void shouldNotThrowWhenDsnIsEmpty() {
-    ReflectionTestUtils.setField(sentryConfig, "dsn", "");
+    @Test
+    @DisplayName("Should not throw and keep Sentry disabled when DSN is empty")
+    void shouldNotThrowWhenDsnIsEmpty() {
+        ReflectionTestUtils.setField(sentryConfig, "dsn", "");
 
-    assertThatCode(() -> sentryConfig.init()).doesNotThrowAnyException();
-    assertThat(Sentry.isEnabled()).isFalse();
-  }
+        assertThatCode(() -> sentryConfig.init()).doesNotThrowAnyException();
+        assertThat(Sentry.isEnabled()).isFalse();
+    }
 
-  @Test
-  @DisplayName("Should not throw and keep Sentry disabled when DSN is blank")
-  void shouldNotThrowWhenDsnIsBlank() {
-    ReflectionTestUtils.setField(sentryConfig, "dsn", "   ");
+    @Test
+    @DisplayName("Should not throw and keep Sentry disabled when DSN is blank")
+    void shouldNotThrowWhenDsnIsBlank() {
+        ReflectionTestUtils.setField(sentryConfig, "dsn", "   ");
 
-    assertThatCode(() -> sentryConfig.init()).doesNotThrowAnyException();
-    assertThat(Sentry.isEnabled()).isFalse();
-  }
+        assertThatCode(() -> sentryConfig.init()).doesNotThrowAnyException();
+        assertThat(Sentry.isEnabled()).isFalse();
+    }
 
-  @Test
-  @DisplayName("Should not throw and keep Sentry disabled when DSN is null")
-  void shouldNotThrowWhenDsnIsNull() {
-    ReflectionTestUtils.setField(sentryConfig, "dsn", null);
+    @Test
+    @DisplayName("Should not throw and keep Sentry disabled when DSN is null")
+    void shouldNotThrowWhenDsnIsNull() {
+        ReflectionTestUtils.setField(sentryConfig, "dsn", null);
 
-    assertThatCode(() -> sentryConfig.init()).doesNotThrowAnyException();
-    assertThat(Sentry.isEnabled()).isFalse();
-  }
+        assertThatCode(() -> sentryConfig.init()).doesNotThrowAnyException();
+        assertThat(Sentry.isEnabled()).isFalse();
+    }
 }

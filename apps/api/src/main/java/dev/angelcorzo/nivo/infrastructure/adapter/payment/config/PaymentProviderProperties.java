@@ -8,11 +8,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "payment.provider")
 public class PaymentProviderProperties {
-  private String providerName;
-  private String url;
-  private String publicKey;
-  private String privateKey;
-  private Integer expirationTime;
-  private String confirmationUrl;
-  private String confirmationMethod;
+    private String providerName;
+    private String url;
+    private String publicKey;
+    private String privateKey;
+    private Integer expirationTime;
+    private String confirmationUrl;
+    private String confirmationMethod;
 }

@@ -20,36 +20,36 @@ import java.util.UUID;
  */
 public interface TenantsRepository {
 
-  /**
-   * Finds a tenant by its unique identifier.
-   *
-   * @param id The unique identifier of the tenant.
-   * @return An {@link Optional} containing the found {@link Tenants} entity, or empty if not found.
-   */
-  Optional<Tenants> findById(UUID id);
+    /**
+     * Finds a tenant by its unique identifier.
+     *
+     * @param id The unique identifier of the tenant.
+     * @return An {@link Optional} containing the found {@link Tenants} entity, or empty if not found.
+     */
+    Optional<Tenants> findById(UUID id);
 
-  Tenants getReferenceById(UUID id);
+    Tenants getReferenceById(UUID id);
 
-  /**
-   * Checks if a tenant with the given ID exists.
-   *
-   * @param id The unique identifier of the tenant to check.
-   * @return {@code true} if a tenant with the specified ID exists, {@code false} otherwise.
-   */
-  Boolean existsById(UUID id);
+    /**
+     * Checks if a tenant with the given ID exists.
+     *
+     * @param id The unique identifier of the tenant to check.
+     * @return {@code true} if a tenant with the specified ID exists, {@code false} otherwise.
+     */
+    Boolean existsById(UUID id);
 
-  /**
-   * Saves (creates or updates) a tenant entity.
-   *
-   * @param tenants The {@link Tenants} entity to save.
-   * @return The saved entity.
-   */
-  Tenants save(Tenants tenants);
+    /**
+     * Saves (creates or updates) a tenant entity.
+     *
+     * @param tenants The {@link Tenants} entity to save.
+     * @return The saved entity.
+     */
+    Tenants save(Tenants tenants);
 
-  /**
-   * Deletes a tenant by its unique identifier.
-   *
-   * @param id The unique identifier of the tenant to delete.
-   */
-  void deleteById(UUID id);
+    /**
+     * Deletes a tenant by its unique identifier.
+     *
+     * @param id The unique identifier of the tenant to delete.
+     */
+    void deleteById(UUID id);
 }

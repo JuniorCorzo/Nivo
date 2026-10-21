@@ -1,8 +1,8 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationpreferences.mappers;
 
+import dev.angelcorzo.nivo.domain.model.notificationpreferences.NotificationPreferences;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.config.MapperStructConfig;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationpreferences.dto.NotificationPreferencesDTO;
-import dev.angelcorzo.nivo.domain.model.notificationpreferences.NotificationPreferences;
 import org.mapstruct.Mapper;
 
 /**
@@ -21,11 +21,11 @@ import org.mapstruct.Mapper;
 @Mapper(config = MapperStructConfig.class)
 public interface NotificationPreferencesMapper {
 
-  /**
-   * Converts a {@link NotificationPreferences} domain entity to its REST response DTO.
-   *
-   * @param model The domain entity.
-   * @return The response DTO.
-   */
-  NotificationPreferencesDTO toDTO(NotificationPreferences model);
+    /**
+     * Converts a {@link NotificationPreferences} domain entity to its REST response DTO.
+     *
+     * @param model The domain entity.
+     * @return The response DTO.
+     */
+    NotificationPreferencesDTO toDTO(NotificationPreferences model);
 }

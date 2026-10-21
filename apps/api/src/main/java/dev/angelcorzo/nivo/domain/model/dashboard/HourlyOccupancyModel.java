@@ -12,11 +12,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HourlyOccupancyModel {
-  private UUID tenantId;
-  private UUID parkingLotId;
-  private OffsetDateTime hourBucket;
-  private Long checkins;
-  private Long checkouts;
-  private Long totalCapacity;
-  private Double estimatedOccupancyRate;
+    private UUID tenantId;
+    private UUID parkingLotId;
+    private OffsetDateTime hourBucket;
+    private Long checkins;
+    private Long checkouts;
+    private Long totalCapacity;
+    private Double estimatedOccupancyRate;
 }

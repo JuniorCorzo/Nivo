@@ -6,14 +6,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SendNotificationQueue {
-  private final LinkedBlockingDeque<SendNotificationEvent> eventsQueue =
-      new LinkedBlockingDeque<>();
+    private final LinkedBlockingDeque<SendNotificationEvent> eventsQueue = new LinkedBlockingDeque<>();
 
-  public void enqueue(SendNotificationEvent event) {
-    eventsQueue.offer(event);
-  }
+    public void enqueue(SendNotificationEvent event) {
+        eventsQueue.offer(event);
+    }
 
-  public SendNotificationEvent take() throws InterruptedException {
-    return eventsQueue.take();
-  }
+    public SendNotificationEvent take() throws InterruptedException {
+        return eventsQueue.take();
+    }
 }

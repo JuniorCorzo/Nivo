@@ -5,10 +5,8 @@ import dev.angelcorzo.nivo.domain.model.rates.enums.TimeUnitsRate;
 import dev.angelcorzo.nivo.domain.model.rates.enums.VehicleType;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.valueobjects.SpecialPoliciesReference;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
-
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,21 +20,21 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Rates {
-  private UUID id;
-  private TenantReference tenant;
-  private ParkingLotsReference parking;
-  private String name;
-  private String description;
-  private BigDecimal pricePerUnit;
-  private TimeUnitsRate timeUnit;
-  private int minChargeTimeMinutes;
-  private VehicleType vehicleType;
-  private SpecialPoliciesReference specialPolicy;
-  private OffsetDateTime createdAt;
-  private OffsetDateTime updatedAt;
-  private OffsetDateTime deletedAt;
+    private UUID id;
+    private TenantReference tenant;
+    private ParkingLotsReference parking;
+    private String name;
+    private String description;
+    private BigDecimal pricePerUnit;
+    private TimeUnitsRate timeUnit;
+    private int minChargeTimeMinutes;
+    private VehicleType vehicleType;
+    private SpecialPoliciesReference specialPolicy;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime deletedAt;
 
-  public boolean hasSpecialPolicy() {
-    return this.specialPolicy != null;
-  }
+    public boolean hasSpecialPolicy() {
+        return this.specialPolicy != null;
+    }
 }

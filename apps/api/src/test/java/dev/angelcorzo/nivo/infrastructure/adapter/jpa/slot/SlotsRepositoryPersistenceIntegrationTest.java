@@ -2,6 +2,7 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.angelcorzo.nivo.domain.model.commons.encryption.gateways.EncryptionGateway;
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotType;
@@ -13,7 +14,6 @@ import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.mappers.SlotSummaryDa
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.mappers.SlotsMappersJpaImpl;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.TenantsData;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.UsersData;
-import dev.angelcorzo.nivo.domain.model.commons.encryption.gateways.EncryptionGateway;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -34,150 +34,148 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @EnableJpaRepositories(basePackageClasses = SlotsRepositoryData.class)
 @Import({
-  SlotsRepositoryAdapter.class,
-  SlotsMappersJpaImpl.class,
-  SlotSummaryDataMapper.class,
-  CoordinatesMapperJpaImpl.class
+    SlotsRepositoryAdapter.class,
+    SlotsMappersJpaImpl.class,
+    SlotSummaryDataMapper.class,
+    CoordinatesMapperJpaImpl.class
 })
 @DisplayName("SlotsRepositoryPersistenceIntegrationTest")
 class SlotsRepositoryPersistenceIntegrationTest {
 
-  @MockitoBean private EncryptionGateway encryptionGateway;
-  @Autowired private EntityManager entityManager;
-  @Autowired private SlotsRepositoryAdapter slotsRepositoryAdapter;
+    @MockitoBean
+    private EncryptionGateway encryptionGateway;
 
-  private EditSlotUseCase editSlotUseCase;
-  private ParkingLotsData testParkingLot;
-  private TenantsData testTenant;
+    @Autowired
+    private EntityManager entityManager;
 
-  @BeforeEach
-  void setUp() {
-    this.editSlotUseCase = new EditSlotUseCase(slotsRepositoryAdapter);
+    @Autowired
+    private SlotsRepositoryAdapter slotsRepositoryAdapter;
 
-    this.testTenant =
-        TenantsData.builder()
-            .companyName("Nivo Test Tenant")
-            .build();
-    entityManager.persist(testTenant);
-    entityManager.flush();
+    private EditSlotUseCase editSlotUseCase;
+    private ParkingLotsData testParkingLot;
+    private TenantsData testTenant;
 
-    UsersData testOwner =
-        UsersData.builder()
-            .fullName("Slot Owner")
-            .email("owner-" + UUID.randomUUID() + "@test.com")
-            .password("secretHash")
-            .role(Roles.MANAGER)
-            .tenant(testTenant)
-            .build();
-    entityManager.persist(testOwner);
-    entityManager.flush();
+    @BeforeEach
+    void setUp() {
+        this.editSlotUseCase = new EditSlotUseCase(slotsRepositoryAdapter);
 
-    this.testParkingLot =
-        ParkingLotsData.builder()
-            .name("Main Lot")
-            .owner(testOwner)
-            .tenant(testTenant)
-            .gracePeriodMinutes(0)
-            .gracePeriodPrice(BigDecimal.ZERO)
-            .ivaRate(BigDecimal.valueOf(0.19))
-            .build();
-    entityManager.persist(testParkingLot);
-    entityManager.flush();
-  }
+        this.testTenant = TenantsData.builder().companyName("Nivo Test Tenant").build();
+        entityManager.persist(testTenant);
+        entityManager.flush();
 
-  @Test
-  @DisplayName("Should persist slot update to database when executed via EditSlotUseCase")
-  void shouldPersistSlotUpdateToDatabaseViaUseCase() {
-    SlotsData initialSlot =
-        SlotsData.builder()
-            .parking(testParkingLot)
-            .tenant(testTenant)
-            .slotNumber("A-01")
-            .zone("A")
-            .prefix("A")
-            .type(SlotType.CAR)
-            .status(SlotStatus.AVAILABLE)
-            .hasCharger(false)
-            .isAccessible(false)
-            .isActive(true)
-            .build();
-    entityManager.persist(initialSlot);
-    entityManager.flush();
-    UUID slotId = initialSlot.getId();
+        UsersData testOwner = UsersData.builder()
+                .fullName("Slot Owner")
+                .email("owner-" + UUID.randomUUID() + "@test.com")
+                .password("secretHash")
+                .role(Roles.MANAGER)
+                .tenant(testTenant)
+                .build();
+        entityManager.persist(testOwner);
+        entityManager.flush();
 
-    // Clear entityManager cache to ensure find comes from DB
-    entityManager.clear();
+        this.testParkingLot = ParkingLotsData.builder()
+                .name("Main Lot")
+                .owner(testOwner)
+                .tenant(testTenant)
+                .gracePeriodMinutes(0)
+                .gracePeriodPrice(BigDecimal.ZERO)
+                .ivaRate(BigDecimal.valueOf(0.19))
+                .build();
+        entityManager.persist(testParkingLot);
+        entityManager.flush();
+    }
 
-    EditSlotUseCase.UpdateSlotCommand command =
-        new EditSlotUseCase.UpdateSlotCommand(slotId, "A-01-UPDATED", SlotType.ELECTRIC_VEHICLE, SlotStatus.MAINTENANCE);
+    @Test
+    @DisplayName("Should persist slot update to database when executed via EditSlotUseCase")
+    void shouldPersistSlotUpdateToDatabaseViaUseCase() {
+        SlotsData initialSlot = SlotsData.builder()
+                .parking(testParkingLot)
+                .tenant(testTenant)
+                .slotNumber("A-01")
+                .zone("A")
+                .prefix("A")
+                .type(SlotType.CAR)
+                .status(SlotStatus.AVAILABLE)
+                .hasCharger(false)
+                .isAccessible(false)
+                .isActive(true)
+                .build();
+        entityManager.persist(initialSlot);
+        entityManager.flush();
+        UUID slotId = initialSlot.getId();
 
-    Slots updatedSlot = editSlotUseCase.execute(command);
+        // Clear entityManager cache to ensure find comes from DB
+        entityManager.clear();
 
-    assertThat(updatedSlot).isNotNull();
-    assertThat(updatedSlot.getId()).isEqualTo(slotId);
-    assertThat(updatedSlot.getSlotNumber()).isEqualTo("A-01-UPDATED");
-    assertThat(updatedSlot.getType()).isEqualTo(SlotType.ELECTRIC_VEHICLE);
-    assertThat(updatedSlot.getStatus()).isEqualTo(SlotStatus.MAINTENANCE);
+        EditSlotUseCase.UpdateSlotCommand command = new EditSlotUseCase.UpdateSlotCommand(
+                slotId, "A-01-UPDATED", SlotType.ELECTRIC_VEHICLE, SlotStatus.MAINTENANCE);
 
-    // Flush and clear persistence context to force reading fresh state from database
-    entityManager.flush();
-    entityManager.clear();
+        Slots updatedSlot = editSlotUseCase.execute(command);
 
-    SlotsData persistedData = entityManager.find(SlotsData.class, slotId);
-    assertThat(persistedData).isNotNull();
-    assertThat(persistedData.getSlotNumber()).isEqualTo("A-01-UPDATED");
-    assertThat(persistedData.getType()).isEqualTo(SlotType.ELECTRIC_VEHICLE);
-    assertThat(persistedData.getStatus()).isEqualTo(SlotStatus.MAINTENANCE);
+        assertThat(updatedSlot).isNotNull();
+        assertThat(updatedSlot.getId()).isEqualTo(slotId);
+        assertThat(updatedSlot.getSlotNumber()).isEqualTo("A-01-UPDATED");
+        assertThat(updatedSlot.getType()).isEqualTo(SlotType.ELECTRIC_VEHICLE);
+        assertThat(updatedSlot.getStatus()).isEqualTo(SlotStatus.MAINTENANCE);
 
-    // Also verify via repository adapter findById
-    Optional<Slots> persistedDomain = slotsRepositoryAdapter.findById(slotId);
-    assertThat(persistedDomain).isPresent();
-    assertThat(persistedDomain.get().getSlotNumber()).isEqualTo("A-01-UPDATED");
-    assertThat(persistedDomain.get().getType()).isEqualTo(SlotType.ELECTRIC_VEHICLE);
-    assertThat(persistedDomain.get().getStatus()).isEqualTo(SlotStatus.MAINTENANCE);
-  }
+        // Flush and clear persistence context to force reading fresh state from database
+        entityManager.flush();
+        entityManager.clear();
 
-  @Test
-  @DisplayName("Should persist slot update directly through SlotsRepositoryAdapter.save()")
-  void shouldPersistSlotUpdateDirectlyThroughAdapter() {
-    SlotsData initialSlot =
-        SlotsData.builder()
-            .parking(testParkingLot)
-            .tenant(testTenant)
-            .slotNumber("B-01")
-            .zone("B")
-            .prefix("B")
-            .type(SlotType.MOTORCYCLE)
-            .status(SlotStatus.MAINTENANCE)
-            .hasCharger(false)
-            .isAccessible(false)
-            .isActive(true)
-            .build();
-    entityManager.persist(initialSlot);
-    entityManager.flush();
-    UUID slotId = initialSlot.getId();
+        SlotsData persistedData = entityManager.find(SlotsData.class, slotId);
+        assertThat(persistedData).isNotNull();
+        assertThat(persistedData.getSlotNumber()).isEqualTo("A-01-UPDATED");
+        assertThat(persistedData.getType()).isEqualTo(SlotType.ELECTRIC_VEHICLE);
+        assertThat(persistedData.getStatus()).isEqualTo(SlotStatus.MAINTENANCE);
 
-    entityManager.clear();
+        // Also verify via repository adapter findById
+        Optional<Slots> persistedDomain = slotsRepositoryAdapter.findById(slotId);
+        assertThat(persistedDomain).isPresent();
+        assertThat(persistedDomain.get().getSlotNumber()).isEqualTo("A-01-UPDATED");
+        assertThat(persistedDomain.get().getType()).isEqualTo(SlotType.ELECTRIC_VEHICLE);
+        assertThat(persistedDomain.get().getStatus()).isEqualTo(SlotStatus.MAINTENANCE);
+    }
 
-    Slots domainSlot = slotsRepositoryAdapter.findById(slotId).orElseThrow();
-    Slots modifiedSlot = domainSlot.toBuilder()
-        .status(SlotStatus.AVAILABLE)
-        .slotNumber("B-01-RENAMED")
-        .type(SlotType.BIKE)
-        .build();
+    @Test
+    @DisplayName("Should persist slot update directly through SlotsRepositoryAdapter.save()")
+    void shouldPersistSlotUpdateDirectlyThroughAdapter() {
+        SlotsData initialSlot = SlotsData.builder()
+                .parking(testParkingLot)
+                .tenant(testTenant)
+                .slotNumber("B-01")
+                .zone("B")
+                .prefix("B")
+                .type(SlotType.MOTORCYCLE)
+                .status(SlotStatus.MAINTENANCE)
+                .hasCharger(false)
+                .isAccessible(false)
+                .isActive(true)
+                .build();
+        entityManager.persist(initialSlot);
+        entityManager.flush();
+        UUID slotId = initialSlot.getId();
 
-    Slots saved = slotsRepositoryAdapter.save(modifiedSlot);
-    assertThat(saved.getStatus()).isEqualTo(SlotStatus.AVAILABLE);
-    assertThat(saved.getSlotNumber()).isEqualTo("B-01-RENAMED");
-    assertThat(saved.getType()).isEqualTo(SlotType.BIKE);
+        entityManager.clear();
 
-    entityManager.flush();
-    entityManager.clear();
+        Slots domainSlot = slotsRepositoryAdapter.findById(slotId).orElseThrow();
+        Slots modifiedSlot = domainSlot.toBuilder()
+                .status(SlotStatus.AVAILABLE)
+                .slotNumber("B-01-RENAMED")
+                .type(SlotType.BIKE)
+                .build();
 
-    SlotsData freshData = entityManager.find(SlotsData.class, slotId);
-    assertThat(freshData).isNotNull();
-    assertThat(freshData.getStatus()).isEqualTo(SlotStatus.AVAILABLE);
-    assertThat(freshData.getSlotNumber()).isEqualTo("B-01-RENAMED");
-    assertThat(freshData.getType()).isEqualTo(SlotType.BIKE);
-  }
+        Slots saved = slotsRepositoryAdapter.save(modifiedSlot);
+        assertThat(saved.getStatus()).isEqualTo(SlotStatus.AVAILABLE);
+        assertThat(saved.getSlotNumber()).isEqualTo("B-01-RENAMED");
+        assertThat(saved.getType()).isEqualTo(SlotType.BIKE);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        SlotsData freshData = entityManager.find(SlotsData.class, slotId);
+        assertThat(freshData).isNotNull();
+        assertThat(freshData.getStatus()).isEqualTo(SlotStatus.AVAILABLE);
+        assertThat(freshData.getSlotNumber()).isEqualTo("B-01-RENAMED");
+        assertThat(freshData.getType()).isEqualTo(SlotType.BIKE);
+    }
 }

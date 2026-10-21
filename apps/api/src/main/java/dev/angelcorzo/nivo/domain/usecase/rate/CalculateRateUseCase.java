@@ -19,56 +19,49 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class CalculateRateUseCase {
-  private final ParkingTicketsRepository parkingTicketsRepository;
-  private final ParkingLotsRepository parkingLotsRepository;
-  private final AuthenticationContextGateway authenticationContextGateway;
-  private final PricingEngine pricingEngine;
-  private final Clock clock;
+    private final ParkingTicketsRepository parkingTicketsRepository;
+    private final ParkingLotsRepository parkingLotsRepository;
+    private final AuthenticationContextGateway authenticationContextGateway;
+    private final PricingEngine pricingEngine;
+    private final Clock clock;
 
-  public PriceDetailed execute(UUID ticketId) {
-    final ParkingTickets parkingTicket =
-        this.parkingTicketsRepository
-            .findById(ticketId)
-            .orElseThrow(() -> new ParkingTicketNotFound(ticketId));
+    public PriceDetailed execute(UUID ticketId) {
+        final ParkingTickets parkingTicket =
+                this.parkingTicketsRepository.findById(ticketId).orElseThrow(() -> new ParkingTicketNotFound(ticketId));
 
-    UUID parkingId = parkingTicket.getSlot() != null ? resolveParkingIdFromTicket(parkingTicket) : null;
-    return calculate(parkingTicket, parkingId);
-  }
-
-  public PriceDetailed execute(UUID ticketId, UUID parkingLotId) {
-    final ParkingTickets parkingTicket =
-        this.parkingTicketsRepository
-            .findById(ticketId)
-            .orElseThrow(() -> new ParkingTicketNotFound(ticketId));
-
-    return calculate(parkingTicket, parkingLotId);
-  }
-
-  private PriceDetailed calculate(ParkingTickets parkingTicket, UUID parkingLotId) {
-    ParkingLotPolicy policy = ParkingLotPolicy.defaults();
-    if (parkingLotId != null) {
-      policy =
-          this.parkingLotsRepository
-              .findById(parkingLotId)
-              .map(ParkingLots::getPolicy)
-              .orElse(ParkingLotPolicy.defaults());
+        UUID parkingId = parkingTicket.getSlot() != null ? resolveParkingIdFromTicket(parkingTicket) : null;
+        return calculate(parkingTicket, parkingId);
     }
 
-    final String tenantName =
-        this.authenticationContextGateway.getCurrentTenant() != null
-            ? this.authenticationContextGateway.getCurrentTenant().getCompanyName()
-            : "Nivo Parking";
-    final RateReference rate = parkingTicket.getRate();
-    final StayInterval stayInterval =
-        StayInterval.of(parkingTicket.getEntryTime(), OffsetDateTime.now(this.clock));
+    public PriceDetailed execute(UUID ticketId, UUID parkingLotId) {
+        final ParkingTickets parkingTicket =
+                this.parkingTicketsRepository.findById(ticketId).orElseThrow(() -> new ParkingTicketNotFound(ticketId));
 
-    final PricingContext context = PricingContext.of(rate, policy, stayInterval);
+        return calculate(parkingTicket, parkingLotId);
+    }
 
-    return this.pricingEngine.calculate(context, tenantName);
-  }
+    private PriceDetailed calculate(ParkingTickets parkingTicket, UUID parkingLotId) {
+        ParkingLotPolicy policy = ParkingLotPolicy.defaults();
+        if (parkingLotId != null) {
+            policy = this.parkingLotsRepository
+                    .findById(parkingLotId)
+                    .map(ParkingLots::getPolicy)
+                    .orElse(ParkingLotPolicy.defaults());
+        }
 
-  private UUID resolveParkingIdFromTicket(ParkingTickets ticket) {
-    // Falls back to safe default if slot does not have parking reference
-    return null;
-  }
+        final String tenantName = this.authenticationContextGateway.getCurrentTenant() != null
+                ? this.authenticationContextGateway.getCurrentTenant().getCompanyName()
+                : "Nivo Parking";
+        final RateReference rate = parkingTicket.getRate();
+        final StayInterval stayInterval = StayInterval.of(parkingTicket.getEntryTime(), OffsetDateTime.now(this.clock));
+
+        final PricingContext context = PricingContext.of(rate, policy, stayInterval);
+
+        return this.pricingEngine.calculate(context, tenantName);
+    }
+
+    private UUID resolveParkingIdFromTicket(ParkingTickets ticket) {
+        // Falls back to safe default if slot does not have parking reference
+        return null;
+    }
 }

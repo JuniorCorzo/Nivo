@@ -4,5 +4,5 @@ import dev.angelcorzo.nivo.domain.model.commons.notifications.NotificationsData;
 import dev.angelcorzo.nivo.domain.model.notificationtemplates.NotificationTemplates;
 
 public interface NotificationGateway {
-  void sendEmail(NotificationTemplates template, String to, NotificationsData content);
+    void sendEmail(NotificationTemplates template, String to, NotificationsData content);
 }

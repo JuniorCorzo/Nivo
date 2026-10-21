@@ -19,12 +19,12 @@ import lombok.Getter;
 @Builder
 @Getter
 public class DBSecret {
-  /** The JDBC URL for the database connection. */
-  private final String url;
+    /** The JDBC URL for the database connection. */
+    private final String url;
 
-  /** The username for database authentication. */
-  private final String username;
+    /** The username for database authentication. */
+    private final String username;
 
-  /** The password for database authentication. */
-  private final String password;
+    /** The password for database authentication. */
+    private final String password;
 }

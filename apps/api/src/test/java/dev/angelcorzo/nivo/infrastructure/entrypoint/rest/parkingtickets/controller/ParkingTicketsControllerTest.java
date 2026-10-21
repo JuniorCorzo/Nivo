@@ -8,6 +8,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
+import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
+import dev.angelcorzo.nivo.domain.model.payments.Payments;
+import dev.angelcorzo.nivo.domain.model.payments.enums.PaymentsMethods;
+import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.EmailCheckOut;
+import dev.angelcorzo.nivo.domain.usecase.ticket.CheckOutVehicleUseCase;
+import dev.angelcorzo.nivo.domain.usecase.ticket.CheckinVehicleUseCase;
+import dev.angelcorzo.nivo.domain.usecase.ticket.GetActiveParkingTicketBySlotUseCase;
+import dev.angelcorzo.nivo.domain.usecase.ticket.ListParkingTicketsByParkingLotUseCase;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkingtickets.dto.CreateTicket;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkingtickets.dto.ParkingTicketsDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkingtickets.mapper.ParkingTicketMapper;
@@ -15,16 +24,6 @@ import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.payments.dtos.request.
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.payments.dtos.request.check_out.check_out.EmailCheckOutCommand;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.payments.dtos.response.PaymentsDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.payments.mappers.PaymentsMapper;
-import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
-import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
-import dev.angelcorzo.nivo.domain.model.payments.Payments;
-import dev.angelcorzo.nivo.domain.model.payments.enums.PaymentsMethods;
-import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.CheckOut;
-import dev.angelcorzo.nivo.domain.model.payments.valueobject.check_out.EmailCheckOut;
-import dev.angelcorzo.nivo.domain.usecase.ticket.CheckinVehicleUseCase;
-import dev.angelcorzo.nivo.domain.usecase.ticket.CheckOutVehicleUseCase;
-import dev.angelcorzo.nivo.domain.usecase.ticket.GetActiveParkingTicketBySlotUseCase;
-import dev.angelcorzo.nivo.domain.usecase.ticket.ListParkingTicketsByParkingLotUseCase;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,139 +48,137 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("ParkingTicketsController Unit Tests")
 class ParkingTicketsControllerTest {
 
-  @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+    private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
-  @MockitoBean private CheckinVehicleUseCase checkinVehicleUseCase;
-  @MockitoBean private CheckOutVehicleUseCase checkOutVehicleUseCase;
-  @MockitoBean private ListParkingTicketsByParkingLotUseCase listParkingTicketsByParkingLotUseCase;
-  @MockitoBean private GetActiveParkingTicketBySlotUseCase getActiveParkingTicketBySlotUseCase;
-  @MockitoBean private AuthenticationContextGateway authenticationContext;
-  @MockitoBean private ParkingTicketMapper parkingTicketMapper;
-  @MockitoBean private PaymentsMapper paymentsMapper;
+    @MockitoBean
+    private CheckinVehicleUseCase checkinVehicleUseCase;
 
-  @Test
-  @DisplayName("GET /tickets/list - Should list tickets by parking lot successfully")
-  void shouldListTicketsByParkingLot() throws Exception {
-    UUID parkingLotId = UUID.randomUUID();
-    ParkingTickets ticket = ParkingTickets.builder().id(UUID.randomUUID()).build();
-    ParkingTicketsDTO dto = ParkingTicketsDTO.builder().id(ticket.getId()).build();
+    @MockitoBean
+    private CheckOutVehicleUseCase checkOutVehicleUseCase;
 
-    when(listParkingTicketsByParkingLotUseCase.execute(parkingLotId)).thenReturn(List.of(ticket));
-    when(parkingTicketMapper.toDto(ticket)).thenReturn(dto);
+    @MockitoBean
+    private ListParkingTicketsByParkingLotUseCase listParkingTicketsByParkingLotUseCase;
 
-    mockMvc
-        .perform(
-            get("/tickets/list")
-                .param("parking", parkingLotId.toString())
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.data").isArray())
-        .andExpect(jsonPath("$.data.length()").value(1))
-        .andExpect(jsonPath("$.message").value("Tickets retrieved successfully"));
-  }
+    @MockitoBean
+    private GetActiveParkingTicketBySlotUseCase getActiveParkingTicketBySlotUseCase;
 
-  @Test
-  @DisplayName("GET /tickets/active - Should get active ticket for slot successfully")
-  void shouldGetActiveTicketBySlot() throws Exception {
-    UUID slotId = UUID.randomUUID();
-    ParkingTickets ticket = ParkingTickets.builder().id(UUID.randomUUID()).build();
-    ParkingTicketsDTO dto = ParkingTicketsDTO.builder().id(ticket.getId()).build();
+    @MockitoBean
+    private AuthenticationContextGateway authenticationContext;
 
-    when(getActiveParkingTicketBySlotUseCase.execute(slotId)).thenReturn(Optional.of(ticket));
-    when(parkingTicketMapper.toDto(ticket)).thenReturn(dto);
+    @MockitoBean
+    private ParkingTicketMapper parkingTicketMapper;
 
-    mockMvc
-        .perform(
-            get("/tickets/active")
-                .param("slot", slotId.toString())
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.data.id").value(ticket.getId().toString()))
-        .andExpect(jsonPath("$.message").value("Active ticket retrieved successfully"));
-  }
+    @MockitoBean
+    private PaymentsMapper paymentsMapper;
 
-  @Test
-  @DisplayName("GET /tickets/active - Should return null data when slot has no active ticket")
-  void shouldReturnNullWhenNoActiveTicket() throws Exception {
-    UUID slotId = UUID.randomUUID();
+    @Test
+    @DisplayName("GET /tickets/list - Should list tickets by parking lot successfully")
+    void shouldListTicketsByParkingLot() throws Exception {
+        UUID parkingLotId = UUID.randomUUID();
+        ParkingTickets ticket = ParkingTickets.builder().id(UUID.randomUUID()).build();
+        ParkingTicketsDTO dto = ParkingTicketsDTO.builder().id(ticket.getId()).build();
 
-    when(getActiveParkingTicketBySlotUseCase.execute(slotId)).thenReturn(Optional.empty());
+        when(listParkingTicketsByParkingLotUseCase.execute(parkingLotId)).thenReturn(List.of(ticket));
+        when(parkingTicketMapper.toDto(ticket)).thenReturn(dto);
 
-    mockMvc
-        .perform(
-            get("/tickets/active")
-                .param("slot", slotId.toString())
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.data").doesNotExist())
-        .andExpect(jsonPath("$.message").value("Active ticket retrieved successfully"));
-  }
+        mockMvc.perform(get("/tickets/list")
+                        .param("parking", parkingLotId.toString())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.message").value("Tickets retrieved successfully"));
+    }
 
-  @Test
-  @DisplayName("POST /tickets/check-in - Should create ticket successfully")
-  void shouldCreateTicket() throws Exception {
-    UUID tenantId = UUID.randomUUID();
-    UUID slotId = UUID.randomUUID();
-    UUID rateId = UUID.randomUUID();
-    CreateTicket request = new CreateTicket(slotId, rateId, "user@example.com", "ABC123");
+    @Test
+    @DisplayName("GET /tickets/active - Should get active ticket for slot successfully")
+    void shouldGetActiveTicketBySlot() throws Exception {
+        UUID slotId = UUID.randomUUID();
+        ParkingTickets ticket = ParkingTickets.builder().id(UUID.randomUUID()).build();
+        ParkingTicketsDTO dto = ParkingTicketsDTO.builder().id(ticket.getId()).build();
 
-    CheckinVehicleUseCase.CreatedParkingTicket command =
-        CheckinVehicleUseCase.CreatedParkingTicket.builder()
-            .slotId(slotId)
-            .rateId(rateId)
-            .email("user@example.com")
-            .plate("ABC123")
-            .tenantId(tenantId)
-            .build();
+        when(getActiveParkingTicketBySlotUseCase.execute(slotId)).thenReturn(Optional.of(ticket));
+        when(parkingTicketMapper.toDto(ticket)).thenReturn(dto);
 
-    ParkingTickets createdTicket = ParkingTickets.builder().id(UUID.randomUUID()).build();
-    ParkingTicketsDTO responseDto = mock(ParkingTicketsDTO.class);
+        mockMvc.perform(get("/tickets/active").param("slot", slotId.toString()).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(ticket.getId().toString()))
+                .andExpect(jsonPath("$.message").value("Active ticket retrieved successfully"));
+    }
 
-    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
-    when(parkingTicketMapper.toModel(any(CreateTicket.class))).thenReturn(command);
-    when(checkinVehicleUseCase.execute(any())).thenReturn(createdTicket);
-    when(parkingTicketMapper.toDto(createdTicket)).thenReturn(responseDto);
+    @Test
+    @DisplayName("GET /tickets/active - Should return null data when slot has no active ticket")
+    void shouldReturnNullWhenNoActiveTicket() throws Exception {
+        UUID slotId = UUID.randomUUID();
 
-    mockMvc
-        .perform(
-            post("/tickets/check-in")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.message").value("Ticket created successfully"));
-  }
+        when(getActiveParkingTicketBySlotUseCase.execute(slotId)).thenReturn(Optional.empty());
 
-  @Test
-  @DisplayName("POST /tickets/check-out - Should checkout vehicle successfully")
-  void shouldCheckoutVehicle() throws Exception {
-    UUID ticketId = UUID.randomUUID();
-    EmailCheckOutCommand command =
-        EmailCheckOutCommand.builder()
-            .ticketId(ticketId)
-            .paymentMethod(PaymentsMethods.EFFECTIVE)
-            .email("test@example.com")
-            .build();
-    EmailCheckOut domainCheckOut =
-        EmailCheckOut.builder()
-            .ticketId(ticketId)
-            .paymentMethod(PaymentsMethods.EFFECTIVE)
-            .email("test@example.com")
-            .build();
-    Payments payment = Payments.builder().id(UUID.randomUUID()).build();
-    PaymentsDTO responseDto = mock(PaymentsDTO.class);
+        mockMvc.perform(get("/tickets/active").param("slot", slotId.toString()).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.message").value("Active ticket retrieved successfully"));
+    }
 
-    when(paymentsMapper.toModel(any(CheckOutCommand.class))).thenReturn(domainCheckOut);
-    when(checkOutVehicleUseCase.execute(domainCheckOut)).thenReturn(payment);
-    when(paymentsMapper.toDto(payment)).thenReturn(responseDto);
+    @Test
+    @DisplayName("POST /tickets/check-in - Should create ticket successfully")
+    void shouldCreateTicket() throws Exception {
+        UUID tenantId = UUID.randomUUID();
+        UUID slotId = UUID.randomUUID();
+        UUID rateId = UUID.randomUUID();
+        CreateTicket request = new CreateTicket(slotId, rateId, "user@example.com", "ABC123");
 
-    mockMvc
-        .perform(
-            post("/tickets/check-out")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(command)))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.message").value("Checkout processed successfully"));
-  }
+        CheckinVehicleUseCase.CreatedParkingTicket command = CheckinVehicleUseCase.CreatedParkingTicket.builder()
+                .slotId(slotId)
+                .rateId(rateId)
+                .email("user@example.com")
+                .plate("ABC123")
+                .tenantId(tenantId)
+                .build();
+
+        ParkingTickets createdTicket =
+                ParkingTickets.builder().id(UUID.randomUUID()).build();
+        ParkingTicketsDTO responseDto = mock(ParkingTicketsDTO.class);
+
+        when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
+        when(parkingTicketMapper.toModel(any(CreateTicket.class))).thenReturn(command);
+        when(checkinVehicleUseCase.execute(any())).thenReturn(createdTicket);
+        when(parkingTicketMapper.toDto(createdTicket)).thenReturn(responseDto);
+
+        mockMvc.perform(post("/tickets/check-in")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("Ticket created successfully"));
+    }
+
+    @Test
+    @DisplayName("POST /tickets/check-out - Should checkout vehicle successfully")
+    void shouldCheckoutVehicle() throws Exception {
+        UUID ticketId = UUID.randomUUID();
+        EmailCheckOutCommand command = EmailCheckOutCommand.builder()
+                .ticketId(ticketId)
+                .paymentMethod(PaymentsMethods.EFFECTIVE)
+                .email("test@example.com")
+                .build();
+        EmailCheckOut domainCheckOut = EmailCheckOut.builder()
+                .ticketId(ticketId)
+                .paymentMethod(PaymentsMethods.EFFECTIVE)
+                .email("test@example.com")
+                .build();
+        Payments payment = Payments.builder().id(UUID.randomUUID()).build();
+        PaymentsDTO responseDto = mock(PaymentsDTO.class);
+
+        when(paymentsMapper.toModel(any(CheckOutCommand.class))).thenReturn(domainCheckOut);
+        when(checkOutVehicleUseCase.execute(domainCheckOut)).thenReturn(payment);
+        when(paymentsMapper.toDto(payment)).thenReturn(responseDto);
+
+        mockMvc.perform(post("/tickets/check-out")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(command)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("Checkout processed successfully"));
+    }
 }

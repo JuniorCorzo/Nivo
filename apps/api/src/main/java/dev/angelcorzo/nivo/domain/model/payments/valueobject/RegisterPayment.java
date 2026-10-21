@@ -8,14 +8,14 @@ import lombok.Builder;
 
 @Builder
 public record RegisterPayment(
-    UUID id,
-    BigDecimal amount,
-    PaymentsMethods paymentMethod,
-    PaymentStatus status,
-    ProviderMetadata providerMetadata) {
-  public static class RegisterPaymentBuilder {
-    RegisterPaymentBuilder() {
-      status = PaymentStatus.PAID;
+        UUID id,
+        BigDecimal amount,
+        PaymentsMethods paymentMethod,
+        PaymentStatus status,
+        ProviderMetadata providerMetadata) {
+    public static class RegisterPaymentBuilder {
+        RegisterPaymentBuilder() {
+            status = PaymentStatus.PAID;
+        }
     }
-  }
 }

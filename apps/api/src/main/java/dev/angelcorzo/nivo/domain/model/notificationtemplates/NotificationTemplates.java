@@ -16,14 +16,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class NotificationTemplates {
-  private UUID id;
-  private String name;
-  private NotificationEvents eventType;
-  private NotificationsChannel channel;
-  private String templateReference;
-  private String body;
-  private Boolean isActive;
-  private OffsetDateTime createdAt;
-  private OffsetDateTime updatedAt;
-  private OffsetDateTime deletedAt;
+    private UUID id;
+    private String name;
+    private NotificationEvents eventType;
+    private NotificationsChannel channel;
+    private String templateReference;
+    private String body;
+    private Boolean isActive;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime deletedAt;
 }

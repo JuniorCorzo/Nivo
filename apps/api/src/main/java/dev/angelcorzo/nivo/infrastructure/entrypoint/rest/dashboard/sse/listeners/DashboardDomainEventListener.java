@@ -11,15 +11,15 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DashboardDomainEventListener {
 
-  private final DashboardSseRegistry sseRegistry;
+    private final DashboardSseRegistry sseRegistry;
 
-  @EventListener
-  public void onDashboardUpdate(final DashboardUpdateEvent event) {
-    log.debug(
-        "Broadcasting DashboardUpdateEvent: tenant={}, parking={}, event={}",
-        event.tenantId(),
-        event.parkingId(),
-        event.eventName());
-    sseRegistry.broadcast(event.tenantId(), event.parkingId(), event.eventName(), event.data());
-  }
+    @EventListener
+    public void onDashboardUpdate(final DashboardUpdateEvent event) {
+        log.debug(
+                "Broadcasting DashboardUpdateEvent: tenant={}, parking={}, event={}",
+                event.tenantId(),
+                event.parkingId(),
+                event.eventName());
+        sseRegistry.broadcast(event.tenantId(), event.parkingId(), event.eventName(), event.data());
+    }
 }

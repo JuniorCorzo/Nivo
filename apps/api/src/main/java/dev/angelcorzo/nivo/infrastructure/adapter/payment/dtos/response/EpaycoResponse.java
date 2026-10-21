@@ -6,47 +6,41 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(using = EpaycoResponseDeserializer.class)
 public sealed interface EpaycoResponse<T> permits EpaycoResponse.Success, EpaycoResponse.Failure {
-  boolean success();
+    boolean success();
 
-  String titleResponse();
+    String titleResponse();
 
-  String textResponse();
+    String textResponse();
 
-  String lastResponse();
+    String lastResponse();
 
-  default T get() {
-    if (this.isFailure()) return null;
+    default T get() {
+        if (this.isFailure()) return null;
 
-    return ((Success<T>) this).data;
-  }
+        return ((Success<T>) this).data;
+    }
 
-  default EpaycoError error() {
-    if (this.isSuccess()) return null;
+    default EpaycoError error() {
+        if (this.isSuccess()) return null;
 
-    return ((Failure<T>) this).data;
-  }
+        return ((Failure<T>) this).data;
+    }
 
-  default <R> R fold(Function<T, R> onSuccess, Function<EpaycoError, R> onFailure) {
-    return isSuccess() ? onSuccess.apply(get()) : onFailure.apply(error());
-  }
+    default <R> R fold(Function<T, R> onSuccess, Function<EpaycoError, R> onFailure) {
+        return isSuccess() ? onSuccess.apply(get()) : onFailure.apply(error());
+    }
 
-  default boolean isSuccess() {
-    return this instanceof EpaycoResponse.Success;
-  }
+    default boolean isSuccess() {
+        return this instanceof EpaycoResponse.Success;
+    }
 
-  default boolean isFailure() {
-    return this instanceof EpaycoResponse.Failure;
-  }
+    default boolean isFailure() {
+        return this instanceof EpaycoResponse.Failure;
+    }
 
-  record Success<T>(
-      boolean success, String titleResponse, String textResponse, String lastResponse, T data)
-      implements EpaycoResponse<T> {}
+    record Success<T>(boolean success, String titleResponse, String textResponse, String lastResponse, T data)
+            implements EpaycoResponse<T> {}
 
-  record Failure<T>(
-      boolean success,
-      String titleResponse,
-      String textResponse,
-      String lastResponse,
-      EpaycoError data)
-      implements EpaycoResponse<T> {}
+    record Failure<T>(boolean success, String titleResponse, String textResponse, String lastResponse, EpaycoError data)
+            implements EpaycoResponse<T> {}
 }

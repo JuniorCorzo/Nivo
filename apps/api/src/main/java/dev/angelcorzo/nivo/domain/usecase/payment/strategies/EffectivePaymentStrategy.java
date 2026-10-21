@@ -18,56 +18,55 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class EffectivePaymentStrategy implements PaymentStrategy {
-  private final PaymentsRepository paymentsRepository;
-  private final ParkingTicketsRepository parkingTicketsRepository;
-  private final TransactionsRepository transactionsRepository;
-  private final PaymentNotifier paymentNotifier;
-  private final TicketNotifier ticketNotifier;
+    private final PaymentsRepository paymentsRepository;
+    private final ParkingTicketsRepository parkingTicketsRepository;
+    private final TransactionsRepository transactionsRepository;
+    private final PaymentNotifier paymentNotifier;
+    private final TicketNotifier ticketNotifier;
 
-  @Override
-  public Result<Payments, PaymentError> processPayment(PaymentCommand command) {
-    final BigDecimal amountToCharge = command.amounts().getTotal();
-    final Payments payment = PaymentFactory.registerEffective(command.ticket(), amountToCharge);
+    @Override
+    public Result<Payments, PaymentError> processPayment(PaymentCommand command) {
+        final BigDecimal amountToCharge = command.amounts().getTotal();
+        final Payments payment = PaymentFactory.registerEffective(command.ticket(), amountToCharge);
 
-    return this.paymentsRepository
-        .processPayment(payment)
-        .flatMap(this::handlerSuccess)
-        .onSuccess(this::registerTransaction)
-        .onSuccess(this::sendNotifications);
-  }
-
-  private Result<Payments, PaymentError> handlerSuccess(Payments payment) {
-    try {
-      this.parkingTicketsRepository.prepareCheckout(
-          payment.getParkingTicket().getId(), payment.getAmount());
-
-      this.parkingTicketsRepository.closeTicket(payment.getParkingTicket().getId());
-
-      return Result.success(payment);
-    } catch (Exception e) {
-      return Result.failure(new PaymentError.DatabaseError(e.getMessage()));
+        return this.paymentsRepository
+                .processPayment(payment)
+                .flatMap(this::handlerSuccess)
+                .onSuccess(this::registerTransaction)
+                .onSuccess(this::sendNotifications);
     }
-  }
 
-  private void sendNotifications(Payments payment) {
-    this.ticketNotifier.notifyTicketClosed(payment.getParkingTicket());
-    this.paymentNotifier.notifyPaymentCompleted(payment);
-  }
+    private Result<Payments, PaymentError> handlerSuccess(Payments payment) {
+        try {
+            this.parkingTicketsRepository.prepareCheckout(
+                    payment.getParkingTicket().getId(), payment.getAmount());
 
-  private void registerTransaction(Payments payment) {
-    Transactions transaction =
-        Transactions.builder()
-            .payment(payment)
-            .amount(payment.getAmount())
-            .currency("COP")
-            .paymentProvider(
-                payment.getPaymentMethod() != null
-                    ? payment.getPaymentMethod().name()
-                    : PaymentsMethods.EFFECTIVE.name())
-            .supplierRef("EFF-" + payment.getId())
-            .status(TransactionStatus.APPROVED)
-            .build();
+            this.parkingTicketsRepository.closeTicket(payment.getParkingTicket().getId());
 
-    this.transactionsRepository.save(transaction);
-  }
+            return Result.success(payment);
+        } catch (Exception e) {
+            return Result.failure(new PaymentError.DatabaseError(e.getMessage()));
+        }
+    }
+
+    private void sendNotifications(Payments payment) {
+        this.ticketNotifier.notifyTicketClosed(payment.getParkingTicket());
+        this.paymentNotifier.notifyPaymentCompleted(payment);
+    }
+
+    private void registerTransaction(Payments payment) {
+        Transactions transaction = Transactions.builder()
+                .payment(payment)
+                .amount(payment.getAmount())
+                .currency("COP")
+                .paymentProvider(
+                        payment.getPaymentMethod() != null
+                                ? payment.getPaymentMethod().name()
+                                : PaymentsMethods.EFFECTIVE.name())
+                .supplierRef("EFF-" + payment.getId())
+                .status(TransactionStatus.APPROVED)
+                .build();
+
+        this.transactionsRepository.save(transaction);
+    }
 }

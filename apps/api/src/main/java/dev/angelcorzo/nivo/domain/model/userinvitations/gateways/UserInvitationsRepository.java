@@ -1,7 +1,6 @@
 package dev.angelcorzo.nivo.domain.model.userinvitations.gateways;
 
 import dev.angelcorzo.nivo.domain.model.userinvitations.UserInvitations;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

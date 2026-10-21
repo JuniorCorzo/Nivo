@@ -22,112 +22,111 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("PluggableNotificationAdapter Unit Tests")
 class PluggableNotificationAdapterTest {
 
-  @Mock private EmailProviderClient sendGridClient;
-  @Mock private EmailProviderClient resendClient;
-  @Mock private EmailProviderClient brevoClient;
+    @Mock
+    private EmailProviderClient sendGridClient;
 
-  private NotificationTemplates template;
-  private NotificationsData content;
-  private final String recipient = "user@example.com";
+    @Mock
+    private EmailProviderClient resendClient;
 
-  @BeforeEach
-  void setUp() {
-    lenient().when(sendGridClient.getProviderType()).thenReturn(EmailProviderType.SENDGRID);
-    lenient().when(resendClient.getProviderType()).thenReturn(EmailProviderType.RESEND);
-    lenient().when(brevoClient.getProviderType()).thenReturn(EmailProviderType.BREVO);
+    @Mock
+    private EmailProviderClient brevoClient;
 
-    template =
-        NotificationTemplates.builder()
-            .id(UUID.randomUUID())
-            .templateReference("tpl-123")
-            .build();
-    content = UserInvitedData.builder().userName("Tester").build();
-  }
+    private NotificationTemplates template;
+    private NotificationsData content;
+    private final String recipient = "user@example.com";
 
-  @Test
-  @DisplayName("Should delegate to SendGrid client when provider is SENDGRID")
-  void shouldDelegateToSendGridWhenConfiguredWithSendGrid() {
-    final PluggableNotificationAdapter adapter =
-        new PluggableNotificationAdapter(
-            List.of(sendGridClient, resendClient, brevoClient), "SENDGRID");
+    @BeforeEach
+    void setUp() {
+        lenient().when(sendGridClient.getProviderType()).thenReturn(EmailProviderType.SENDGRID);
+        lenient().when(resendClient.getProviderType()).thenReturn(EmailProviderType.RESEND);
+        lenient().when(brevoClient.getProviderType()).thenReturn(EmailProviderType.BREVO);
 
-    assertThat(adapter.getActiveProvider()).isEqualTo(EmailProviderType.SENDGRID);
+        template = NotificationTemplates.builder()
+                .id(UUID.randomUUID())
+                .templateReference("tpl-123")
+                .build();
+        content = UserInvitedData.builder().userName("Tester").build();
+    }
 
-    adapter.sendEmail(template, recipient, content);
+    @Test
+    @DisplayName("Should delegate to SendGrid client when provider is SENDGRID")
+    void shouldDelegateToSendGridWhenConfiguredWithSendGrid() {
+        final PluggableNotificationAdapter adapter =
+                new PluggableNotificationAdapter(List.of(sendGridClient, resendClient, brevoClient), "SENDGRID");
 
-    verify(sendGridClient).sendEmail(template, recipient, content);
-    verify(resendClient, never()).sendEmail(any(), any(), any());
-    verify(brevoClient, never()).sendEmail(any(), any(), any());
-  }
+        assertThat(adapter.getActiveProvider()).isEqualTo(EmailProviderType.SENDGRID);
 
-  @Test
-  @DisplayName("Should delegate to Resend client when provider is RESEND")
-  void shouldDelegateToResendWhenConfiguredWithResend() {
-    final PluggableNotificationAdapter adapter =
-        new PluggableNotificationAdapter(
-            List.of(sendGridClient, resendClient, brevoClient), "RESEND");
+        adapter.sendEmail(template, recipient, content);
 
-    assertThat(adapter.getActiveProvider()).isEqualTo(EmailProviderType.RESEND);
+        verify(sendGridClient).sendEmail(template, recipient, content);
+        verify(resendClient, never()).sendEmail(any(), any(), any());
+        verify(brevoClient, never()).sendEmail(any(), any(), any());
+    }
 
-    adapter.sendEmail(template, recipient, content);
+    @Test
+    @DisplayName("Should delegate to Resend client when provider is RESEND")
+    void shouldDelegateToResendWhenConfiguredWithResend() {
+        final PluggableNotificationAdapter adapter =
+                new PluggableNotificationAdapter(List.of(sendGridClient, resendClient, brevoClient), "RESEND");
 
-    verify(resendClient).sendEmail(template, recipient, content);
-    verify(sendGridClient, never()).sendEmail(any(), any(), any());
-    verify(brevoClient, never()).sendEmail(any(), any(), any());
-  }
+        assertThat(adapter.getActiveProvider()).isEqualTo(EmailProviderType.RESEND);
 
-  @Test
-  @DisplayName("Should delegate to Brevo client when provider is BREVO")
-  void shouldDelegateToBrevoWhenConfiguredWithBrevo() {
-    final PluggableNotificationAdapter adapter =
-        new PluggableNotificationAdapter(
-            List.of(sendGridClient, resendClient, brevoClient), "BREVO");
+        adapter.sendEmail(template, recipient, content);
 
-    assertThat(adapter.getActiveProvider()).isEqualTo(EmailProviderType.BREVO);
+        verify(resendClient).sendEmail(template, recipient, content);
+        verify(sendGridClient, never()).sendEmail(any(), any(), any());
+        verify(brevoClient, never()).sendEmail(any(), any(), any());
+    }
 
-    adapter.sendEmail(template, recipient, content);
+    @Test
+    @DisplayName("Should delegate to Brevo client when provider is BREVO")
+    void shouldDelegateToBrevoWhenConfiguredWithBrevo() {
+        final PluggableNotificationAdapter adapter =
+                new PluggableNotificationAdapter(List.of(sendGridClient, resendClient, brevoClient), "BREVO");
 
-    verify(brevoClient).sendEmail(template, recipient, content);
-    verify(sendGridClient, never()).sendEmail(any(), any(), any());
-    verify(resendClient, never()).sendEmail(any(), any(), any());
-  }
+        assertThat(adapter.getActiveProvider()).isEqualTo(EmailProviderType.BREVO);
 
-  @Test
-  @DisplayName("Should handle case-insensitive and trimmed provider names")
-  void shouldHandleCaseInsensitiveProviderName() {
-    final PluggableNotificationAdapter adapter =
-        new PluggableNotificationAdapter(
-            List.of(sendGridClient, resendClient, brevoClient), "  resend  ");
+        adapter.sendEmail(template, recipient, content);
 
-    assertThat(adapter.getActiveProvider()).isEqualTo(EmailProviderType.RESEND);
+        verify(brevoClient).sendEmail(template, recipient, content);
+        verify(sendGridClient, never()).sendEmail(any(), any(), any());
+        verify(resendClient, never()).sendEmail(any(), any(), any());
+    }
 
-    adapter.sendEmail(template, recipient, content);
+    @Test
+    @DisplayName("Should handle case-insensitive and trimmed provider names")
+    void shouldHandleCaseInsensitiveProviderName() {
+        final PluggableNotificationAdapter adapter =
+                new PluggableNotificationAdapter(List.of(sendGridClient, resendClient, brevoClient), "  resend  ");
 
-    verify(resendClient).sendEmail(template, recipient, content);
-  }
+        assertThat(adapter.getActiveProvider()).isEqualTo(EmailProviderType.RESEND);
 
-  @Test
-  @DisplayName("Should fallback to SENDGRID when configured with unknown or blank provider name")
-  void shouldFallbackToSendGridOnUnknownProvider() {
-    final PluggableNotificationAdapter adapter =
-        new PluggableNotificationAdapter(
-            List.of(sendGridClient, resendClient, brevoClient), "UNKNOWN_PROVIDER");
+        adapter.sendEmail(template, recipient, content);
 
-    assertThat(adapter.getActiveProvider()).isEqualTo(EmailProviderType.SENDGRID);
+        verify(resendClient).sendEmail(template, recipient, content);
+    }
 
-    adapter.sendEmail(template, recipient, content);
+    @Test
+    @DisplayName("Should fallback to SENDGRID when configured with unknown or blank provider name")
+    void shouldFallbackToSendGridOnUnknownProvider() {
+        final PluggableNotificationAdapter adapter = new PluggableNotificationAdapter(
+                List.of(sendGridClient, resendClient, brevoClient), "UNKNOWN_PROVIDER");
 
-    verify(sendGridClient).sendEmail(template, recipient, content);
-  }
+        assertThat(adapter.getActiveProvider()).isEqualTo(EmailProviderType.SENDGRID);
 
-  @Test
-  @DisplayName("Should throw IllegalStateException when no client is registered for active provider")
-  void shouldThrowIllegalStateExceptionWhenNoClientRegistered() {
-    final PluggableNotificationAdapter adapter =
-        new PluggableNotificationAdapter(List.of(sendGridClient), "RESEND");
+        adapter.sendEmail(template, recipient, content);
 
-    assertThatThrownBy(() -> adapter.sendEmail(template, recipient, content))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining("No EmailProviderClient registered for active provider: RESEND");
-  }
+        verify(sendGridClient).sendEmail(template, recipient, content);
+    }
+
+    @Test
+    @DisplayName("Should throw IllegalStateException when no client is registered for active provider")
+    void shouldThrowIllegalStateExceptionWhenNoClientRegistered() {
+        final PluggableNotificationAdapter adapter =
+                new PluggableNotificationAdapter(List.of(sendGridClient), "RESEND");
+
+        assertThatThrownBy(() -> adapter.sendEmail(template, recipient, content))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("No EmailProviderClient registered for active provider: RESEND");
+    }
 }

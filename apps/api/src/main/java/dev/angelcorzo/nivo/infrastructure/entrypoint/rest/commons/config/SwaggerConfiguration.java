@@ -12,17 +12,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfiguration {
 
-  @Bean
-  public OpenAPI customOpenAPI() {
-    final Info info =
-        new Info()
-            .title("Nivo API")
-            .version("1.0")
-            .description("Multi-tenant Parking Management System API")
-            .contact(new Contact().name("Nivo Team"));
+    @Bean
+    public OpenAPI customOpenAPI() {
+        final Info info = new Info()
+                .title("Nivo API")
+                .version("1.0")
+                .description("Multi-tenant Parking Management System API")
+                .contact(new Contact().name("Nivo Team"));
 
-    final String script =
-        """
+        final String script = """
         // Auto-login to obtain Bearer token for Scalar
         const response = await fetch('/api/auth/login', {
           method: 'POST',
@@ -36,24 +34,23 @@ public class SwaggerConfiguration {
         }
         """;
 
-    info.addExtension("x-scalar-pre-request", script);
+        info.addExtension("x-scalar-pre-request", script);
 
-    return new OpenAPI()
-        .components(
-            new Components()
-                .addSecuritySchemes(
-                    "Bearer Authentication",
-                    new SecurityScheme()
-                        .type(SecurityScheme.Type.HTTP)
-                        .scheme("bearer")
-                        .bearerFormat("JWT"))
-                .addSecuritySchemes(
-                    "refreshToken",
-                    new SecurityScheme()
-                        .type(SecurityScheme.Type.APIKEY)
-                        .in(SecurityScheme.In.COOKIE)
-                        .name("refreshToken")))
-        .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
-        .info(info);
-  }
+        return new OpenAPI()
+                .components(new Components()
+                        .addSecuritySchemes(
+                                "Bearer Authentication",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT"))
+                        .addSecuritySchemes(
+                                "refreshToken",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.APIKEY)
+                                        .in(SecurityScheme.In.COOKIE)
+                                        .name("refreshToken")))
+                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+                .info(info);
+    }
 }

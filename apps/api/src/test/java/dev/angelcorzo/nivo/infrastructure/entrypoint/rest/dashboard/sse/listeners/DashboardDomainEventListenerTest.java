@@ -10,19 +10,19 @@ import org.junit.jupiter.api.Test;
 
 class DashboardDomainEventListenerTest {
 
-  @Test
-  @DisplayName("Debe delegar la transmisión de evento SSE al DashboardSseRegistry")
-  void shouldDelegateBroadcastToRegistry() {
-    DashboardSseRegistry registry = mock(DashboardSseRegistry.class);
-    DashboardDomainEventListener listener = new DashboardDomainEventListener(registry);
+    @Test
+    @DisplayName("Debe delegar la transmisión de evento SSE al DashboardSseRegistry")
+    void shouldDelegateBroadcastToRegistry() {
+        DashboardSseRegistry registry = mock(DashboardSseRegistry.class);
+        DashboardDomainEventListener listener = new DashboardDomainEventListener(registry);
 
-    UUID tenantId = UUID.randomUUID();
-    UUID parkingId = UUID.randomUUID();
-    DashboardUpdateEvent event =
-        new DashboardUpdateEvent(tenantId, parkingId, "occupancy_updated", "{\"occupancy\": 85}");
+        UUID tenantId = UUID.randomUUID();
+        UUID parkingId = UUID.randomUUID();
+        DashboardUpdateEvent event =
+                new DashboardUpdateEvent(tenantId, parkingId, "occupancy_updated", "{\"occupancy\": 85}");
 
-    listener.onDashboardUpdate(event);
+        listener.onDashboardUpdate(event);
 
-    verify(registry).broadcast(tenantId, parkingId, "occupancy_updated", "{\"occupancy\": 85}");
-  }
+        verify(registry).broadcast(tenantId, parkingId, "occupancy_updated", "{\"occupancy\": 85}");
+    }
 }

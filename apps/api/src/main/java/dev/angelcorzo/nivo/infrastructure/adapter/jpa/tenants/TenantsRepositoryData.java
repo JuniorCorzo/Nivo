@@ -1,8 +1,7 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * JPA Repository for {@link TenantsData} entities.

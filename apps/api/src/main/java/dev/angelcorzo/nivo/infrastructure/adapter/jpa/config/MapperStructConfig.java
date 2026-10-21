@@ -16,12 +16,11 @@ import org.mapstruct.*;
  * @since 1.0.0
  */
 @MapperConfig(
-		componentModel = "spring",
-		injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-		implementationName = "<CLASS_NAME>JpaImpl",
-		nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL,
-		unmappedTargetPolicy = ReportingPolicy.IGNORE,
-		unmappedSourcePolicy = ReportingPolicy.IGNORE,
-		builder = @Builder)
-
+        componentModel = "spring",
+        injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        implementationName = "<CLASS_NAME>JpaImpl",
+        nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        unmappedSourcePolicy = ReportingPolicy.IGNORE,
+        builder = @Builder)
 public interface MapperStructConfig {}

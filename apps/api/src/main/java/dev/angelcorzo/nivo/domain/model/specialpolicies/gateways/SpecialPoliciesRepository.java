@@ -6,15 +6,15 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface SpecialPoliciesRepository {
-  List<SpecialPolicies> findAllByTenantId(UUID tenantId);
+    List<SpecialPolicies> findAllByTenantId(UUID tenantId);
 
-  Optional<SpecialPolicies> findById(UUID id);
+    Optional<SpecialPolicies> findById(UUID id);
 
-  Boolean existsById(UUID id);
+    Boolean existsById(UUID id);
 
-  SpecialPolicies getReferenceById(UUID id);
+    SpecialPolicies getReferenceById(UUID id);
 
-  SpecialPolicies save(SpecialPolicies specialPolicies);
+    SpecialPolicies save(SpecialPolicies specialPolicies);
 
-  void deleteById(UUID uuid);
+    void deleteById(UUID uuid);
 }

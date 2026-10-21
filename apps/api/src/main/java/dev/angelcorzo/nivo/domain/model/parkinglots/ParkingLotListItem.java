@@ -39,17 +39,16 @@ import lombok.Builder;
  */
 @Builder(toBuilder = true)
 public record ParkingLotListItem(
-    UUID id,
-    String name,
-    Address address,
-    Double occuppationRate,
-    Coordinates coordinates,
-    String currency,
-    OffsetDateTime createdAt,
-    OffsetDateTime updatedAt,
-    List<SlotDistributionEntry> slotDistribution,
-    String ownerName,
-    Long totalCapacity,
-    OperatingHours operatingHours,
-    ParkingLotPolicy policy) {
-}
+        UUID id,
+        String name,
+        Address address,
+        Double occuppationRate,
+        Coordinates coordinates,
+        String currency,
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt,
+        List<SlotDistributionEntry> slotDistribution,
+        String ownerName,
+        Long totalCapacity,
+        OperatingHours operatingHours,
+        ParkingLotPolicy policy) {}

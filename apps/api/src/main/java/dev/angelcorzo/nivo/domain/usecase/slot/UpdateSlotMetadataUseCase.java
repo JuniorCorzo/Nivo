@@ -16,53 +16,47 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class UpdateSlotMetadataUseCase {
-  private final SlotsRepository slotsRepository;
-  private final AuthenticationContextGateway authenticationContext;
-  private final BatchPersistSlotsUseCase batchPersistSlotsUseCase;
+    private final SlotsRepository slotsRepository;
+    private final AuthenticationContextGateway authenticationContext;
+    private final BatchPersistSlotsUseCase batchPersistSlotsUseCase;
 
-  public List<Slots> execute(UpdateSlotMetadataCommand command) {
-    final Tenants tenant = this.authenticationContext.getCurrentTenant();
-    final List<Slots> slots = this.slotsRepository.findAllByIdInAndTenantId(command.slotIds(), tenant.getId());
+    public List<Slots> execute(UpdateSlotMetadataCommand command) {
+        final Tenants tenant = this.authenticationContext.getCurrentTenant();
+        final List<Slots> slots = this.slotsRepository.findAllByIdInAndTenantId(command.slotIds(), tenant.getId());
 
-    if (slots.size() != command.slotIds().size()) {
-      final Set<UUID> foundIds = slots.stream()
-          .map(Slots::getId)
-          .collect(Collectors.toSet());
+        if (slots.size() != command.slotIds().size()) {
+            final Set<UUID> foundIds = slots.stream().map(Slots::getId).collect(Collectors.toSet());
 
-      for (UUID requestedId : command.slotIds()) {
-        if (!foundIds.contains(requestedId)) {
-          throw new SlotNotFoundException(requestedId);
+            for (UUID requestedId : command.slotIds()) {
+                if (!foundIds.contains(requestedId)) {
+                    throw new SlotNotFoundException(requestedId);
+                }
+            }
         }
-      }
+
+        final List<UUID> conflictingIds = slots.stream()
+                .filter(s -> s.getStatus() != SlotStatus.AVAILABLE)
+                .map(Slots::getId)
+                .toList();
+
+        if (!conflictingIds.isEmpty()) {
+            throw new SlotCannotBeModifiedException(conflictingIds);
+        }
+
+        final List<Slots> updatedSlots = slots.stream()
+                .map(s -> {
+                    Slots.SlotsBuilder builder = s.toBuilder();
+                    if (command.hasCharger() != null) builder.hasCharger(command.hasCharger());
+                    if (command.isAccessible() != null) builder.isAccessible(command.isAccessible());
+                    if (command.isActive() != null) builder.isActive(command.isActive());
+                    return builder.build();
+                })
+                .toList();
+
+        return this.batchPersistSlotsUseCase.execute(updatedSlots);
     }
 
-    final List<UUID> conflictingIds = slots.stream()
-        .filter(s -> s.getStatus() != SlotStatus.AVAILABLE)
-        .map(Slots::getId)
-        .toList();
-
-    if (!conflictingIds.isEmpty()) {
-      throw new SlotCannotBeModifiedException(conflictingIds);
-    }
-
-    final List<Slots> updatedSlots = slots.stream()
-        .map(s -> {
-          Slots.SlotsBuilder builder = s.toBuilder();
-          if (command.hasCharger() != null) builder.hasCharger(command.hasCharger());
-          if (command.isAccessible() != null) builder.isAccessible(command.isAccessible());
-          if (command.isActive() != null) builder.isActive(command.isActive());
-          return builder.build();
-        })
-        .toList();
-
-    return this.batchPersistSlotsUseCase.execute(updatedSlots);
-  }
-
-  @Builder(toBuilder = true)
-  public record UpdateSlotMetadataCommand(
-      List<UUID> slotIds,
-      Boolean hasCharger,
-      Boolean isAccessible,
-      Boolean isActive
-  ) {}
+    @Builder(toBuilder = true)
+    public record UpdateSlotMetadataCommand(
+            List<UUID> slotIds, Boolean hasCharger, Boolean isAccessible, Boolean isActive) {}
 }

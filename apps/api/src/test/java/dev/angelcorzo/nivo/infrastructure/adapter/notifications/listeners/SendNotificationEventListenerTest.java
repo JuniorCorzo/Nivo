@@ -19,26 +19,27 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("SendNotificationEventListener Unit Tests")
 class SendNotificationEventListenerTest {
 
-  @Mock private SendNotificationQueue queue;
+    @Mock
+    private SendNotificationQueue queue;
 
-  @InjectMocks private SendNotificationEventListener listener;
+    @InjectMocks
+    private SendNotificationEventListener listener;
 
-  @Test
-  @DisplayName("Should enqueue received notification event")
-  void shouldEnqueueEvent() {
-    SendNotificationEvent event =
-        SendNotificationEvent.builder()
-            .event("USER_INVITED")
-            .notificationEvent(NotificationEvents.USER_INVITED)
-            .channel(NotificationsChannel.EMAIL)
-            .tenantId(UUID.randomUUID())
-            .actorUserId(UUID.randomUUID())
-            .to("user@test.com")
-            .content(UserInvitedData.builder().userName("John").build())
-            .build();
+    @Test
+    @DisplayName("Should enqueue received notification event")
+    void shouldEnqueueEvent() {
+        SendNotificationEvent event = SendNotificationEvent.builder()
+                .event("USER_INVITED")
+                .notificationEvent(NotificationEvents.USER_INVITED)
+                .channel(NotificationsChannel.EMAIL)
+                .tenantId(UUID.randomUUID())
+                .actorUserId(UUID.randomUUID())
+                .to("user@test.com")
+                .content(UserInvitedData.builder().userName("John").build())
+                .build();
 
-    listener.onSendNotificationEvent(event);
+        listener.onSendNotificationEvent(event);
 
-    verify(queue).enqueue(event);
-  }
+        verify(queue).enqueue(event);
+    }
 }

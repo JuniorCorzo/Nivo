@@ -8,8 +8,8 @@ import dev.angelcorzo.nivo.domain.usecase.rate.engine.PricingStage;
  * TODO: ANC-XX Enforce day cap safeguard against total stay cost.
  */
 public class DayCapStage implements PricingStage {
-  @Override
-  public PricingContext apply(PricingContext context) {
-    return context;
-  }
+    @Override
+    public PricingContext apply(PricingContext context) {
+        return context;
+    }
 }

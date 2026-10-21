@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public record PaymentEvent(UUID paymentId, PaymentStatus status) {
 
-  public static PaymentEvent of(UUID paymentId, PaymentStatus status) {
-    return new PaymentEvent(paymentId, status);
-  }
+    public static PaymentEvent of(UUID paymentId, PaymentStatus status) {
+        return new PaymentEvent(paymentId, status);
+    }
 }

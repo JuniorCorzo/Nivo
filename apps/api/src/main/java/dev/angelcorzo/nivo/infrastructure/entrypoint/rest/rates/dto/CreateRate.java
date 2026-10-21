@@ -12,37 +12,52 @@ import lombok.Builder;
 
 @Builder(toBuilder = true)
 @Schema(
-    description = "Payload to create a new tariff rate",
-    requiredProperties = {
-      "parkingLotId",
-      "name",
-      "description",
-      "pricePerUnit",
-      "timeUnit",
-      "minChargeTimeMinutes",
-      "vehicleType"
-    })
+        description = "Payload to create a new tariff rate",
+        requiredProperties = {
+            "parkingLotId",
+            "name",
+            "description",
+            "pricePerUnit",
+            "timeUnit",
+            "minChargeTimeMinutes",
+            "vehicleType"
+        })
 public record CreateRate(
-    @Schema(description = "Parking lot ID", example = "e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a55", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull UUID parkingLotId,
+        @Schema(
+                description = "Parking lot ID",
+                example = "e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a55",
+                requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotNull UUID parkingLotId,
 
-    @Schema(description = "Rate name", example = "Standard Car Hourly", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty String name,
+        @Schema(description = "Rate name", example = "Standard Car Hourly", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotEmpty String name,
 
-    @Schema(description = "Description of the rate", example = "Standard daytime rate for cars", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty String description,
+        @Schema(
+                description = "Description of the rate",
+                example = "Standard daytime rate for cars",
+                requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotEmpty String description,
 
-    @Schema(description = "Price per time unit", example = "5.00", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Min(value = 0) BigDecimal pricePerUnit,
+        @Schema(description = "Price per time unit", example = "5.00", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Min(value = 0) BigDecimal pricePerUnit,
 
-    @Schema(description = "Unit of time (HOUR, DAY, etc.)", example = "HOURS", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull TimeUnitsRate timeUnit,
+        @Schema(
+                description = "Unit of time (HOUR, DAY, etc.)",
+                example = "HOURS",
+                requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotNull TimeUnitsRate timeUnit,
 
-    @Schema(description = "Minimum charge time in minutes", example = "15", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull Integer minChargeTimeMinutes,
+        @Schema(
+                description = "Minimum charge time in minutes",
+                example = "15",
+                requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotNull Integer minChargeTimeMinutes,
 
-    @Schema(description = "Vehicle type applicability", example = "CAR", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull VehicleType vehicleType,
+        @Schema(
+                description = "Vehicle type applicability",
+                example = "CAR",
+                requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotNull VehicleType vehicleType,
 
-    @Schema(description = "Optional special policy ID", example = "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11")
-    UUID specialPolicyId) {}
+        @Schema(description = "Optional special policy ID", example = "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11")
+        UUID specialPolicyId) {}

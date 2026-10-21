@@ -13,32 +13,26 @@ import java.time.temporal.ChronoUnit;
 
 public class BaseRateStage implements PricingStage {
 
-  @Override
-  public PricingContext apply(PricingContext context) {
-    if (context.settled()) {
-      return context;
+    @Override
+    public PricingContext apply(PricingContext context) {
+        if (context.settled()) {
+            return context;
+        }
+
+        RateReference rate = context.rate();
+        TimeUnitsRate timeUnit = rate.timeUnit();
+        Duration minDuration = Duration.of(rate.minChargeTimeMinutes(), ChronoUnit.MINUTES);
+
+        BigDecimal fee = ParkingFeeCalculator.calculateFee(
+                context.duration(), rate.pricePerUnit(), minDuration, timeUnit.getChronoUnit(), RoundingMode.HALF_UP);
+
+        String concept = String.format(
+                "%s (%s * %d COP/%s)",
+                rate.name(),
+                timeUnit.getDurationTime(context.duration()),
+                rate.pricePerUnit().intValue(),
+                timeUnit.getName());
+
+        return context.withSubtotal(fee, PriceLine.of(concept, fee));
     }
-
-    RateReference rate = context.rate();
-    TimeUnitsRate timeUnit = rate.timeUnit();
-    Duration minDuration = Duration.of(rate.minChargeTimeMinutes(), ChronoUnit.MINUTES);
-
-    BigDecimal fee = ParkingFeeCalculator.calculateFee(
-        context.duration(),
-        rate.pricePerUnit(),
-        minDuration,
-        timeUnit.getChronoUnit(),
-        RoundingMode.HALF_UP
-    );
-
-    String concept = String.format(
-        "%s (%s * %d COP/%s)",
-        rate.name(),
-        timeUnit.getDurationTime(context.duration()),
-        rate.pricePerUnit().intValue(),
-        timeUnit.getName()
-    );
-
-    return context.withSubtotal(fee, PriceLine.of(concept, fee));
-  }
 }

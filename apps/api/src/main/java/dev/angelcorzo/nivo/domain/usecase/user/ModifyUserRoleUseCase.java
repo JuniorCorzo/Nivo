@@ -33,65 +33,64 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class ModifyUserRoleUseCase {
-  private final UsersRepository usersRepository;
-  private final UserNotifier userNotifier;
-  private final AuthenticationContextGateway authenticationContextGateway;
+    private final UsersRepository usersRepository;
+    private final UserNotifier userNotifier;
+    private final AuthenticationContextGateway authenticationContextGateway;
 
-  /**
-   * Modifies the role of a user.
-   *
-   * @param modifyUserRole The command containing the user ID, new role, and tenant ID.
-   * @return The updated {@link Users} object.
-   * @throws SelfRoleModificationNotAllowedException if the target user is the authenticated user.
-   * @throws UserNotExistsInTenantException if the user does not exist within the specified tenant.
-   * @throws CannotModifyOwnerRoleException if attempting to change an OWNER or SUPERADMIN user's role.
-   * @throws InvalidRoleException if the new role is not permitted (e.g., OWNER, SUPERADMIN).
-   */
-  public Users modifyRole(final ModifyUserRole modifyUserRole) {
-    final UUID tenantId = this.authenticationContextGateway.getCurrentTenantId();
-    final UUID currentUserId = this.authenticationContextGateway.getCurrentUserId();
+    /**
+     * Modifies the role of a user.
+     *
+     * @param modifyUserRole The command containing the user ID, new role, and tenant ID.
+     * @return The updated {@link Users} object.
+     * @throws SelfRoleModificationNotAllowedException if the target user is the authenticated user.
+     * @throws UserNotExistsInTenantException if the user does not exist within the specified tenant.
+     * @throws CannotModifyOwnerRoleException if attempting to change an OWNER or SUPERADMIN user's role.
+     * @throws InvalidRoleException if the new role is not permitted (e.g., OWNER, SUPERADMIN).
+     */
+    public Users modifyRole(final ModifyUserRole modifyUserRole) {
+        final UUID tenantId = this.authenticationContextGateway.getCurrentTenantId();
+        final UUID currentUserId = this.authenticationContextGateway.getCurrentUserId();
 
-    if (modifyUserRole.userId().equals(currentUserId)) {
-      throw new SelfRoleModificationNotAllowedException();
+        if (modifyUserRole.userId().equals(currentUserId)) {
+            throw new SelfRoleModificationNotAllowedException();
+        }
+
+        final Users user = this.usersRepository
+                .findByIdAndTenantId(modifyUserRole.userId(), tenantId)
+                .orElseThrow(UserNotExistsInTenantException::new);
+
+        if (user.getRole() == Roles.OWNER || user.getRole() == Roles.SUPERADMIN) {
+            throw new CannotModifyOwnerRoleException();
+        }
+
+        this.validateRolePermitted(modifyUserRole.newRole());
+        user.setRole(modifyUserRole.newRole());
+
+        final Users savedUser = this.usersRepository.save(user);
+        this.userNotifier.notifyUserRoleAssigned(savedUser);
+        return savedUser;
     }
 
-    final Users user =
-        this.usersRepository
-            .findByIdAndTenantId(modifyUserRole.userId(), tenantId)
-            .orElseThrow(UserNotExistsInTenantException::new);
-
-    if (user.getRole() == Roles.OWNER || user.getRole() == Roles.SUPERADMIN) {
-      throw new CannotModifyOwnerRoleException();
+    /**
+     * Validates if the new role is permitted for assignment. Certain roles (like OWNER, SUPERADMIN)
+     * might not be assignable through this operation.
+     *
+     * @param role The role to validate.
+     * @throws InvalidRoleException if the role is not permitted.
+     */
+    private void validateRolePermitted(final Roles role) {
+        final Set<Roles> rolesNotPermitted = Set.of(Roles.OWNER, Roles.SUPERADMIN);
+        if (rolesNotPermitted.contains(role)) {
+            throw new InvalidRoleException(role);
+        }
     }
 
-    this.validateRolePermitted(modifyUserRole.newRole());
-    user.setRole(modifyUserRole.newRole());
-
-    final Users savedUser = this.usersRepository.save(user);
-    this.userNotifier.notifyUserRoleAssigned(savedUser);
-    return savedUser;
-  }
-
-  /**
-   * Validates if the new role is permitted for assignment. Certain roles (like OWNER, SUPERADMIN)
-   * might not be assignable through this operation.
-   *
-   * @param role The role to validate.
-   * @throws InvalidRoleException if the role is not permitted.
-   */
-  private void validateRolePermitted(final Roles role) {
-    final Set<Roles> rolesNotPermitted = Set.of(Roles.OWNER, Roles.SUPERADMIN);
-    if (rolesNotPermitted.contains(role)) {
-      throw new InvalidRoleException(role);
-    }
-  }
-
-  /**
-   * Command object for the {@link ModifyUserRoleUseCase}.
-   *
-   * @param userId The ID of the user whose role is to be modified.
-   * @param newRole The new role to assign to the user.
-   */
-  @Builder(toBuilder = true)
-  public record ModifyUserRole(UUID userId, Roles newRole) {}
+    /**
+     * Command object for the {@link ModifyUserRoleUseCase}.
+     *
+     * @param userId The ID of the user whose role is to be modified.
+     * @param newRole The new role to assign to the user.
+     */
+    @Builder(toBuilder = true)
+    public record ModifyUserRole(UUID userId, Roles newRole) {}
 }

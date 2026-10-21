@@ -2,5 +2,4 @@ package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.dashboard.sse.listene
 
 import java.util.UUID;
 
-public record DashboardUpdateEvent(UUID tenantId, UUID parkingId, String eventName, Object data) {
-}
+public record DashboardUpdateEvent(UUID tenantId, UUID parkingId, String eventName, Object data) {}

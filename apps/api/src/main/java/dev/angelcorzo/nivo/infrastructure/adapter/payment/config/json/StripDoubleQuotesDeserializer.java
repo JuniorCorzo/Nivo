@@ -8,13 +8,13 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 
 public class StripDoubleQuotesDeserializer extends StdDeserializer<String> {
 
-  public StripDoubleQuotesDeserializer() {
-    super(StripDoubleQuotesDeserializer.class);
-  }
+    public StripDoubleQuotesDeserializer() {
+        super(StripDoubleQuotesDeserializer.class);
+    }
 
-  @Override
-  public String deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
-    final String value = p.getString();
-    return StringUtils.sanitize(value);
-  }
+    @Override
+    public String deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        final String value = p.getString();
+        return StringUtils.sanitize(value);
+    }
 }

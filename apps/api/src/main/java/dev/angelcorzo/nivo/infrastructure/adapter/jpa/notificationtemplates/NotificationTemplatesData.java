@@ -29,39 +29,39 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Entity
 @Table(name = "notification_templates")
 public class NotificationTemplatesData {
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-  @Column(name = "name", nullable = false, length = 100)
-  private String name;
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
 
-  @Column(name = "event_type", nullable = false, length = 50)
-  @Enumerated(EnumType.STRING)
-  private NotificationEvents eventType;
+    @Column(name = "event_type", nullable = false, length = 50)
+    @Enumerated(EnumType.STRING)
+    private NotificationEvents eventType;
 
-  @Column(name = "channel", nullable = false, length = 20)
-  @Enumerated(EnumType.STRING)
-  private NotificationsChannel channel;
+    @Column(name = "channel", nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private NotificationsChannel channel;
 
-  @Column(name = "template_reference", length = 255)
-  private String templateReference;
+    @Column(name = "template_reference", length = 255)
+    private String templateReference;
 
-  @Column(name = "body", nullable = false, columnDefinition = "text")
-  private String body;
+    @Column(name = "body", nullable = false, columnDefinition = "text")
+    private String body;
 
-  @Column(name = "is_active", nullable = false)
-  @ColumnDefault("true")
-  private Boolean isActive;
+    @Column(name = "is_active", nullable = false)
+    @ColumnDefault("true")
+    private Boolean isActive;
 
-  @Column(name = "created_at", updatable = false)
-  @CreationTimestamp
-  private OffsetDateTime createdAt;
+    @Column(name = "created_at", updatable = false)
+    @CreationTimestamp
+    private OffsetDateTime createdAt;
 
-  @Column(name = "updated_at")
-  @UpdateTimestamp
-  private OffsetDateTime updatedAt;
+    @Column(name = "updated_at")
+    @UpdateTimestamp
+    private OffsetDateTime updatedAt;
 
-  @Column(name = "deleted_at")
-  private OffsetDateTime deletedAt;
+    @Column(name = "deleted_at")
+    private OffsetDateTime deletedAt;
 }

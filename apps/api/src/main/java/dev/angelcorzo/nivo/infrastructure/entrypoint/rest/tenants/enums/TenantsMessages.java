@@ -5,6 +5,7 @@ public enum TenantsMessages {
     ;
 
     private final String template;
+
     TenantsMessages(String template) {
         this.template = template;
     }
@@ -12,6 +13,7 @@ public enum TenantsMessages {
     public String format(Object... args) {
         return String.format(template, args);
     }
+
     @Override
     public String toString() {
         return template;

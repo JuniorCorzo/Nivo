@@ -25,62 +25,80 @@ import org.junit.jupiter.api.Test;
 @DisplayName("UpdateParkingLotsUseCase Tests")
 class UpdateParkingLotsUseCaseTest {
 
-  private ParkingLotsRepository parkingLotsRepository;
-  private BatchUpsertSlotsUseCase batchUpsertSlotsUseCase;
-  private AuthenticationContextGateway authenticationContext;
-  private UpdateParkingLotsUseCase useCase;
+    private ParkingLotsRepository parkingLotsRepository;
+    private BatchUpsertSlotsUseCase batchUpsertSlotsUseCase;
+    private AuthenticationContextGateway authenticationContext;
+    private UpdateParkingLotsUseCase useCase;
 
-  @BeforeEach
-  void setUp() {
-    parkingLotsRepository = mock(ParkingLotsRepository.class);
-    batchUpsertSlotsUseCase = mock(BatchUpsertSlotsUseCase.class);
-    authenticationContext = mock(AuthenticationContextGateway.class);
-    useCase = new UpdateParkingLotsUseCase(parkingLotsRepository, batchUpsertSlotsUseCase, authenticationContext);
-  }
+    @BeforeEach
+    void setUp() {
+        parkingLotsRepository = mock(ParkingLotsRepository.class);
+        batchUpsertSlotsUseCase = mock(BatchUpsertSlotsUseCase.class);
+        authenticationContext = mock(AuthenticationContextGateway.class);
+        useCase = new UpdateParkingLotsUseCase(parkingLotsRepository, batchUpsertSlotsUseCase, authenticationContext);
+    }
 
-  @Test
-  @DisplayName("Should update parking lot successfully")
-  void shouldUpdateParkingLotSuccessfully() {
-    UUID parkingId = UUID.randomUUID();
-    Address address = Address.builder().street("New Address 456").city("Bogotá").build();
-    Coordinates coordinates = Coordinates.builder().latitude(4.60).longitude(-74.08).build();
-    OperatingHours hours = OperatingHours.builder().openTime(OffsetTime.now()).closeTime(OffsetTime.now()).build();
-    UpsertParkingLotsDTO command =
-        new UpsertParkingLotsDTO(
-            parkingId, "Updated Lot", address, coordinates, "America/Bogota", "COP", hours, Collections.emptyList());
+    @Test
+    @DisplayName("Should update parking lot successfully")
+    void shouldUpdateParkingLotSuccessfully() {
+        UUID parkingId = UUID.randomUUID();
+        Address address =
+                Address.builder().street("New Address 456").city("Bogotá").build();
+        Coordinates coordinates =
+                Coordinates.builder().latitude(4.60).longitude(-74.08).build();
+        OperatingHours hours = OperatingHours.builder()
+                .openTime(OffsetTime.now())
+                .closeTime(OffsetTime.now())
+                .build();
+        UpsertParkingLotsDTO command = new UpsertParkingLotsDTO(
+                parkingId,
+                "Updated Lot",
+                address,
+                coordinates,
+                "America/Bogota",
+                "COP",
+                hours,
+                Collections.emptyList());
 
-    ParkingLots existing =
-        ParkingLots.builder()
-            .id(parkingId)
-            .name("Old Lot")
-            .build();
+        ParkingLots existing =
+                ParkingLots.builder().id(parkingId).name("Old Lot").build();
 
-    when(parkingLotsRepository.existsById(parkingId)).thenReturn(true);
-    when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(existing));
-    when(parkingLotsRepository.save(any(ParkingLots.class))).thenAnswer(i -> i.getArgument(0));
+        when(parkingLotsRepository.existsById(parkingId)).thenReturn(true);
+        when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(existing));
+        when(parkingLotsRepository.save(any(ParkingLots.class))).thenAnswer(i -> i.getArgument(0));
 
-    ParkingLots result = useCase.update(command);
+        ParkingLots result = useCase.update(command);
 
-    assertThat(result).isNotNull();
-    assertThat(result.getName()).isEqualTo("Updated Lot");
-    assertThat(result.getAddress()).isEqualTo(address);
-    verify(parkingLotsRepository).save(any(ParkingLots.class));
-  }
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("Updated Lot");
+        assertThat(result.getAddress()).isEqualTo(address);
+        verify(parkingLotsRepository).save(any(ParkingLots.class));
+    }
 
-  @Test
-  @DisplayName("Should throw ParkingNotExistsException when parking lot does not exist")
-  void shouldThrowWhenParkingLotNotFound() {
-    UUID parkingId = UUID.randomUUID();
-    Address address = Address.builder().street("New Address 456").city("Bogotá").build();
-    Coordinates coordinates = Coordinates.builder().latitude(4.60).longitude(-74.08).build();
-    OperatingHours hours = OperatingHours.builder().openTime(OffsetTime.now()).closeTime(OffsetTime.now()).build();
-    UpsertParkingLotsDTO command =
-        new UpsertParkingLotsDTO(
-            parkingId, "Updated Lot", address, coordinates, "America/Bogota", "COP", hours, Collections.emptyList());
+    @Test
+    @DisplayName("Should throw ParkingNotExistsException when parking lot does not exist")
+    void shouldThrowWhenParkingLotNotFound() {
+        UUID parkingId = UUID.randomUUID();
+        Address address =
+                Address.builder().street("New Address 456").city("Bogotá").build();
+        Coordinates coordinates =
+                Coordinates.builder().latitude(4.60).longitude(-74.08).build();
+        OperatingHours hours = OperatingHours.builder()
+                .openTime(OffsetTime.now())
+                .closeTime(OffsetTime.now())
+                .build();
+        UpsertParkingLotsDTO command = new UpsertParkingLotsDTO(
+                parkingId,
+                "Updated Lot",
+                address,
+                coordinates,
+                "America/Bogota",
+                "COP",
+                hours,
+                Collections.emptyList());
 
-    when(parkingLotsRepository.existsById(parkingId)).thenReturn(false);
+        when(parkingLotsRepository.existsById(parkingId)).thenReturn(false);
 
-    assertThatThrownBy(() -> useCase.update(command))
-        .isInstanceOf(ParkingNotExistsException.class);
-  }
+        assertThatThrownBy(() -> useCase.update(command)).isInstanceOf(ParkingNotExistsException.class);
+    }
 }

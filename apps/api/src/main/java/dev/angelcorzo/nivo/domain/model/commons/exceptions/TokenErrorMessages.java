@@ -16,32 +16,32 @@ import lombok.Getter;
 @Getter
 public enum TokenErrorMessages {
 
-  /**
-   * Error message for tokens that are structurally invalid or malformed. This typically means the
-   * token does not have the correct three-part structure.
-   */
-  MALFORMED_TOKEN("Formato de token invalido"),
+    /**
+     * Error message for tokens that are structurally invalid or malformed. This typically means the
+     * token does not have the correct three-part structure.
+     */
+    MALFORMED_TOKEN("Formato de token invalido"),
 
-  /**
-   * Error message for tokens that are invalid for reasons other than expiration or malformation,
-   * such as an invalid signature or unsupported algorithm.
-   */
-  INVALID_TOKEN("Token invalido"),
+    /**
+     * Error message for tokens that are invalid for reasons other than expiration or malformation,
+     * such as an invalid signature or unsupported algorithm.
+     */
+    INVALID_TOKEN("Token invalido"),
 
-  /**
-   * Error message for tokens that have expired. This is determined by checking the token's 'exp'
-   * (expiration time) claim.
-   */
-  EXPIRED_TOKEN("Token expirado");
+    /**
+     * Error message for tokens that have expired. This is determined by checking the token's 'exp'
+     * (expiration time) claim.
+     */
+    EXPIRED_TOKEN("Token expirado");
 
-  private final String message;
+    private final String message;
 
-  /**
-   * Constructor for the enum.
-   *
-   * @param message the error message associated with the enum constant.
-   */
-  TokenErrorMessages(String message) {
-    this.message = message;
-  }
+    /**
+     * Constructor for the enum.
+     *
+     * @param message the error message associated with the enum constant.
+     */
+    TokenErrorMessages(String message) {
+        this.message = message;
+    }
 }

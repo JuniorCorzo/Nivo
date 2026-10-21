@@ -1,10 +1,10 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.userinvitation.mapper;
 
+import dev.angelcorzo.nivo.domain.model.userinvitations.UserInvitations;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.config.MapperStructConfig;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.mappers.BaseMapper;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.mappers.CoordinatesMapper;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.userinvitation.UserInvitationsData;
-import dev.angelcorzo.nivo.domain.model.userinvitations.UserInvitations;
 import org.mapstruct.Mapper;
 
 /**

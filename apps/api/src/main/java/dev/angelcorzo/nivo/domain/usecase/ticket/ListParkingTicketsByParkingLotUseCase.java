@@ -16,15 +16,15 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class ListParkingTicketsByParkingLotUseCase {
-  private final ParkingTicketsRepository parkingTicketsRepository;
+    private final ParkingTicketsRepository parkingTicketsRepository;
 
-  /**
-   * Retrieves all parking tickets belonging to the given parking lot ID.
-   *
-   * @param parkingLotId The unique identifier of the parking lot.
-   * @return A list of {@link ParkingTickets}.
-   */
-  public List<ParkingTickets> execute(UUID parkingLotId) {
-    return this.parkingTicketsRepository.findAllByParkingLotId(parkingLotId);
-  }
+    /**
+     * Retrieves all parking tickets belonging to the given parking lot ID.
+     *
+     * @param parkingLotId The unique identifier of the parking lot.
+     * @return A list of {@link ParkingTickets}.
+     */
+    public List<ParkingTickets> execute(UUID parkingLotId) {
+        return this.parkingTicketsRepository.findAllByParkingLotId(parkingLotId);
+    }
 }

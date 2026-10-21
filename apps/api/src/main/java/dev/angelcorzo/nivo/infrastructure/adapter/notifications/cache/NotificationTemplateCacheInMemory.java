@@ -40,57 +40,56 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class NotificationTemplateCacheInMemory implements NotificationTemplateCache {
 
-  private final NotificationTemplatesRepository templatesRepository;
-  private final Map<NotificationImmutableKey, NotificationTemplates> notificationTemplates =
-      new ConcurrentHashMap<>();
+    private final NotificationTemplatesRepository templatesRepository;
+    private final Map<NotificationImmutableKey, NotificationTemplates> notificationTemplates =
+            new ConcurrentHashMap<>();
 
-  /**
-   * Returns the {@link NotificationTemplates} for the given key, loading it from the database if
-   * it is not yet cached.
-   *
-   * <p>Returns {@link Optional#empty()} when no template is found in the database for the
-   * requested {@code key}. Callers must treat an empty Optional as a no-op (skip delivery)
-   * rather than an exceptional condition.
-   *
-   * @param key The immutable composite key (event + channel).
-   * @return An {@link Optional} containing the template, or empty if not found.
-   */
-  @Override
-  public Optional<NotificationTemplates> getTemplate(final NotificationImmutableKey key) {
-    if (!this.notificationTemplates.containsKey(key)) {
-      this.registerTemplate(key);
+    /**
+     * Returns the {@link NotificationTemplates} for the given key, loading it from the database if
+     * it is not yet cached.
+     *
+     * <p>Returns {@link Optional#empty()} when no template is found in the database for the
+     * requested {@code key}. Callers must treat an empty Optional as a no-op (skip delivery)
+     * rather than an exceptional condition.
+     *
+     * @param key The immutable composite key (event + channel).
+     * @return An {@link Optional} containing the template, or empty if not found.
+     */
+    @Override
+    public Optional<NotificationTemplates> getTemplate(final NotificationImmutableKey key) {
+        if (!this.notificationTemplates.containsKey(key)) {
+            this.registerTemplate(key);
+        }
+
+        // Use ofNullable: registerTemplate logs and skips the put when the template is not found in
+        // the database, so the map value may legitimately be null for unknown keys.
+        return Optional.ofNullable(this.notificationTemplates.get(key));
     }
 
-    // Use ofNullable: registerTemplate logs and skips the put when the template is not found in
-    // the database, so the map value may legitimately be null for unknown keys.
-    return Optional.ofNullable(this.notificationTemplates.get(key));
-  }
-
-  /**
-   * Loads the template for the given key from the database and stores it in the cache.
-   *
-   * <p>If no template is found, an error is logged and no entry is added to the map, so the next
-   * call to {@link #getTemplate} will return {@link Optional#empty()} rather than throw.
-   *
-   * @param key The composite key to load.
-   */
-  private void registerTemplate(final NotificationImmutableKey key) {
-    this.templatesRepository
-        .findByEventTypeAndChannel(key.event(), key.channel())
-        .ifPresentOrElse(
-            template -> {
-              this.notificationTemplates.put(key, template);
-              log.info(
-                  "Notification template registered in cache. eventType={}, channel={}, templateReference={}",
-                  key.event(),
-                  key.channel(),
-                  template.getTemplateReference());
-            },
-            () ->
-                log.error(
-                    "Notification template not found in database — delivery will be skipped."
-                        + " eventType={}, channel={}",
-                    key.event(),
-                    key.channel()));
-  }
+    /**
+     * Loads the template for the given key from the database and stores it in the cache.
+     *
+     * <p>If no template is found, an error is logged and no entry is added to the map, so the next
+     * call to {@link #getTemplate} will return {@link Optional#empty()} rather than throw.
+     *
+     * @param key The composite key to load.
+     */
+    private void registerTemplate(final NotificationImmutableKey key) {
+        this.templatesRepository
+                .findByEventTypeAndChannel(key.event(), key.channel())
+                .ifPresentOrElse(
+                        template -> {
+                            this.notificationTemplates.put(key, template);
+                            log.info(
+                                    "Notification template registered in cache. eventType={}, channel={}, templateReference={}",
+                                    key.event(),
+                                    key.channel(),
+                                    template.getTemplateReference());
+                        },
+                        () -> log.error(
+                                "Notification template not found in database — delivery will be skipped."
+                                        + " eventType={}, channel={}",
+                                key.event(),
+                                key.channel()));
+    }
 }

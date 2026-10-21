@@ -24,38 +24,38 @@ import org.hibernate.annotations.Immutable;
 @AllArgsConstructor
 public class DailySummaryViewEntity {
 
-  @Id
-  @Column(name = "parking_lot_id")
-  private UUID parkingLotId;
+    @Id
+    @Column(name = "parking_lot_id")
+    private UUID parkingLotId;
 
-  @Column(name = "tenant_id")
-  private UUID tenantId;
+    @Column(name = "tenant_id")
+    private UUID tenantId;
 
-  @Column(name = "parking_name")
-  private String parkingName;
+    @Column(name = "parking_name")
+    private String parkingName;
 
-  @Id
-  @Column(name = "summary_date")
-  private LocalDate summaryDate;
+    @Id
+    @Column(name = "summary_date")
+    private LocalDate summaryDate;
 
-  @Column(name = "total_tickets")
-  private Long totalTickets;
+    @Column(name = "total_tickets")
+    private Long totalTickets;
 
-  @Column(name = "completed_tickets")
-  private Long completedTickets;
+    @Column(name = "completed_tickets")
+    private Long completedTickets;
 
-  @Column(name = "ongoing_tickets")
-  private Long ongoingTickets;
+    @Column(name = "ongoing_tickets")
+    private Long ongoingTickets;
 
-  @Column(name = "unique_vehicles")
-  private Long uniqueVehicles;
+    @Column(name = "unique_vehicles")
+    private Long uniqueVehicles;
 
-  @Column(name = "total_revenue")
-  private BigDecimal totalRevenue;
+    @Column(name = "total_revenue")
+    private BigDecimal totalRevenue;
 
-  @Column(name = "avg_duration_minutes")
-  private Double avgDurationMinutes;
+    @Column(name = "avg_duration_minutes")
+    private Double avgDurationMinutes;
 
-  @Column(name = "currency")
-  private String currency;
+    @Column(name = "currency")
+    private String currency;
 }

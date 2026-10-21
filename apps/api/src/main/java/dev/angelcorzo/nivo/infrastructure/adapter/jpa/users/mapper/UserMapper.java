@@ -1,9 +1,9 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.mapper;
 
+import dev.angelcorzo.nivo.domain.model.users.Users;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.config.MapperStructConfig;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.mappers.BaseMapper;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.UsersData;
-import dev.angelcorzo.nivo.domain.model.users.Users;
 import org.mapstruct.Mapper;
 
 /**

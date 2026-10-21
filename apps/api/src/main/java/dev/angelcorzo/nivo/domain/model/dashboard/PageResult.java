@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageResult<T> {
-  private List<T> content;
-  private int pageNumber;
-  private int pageSize;
-  private long totalElements;
-  private int totalPages;
+    private List<T> content;
+    private int pageNumber;
+    private int pageSize;
+    private long totalElements;
+    private int totalPages;
 }

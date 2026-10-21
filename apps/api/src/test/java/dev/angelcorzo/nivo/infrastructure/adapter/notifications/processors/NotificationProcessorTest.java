@@ -27,98 +27,100 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("NotificationProcessor Unit Tests")
 class NotificationProcessorTest {
 
-  @Mock private NotificationGateway notificationGateway;
-  @Mock private NotificationTemplateCache notificationTemplatesCache;
-  @Mock private NotificationExecutionContextHolder executionContextHolder;
+    @Mock
+    private NotificationGateway notificationGateway;
 
-  @InjectMocks private NotificationProcessor notificationProcessor;
+    @Mock
+    private NotificationTemplateCache notificationTemplatesCache;
 
-  private UUID tenantId;
-  private UUID actorUserId;
-  private NotificationsData content;
+    @Mock
+    private NotificationExecutionContextHolder executionContextHolder;
 
-  @BeforeEach
-  void setUp() {
-    tenantId = UUID.randomUUID();
-    actorUserId = UUID.randomUUID();
-    content = UserInvitedData.builder().userName("John").build();
-  }
+    @InjectMocks
+    private NotificationProcessor notificationProcessor;
 
-  @Test
-  @DisplayName("Should throw IllegalStateException when execution context ids are missing")
-  void shouldThrowWhenContextIdsMissing() {
-    SendNotificationEvent event =
-        SendNotificationEvent.builder()
-            .event("USER_INVITED")
-            .notificationEvent(NotificationEvents.USER_INVITED)
-            .channel(NotificationsChannel.EMAIL)
-            .actorUserId(actorUserId)
-            .to("to@test.com")
-            .content(content)
-            .build();
+    private UUID tenantId;
+    private UUID actorUserId;
+    private NotificationsData content;
 
-    assertThatThrownBy(() -> notificationProcessor.processEvent(event))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("Notification event missing execution context ids");
-  }
+    @BeforeEach
+    void setUp() {
+        tenantId = UUID.randomUUID();
+        actorUserId = UUID.randomUUID();
+        content = UserInvitedData.builder().userName("John").build();
+    }
 
-  @Test
-  @DisplayName("Should process event and send email when template is cached")
-  void shouldProcessEventSuccessfully() {
-    SendNotificationEvent event =
-        SendNotificationEvent.builder()
-            .event("USER_INVITED")
-            .notificationEvent(NotificationEvents.USER_INVITED)
-            .channel(NotificationsChannel.EMAIL)
-            .tenantId(tenantId)
-            .actorUserId(actorUserId)
-            .to("to@test.com")
-            .content(content)
-            .build();
+    @Test
+    @DisplayName("Should throw IllegalStateException when execution context ids are missing")
+    void shouldThrowWhenContextIdsMissing() {
+        SendNotificationEvent event = SendNotificationEvent.builder()
+                .event("USER_INVITED")
+                .notificationEvent(NotificationEvents.USER_INVITED)
+                .channel(NotificationsChannel.EMAIL)
+                .actorUserId(actorUserId)
+                .to("to@test.com")
+                .content(content)
+                .build();
 
-    NotificationTemplates template =
-        NotificationTemplates.builder()
-            .id(UUID.randomUUID())
-            .templateReference("d-123")
-            .eventType(NotificationEvents.USER_INVITED)
-            .channel(NotificationsChannel.EMAIL)
-            .build();
+        assertThatThrownBy(() -> notificationProcessor.processEvent(event))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Notification event missing execution context ids");
+    }
 
-    NotificationImmutableKey key =
-        NotificationImmutableKey.of(NotificationEvents.USER_INVITED, NotificationsChannel.EMAIL);
+    @Test
+    @DisplayName("Should process event and send email when template is cached")
+    void shouldProcessEventSuccessfully() {
+        SendNotificationEvent event = SendNotificationEvent.builder()
+                .event("USER_INVITED")
+                .notificationEvent(NotificationEvents.USER_INVITED)
+                .channel(NotificationsChannel.EMAIL)
+                .tenantId(tenantId)
+                .actorUserId(actorUserId)
+                .to("to@test.com")
+                .content(content)
+                .build();
 
-    when(notificationTemplatesCache.getTemplate(key)).thenReturn(Optional.of(template));
+        NotificationTemplates template = NotificationTemplates.builder()
+                .id(UUID.randomUUID())
+                .templateReference("d-123")
+                .eventType(NotificationEvents.USER_INVITED)
+                .channel(NotificationsChannel.EMAIL)
+                .build();
 
-    notificationProcessor.processEvent(event);
+        NotificationImmutableKey key =
+                NotificationImmutableKey.of(NotificationEvents.USER_INVITED, NotificationsChannel.EMAIL);
 
-    verify(executionContextHolder).set(any());
-    verify(notificationGateway).sendEmail(template, "to@test.com", content);
-    verify(executionContextHolder).clear();
-  }
+        when(notificationTemplatesCache.getTemplate(key)).thenReturn(Optional.of(template));
 
-  @Test
-  @DisplayName("Should skip sending email when template is not found in cache")
-  void shouldSkipWhenTemplateNotFound() {
-    SendNotificationEvent event =
-        SendNotificationEvent.builder()
-            .event("USER_INVITED")
-            .notificationEvent(NotificationEvents.USER_INVITED)
-            .channel(NotificationsChannel.EMAIL)
-            .tenantId(tenantId)
-            .actorUserId(actorUserId)
-            .to("to@test.com")
-            .content(content)
-            .build();
+        notificationProcessor.processEvent(event);
 
-    NotificationImmutableKey key =
-        NotificationImmutableKey.of(NotificationEvents.USER_INVITED, NotificationsChannel.EMAIL);
+        verify(executionContextHolder).set(any());
+        verify(notificationGateway).sendEmail(template, "to@test.com", content);
+        verify(executionContextHolder).clear();
+    }
 
-    when(notificationTemplatesCache.getTemplate(key)).thenReturn(Optional.empty());
+    @Test
+    @DisplayName("Should skip sending email when template is not found in cache")
+    void shouldSkipWhenTemplateNotFound() {
+        SendNotificationEvent event = SendNotificationEvent.builder()
+                .event("USER_INVITED")
+                .notificationEvent(NotificationEvents.USER_INVITED)
+                .channel(NotificationsChannel.EMAIL)
+                .tenantId(tenantId)
+                .actorUserId(actorUserId)
+                .to("to@test.com")
+                .content(content)
+                .build();
 
-    notificationProcessor.processEvent(event);
+        NotificationImmutableKey key =
+                NotificationImmutableKey.of(NotificationEvents.USER_INVITED, NotificationsChannel.EMAIL);
 
-    verify(executionContextHolder).set(any());
-    verify(notificationGateway, never()).sendEmail(any(), any(), any());
-    verify(executionContextHolder).clear();
-  }
+        when(notificationTemplatesCache.getTemplate(key)).thenReturn(Optional.empty());
+
+        notificationProcessor.processEvent(event);
+
+        verify(executionContextHolder).set(any());
+        verify(notificationGateway, never()).sendEmail(any(), any(), any());
+        verify(executionContextHolder).clear();
+    }
 }

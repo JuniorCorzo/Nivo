@@ -1,7 +1,6 @@
 package dev.angelcorzo.nivo.domain.model.users.gateways;
 
 import dev.angelcorzo.nivo.domain.model.users.Users;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

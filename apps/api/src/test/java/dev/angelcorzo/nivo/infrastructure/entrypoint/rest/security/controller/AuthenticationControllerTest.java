@@ -8,12 +8,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.security.dto.AuthenticationResponseDTO;
-import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.security.dto.UserCredentialsDTO;
-import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.security.mapper.AuthenticationMapper;
 import dev.angelcorzo.nivo.domain.model.authentication.AuthResponse;
 import dev.angelcorzo.nivo.domain.usecase.auth.LoginUseCase;
 import dev.angelcorzo.nivo.domain.usecase.auth.RefreshSessionUseCase;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.security.dto.AuthenticationResponseDTO;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.security.dto.UserCredentialsDTO;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.security.mapper.AuthenticationMapper;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,114 +39,105 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("AuthenticationController Tests")
 class AuthenticationControllerTest {
 
-  @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-  @MockitoBean private LoginUseCase loginUseCase;
-  @MockitoBean private RefreshSessionUseCase refreshSessionUseCase;
-  @MockitoBean private AuthenticationMapper authenticationMapper;
+    @MockitoBean
+    private LoginUseCase loginUseCase;
 
-  @Nested
-  @DisplayName("POST /auth/login")
-  class LoginTests {
+    @MockitoBean
+    private RefreshSessionUseCase refreshSessionUseCase;
 
-    @Test
-    @DisplayName("Should return 200 and set-cookie when credentials are valid")
-    void shouldLoginSuccessfully() throws Exception {
-      // Arrange
-      UserCredentialsDTO credentials =
-          new UserCredentialsDTO("admin@nivo.app", "Password123!");
-      LoginUseCase.UserCredentials modelCredentials =
-          new LoginUseCase.UserCredentials("admin@nivo.app", "Password123!");
-      AuthResponse authResponse = new AuthResponse("access-token-xyz", "refresh-token-abc");
-      AuthenticationResponseDTO responseDTO =
-          new AuthenticationResponseDTO("access-token-xyz", "refresh-token-abc");
+    @MockitoBean
+    private AuthenticationMapper authenticationMapper;
 
-      when(authenticationMapper.toModel(any(UserCredentialsDTO.class))).thenReturn(modelCredentials);
-      when(loginUseCase.auth(modelCredentials)).thenReturn(authResponse);
-      when(authenticationMapper.toDTO(authResponse)).thenReturn(responseDTO);
+    @Nested
+    @DisplayName("POST /auth/login")
+    class LoginTests {
 
-      // Act & Assert
-      mockMvc
-          .perform(
-              post("/auth/login")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(credentials)))
-          .andExpect(status().isOk())
-          .andExpect(header().exists("Set-Cookie"))
-          .andExpect(jsonPath("$.data.accessToken").value("access-token-xyz"))
-          .andExpect(jsonPath("$.message").value("Login successful"));
+        @Test
+        @DisplayName("Should return 200 and set-cookie when credentials are valid")
+        void shouldLoginSuccessfully() throws Exception {
+            // Arrange
+            UserCredentialsDTO credentials = new UserCredentialsDTO("admin@nivo.app", "Password123!");
+            LoginUseCase.UserCredentials modelCredentials =
+                    new LoginUseCase.UserCredentials("admin@nivo.app", "Password123!");
+            AuthResponse authResponse = new AuthResponse("access-token-xyz", "refresh-token-abc");
+            AuthenticationResponseDTO responseDTO =
+                    new AuthenticationResponseDTO("access-token-xyz", "refresh-token-abc");
+
+            when(authenticationMapper.toModel(any(UserCredentialsDTO.class))).thenReturn(modelCredentials);
+            when(loginUseCase.auth(modelCredentials)).thenReturn(authResponse);
+            when(authenticationMapper.toDTO(authResponse)).thenReturn(responseDTO);
+
+            // Act & Assert
+            mockMvc.perform(post("/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(credentials)))
+                    .andExpect(status().isOk())
+                    .andExpect(header().exists("Set-Cookie"))
+                    .andExpect(jsonPath("$.data.accessToken").value("access-token-xyz"))
+                    .andExpect(jsonPath("$.message").value("Login successful"));
+        }
+
+        @Test
+        @DisplayName("Should return 400 Bad Request when email format is invalid")
+        void shouldReturn400WhenEmailIsInvalid() throws Exception {
+            UserCredentialsDTO invalidCredentials = new UserCredentialsDTO("not-an-email", "Password123!");
+
+            mockMvc.perform(post("/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(invalidCredentials)))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("Should return 400 Bad Request when password is empty")
+        void shouldReturn400WhenPasswordIsEmpty() throws Exception {
+            UserCredentialsDTO emptyPasswordCredentials = new UserCredentialsDTO("admin@nivo.app", "");
+
+            mockMvc.perform(post("/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(emptyPasswordCredentials)))
+                    .andExpect(status().isBadRequest());
+        }
     }
 
-    @Test
-    @DisplayName("Should return 400 Bad Request when email format is invalid")
-    void shouldReturn400WhenEmailIsInvalid() throws Exception {
-      UserCredentialsDTO invalidCredentials =
-          new UserCredentialsDTO("not-an-email", "Password123!");
+    @Nested
+    @DisplayName("POST /auth/refresh")
+    class RefreshTests {
 
-      mockMvc
-          .perform(
-              post("/auth/login")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(invalidCredentials)))
-          .andExpect(status().isBadRequest());
+        @Test
+        @DisplayName("Should refresh tokens successfully when valid cookie is provided")
+        void shouldRefreshSessionSuccessfully() throws Exception {
+            // Arrange
+            String refreshToken = "valid-refresh-token";
+            AuthResponse newTokens = new AuthResponse("new-access-token", "new-refresh-token");
+            AuthenticationResponseDTO responseDTO =
+                    new AuthenticationResponseDTO("new-access-token", "new-refresh-token");
+
+            when(refreshSessionUseCase.refreshAccessToken(refreshToken)).thenReturn(newTokens);
+            when(authenticationMapper.toDTO(newTokens)).thenReturn(responseDTO);
+
+            // Act & Assert
+            mockMvc.perform(post("/auth/refresh").cookie(new Cookie("refreshToken", refreshToken)))
+                    .andExpect(status().isOk())
+                    .andExpect(header().exists("Set-Cookie"))
+                    .andExpect(jsonPath("$.data.accessToken").value("new-access-token"))
+                    .andExpect(jsonPath("$.message").value("Refresh successful"));
+        }
     }
 
-    @Test
-    @DisplayName("Should return 400 Bad Request when password is empty")
-    void shouldReturn400WhenPasswordIsEmpty() throws Exception {
-      UserCredentialsDTO emptyPasswordCredentials =
-          new UserCredentialsDTO("admin@nivo.app", "");
+    @Nested
+    @DisplayName("POST /auth/logout")
+    class LogoutTests {
 
-      mockMvc
-          .perform(
-              post("/auth/login")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(emptyPasswordCredentials)))
-          .andExpect(status().isBadRequest());
+        @Test
+        @DisplayName("Should return 200 and clear cookie on logout")
+        void shouldLogoutSuccessfully() throws Exception {
+            mockMvc.perform(post("/auth/logout")).andExpect(status().isOk()).andExpect(header().exists("Set-Cookie"));
+        }
     }
-  }
-
-  @Nested
-  @DisplayName("POST /auth/refresh")
-  class RefreshTests {
-
-    @Test
-    @DisplayName("Should refresh tokens successfully when valid cookie is provided")
-    void shouldRefreshSessionSuccessfully() throws Exception {
-      // Arrange
-      String refreshToken = "valid-refresh-token";
-      AuthResponse newTokens = new AuthResponse("new-access-token", "new-refresh-token");
-      AuthenticationResponseDTO responseDTO =
-          new AuthenticationResponseDTO("new-access-token", "new-refresh-token");
-
-      when(refreshSessionUseCase.refreshAccessToken(refreshToken)).thenReturn(newTokens);
-      when(authenticationMapper.toDTO(newTokens)).thenReturn(responseDTO);
-
-      // Act & Assert
-      mockMvc
-          .perform(
-              post("/auth/refresh")
-                  .cookie(new Cookie("refreshToken", refreshToken)))
-          .andExpect(status().isOk())
-          .andExpect(header().exists("Set-Cookie"))
-          .andExpect(jsonPath("$.data.accessToken").value("new-access-token"))
-          .andExpect(jsonPath("$.message").value("Refresh successful"));
-    }
-  }
-
-  @Nested
-  @DisplayName("POST /auth/logout")
-  class LogoutTests {
-
-    @Test
-    @DisplayName("Should return 200 and clear cookie on logout")
-    void shouldLogoutSuccessfully() throws Exception {
-      mockMvc
-          .perform(post("/auth/logout"))
-          .andExpect(status().isOk())
-          .andExpect(header().exists("Set-Cookie"));
-    }
-  }
 }

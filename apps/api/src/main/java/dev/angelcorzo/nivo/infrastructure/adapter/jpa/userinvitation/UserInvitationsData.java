@@ -1,9 +1,9 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.jpa.userinvitation;
 
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.TenantsData;
-import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.UsersData;
 import dev.angelcorzo.nivo.domain.model.userinvitations.UserInvitationStatus;
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.tenants.TenantsData;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.UsersData;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.Objects;
@@ -43,78 +43,79 @@ import org.hibernate.proxy.HibernateProxy;
 @SQLDelete(sql = "UPDATE user_invitations SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction(value = "deleted_at IS NULL")
 public class UserInvitationsData {
-  /** Unique identifier for the user invitation. */
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+    /** Unique identifier for the user invitation. */
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-  /** The tenant to which the user is invited. */
-  @ManyToOne(fetch = FetchType.LAZY, targetEntity = TenantsData.class)
-  @JoinColumn(
-      name = "tenant_id",
-      foreignKey = @ForeignKey(name = "user_invitations_tenant_id_fkey"),
-      nullable = false)
-  @ToString.Exclude
-  private TenantsData tenant;
+    /** The tenant to which the user is invited. */
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = TenantsData.class)
+    @JoinColumn(
+            name = "tenant_id",
+            foreignKey = @ForeignKey(name = "user_invitations_tenant_id_fkey"),
+            nullable = false)
+    @ToString.Exclude
+    private TenantsData tenant;
 
-  /** The email address of the person being invited. */
-  @Column(name = "invited_email", nullable = false)
-  private String invitedEmail;
+    /** The email address of the person being invited. */
+    @Column(name = "invited_email", nullable = false)
+    private String invitedEmail;
 
-  /** The role to be assigned to the user upon accepting the invitation. */
-  @Column(name = "role", nullable = false)
-  @Enumerated(EnumType.STRING)
-  private Roles role;
+    /** The role to be assigned to the user upon accepting the invitation. */
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Roles role;
 
-  /** The unique token associated with this invitation for acceptance. */
-  @Column(name = "token", nullable = false)
-  private UUID token;
+    /** The unique token associated with this invitation for acceptance. */
+    @Column(name = "token", nullable = false)
+    private UUID token;
 
-  /** The current status of the invitation (e.g., PENDING, ACCEPTED, EXPIRED). */
-  @Column(name = "status", nullable = false)
-  @Enumerated(EnumType.STRING)
-  private UserInvitationStatus status;
+    /** The current status of the invitation (e.g., PENDING, ACCEPTED, EXPIRED). */
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserInvitationStatus status;
 
-  /** The user who sent this invitation. */
-  @ManyToOne(fetch = FetchType.LAZY, targetEntity = UsersData.class)
-  @JoinColumn(name = "invited_by")
-  @ToString.Exclude
-  private UsersData invitedBy;
+    /** The user who sent this invitation. */
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = UsersData.class)
+    @JoinColumn(name = "invited_by")
+    @ToString.Exclude
+    private UsersData invitedBy;
 
-  /** Timestamp when the invitation was created. */
-  @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ")
-  @CreationTimestamp
-  private OffsetDateTime createdAt;
+    /** Timestamp when the invitation was created. */
+    @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ")
+    @CreationTimestamp
+    private OffsetDateTime createdAt;
 
-  /** Timestamp when the invitation was accepted. */
-  @Column(name = "accepted_at", columnDefinition = "TIMESTAMPTZ")
-  private OffsetDateTime acceptedAt;
+    /** Timestamp when the invitation was accepted. */
+    @Column(name = "accepted_at", columnDefinition = "TIMESTAMPTZ")
+    private OffsetDateTime acceptedAt;
 
-  /** Timestamp when the invitation expires. */
-  @Column(name = "expired_at", columnDefinition = "TIMESTAMPTZ")
-  private OffsetDateTime expiredAt;
+    /** Timestamp when the invitation expires. */
+    @Column(name = "expired_at", columnDefinition = "TIMESTAMPTZ")
+    private OffsetDateTime expiredAt;
 
-  @Override
-  public final boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null) return false;
-    Class<?> oEffectiveClass =
-        o instanceof HibernateProxy
-            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
-            : o.getClass();
-    Class<?> thisEffectiveClass =
-        this instanceof HibernateProxy
-            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
-            : this.getClass();
-    if (thisEffectiveClass != oEffectiveClass) return false;
-    UserInvitationsData that = (UserInvitationsData) o;
-    return getId() != null && Objects.equals(getId(), that.getId());
-  }
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy
+                ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+                : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy
+                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+                : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        UserInvitationsData that = (UserInvitationsData) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
+    }
 
-  @Override
-  public final int hashCode() {
-    return this instanceof HibernateProxy
-        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
-        : getClass().hashCode();
-  }
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy
+                ? ((HibernateProxy) this)
+                        .getHibernateLazyInitializer()
+                        .getPersistentClass()
+                        .hashCode()
+                : getClass().hashCode();
+    }
 }

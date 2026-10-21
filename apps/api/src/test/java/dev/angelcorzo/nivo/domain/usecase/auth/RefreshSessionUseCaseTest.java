@@ -30,98 +30,102 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RefreshSessionUseCase Tests")
 class RefreshSessionUseCaseTest {
-  @Mock private AuthenticationGateway authenticationGateway;
-  @Mock private UsersRepository usersRepository;
-  @InjectMocks private RefreshSessionUseCase refreshSessionUseCase;
+    @Mock
+    private AuthenticationGateway authenticationGateway;
 
-  @Nested
-  @DisplayName("Happy Path - Successful Refresh")
-  class HappyPath {
+    @Mock
+    private UsersRepository usersRepository;
 
-    @Test
-    @DisplayName("Should return new tokens when refresh token is valid and user exists")
-    void shouldReturnNewTokensWhenRefreshTokenIsValid() {
-      // Arrange (Given)
-      String validRefreshToken = "valid-refresh-token";
-      UUID userId = UUID.randomUUID();
-      UUID tenantId = UUID.randomUUID();
+    @InjectMocks
+    private RefreshSessionUseCase refreshSessionUseCase;
 
-      Map<String, String> claims =
-          Map.of("sub", userId.toString(), "tenantId", tenantId.toString());
+    @Nested
+    @DisplayName("Happy Path - Successful Refresh")
+    class HappyPath {
 
-      Users mockUser =
-          Users.builder()
-              .id(userId)
-              .email("user@example.com")
-              .fullName("Test User")
-              .role(dev.angelcorzo.nivo.domain.model.users.enums.Roles.OWNER)
-              .tenant(TenantReference.builder().id(tenantId).companyName("test company").build())
-              .build();
+        @Test
+        @DisplayName("Should return new tokens when refresh token is valid and user exists")
+        void shouldReturnNewTokensWhenRefreshTokenIsValid() {
+            // Arrange (Given)
+            String validRefreshToken = "valid-refresh-token";
+            UUID userId = UUID.randomUUID();
+            UUID tenantId = UUID.randomUUID();
 
-      doNothing().when(authenticationGateway).validateToken(validRefreshToken);
-      when(authenticationGateway.extractTokenClaims(validRefreshToken)).thenReturn(claims);
-      when(usersRepository.findByIdAndTenantId(userId, tenantId)).thenReturn(Optional.of(mockUser));
-      when(authenticationGateway.generateAccessToken(any())).thenReturn("new-access-token");
-      when(authenticationGateway.generateRefreshToken(any())).thenReturn("new-refresh-token");
+            Map<String, String> claims = Map.of("sub", userId.toString(), "tenantId", tenantId.toString());
 
-      // Act (When)
-      AuthResponse authResponse = refreshSessionUseCase.refreshAccessToken(validRefreshToken);
+            Users mockUser = Users.builder()
+                    .id(userId)
+                    .email("user@example.com")
+                    .fullName("Test User")
+                    .role(dev.angelcorzo.nivo.domain.model.users.enums.Roles.OWNER)
+                    .tenant(TenantReference.builder()
+                            .id(tenantId)
+                            .companyName("test company")
+                            .build())
+                    .build();
 
-      // Assert (Then)
-      assertThat(authResponse).isNotNull();
-      assertThat(authResponse.accessToken()).isEqualTo("new-access-token");
-      assertThat(authResponse.refreshToken()).isEqualTo("new-refresh-token");
+            doNothing().when(authenticationGateway).validateToken(validRefreshToken);
+            when(authenticationGateway.extractTokenClaims(validRefreshToken)).thenReturn(claims);
+            when(usersRepository.findByIdAndTenantId(userId, tenantId)).thenReturn(Optional.of(mockUser));
+            when(authenticationGateway.generateAccessToken(any())).thenReturn("new-access-token");
+            when(authenticationGateway.generateRefreshToken(any())).thenReturn("new-refresh-token");
 
-      verify(authenticationGateway).validateToken(validRefreshToken);
-      verify(authenticationGateway).extractTokenClaims(validRefreshToken);
-      verify(usersRepository).findByIdAndTenantId(userId, tenantId);
-      verify(authenticationGateway).generateAccessToken(any());
-      verify(authenticationGateway).generateRefreshToken(any());
-    }
-  }
+            // Act (When)
+            AuthResponse authResponse = refreshSessionUseCase.refreshAccessToken(validRefreshToken);
 
-  @Nested
-  @DisplayName("Validation & Error Cases")
-  class ValidationAndErrorCases {
+            // Assert (Then)
+            assertThat(authResponse).isNotNull();
+            assertThat(authResponse.accessToken()).isEqualTo("new-access-token");
+            assertThat(authResponse.refreshToken()).isEqualTo("new-refresh-token");
 
-    @Test
-    @DisplayName("Should throw TokenInvalidException when refresh token is invalid")
-    void shouldThrowExceptionWhenTokenIsInvalid() {
-      // Arrange
-      String invalidToken = "invalid-token";
-      doThrow(new TokenInvalidException("Invalid"))
-          .when(authenticationGateway)
-          .validateToken(invalidToken);
-
-      // Act & Assert
-      assertThatThrownBy(() -> refreshSessionUseCase.refreshAccessToken(invalidToken))
-          .isInstanceOf(TokenInvalidException.class);
-
-      verify(usersRepository, never()).findByIdAndTenantId(any(), any());
+            verify(authenticationGateway).validateToken(validRefreshToken);
+            verify(authenticationGateway).extractTokenClaims(validRefreshToken);
+            verify(usersRepository).findByIdAndTenantId(userId, tenantId);
+            verify(authenticationGateway).generateAccessToken(any());
+            verify(authenticationGateway).generateRefreshToken(any());
+        }
     }
 
-    @Test
-    @DisplayName("Should throw UserNotExistsInTenantException when user from token is not found")
-    void shouldThrowExceptionWhenUserIsNotFound() {
-      // Arrange
-      String validTokenWithNonExistentUser = "valid-token-non-existent-user";
-      UUID userId = UUID.randomUUID();
-      UUID tenantId = UUID.randomUUID();
-      Map<String, String> claims =
-          Map.of("sub", userId.toString(), "tenantId", tenantId.toString());
+    @Nested
+    @DisplayName("Validation & Error Cases")
+    class ValidationAndErrorCases {
 
-      doNothing().when(authenticationGateway).validateToken(validTokenWithNonExistentUser);
-      when(authenticationGateway.extractTokenClaims(validTokenWithNonExistentUser))
-          .thenReturn(claims);
-      when(usersRepository.findByIdAndTenantId(userId, tenantId)).thenReturn(Optional.empty());
+        @Test
+        @DisplayName("Should throw TokenInvalidException when refresh token is invalid")
+        void shouldThrowExceptionWhenTokenIsInvalid() {
+            // Arrange
+            String invalidToken = "invalid-token";
+            doThrow(new TokenInvalidException("Invalid"))
+                    .when(authenticationGateway)
+                    .validateToken(invalidToken);
 
-      // Act & Assert
-      assertThatThrownBy(
-              () -> refreshSessionUseCase.refreshAccessToken(validTokenWithNonExistentUser))
-          .isInstanceOf(UserNotExistsInTenantException.class);
+            // Act & Assert
+            assertThatThrownBy(() -> refreshSessionUseCase.refreshAccessToken(invalidToken))
+                    .isInstanceOf(TokenInvalidException.class);
 
-      verify(authenticationGateway, never()).generateAccessToken(any());
-      verify(authenticationGateway, never()).generateRefreshToken(any());
+            verify(usersRepository, never()).findByIdAndTenantId(any(), any());
+        }
+
+        @Test
+        @DisplayName("Should throw UserNotExistsInTenantException when user from token is not found")
+        void shouldThrowExceptionWhenUserIsNotFound() {
+            // Arrange
+            String validTokenWithNonExistentUser = "valid-token-non-existent-user";
+            UUID userId = UUID.randomUUID();
+            UUID tenantId = UUID.randomUUID();
+            Map<String, String> claims = Map.of("sub", userId.toString(), "tenantId", tenantId.toString());
+
+            doNothing().when(authenticationGateway).validateToken(validTokenWithNonExistentUser);
+            when(authenticationGateway.extractTokenClaims(validTokenWithNonExistentUser))
+                    .thenReturn(claims);
+            when(usersRepository.findByIdAndTenantId(userId, tenantId)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThatThrownBy(() -> refreshSessionUseCase.refreshAccessToken(validTokenWithNonExistentUser))
+                    .isInstanceOf(UserNotExistsInTenantException.class);
+
+            verify(authenticationGateway, never()).generateAccessToken(any());
+            verify(authenticationGateway, never()).generateRefreshToken(any());
+        }
     }
-  }
 }

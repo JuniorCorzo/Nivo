@@ -6,4 +6,4 @@ import java.time.OffsetTime;
 
 @Schema(requiredProperties = {"openTime", "closeTime"})
 public record OperatingHoursDTO(
-		@NotNull OffsetTime openTime, @NotNull OffsetTime closeTime) {}
+        @NotNull OffsetTime openTime, @NotNull OffsetTime closeTime) {}

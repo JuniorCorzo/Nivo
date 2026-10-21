@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface NotificationLogsRepository {
-  List<NotificationLogs> findAllByUserId(UUID userId);
+    List<NotificationLogs> findAllByUserId(UUID userId);
 
-  List<NotificationLogs> findAllByTenantId(UUID tenantId);
+    List<NotificationLogs> findAllByTenantId(UUID tenantId);
 
-  NotificationLogs save(NotificationLogs notificationLogs);
+    NotificationLogs save(NotificationLogs notificationLogs);
 }

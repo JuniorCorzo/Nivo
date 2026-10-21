@@ -8,6 +8,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "sendgrid")
 public class SendGridProperties {
-  private String apiKey;
-  private String fromEmail;
+    private String apiKey;
+    private String fromEmail;
 }

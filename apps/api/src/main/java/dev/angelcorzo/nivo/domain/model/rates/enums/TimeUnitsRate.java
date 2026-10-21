@@ -6,25 +6,25 @@ import lombok.Getter;
 
 @Getter
 public enum TimeUnitsRate {
-  DAYS(ChronoUnit.DAYS, "Dias", "D"),
-  HOURS(ChronoUnit.HOURS, "Horas", "H"),
-  MINUTES(ChronoUnit.MINUTES, "Minutos", "M");
+    DAYS(ChronoUnit.DAYS, "Dias", "D"),
+    HOURS(ChronoUnit.HOURS, "Horas", "H"),
+    MINUTES(ChronoUnit.MINUTES, "Minutos", "M");
 
-  private final ChronoUnit chronoUnit;
-  private final String name;
-  private final String nameAbbreviated;
+    private final ChronoUnit chronoUnit;
+    private final String name;
+    private final String nameAbbreviated;
 
-  TimeUnitsRate(ChronoUnit chronoUnit, String name, String nameAbbreviated) {
-    this.chronoUnit = chronoUnit;
-    this.name = name;
-    this.nameAbbreviated = nameAbbreviated;
-  }
+    TimeUnitsRate(ChronoUnit chronoUnit, String name, String nameAbbreviated) {
+        this.chronoUnit = chronoUnit;
+        this.name = name;
+        this.nameAbbreviated = nameAbbreviated;
+    }
 
-  public long getDurationTime(Duration duration) {
-    return switch (this) {
-      case DAYS -> duration.toDays();
-      case HOURS -> duration.toHours();
-      case MINUTES -> duration.toMinutes();
-    };
-  }
+    public long getDurationTime(Duration duration) {
+        return switch (this) {
+            case DAYS -> duration.toDays();
+            case HOURS -> duration.toHours();
+            case MINUTES -> duration.toMinutes();
+        };
+    }
 }

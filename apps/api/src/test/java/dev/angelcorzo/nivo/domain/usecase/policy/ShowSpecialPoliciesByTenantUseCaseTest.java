@@ -14,27 +14,30 @@ import org.junit.jupiter.api.Test;
 @DisplayName("ShowSpecialPoliciesByTenantUseCase Tests")
 class ShowSpecialPoliciesByTenantUseCaseTest {
 
-  private SpecialPoliciesRepository specialPoliciesRepository;
-  private ShowSpecialPoliciesByTenantUseCase useCase;
+    private SpecialPoliciesRepository specialPoliciesRepository;
+    private ShowSpecialPoliciesByTenantUseCase useCase;
 
-  @BeforeEach
-  void setUp() {
-    specialPoliciesRepository = mock(SpecialPoliciesRepository.class);
-    useCase = new ShowSpecialPoliciesByTenantUseCase(specialPoliciesRepository);
-  }
+    @BeforeEach
+    void setUp() {
+        specialPoliciesRepository = mock(SpecialPoliciesRepository.class);
+        useCase = new ShowSpecialPoliciesByTenantUseCase(specialPoliciesRepository);
+    }
 
-  @Test
-  @DisplayName("Should return special policies for tenant")
-  void shouldReturnSpecialPoliciesForTenant() {
-    UUID tenantId = UUID.randomUUID();
-    SpecialPolicies policy = SpecialPolicies.builder().id(UUID.randomUUID()).name("Weekend Promo").build();
+    @Test
+    @DisplayName("Should return special policies for tenant")
+    void shouldReturnSpecialPoliciesForTenant() {
+        UUID tenantId = UUID.randomUUID();
+        SpecialPolicies policy = SpecialPolicies.builder()
+                .id(UUID.randomUUID())
+                .name("Weekend Promo")
+                .build();
 
-    when(specialPoliciesRepository.findAllByTenantId(tenantId)).thenReturn(List.of(policy));
+        when(specialPoliciesRepository.findAllByTenantId(tenantId)).thenReturn(List.of(policy));
 
-    List<SpecialPolicies> result = useCase.execute(tenantId);
+        List<SpecialPolicies> result = useCase.execute(tenantId);
 
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0).getName()).isEqualTo("Weekend Promo");
-    verify(specialPoliciesRepository).findAllByTenantId(tenantId);
-  }
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getName()).isEqualTo("Weekend Promo");
+        verify(specialPoliciesRepository).findAllByTenantId(tenantId);
+    }
 }

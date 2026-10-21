@@ -11,8 +11,8 @@ import java.util.UUID;
     @JsonSubTypes.Type(value = SMSCheckOutCommand.class, name = "SMS"),
     @JsonSubTypes.Type(value = NoSendCheckOutCommand.class, name = "URL"),
 })
-public sealed interface CheckOutCommand
-    permits EmailCheckOutCommand, SMSCheckOutCommand, NoSendCheckOutCommand {
-  UUID ticketId();
-  PaymentsMethods paymentMethod();
+public sealed interface CheckOutCommand permits EmailCheckOutCommand, SMSCheckOutCommand, NoSendCheckOutCommand {
+    UUID ticketId();
+
+    PaymentsMethods paymentMethod();
 }

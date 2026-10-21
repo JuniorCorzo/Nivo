@@ -1,12 +1,11 @@
 package dev.angelcorzo.nivo.domain.model.specialpolicies;
+
 import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.ModifiesTypes;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.OperationsTypes;
-
+import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
-
-import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,13 +18,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class SpecialPolicies {
-	private UUID id;
-	private TenantReference tenant;
-	private String name;
-	private ModifiesTypes modifies;
-	private OperationsTypes operation;
-	private BigDecimal valueToModify;
-	private boolean active;
-	private OffsetDateTime createdAt;
-	private OffsetDateTime updatedAt;
+    private UUID id;
+    private TenantReference tenant;
+    private String name;
+    private ModifiesTypes modifies;
+    private OperationsTypes operation;
+    private BigDecimal valueToModify;
+    private boolean active;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
 }

@@ -14,22 +14,22 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HourlyOccupancyId implements Serializable {
-  private UUID tenantId;
-  private UUID parkingLotId;
-  private OffsetDateTime hourBucket;
+    private UUID tenantId;
+    private UUID parkingLotId;
+    private OffsetDateTime hourBucket;
 
-  @Override
-  public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    final HourlyOccupancyId that = (HourlyOccupancyId) o;
-    return Objects.equals(tenantId, that.tenantId) &&
-           Objects.equals(parkingLotId, that.parkingLotId) &&
-           Objects.equals(hourBucket, that.hourBucket);
-  }
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final HourlyOccupancyId that = (HourlyOccupancyId) o;
+        return Objects.equals(tenantId, that.tenantId)
+                && Objects.equals(parkingLotId, that.parkingLotId)
+                && Objects.equals(hourBucket, that.hourBucket);
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(tenantId, parkingLotId, hourBucket);
-  }
+    @Override
+    public int hashCode() {
+        return Objects.hash(tenantId, parkingLotId, hourBucket);
+    }
 }

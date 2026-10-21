@@ -18,37 +18,37 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.TokenErrorMessages;
  */
 public class MalformedTokenException extends SecurityException {
 
-  /**
-   * Constructs a new {@code MalformedTokenException} with the default error message.
-   *
-   * <p>The default message is retrieved from {@link TokenErrorMessages#MALFORMED_TOKEN}.
-   */
-  public MalformedTokenException() {
-    super(TokenErrorMessages.MALFORMED_TOKEN.getMessage());
-  }
+    /**
+     * Constructs a new {@code MalformedTokenException} with the default error message.
+     *
+     * <p>The default message is retrieved from {@link TokenErrorMessages#MALFORMED_TOKEN}.
+     */
+    public MalformedTokenException() {
+        super(TokenErrorMessages.MALFORMED_TOKEN.getMessage());
+    }
 
-  /**
-   * Constructs a new {@code MalformedTokenException} with the specified cause.
-   *
-   * <p>This constructor is useful for wrapping lower-level exceptions that may occur during token
-   * parsing, while providing a standard error message.
-   *
-   * @param cause the underlying cause of the exception
-   */
-  public MalformedTokenException(Throwable cause) {
-    super(TokenErrorMessages.MALFORMED_TOKEN.getMessage(), cause);
-  }
+    /**
+     * Constructs a new {@code MalformedTokenException} with the specified cause.
+     *
+     * <p>This constructor is useful for wrapping lower-level exceptions that may occur during token
+     * parsing, while providing a standard error message.
+     *
+     * @param cause the underlying cause of the exception
+     */
+    public MalformedTokenException(Throwable cause) {
+        super(TokenErrorMessages.MALFORMED_TOKEN.getMessage(), cause);
+    }
 
-  /**
-   * Constructs a new {@code MalformedTokenException} with a custom message.
-   *
-   * <p>While it is recommended to use the standardized error messages from {@link
-   * TokenErrorMessages}, this constructor allows for providing a more specific message in special
-   * cases.
-   *
-   * @param message the detail message
-   */
-  public MalformedTokenException(String message) {
-    super(message);
-  }
+    /**
+     * Constructs a new {@code MalformedTokenException} with a custom message.
+     *
+     * <p>While it is recommended to use the standardized error messages from {@link
+     * TokenErrorMessages}, this constructor allows for providing a more specific message in special
+     * cases.
+     *
+     * @param message the detail message
+     */
+    public MalformedTokenException(String message) {
+        super(message);
+    }
 }

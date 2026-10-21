@@ -5,9 +5,9 @@ import dev.angelcorzo.nivo.domain.model.users.Users;
 
 /** Generic collaborator to dispatch user-management-related notifications. */
 public interface UserNotifier {
-  void notifyUserInvited(UserInvitations invitation);
+    void notifyUserInvited(UserInvitations invitation);
 
-  void notifyUserInvitationAccepted(UserInvitations invitation, Users acceptedUser);
+    void notifyUserInvitationAccepted(UserInvitations invitation, Users acceptedUser);
 
-  void notifyUserRoleAssigned(Users user);
+    void notifyUserRoleAssigned(Users user);
 }

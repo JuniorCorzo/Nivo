@@ -8,7 +8,7 @@ import dev.angelcorzo.nivo.infrastructure.adapter.notifications.enums.EmailProvi
  * Strategy interface for transactional email delivery provider clients.
  */
 public interface EmailProviderClient {
-  EmailProviderType getProviderType();
+    EmailProviderType getProviderType();
 
-  void sendEmail(NotificationTemplates template, String to, NotificationsData content);
+    void sendEmail(NotificationTemplates template, String to, NotificationsData content);
 }

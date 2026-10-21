@@ -21,31 +21,31 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-  private final WebSocketAuthInterceptor webSocketAuthInterceptor;
+    private final WebSocketAuthInterceptor webSocketAuthInterceptor;
 
-  @Override
-  public void registerStompEndpoints(StompEndpointRegistry registry) {
-    registry.addEndpoint("/ws", "/payments").setAllowedOrigins("*");
-  }
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws", "/payments").setAllowedOrigins("*");
+    }
 
-  @Override
-  public void configureMessageBroker(MessageBrokerRegistry registry) {
-    registry.enableSimpleBroker("/topic");
-    registry.setApplicationDestinationPrefixes("/app");
-  }
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker("/topic");
+        registry.setApplicationDestinationPrefixes("/app");
+    }
 
-  @Override
-  public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-    registry.addDecoratorFactory(StompFrameNormalizeDecorator::new);
-  }
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
+        registry.addDecoratorFactory(StompFrameNormalizeDecorator::new);
+    }
 
-  /**
-   * Registra el interceptor de autenticación JWT para validar las conexiones WebSocket.
-   *
-   * @param registration El registro de canal donde se añade el interceptor
-   */
-  @Override
-  public void configureClientInboundChannel(ChannelRegistration registration) {
-    registration.interceptors(webSocketAuthInterceptor);
-  }
+    /**
+     * Registra el interceptor de autenticación JWT para validar las conexiones WebSocket.
+     *
+     * @param registration El registro de canal donde se añade el interceptor
+     */
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(webSocketAuthInterceptor);
+    }
 }

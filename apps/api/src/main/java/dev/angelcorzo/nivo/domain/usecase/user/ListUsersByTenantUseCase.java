@@ -17,11 +17,11 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class ListUsersByTenantUseCase {
-  private final UsersRepository usersRepository;
-  private final AuthenticationContextGateway authenticationContextGateway;
+    private final UsersRepository usersRepository;
+    private final AuthenticationContextGateway authenticationContextGateway;
 
-  public List<Users> execute() {
-    final UUID tenantId = this.authenticationContextGateway.getCurrentTenantId();
-    return this.usersRepository.findAllByTenantId(tenantId);
-  }
+    public List<Users> execute() {
+        final UUID tenantId = this.authenticationContextGateway.getCurrentTenantId();
+        return this.usersRepository.findAllByTenantId(tenantId);
+    }
 }
