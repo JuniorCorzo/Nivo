@@ -1027,10 +1027,7 @@ describe("ParkingComparisonChartComponent", () => {
     ]);
     fixture.detectChanges();
     expect(component.chartInstance).toBeDefined();
-    expect(component.chartInstance?.data.labels).toEqual([
-      "Sede Centro",
-      "Sede Norte",
-    ]);
+    expect(component.chartInstance?.data.labels).toEqual(["Sede Centro", "Sede Norte"]);
   });
 
   it("debe manejar gracefully arrays vacíos sin lanzar errores ni excepciones", () => {
@@ -1293,9 +1290,7 @@ describe("DashboardPage", () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(
-      compiled.querySelector('[data-testid="multi-parking-selector"]'),
-    ).toBeNull();
+    expect(compiled.querySelector('[data-testid="multi-parking-selector"]')).toBeNull();
     expect(compiled.querySelector("app-parking-comparison-chart")).toBeNull();
   });
 
@@ -1308,9 +1303,7 @@ describe("DashboardPage", () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(
-      compiled.querySelector('[data-testid="multi-parking-selector"]'),
-    ).toBeTruthy();
+    expect(compiled.querySelector('[data-testid="multi-parking-selector"]')).toBeTruthy();
     expect(compiled.querySelector("app-parking-comparison-chart")).toBeTruthy();
   });
 

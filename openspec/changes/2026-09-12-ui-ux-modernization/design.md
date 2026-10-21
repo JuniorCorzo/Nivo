@@ -41,6 +41,7 @@ flowchart TD
 ## 2. Especificación de Componentes
 
 ### 2.1 Layout Responsivo y Mobile Drawer (`LayoutComponent`)
+
 - **Archivo**: `apps/web/src/app/layouts/layout/layout-component/`
 - **Responsabilidad**:
   - Detectar resolución de pantalla mediante `BreakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small])` (<768px).
@@ -54,6 +55,7 @@ flowchart TD
     - Mantener la sidebar lateral colapsable normal sin barra superior duplicada.
 
 ### 2.2 User Menu Popover (`UserMenuComponent`)
+
 - **Archivo**: `apps/web/src/app/shared/components/user-menu/`
 - **Responsabilidad**:
   - Transformar el componente puramente informativo a un disparador interactivo (`role="button"`, `aria-haspopup="menu"`, `aria-expanded`).
@@ -66,6 +68,7 @@ flowchart TD
   - Limpiar `SidebarFooter` eliminando los 3 botones sueltos apilados, manteniendo únicamente `<app-user-menu [collapsed]="collapsed()" />`.
 
 ### 2.3 `PageHeaderComponent` Estandarizado con Breadcrumbs Reactivos
+
 - **Archivo**: `apps/web/src/app/shared/components/page-header/`
 - **Responsabilidad**:
   - Añadir soporte de breadcrumbs:
@@ -95,6 +98,7 @@ flowchart TD
 ---
 
 ## 3. Manejo de Errores y Casos Borde
+
 1. **Sin parqueadero activo**: Si no hay sede activa en `ActiveParkingService`, el breadcrumb hace fallback automático al nombre del módulo o marca ("Nivo").
 2. **Navegación mientras el drawer está abierto**: Se suscribe a `Router.events` (`NavigationEnd`) para cerrar automáticamente el drawer móvil evitando pantallas bloqueadas.
 3. **Foco y Accesibilidad**: Al abrir el popover o drawer, el foco debe manejarse adecuadamente y soportar cierre con tecla `Escape`.
@@ -103,6 +107,7 @@ flowchart TD
 ---
 
 ## 4. Estrategia de Pruebas (Strict TDD)
+
 - **`layout-component.spec.ts`**: Pruebas con mocks de `BreakpointObserver` para validar renderizado de barra móvil en <768px, apertura/cierre de drawer y auto-cierre en `NavigationEnd`.
 - **`user-menu.spec.ts`**: Pruebas de interacción del popover con `@angular/cdk/overlay`, renderizado de tema y botón de cierre de sesión.
 - **`sidebar-footer.spec.ts`**: Verificación del footer simplificado conteniendo el trigger del user menu.

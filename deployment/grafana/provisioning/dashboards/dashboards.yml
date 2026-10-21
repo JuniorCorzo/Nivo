@@ -1,9 +1,9 @@
 apiVersion: 1
 
 providers:
-  - name: 'nivo-dashboards'
+  - name: "nivo-dashboards"
     orgId: 1
-    folder: 'Nivo'
+    folder: "Nivo"
     type: file
     disableDeletion: false
     updateIntervalSeconds: 10

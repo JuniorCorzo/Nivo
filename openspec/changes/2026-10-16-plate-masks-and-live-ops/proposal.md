@@ -1,6 +1,7 @@
 # Proposal: Colombian & Venezuelan Plate Masks + Impeccable Live Operations Mockup
 
 ## Metadata
+
 - **Status**: Approved
 - **Date**: 2026-10-16
 - **Workflow Mode**: `WORKFLOW_MODE: BOOST`
@@ -12,11 +13,13 @@
 ## Motivation & Problem Statement
 
 In bi-national and metropolitan parking operations (such as Cúcuta, Norte de Santander, and major hubs across Colombia and border corridors), operators handle hundreds of vehicle entries daily. Operators encounter both Colombian and Venezuelan vehicular plates with distinct alphanumeric structures:
+
 - **Colombian Automobiles (Car / Particular / Public)**: 3 letters, followed by 3 digits (e.g., `ABC-123`).
 - **Colombian Motorcycles**: 3 letters, followed by 2 digits and 1 letter (e.g., `ABC-12D`).
 - **Venezuelan Vehicles**: 2 letters, 3 digits, and 2 letters (e.g., `AB-123-CD`).
 
 Currently, the plate input field in `CheckInModalComponent` is a raw text input without format enforcement or input masking. This introduces significant operational friction:
+
 1. **Typing Inconsistencies**: Operators inadvertently introduce lowercase letters, extraneous whitespace, misplaced dashes, or invalid characters.
 2. **Cognitive Overhead**: Operators must manually verify character counts and segment boundaries while managing vehicle queues under strict throughput pressure.
 3. **Lack of Visual Guidance**: The input does not dynamically hint or format according to whether the vehicle is a car, motorcycle, or originating from Venezuela.
@@ -36,6 +39,7 @@ Currently, the plate input field in `CheckInModalComponent` is a raw text input 
 ## Scope Boundaries
 
 ### In Scope
+
 1. **`PlateMaskDirective` Implementation (`apps/web/src/app/shared/directives/plate-mask.ts`)**:
    - Standalone Angular directive with input signals for `country` (`CO` | `VE` | `UNPLATED`) and `vehicleType` (`CAR` | `MOTORCYCLE` | `BIKE`).
    - Dynamic masking rules:
@@ -63,6 +67,7 @@ Currently, the plate input field in `CheckInModalComponent` is a raw text input 
    - Full regression test run (`ng test --watch=false`).
 
 ### Out of Scope
+
 - Backend database schema changes (PostgreSQL `tickets` table and use cases already accept alphanumeric plate strings).
 - Hardware LPR camera integration or firmware integrations.
 - Payment gateway processor SDKs (MercadoPago/Wompi), handled in dedicated billing milestones.

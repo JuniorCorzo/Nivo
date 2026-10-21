@@ -25,6 +25,7 @@
 ### Task 1: Database Schema Migration & JPA Persistence (`apps/api`)
 
 **Files:**
+
 - Create: `apps/api/src/main/resources/db/migration/V28__add_slot_metadata_and_ticket_snapshot.sql`
 - Modify: `apps/api/src/main/java/dev/angelcorzo/nivo/infrastructure/adapter/jpa/slot/SlotsData.java`
 - Modify: `apps/api/src/main/java/dev/angelcorzo/nivo/infrastructure/adapter/jpa/slot/mappers/SlotsMappers.java`
@@ -36,11 +37,13 @@
 - Test: `apps/api/src/test/java/dev/angelcorzo/nivo/infrastructure/adapter/jpa/slot/SlotsRepositoryAdapterTest.java`
 
 **Interfaces:**
+
 - Consumes: PostgreSQL schema V27.
 - Produces: `has_charger`, `is_accessible`, `is_active` in `slots` table; `slot_snapshot JSONB` in `parking_tickets`.
 
 - [ ] **Step 1: Write Flyway migration V28**
-Create `V28__add_slot_metadata_and_ticket_snapshot.sql`:
+      Create `V28__add_slot_metadata_and_ticket_snapshot.sql`:
+
 ```sql
 ALTER TABLE slots
   ADD COLUMN has_charger BOOLEAN NOT NULL DEFAULT FALSE,
@@ -58,8 +61,9 @@ COMMENT ON COLUMN parking_tickets.slot_snapshot IS
 ```
 
 - [ ] **Step 2: Update JPA Entities and Projections**
-In `SlotsData.java`:
-Add columns:
+      In `SlotsData.java`:
+      Add columns:
+
 ```java
 @Column(name = "has_charger", nullable = false)
 @Builder.Default
@@ -75,6 +79,7 @@ private Boolean isActive = true;
 ```
 
 In `SlotSummaryData.java`:
+
 ```java
 Boolean getHasCharger();
 Boolean getIsAccessible();
@@ -85,6 +90,7 @@ In `SlotsRepositoryData.java`:
 Update native/JPQL query to project `s.has_charger AS hasCharger`, `s.is_accessible AS isAccessible`, `s.is_active AS isActive`.
 
 In `ParkingTicketsData.java`:
+
 ```java
 @Column(name = "slot_snapshot", columnDefinition = "jsonb")
 @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
@@ -92,16 +98,17 @@ private String slotSnapshot;
 ```
 
 - [ ] **Step 3: Update Mappers**
-In `SlotsMappers.java` and `SlotSummaryDataMapper.java`:
-Map `hasCharger`, `isAccessible`, `isActive` between entities, projection and domain models.
-In `ParkingTicketMapper.java`:
-Map `slotSnapshot` string/JSON to `ParkingTickets.slotSnapshot`.
+      In `SlotsMappers.java` and `SlotSummaryDataMapper.java`:
+      Map `hasCharger`, `isAccessible`, `isActive` between entities, projection and domain models.
+      In `ParkingTicketMapper.java`:
+      Map `slotSnapshot` string/JSON to `ParkingTickets.slotSnapshot`.
 
 - [ ] **Step 4: Run database tests and verify**
-Run: `rtk ./mvnw test -pl apps/api -Dtest=SlotsRepositoryAdapterTest`
-Expected: PASS
+      Run: `rtk ./mvnw test -pl apps/api -Dtest=SlotsRepositoryAdapterTest`
+      Expected: PASS
 
 - [ ] **Step 5: Commit**
+
 ```bash
 rtk git add apps/api/src/main/resources/db/migration/V28__add_slot_metadata_and_ticket_snapshot.sql apps/api/src/main/java/dev/angelcorzo/nivo/infrastructure/adapter/jpa/
 rtk git commit -m "feat(api): add slot metadata and ticket snapshot persistence (ANC-80)"
@@ -112,6 +119,7 @@ rtk git commit -m "feat(api): add slot metadata and ticket snapshot persistence 
 ### Task 2: Domain Model, Value Objects & Exceptions (`apps/api`)
 
 **Files:**
+
 - Modify: `apps/api/src/main/java/dev/angelcorzo/nivo/domain/model/slots/Slots.java`
 - Modify: `apps/api/src/main/java/dev/angelcorzo/nivo/domain/model/slots/valueobject/SlotSummary.java`
 - Modify: `apps/api/src/main/java/dev/angelcorzo/nivo/domain/model/parkingtickets/ParkingTickets.java`
@@ -119,11 +127,13 @@ rtk git commit -m "feat(api): add slot metadata and ticket snapshot persistence 
 - Create: `apps/api/src/main/java/dev/angelcorzo/nivo/domain/model/slots/excetions/SlotCannotBeModifiedException.java`
 
 **Interfaces:**
+
 - Consumes: Existing domain enums `SlotType`, `SlotStatus`.
 - Produces: `Slots.hasCharger`, `Slots.isAccessible`, `Slots.isActive`, `SlotSnapshot`, `SlotCannotBeModifiedException`.
 
 - [ ] **Step 1: Write Domain Models and Value Objects**
-Update `Slots.java`:
+      Update `Slots.java`:
+
 ```java
 @Builder.Default
 private boolean hasCharger = false;
@@ -134,6 +144,7 @@ private boolean isActive = true;
 ```
 
 Update `SlotSummary.java`:
+
 ```java
 public record SlotSummary(
     UUID id,
@@ -152,6 +163,7 @@ public record SlotSummary(
 ```
 
 Create `SlotSnapshot.java`:
+
 ```java
 package dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects;
 
@@ -185,11 +197,13 @@ public record SlotSnapshot(
 ```
 
 Update `ParkingTickets.java`:
+
 ```java
 private SlotSnapshot slotSnapshot;
 ```
 
 Create `SlotCannotBeModifiedException.java`:
+
 ```java
 package dev.angelcorzo.nivo.domain.model.slots.excetions;
 
@@ -211,6 +225,7 @@ public class SlotCannotBeModifiedException extends RuntimeException {
 ```
 
 - [ ] **Step 2: Commit**
+
 ```bash
 rtk git add apps/api/src/main/java/dev/angelcorzo/nivo/domain/model/
 rtk git commit -m "feat(domain): add slot equipment metadata, snapshot VO, and domain exceptions (ANC-80)"
@@ -221,25 +236,29 @@ rtk git commit -m "feat(domain): add slot equipment metadata, snapshot VO, and d
 ### Task 3: `UpdateSlotMetadataUseCase` with Strict TDD (`apps/api`)
 
 **Files:**
+
 - Create: `apps/api/src/test/java/dev/angelcorzo/nivo/domain/usecase/slot/UpdateSlotMetadataUseCaseTest.java`
 - Create: `apps/api/src/main/java/dev/angelcorzo/nivo/domain/usecase/slot/UpdateSlotMetadataUseCase.java`
 
 **Interfaces:**
+
 - Consumes: `SlotsRepository`, `AuthenticationContextGateway`.
 - Produces: `UpdateSlotMetadataUseCase.execute(UpdateSlotMetadataCommand)`.
 
 - [ ] **Step 1: Write failing unit test**
-Create `UpdateSlotMetadataUseCaseTest.java`:
-Verify:
+      Create `UpdateSlotMetadataUseCaseTest.java`:
+      Verify:
+
 1. `shouldUpdateMetadataWhenAllSlotsAvailable`: returns updated slots with new flags.
 2. `shouldFailAtomicallyWhenAnySlotOccupied`: throws `SlotCannotBeModifiedException` and does not persist any slot.
 3. `shouldPreserveExistingValuesWhenFieldsNull`: partial update maintains untouched fields.
 
 - [ ] **Step 2: Run test to verify it fails**
-Run: `rtk ./mvnw test -pl apps/api -Dtest=UpdateSlotMetadataUseCaseTest`
-Expected: FAIL (class not found / compilation error).
+      Run: `rtk ./mvnw test -pl apps/api -Dtest=UpdateSlotMetadataUseCaseTest`
+      Expected: FAIL (class not found / compilation error).
 
 - [ ] **Step 3: Implement `UpdateSlotMetadataUseCase`**
+
 ```java
 package dev.angelcorzo.nivo.domain.usecase.slot;
 
@@ -302,10 +321,11 @@ public class UpdateSlotMetadataUseCase {
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
-Run: `rtk ./mvnw test -pl apps/api -Dtest=UpdateSlotMetadataUseCaseTest`
-Expected: PASS
+      Run: `rtk ./mvnw test -pl apps/api -Dtest=UpdateSlotMetadataUseCaseTest`
+      Expected: PASS
 
 - [ ] **Step 5: Commit**
+
 ```bash
 rtk git add apps/api/src/main/java/dev/angelcorzo/nivo/domain/usecase/slot/UpdateSlotMetadataUseCase.java apps/api/src/test/java/dev/angelcorzo/nivo/domain/usecase/slot/UpdateSlotMetadataUseCaseTest.java
 rtk git commit -m "feat(usecase): implement UpdateSlotMetadataUseCase with atomic vacant guard (ANC-80)"
@@ -316,32 +336,36 @@ rtk git commit -m "feat(usecase): implement UpdateSlotMetadataUseCase with atomi
 ### Task 4: `UpdateSlotGroupUseCase` with Strict TDD (`apps/api`)
 
 **Files:**
+
 - Create: `apps/api/src/test/java/dev/angelcorzo/nivo/domain/usecase/slot/UpdateSlotGroupUseCaseTest.java`
 - Create: `apps/api/src/main/java/dev/angelcorzo/nivo/domain/usecase/slot/UpdateSlotGroupUseCase.java`
 
 **Interfaces:**
+
 - Consumes: `SlotsRepository`, `AuthenticationContextGateway`.
 - Produces: `UpdateSlotGroupUseCase.execute(UpdateSlotGroupCommand)`.
 
 - [ ] **Step 1: Write failing unit test**
-Create `UpdateSlotGroupUseCaseTest.java`:
-Verify:
+      Create `UpdateSlotGroupUseCaseTest.java`:
+      Verify:
+
 1. `shouldRenameGroupWhenAllSlotsAvailable`: updates `zone` and `prefix` across all group slots.
 2. `shouldFailWhenAnyGroupSlotOccupied`: throws `SlotCannotBeModifiedException` if 1 slot in group is OCCUPIED.
 3. `shouldRecalculateSlotNumberWhenPrefixChanges`: updates numbering prefix consistently.
 
 - [ ] **Step 2: Run test to verify it fails**
-Run: `rtk ./mvnw test -pl apps/api -Dtest=UpdateSlotGroupUseCaseTest`
-Expected: FAIL.
+      Run: `rtk ./mvnw test -pl apps/api -Dtest=UpdateSlotGroupUseCaseTest`
+      Expected: FAIL.
 
 - [ ] **Step 3: Implement `UpdateSlotGroupUseCase`**
-Implement use case with atomic validation on entire group, prefix replacement, and batch persistence.
+      Implement use case with atomic validation on entire group, prefix replacement, and batch persistence.
 
 - [ ] **Step 4: Run test to verify it passes**
-Run: `rtk ./mvnw test -pl apps/api -Dtest=UpdateSlotGroupUseCaseTest`
-Expected: PASS.
+      Run: `rtk ./mvnw test -pl apps/api -Dtest=UpdateSlotGroupUseCaseTest`
+      Expected: PASS.
 
 - [ ] **Step 5: Commit**
+
 ```bash
 rtk git add apps/api/src/main/java/dev/angelcorzo/nivo/domain/usecase/slot/UpdateSlotGroupUseCase.java apps/api/src/test/java/dev/angelcorzo/nivo/domain/usecase/slot/UpdateSlotGroupUseCaseTest.java
 rtk git commit -m "feat(usecase): implement UpdateSlotGroupUseCase with series rename and vacant guard (ANC-80)"
@@ -352,6 +376,7 @@ rtk git commit -m "feat(usecase): implement UpdateSlotGroupUseCase with series r
 ### Task 5: `CreateTicketUseCase` Snapshot Capture with TDD (`apps/api`)
 
 **Files:**
+
 - Modify: `apps/api/src/main/java/dev/angelcorzo/nivo/domain/usecase/ticket/CreateTicketUseCase.java`
 - Test: `apps/api/src/test/java/dev/angelcorzo/nivo/domain/usecase/ticket/CreateTicketUseCaseTest.java`
 
@@ -360,6 +385,7 @@ rtk git commit -m "feat(usecase): implement UpdateSlotGroupUseCase with series r
 - [ ] **Step 3: Implement `SlotSnapshot.from(slot)` capture into ticket**
 - [ ] **Step 4: Run test to verify PASS**
 - [ ] **Step 5: Commit**
+
 ```bash
 rtk git add apps/api/src/main/java/dev/angelcorzo/nivo/domain/usecase/ticket/ apps/api/src/test/java/dev/angelcorzo/nivo/domain/usecase/ticket/
 rtk git commit -m "feat(usecase): capture immutable slot snapshot on ticket creation (ANC-80)"
@@ -370,6 +396,7 @@ rtk git commit -m "feat(usecase): capture immutable slot snapshot on ticket crea
 ### Task 6: REST Controller, DTOs & OpenAPI Documentation (`apps/api`)
 
 **Files:**
+
 - Create: `apps/api/src/main/java/dev/angelcorzo/nivo/infrastructure/entrypoint/rest/slot/dto/UpdateSlotMetadataRequest.java`
 - Create: `apps/api/src/main/java/dev/angelcorzo/nivo/infrastructure/entrypoint/rest/slot/dto/UpdateSlotGroupRequest.java`
 - Modify: `apps/api/src/main/java/dev/angelcorzo/nivo/infrastructure/entrypoint/rest/slot/dto/SlotResponse.java`
@@ -379,23 +406,24 @@ rtk git commit -m "feat(usecase): capture immutable slot snapshot on ticket crea
 - Test: `apps/api/src/test/java/dev/angelcorzo/nivo/infrastructure/entrypoint/rest/slot/controller/SlotsControllerTest.java`
 
 - [ ] **Step 1: Create Request and Response DTOs with OpenAPI annotations**
-Define `UpdateSlotMetadataRequest` and `UpdateSlotGroupRequest`.
-Add `hasCharger`, `isAccessible`, `isActive` to `SlotResponse` and `SlotSummaryResponse` with `@Schema`.
+      Define `UpdateSlotMetadataRequest` and `UpdateSlotGroupRequest`.
+      Add `hasCharger`, `isAccessible`, `isActive` to `SlotResponse` and `SlotSummaryResponse` with `@Schema`.
 
 - [ ] **Step 2: Add Endpoints in `SlotsController`**
-Add:
+      Add:
 - `PATCH /slots/metadata`
 - `PATCH /slots/groups`
-Annotate with `@Operation`, `@ApiResponse(200, 404, 409)`.
+  Annotate with `@Operation`, `@ApiResponse(200, 404, 409)`.
 
 - [ ] **Step 3: Write controller tests**
-Verify HTTP 200 on success and HTTP 409 when `SlotCannotBeModifiedException` is thrown.
+      Verify HTTP 200 on success and HTTP 409 when `SlotCannotBeModifiedException` is thrown.
 
 - [ ] **Step 4: Run controller test suite**
-Run: `rtk ./mvnw test -pl apps/api -Dtest=SlotsControllerTest`
-Expected: PASS.
+      Run: `rtk ./mvnw test -pl apps/api -Dtest=SlotsControllerTest`
+      Expected: PASS.
 
 - [ ] **Step 5: Commit**
+
 ```bash
 rtk git add apps/api/src/main/java/dev/angelcorzo/nivo/infrastructure/entrypoint/rest/slot/
 rtk git commit -m "feat(entry-point): expose slot metadata and group mutation endpoints (ANC-80)"
@@ -406,6 +434,7 @@ rtk git commit -m "feat(entry-point): expose slot metadata and group mutation en
 ### Task 7: Frontend Web Directory Architecture Refactoring (`apps/web`)
 
 **Files:**
+
 - Move: `apps/web/src/app/features/slots/components/parking-slots-list/` -> `apps/web/src/app/features/slots/page/parking-slots-list/`
 - Move: `apps/web/src/app/features/slots/components/parking-slot-form/` -> `apps/web/src/app/features/slots/page/parking-slot-form/`
 - Move: Facades to `apps/web/src/app/features/slots/facades/`
@@ -414,10 +443,11 @@ rtk git commit -m "feat(entry-point): expose slot metadata and group mutation en
 - [ ] **Step 1: Relocate directories to clean `components/`, `facades/`, `page/` structure**
 - [ ] **Step 2: Update router configuration and imports**
 - [ ] **Step 3: Run Vitest test runner across web app**
-Run: `rtk bun run --cwd apps/web test`
-Expected: All existing tests pass without regressions.
+      Run: `rtk bun run --cwd apps/web test`
+      Expected: All existing tests pass without regressions.
 
 - [ ] **Step 4: Commit**
+
 ```bash
 rtk git add apps/web/src/app/features/slots/ apps/web/src/app/app.routes.ts
 rtk git commit -m "refactor(web): reorganize slots feature into components, facades, and page (ANC-80)"
@@ -428,24 +458,26 @@ rtk git commit -m "refactor(web): reorganize slots feature into components, faca
 ### Task 8: Frontend Web Models & SlotService Extension (`apps/web`)
 
 **Files:**
+
 - Modify: `apps/web/src/app/core/models/slot.model.ts`
 - Modify: `apps/web/src/app/core/services/slot-service.ts`
 - Test: `apps/web/src/app/core/services/slot-service.spec.ts`
 
 - [ ] **Step 1: Update Slot models**
-Add `hasCharger: boolean`, `isAccessible: boolean`, `isActive: boolean` to `Slot` and `SlotSummary`.
+      Add `hasCharger: boolean`, `isAccessible: boolean`, `isActive: boolean` to `Slot` and `SlotSummary`.
 
 - [ ] **Step 2: Add API methods to `SlotService`**
-Add:
+      Add:
 - `updateSlotMetadata(payload: { slotIds: string[], hasCharger?: boolean, isAccessible?: boolean, isActive?: boolean })`
 - `updateSlotGroup(payload: { parkingId: string, currentZone: string, currentPrefix: string, newZone?: string, newPrefix?: string })`
 
 - [ ] **Step 3: Write tests in `slot-service.spec.ts`**
 - [ ] **Step 4: Run tests**
-Run: `rtk bun run --cwd apps/web test`
-Expected: PASS.
+      Run: `rtk bun run --cwd apps/web test`
+      Expected: PASS.
 
 - [ ] **Step 5: Commit**
+
 ```bash
 rtk git add apps/web/src/app/core/models/slot.model.ts apps/web/src/app/core/services/slot-service*
 rtk git commit -m "feat(web): add slot metadata models and service operations (ANC-80)"
@@ -456,6 +488,7 @@ rtk git commit -m "feat(web): add slot metadata models and service operations (A
 ### Task 9: Frontend Badges & Multi-Selection Batch Metadata Modal (`apps/web`)
 
 **Files:**
+
 - Create: `apps/web/src/app/features/slots/components/slot-metadata-batch-modal/slot-metadata-batch-modal.component.ts`
 - Create: `apps/web/src/app/features/slots/components/slot-metadata-batch-modal/slot-metadata-batch-modal.component.html`
 - Create: `apps/web/src/app/features/slots/components/slot-metadata-batch-modal/slot-metadata-batch-modal.component.spec.ts`
@@ -467,10 +500,11 @@ rtk git commit -m "feat(web): add slot metadata models and service operations (A
 - [x] **Step 3: Add EV ⚡ and PMR ♿ badges to slot table**
 - [x] **Step 4: Integrate with `SlotsSelectionState`**
 - [x] **Step 5: Run tests and verify**
-Run: `rtk bun run --cwd apps/web test`
-Expected: PASS.
+      Run: `rtk bun run --cwd apps/web test`
+      Expected: PASS.
 
 - [x] **Step 6: Commit**
+
 ```bash
 rtk git add apps/web/src/app/features/slots/
 rtk git commit -m "feat(web): add slot metadata batch modal and EV/PMR badges (ANC-80)"
@@ -481,6 +515,7 @@ rtk git commit -m "feat(web): add slot metadata batch modal and EV/PMR badges (A
 ### Task 10: Frontend Slot Group Edit Modal (`apps/web`)
 
 **Files:**
+
 - Create: `apps/web/src/app/features/slots/components/slot-group-edit-modal/slot-group-edit-modal.component.ts`
 - Create: `apps/web/src/app/features/slots/components/slot-group-edit-modal/slot-group-edit-modal.component.html`
 - Create: `apps/web/src/app/features/slots/components/slot-group-edit-modal/slot-group-edit-modal.component.spec.ts`
@@ -490,10 +525,11 @@ rtk git commit -m "feat(web): add slot metadata batch modal and EV/PMR badges (A
 - [x] **Step 2: Implement group rename modal with `nv-input` and confirmation prompt**
 - [x] **Step 3: Connect to `parking-slots-list.facade.ts`**
 - [x] **Step 4: Run all unit tests and linter**
-Run: `rtk bun run --cwd apps/web check` and `rtk bun run --cwd apps/web test`
-Expected: Clean check, all tests passing.
+      Run: `rtk bun run --cwd apps/web check` and `rtk bun run --cwd apps/web test`
+      Expected: Clean check, all tests passing.
 
 - [x] **Step 5: Commit**
+
 ```bash
 rtk git add apps/web/src/app/features/slots/
 rtk git commit -m "feat(web): add slot group edit modal and facade integration (ANC-80)"

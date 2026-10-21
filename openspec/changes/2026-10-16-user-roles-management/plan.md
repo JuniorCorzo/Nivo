@@ -2,6 +2,7 @@
 
 > **Context**: Implementation plan for multi-tenant internal user listing, role assignment, staff invitations, account deactivation, and client-side RBAC protection.
 > **Architecture Standards**:
+>
 > - **Backend**: Spring Boot 4 / Java 21, Clean Architecture (domain-independent ports, JPA-driven adapters, entrypoint REST controllers with `@PreAuthorize("hasRole('MANAGER')")`).
 > - **Frontend**: Angular 21, `ChangeDetectionStrategy.OnPush`, standalone components and functional guards, `@nivo-sass/design-system`, TanStack Table integration, zero emojis in templates.
 > - **CLI & Conventions**: All terminal commands prefixed with `rtk`. Conventional commits with strict scopes (`feat(api/usecase)`, `feat(api/adapter)`, `feat(api/entry-point)`, `feat(web/auth)`, `feat(web/users)`), and strictly NO AI attribution trailers.
@@ -55,6 +56,7 @@ flowchart TD
 
 - **TDD Step 1: Red (Write Unit Tests)**:
   Create `ListUsersByTenantUseCaseTest.java` with Mockito:
+
   ```java
   package dev.angelcorzo.nivo.domain.usecase.user;
 
@@ -148,10 +150,12 @@ flowchart TD
   ```
 
 - **TDD Step 2: Red Verification Command**:
+
   ```bash
   rtk ./gradlew test --tests dev.angelcorzo.nivo.domain.usecase.user.ListUsersByTenantUseCaseTest
   ```
-  *Expected Output*: Compilation failure (class `ListUsersByTenantUseCase` does not exist yet).
+
+  _Expected Output_: Compilation failure (class `ListUsersByTenantUseCase` does not exist yet).
 
 - **TDD Step 3: Green (Implement Port & UseCase)**:
   1. Add method to `UsersRepository.java`:
@@ -165,6 +169,7 @@ flowchart TD
      List<Users> findAllByTenantId(UUID tenantId);
      ```
   2. Implement `ListUsersByTenantUseCase.java`:
+
      ```java
      package dev.angelcorzo.nivo.domain.usecase.user;
 
@@ -193,10 +198,12 @@ flowchart TD
      ```
 
 - **TDD Step 4: Green Verification Command**:
+
   ```bash
   rtk ./gradlew test --tests dev.angelcorzo.nivo.domain.usecase.user.ListUsersByTenantUseCaseTest
   ```
-  *Expected Output*: BUILD SUCCESSFUL, 3 passed.
+
+  _Expected Output_: BUILD SUCCESSFUL, 3 passed.
 
 - **TDD Step 5: Refactor / Clean Architecture Validation**:
   Confirm that `ListUsersByTenantUseCase` depends only on domain model interfaces (`UsersRepository`, `AuthenticationContextGateway`) with zero Spring framework imports.
@@ -220,6 +227,7 @@ flowchart TD
 
 - **TDD Step 1: Red (Add Unit Test in Adapter Test Suite)**:
   In `UserRepositoryAdapterTest.java`, add the test:
+
   ```java
   @Test
   @DisplayName("Should find all users by tenant ID and return mapped domain entities")
@@ -241,10 +249,12 @@ flowchart TD
   ```
 
 - **TDD Step 2: Red Verification Command**:
+
   ```bash
   rtk ./gradlew test --tests dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.UserRepositoryAdapterTest
   ```
-  *Expected Output*: Compilation error (`findAllByTenantId` undefined on `UserRepositoryData` / `UserRepositoryAdapter`).
+
+  _Expected Output_: Compilation error (`findAllByTenantId` undefined on `UserRepositoryData` / `UserRepositoryAdapter`).
 
 - **TDD Step 3: Green (Implement JPA Query & Adapter Method)**:
   1. In `UserRepositoryData.java`:
@@ -269,10 +279,12 @@ flowchart TD
      ```
 
 - **TDD Step 4: Green Verification Command**:
+
   ```bash
   rtk ./gradlew test --tests dev.angelcorzo.nivo.infrastructure.adapter.jpa.users.UserRepositoryAdapterTest
   ```
-  *Expected Output*: BUILD SUCCESSFUL, all unit tests passed.
+
+  _Expected Output_: BUILD SUCCESSFUL, all unit tests passed.
 
 - **TDD Step 5: Refactor / Clean Architecture Validation**:
   Ensure `@EntityGraph(attributePaths = {"tenant"})` prevents N+1 queries when mapping domain aggregates.
@@ -297,6 +309,7 @@ flowchart TD
 
 - **TDD Step 1: Red (Add Controller Endpoint Test)**:
   In `UserControllerTest.java`:
+
   ```java
   @MockitoBean private ListUsersByTenantUseCase listUsersByTenantUseCase;
 
@@ -320,10 +333,12 @@ flowchart TD
   ```
 
 - **TDD Step 2: Red Verification Command**:
+
   ```bash
   rtk ./gradlew test --tests dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.controller.UserControllerTest
   ```
-  *Expected Output*: Compilation error (`USERS_RETRIEVED` or `toDTOList` missing).
+
+  _Expected Output_: Compilation error (`USERS_RETRIEVED` or `toDTOList` missing).
 
 - **TDD Step 3: Green (Implement Messages, Mapper & Endpoint)**:
   1. In `UserMessages.java`:
@@ -332,6 +347,7 @@ flowchart TD
      Add method `List<UserDTO> toDTOList(List<Users> users);`.
   3. In `UserController.java`:
      Inject `ListUsersByTenantUseCase` and declare the endpoint:
+
      ```java
      private final ListUsersByTenantUseCase listUsersByTenantUseCase;
 
@@ -353,10 +369,12 @@ flowchart TD
      ```
 
 - **TDD Step 4: Green Verification Command**:
+
   ```bash
   rtk ./gradlew test --tests dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.controller.UserControllerTest
   ```
-  *Expected Output*: BUILD SUCCESSFUL, all controller tests pass.
+
+  _Expected Output_: BUILD SUCCESSFUL, all controller tests pass.
 
 - **TDD Step 5: Refactor / Clean Architecture Validation**:
   Verify endpoint security specifies `@PreAuthorize("hasRole('MANAGER')")` so hierarchy rules grant access to `MANAGER`, `OWNER`, and `SUPERADMIN`, while blocking `OPERATOR`.
@@ -382,6 +400,7 @@ flowchart TD
 
 - **TDD Step 1: Red (Write Tests for Roster State Signals & Actions)**:
   In `apps/web/src/app/core/services/user/user-service.spec.ts`:
+
   ```typescript
   it("should initialize users signal with empty array and isLoading as false", () => {
     expect(service.users()).toEqual([]);
@@ -462,10 +481,12 @@ flowchart TD
   ```
 
 - **TDD Step 2: Red Verification Command**:
+
   ```bash
   rtk bun run --cwd apps/web ng test --include="**/user-service.spec.ts" --watch=false
   ```
-  *Expected Output*: Test failures due to missing `users`, `isLoading`, and mutation methods on `UserService`.
+
+  _Expected Output_: Test failures due to missing `users`, `isLoading`, and mutation methods on `UserService`.
 
 - **TDD Step 3: Green (Implement UserService & Models)**:
   1. In `apps/web/src/app/core/models/user.model.ts`:
@@ -484,6 +505,7 @@ flowchart TD
   2. In `apps/web/src/app/core/mappers/user.mapper.ts`:
      Add mapping helper `mapToUserInfoModel(dto: UserDto): UserInfoModel`.
   3. In `apps/web/src/app/core/services/user/user-service.ts`:
+
      ```typescript
      private readonly usersSignal = signal<UserInfoModel[]>([]);
      public readonly users = this.usersSignal.asReadonly();
@@ -534,10 +556,12 @@ flowchart TD
      ```
 
 - **TDD Step 4: Green Verification Command**:
+
   ```bash
   rtk bun run --cwd apps/web ng test --include="**/user-service.spec.ts" --watch=false
   ```
-  *Expected Output*: All test cases passing green.
+
+  _Expected Output_: All test cases passing green.
 
 - **TDD Step 5: Refactor / Clean Architecture Validation**:
   Ensure state signals expose readonly getters to maintain unidirectional data flow.
@@ -562,6 +586,7 @@ flowchart TD
 
 - **TDD Step 1: Red (Write Tests for RBAC Route Guard)**:
   Create `apps/web/src/app/core/guards/auth/role.guard.spec.ts`:
+
   ```typescript
   import { signal } from "@angular/core";
   import { TestBed } from "@angular/core/testing";
@@ -623,13 +648,16 @@ flowchart TD
   ```
 
 - **TDD Step 2: Red Verification Command**:
+
   ```bash
   rtk bun run --cwd apps/web ng test --include="**/role.guard.spec.ts" --watch=false
   ```
-  *Expected Output*: Test failure (guard not found).
+
+  _Expected Output_: Test failure (guard not found).
 
 - **TDD Step 3: Green (Implement roleGuard & Route Entry)**:
   1. Implement `role.guard.ts`:
+
      ```typescript
      import { inject } from "@angular/core";
      import type { CanActivateFn } from "@angular/router";
@@ -662,6 +690,7 @@ flowchart TD
        };
      };
      ```
+
   2. In `app-routes.constant.ts`:
      Add `users: "users"` under `APP_ROUTE_PATHS.app`, and `users: "/app/users"` under `APP_ROUTES.app`.
   3. In `app.routes.ts`:
@@ -691,10 +720,12 @@ flowchart TD
      ```
 
 - **TDD Step 4: Green Verification Command**:
+
   ```bash
   rtk bun run --cwd apps/web ng test --include="**/role.guard.spec.ts" --watch=false
   ```
-  *Expected Output*: All guard specifications pass green.
+
+  _Expected Output_: All guard specifications pass green.
 
 - **TDD Step 5: Refactor / Clean Architecture Validation**:
   Confirm route uses lazy-loaded component pattern with standalone route definition.
@@ -718,15 +749,14 @@ flowchart TD
 
 - **TDD Step 1: Red (Add Role Filtering Tests for Sidebar)**:
   In `sidebar-base.spec.ts`:
+
   ```typescript
   it("should show Usuarios nav item when user has OWNER role", () => {
     const userService = TestBed.inject(UserService);
     (userService.currentUser as any).set({ role: "OWNER" });
     fixture.detectChanges();
 
-    const usersLink = component
-      .navItems()
-      .find((item) => item.label === "Usuarios");
+    const usersLink = component.navItems().find((item) => item.label === "Usuarios");
     expect(usersLink).toBeDefined();
   });
 
@@ -735,18 +765,18 @@ flowchart TD
     (userService.currentUser as any).set({ role: "OPERATOR" });
     fixture.detectChanges();
 
-    const usersLink = component
-      .navItems()
-      .find((item) => item.label === "Usuarios");
+    const usersLink = component.navItems().find((item) => item.label === "Usuarios");
     expect(usersLink).toBeUndefined();
   });
   ```
 
 - **TDD Step 2: Red Verification Command**:
+
   ```bash
   rtk bun run --cwd apps/web ng test --include="**/sidebar-base.spec.ts" --watch=false
   ```
-  *Expected Output*: Test failure (Usuarios item either missing or not filtered).
+
+  _Expected Output_: Test failure (Usuarios item either missing or not filtered).
 
 - **TDD Step 3: Green (Implement Role-Aware Navigation)**:
   1. In `app-texts.constant.ts`:
@@ -761,6 +791,7 @@ flowchart TD
      ```
   2. In `sidebar-base.ts`:
      Inject `UserService`, import `lucideUsers` icon, and use a computed signal to filter `navItems`:
+
      ```typescript
      private readonly userService = inject(UserService);
 
@@ -776,10 +807,12 @@ flowchart TD
      ```
 
 - **TDD Step 4: Green Verification Command**:
+
   ```bash
   rtk bun run --cwd apps/web ng test --include="**/sidebar-base.spec.ts" --watch=false
   ```
-  *Expected Output*: All sidebar tests pass green.
+
+  _Expected Output_: All sidebar tests pass green.
 
 - **TDD Step 5: Refactor / Clean Architecture Validation**:
   Ensure zero template duplication and verify icon provider includes `lucideUsers`.
@@ -818,10 +851,12 @@ flowchart TD
      - Verify `OnPush` strategy and zero emojis in template HTML.
 
 - **TDD Step 2: Red Verification Command**:
+
   ```bash
   rtk bun run --cwd apps/web ng test --include="**/users-table.spec.ts" --include="**/users-page.spec.ts" --watch=false
   ```
-  *Expected Output*: Test failure (components do not exist).
+
+  _Expected Output_: Test failure (components do not exist).
 
 - **TDD Step 3: Green (Implement UsersTable & UsersPage)**:
   1. Create `user-columns-definition.ts`:
@@ -843,10 +878,12 @@ flowchart TD
      - Integrates search input, role filter tabs, and `UsersTableComponent`.
 
 - **TDD Step 4: Green Verification Command**:
+
   ```bash
   rtk bun run --cwd apps/web ng test --include="**/users-table.spec.ts" --include="**/users-page.spec.ts" --watch=false
   ```
-  *Expected Output*: All table and page tests pass green.
+
+  _Expected Output_: All table and page tests pass green.
 
 - **TDD Step 5: Refactor / Clean Architecture Validation**:
   Verify UI copy references `APP_TEXTS.users` with Spanish localization and zero template hardcoded strings or emojis.
@@ -882,10 +919,12 @@ flowchart TD
      - Test submitting triggers `userService.modifyRole(userId, newRole)`.
 
 - **TDD Step 2: Red Verification Command**:
+
   ```bash
   rtk bun run --cwd apps/web ng test --include="**/invite-user-modal.spec.ts" --include="**/modify-role-modal.spec.ts" --watch=false
   ```
-  *Expected Output*: Test failure (modals not yet implemented).
+
+  _Expected Output_: Test failure (modals not yet implemented).
 
 - **TDD Step 3: Green (Implement Modals with Design System)**:
   1. Implement `InviteUserModalComponent`:
@@ -898,10 +937,12 @@ flowchart TD
      - Submits change to `UserService.modifyRole()`.
 
 - **TDD Step 4: Green Verification Command**:
+
   ```bash
   rtk bun run --cwd apps/web ng test --include="**/invite-user-modal.spec.ts" --include="**/modify-role-modal.spec.ts" --watch=false
   ```
-  *Expected Output*: Both modal test suites pass green.
+
+  _Expected Output_: Both modal test suites pass green.
 
 - **TDD Step 5: Refactor / Clean Architecture Validation**:
   Ensure dialog elements handle Escape key and outside backdrop clicks cleanly.
@@ -931,10 +972,12 @@ flowchart TD
   - Test confirm triggers `userService.deactivateUser()`, notifies via `ToastService`, and closes modal.
 
 - **TDD Step 2: Red Verification Command**:
+
   ```bash
   rtk bun run --cwd apps/web ng test --include="**/deactivate-user-modal.spec.ts" --watch=false
   ```
-  *Expected Output*: Test failure (dialog not yet created).
+
+  _Expected Output_: Test failure (dialog not yet created).
 
 - **TDD Step 3: Green (Implement DeactivateUserModalComponent)**:
   Implement `DeactivateUserModalComponent`:
@@ -944,10 +987,12 @@ flowchart TD
   - On confirm, calls `userService.deactivateUser(targetUser().id)`.
 
 - **TDD Step 4: Green Verification Command**:
+
   ```bash
   rtk bun run --cwd apps/web ng test --include="**/deactivate-user-modal.spec.ts" --watch=false
   ```
-  *Expected Output*: All deactivation modal tests pass green.
+
+  _Expected Output_: All deactivation modal tests pass green.
 
 - **TDD Step 5: Refactor / Clean Architecture Validation**:
   Verify keyboard accessibility (tab focus trap inside dialog) and clear cancellation flow.
@@ -969,32 +1014,32 @@ flowchart TD
      ```bash
      rtk ./gradlew test
      ```
-     *Verification Criteria*: All Spring Boot tests pass without failures or regressions.
+     _Verification Criteria_: All Spring Boot tests pass without failures or regressions.
   2. **Frontend Test Suite**:
      ```bash
      rtk bun run --cwd apps/web ng test --watch=false
      ```
-     *Verification Criteria*: 100% passing tests across core services, guards, components, and pages.
+     _Verification Criteria_: 100% passing tests across core services, guards, components, and pages.
   3. **Static Analysis & Linting**:
      ```bash
      rtk bun --cwd apps/web oxlint
      rtk bun run --cwd apps/web check
      ```
-     *Verification Criteria*: Zero linter errors, clean formatting, zero unresolved imports.
+     _Verification Criteria_: Zero linter errors, clean formatting, zero unresolved imports.
 
 ---
 
 ## Execution Summary & Checklist
 
-| Task | Scope | Deliverables | Verification Command |
-| :--- | :--- | :--- | :--- |
-| **Task 1** | `api/usecase` | `UsersRepository`, `ListUsersByTenantUseCase`, Unit Test | `rtk ./gradlew test --tests ...ListUsersByTenantUseCaseTest` |
-| **Task 2** | `api/adapter` | `UserRepositoryData.findAllByTenantId`, Adapter mapping | `rtk ./gradlew test --tests ...UserRepositoryAdapterTest` |
-| **Task 3** | `api/entry-point`| `UserController.getUsers`, `@PreAuthorize("hasRole('MANAGER')")` | `rtk ./gradlew test --tests ...UserControllerTest` |
-| **Task 4** | `web/users` | `UserService` roster signals (`users`, `isLoading`), actions | `rtk bun run --cwd apps/web ng test --include="**/user-service.spec.ts" --watch=false` |
-| **Task 5** | `web/auth` | `roleGuard`, `/app/users` route protection | `rtk bun run --cwd apps/web ng test --include="**/role.guard.spec.ts" --watch=false` |
-| **Task 6** | `web/users` | `SidebarBase` role-based navigation filtering | `rtk bun run --cwd apps/web ng test --include="**/sidebar-base.spec.ts" --watch=false` |
-| **Task 7** | `web/users` | `UsersPageComponent`, TanStack `UsersTableComponent`, Facade | `rtk bun run --cwd apps/web ng test --include="**/users-table.spec.ts" ...` |
-| **Task 8** | `web/users` | `InviteUserModalComponent`, `ModifyRoleModalComponent` | `rtk bun run --cwd apps/web ng test --include="**/invite-user-modal.spec.ts" ...` |
-| **Task 9** | `web/users` | `DeactivateUserModalComponent` & self-deactivation guard | `rtk bun run --cwd apps/web ng test --include="**/deactivate-user-modal.spec.ts" ...` |
-| **Task 10**| `all` | Full Gradle test suite, Angular Vitest suite, oxlint | `rtk ./gradlew test && rtk bun run --cwd apps/web ng test --watch=false && rtk bun --cwd apps/web oxlint` |
+| Task        | Scope             | Deliverables                                                     | Verification Command                                                                                      |
+| :---------- | :---------------- | :--------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------- |
+| **Task 1**  | `api/usecase`     | `UsersRepository`, `ListUsersByTenantUseCase`, Unit Test         | `rtk ./gradlew test --tests ...ListUsersByTenantUseCaseTest`                                              |
+| **Task 2**  | `api/adapter`     | `UserRepositoryData.findAllByTenantId`, Adapter mapping          | `rtk ./gradlew test --tests ...UserRepositoryAdapterTest`                                                 |
+| **Task 3**  | `api/entry-point` | `UserController.getUsers`, `@PreAuthorize("hasRole('MANAGER')")` | `rtk ./gradlew test --tests ...UserControllerTest`                                                        |
+| **Task 4**  | `web/users`       | `UserService` roster signals (`users`, `isLoading`), actions     | `rtk bun run --cwd apps/web ng test --include="**/user-service.spec.ts" --watch=false`                    |
+| **Task 5**  | `web/auth`        | `roleGuard`, `/app/users` route protection                       | `rtk bun run --cwd apps/web ng test --include="**/role.guard.spec.ts" --watch=false`                      |
+| **Task 6**  | `web/users`       | `SidebarBase` role-based navigation filtering                    | `rtk bun run --cwd apps/web ng test --include="**/sidebar-base.spec.ts" --watch=false`                    |
+| **Task 7**  | `web/users`       | `UsersPageComponent`, TanStack `UsersTableComponent`, Facade     | `rtk bun run --cwd apps/web ng test --include="**/users-table.spec.ts" ...`                               |
+| **Task 8**  | `web/users`       | `InviteUserModalComponent`, `ModifyRoleModalComponent`           | `rtk bun run --cwd apps/web ng test --include="**/invite-user-modal.spec.ts" ...`                         |
+| **Task 9**  | `web/users`       | `DeactivateUserModalComponent` & self-deactivation guard         | `rtk bun run --cwd apps/web ng test --include="**/deactivate-user-modal.spec.ts" ...`                     |
+| **Task 10** | `all`             | Full Gradle test suite, Angular Vitest suite, oxlint             | `rtk ./gradlew test && rtk bun run --cwd apps/web ng test --watch=false && rtk bun --cwd apps/web oxlint` |

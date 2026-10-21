@@ -11,11 +11,11 @@ The deployment operates as a secured 2-tier reverse proxy architecture:
 ```mermaid
 flowchart TD
     Internet(["Public Internet / Clients"]) -->|Port 80/443 HTTPS| Traefik["Dokploy Traefik Edge Ingress<br/>Let's Encrypt TLS Termination"]
-    
+
     subgraph dokploy_network ["dokploy-network (Bridge)"]
         Traefik -->|HTTP :80| Web["Nivo Web<br/>Angular SPA + Nginx Gateway"]
     end
-    
+
     subgraph nivo_network ["nivo_net (Isolated Internal Bridge)"]
         Web -->|Reverse Proxy /api :8080| API["Nivo API<br/>Spring Boot 4 / Java 25 Virtual Threads"]
         API -->|Port 5432| DB[("PostGIS 16 / PostgreSQL<br/>nivo schema")]
@@ -23,6 +23,7 @@ flowchart TD
 ```
 
 ### Flow Breakdown:
+
 1. **Tier 1: Dokploy Traefik (Edge Ingress & SSL)**:
    - Receives HTTPS traffic on port 443.
    - Automatically issues and renews TLS certificates via Let's Encrypt (`certresolver: letsencrypt`).
@@ -52,9 +53,11 @@ flowchart TD
 > [!TIP]
 > **Authenticating Dokploy / Docker to GHCR**:
 > If the GitHub packages/images are private, authenticate your Docker daemon before pulling:
+>
 > ```bash
 > docker login ghcr.io -u <username> -p <github_pat>
 > ```
+>
 > In Dokploy, you can also configure private registry credentials under **Settings** > **Registries** with Registry URL `ghcr.io`, your GitHub username, and a GitHub Personal Access Token (PAT) having `read:packages` scope.
 
 ---
@@ -86,6 +89,7 @@ chmod 644 deployment/keys/public.pem
 > Because the container runs as a non-root user (`USER nivo`), `chmod 600` owned by root on the host prevents the container from reading `private.pem`. With `chmod 644` on the keys and `chmod 755` on the keys directory, plus the container volume mounted as read-only (`:ro`), `USER nivo` can safely read the keys.
 
 Configure `RSA_` variables in your `.env` file:
+
 ```dotenv
 RSA_PUBLIC_KEY_LOCATION=file:/app/keys/public.pem
 RSA_PRIVATE_KEY_LOCATION=file:/app/keys/private.pem
@@ -185,6 +189,7 @@ x-traefik-web-labels: &traefik-web-labels
 In Dokploy and production Traefik homelab setups, host ports `80` and `443` are already bound and managed by Traefik. Attempting to bind `0.0.0.0:80` on individual service containers causes Docker to fail with `"port is already allocated"`.
 
 To guarantee zero host port collisions:
+
 - In `deployment/compose.yaml`, **no host ports (`ports:`) are published** for `web`, `api`, or `database`.
 - **Traefik Ingress**: Traefik discovers the `web` container via Docker labels and routes external HTTP/HTTPS traffic directly to the container's internal port `80` (`traefik.http.services.nivo-web.loadbalancer.server.port=80`) across the shared `dokploy-network`.
 - **Internal Service Isolation**: The `web` container proxies `/api/*` requests internally to `http://api:8080` over the private `nivo_net` bridge network, and `api` communicates with `database:5432` without exposing PostgreSQL ports to the host network.
@@ -195,6 +200,7 @@ To guarantee zero host port collisions:
 ### Step-by-Step Setup in Dokploy
 
 #### Step 1: Create a Compose Project in Dokploy
+
 1. Open your Dokploy dashboard.
 2. Navigate to **Projects** -> Select your Project -> **Add Service** -> **Compose**.
 3. Choose **Docker Compose** as the deployment type.
@@ -204,17 +210,20 @@ To guarantee zero host port collisions:
    - **Compose Path**: `deployment/compose.yaml`
 
 #### Step 2: Configure Environment Variables in Dokploy UI
+
 1. In the Dokploy service dashboard, navigate to the **Environment** tab.
 2. Paste the contents of your customized `.env` file into the editor.
 3. Ensure `DOMAIN_NAME` matches the domain configured in your DNS records.
 
 #### Step 3: Configure Volumes and Mounts for RSA Keys
+
 1. In the **Volumes / Mounts** section (or on the host filesystem), ensure the RSA key directory exists:
    - Host path: `/etc/dokploy/nivo/keys` (or your project keys path)
    - Mounted path: `./keys` (relative to compose working dir) or specify absolute path in `RSA_KEYS_DIR`.
 2. Ensure `deployment/init.sh` has executable permissions.
 
 #### Step 4: Deploy & Verify
+
 1. Click **Deploy** in the Dokploy dashboard.
 2. Dokploy will pull the pre-built GHCR images directly (saving host CPU/RAM), launch containers, and connect the `web` service to `dokploy-network`.
 3. Traefik will automatically obtain Let's Encrypt SSL certificates for your `DOMAIN_NAME`.
@@ -235,7 +244,7 @@ If you are running on a standalone Docker host without Dokploy:
    docker compose --env-file deployment/.env -f deployment/compose.yaml pull
    docker compose --env-file deployment/.env -f deployment/compose.yaml up -d
    ```
-3. *(Optional)* If you need to build container images locally instead of pulling from GHCR:
+3. _(Optional)_ If you need to build container images locally instead of pulling from GHCR:
    ```bash
    bun run docker:build
    # Or directly with Docker Compose:
@@ -254,11 +263,11 @@ All services configured in `deployment/compose.yaml` define resource limits (max
 
 ### Default Resource Allocation
 
-| Service | Limit Variable | Default Limit | Reservation Variable | Default Reservation |
-| :--- | :--- | :--- | :--- | :--- |
-| **Nivo Web** | `WEB_CPU_LIMIT` / `WEB_MEM_LIMIT` | `0.50` CPU, `256M` RAM | `WEB_CPU_RESERVATION` / `WEB_MEM_RESERVATION` | `0.10` CPU, `64M` RAM |
-| **Nivo API** | `API_CPU_LIMIT` / `API_MEM_LIMIT` | `2.0` CPU, `1024M` RAM | `API_CPU_RESERVATION` / `API_MEM_RESERVATION` | `0.25` CPU, `512M` RAM |
-| **PostGIS DB** | `DB_CPU_LIMIT` / `DB_MEM_LIMIT` | `2.0` CPU, `1024M` RAM | `DB_CPU_RESERVATION` / `DB_MEM_RESERVATION` | `0.25` CPU, `256M` RAM |
+| Service        | Limit Variable                    | Default Limit          | Reservation Variable                          | Default Reservation    |
+| :------------- | :-------------------------------- | :--------------------- | :-------------------------------------------- | :--------------------- |
+| **Nivo Web**   | `WEB_CPU_LIMIT` / `WEB_MEM_LIMIT` | `0.50` CPU, `256M` RAM | `WEB_CPU_RESERVATION` / `WEB_MEM_RESERVATION` | `0.10` CPU, `64M` RAM  |
+| **Nivo API**   | `API_CPU_LIMIT` / `API_MEM_LIMIT` | `2.0` CPU, `1024M` RAM | `API_CPU_RESERVATION` / `API_MEM_RESERVATION` | `0.25` CPU, `512M` RAM |
+| **PostGIS DB** | `DB_CPU_LIMIT` / `DB_MEM_LIMIT`   | `2.0` CPU, `1024M` RAM | `DB_CPU_RESERVATION` / `DB_MEM_RESERVATION`   | `0.25` CPU, `256M` RAM |
 
 ### Tuning Guidelines
 
@@ -291,6 +300,7 @@ When using the external volume mount (`${RSA_KEYS_DIR:-./keys}:/app/keys:ro`), R
 ### Key Rotation Steps:
 
 1. **Generate New Key Pair**:
+
    ```bash
    mkdir -p deployment/keys
    chmod 755 deployment/keys
@@ -301,11 +311,13 @@ When using the external volume mount (`${RSA_KEYS_DIR:-./keys}:/app/keys:ro`), R
    ```
 
 2. **Update Key ID in `.env`**:
+
    ```dotenv
    RSA_KEY_ID=nivo-prod-key-v2
    ```
 
 3. **Restart the API Container**:
+
    ```bash
    docker compose --env-file deployment/.env -f deployment/compose.yaml restart api
    ```

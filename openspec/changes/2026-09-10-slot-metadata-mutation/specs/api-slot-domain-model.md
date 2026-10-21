@@ -1,10 +1,13 @@
 <!-- TAG: MODIFIED -->
+
 # Delta Spec: Slot Domain Model & Invariants
 
 ## Motivation
+
 Represent EV charger availability, PMR accessibility, and soft-delete/operational status directly within the slot domain aggregate.
 
 ## Requirements
+
 1. **Model Attributes**:
    - `Slots` domain model must include `hasCharger` (`boolean`), `isAccessible` (`boolean`), and `isActive` (`boolean`).
    - Default values: `hasCharger = false`, `isAccessible = false`, `isActive = true`.

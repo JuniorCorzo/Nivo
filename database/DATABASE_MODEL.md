@@ -53,6 +53,7 @@ erDiagram
 ## 2. Composite Types & Custom Data Structures
 
 ### `address_t`
+
 ```sql
 CREATE TYPE address_t AS (
     street   VARCHAR(255),
@@ -64,6 +65,7 @@ CREATE TYPE address_t AS (
 ```
 
 ### `operating_hours_t`
+
 ```sql
 CREATE TYPE operating_hours_t AS (
     open_time  TIME WITH TIME ZONE,
@@ -76,6 +78,7 @@ CREATE TYPE operating_hours_t AS (
 ## 3. Data Dictionary (Tables)
 
 ### 3.1. `tenants`
+
 Multi-tenant root organization.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -88,6 +91,7 @@ Multi-tenant root organization.
 ---
 
 ### 3.2. `users`
+
 System actors across roles and tenants.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -106,6 +110,7 @@ System actors across roles and tenants.
 ---
 
 ### 3.3. `user_invitations`
+
 Tenant user onboarding tokens.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -125,6 +130,7 @@ Tenant user onboarding tokens.
 ---
 
 ### 3.4. `parking_lots`
+
 Physical parking facility entity.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -144,6 +150,7 @@ Physical parking facility entity.
 ---
 
 ### 3.5. `slots`
+
 Individual parking spots in a lot.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -164,6 +171,7 @@ Individual parking spots in a lot.
 ---
 
 ### 3.6. `special_policies`
+
 Dynamic pricing rules and discount policies.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -180,6 +188,7 @@ Dynamic pricing rules and discount policies.
 ---
 
 ### 3.7. `rates`
+
 Parking fee structures.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -200,6 +209,7 @@ Parking fee structures.
 ---
 
 ### 3.8. `reservations`
+
 Slot pre-booking records.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -219,6 +229,7 @@ Slot pre-booking records.
 ---
 
 ### 3.9. `parking_tickets`
+
 Active and historical parking sessions.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -243,6 +254,7 @@ Active and historical parking sessions.
 ---
 
 ### 3.10. `payments`
+
 Financial collection records for tickets or reservations.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -271,6 +283,7 @@ Financial collection records for tickets or reservations.
 ---
 
 ### 3.11. `transactions`
+
 Payment gateway execution logs / ledger.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -290,6 +303,7 @@ Payment gateway execution logs / ledger.
 ---
 
 ### 3.12. `notification_templates`
+
 Message layout definitions for system events.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -307,6 +321,7 @@ Message layout definitions for system events.
 ---
 
 ### 3.13. `notification_preferences`
+
 Per-user notification delivery matrix.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -325,6 +340,7 @@ Per-user notification delivery matrix.
 ---
 
 ### 3.14. `notification_logs`
+
 Historical outbound notification audit trail.
 | Column | Type | Nullable | Default / Constraint | Description |
 |---|---|---|---|---|
@@ -348,47 +364,55 @@ Historical outbound notification audit trail.
 ## 4. Shared Domain Enums / Check Constraints
 
 ### Notification Event Types
-* `RESERVATION_CREATED`
-* `TICKET_OPENED`
-* `TICKET_CLOSED`
-* `PAYMENT_COMPLETED`
-* `PAYMENT_CHECKOUT`
-* `USER_SELF_REGISTERED`
-* `USER_INVITED`
-* `USER_INVITATION_ACCEPTED`
-* `USER_ROLE_ASSIGNED`
+
+- `RESERVATION_CREATED`
+- `TICKET_OPENED`
+- `TICKET_CLOSED`
+- `PAYMENT_COMPLETED`
+- `PAYMENT_CHECKOUT`
+- `USER_SELF_REGISTERED`
+- `USER_INVITED`
+- `USER_INVITATION_ACCEPTED`
+- `USER_ROLE_ASSIGNED`
 
 ### User Roles
-* `SUPERADMIN`, `OWNER`, `MANAGER`, `OPERATOR`, `DRIVER`, `AUDITOR`
+
+- `SUPERADMIN`, `OWNER`, `MANAGER`, `OPERATOR`, `DRIVER`, `AUDITOR`
 
 ### Payment Statuses
-* `PENDING_CHECKOUT`, `PENDING_PAYMENT`, `PAID`, `FAILED`, `EXPIRED`, `CANCELLED`, `REFUNDED`
+
+- `PENDING_CHECKOUT`, `PENDING_PAYMENT`, `PAID`, `FAILED`, `EXPIRED`, `CANCELLED`, `REFUNDED`
 
 ---
 
 ## 5. Architectural Findings & Suggestions
 
 ### 1. Hardcoded Schema Names in Migrations (Portability Issue)
-* **Finding**: Migrations `V12`, `V13`, `V14`, `V17`, `V18` reference `"nivo_db".nivo.<table_name>` explicitly in SQL statements.
-* **Risk**: Breaks local testing against H2, Testcontainers, or environments with different database names (e.g. `nivo_test` or `postgres`).
-* **Suggestion**: Rely on PostgreSQL `search_path` (e.g., `SET search_path TO nivo, public;`) or Flyway's `defaultSchema` placeholders rather than hardcoded database/schema prefixes.
+
+- **Finding**: Migrations `V12`, `V13`, `V14`, `V17`, `V18` reference `"nivo_db".nivo.<table_name>` explicitly in SQL statements.
+- **Risk**: Breaks local testing against H2, Testcontainers, or environments with different database names (e.g. `nivo_test` or `postgres`).
+- **Suggestion**: Rely on PostgreSQL `search_path` (e.g., `SET search_path TO nivo, public;`) or Flyway's `defaultSchema` placeholders rather than hardcoded database/schema prefixes.
 
 ### 2. Composite Types (`address_t` & `operating_hours_t`) vs JSONB / Embedded Flat Columns
-* **Finding**: `parking_lots` uses PostgreSQL User Defined Types (UDTs).
-* **Trade-off**: Required migrations `V26` and `V27` to fix field ordering because Hibernate 6 `@Struct` serializes fields by attribute position.
-* **Suggestion**: Consider migrating composite types to either **flat columns** (e.g., `address_street`, `address_city`, `operating_hours_open`) or **JSONB**. Flat columns maintain clean JPA/Hibernate mapping without UDT serialization ordering fragility.
+
+- **Finding**: `parking_lots` uses PostgreSQL User Defined Types (UDTs).
+- **Trade-off**: Required migrations `V26` and `V27` to fix field ordering because Hibernate 6 `@Struct` serializes fields by attribute position.
+- **Suggestion**: Consider migrating composite types to either **flat columns** (e.g., `address_street`, `address_city`, `operating_hours_open`) or **JSONB**. Flat columns maintain clean JPA/Hibernate mapping without UDT serialization ordering fragility.
 
 ### 3. Soft-Delete Consistency & Multi-Tenant Unique Constraints
-* **Finding**: `slots` handles soft-delete uniqueness properly via `CREATE UNIQUE INDEX ... WHERE deleted_at IS NULL` (in `V25`). However:
-  * `users(email)` does not account for `deleted_at`, preventing re-registration if a user was deleted.
-  * `user_invitations` lacks a partial unique index on `(tenant_id, invited_email) WHERE status = 'PENDING'`.
-* **Suggestion**: Convert standard unique constraints to partial indexes `WHERE deleted_at IS NULL` (or active status) across `users` and `user_invitations`.
+
+- **Finding**: `slots` handles soft-delete uniqueness properly via `CREATE UNIQUE INDEX ... WHERE deleted_at IS NULL` (in `V25`). However:
+  - `users(email)` does not account for `deleted_at`, preventing re-registration if a user was deleted.
+  - `user_invitations` lacks a partial unique index on `(tenant_id, invited_email) WHERE status = 'PENDING'`.
+- **Suggestion**: Convert standard unique constraints to partial indexes `WHERE deleted_at IS NULL` (or active status) across `users` and `user_invitations`.
 
 ### 4. Dynamic Trigger Parsing Check Constraints (`V20`)
-* **Finding**: Function `get_check_constraint_values` parses regex out of `pg_constraint.conkey` to auto-populate notification preferences.
-* **Risk**: Brittle when constraint definitions format differently across PostgreSQL versions or cloud environments (e.g., Aurora, Supabase, Neon), and incompatible with H2 integration tests.
-* **Suggestion**: Store event types and channels in lookup/seed tables (`notification_channels`, `notification_events`) with standard foreign keys, or manage default creation in application domain use cases.
+
+- **Finding**: Function `get_check_constraint_values` parses regex out of `pg_constraint.conkey` to auto-populate notification preferences.
+- **Risk**: Brittle when constraint definitions format differently across PostgreSQL versions or cloud environments (e.g., Aurora, Supabase, Neon), and incompatible with H2 integration tests.
+- **Suggestion**: Store event types and channels in lookup/seed tables (`notification_channels`, `notification_events`) with standard foreign keys, or manage default creation in application domain use cases.
 
 ### 5. Foreign Key Cascades & Archival Strategy
-* **Finding**: `notification_logs` and `parking_tickets` contain high-volume transactional data referencing `users` and `tenants` with `ON DELETE RESTRICT`.
-* **Suggestion**: Add composite indexes on `(tenant_id, created_at)` for `parking_tickets`, `payments`, and `notification_logs` to accelerate time-window partitioning, tenant metrics, and historical data archiving.
+
+- **Finding**: `notification_logs` and `parking_tickets` contain high-volume transactional data referencing `users` and `tenants` with `ON DELETE RESTRICT`.
+- **Suggestion**: Add composite indexes on `(tenant_id, created_at)` for `parking_tickets`, `payments`, and `notification_logs` to accelerate time-window partitioning, tenant metrics, and historical data archiving.

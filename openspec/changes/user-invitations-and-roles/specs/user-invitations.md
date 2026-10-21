@@ -3,7 +3,9 @@
 ## 1. Context & Business Rules
 
 ### Rule 1: Permitted Roles for Invitations
+
 Invitations may only be issued for operational roles:
+
 - `MANAGER`
 - `OPERATOR`
 - `AUDITOR`
@@ -11,14 +13,17 @@ Invitations may only be issued for operational roles:
 Assigning `OWNER` or `SUPERADMIN` through the invitation flow must be rejected with `InvalidRoleException` (HTTP 400).
 
 ### Rule 2: Tenant Membership & Duplicate Protection
+
 If the invited email already belongs to an active user within the tenant, the system must abort with `UserAlreadyExistsInTenantException` (HTTP 409).
 
 ### Rule 3: 72-Hour Expiration & Acceptance
+
 - Invitations are initialized in `PENDING` status with `expires_at = now() + 3 days`.
 - An invitation can only be accepted if `now() < expires_at` and `status == PENDING`.
 - Upon successful password setup, status transitions to `ACCEPTED`, and user record is persisted with the invited role.
 
 ### Rule 4: Invariant of Ownership Preservation
+
 A tenant must possess at least one active `OWNER`. Any command that attempts to deactivate or mutate the role of the sole `OWNER` of a tenant must be rejected with HTTP 409/400.
 
 ## 2. Gherkin Scenarios

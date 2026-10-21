@@ -43,46 +43,46 @@ x-api-runtime-env: &api-runtime-env
 x-resources-web: &resources-web
   resources:
     limits:
-      cpus: '${WEB_CPU_LIMIT:-0.50}'
+      cpus: "${WEB_CPU_LIMIT:-0.50}"
       memory: ${WEB_MEM_LIMIT:-256M}
     reservations:
-      cpus: '${WEB_CPU_RESERVATION:-0.10}'
+      cpus: "${WEB_CPU_RESERVATION:-0.10}"
       memory: ${WEB_MEM_RESERVATION:-64M}
 
 x-resources-api: &resources-api
   resources:
     limits:
-      cpus: '${API_CPU_LIMIT:-2.0}'
+      cpus: "${API_CPU_LIMIT:-2.0}"
       memory: ${API_MEM_LIMIT:-1024M}
     reservations:
-      cpus: '${API_CPU_RESERVATION:-0.25}'
+      cpus: "${API_CPU_RESERVATION:-0.25}"
       memory: ${API_MEM_RESERVATION:-512M}
 
 x-resources-db: &resources-db
   resources:
     limits:
-      cpus: '${DB_CPU_LIMIT:-2.0}'
+      cpus: "${DB_CPU_LIMIT:-2.0}"
       memory: ${DB_MEM_LIMIT:-1024M}
     reservations:
-      cpus: '${DB_CPU_RESERVATION:-0.25}'
+      cpus: "${DB_CPU_RESERVATION:-0.25}"
       memory: ${DB_MEM_RESERVATION:-256M}
 
 x-resources-prometheus: &resources-prometheus
   resources:
     limits:
-      cpus: '${PROMETHEUS_CPU_LIMIT:-1.0}'
+      cpus: "${PROMETHEUS_CPU_LIMIT:-1.0}"
       memory: ${PROMETHEUS_MEM_LIMIT:-512M}
     reservations:
-      cpus: '${PROMETHEUS_CPU_RESERVATION:-0.10}'
+      cpus: "${PROMETHEUS_CPU_RESERVATION:-0.10}"
       memory: ${PROMETHEUS_MEM_RESERVATION:-128M}
 
 x-resources-grafana: &resources-grafana
   resources:
     limits:
-      cpus: '${GRAFANA_CPU_LIMIT:-1.0}'
+      cpus: "${GRAFANA_CPU_LIMIT:-1.0}"
       memory: ${GRAFANA_MEM_LIMIT:-256M}
     reservations:
-      cpus: '${GRAFANA_CPU_RESERVATION:-0.10}'
+      cpus: "${GRAFANA_CPU_RESERVATION:-0.10}"
       memory: ${GRAFANA_MEM_RESERVATION:-64M}
 
 services:
@@ -111,11 +111,22 @@ services:
       database:
         condition: service_healthy
     environment:
-      <<: [*platform-env, *api-runtime-env, *api-datasource-env, *api-security-env, *api-integrations-env]
+      <<:
+        [
+          *platform-env,
+          *api-runtime-env,
+          *api-datasource-env,
+          *api-security-env,
+          *api-integrations-env,
+        ]
     deploy:
       <<: *resources-api
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O- http://localhost:8081/actuator/health | grep -q '\"status\":\"UP\"'"]
+      test:
+        [
+          "CMD-SHELL",
+          'wget -q -O- http://localhost:8081/actuator/health | grep -q ''"status":"UP"''',
+        ]
       interval: 30s
       timeout: 10s
       retries: 5

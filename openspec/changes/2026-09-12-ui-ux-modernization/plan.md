@@ -83,57 +83,64 @@ flowchart LR
 
 ### 3. Matriz de Concurrencia y Aislamiento de Archivos
 
-| Tarea | Worker / Subagente | Archivos Afectados | Dependencias (`in_degree`) | Elegible para Paralelo |
-| :--- | :--- | :--- | :--- | :--- |
-| **Task 1** | `sdd-apply` (Worker 1) | `apps/web/src/app/shared/components/page-header/*` | Ninguna (`in_degree = 0`) | Sí (con Task 4) |
-| **Task 4** | `sdd-apply` (Worker 2) | `apps/web/src/app/shared/components/user-menu/*`<br/>`apps/web/src/app/shared/components/sidebar-footer/*` | Ninguna (`in_degree = 0`) | Sí (con Task 1: `files(T1) ∩ files(T4) = ∅`) |
-| **Task 2** | `sdd-apply` (Worker 1) | `apps/web/src/app/features/parking/page/parking-home/*`<br/>`apps/web/src/app/features/slots/*` | Requiere Task 1 | Sí (con Task 3: `files(T2) ∩ files(T3) = ∅`) |
-| **Task 3** | `sdd-apply` (Worker 3) | `apps/web/src/app/features/rates/*`<br/>`apps/web/src/app/features/parking/page/parking-form/*` | Requiere Task 1 | Sí (con Task 2: `files(T2) ∩ files(T3) = ∅`) |
-| **Task 5** | `sdd-apply` (Worker 2) | `apps/web/src/app/layouts/layout/*`<br/>`apps/web/src/app/shared/components/sidebar/*` | Requiere Task 4 | Secuencial tras Task 4 |
-| **Task 6** | `sdd-verify` (Auditor) | Workspace completo (`apps/web/src/*`) | Requiere Tasks 2, 3, 5 | Punto de convergencia / auditoría final |
+| Tarea      | Worker / Subagente     | Archivos Afectados                                                                                         | Dependencias (`in_degree`) | Elegible para Paralelo                       |
+| :--------- | :--------------------- | :--------------------------------------------------------------------------------------------------------- | :------------------------- | :------------------------------------------- |
+| **Task 1** | `sdd-apply` (Worker 1) | `apps/web/src/app/shared/components/page-header/*`                                                         | Ninguna (`in_degree = 0`)  | Sí (con Task 4)                              |
+| **Task 4** | `sdd-apply` (Worker 2) | `apps/web/src/app/shared/components/user-menu/*`<br/>`apps/web/src/app/shared/components/sidebar-footer/*` | Ninguna (`in_degree = 0`)  | Sí (con Task 1: `files(T1) ∩ files(T4) = ∅`) |
+| **Task 2** | `sdd-apply` (Worker 1) | `apps/web/src/app/features/parking/page/parking-home/*`<br/>`apps/web/src/app/features/slots/*`            | Requiere Task 1            | Sí (con Task 3: `files(T2) ∩ files(T3) = ∅`) |
+| **Task 3** | `sdd-apply` (Worker 3) | `apps/web/src/app/features/rates/*`<br/>`apps/web/src/app/features/parking/page/parking-form/*`            | Requiere Task 1            | Sí (con Task 2: `files(T2) ∩ files(T3) = ∅`) |
+| **Task 5** | `sdd-apply` (Worker 2) | `apps/web/src/app/layouts/layout/*`<br/>`apps/web/src/app/shared/components/sidebar/*`                     | Requiere Task 4            | Secuencial tras Task 4                       |
+| **Task 6** | `sdd-verify` (Auditor) | Workspace completo (`apps/web/src/*`)                                                                      | Requiere Tasks 2, 3, 5     | Punto de convergencia / auditoría final      |
 
 ---
 
 ### Task 1: Breadcrumbs Reactivos en `PageHeaderComponent`
 
 **Files:**
+
 - Modify: `apps/web/src/app/shared/components/page-header/page-header.component.ts`
 - Modify: `apps/web/src/app/shared/components/page-header/page-header.component.html`
 - Test: `apps/web/src/app/shared/components/page-header/page-header.component.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `ActiveParkingService.activeParkingName(): Signal<string>` desde `@core/services/active-parking.service`.
 - Produces: `PageHeaderComponent` con input opcional `breadcrumbs = input<{ label: string; url?: string }[] | null>(null)` y señal computada `activeBreadcrumbs`.
 
 - [ ] **Step 1: Escribir pruebas que fallen en `page-header.component.spec.ts`**
 
 Agregar pruebas para validar:
+
 1. Fallback reactivo que muestra `[Nombre Sede] / [title]` cuando existe parqueadero activo.
 2. Fallback sin sede activa (solo `[title]`).
 3. Renderizado de breadcrumbs explícitos pasados por input `[breadcrumbs]`.
 
 ```typescript
 // En apps/web/src/app/shared/components/page-header/page-header.component.spec.ts
-it('should render reactive breadcrumb with active parking lot name and title by default', () => {
-  mockActiveParkingService.activeParkingName.set('Sede Central');
+it("should render reactive breadcrumb with active parking lot name and title by default", () => {
+  mockActiveParkingService.activeParkingName.set("Sede Central");
   fixture.detectChanges();
 
-  const breadcrumbEl = fixture.nativeElement.querySelector('[data-testid="page-header-breadcrumb"]');
+  const breadcrumbEl = fixture.nativeElement.querySelector(
+    '[data-testid="page-header-breadcrumb"]',
+  );
   expect(breadcrumbEl).toBeTruthy();
-  expect(breadcrumbEl.textContent).toContain('Sede Central');
-  expect(breadcrumbEl.textContent).toContain('Dashboard');
+  expect(breadcrumbEl.textContent).toContain("Sede Central");
+  expect(breadcrumbEl.textContent).toContain("Dashboard");
 });
 
-it('should render custom explicit breadcrumbs when provided', () => {
-  fixture.componentRef.setInput('breadcrumbs', [
-    { label: 'Parqueaderos', url: '/app/parking-lots' },
-    { label: 'Detalle' },
+it("should render custom explicit breadcrumbs when provided", () => {
+  fixture.componentRef.setInput("breadcrumbs", [
+    { label: "Parqueaderos", url: "/app/parking-lots" },
+    { label: "Detalle" },
   ]);
   fixture.detectChanges();
 
-  const breadcrumbEl = fixture.nativeElement.querySelector('[data-testid="page-header-breadcrumb"]');
-  expect(breadcrumbEl.textContent).toContain('Parqueaderos');
-  expect(breadcrumbEl.textContent).toContain('Detalle');
+  const breadcrumbEl = fixture.nativeElement.querySelector(
+    '[data-testid="page-header-breadcrumb"]',
+  );
+  expect(breadcrumbEl.textContent).toContain("Parqueaderos");
+  expect(breadcrumbEl.textContent).toContain("Detalle");
 });
 ```
 
@@ -145,26 +152,30 @@ Expected: FAIL con `page-header-breadcrumb not found` o `mockActiveParkingServic
 - [ ] **Step 3: Implementar soporte de breadcrumbs en `PageHeaderComponent`**
 
 En `page-header.component.ts`:
+
 - Inyectar `ActiveParkingService` (opcional o default con mock seguro).
 - Declarar `readonly breadcrumbs = input<{ label: string; url?: string }[] | null>(null);`
 - Computar `readonly computedBreadcrumbs = computed(...)` que devuelva `breadcrumbs()` si existe o componga con `activeParkingName()` y `title()`.
 
 En `page-header.component.html`:
+
 - Añadir sección superior de navegación de migas antes del row del título:
+
 ```html
 @if (computedBreadcrumbs().length > 0) {
-  <nav aria-label="Ruta de navegación" data-testid="page-header-breadcrumb" class="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
-    @for (item of computedBreadcrumbs(); track $index) {
-      @if ($index > 0) {
-        <span class="text-border">/</span>
-      }
-      @if (item.url) {
-        <a [routerLink]="item.url" class="hover:text-foreground transition-colors">{{ item.label }}</a>
-      } @else {
-        <span [class.text-foreground]="$last" [class.font-semibold]="$last">{{ item.label }}</span>
-      }
-    }
-  </nav>
+<nav
+  aria-label="Ruta de navegación"
+  data-testid="page-header-breadcrumb"
+  class="flex items-center gap-1.5 text-xs text-muted-foreground font-mono"
+>
+  @for (item of computedBreadcrumbs(); track $index) { @if ($index > 0) {
+  <span class="text-border">/</span>
+  } @if (item.url) {
+  <a [routerLink]="item.url" class="hover:text-foreground transition-colors">{{ item.label }}</a>
+  } @else {
+  <span [class.text-foreground]="$last" [class.font-semibold]="$last">{{ item.label }}</span>
+  } }
+</nav>
 }
 ```
 
@@ -185,6 +196,7 @@ rtk git commit -m "feat(web): add reactive and explicit breadcrumbs to PageHeade
 ### Task 2: Estandarizar `PageHeaderComponent` en Vistas Operativas (Parking & Slots)
 
 **Files:**
+
 - Modify: `apps/web/src/app/features/parking/page/parking-home/parking-home.html`
 - Modify: `apps/web/src/app/features/parking/page/parking-home/parking-home.ts`
 - Modify: `apps/web/src/app/features/slots/page/parking-slots-list/parking-slots-list.html`
@@ -193,6 +205,7 @@ rtk git commit -m "feat(web): add reactive and explicit breadcrumbs to PageHeade
 - Test: `apps/web/src/app/features/slots/page/parking-slots-list/parking-slots-list.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `<app-page-header>` importado en `imports: [PageHeaderComponent]`.
 - Produces: Vistas `ParkingHome` y `ParkingSlotsListPage` con encabezado normalizado.
 
@@ -208,7 +221,9 @@ Expected: FAIL si buscaba encabezados `h1` manuales o falta el componente.
 - [ ] **Step 3: Reemplazar encabezados manuales por `app-page-header`**
 
 En `parking-home.html` y `parking-slots-list.html`:
+
 - Sustituir la cabecera manual por:
+
 ```html
 <app-page-header title="Parqueadero" [subtitle]="activeParkingSubtitle()">
   <div actions class="flex items-center gap-2">
@@ -235,6 +250,7 @@ rtk git commit -m "feat(web): standardize page headers in parking home and slots
 ### Task 3: Estandarizar `PageHeaderComponent` en Tarifas y Formularios
 
 **Files:**
+
 - Modify: `apps/web/src/app/features/rates/components/rates-list/rates-list.html`
 - Modify: `apps/web/src/app/features/rates/components/rates-list/rates-list.ts`
 - Modify: `apps/web/src/app/features/parking/page/parking-form/parking-form.html`
@@ -243,6 +259,7 @@ rtk git commit -m "feat(web): standardize page headers in parking home and slots
 - Test: `apps/web/src/app/features/parking/page/parking-form/parking-form.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `<app-page-header [backLink]="..." [breadcrumbs]="...">`.
 - Produces: Encabezados homogéneos en gestión de tarifas y formularios de creación/edición.
 
@@ -276,6 +293,7 @@ rtk git commit -m "feat(web): standardize page headers in rates list and parking
 ### Task 4: User Menu Popover con Tema y Cierre de Sesión
 
 **Files:**
+
 - Modify: `apps/web/src/app/shared/components/user-menu/user-menu.ts`
 - Modify: `apps/web/src/app/shared/components/user-menu/user-menu.html`
 - Modify: `apps/web/src/app/shared/components/user-menu/user-menu.css`
@@ -285,12 +303,14 @@ rtk git commit -m "feat(web): standardize page headers in rates list and parking
 - Test: `apps/web/src/app/shared/components/sidebar-footer/sidebar-footer.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `@angular/cdk/overlay`, `AuthService` (logout, user), `ThemeButton`, `LogoutButton`.
 - Produces: `UserMenu` como trigger interactivo con popover flotante hacia arriba (`connectedTo`).
 
 - [ ] **Step 1: Escribir pruebas unitarias en `user-menu.spec.ts`**
 
 Verificar:
+
 1. El trigger tiene atributos de accesibilidad (`role="button"`, `aria-haspopup="menu"`, `aria-expanded`).
 2. Al hacer click en el trigger, el popover se abre.
 3. El popover contiene selector de tema y botón de cerrar sesión.
@@ -304,6 +324,7 @@ Expected: FAIL con `aria-haspopup` o `popover` no encontrados.
 - [ ] **Step 3: Implementar Popover con CDK Overlay en `UserMenu`**
 
 En `user-menu.ts` y `user-menu.html`:
+
 - Convertir la tarjeta en un `<button>` con clases de diseño de Nivo.
 - Conectar directiva `cdkOverlayOrigin` y plantilla `ng-template cdkConnectedOverlay` configurada con anclaje hacia arriba (`top-start`, `top-end`).
 - Integrar dentro del overlay: datos de usuario, `<app-theme-button />` y `<app-logout-button />`.
@@ -327,6 +348,7 @@ rtk git commit -m "feat(web): implement interactive user menu popover with theme
 ### Task 5: Layout Responsivo y Mobile Drawer
 
 **Files:**
+
 - Modify: `apps/web/src/app/layouts/layout/layout-component/layout-component.ts`
 - Modify: `apps/web/src/app/layouts/layout/layout-component/layout-component.html`
 - Modify: `apps/web/src/app/layouts/layout/layout-component/layout-component.css`
@@ -335,12 +357,14 @@ rtk git commit -m "feat(web): implement interactive user menu popover with theme
 - Test: `apps/web/src/app/layouts/layout/layout-component/layout-component.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `BreakpointObserver` (`Breakpoints.Small`, `Breakpoints.XSmall`), `Router.events` (`NavigationEnd`).
 - Produces: Barra superior móvil fija con trigger hamburguesa y Sidebar en Drawer deslizante con backdrop.
 
 - [ ] **Step 1: Escribir pruebas unitarias en `layout-component.spec.ts`**
 
 Verificar:
+
 1. Cuando breakpoint es móvil (<768px), se renderiza la barra superior móvil con el botón hamburguesa.
 2. Al hacer click en el botón hamburguesa, el drawer se abre (`mobileDrawerOpen` es true) y se muestra el backdrop.
 3. Al hacer click en el backdrop o disparar `NavigationEnd`, el drawer se cierra.
@@ -354,12 +378,14 @@ Expected: FAIL con elementos de topbar móvil o drawer no encontrados.
 - [ ] **Step 3: Implementar TopBar móvil y Drawer en `LayoutComponent`**
 
 En `layout-component.ts`:
+
 - Inyectar `BreakpointObserver`, `ActiveParkingService`, `Router`.
 - Señal `isMobile = toSignal(...)`.
 - Señal `mobileDrawerOpen = signal(false)`.
 - Escuchar `NavigationEnd` para cerrar el drawer.
 
 En `layout-component.html`:
+
 - Barra superior móvil (`@if (isMobile())`) con logo Nivo, sede activa y botón hamburguesa.
 - Drawer móvil flotante con backdrop oscuro `@if (isMobile() && mobileDrawerOpen())` conteniendo `<router-outlet name="sidebar" />`.
 - En desktop, renderizado directo de `<router-outlet name="sidebar" />`.
@@ -381,6 +407,7 @@ rtk git commit -m "feat(web): implement responsive mobile layout with drawer nav
 ### Task 6: Verificación Integral de la Suite y Cierre de Tarea
 
 **Files:**
+
 - All modified files in `apps/web/src/`
 
 - [ ] **Step 1: Ejecutar verificación completa de tipos y linting**

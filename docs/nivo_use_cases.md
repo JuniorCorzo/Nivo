@@ -25,9 +25,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ## 1. Módulo de Autenticación y Gestión de Inquilinos
 
 ### CU-001: Registrar Nuevo Propietario (Inquilino)
+
 **Actor Principal:** Usuario No Registrado  
 **Precondiciones:** El usuario no tiene cuenta en el sistema  
 **Flujo Principal:**
+
 1. El usuario accede al formulario de registro
 2. El sistema solicita: email, contraseña y nombre del parqueadero
 3. El usuario completa los datos requeridos
@@ -37,6 +39,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 7. El sistema confirma el registro exitoso
 
 **Flujo Alternativo:**
+
 - 4a. Email ya existe: El sistema notifica y solicita usar otro email o iniciar sesión
 
 **Postcondiciones:** Usuario registrado como Owner con su propio entorno multi-inquilino
@@ -44,9 +47,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-002: Iniciar Sesión
+
 **Actor Principal:** Usuario Registrado  
 **Precondiciones:** El usuario tiene una cuenta activa  
 **Flujo Principal:**
+
 1. El usuario accede al formulario de inicio de sesión
 2. El sistema solicita credenciales (email y contraseña)
 3. El usuario ingresa sus credenciales
@@ -56,6 +61,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 7. El sistema establece la sesión activa
 
 **Flujo Alternativo:**
+
 - 4a. Credenciales inválidas: El sistema muestra mensaje de error y no permite acceso
 
 **Postcondiciones:** Usuario autenticado con acceso a su tenant específico
@@ -65,9 +71,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ## 2. Módulo de Gestión de Parqueaderos
 
 ### CU-003: Crear Parqueadero
+
 **Actor Principal:** Owner  
 **Precondiciones:** Usuario autenticado con rol de Owner  
 **Flujo Principal:**
+
 1. El Owner accede a la sección de gestión de parqueaderos
 2. El sistema muestra la opción de crear nuevo parqueadero
 3. El Owner selecciona "Crear parqueadero"
@@ -78,6 +86,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 8. El sistema confirma la creación y muestra el parqueadero en la lista
 
 **Flujo Alternativo:**
+
 - 6a. Datos inválidos: El sistema indica los errores y solicita corrección
 - 3a. Usuario sin permisos (ej. Operador): El sistema deniega la acción
 
@@ -86,9 +95,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-004: Editar Parqueadero
+
 **Actor Principal:** Owner  
 **Precondiciones:** Parqueadero existente, usuario con permisos  
 **Flujo Principal:**
+
 1. El Owner selecciona un parqueadero de su lista
 2. El sistema muestra los detalles del parqueadero
 3. El Owner selecciona "Editar"
@@ -103,9 +114,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-005: Listar Parqueaderos
+
 **Actor Principal:** Owner, Gerente  
 **Precondiciones:** Usuario autenticado  
 **Flujo Principal:**
+
 1. El usuario accede a la sección de parqueaderos
 2. El sistema consulta los parqueaderos del tenant del usuario
 3. El sistema muestra la lista de parqueaderos con información básica
@@ -118,9 +131,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ## 3. Módulo de Gestión de Plazas/Slots
 
 ### CU-006: Crear Plaza
+
 **Actor Principal:** Owner, Gerente  
 **Precondiciones:** Parqueadero existente, usuario con permisos  
 **Flujo Principal:**
+
 1. El usuario selecciona un parqueadero
 2. El sistema muestra las plazas existentes y opción de agregar
 3. El usuario selecciona "Agregar plaza"
@@ -131,6 +146,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 8. El sistema actualiza la lista de plazas
 
 **Flujo Alternativo:**
+
 - 6a. Número de plaza duplicado: El sistema notifica y solicita otro número
 - 3a. Usuario sin permisos (Operador): El sistema deniega la acción
 
@@ -139,9 +155,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-007: Editar Plaza
+
 **Actor Principal:** Owner, Gerente  
 **Precondiciones:** Plaza existente, usuario con permisos  
 **Flujo Principal:**
+
 1. El usuario selecciona una plaza de la lista
 2. El sistema muestra los detalles de la plaza
 3. El usuario selecciona "Editar"
@@ -156,9 +174,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-008: Listar Plazas
+
 **Actor Principal:** Owner, Gerente, Operador  
 **Precondiciones:** Usuario autenticado, parqueadero seleccionado  
 **Flujo Principal:**
+
 1. El usuario selecciona un parqueadero
 2. El sistema consulta las plazas del parqueadero
 3. El sistema muestra la lista con: número, tipo, estado (libre/ocupada/reservada)
@@ -171,9 +191,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ## 4. Módulo de Configuración de Tarifas
 
 ### CU-009: Definir Tarifa
+
 **Actor Principal:** Owner  
 **Precondiciones:** Parqueadero existente  
 **Flujo Principal:**
+
 1. El Owner accede a la configuración de tarifas del parqueadero
 2. El sistema muestra las tarifas actuales (si existen)
 3. El Owner selecciona "Nueva tarifa"
@@ -184,6 +206,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 8. El sistema confirma la creación
 
 **Flujo Alternativo:**
+
 - 4a. Configuración de tarifas diferenciadas por zona
 - 4b. Configuración de reglas especiales (ej. primera hora gratis)
 
@@ -192,9 +215,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-010: Calcular Cobro
+
 **Actor Principal:** Sistema  
 **Precondiciones:** Tarifa configurada, ticket activo con hora de entrada  
 **Flujo Principal:**
+
 1. El sistema recibe solicitud de cálculo (al momento del check-out)
 2. El sistema obtiene la hora de entrada del ticket
 3. El sistema obtiene la hora de salida (actual)
@@ -204,6 +229,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 7. El sistema retorna el monto a cobrar
 
 **Flujo Alternativo:**
+
 - 5a. Tarifas diferenciadas: El sistema aplica la tarifa de la zona específica
 - 6a. Reglas especiales: El sistema aplica descuentos o tarifas especiales
 
@@ -214,9 +240,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ## 5. Módulo de Gestión de Reservas
 
 ### CU-011: Crear Reserva
+
 **Actor Principal:** Conductor (Cliente)  
 **Precondiciones:** Usuario registrado como conductor, plaza disponible  
 **Flujo Principal:**
+
 1. El conductor accede al sistema de reservas
 2. El sistema solicita: parqueadero, fecha, hora inicio, hora fin
 3. El conductor completa los datos
@@ -230,6 +258,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 11. El sistema envía confirmación al conductor
 
 **Flujo Alternativo:**
+
 - 7a. Plaza ya reservada en ese horario: El sistema rechaza y solicita otra plaza
 - 4a. No hay plazas disponibles: El sistema notifica y sugiere otros horarios
 
@@ -238,9 +267,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-012: Cancelar Reserva
+
 **Actor Principal:** Conductor  
 **Precondiciones:** Reserva activa existente  
 **Flujo Principal:**
+
 1. El conductor accede a sus reservas activas
 2. El sistema muestra lista de reservas futuras
 3. El conductor selecciona una reserva
@@ -253,6 +284,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 10. El sistema notifica al conductor
 
 **Flujo Alternativo:**
+
 - 5a. Fuera del tiempo límite: El sistema no permite cancelación o aplica penalización
 
 **Postcondiciones:** Reserva cancelada, plaza disponible nuevamente
@@ -260,9 +292,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-013: Consultar Disponibilidad
+
 **Actor Principal:** Conductor, Sistema Externo (via API)  
 **Precondiciones:** Parqueadero activo  
 **Flujo Principal:**
+
 1. El actor solicita disponibilidad para un parqueadero, fecha y horario
 2. El sistema consulta las plazas del parqueadero
 3. El sistema filtra plazas ocupadas y reservadas en el rango horario
@@ -276,9 +310,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ## 6. Módulo de Operaciones (Check-in/Check-out)
 
 ### CU-014: Realizar Check-in con Reserva
+
 **Actor Principal:** Operador  
 **Precondiciones:** Vehículo con reserva activa, código QR de reserva  
 **Flujo Principal:**
+
 1. El operador recibe al vehículo en el parqueadero
 2. El operador escanea el código QR de la reserva
 3. El sistema valida la reserva (fecha, horario, estado)
@@ -291,6 +327,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 10. El sistema muestra confirmación al operador
 
 **Flujo Alternativo:**
+
 - 3a. Reserva inválida o vencida: El sistema notifica y ofrece check-in sin reserva
 - 3b. Llegada fuera de horario: El sistema aplica políticas configuradas
 
@@ -299,9 +336,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-015: Realizar Check-in sin Reserva
+
 **Actor Principal:** Operador  
 **Precondiciones:** Plazas disponibles en el parqueadero  
 **Flujo Principal:**
+
 1. El operador recibe al vehículo sin reserva
 2. El sistema muestra plazas disponibles
 3. El operador selecciona una plaza libre
@@ -313,6 +352,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 9. El sistema muestra confirmación y entrega comprobante
 
 **Flujo Alternativo:**
+
 - 2a. No hay plazas disponibles: El sistema notifica al operador
 
 **Postcondiciones:** Vehículo ingresado, ticket activo, plaza ocupada
@@ -320,9 +360,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-016: Realizar Check-out y Cobro
+
 **Actor Principal:** Operador  
 **Precondiciones:** Ticket activo, tarifa configurada  
 **Flujo Principal:**
+
 1. El operador identifica el vehículo que sale (por placa o ticket)
 2. El sistema recupera el ticket activo
 3. El operador registra la hora de salida
@@ -337,6 +379,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 12. El sistema muestra confirmación
 
 **Flujo Alternativo:**
+
 - 7a. Pago no confirmado: El sistema no permite cerrar ticket ni liberar plaza
 - 6a. Cliente disputa monto: Operador puede solicitar revisión de cálculo
 
@@ -345,9 +388,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-017: Generar Recibo
+
 **Actor Principal:** Sistema  
 **Precondiciones:** Transacción de pago completada  
 **Flujo Principal:**
+
 1. El sistema recibe solicitud de generación de recibo
 2. El sistema recupera datos del ticket (hora entrada, hora salida)
 3. El sistema recupera datos de la transacción (monto, método pago)
@@ -371,9 +416,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ## 7. Módulo de Reportes y Dashboard
 
 ### CU-018: Visualizar Dashboard en Tiempo Real
+
 **Actor Principal:** Owner, Gerente  
 **Precondiciones:** Usuario autenticado con permisos  
 **Flujo Principal:**
+
 1. El usuario accede al dashboard
 2. El sistema consulta datos en tiempo real del parqueadero
 3. El sistema calcula métricas:
@@ -390,9 +437,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-019: Generar Reporte de Ingresos
+
 **Actor Principal:** Owner, Gerente  
 **Precondiciones:** Transacciones registradas en el sistema  
 **Flujo Principal:**
+
 1. El usuario accede a la sección de reportes
 2. El sistema solicita parámetros: rango de fechas, parqueadero
 3. El usuario define los parámetros
@@ -414,9 +463,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-020: Generar Reporte de Ocupación
+
 **Actor Principal:** Owner, Gerente  
 **Precondiciones:** Datos históricos de ocupación disponibles  
 **Flujo Principal:**
+
 1. El usuario accede a reportes de ocupación
 2. El sistema solicita parámetros: rango de fechas, parqueadero
 3. El usuario define los parámetros
@@ -436,9 +487,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ## 8. Módulo de API Pública
 
 ### CU-021: Consultar Disponibilidad via API
+
 **Actor Principal:** Aplicación Externa (Cliente API)  
 **Precondiciones:** API pública disponible, parqueadero configurado como público  
 **Flujo Principal:**
+
 1. El cliente realiza petición GET a `/api/v1/parkings/{id}/availability`
 2. El sistema valida los parámetros: parking_id, from (fecha-hora), to (fecha-hora)
 3. El sistema verifica que el parqueadero permita consultas públicas
@@ -450,6 +503,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 6. El sistema retorna HTTP 200 con el JSON
 
 **Flujo Alternativo:**
+
 - 2a. Parámetros inválidos: Retorna HTTP 400 con mensaje de error
 - 3a. Parqueadero no público: Retorna HTTP 403
 - 4a. Parqueadero no encontrado: Retorna HTTP 404
@@ -459,15 +513,18 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-022: Autenticación API (Futuro)
+
 **Actor Principal:** Aplicación Externa  
 **Precondiciones:** Sistema de API keys implementado  
 **Flujo Principal:**
+
 1. El cliente incluye API key en header de la petición
 2. El sistema valida la API key
 3. El sistema verifica permisos asociados a la key
 4. El sistema permite acceso al recurso solicitado
 
 **Flujo Alternativo:**
+
 - 2a. API key inválida: Retorna HTTP 401
 - 3a. Permisos insuficientes: Retorna HTTP 403
 
@@ -478,9 +535,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ## 9. Módulo de Gestión de Usuarios y Roles
 
 ### CU-023: Invitar Usuario con Rol
+
 **Actor Principal:** Owner  
 **Precondiciones:** Owner autenticado  
 **Flujo Principal:**
+
 1. El Owner accede a gestión de usuarios
 2. El sistema muestra lista de usuarios actuales del tenant
 3. El Owner selecciona "Invitar usuario"
@@ -492,6 +551,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 9. El sistema registra la invitación pendiente
 
 **Flujo Alternativo:**
+
 - 6a. Email ya existe en el tenant: El sistema notifica y sugiere editar rol
 - 8a. Error al enviar email: El sistema notifica y permite reenviar
 
@@ -500,9 +560,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-024: Aceptar Invitación
+
 **Actor Principal:** Usuario Invitado  
 **Precondiciones:** Invitación válida recibida  
 **Flujo Principal:**
+
 1. El usuario hace clic en el link de invitación
 2. El sistema valida el token de invitación
 3. El sistema muestra formulario de registro/vinculación
@@ -513,6 +575,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 8. El sistema redirige al usuario al login o dashboard
 
 **Flujo Alternativo:**
+
 - 2a. Token inválido o expirado: El sistema notifica y ofrece solicitar nueva invitación
 
 **Postcondiciones:** Usuario activo con rol asignado en el tenant
@@ -520,9 +583,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-025: Modificar Rol de Usuario
+
 **Actor Principal:** Owner  
 **Precondiciones:** Usuario existente en el tenant  
 **Flujo Principal:**
+
 1. El Owner accede a gestión de usuarios
 2. El sistema muestra lista de usuarios con sus roles
 3. El Owner selecciona un usuario
@@ -533,6 +598,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 8. El sistema registra el cambio en auditoría
 
 **Flujo Alternativo:**
+
 - 5a. Intento de remover último Owner: El sistema deniega la acción
 
 **Postcondiciones:** Rol de usuario actualizado
@@ -540,9 +606,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-026: Desactivar Usuario
+
 **Actor Principal:** Owner  
 **Precondiciones:** Usuario activo en el tenant  
 **Flujo Principal:**
+
 1. El Owner selecciona un usuario de la lista
 2. El Owner selecciona "Desactivar usuario"
 3. El sistema solicita confirmación
@@ -553,6 +621,7 @@ Este documento presenta los casos de uso identificados a partir de las historias
 8. El sistema notifica al usuario
 
 **Flujo Alternativo:**
+
 - 5a. Intento de desactivar único Owner: El sistema deniega
 
 **Postcondiciones:** Usuario desactivado, sin acceso al tenant
@@ -562,9 +631,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ## 10. Casos de Uso Transversales
 
 ### CU-027: Auditar Acciones del Sistema
+
 **Actor Principal:** Sistema  
 **Precondiciones:** Acción significativa ejecutada  
 **Flujo Principal:**
+
 1. El sistema detecta una acción auditable (ej. crear parqueadero, check-out)
 2. El sistema captura: usuario, acción, timestamp, datos relevantes
 3. El sistema almacena el registro de auditoría
@@ -575,9 +646,11 @@ Este documento presenta los casos de uso identificados a partir de las historias
 ---
 
 ### CU-028: Validar Permisos de Acceso
+
 **Actor Principal:** Sistema  
 **Precondiciones:** Usuario autenticado intenta realizar acción  
 **Flujo Principal:**
+
 1. El sistema recibe solicitud de acción del usuario
 2. El sistema identifica el rol del usuario
 3. El sistema consulta permisos del rol para la acción solicitada
@@ -593,32 +666,32 @@ Este documento presenta los casos de uso identificados a partir de las historias
 
 ### Actores Identificados:
 
-| Actor | Casos de Uso |
-|-------|--------------|
-| **Usuario No Registrado** | CU-001 |
-| **Usuario Registrado** | CU-002 |
-| **Owner** | CU-003, CU-004, CU-005, CU-009, CU-018, CU-019, CU-020, CU-023, CU-025, CU-026 |
-| **Gerente** | CU-005, CU-006, CU-007, CU-008, CU-018, CU-019, CU-020 |
-| **Operador** | CU-008, CU-014, CU-015, CU-016 |
-| **Conductor** | CU-011, CU-012, CU-013 |
-| **Aplicación Externa** | CU-021, CU-022 |
-| **Sistema** | CU-010, CU-017, CU-027, CU-028 |
+| Actor                     | Casos de Uso                                                                   |
+| ------------------------- | ------------------------------------------------------------------------------ |
+| **Usuario No Registrado** | CU-001                                                                         |
+| **Usuario Registrado**    | CU-002                                                                         |
+| **Owner**                 | CU-003, CU-004, CU-005, CU-009, CU-018, CU-019, CU-020, CU-023, CU-025, CU-026 |
+| **Gerente**               | CU-005, CU-006, CU-007, CU-008, CU-018, CU-019, CU-020                         |
+| **Operador**              | CU-008, CU-014, CU-015, CU-016                                                 |
+| **Conductor**             | CU-011, CU-012, CU-013                                                         |
+| **Aplicación Externa**    | CU-021, CU-022                                                                 |
+| **Sistema**               | CU-010, CU-017, CU-027, CU-028                                                 |
 
 ### Resumen por Módulos:
 
-| Módulo | Casos de Uso | Total |
-|--------|--------------|-------|
-| Autenticación y Multi-tenancy | CU-001, CU-002 | 2 |
-| Gestión de Parqueaderos | CU-003, CU-004, CU-005 | 3 |
-| Gestión de Plazas | CU-006, CU-007, CU-008 | 3 |
-| Configuración de Tarifas | CU-009, CU-010 | 2 |
-| Gestión de Reservas | CU-011, CU-012, CU-013 | 3 |
-| Operaciones Check-in/Check-out | CU-014, CU-015, CU-016, CU-017 | 4 |
-| Reportes y Dashboard | CU-018, CU-019, CU-020 | 3 |
-| API Pública | CU-021, CU-022 | 2 |
-| Gestión de Usuarios y Roles | CU-023, CU-024, CU-025, CU-026 | 4 |
-| Transversales | CU-027, CU-028 | 2 |
-| **TOTAL** | | **28** |
+| Módulo                         | Casos de Uso                   | Total  |
+| ------------------------------ | ------------------------------ | ------ |
+| Autenticación y Multi-tenancy  | CU-001, CU-002                 | 2      |
+| Gestión de Parqueaderos        | CU-003, CU-004, CU-005         | 3      |
+| Gestión de Plazas              | CU-006, CU-007, CU-008         | 3      |
+| Configuración de Tarifas       | CU-009, CU-010                 | 2      |
+| Gestión de Reservas            | CU-011, CU-012, CU-013         | 3      |
+| Operaciones Check-in/Check-out | CU-014, CU-015, CU-016, CU-017 | 4      |
+| Reportes y Dashboard           | CU-018, CU-019, CU-020         | 3      |
+| API Pública                    | CU-021, CU-022                 | 2      |
+| Gestión de Usuarios y Roles    | CU-023, CU-024, CU-025, CU-026 | 4      |
+| Transversales                  | CU-027, CU-028                 | 2      |
+| **TOTAL**                      |                                | **28** |
 
 ---
 

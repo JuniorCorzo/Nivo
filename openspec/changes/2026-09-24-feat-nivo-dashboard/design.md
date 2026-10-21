@@ -377,9 +377,7 @@ Todos los endpoints analíticos resuelven el `tenantId` desde el contexto seguro
     readonly activeScope = signal<DashboardScope>({ mode: "GLOBAL" });
 
     // Detección automática: true si el tenant tiene más de 1 parqueadero
-    readonly isMultiParkingTenant = computed(
-      () => this.accessibleParkings().length > 1,
-    );
+    readonly isMultiParkingTenant = computed(() => this.accessibleParkings().length > 1);
 
     // Estado analítico
     readonly summary = signal<DashboardSummary | null>(null);

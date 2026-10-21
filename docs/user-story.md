@@ -9,6 +9,7 @@ Este documento contiene las historias de usuario y sus criterios de aceptación 
 **Como** un nuevo Propietario, **quiero** registrarme en el sistema para crear mi propio entorno de parqueadero y empezar a gestionarlo, **para** poder utilizar la plataforma.
 
 **Criterios de Aceptación (Gherkin):**
+
 ```gherkin
 Feature: Registro e Inicio de Sesión
 
@@ -35,6 +36,7 @@ Feature: Registro e Inicio de Sesión
 **Como** Owner, **quiero** dar de alta, editar y listar mis parqueaderos, **para** poder configurar y administrar mis propiedades.
 
 **Criterios de Aceptación (Gherkin):**
+
 ```gherkin
 Feature: Gestión de Parqueaderos
 
@@ -61,6 +63,7 @@ Feature: Gestión de Parqueaderos
 **Como** Owner o Gerente, **quiero** definir y gestionar las plazas de mi parqueadero, **para** organizar el espacio y asignar tipos de vehículos.
 
 **Criterios de Aceptación (Gherkin):**
+
 ```gherkin
 Feature: Gestión de Plazas
 
@@ -87,6 +90,7 @@ Feature: Gestión de Plazas
 **Como** Owner, **quiero** configurar las tarifas de estacionamiento para mi parqueadero con reglas específicas, **para** definir cómo se calcularán los cobros a los clientes.
 
 **Criterios de Aceptación (Gherkin):**
+
 ```gherkin
 Feature: Configuración de Tarifas
 
@@ -113,6 +117,7 @@ Feature: Configuración de Tarifas
 **Como** Conductor, **quiero** reservar una plaza para una fecha y hora futura y poder cancelarla, **para** asegurarme de tener un lugar disponible y tener flexibilidad.
 
 **Criterios de Aceptación (Gherkin):**
+
 ```gherkin
 Feature: Gestión de Reservas
 
@@ -139,6 +144,7 @@ Feature: Gestión de Reservas
 **Como** Operador, **quiero** registrar la entrada de un vehículo escaneando un QR o manualmente, **para** iniciar el proceso de estacionamiento y ocupar la plaza.
 
 **Criterios de Aceptación (Gherkin):**
+
 ```gherkin
 Feature: Check-in de Vehículo
 
@@ -160,6 +166,7 @@ Feature: Check-in de Vehículo
 **Como** Operador, **quiero** registrar la salida de un vehículo, calcular el monto a pagar y procesar el pago, **para** completar el servicio y liberar la plaza.
 
 **Criterios de Aceptación (Gherkin):**
+
 ```gherkin
 Feature: Check-out y Cobro
 
@@ -186,6 +193,7 @@ Feature: Check-out y Cobro
 **Como** Owner, **quiero** visualizar un dashboard con métricas en tiempo real y generar reportes de ingresos y ocupación, **para** analizar el desempeño de mi negocio.
 
 **Criterios de Aceptación (Gherkin):**
+
 ```gherkin
 Feature: Dashboard y Reportes
 
@@ -207,6 +215,7 @@ Feature: Dashboard y Reportes
 **Como** desarrollador de una aplicación de terceros, **quiero** consultar la disponibilidad de plazas de un parqueadero a través de una API pública, **para** integrar esta información en mi propio servicio.
 
 **Criterios de Aceptación (Gherkin):**
+
 ```gherkin
 Feature: API Pública de Disponibilidad
 
@@ -228,6 +237,7 @@ Feature: API Pública de Disponibilidad
 **Como** Owner, **quiero** invitar y asignar roles (Gerente, Operador) a miembros de mi equipo, **para** delegar responsabilidades en la gestión del parqueadero.
 
 **Criterios de Aceptación (Gherkin):**
+
 ```gherkin
 Feature: Gestión de Usuarios Internos
 
