@@ -95,7 +95,7 @@ describe("roleGuard", () => {
     expect(result).not.toBe(true);
   });
 
-  it("should redirect to parkingLots if user is not logged in (null)", async () => {
+  it("should redirect to login if user is not logged in (null)", async () => {
     currentUserSignal.set(null);
 
     const guard = roleGuard(["MANAGER", "OWNER"]);
@@ -106,7 +106,7 @@ describe("roleGuard", () => {
     const result = await firstValueFrom(result$);
 
     expect(router.createUrlTree).toHaveBeenCalledWith([
-      APP_ROUTES.app.parkingLots,
+      APP_ROUTES.auth.login,
     ]);
     expect(result).not.toBe(true);
   });

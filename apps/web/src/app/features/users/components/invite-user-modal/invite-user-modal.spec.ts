@@ -4,6 +4,7 @@ import { UserService } from "@core/services/user/user-service";
 import { ToastService } from "@nivo-sass/design-system";
 import { of, throwError } from "rxjs";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 import { InviteUserModalComponent } from "./invite-user-modal";
 
@@ -64,7 +65,9 @@ describe("InviteUserModalComponent", () => {
     expect(dialog).not.toBeNull();
     expect(dialog.open).toBe(true);
     expect(compiled.querySelector('[role="dialog"]')).not.toBeNull();
-    expect(compiled.textContent).toContain("Invitar Usuario");
+    expect(compiled.textContent).toContain(
+      APP_TEXTS.users.modals.invite.title
+    );
   });
 
   it("should close dialog when isOpen is false", () => {
@@ -146,15 +149,23 @@ describe("InviteUserModalComponent", () => {
     expect(component.form.controls.fullName.value).toBe("");
   });
 
-  it("should include AUDITOR in roleOptions and allow selecting it", () => {
-    const auditorOption = component.roleOptions.find(
-      (opt) => opt.value === "AUDITOR"
-    );
-    expect(auditorOption).toBeDefined();
-    expect(auditorOption?.label).toBe("Auditor");
+  it("should include all selectable roles (OPERATOR, MANAGER, AUDITOR) with localized labels in roleOptions", () => {
+    expect(component.roleOptions).toEqual([
+      { label: APP_TEXTS.users.table.roles.operator, value: "OPERATOR" },
+      { label: APP_TEXTS.users.table.roles.manager, value: "MANAGER" },
+      { label: APP_TEXTS.users.table.roles.auditor, value: "AUDITOR" },
+    ]);
 
-    component.onRoleChange("AUDITOR");
-    expect(component.form.controls.role.value).toBe("AUDITOR");
+    for (const option of component.roleOptions) {
+      component.onRoleChange(option.value);
+      expect(component.form.controls.role.value).toBe(option.value);
+    }
+  });
+
+  it("should not update role when an invalid role is provided", () => {
+    component.form.controls.role.setValue("OPERATOR");
+    component.onRoleChange("INVALID_ROLE");
+    expect(component.form.controls.role.value).toBe("OPERATOR");
   });
 
   it("should emit closed on backdrop click", () => {

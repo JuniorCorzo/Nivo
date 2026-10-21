@@ -5,6 +5,7 @@ import { UserService } from "@core/services/user/user-service";
 import { ToastService } from "@nivo-sass/design-system";
 import { of, throwError } from "rxjs";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 import { ModifyRoleModalComponent } from "./modify-role-modal";
 
@@ -77,7 +78,9 @@ describe("ModifyRoleModalComponent", () => {
     expect(dialog).not.toBeNull();
     expect(dialog.open).toBe(true);
     expect(compiled.querySelector('[role="dialog"]')).not.toBeNull();
-    expect(compiled.textContent).toContain("Modificar Rol de Usuario");
+    expect(compiled.textContent).toContain(
+      APP_TEXTS.users.modals.modifyRole.title
+    );
     expect(compiled.textContent).toContain("Pedro Operador");
     expect(compiled.textContent).toContain("operator@nivo.com");
   });
@@ -147,8 +150,12 @@ describe("ModifyRoleModalComponent", () => {
   it("should render role badge for the user", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain("Rol Actual");
-    expect(compiled.textContent).toContain("Operador");
+    expect(compiled.textContent).toContain(
+      APP_TEXTS.users.modals.modifyRole.currentRoleLabel
+    );
+    expect(compiled.textContent).toContain(
+      APP_TEXTS.users.table.roles.operator
+    );
   });
 
   it("should initialize selectedRole to AUDITOR when user has AUDITOR role", () => {
@@ -163,17 +170,29 @@ describe("ModifyRoleModalComponent", () => {
     expect(component.selectedRole()).toBe("AUDITOR");
   });
 
-  it("should allow selecting AUDITOR and call modifyRole with AUDITOR", () => {
-    component.onRoleChange("AUDITOR");
-    component.onSubmit();
+  it("should validate all selectable roles against roleOptions and allow selecting each", () => {
+    expect(component.roleOptions).toEqual([
+      { label: APP_TEXTS.users.table.roles.operator, value: "OPERATOR" },
+      { label: APP_TEXTS.users.table.roles.manager, value: "MANAGER" },
+      { label: APP_TEXTS.users.table.roles.auditor, value: "AUDITOR" },
+    ]);
 
-    expect(userServiceMock.modifyRole).toHaveBeenCalledWith(
-      "user-op-1",
-      "AUDITOR"
-    );
-    expect(toastServiceMock.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "success" })
-    );
+    for (const option of component.roleOptions) {
+      component.onRoleChange(option.value);
+      expect(component.selectedRole()).toBe(option.value);
+
+      component.onSubmit();
+      expect(userServiceMock.modifyRole).toHaveBeenCalledWith(
+        "user-op-1",
+        option.value
+      );
+    }
+  });
+
+  it("should not update selectedRole when an invalid role is provided", () => {
+    component.selectedRole.set("OPERATOR");
+    component.onRoleChange("INVALID_ROLE");
+    expect(component.selectedRole()).toBe("OPERATOR");
   });
 
   it("should emit closed on backdrop click", () => {
@@ -221,7 +240,7 @@ describe("ModifyRoleModalComponent", () => {
       /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain(
-        "El rol de Propietario no puede ser modificado"
+        APP_TEXTS.users.modals.modifyRole.ownerRoleNotice
       );
     });
 

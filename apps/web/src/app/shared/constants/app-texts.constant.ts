@@ -896,6 +896,8 @@ export const APP_TEXTS = {
         },
         description:
           "Esta acción revocará el acceso al sistema para este usuario. Podrás reactivarlo posteriormente si es necesario.",
+        lastOwnerWarning:
+          "No se puede desactivar al único propietario activo del parqueadero.",
         selfDeactivationWarning:
           "No puedes desactivar tu propia cuenta mientras estés en sesión activa.",
         singleOwnerWarning:

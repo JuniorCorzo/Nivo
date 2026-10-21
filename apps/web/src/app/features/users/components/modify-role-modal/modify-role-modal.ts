@@ -36,6 +36,18 @@ export interface RoleOption {
   value: Role;
 }
 
+const VALID_ROLES = new Set<string>([
+  "SUPERADMIN",
+  "OWNER",
+  "MANAGER",
+  "OPERATOR",
+  "DRIVER",
+  "AUDITOR",
+]);
+
+export const isRole = (val: unknown): val is Role =>
+  typeof val === "string" && VALID_ROLES.has(val);
+
 const displayRoleOption = (item: RoleOption): string => item.label;
 const roleOptionValue = (item: RoleOption): string => item.value;
 
@@ -119,9 +131,10 @@ export class ModifyRoleModalComponent implements OnDestroy {
     });
   }
 
-  onRoleChange(newRole: string): void {
-    /* SAFETY: SelectComponent emits string, typed as Role */
-    this.selectedRole.set(newRole as Role);
+  onRoleChange(newRole: unknown): void {
+    if (isRole(newRole)) {
+      this.selectedRole.set(newRole);
+    }
   }
 
   onCancel(event?: Event): void {

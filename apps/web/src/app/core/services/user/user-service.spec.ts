@@ -79,15 +79,18 @@ describe("UserService", () => {
     expect(service).toBeTruthy();
   });
 
-  it("should load current user on construction", () => {
+  it("should load and map current user on initialization", () => {
     expect(usersServiceSpy.getCurrentUser).toHaveBeenCalledTimes(1);
     const currentUser = service.currentUser();
     expect(currentUser).toBeTruthy();
     expect(currentUser?.id).toBe("user-1");
     expect(currentUser?.fullName).toBe("John Doe");
+    expect(currentUser?.email).toBe("john@example.com");
+    expect(currentUser?.role).toBe("MANAGER");
+    expect(currentUser?.createdAt).toBeInstanceOf(Date);
   });
 
-  it("should set currentUser to null if response has no data", () => {
+  it("should emit null when current user response has no data", () => {
     const emptyResponse: Partial<ResponseUserDto> = {
       message: "Empty",
       status: "200",
@@ -98,10 +101,16 @@ describe("UserService", () => {
       of(emptyResponse as ResponseUserDto)
     );
     const newService = TestBed.runInInjectionContext(() => new UserService());
+    let loadedUser: UserModel | null | undefined;
+    newService.loadCurrentUser().subscribe((u) => {
+      loadedUser = u;
+    });
+
+    expect(loadedUser).toBeNull();
     expect(newService.currentUser()).toBeNull();
   });
 
-  it("should list users and update users signal", () => {
+  it("should list users and map response to domain models", () => {
     const mockListResponse: ResponseListUserDto = {
       data: [mockUserDto, mockUserDto2],
       message: "OK",
@@ -110,16 +119,17 @@ describe("UserService", () => {
     };
     usersServiceSpy.getUsers.mockReturnValue(of(mockListResponse));
 
-    let resultUsers: unknown;
+    let resultUsers: UserModel[] | undefined;
     service.listUsers().subscribe((users) => {
       resultUsers = users;
     });
 
     expect(usersServiceSpy.getUsers).toHaveBeenCalledTimes(1);
     expect(resultUsers).toHaveLength(2);
-    expect(service.users()).toHaveLength(2);
-    expect(service.users()[0].id).toBe("user-1");
-    expect(service.users()[1].id).toBe("user-2");
+    expect(resultUsers?.[0].id).toBe("user-1");
+    expect(resultUsers?.[0].createdAt).toBeInstanceOf(Date);
+    expect(resultUsers?.[1].id).toBe("user-2");
+    expect(service.users()).toEqual(resultUsers);
   });
 
   it("should invite user with role and return observable", () => {
@@ -141,13 +151,13 @@ describe("UserService", () => {
     expect(emitted).toBe(true);
   });
 
-  it("should modify user role and update user in users signal", () => {
+  it("should modify user role and emit updated domain model", () => {
     const updatedDto: UserDto = { ...mockUserDto2, role: "MANAGER" };
     usersServiceSpy.modifyRol.mockReturnValue(
       of({ data: updatedDto, message: "OK", status: "200", timestamp: "" })
     );
 
-    // Pre-populate users signal via listUsers
+    // Pre-populate users list via listUsers
     usersServiceSpy.getUsers.mockReturnValue(
       of({
         data: [mockUserDto, mockUserDto2],
@@ -158,7 +168,7 @@ describe("UserService", () => {
     );
     service.listUsers().subscribe();
 
-    let updatedResult: unknown;
+    let updatedResult: UserModel | undefined;
     service.modifyRole("user-2", "MANAGER").subscribe((res) => {
       updatedResult = res;
     });
@@ -170,12 +180,15 @@ describe("UserService", () => {
         userId: "user-2",
       },
     });
-    expect(updatedResult).toBeTruthy();
+    expect(updatedResult).toBeDefined();
+    expect(updatedResult?.id).toBe("user-2");
+    expect(updatedResult?.role).toBe("MANAGER");
+    expect(updatedResult?.createdAt).toBeInstanceOf(Date);
     const found = service.users().find((u) => u.id === "user-2");
     expect(found?.role).toBe("MANAGER");
   });
 
-  it("should deactivate user and remove from users signal", () => {
+  it("should deactivate user and remove user from state", () => {
     const mockVoidResponse: ResponseVoid = {
       data: null,
       message: "OK",
@@ -184,7 +197,7 @@ describe("UserService", () => {
     };
     usersServiceSpy.deactivateUser.mockReturnValue(of(mockVoidResponse));
 
-    // Pre-populate users signal
+    // Pre-populate users list
     usersServiceSpy.getUsers.mockReturnValue(
       of({
         data: [mockUserDto, mockUserDto2],
@@ -212,7 +225,7 @@ describe("UserService", () => {
   });
 
   describe("loadCurrentUser", () => {
-    it("should return cached user if currentUserSignal is already set", () => {
+    it("should return cached user without re-invoking API when user is already loaded", () => {
       expect(service.currentUser()?.id).toBe("user-1");
       expect(usersServiceSpy.getCurrentUser).toHaveBeenCalledTimes(1);
 
@@ -225,7 +238,7 @@ describe("UserService", () => {
       expect(usersServiceSpy.getCurrentUser).toHaveBeenCalledTimes(1);
     });
 
-    it("should share in-flight request and update currentUser signal", () => {
+    it("should coalesce multiple concurrent requests into a single API call", () => {
       const subject = new Subject<ResponseUserDto>();
       usersServiceSpy.getCurrentUser.mockReset();
       usersServiceSpy.getCurrentUser.mockReturnValue(subject.asObservable());
@@ -257,7 +270,7 @@ describe("UserService", () => {
       expect(newService.currentUser()?.id).toBe("user-1");
     });
 
-    it("should handle error by setting signal to null and returning of(null)", () => {
+    it("should catch API error and emit null", () => {
       usersServiceSpy.getCurrentUser.mockReset();
       usersServiceSpy.getCurrentUser.mockReturnValue(
         throwError(() => new Error("Network error"))
