@@ -94,9 +94,7 @@ export default defineConfig({
   fullyParallel: true,
   workers: process.env.CI ? "50%" : undefined,
 
-  reporter: process.env.CI
-    ? [["blob"], ["github"]]
-    : [["html", { open: "on-failure" }]],
+  reporter: process.env.CI ? [["blob"], ["github"]] : [["html", { open: "on-failure" }]],
 });
 ```
 

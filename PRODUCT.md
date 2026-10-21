@@ -11,6 +11,7 @@ web
 Primary users are **Parking Owners and Facility Managers** managing single or multi-facility parking networks. They require executive visibility into operations, real-time occupancy KPIs, revenue analytics, pricing configurations, and facility-level access control.
 
 Secondary users include:
+
 - **On-site Booth Operators:** Responsible for expedited vehicle entry/exit validation, physical and QR ticket processing, cash/card POS payments, and barrier override.
 - **End-user Drivers (Customers):** Seeking parking spaces, viewing real-time availability, and making advance reservations.
 

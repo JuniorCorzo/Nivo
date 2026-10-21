@@ -304,20 +304,14 @@ export { expect };
 // tests/e2e/workspace-dashboard.spec.ts
 import { test, expect } from "../../fixtures/seed-fixtures";
 
-test("user sees workspace on dashboard", async ({
-  page,
-  seedAccount,
-  seedWorkspace,
-}) => {
+test("user sees workspace on dashboard", async ({ page, seedAccount, seedWorkspace }) => {
   await page.goto("/login");
   await page.getByLabel("Email").fill(seedAccount.email);
   await page.getByLabel("Password").fill(seedAccount.password);
   await page.getByRole("button", { name: "Sign in" }).click();
 
   await page.waitForURL("/dashboard");
-  await expect(
-    page.getByRole("heading", { name: seedWorkspace.name })
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: seedWorkspace.name })).toBeVisible();
 });
 ```
 
@@ -350,7 +344,7 @@ test.describe("Error responses", () => {
           field: "price",
           message: expect.any(String),
         }),
-      ])
+      ]),
     );
   });
 
@@ -398,9 +392,7 @@ test.describe("Error responses", () => {
 
   test("429 — rate limiting", async ({ request }) => {
     const responses = await Promise.all(
-      Array.from({ length: 50 }, () =>
-        request.get("/api/search", { params: { q: "test" } })
-      )
+      Array.from({ length: 50 }, () => request.get("/api/search", { params: { q: "test" } })),
     );
     const rateLimited = responses.filter((r) => r.status() === 429);
     expect(rateLimited.length).toBeGreaterThan(0);
@@ -508,9 +500,7 @@ test("complete order workflow", async ({ request }) => {
   expect(orders.items.map((o: any) => o.id)).toContain(order.id);
 
   // Step 5: Verify stock decreased
-  const updatedProduct = await (
-    await request.get(`/api/products/${product.id}`)
-  ).json();
+  const updatedProduct = await (await request.get(`/api/products/${product.id}`)).json();
   expect(updatedProduct.stock).toBe(47);
 
   // Cleanup
@@ -533,12 +523,9 @@ test("state machine transitions — publish workflow", async ({ request }) => {
   expect((await reviewResp.json()).status).toBe("in_review");
 
   // Approve
-  const approveResp = await request.patch(
-    `/api/articles/${article.id}/status`,
-    {
-      data: { status: "published" },
-    }
-  );
+  const approveResp = await request.patch(`/api/articles/${article.id}/status`, {
+    data: { status: "published" },
+  });
   expect(approveResp.ok()).toBeTruthy();
   expect((await approveResp.json()).status).toBe("published");
 
@@ -551,10 +538,7 @@ test("state machine transitions — publish workflow", async ({ request }) => {
   await request.delete(`/api/articles/${article.id}`);
 });
 
-test("API + E2E hybrid — seed via API, verify in browser", async ({
-  request,
-  page,
-}) => {
+test("API + E2E hybrid — seed via API, verify in browser", async ({ request, page }) => {
   const resp = await request.post("/api/products", {
     data: {
       name: `Hybrid Product ${Date.now()}`,
@@ -613,7 +597,7 @@ test("GET /api/items matches schema", async ({ request }) => {
     throw new Error(
       `Schema validation failed:\n${result.error.issues
         .map((i) => `  ${i.path.join(".")}: ${i.message}`)
-        .join("\n")}`
+        .join("\n")}`,
     );
   }
 });
