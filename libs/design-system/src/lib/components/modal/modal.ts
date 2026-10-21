@@ -19,7 +19,7 @@ export type ModalRole = "dialog" | "alertdialog";
   template: `
     <dialog
       #dialog
-      class="m-auto border-0 p-0 bg-transparent backdrop:bg-black/55 backdrop:backdrop-blur-[2px] transition-all"
+      class="m-auto border-0 bg-transparent p-0 transition-all backdrop:bg-black/55 backdrop:backdrop-blur-[2px]"
       [class]="sizeClasses()"
       [attr.role]="role()"
       aria-modal="true"
@@ -85,7 +85,10 @@ export class ModalComponent implements OnDestroy {
   }
 
   onDialogClick(event: MouseEvent): void {
-    if (this.closeOnBackdropClick() && event.target === this.dialogRef()?.nativeElement) {
+    if (
+      this.closeOnBackdropClick() &&
+      event.target === this.dialogRef()?.nativeElement
+    ) {
       this.closed.emit();
     }
   }

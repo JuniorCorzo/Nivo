@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,7 +49,8 @@ export class AvatarComponent {
   });
 
   readonly wrapperClasses = computed(() => {
-    const base = "inline-flex shrink-0 overflow-hidden rounded-full border border-[var(--border)]";
+    const base =
+      "inline-flex shrink-0 overflow-hidden rounded-full border border-[var(--border)]";
 
     const sizes = {
       lg: "h-12 w-12 text-base",

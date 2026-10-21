@@ -17,8 +17,16 @@ import { DividerComponent } from "./divider";
     <nv-divider id="thick-vertical" orientation="vertical" thickness="thick" />
     <nv-divider id="strong-variant" variant="strong" />
     <nv-divider id="subtle-variant" variant="subtle" />
-    <nv-divider id="custom-class" orientation="vertical" class="mx-2 hidden h-7 sm:block" />
-    <nv-divisor id="divisor-alias" orientation="horizontal" [decorative]="false" />
+    <nv-divider
+      id="custom-class"
+      orientation="vertical"
+      class="mx-2 hidden h-7 sm:block"
+    />
+    <nv-divisor
+      id="divisor-alias"
+      orientation="horizontal"
+      [decorative]="false"
+    />
   `,
 })
 class TestHostComponent {}

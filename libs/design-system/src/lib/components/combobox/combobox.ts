@@ -3,7 +3,10 @@ import {
   ComboboxInput,
   ComboboxPopupContainer,
 } from "@angular/aria/combobox";
-import { Listbox as AriaListbox, Option as AriaOption } from "@angular/aria/listbox";
+import {
+  Listbox as AriaListbox,
+  Option as AriaOption,
+} from "@angular/aria/listbox";
 import { OverlayModule } from "@angular/cdk/overlay";
 import {
   afterRenderEffect,
@@ -51,10 +54,15 @@ import type { ValidationError } from "@angular/forms/signals";
   template: `
     <div class="flex flex-col gap-1.5">
       @if (label()) {
-        <label [for]="id()" class="font-sans text-sm font-medium text-(--foreground)">
+        <label
+          [for]="id()"
+          class="font-sans text-sm font-medium text-(--foreground)"
+        >
           {{ label() }}
           @if (required()) {
-            <span class="ml-0.5 text-(--destructive)" aria-hidden="true">*</span>
+            <span class="ml-0.5 text-(--destructive)" aria-hidden="true"
+              >*</span
+            >
           }
         </label>
       }
@@ -88,7 +96,9 @@ import type { ValidationError } from "@angular/forms/signals";
                 class="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-(--input) bg-(--popover) text-(--popover-foreground) shadow-md"
               >
                 @if (loading()) {
-                  <div class="px-3 py-2 text-sm text-(--muted-foreground)">Cargando...</div>
+                  <div class="px-3 py-2 text-sm text-(--muted-foreground)">
+                    Cargando...
+                  </div>
                 } @else if (hasErrors()) {
                   <ul
                     class="space-y-1 px-3 py-2 text-sm text-(--destructive)"
@@ -100,7 +110,9 @@ import type { ValidationError } from "@angular/forms/signals";
                     }
                   </ul>
                 } @else if (filteredItems().length === 0) {
-                  <div class="px-3 py-2 text-sm text-(--muted-foreground)">Sin resultados</div>
+                  <div class="px-3 py-2 text-sm text-(--muted-foreground)">
+                    Sin resultados
+                  </div>
                 } @else {
                   <div ngListbox selectionMode="follow">
                     @for (item of filteredItems(); track $index) {
@@ -137,17 +149,25 @@ import type { ValidationError } from "@angular/forms/signals";
     </div>
   `,
 })
-export class ComboboxComponent<T = unknown> implements ControlValueAccessor, OnDestroy {
+export class ComboboxComponent<T = unknown>
+  implements ControlValueAccessor, OnDestroy
+{
   // --- Public inputs ---
-  readonly id = input<string>(`nv-combobox-${Math.random().toString(36).slice(2)}`);
+  readonly id = input<string>(
+    `nv-combobox-${Math.random().toString(36).slice(2)}`
+  );
   readonly label = input<string>("");
   readonly required = input<boolean>(false);
   readonly placeholder = input<string>("");
   readonly items = input<T[]>([]);
   readonly displayFn = input<(item: T) => string>(String);
-  readonly filterFn = input<((item: T, query: string) => boolean) | undefined>();
+  readonly filterFn = input<
+    ((item: T, query: string) => boolean) | undefined
+  >();
   readonly loading = input<boolean>(false);
-  readonly error = input<string | ValidationError.WithFieldTree[] | undefined>();
+  readonly error = input<
+    string | ValidationError.WithFieldTree[] | undefined
+  >();
   readonly disabled = input<boolean>(false);
   readonly debounceMs = input<number>(300);
 
@@ -207,7 +227,9 @@ export class ComboboxComponent<T = unknown> implements ControlValueAccessor, OnD
     const base =
       "flex h-10 w-full rounded-md border bg-transparent px-3 py-2 text-sm font-sans transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50";
     const border =
-      !this.hasErrors() || this.isOpen() ? "border-[var(--input)]" : "border-[var(--destructive)]";
+      !this.hasErrors() || this.isOpen()
+        ? "border-[var(--input)]"
+        : "border-[var(--destructive)]";
     return `${base} ${border} text-[var(--foreground)]`;
   });
 
@@ -220,7 +242,10 @@ export class ComboboxComponent<T = unknown> implements ControlValueAccessor, OnD
 
     afterRenderEffect(() => {
       const activeOption = this.options().find((option) => option.active());
-      setTimeout(() => activeOption?.element.scrollIntoView({ block: "nearest" }), 50);
+      setTimeout(
+        () => activeOption?.element.scrollIntoView({ block: "nearest" }),
+        50
+      );
     });
 
     afterRenderEffect(() => {
@@ -294,7 +319,9 @@ export class ComboboxComponent<T = unknown> implements ControlValueAccessor, OnD
   }
 
   private getActiveOrSelectedItem(): T | undefined {
-    const index = this.options().findIndex((option) => option.active() || option.selected());
+    const index = this.options().findIndex(
+      (option) => option.active() || option.selected()
+    );
 
     return index === -1 ? undefined : this.filteredItems()[index];
   }

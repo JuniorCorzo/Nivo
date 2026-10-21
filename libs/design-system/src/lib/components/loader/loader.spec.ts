@@ -68,7 +68,9 @@ describe("LoaderComponent", () => {
     expect(defaultLoader?.classList.contains("text-current")).toBe(true);
 
     const primaryLoader = element.querySelector("#primary-loader svg");
-    expect(primaryLoader?.classList.contains("text-[var(--primary)]")).toBe(true);
+    expect(primaryLoader?.classList.contains("text-[var(--primary)]")).toBe(
+      true
+    );
 
     const mutedLoader = element.querySelector("#muted-loader svg");
     expect(mutedLoader?.classList.contains("text-neutral-400")).toBe(true);

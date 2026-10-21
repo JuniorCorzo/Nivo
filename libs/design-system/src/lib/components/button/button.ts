@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 
 import { LoaderComponent } from "../loader/index";
 import type { LoaderSize, LoaderVariant } from "../loader/index";
@@ -27,9 +32,9 @@ import type { LoaderSize, LoaderVariant } from "../loader/index";
   `,
 })
 export class ButtonComponent {
-  readonly variant = input<"default" | "secondary" | "destructive" | "ghost" | "outline">(
-    "default",
-  );
+  readonly variant = input<
+    "default" | "secondary" | "destructive" | "ghost" | "outline"
+  >("default");
   readonly size = input<"sm" | "md" | "lg" | "icon">("md");
   readonly disabled = input<boolean>(false);
   readonly loading = input<boolean>(false);
@@ -38,7 +43,9 @@ export class ButtonComponent {
 
   readonly isDisabled = computed(() => this.disabled() || this.loading());
 
-  readonly loaderSize = computed<LoaderSize>(() => (this.size() === "lg" ? "md" : "sm"));
+  readonly loaderSize = computed<LoaderSize>(() =>
+    this.size() === "lg" ? "md" : "sm"
+  );
 
   readonly loaderVariant = computed<LoaderVariant>(() => {
     const v = this.variant();
@@ -53,7 +60,8 @@ export class ButtonComponent {
       "inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:pointer-events-none disabled:opacity-50 font-sans cursor-pointer";
 
     const variants = {
-      default: "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/90",
+      default:
+        "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/90",
       destructive:
         "bg-[var(--destructive)] text-[var(--destructive-foreground)] hover:bg-[var(--destructive)]/90",
       ghost: "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]",

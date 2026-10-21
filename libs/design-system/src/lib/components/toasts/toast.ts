@@ -58,7 +58,9 @@ export class ToastIconComponent {
   template: `
     <div class="flex flex-col gap-2 bg-(--background)">
       @if (toastRef.data.title) {
-        <span class="flex w-full items-center gap-2 border-0 border-b border-(--border) py-1">
+        <span
+          class="flex w-full items-center gap-2 border-0 border-b border-(--border) py-1"
+        >
           <nv-toast-icon
             class=""
             [icon]="this.iconMap[this.toastRef.data.type]['icon']"

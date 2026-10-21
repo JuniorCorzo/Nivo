@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 
 export type LoaderVariant = "default" | "primary" | "muted" | "white";
 export type LoaderSize = "sm" | "md" | "lg";

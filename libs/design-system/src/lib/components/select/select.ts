@@ -1,4 +1,7 @@
-import { Listbox as AriaListbox, Option as AriaOption } from "@angular/aria/listbox";
+import {
+  Listbox as AriaListbox,
+  Option as AriaOption,
+} from "@angular/aria/listbox";
 import type { ConnectedPosition } from "@angular/cdk/overlay";
 import { OverlayModule } from "@angular/cdk/overlay";
 import {
@@ -35,10 +38,15 @@ import { lucideChevronDown } from "@ng-icons/lucide";
   template: `
     <div class="flex flex-col gap-1.5">
       @if (label()) {
-        <label [for]="id()" class="font-sans text-sm font-medium text-(--foreground)">
+        <label
+          [for]="id()"
+          class="font-sans text-sm font-medium text-(--foreground)"
+        >
           {{ label() }}
           @if (required()) {
-            <span class="ml-0.5 text-(--destructive)" aria-hidden="true">*</span>
+            <span class="ml-0.5 text-(--destructive)" aria-hidden="true"
+              >*</span
+            >
           }
         </label>
       }
@@ -58,7 +66,11 @@ import { lucideChevronDown } from "@ng-icons/lucide";
           <span [class]="valueClasses()">
             {{ triggerText() }}
           </span>
-          <ng-icon name="lucideChevronDown" size="16" class="text-(--muted-foreground)" />
+          <ng-icon
+            name="lucideChevronDown"
+            size="16"
+            class="text-(--muted-foreground)"
+          />
         </button>
 
         @if (isOpen()) {
@@ -85,7 +97,9 @@ import { lucideChevronDown } from "@ng-icons/lucide";
                   }
                 </ul>
               } @else if (items().length === 0) {
-                <div class="px-3 py-2 text-sm text-(--muted-foreground)">Sin opciones</div>
+                <div class="px-3 py-2 text-sm text-(--muted-foreground)">
+                  Sin opciones
+                </div>
               } @else {
                 <div ngListbox selectionMode="follow">
                   @for (item of items(); track $index) {
@@ -121,14 +135,18 @@ import { lucideChevronDown } from "@ng-icons/lucide";
   `,
 })
 export class SelectComponent<T = unknown> implements ControlValueAccessor {
-  readonly id = input<string>(`nv-select-${Math.random().toString(36).slice(2)}`);
+  readonly id = input<string>(
+    `nv-select-${Math.random().toString(36).slice(2)}`
+  );
   readonly label = input<string>("");
   readonly required = input<boolean>(false);
   readonly placeholder = input<string>("Selecciona una opción");
   readonly items = input<T[]>([]);
   readonly displayFn = input<(item: T) => string>(String);
   readonly valueFn = input<(item: T) => string>(String);
-  readonly error = input<string | ValidationError.WithFieldTree[] | undefined>();
+  readonly error = input<
+    string | ValidationError.WithFieldTree[] | undefined
+  >();
   readonly disabled = input<boolean>(false);
   readonly value = input<string | undefined>();
 
@@ -170,24 +188,32 @@ export class SelectComponent<T = unknown> implements ControlValueAccessor {
   readonly hasErrors = computed(() => this.errorMessages().length > 0);
   readonly isDisabled = computed(() => this.disabled() || this.formDisabled());
   readonly selectedItem = computed<T | undefined>(() =>
-    this.items().find((item) => this.valueFn()(item) === this.internalValue()),
+    this.items().find((item) => this.valueFn()(item) === this.internalValue())
   );
   readonly triggerText = computed(() => {
     const selected = this.selectedItem();
-    return selected === undefined ? this.placeholder() : this.displayFn()(selected);
+    return selected === undefined
+      ? this.placeholder()
+      : this.displayFn()(selected);
   });
-  readonly overlayWidth = computed(() => this.originElement()?.nativeElement.offsetWidth ?? 0);
+  readonly overlayWidth = computed(
+    () => this.originElement()?.nativeElement.offsetWidth ?? 0
+  );
 
   readonly triggerClasses = computed(() => {
     const base =
       "flex h-10 w-full items-center justify-between rounded-md border bg-transparent px-3 py-2 text-sm font-sans transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50";
     const border =
-      !this.hasErrors() || this.isOpen() ? "border-[var(--input)]" : "border-[var(--destructive)]";
+      !this.hasErrors() || this.isOpen()
+        ? "border-[var(--input)]"
+        : "border-[var(--destructive)]";
     return `${base} ${border} text-[var(--foreground)]`;
   });
 
   readonly valueClasses = computed(() =>
-    this.selectedItem() === undefined ? "text-(--muted-foreground)" : "text-[var(--foreground)]",
+    this.selectedItem() === undefined
+      ? "text-(--muted-foreground)"
+      : "text-[var(--foreground)]"
   );
 
   private onModelChange?: (value: string) => void;
@@ -228,7 +254,11 @@ export class SelectComponent<T = unknown> implements ControlValueAccessor {
       return;
     }
 
-    if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") {
+    if (
+      event.key === "Enter" ||
+      event.key === " " ||
+      event.key === "ArrowDown"
+    ) {
       event.preventDefault();
       this.isOpen.set(true);
       setTimeout(() => this.listbox()?.element.focus(), 0);
@@ -262,7 +292,9 @@ export class SelectComponent<T = unknown> implements ControlValueAccessor {
 
   optionClasses(item: T): string {
     const selected = this.valueFn()(item) === this.internalValue();
-    const selectedClasses = selected ? "bg-accent text-accent-foreground font-medium" : "";
+    const selectedClasses = selected
+      ? "bg-accent text-accent-foreground font-medium"
+      : "";
     return `cursor-pointer px-3 py-2 text-sm font-sans transition-colors hover:bg-accent hover:text-accent-foreground ${selectedClasses}`;
   }
 

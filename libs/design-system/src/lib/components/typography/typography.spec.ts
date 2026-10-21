@@ -13,7 +13,14 @@ import {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TypographyH1, TypographyH2, TypographyH3, TypographyH4, TypographyH5, TypographyH6],
+  imports: [
+    TypographyH1,
+    TypographyH2,
+    TypographyH3,
+    TypographyH4,
+    TypographyH5,
+    TypographyH6,
+  ],
   standalone: true,
   template: `
     <nv-h1>Heading 1 Content</nv-h1>
@@ -46,7 +53,7 @@ describe("Typography Headings", () => {
     expect(heading).not.toBeNull();
     expect(heading?.textContent?.trim()).toBe("Heading 1 Content");
     expect(heading?.className).toBe(
-      "block scroll-m-20 text-3xl font-bold tracking-tight text-foreground font-sans",
+      "block scroll-m-20 text-3xl font-bold tracking-tight text-foreground font-sans"
     );
   });
 
@@ -55,7 +62,7 @@ describe("Typography Headings", () => {
     expect(heading).not.toBeNull();
     expect(heading?.textContent?.trim()).toBe("Heading 2 Content");
     expect(heading?.className).toBe(
-      "block scroll-m-20 text-2xl font-semibold tracking-tight text-foreground font-sans",
+      "block scroll-m-20 text-2xl font-semibold tracking-tight text-foreground font-sans"
     );
   });
 
@@ -64,7 +71,7 @@ describe("Typography Headings", () => {
     expect(heading).not.toBeNull();
     expect(heading?.textContent?.trim()).toBe("Heading 3 Content");
     expect(heading?.className).toBe(
-      "block scroll-m-20 text-xl font-semibold tracking-tight text-foreground font-sans",
+      "block scroll-m-20 text-xl font-semibold tracking-tight text-foreground font-sans"
     );
   });
 
@@ -73,7 +80,7 @@ describe("Typography Headings", () => {
     expect(heading).not.toBeNull();
     expect(heading?.textContent?.trim()).toBe("Heading 4 Content");
     expect(heading?.className).toBe(
-      "block scroll-m-20 text-lg font-semibold tracking-tight text-foreground font-sans",
+      "block scroll-m-20 text-lg font-semibold tracking-tight text-foreground font-sans"
     );
   });
 
@@ -82,7 +89,7 @@ describe("Typography Headings", () => {
     expect(heading).not.toBeNull();
     expect(heading?.textContent?.trim()).toBe("Heading 5 Content");
     expect(heading?.className).toBe(
-      "block scroll-m-20 text-base font-semibold tracking-tight text-foreground font-sans",
+      "block scroll-m-20 text-base font-semibold tracking-tight text-foreground font-sans"
     );
   });
 
@@ -91,7 +98,7 @@ describe("Typography Headings", () => {
     expect(heading).not.toBeNull();
     expect(heading?.textContent?.trim()).toBe("Heading 6 Content");
     expect(heading?.className).toBe(
-      "block scroll-m-20 text-sm font-semibold tracking-tight text-foreground font-sans",
+      "block scroll-m-20 text-sm font-semibold tracking-tight text-foreground font-sans"
     );
   });
 });

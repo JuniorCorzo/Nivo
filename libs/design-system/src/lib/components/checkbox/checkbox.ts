@@ -61,7 +61,11 @@ import { NG_VALUE_ACCESSOR } from "@angular/forms";
             class="h-3.5 w-3.5 shrink-0"
             aria-hidden="true"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         }
       </button>
@@ -80,7 +84,9 @@ export class CheckboxComponent implements ControlValueAccessor {
   readonly disabled = input<boolean>(false);
   readonly required = input<boolean>(false);
   readonly label = input<string>("");
-  readonly id = input<string>(`nv-checkbox-${Math.random().toString(36).slice(2)}`);
+  readonly id = input<string>(
+    `nv-checkbox-${Math.random().toString(36).slice(2)}`
+  );
   readonly name = input<string>("");
   readonly className = input<string>("", { alias: "class" });
 
@@ -99,14 +105,18 @@ export class CheckboxComponent implements ControlValueAccessor {
       this.checked() || this.indeterminate()
         ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)]"
         : "border-[var(--border)] bg-transparent hover:border-[var(--primary)]/60";
-    const disabled = this.isDisabled() ? "opacity-50 cursor-not-allowed pointer-events-none" : "";
+    const disabled = this.isDisabled()
+      ? "opacity-50 cursor-not-allowed pointer-events-none"
+      : "";
 
     return `${base} ${state} ${disabled}`.trim();
   });
 
   readonly containerClasses = computed(() => {
     const base = "inline-flex items-center gap-2";
-    const disabled = this.isDisabled() ? "cursor-not-allowed opacity-50" : "cursor-pointer";
+    const disabled = this.isDisabled()
+      ? "cursor-not-allowed opacity-50"
+      : "cursor-pointer";
     const custom = this.className();
 
     return `${base} ${disabled} ${custom}`.trim();

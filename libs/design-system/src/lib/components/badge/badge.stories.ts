@@ -6,7 +6,15 @@ const meta: Meta<BadgeComponent> = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["default", "secondary", "destructive", "success", "warning", "info", "outline"],
+      options: [
+        "default",
+        "secondary",
+        "destructive",
+        "success",
+        "warning",
+        "info",
+        "outline",
+      ],
     },
   },
   component: BadgeComponent,
