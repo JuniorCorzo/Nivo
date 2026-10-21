@@ -99,7 +99,27 @@ La aplicación se diseñará como SaaS multitenant: una sola instancia de la apl
    - Dado que la plaza 15 está libre en el rango consultado, entonces la API retorna la plaza 15 en la lista de disponibles con respuesta HTTP 200 y formato JSON.
    - Dado que la solicitud incluye parámetros inválidos (fecha/hora erróneas), cuando se realiza, entonces la API responde con error 400 indicando el problema.
 
-(Opcionalmente **RF-011: Gestión de usuarios internos** – Permitirá al Owner y Superadmin crear y asignar usuarios internos (Gerentes, Operadores) con roles específicos. Se incluirán pantallas de alta/edición de usuarios y asignación de permisos. *Prioridad:* S. Por brevedad no se detallan criterios aquí.)
+1. **RF-011: Gestión de invitaciones y roles de usuario interno**
+   - **Descripción:** Permitir al Owner invitar a nuevos colaboradores a su organización vinculados a un rol operativo (`MANAGER`, `OPERATOR`, `AUDITOR`). El sistema genera un token seguro de invitación con vigencia de 3 días y despacha una notificación por correo. El invitado activa su cuenta completando sus credenciales. El Owner puede modificar roles de colaboradores existentes o desactivar usuarios garantizando que nunca se desactive ni degrade al último Owner del tenant.
+   - **Prioridad:** M
+   - **Dependencias:** RF-001 (tenant y autenticación)
+   - **Criterios de aceptación (Gherkin):**
+     - Dado que un *Owner* autenticado invita al correo `operador@parqueadero.com` con rol `OPERATOR`, cuando envía la solicitud, entonces el sistema genera una invitación con estado `PENDING`, expiración en 72 horas y despacha el correo de invitación.
+     - Dado que el correo `operador@parqueadero.com` ya pertenece al tenant activo, cuando el Owner intenta invitarlo nuevamente, entonces el sistema rechaza la solicitud con error `UserAlreadyExistsInTenantException` (HTTP 409).
+     - Dado que el Owner intenta asignar un rol no permitido para invitaciones externas (`OWNER` o `SUPERADMIN`), cuando envía la invitación, entonces el sistema rechaza la acción con `InvalidRoleException` (HTTP 400).
+     - Dado que un invitado accede con un token válido y no expirado, cuando confirma su contraseña y datos personales, entonces el sistema activa su usuario con el rol asignado, marca la invitación como `ACCEPTED` y permite su inicio de sesión en el tenant.
+     - Dado que el tenant cuenta con 1 solo usuario con rol `OWNER`, cuando se intenta desactivar o degradar su rol a `OPERATOR`, entonces el sistema bloquea la operación para prevenir orfandad administrativa del tenant.
+
+1. **RF-012: Check-in y comprobante digital para vehículos sin placa**
+   - **Descripción:** Permitir el registro de entrada de vehículos que carecen de matrícula física visible (ej. motocicletas nuevas o de concesionario). La taquilla permite conmutar la modalidad a "Sin Placa (Foto)", exigiendo obligatoriamente una captura fotográfica del vehículo. El backend asigna un identificador secuencial sintético único por sede (`SP-xxxx`), genera el ticket y expone un enlace/QR a una vista pública de comprobante digital (`/public-ticket/:id`) que muestra la foto, hora y tarifas, permitiendo además registrar el teléfono del conductor para compartir el comprobante vía WhatsApp.
+   - **Prioridad:** M
+   - **Dependencias:** RF-003, RF-005 (cupos y check-in)
+   - **Criterios de aceptación (Gherkin):**
+     - Dado que el Operador registra un vehículo seleccionando la modalidad "Sin Placa", cuando adjunta una fotografía válida y confirma el ingreso, entonces el sistema genera un código secuencial único (`SP-1001`), registra la foto, marca el cupo como `OCCUPIED` y emite el ticket digital.
+     - Dado que el Operador intenta registrar un vehículo en modalidad "Sin Placa" sin adjuntar fotografía, cuando confirma la operación, entonces el sistema bloquea el registro con `UnplatedVehiclePhotoRequiredException` (HTTP 422).
+     - Dado un ticket emitido para vehículo sin placa, cuando el conductor o el operario abre el enlace público `/public-ticket/{ticketId}`, entonces el sistema muestra la vista pública sanitizada con la fotografía del vehículo, placa sintética `SP-xxxx`, plaza asignada, fecha de ingreso y desglose de tarifas vigentes, sin exponer datos privados de otros usuarios ni del tenant.
+     - Dado que el Operador ingresa un número de teléfono en el check-in sin placa, cuando se emite el ticket, el sistema genera el enlace directo de WhatsApp con el URL público del comprobante listo para despacho.
+
 ## <a name="requisitos-no-funcionales"></a>Requisitos no funcionales
 - **Seguridad:** Uso de HTTPS/TLS en todas las comunicaciones. Almacenamiento de contraseñas con hash seguro. Autenticación robusta con token JWT (OAuth2/Bearer). Soporte de MFA opcional. Encriptación de datos sensibles (datos personales, credenciales) en la base. Control de acceso estricto por rol e inquilino[\[6\]](https://blog.logto.io/es/build-multi-tenant-saas-application#:~:text=En%20una%20arquitectura%20multi,pueden%20realizar%20en%20recursos%20particulares). Cumplimiento con GDPR/local (posibilidad de borrar datos de usuario, consentimiento de datos, etc).
 - **Rendimiento:** Respuesta de interfaz < 1s en operaciones típicas. El sistema debe soportar picos de concurrencia (varios autos entrando al mismo tiempo) sin degradar la experiencia.

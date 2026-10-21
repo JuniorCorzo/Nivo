@@ -32,5 +32,5 @@ export default defineConfig({
     trace: "retain-on-failure",
     video: "retain-on-failure",
   },
-  workers: process.env["CI"] ? 1 : 1,
+  workers: 1,
 });

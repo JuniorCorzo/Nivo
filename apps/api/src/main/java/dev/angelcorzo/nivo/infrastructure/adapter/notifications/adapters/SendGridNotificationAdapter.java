@@ -7,6 +7,8 @@ import com.sendgrid.helpers.mail.Mail;
 import dev.angelcorzo.nivo.domain.model.commons.notifications.NotificationsData;
 import dev.angelcorzo.nivo.domain.model.commons.notifications.gateway.NotificationGateway;
 import dev.angelcorzo.nivo.domain.model.notificationtemplates.NotificationTemplates;
+import dev.angelcorzo.nivo.infrastructure.adapter.notifications.clients.EmailProviderClient;
+import dev.angelcorzo.nivo.infrastructure.adapter.notifications.enums.EmailProviderType;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.SendGridApiException;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.SendGridRequestBuildException;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.factories.SendGridMailFactory;
@@ -20,24 +22,19 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * SendGrid implementation of the {@link NotificationGateway} for EMAIL channel delivery.
+ * SendGrid implementation of {@link EmailProviderClient} for EMAIL channel delivery.
  *
  * <p>This adapter handles the full lifecycle of sending a transactional email via the SendGrid API:
  * building the request from a dynamic template, dispatching it, and registering the outcome
  * (success or failure) in the notification logs.
  *
- * <p><strong>Channel coverage:</strong> EMAIL only. The WHATSAPP channel is architecturally
- * reserved in {@link dev.angelcorzo.nivo.domain.model.commons.notifications.enums.NotificationsChannel}
- * but not yet implemented due to budget constraints. When WhatsApp support is added, a separate
- * adapter implementing {@link NotificationGateway} should be created (e.g., using Twilio or Meta
- * Cloud API) and a dispatch strategy introduced in
- * {@link dev.angelcorzo.nivo.infrastructure.adapter.notifications.processors.NotificationProcessor}.
+ * <p><strong>Channel coverage:</strong> EMAIL only.
  *
- * <p><strong>Layer:</strong> Infrastructure (Driven Adapter - Notifications)
+ * <p><strong>Layer:</strong> Infrastructure (Driven Adapter - Notifications Client)
  *
  * @author Angel Corzo
  * @since 1.0.0
- * @see NotificationGateway
+ * @see EmailProviderClient
  * @see SendGridMailFactory
  * @see NotificationsLoggerService
  */
@@ -45,12 +42,17 @@ import org.springframework.stereotype.Component;
 @Scope("singleton")
 @RequiredArgsConstructor
 @Slf4j
-public class SendGridNotificationAdapter implements NotificationGateway {
+public class SendGridNotificationAdapter implements EmailProviderClient {
 
   private final SendGrid sendGrid;
   private final SendGridMailFactory sendGridMailFactory;
   private final NotificationsLoggerService notificationsLoggerService;
   private final SendGridErrorMessageFormatter sendGridErrorMessageFormatter;
+
+  @Override
+  public EmailProviderType getProviderType() {
+    return EmailProviderType.SENDGRID;
+  }
 
   /**
    * Sends a transactional email via the SendGrid API using a dynamic template.

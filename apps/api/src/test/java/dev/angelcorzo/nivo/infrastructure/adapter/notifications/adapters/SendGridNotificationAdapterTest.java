@@ -105,4 +105,11 @@ class SendGridNotificationAdapterTest {
 
     verify(notificationsLoggerService).registerLog(template, "user@test.com", "Formatted IO Error");
   }
+
+  @Test
+  @DisplayName("Should return SENDGRID provider type")
+  void shouldReturnSendGridProviderType() {
+    org.assertj.core.api.Assertions.assertThat(adapter.getProviderType())
+        .isEqualTo(dev.angelcorzo.nivo.infrastructure.adapter.notifications.enums.EmailProviderType.SENDGRID);
+  }
 }
