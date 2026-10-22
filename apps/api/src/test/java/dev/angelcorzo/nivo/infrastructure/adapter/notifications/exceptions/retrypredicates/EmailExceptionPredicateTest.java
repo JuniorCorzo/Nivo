@@ -64,8 +64,7 @@ class EmailExceptionPredicateTest {
   @ValueSource(ints = {429, 500, 502, 503, 504})
   @DisplayName("Should retry on NotificationDeliveryException with retryable status codes")
   void shouldRetryOnNotificationDeliveryExceptionRetryable(int statusCode) {
-    NotificationDeliveryException exception =
-        new NotificationDeliveryException(statusCode, "brevo", "Delivery error");
+    NotificationDeliveryException exception = new NotificationDeliveryException(statusCode, "brevo", "Delivery error");
 
     boolean result = predicate.shouldRetry(dummyMethod, exception);
 
@@ -76,8 +75,7 @@ class EmailExceptionPredicateTest {
   @ValueSource(ints = {400, 401, 403, 404, 422})
   @DisplayName("Should not retry on NotificationDeliveryException with non-retryable status codes")
   void shouldNotRetryOnNotificationDeliveryExceptionNonRetryable(int statusCode) {
-    NotificationDeliveryException exception =
-        new NotificationDeliveryException(statusCode, "brevo", "Client error");
+    NotificationDeliveryException exception = new NotificationDeliveryException(statusCode, "brevo", "Client error");
 
     boolean result = predicate.shouldRetry(dummyMethod, exception);
 

@@ -15,9 +15,15 @@ import lombok.Getter;
  */
 @Getter
 public enum NotificationEvents {
-  RESERVATION_CREATED(false), TICKET_OPENED(false), TICKET_CLOSED(false), PAYMENT_COMPLETED(true), PAYMENT_CHECKOUT(
-    true), USER_SELF_REGISTERED(
-      false), USER_INVITED(true), USER_INVITATION_ACCEPTED(false), USER_ROLE_ASSIGNED(false);
+  RESERVATION_CREATED(false),
+  TICKET_OPENED(false),
+  TICKET_CLOSED(false),
+  PAYMENT_COMPLETED(true),
+  PAYMENT_CHECKOUT(true),
+  USER_SELF_REGISTERED(false),
+  USER_INVITED(true),
+  USER_INVITATION_ACCEPTED(false),
+  USER_ROLE_ASSIGNED(false);
 
   /**
    * -- GETTER -- Returns whether this event is transactional (mandatory, bypasses user preferences).

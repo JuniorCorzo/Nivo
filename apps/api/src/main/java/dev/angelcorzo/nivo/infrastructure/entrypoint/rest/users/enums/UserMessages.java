@@ -1,10 +1,15 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.enums;
 
 public enum UserMessages {
-  USER_INVITATION_ACCEPTED("Invitación aceptada con éxito"), USER_INVITATION_SEND(
-    "Invitación enviada con éxito"), USER_ROL_MODIFIED("El rol fue modificado con éxito"), USER_DEACTIVATED(
-      "El usuario fue desactivado con éxito"), USER_PROFILE_RETRIEVED(
-        "Perfil de usuario obtenido con éxito"), USERS_RETRIEVED("Usuarios obtenidos con éxito");
+  USER_INVITATION_ACCEPTED("Invitación aceptada con éxito"),
+  USER_INVITATION_SEND(
+    "Invitación enviada con éxito"),
+  USER_ROL_MODIFIED("El rol fue modificado con éxito"),
+  USER_DEACTIVATED(
+    "El usuario fue desactivado con éxito"),
+  USER_PROFILE_RETRIEVED(
+    "Perfil de usuario obtenido con éxito"),
+  USERS_RETRIEVED("Usuarios obtenidos con éxito");
 
   private final String template;
 

@@ -1,7 +1,8 @@
 package dev.angelcorzo.nivo.domain.model.payments.enums;
 
 public enum PaymentsMethods {
-  EFFECTIVE(false), PAY_LINK(true);
+  EFFECTIVE(false),
+  PAY_LINK(true);
 
   private final boolean isProviderMethod;
 

@@ -21,9 +21,13 @@ public record ListPayLinkResponse(long id, String txtCode, String date, String t
 
   @Getter
   public enum State {
-    DELETED(0, TransactionStatus.CANCELED), PENDING_PAYMENT(1, TransactionStatus.PENDING), PAID(2,
-      TransactionStatus.APPROVED), PENDING_LAST_PAYMENT(3,
-        TransactionStatus.PENDING), EXPIRED(4, TransactionStatus.EXPIRED);
+    DELETED(0, TransactionStatus.CANCELED),
+    PENDING_PAYMENT(1, TransactionStatus.PENDING),
+    PAID(2,
+      TransactionStatus.APPROVED),
+    PENDING_LAST_PAYMENT(3,
+      TransactionStatus.PENDING),
+    EXPIRED(4, TransactionStatus.EXPIRED);
 
     private final int code;
     private final TransactionStatus transactionStatus;

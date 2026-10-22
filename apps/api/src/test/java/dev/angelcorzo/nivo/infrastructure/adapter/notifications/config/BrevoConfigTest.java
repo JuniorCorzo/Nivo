@@ -18,8 +18,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 class BrevoConfigTest {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-      .withConfiguration(AutoConfigurations.of(ConfigurationPropertiesAutoConfiguration.class))
-      .withUserConfiguration(BrevoProperties.class, BrevoConfig.class);
+    .withConfiguration(AutoConfigurations.of(ConfigurationPropertiesAutoConfiguration.class))
+    .withUserConfiguration(BrevoProperties.class, BrevoConfig.class);
 
   @Test
   @DisplayName("BrevoProperties should have default values")
@@ -70,17 +70,17 @@ class BrevoConfigTest {
     final RestClient testClient = builder.build();
 
     mockServer.expect(requestTo("https://api.brevo.com/v3/smtp/email"))
-        .andExpect(header("api-key", "test-key-123"))
-        .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andRespond(withSuccess("{\"messageId\":\"1\"}", MediaType.APPLICATION_JSON));
+      .andExpect(header("api-key", "test-key-123"))
+      .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
+      .andExpect(header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+      .andRespond(withSuccess("{\"messageId\":\"1\"}", MediaType.APPLICATION_JSON));
 
     final String response = testClient.post()
-        .uri("/smtp/email")
-        .contentType(MediaType.APPLICATION_JSON)
-        .body("{\"to\":[{\"email\":\"test@example.com\"}]}")
-        .retrieve()
-        .body(String.class);
+      .uri("/smtp/email")
+      .contentType(MediaType.APPLICATION_JSON)
+      .body("{\"to\":[{\"email\":\"test@example.com\"}]}")
+      .retrieve()
+      .body(String.class);
 
     assertThat(response).contains("messageId");
     mockServer.verify();
@@ -90,28 +90,27 @@ class BrevoConfigTest {
   @DisplayName("Application context should wire BrevoProperties and brevoRestClient bean")
   void shouldWireBeansInApplicationContext() {
     this.contextRunner
-        .withPropertyValues(
-            "nivo.notification.email.brevo.api-key=ctx-key",
-            "nivo.notification.email.brevo.url=https://ctx.brevo.com/v3",
-            "nivo.notification.email.brevo.sender-name=ContextSender",
-            "nivo.notification.email.brevo.sender-email=ctx@nivo.dev",
-            "nivo.notification.email.brevo.connect-timeout=2500",
-            "nivo.notification.email.brevo.read-timeout=4500"
-        )
-        .run(context -> {
-          assertThat(context).hasBean("brevoProperties");
-          assertThat(context).hasBean("brevoRestClient");
+      .withPropertyValues(
+        "nivo.notification.email.brevo.api-key=ctx-key",
+        "nivo.notification.email.brevo.url=https://ctx.brevo.com/v3",
+        "nivo.notification.email.brevo.sender-name=ContextSender",
+        "nivo.notification.email.brevo.sender-email=ctx@nivo.dev",
+        "nivo.notification.email.brevo.connect-timeout=2500",
+        "nivo.notification.email.brevo.read-timeout=4500")
+      .run(context -> {
+        assertThat(context).hasBean("brevoProperties");
+        assertThat(context).hasBean("brevoRestClient");
 
-          final BrevoProperties properties = context.getBean(BrevoProperties.class);
-          assertThat(properties.getApiKey()).isEqualTo("ctx-key");
-          assertThat(properties.getUrl()).isEqualTo("https://ctx.brevo.com/v3");
-          assertThat(properties.getSenderName()).isEqualTo("ContextSender");
-          assertThat(properties.getSenderEmail()).isEqualTo("ctx@nivo.dev");
-          assertThat(properties.getConnectTimeout()).isEqualTo(2500);
-          assertThat(properties.getReadTimeout()).isEqualTo(4500);
+        final BrevoProperties properties = context.getBean(BrevoProperties.class);
+        assertThat(properties.getApiKey()).isEqualTo("ctx-key");
+        assertThat(properties.getUrl()).isEqualTo("https://ctx.brevo.com/v3");
+        assertThat(properties.getSenderName()).isEqualTo("ContextSender");
+        assertThat(properties.getSenderEmail()).isEqualTo("ctx@nivo.dev");
+        assertThat(properties.getConnectTimeout()).isEqualTo(2500);
+        assertThat(properties.getReadTimeout()).isEqualTo(4500);
 
-          final RestClient restClient = context.getBean("brevoRestClient", RestClient.class);
-          assertThat(restClient).isNotNull();
-        });
+        final RestClient restClient = context.getBean("brevoRestClient", RestClient.class);
+        assertThat(restClient).isNotNull();
+      });
   }
 }

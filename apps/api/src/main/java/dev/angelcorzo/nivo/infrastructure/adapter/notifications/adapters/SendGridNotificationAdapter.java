@@ -22,8 +22,9 @@ import org.springframework.stereotype.Component;
 /**
  * SendGrid implementation of {@link EmailProviderClient} for EMAIL channel delivery.
  *
- * <p>This adapter handles dispatching transactional emails via the SendGrid API. Logging is
- * centralized in {@link PluggableNotificationAdapter}.
+ * <p>
+ * This adapter handles dispatching transactional emails via the SendGrid API. Logging is centralized in
+ * {@link PluggableNotificationAdapter}.
  *
  * <p>
  * <strong>Channel coverage:</strong> EMAIL only.
@@ -54,14 +55,16 @@ public class SendGridNotificationAdapter implements EmailProviderClient {
   /**
    * Sends a transactional email via the SendGrid API using a dynamic template.
    *
-   * @param template The {@link NotificationTemplates} that carries the SendGrid template reference
-   *                 and channel metadata.
-   * @param to       The recipient email address.
-   * @param content  The {@link NotificationsData} payload whose fields are injected as dynamic
-   *                 template variables.
-   * @throws SendGridApiException          if SendGrid returns a non-2xx HTTP status.
-   * @throws SendGridRequestBuildException if the request cannot be serialized or an IO error occurs
-   *                                       during the API call.
+   * @param template
+   *          The {@link NotificationTemplates} that carries the SendGrid template reference and channel metadata.
+   * @param to
+   *          The recipient email address.
+   * @param content
+   *          The {@link NotificationsData} payload whose fields are injected as dynamic template variables.
+   * @throws SendGridApiException
+   *           if SendGrid returns a non-2xx HTTP status.
+   * @throws SendGridRequestBuildException
+   *           if the request cannot be serialized or an IO error occurs during the API call.
    */
   @Override
   public void sendEmail(final NotificationTemplates template, final String to, final NotificationsData content) {

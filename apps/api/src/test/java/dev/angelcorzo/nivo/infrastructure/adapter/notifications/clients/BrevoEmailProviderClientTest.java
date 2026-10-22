@@ -1,6 +1,5 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.notifications.clients;
 
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +30,6 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withBadRequest;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
@@ -46,13 +44,13 @@ class BrevoEmailProviderClientTest {
   private BrevoEmailProviderClient client;
 
   record TestNotificationData(
-      String companyName,
-      String supportUrl,
-      String socialUrl,
-      String unsubscribeUrl,
-      String companyAddress,
-      String username
-  ) implements NotificationsData {}
+    String companyName,
+    String supportUrl,
+    String socialUrl,
+    String unsubscribeUrl,
+    String companyAddress,
+    String username) implements NotificationsData {
+  }
 
   @BeforeEach
   void setUp() {
@@ -63,10 +61,10 @@ class BrevoEmailProviderClientTest {
     brevoProperties.setSenderEmail("no-reply@nivo.dev");
 
     final RestClient.Builder restClientBuilder = RestClient.builder()
-        .baseUrl(brevoProperties.getUrl())
-        .defaultHeader("api-key", brevoProperties.getApiKey())
-        .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+      .baseUrl(brevoProperties.getUrl())
+      .defaultHeader("api-key", brevoProperties.getApiKey())
+      .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+      .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
     mockServer = MockRestServiceServer.bindTo(restClientBuilder).build();
     final RestClient restClient = restClientBuilder.build();
@@ -84,38 +82,38 @@ class BrevoEmailProviderClientTest {
   @DisplayName("sendEmail should successfully post transactional email payload to Brevo /smtp/email")
   void shouldSendEmailSuccessfully() {
     final NotificationTemplates template = NotificationTemplates.builder()
-        .name("Welcome to Nivo")
-        .build();
+      .name("Welcome to Nivo")
+      .build();
     final NotificationsData data = new TestNotificationData(
-        "Nivo", "https://nivo.dev/support", "https://twitter.com/nivo",
-        "https://nivo.dev/unsub", "123 Tech St", "john_doe"
-    );
+      "Nivo", "https://nivo.dev/support", "https://twitter.com/nivo",
+      "https://nivo.dev/unsub", "123 Tech St", "john_doe");
 
     when(htmlNotificationBuilder.buildSubject(template, data)).thenReturn("Welcome to Nivo");
     when(htmlNotificationBuilder.buildHtml(template, data))
-        .thenReturn("<html><body>Hello john_doe</body></html>");
+      .thenReturn("<html><body>Hello john_doe</body></html>");
 
     mockServer.expect(requestTo("https://api.brevo.com/v3/smtp/email"))
-        .andExpect(method(HttpMethod.POST))
-        .andExpect(header("api-key", "test-api-key"))
-        .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(content().json("""
+      .andExpect(method(HttpMethod.POST))
+      .andExpect(header("api-key", "test-api-key"))
+      .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
+      .andExpect(header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+      .andExpect(content().json("""
+        {
+          "sender": {
+            "name": "Nivo Platform",
+            "email": "no-reply@nivo.dev"
+          },
+          "to": [
             {
-              "sender": {
-                "name": "Nivo Platform",
-                "email": "no-reply@nivo.dev"
-              },
-              "to": [
-                {
-                  "email": "user@example.com"
-                }
-              ],
-              "subject": "Welcome to Nivo",
-              "htmlContent": "<html><body>Hello john_doe</body></html>"
+              "email": "user@example.com"
             }
-            """))
-        .andRespond(withStatus(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body("{\"messageId\":\"<msg-123>\"}"));
+          ],
+          "subject": "Welcome to Nivo",
+          "htmlContent": "<html><body>Hello john_doe</body></html>"
+        }
+        """))
+      .andRespond(
+        withStatus(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body("{\"messageId\":\"<msg-123>\"}"));
 
     client.sendEmail(template, "user@example.com", data);
 
@@ -127,28 +125,27 @@ class BrevoEmailProviderClientTest {
   void shouldTranslateBadRequestToNonRetryableException() {
     final NotificationTemplates template = NotificationTemplates.builder().build();
     final NotificationsData data = new TestNotificationData(
-        "Nivo", "support", "social", "unsub", "addr", "user"
-    );
+      "Nivo", "support", "social", "unsub", "addr", "user");
 
     when(htmlNotificationBuilder.buildSubject(any(), any())).thenReturn("Subject");
     when(htmlNotificationBuilder.buildHtml(any(), any())).thenReturn("<p>Body</p>");
 
     mockServer.expect(requestTo("https://api.brevo.com/v3/smtp/email"))
-        .andExpect(method(HttpMethod.POST))
-        .andRespond(withBadRequest()
-            .contentType(MediaType.APPLICATION_JSON)
-            .body("{\"code\":\"invalid_parameter\",\"message\":\"Invalid email address\"}"));
+      .andExpect(method(HttpMethod.POST))
+      .andRespond(withBadRequest()
+        .contentType(MediaType.APPLICATION_JSON)
+        .body("{\"code\":\"invalid_parameter\",\"message\":\"Invalid email address\"}"));
 
     assertThatThrownBy(() -> client.sendEmail(template, "invalid-email", data))
-        .isInstanceOf(NotificationDeliveryException.class)
-        .satisfies(ex -> {
-          final NotificationDeliveryException nde = (NotificationDeliveryException) ex;
-          assertThat(nde.getStatusCode()).isEqualTo(400);
-          assertThat(nde.getProviderName()).isEqualTo("BREVO");
-          assertThat(nde.isRetryable()).isFalse();
-          assertThat(nde.getMessage()).contains("Brevo API error 400");
-          assertThat(nde.getMessage()).contains("invalid_parameter");
-        });
+      .isInstanceOf(NotificationDeliveryException.class)
+      .satisfies(ex -> {
+        final NotificationDeliveryException nde = (NotificationDeliveryException) ex;
+        assertThat(nde.getStatusCode()).isEqualTo(400);
+        assertThat(nde.getProviderName()).isEqualTo("BREVO");
+        assertThat(nde.isRetryable()).isFalse();
+        assertThat(nde.getMessage()).contains("Brevo API error 400");
+        assertThat(nde.getMessage()).contains("invalid_parameter");
+      });
 
     mockServer.verify();
   }
@@ -158,27 +155,26 @@ class BrevoEmailProviderClientTest {
   void shouldTranslateRateLimitToRetryableException() {
     final NotificationTemplates template = NotificationTemplates.builder().build();
     final NotificationsData data = new TestNotificationData(
-        "Nivo", "support", "social", "unsub", "addr", "user"
-    );
+      "Nivo", "support", "social", "unsub", "addr", "user");
 
     when(htmlNotificationBuilder.buildSubject(any(), any())).thenReturn("Subject");
     when(htmlNotificationBuilder.buildHtml(any(), any())).thenReturn("<p>Body</p>");
 
     mockServer.expect(requestTo("https://api.brevo.com/v3/smtp/email"))
-        .andExpect(method(HttpMethod.POST))
-        .andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS)
-            .contentType(MediaType.APPLICATION_JSON)
-            .body("{\"code\":\"too_many_requests\",\"message\":\"Rate limit exceeded\"}"));
+      .andExpect(method(HttpMethod.POST))
+      .andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS)
+        .contentType(MediaType.APPLICATION_JSON)
+        .body("{\"code\":\"too_many_requests\",\"message\":\"Rate limit exceeded\"}"));
 
     assertThatThrownBy(() -> client.sendEmail(template, "user@example.com", data))
-        .isInstanceOf(NotificationDeliveryException.class)
-        .satisfies(ex -> {
-          final NotificationDeliveryException nde = (NotificationDeliveryException) ex;
-          assertThat(nde.getStatusCode()).isEqualTo(429);
-          assertThat(nde.getProviderName()).isEqualTo("BREVO");
-          assertThat(nde.isRetryable()).isTrue();
-          assertThat(nde.getMessage()).contains("Brevo API error 429");
-        });
+      .isInstanceOf(NotificationDeliveryException.class)
+      .satisfies(ex -> {
+        final NotificationDeliveryException nde = (NotificationDeliveryException) ex;
+        assertThat(nde.getStatusCode()).isEqualTo(429);
+        assertThat(nde.getProviderName()).isEqualTo("BREVO");
+        assertThat(nde.isRetryable()).isTrue();
+        assertThat(nde.getMessage()).contains("Brevo API error 429");
+      });
 
     mockServer.verify();
   }
@@ -188,27 +184,26 @@ class BrevoEmailProviderClientTest {
   void shouldTranslateServerErrorToRetryableException() {
     final NotificationTemplates template = NotificationTemplates.builder().build();
     final NotificationsData data = new TestNotificationData(
-        "Nivo", "support", "social", "unsub", "addr", "user"
-    );
+      "Nivo", "support", "social", "unsub", "addr", "user");
 
     when(htmlNotificationBuilder.buildSubject(any(), any())).thenReturn("Subject");
     when(htmlNotificationBuilder.buildHtml(any(), any())).thenReturn("<p>Body</p>");
 
     mockServer.expect(requestTo("https://api.brevo.com/v3/smtp/email"))
-        .andExpect(method(HttpMethod.POST))
-        .andRespond(withServerError()
-            .contentType(MediaType.APPLICATION_JSON)
-            .body("{\"code\":\"server_error\",\"message\":\"Internal server error\"}"));
+      .andExpect(method(HttpMethod.POST))
+      .andRespond(withServerError()
+        .contentType(MediaType.APPLICATION_JSON)
+        .body("{\"code\":\"server_error\",\"message\":\"Internal server error\"}"));
 
     assertThatThrownBy(() -> client.sendEmail(template, "user@example.com", data))
-        .isInstanceOf(NotificationDeliveryException.class)
-        .satisfies(ex -> {
-          final NotificationDeliveryException nde = (NotificationDeliveryException) ex;
-          assertThat(nde.getStatusCode()).isEqualTo(500);
-          assertThat(nde.getProviderName()).isEqualTo("BREVO");
-          assertThat(nde.isRetryable()).isTrue();
-          assertThat(nde.getMessage()).contains("Brevo API error 500");
-        });
+      .isInstanceOf(NotificationDeliveryException.class)
+      .satisfies(ex -> {
+        final NotificationDeliveryException nde = (NotificationDeliveryException) ex;
+        assertThat(nde.getStatusCode()).isEqualTo(500);
+        assertThat(nde.getProviderName()).isEqualTo("BREVO");
+        assertThat(nde.isRetryable()).isTrue();
+        assertThat(nde.getMessage()).contains("Brevo API error 500");
+      });
 
     mockServer.verify();
   }
@@ -218,8 +213,7 @@ class BrevoEmailProviderClientTest {
   void shouldTranslateTransportErrorToRetryableException() {
     final NotificationTemplates template = NotificationTemplates.builder().build();
     final NotificationsData data = new TestNotificationData(
-        "Nivo", "support", "social", "unsub", "addr", "user"
-    );
+      "Nivo", "support", "social", "unsub", "addr", "user");
 
     when(htmlNotificationBuilder.buildSubject(any(), any())).thenReturn("Subject");
     when(htmlNotificationBuilder.buildHtml(any(), any())).thenReturn("<p>Body</p>");
@@ -235,17 +229,17 @@ class BrevoEmailProviderClientTest {
     when(bodySpec.retrieve()).thenReturn(responseSpec);
     when(responseSpec.toBodilessEntity()).thenThrow(new ResourceAccessException("Connection timed out"));
 
-    final BrevoEmailProviderClient clientWithMock =
-        new BrevoEmailProviderClient(mockRestClient, brevoProperties, htmlNotificationBuilder);
+    final BrevoEmailProviderClient clientWithMock = new BrevoEmailProviderClient(mockRestClient, brevoProperties,
+      htmlNotificationBuilder);
 
     assertThatThrownBy(() -> clientWithMock.sendEmail(template, "user@example.com", data))
-        .isInstanceOf(NotificationDeliveryException.class)
-        .satisfies(ex -> {
-          final NotificationDeliveryException nde = (NotificationDeliveryException) ex;
-          assertThat(nde.getStatusCode()).isEqualTo(500);
-          assertThat(nde.getProviderName()).isEqualTo("BREVO");
-          assertThat(nde.isRetryable()).isTrue();
-          assertThat(nde.getMessage()).contains("Brevo transport error: Connection timed out");
-        });
+      .isInstanceOf(NotificationDeliveryException.class)
+      .satisfies(ex -> {
+        final NotificationDeliveryException nde = (NotificationDeliveryException) ex;
+        assertThat(nde.getStatusCode()).isEqualTo(500);
+        assertThat(nde.getProviderName()).isEqualTo("BREVO");
+        assertThat(nde.isRetryable()).isTrue();
+        assertThat(nde.getMessage()).contains("Brevo transport error: Connection timed out");
+      });
   }
 }

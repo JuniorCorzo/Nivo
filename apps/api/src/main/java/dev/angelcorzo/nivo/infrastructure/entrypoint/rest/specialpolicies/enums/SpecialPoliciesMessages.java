@@ -3,7 +3,8 @@ package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.specialpolicies.enums
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.enums.BaseMessages;
 
 public enum SpecialPoliciesMessages implements BaseMessages {
-  CREATE_SPECIAL_POLICY("Política especial creada con éxito"), SHOW_SPECIAL_POLICIES_BY_TENANT(
+  CREATE_SPECIAL_POLICY("Política especial creada con éxito"),
+  SHOW_SPECIAL_POLICIES_BY_TENANT(
     "Políticas especiales encontradas");
   private final String template;
 

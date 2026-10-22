@@ -26,13 +26,8 @@ public class NotificationProcessor {
   private final NotificationTemplateCache notificationTemplatesCache;
   private final NotificationExecutionContextHolder executionContextHolder;
 
-  @Retryable(
-      maxRetries = 5,
-      includes = {SendGridRequestBuildException.class, NotificationDeliveryException.class},
-      predicate = EmailExceptionPredicate.class,
-      delay = RETRY_INITIAL_DELAY_MILLIS,
-      multiplier = RETRY_DELAY_MULTIPLIER,
-      maxDelay = RETRY_MAX_DELAY_MILLIS)
+  @Retryable(maxRetries = 5, includes = {SendGridRequestBuildException.class,
+    NotificationDeliveryException.class}, predicate = EmailExceptionPredicate.class, delay = RETRY_INITIAL_DELAY_MILLIS, multiplier = RETRY_DELAY_MULTIPLIER, maxDelay = RETRY_MAX_DELAY_MILLIS)
   public void processEvent(SendNotificationEvent event) {
     if (event.tenantId() == null || event.actorUserId() == null) {
       throw new IllegalStateException("Notification event missing execution context ids");

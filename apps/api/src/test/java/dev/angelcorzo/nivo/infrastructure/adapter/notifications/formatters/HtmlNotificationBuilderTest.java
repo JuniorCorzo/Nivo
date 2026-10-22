@@ -20,26 +20,24 @@ class HtmlNotificationBuilderTest {
   @BeforeEach
   void setUp() {
     builder = new HtmlNotificationBuilder();
-    content =
-        UserInvitedData.builder()
-            .userName("John Doe")
-            .inviterName("Jane Doe")
-            .organizationName("Acme Corp")
-            .roleName("Admin")
-            .ctaUrl("https://nivo.dev/invite/123")
-            .companyName("Nivo Inc")
-            .supportUrl("https://nivo.dev/support")
-            .build();
+    content = UserInvitedData.builder()
+      .userName("John Doe")
+      .inviterName("Jane Doe")
+      .organizationName("Acme Corp")
+      .roleName("Admin")
+      .ctaUrl("https://nivo.dev/invite/123")
+      .companyName("Nivo Inc")
+      .supportUrl("https://nivo.dev/support")
+      .build();
   }
 
   @Test
   @DisplayName("Should interpolate subject with double and single curly braces")
   void shouldInterpolateSubjectWithDoubleAndSingleBraces() {
-    final NotificationTemplates template =
-        NotificationTemplates.builder()
-            .name("Welcome {{userName}} to {organizationName}!")
-            .eventType(NotificationEvents.USER_INVITED)
-            .build();
+    final NotificationTemplates template = NotificationTemplates.builder()
+      .name("Welcome {{userName}} to {organizationName}!")
+      .eventType(NotificationEvents.USER_INVITED)
+      .build();
 
     final String subject = builder.buildSubject(template, content);
 
@@ -49,18 +47,15 @@ class HtmlNotificationBuilderTest {
   @Test
   @DisplayName("Should fallback subject to event name when template name is blank or null")
   void shouldFallbackSubjectWhenTemplateNameIsBlankOrNull() {
-    final NotificationTemplates nullNameTemplate =
-        NotificationTemplates.builder()
-            .name(null)
-            .eventType(NotificationEvents.USER_INVITED)
-            .build();
-    final NotificationTemplates blankNameTemplate =
-        NotificationTemplates.builder()
-            .name("   ")
-            .eventType(NotificationEvents.PAYMENT_COMPLETED)
-            .build();
-    final NotificationTemplates nullEventTemplate =
-        NotificationTemplates.builder().name(null).eventType(null).build();
+    final NotificationTemplates nullNameTemplate = NotificationTemplates.builder()
+      .name(null)
+      .eventType(NotificationEvents.USER_INVITED)
+      .build();
+    final NotificationTemplates blankNameTemplate = NotificationTemplates.builder()
+      .name("   ")
+      .eventType(NotificationEvents.PAYMENT_COMPLETED)
+      .build();
+    final NotificationTemplates nullEventTemplate = NotificationTemplates.builder().name(null).eventType(null).build();
 
     final String subjectNull = builder.buildSubject(nullNameTemplate, content);
     final String subjectBlank = builder.buildSubject(blankNameTemplate, content);
@@ -76,11 +71,10 @@ class HtmlNotificationBuilderTest {
   @Test
   @DisplayName("Should handle missing or null placeholder values in subject gracefully")
   void shouldHandleMissingOrNullPlaceholderValuesInSubjectGracefully() {
-    final NotificationTemplates template =
-        NotificationTemplates.builder()
-            .name("Alert for {{userName}} - status: {missingKey} code: {{nullKey}}")
-            .eventType(NotificationEvents.USER_INVITED)
-            .build();
+    final NotificationTemplates template = NotificationTemplates.builder()
+      .name("Alert for {{userName}} - status: {missingKey} code: {{nullKey}}")
+      .eventType(NotificationEvents.USER_INVITED)
+      .build();
 
     final String subject = builder.buildSubject(template, content);
 
@@ -90,11 +84,10 @@ class HtmlNotificationBuilderTest {
   @Test
   @DisplayName("Should handle null content gracefully in buildSubject")
   void shouldHandleNullContentGracefullyInBuildSubject() {
-    final NotificationTemplates template =
-        NotificationTemplates.builder()
-            .name("Welcome {{userName}}!")
-            .eventType(NotificationEvents.USER_INVITED)
-            .build();
+    final NotificationTemplates template = NotificationTemplates.builder()
+      .name("Welcome {{userName}}!")
+      .eventType(NotificationEvents.USER_INVITED)
+      .build();
 
     final String subject = builder.buildSubject(template, null);
 
@@ -104,33 +97,29 @@ class HtmlNotificationBuilderTest {
   @Test
   @DisplayName("Should interpolate custom template body containing double and single braces")
   void shouldInterpolateCustomTemplateBody() {
-    final String bodyTemplate =
-        "<div><h1>Hello {{userName}}</h1><p>Invite for {organizationName}</p></div>";
-    final NotificationTemplates template =
-        NotificationTemplates.builder()
-            .id(UUID.randomUUID())
-            .name("Invitation")
-            .eventType(NotificationEvents.USER_INVITED)
-            .channel(NotificationsChannel.EMAIL)
-            .body(bodyTemplate)
-            .build();
+    final String bodyTemplate = "<div><h1>Hello {{userName}}</h1><p>Invite for {organizationName}</p></div>";
+    final NotificationTemplates template = NotificationTemplates.builder()
+      .id(UUID.randomUUID())
+      .name("Invitation")
+      .eventType(NotificationEvents.USER_INVITED)
+      .channel(NotificationsChannel.EMAIL)
+      .body(bodyTemplate)
+      .build();
 
     final String html = builder.buildHtml(template, content);
 
     assertThat(html)
-        .isEqualTo("<div><h1>Hello John Doe</h1><p>Invite for Acme Corp</p></div>");
+      .isEqualTo("<div><h1>Hello John Doe</h1><p>Invite for Acme Corp</p></div>");
   }
 
   @Test
   @DisplayName("Should handle missing and null placeholders gracefully in custom template body")
   void shouldHandleMissingOrNullPlaceholdersInCustomBody() {
-    final String bodyTemplate =
-        "<p>Hello {{userName}}, code: {missingCode}, extra: {{extraNull}}</p>";
-    final NotificationTemplates template =
-        NotificationTemplates.builder()
-            .body(bodyTemplate)
-            .eventType(NotificationEvents.USER_INVITED)
-            .build();
+    final String bodyTemplate = "<p>Hello {{userName}}, code: {missingCode}, extra: {{extraNull}}</p>";
+    final NotificationTemplates template = NotificationTemplates.builder()
+      .body(bodyTemplate)
+      .eventType(NotificationEvents.USER_INVITED)
+      .build();
 
     final String html = builder.buildHtml(template, content);
 
@@ -140,11 +129,10 @@ class HtmlNotificationBuilderTest {
   @Test
   @DisplayName("Should generate default responsive HTML layout when body is null")
   void shouldGenerateDefaultResponsiveHtmlWhenBodyIsNull() {
-    final NotificationTemplates template =
-        NotificationTemplates.builder()
-            .eventType(NotificationEvents.USER_INVITED)
-            .body(null)
-            .build();
+    final NotificationTemplates template = NotificationTemplates.builder()
+      .eventType(NotificationEvents.USER_INVITED)
+      .body(null)
+      .build();
 
     final String html = builder.buildHtml(template, content);
 
@@ -162,11 +150,10 @@ class HtmlNotificationBuilderTest {
   @Test
   @DisplayName("Should generate default responsive HTML layout when body is blank")
   void shouldGenerateDefaultResponsiveHtmlWhenBodyIsBlank() {
-    final NotificationTemplates template =
-        NotificationTemplates.builder()
-            .eventType(NotificationEvents.USER_INVITED)
-            .body("   ")
-            .build();
+    final NotificationTemplates template = NotificationTemplates.builder()
+      .eventType(NotificationEvents.USER_INVITED)
+      .body("   ")
+      .build();
 
     final String html = builder.buildHtml(template, content);
 
@@ -183,11 +170,10 @@ class HtmlNotificationBuilderTest {
   @Test
   @DisplayName("Should handle null content gracefully in buildHtml")
   void shouldHandleNullContentGracefullyInBuildHtml() {
-    final NotificationTemplates template =
-        NotificationTemplates.builder()
-            .eventType(NotificationEvents.USER_INVITED)
-            .body(null)
-            .build();
+    final NotificationTemplates template = NotificationTemplates.builder()
+      .eventType(NotificationEvents.USER_INVITED)
+      .body(null)
+      .build();
 
     final String html = builder.buildHtml(template, null);
 

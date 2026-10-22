@@ -10,7 +10,8 @@ package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.notificationpreferenc
  * @since 1.0.0
  */
 public enum NotificationPreferencesMessages {
-  NOTIFICATION_PREFERENCES_LIST("Preferencias de notificacion obtenidas con exito"), NOTIFICATION_PREFERENCES_TOGGLED(
+  NOTIFICATION_PREFERENCES_LIST("Preferencias de notificacion obtenidas con exito"),
+  NOTIFICATION_PREFERENCES_TOGGLED(
     "Preferencia de notificacion actualizada con exito"),;
 
   private final String template;

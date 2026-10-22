@@ -15,9 +15,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 /**
- * Pluggable {@link NotificationGateway} implementation that dynamically routes email dispatches
- * to the configured {@link EmailProviderClient} strategy (SendGrid, Resend, Brevo, or Mock)
- * and centralizes notification lifecycle logging.
+ * Pluggable {@link NotificationGateway} implementation that dynamically routes email dispatches to the configured
+ * {@link EmailProviderClient} strategy (SendGrid, Resend, Brevo, or Mock) and centralizes notification lifecycle
+ * logging.
  *
  * <p>
  * <strong>Layer:</strong> Infrastructure (Driven Adapter - Pluggable Notification Dispatcher)
@@ -35,9 +35,9 @@ public class PluggableNotificationAdapter implements NotificationGateway {
   private final NotificationsLoggerService notificationsLoggerService;
 
   public PluggableNotificationAdapter(
-      final List<EmailProviderClient> clients,
-      @Value("${nivo.notification.email.provider:SENDGRID}") final String activeProviderName,
-      final NotificationsLoggerService notificationsLoggerService) {
+    final List<EmailProviderClient> clients,
+    @Value("${nivo.notification.email.provider:SENDGRID}") final String activeProviderName,
+    final NotificationsLoggerService notificationsLoggerService) {
     this.clientsByProvider = new EnumMap<>(EmailProviderType.class);
     for (EmailProviderClient client : clients) {
       this.clientsByProvider.put(client.getProviderType(), client);
@@ -45,9 +45,9 @@ public class PluggableNotificationAdapter implements NotificationGateway {
     this.activeProvider = resolveProviderType(activeProviderName);
     this.notificationsLoggerService = notificationsLoggerService;
     log.info(
-        "Initialized PluggableNotificationAdapter with active email provider: {} (registered providers: {})",
-        this.activeProvider,
-        this.clientsByProvider.keySet());
+      "Initialized PluggableNotificationAdapter with active email provider: {} (registered providers: {})",
+      this.activeProvider,
+      this.clientsByProvider.keySet());
   }
 
   @Override

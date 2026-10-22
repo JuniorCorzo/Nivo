@@ -31,9 +31,9 @@ public class BrevoEmailProviderClient implements EmailProviderClient {
   private final HtmlNotificationBuilder htmlNotificationBuilder;
 
   public BrevoEmailProviderClient(
-      @Qualifier("brevoRestClient") final RestClient brevoRestClient,
-      final BrevoProperties brevoProperties,
-      final HtmlNotificationBuilder htmlNotificationBuilder) {
+    @Qualifier("brevoRestClient") final RestClient brevoRestClient,
+    final BrevoProperties brevoProperties,
+    final HtmlNotificationBuilder htmlNotificationBuilder) {
     this.brevoRestClient = brevoRestClient;
     this.brevoProperties = brevoProperties;
     this.htmlNotificationBuilder = htmlNotificationBuilder;
@@ -46,46 +46,42 @@ public class BrevoEmailProviderClient implements EmailProviderClient {
 
   @Override
   public void sendEmail(
-      final NotificationTemplates template,
-      final String to,
-      final NotificationsData content) {
+    final NotificationTemplates template,
+    final String to,
+    final NotificationsData content) {
     final String subject = this.htmlNotificationBuilder.buildSubject(template, content);
     final String htmlContent = this.htmlNotificationBuilder.buildHtml(template, content);
 
     final Map<String, Object> payload = Map.of(
-        "sender", Map.of(
-            "name", this.brevoProperties.getSenderName(),
-            "email", this.brevoProperties.getSenderEmail()
-        ),
-        "to", List.of(Map.of("email", to)),
-        "subject", subject,
-        "htmlContent", htmlContent
-    );
+      "sender", Map.of(
+        "name", this.brevoProperties.getSenderName(),
+        "email", this.brevoProperties.getSenderEmail()),
+      "to", List.of(Map.of("email", to)),
+      "subject", subject,
+      "htmlContent", htmlContent);
 
     try {
       this.brevoRestClient.post()
-          .uri(SMTP_EMAIL_PATH)
-          .body(payload)
-          .retrieve()
-          .toBodilessEntity();
+        .uri(SMTP_EMAIL_PATH)
+        .body(payload)
+        .retrieve()
+        .toBodilessEntity();
     } catch (final RestClientResponseException ex) {
       final int statusCode = ex.getStatusCode().value();
       final String responseBody = ex.getResponseBodyAsString();
       log.error("Brevo API responded with error status {}: {}", statusCode, responseBody, ex);
       throw new NotificationDeliveryException(
-          statusCode,
-          PROVIDER_NAME,
-          "Brevo API error " + statusCode + ": " + responseBody,
-          ex
-      );
+        statusCode,
+        PROVIDER_NAME,
+        "Brevo API error " + statusCode + ": " + responseBody,
+        ex);
     } catch (final RestClientException ex) {
       log.error("Brevo transport error while sending email to {}: {}", to, ex.getMessage(), ex);
       throw new NotificationDeliveryException(
-          500,
-          PROVIDER_NAME,
-          "Brevo transport error: " + ex.getMessage(),
-          ex
-      );
+        500,
+        PROVIDER_NAME,
+        "Brevo transport error: " + ex.getMessage(),
+        ex);
     }
   }
 }

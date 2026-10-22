@@ -17,7 +17,7 @@ public class NotificationDeliveryException extends AppException {
   }
 
   public NotificationDeliveryException(
-      int statusCode, String providerName, String message, Throwable cause) {
+    int statusCode, String providerName, String message, Throwable cause) {
     super(message, statusCode, DEFAULT_ERROR_CODE, cause);
     this.statusCode = statusCode;
     this.providerName = providerName;
