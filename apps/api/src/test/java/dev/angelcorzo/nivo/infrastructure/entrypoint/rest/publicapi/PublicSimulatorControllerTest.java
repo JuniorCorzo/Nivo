@@ -91,4 +91,59 @@ class PublicSimulatorControllerTest {
     assertEquals(15, command.gracePeriodMinutes());
     assertEquals(new BigDecimal("0.19"), command.ivaRate());
   }
+
+  @Test
+  @DisplayName("POST /public/simulator/calculate should return 400 when minutesStayed is negative")
+  void shouldReturnBadRequestWhenMinutesStayedIsNegative() throws Exception {
+    final String payload = """
+      {
+        "vehicleType": "CAR",
+        "minutesStayed": -10
+      }
+      """;
+
+    this.mockMvc
+      .perform(
+        post("/public/simulator/calculate")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(payload))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("POST /public/simulator/calculate should return 400 when vehicleType is null")
+  void shouldReturnBadRequestWhenVehicleTypeIsNull() throws Exception {
+    final String payload = """
+      {
+        "vehicleType": null,
+        "minutesStayed": 60
+      }
+      """;
+
+    this.mockMvc
+      .perform(
+        post("/public/simulator/calculate")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(payload))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("POST /public/simulator/calculate should return 400 when pricePerUnit is negative")
+  void shouldReturnBadRequestWhenPricePerUnitIsNegative() throws Exception {
+    final String payload = """
+      {
+        "vehicleType": "CAR",
+        "minutesStayed": 60,
+        "pricePerUnit": -1000.00
+      }
+      """;
+
+    this.mockMvc
+      .perform(
+        post("/public/simulator/calculate")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(payload))
+      .andExpect(status().isBadRequest());
+  }
 }
