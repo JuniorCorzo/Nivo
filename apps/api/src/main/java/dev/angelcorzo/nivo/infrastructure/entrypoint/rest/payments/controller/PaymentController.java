@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/payments")
 @Tag(name = "Payments", description = "Payment webhook confirmation and processing")
+@ConditionalOnProperty(name = "payment.enabled", havingValue = "true", matchIfMissing = true)
 @RequiredArgsConstructor
 public class PaymentController {
   private final ConfirmPaymentUseCase confirmPaymentUseCase;

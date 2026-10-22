@@ -1,0 +1,2 @@
+payment:
+  enabled: ${PAYMENT_ENABLED:false}

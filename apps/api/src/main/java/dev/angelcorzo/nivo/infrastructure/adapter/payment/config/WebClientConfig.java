@@ -2,6 +2,7 @@ package dev.angelcorzo.nivo.infrastructure.adapter.payment.config;
 
 import dev.angelcorzo.nivo.infrastructure.adapter.payment.context.ProviderAuthenticationContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Configuration
+@ConditionalOnProperty(name = "payment.enabled", havingValue = "true", matchIfMissing = true)
 @RequiredArgsConstructor
 public class WebClientConfig {
   private final PaymentProviderProperties paymentProviderProperties;
