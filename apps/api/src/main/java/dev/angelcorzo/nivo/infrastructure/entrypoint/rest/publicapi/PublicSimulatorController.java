@@ -19,25 +19,20 @@ import dev.angelcorzo.nivo.domain.usecase.rate.dtos.SimulateRateCommand;
 
 @RestController
 @RequestMapping("/public/simulator")
-@Tag(
-    name = "Public Simulator",
-    description = "Public parking fee simulation API without authentication")
+@Tag(name = "Public Simulator", description = "Public parking fee simulation API without authentication")
 @RequiredArgsConstructor
 public class PublicSimulatorController {
 
   private final SimulateRateUseCase simulateRateUseCase;
 
   @PostMapping("/calculate")
-  @Operation(
-      summary = "Simulate rate calculation",
-      description = "Calculates parking fee based on vehicle type and duration")
+  @Operation(summary = "Simulate rate calculation", description = "Calculates parking fee based on vehicle type and duration")
   @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "Fee simulated successfully"),
-      @ApiResponse(responseCode = "400", description = "Invalid simulation payload")
+    @ApiResponse(responseCode = "200", description = "Fee simulated successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid simulation payload")
   })
   public ResponseEntity<SimulateRateResponse> calculate(
-      @Valid @RequestBody final SimulateRateRequest request
-  ) {
+    @Valid @RequestBody final SimulateRateRequest request) {
     final SimulateRateCommand command = request != null ? request.toCommand() : null;
     final PriceDetailed priceDetailed = this.simulateRateUseCase.execute(command);
     return ResponseEntity.ok(SimulateRateResponse.from(priceDetailed));

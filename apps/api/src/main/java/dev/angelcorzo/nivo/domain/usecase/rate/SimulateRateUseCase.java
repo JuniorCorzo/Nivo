@@ -23,30 +23,27 @@ public class SimulateRateUseCase {
   private final Clock clock;
 
   public PriceDetailed execute(final SimulateRateCommand command) {
-    final SimulateRateCommand sanitized =
-        SimulateRateCommand.of(
-            command != null ? command.vehicleType() : null,
-            command != null ? command.minutesStayed() : 0L,
-            command != null ? command.pricePerUnit() : null,
-            command != null ? command.timeUnit() : null,
-            command != null ? command.gracePeriodMinutes() : null,
-            command != null ? command.ivaRate() : null);
+    final SimulateRateCommand sanitized = SimulateRateCommand.of(
+      command != null ? command.vehicleType() : null,
+      command != null ? command.minutesStayed() : 0L,
+      command != null ? command.pricePerUnit() : null,
+      command != null ? command.timeUnit() : null,
+      command != null ? command.gracePeriodMinutes() : null,
+      command != null ? command.ivaRate() : null);
 
-    final RateReference rate =
-        RateReference.builder()
-            .id(UUID.randomUUID())
-            .name(String.format("Tarifa %s", sanitized.vehicleType().name()))
-            .description("Tarifa simulada")
-            .pricePerUnit(sanitized.pricePerUnit())
-            .timeUnit(sanitized.timeUnit())
-            .minChargeTimeMinutes(sanitized.timeUnit() == TimeUnitsRate.MINUTES ? 1 : 60)
-            .vehicleType(sanitized.vehicleType())
-            .build();
+    final RateReference rate = RateReference.builder()
+      .id(UUID.randomUUID())
+      .name(String.format("Tarifa %s", sanitized.vehicleType().name()))
+      .description("Tarifa simulada")
+      .pricePerUnit(sanitized.pricePerUnit())
+      .timeUnit(sanitized.timeUnit())
+      .minChargeTimeMinutes(sanitized.timeUnit() == TimeUnitsRate.MINUTES ? 1 : 60)
+      .vehicleType(sanitized.vehicleType())
+      .build();
 
-    final ParkingLotPolicy policy =
-        new ParkingLotPolicy(
-            GracePeriod.of(sanitized.gracePeriodMinutes(), BigDecimal.ZERO),
-            TaxRate.of(sanitized.ivaRate()));
+    final ParkingLotPolicy policy = new ParkingLotPolicy(
+      GracePeriod.of(sanitized.gracePeriodMinutes(), BigDecimal.ZERO),
+      TaxRate.of(sanitized.ivaRate()));
 
     final OffsetDateTime now = OffsetDateTime.now(this.clock);
     final OffsetDateTime entryTime = now.minusMinutes(sanitized.minutesStayed());

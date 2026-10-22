@@ -47,40 +47,39 @@ class PublicSimulatorControllerTest {
   void shouldCalculateRateWithoutAuth() throws Exception {
     final PriceDetailed priceDetailed = PriceDetailed.of("Simulador Nivo");
     priceDetailed.addLine(
-        PriceLine.of("Tarifa CAR (2 Horas * 4000 COP/Horas)", new BigDecimal("8000.00")));
+      PriceLine.of("Tarifa CAR (2 Horas * 4000 COP/Horas)", new BigDecimal("8000.00")));
     priceDetailed.setIvaRate(new BigDecimal("0.19"));
 
     when(this.simulateRateUseCase.execute(any())).thenReturn(priceDetailed);
 
     final String payload = """
-        {
-          "vehicleType": "CAR",
-          "minutesStayed": 90,
-          "pricePerUnit": 4000.00,
-          "timeUnit": "HOURS",
-          "gracePeriodMinutes": 15,
-          "ivaRate": 0.19
-        }
-        """;
+      {
+        "vehicleType": "CAR",
+        "minutesStayed": 90,
+        "pricePerUnit": 4000.00,
+        "timeUnit": "HOURS",
+        "gracePeriodMinutes": 15,
+        "ivaRate": 0.19
+      }
+      """;
 
     this.mockMvc
-        .perform(
-            post("/public/simulator/calculate")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(payload))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.name").value("Simulador Nivo"))
-        .andExpect(jsonPath("$.subtotal").value(8000.00))
-        .andExpect(jsonPath("$.ivaAmount").value(1520.00))
-        .andExpect(jsonPath("$.total").value(9520.00))
-        .andExpect(jsonPath("$.breakpoints").isArray())
-        .andExpect(
-            jsonPath("$.breakpoints[0].concept")
-                .value("Tarifa CAR (2 Horas * 4000 COP/Horas)"))
-        .andExpect(jsonPath("$.breakpoints[0].amount").value(8000.00));
+      .perform(
+        post("/public/simulator/calculate")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(payload))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.name").value("Simulador Nivo"))
+      .andExpect(jsonPath("$.subtotal").value(8000.00))
+      .andExpect(jsonPath("$.ivaAmount").value(1520.00))
+      .andExpect(jsonPath("$.total").value(9520.00))
+      .andExpect(jsonPath("$.breakpoints").isArray())
+      .andExpect(
+        jsonPath("$.breakpoints[0].concept")
+          .value("Tarifa CAR (2 Horas * 4000 COP/Horas)"))
+      .andExpect(jsonPath("$.breakpoints[0].amount").value(8000.00));
 
-    final ArgumentCaptor<SimulateRateCommand> captor =
-        ArgumentCaptor.forClass(SimulateRateCommand.class);
+    final ArgumentCaptor<SimulateRateCommand> captor = ArgumentCaptor.forClass(SimulateRateCommand.class);
     verify(this.simulateRateUseCase).execute(captor.capture());
 
     final SimulateRateCommand command = captor.getValue();
