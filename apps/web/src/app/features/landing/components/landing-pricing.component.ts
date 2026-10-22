@@ -29,7 +29,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       lucideCheck,
     }),
   ],
-  selector: "app-landing-pricing",
+  selector: "landing-pricing",
   standalone: true,
   templateUrl: "./landing-pricing.component.html",
 })

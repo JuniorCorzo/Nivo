@@ -17,7 +17,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       lucideArrowRight,
     }),
   ],
-  selector: "app-landing-footer",
+  selector: "landing-footer",
   standalone: true,
   templateUrl: "./landing-footer.component.html",
 })

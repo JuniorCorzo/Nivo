@@ -1,36 +1,44 @@
 <div
-  class="min-h-screen bg-[var(--background)] text-[var(--foreground)] selection:bg-[var(--primary)] selection:text-[var(--primary-foreground)]"
+  class="relative isolate min-h-screen bg-[var(--background)] text-[var(--foreground)] selection:bg-[var(--primary)] selection:text-[var(--primary-foreground)]"
 >
-  <app-landing-navbar
-    (loginClick)="goToLogin()"
-    (registerClick)="goToRegister()"
-  />
+  <!-- Background Paper Texture (Canvas layer only, behind all cards and buttons) -->
+  <div
+    class="paper-texture pointer-events-none fixed inset-0 z-0 opacity-60 select-none"
+    aria-hidden="true"
+  ></div>
 
-  <main>
-    <app-landing-hero
-      (trySimulatorClick)="scrollToSimulator()"
+  <div class="relative z-10 flex min-h-screen flex-col">
+    <landing-navbar
+      (loginClick)="goToLogin()"
       (registerClick)="goToRegister()"
     />
 
-    <app-landing-benefits />
+    <main class="flex-1">
+      <landing-hero
+        (trySimulatorClick)="scrollToSimulator()"
+        (registerClick)="goToRegister()"
+      />
 
-    <app-landing-simulator
-      [vehicleType]="vehicleType()"
-      [minutesStayed]="minutesStayed()"
-      [pricePerUnit]="pricePerUnit()"
-      [gracePeriodMinutes]="gracePeriodMinutes()"
-      [ivaRate]="ivaRate()"
-      [simulationResult]="simulationResult()"
-      [isCalculating]="isCalculating()"
-      (vehicleTypeChange)="selectVehicle($event)"
-      (durationChange)="setDuration($event)"
-      (registerClick)="goToRegister()"
-    />
+      <landing-benefits />
 
-    <app-landing-comparison />
+      <landing-simulator
+        [vehicleType]="vehicleType()"
+        [minutesStayed]="minutesStayed()"
+        [pricePerUnit]="pricePerUnit()"
+        [gracePeriodMinutes]="gracePeriodMinutes()"
+        [ivaRate]="ivaRate()"
+        [simulationResult]="simulationResult()"
+        [isCalculating]="isCalculating()"
+        (vehicleTypeChange)="selectVehicle($event)"
+        (durationChange)="setDuration($event)"
+        (registerClick)="goToRegister()"
+      />
 
-    <app-landing-pricing (registerClick)="goToRegister()" />
-  </main>
+      <landing-comparison />
 
-  <app-landing-footer (ctaClick)="goToRegister()" />
+      <landing-pricing (registerClick)="goToRegister()" />
+    </main>
+
+    <landing-footer (ctaClick)="goToRegister()" />
+  </div>
 </div>

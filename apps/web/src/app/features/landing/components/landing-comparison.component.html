@@ -1,4 +1,4 @@
-<section class="border-t border-[var(--border)] bg-[var(--card)]/30 py-20">
+<section class="border-t border-[var(--border)] py-20">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="mx-auto mb-14 max-w-3xl text-center">
       <nv-badge variant="outline" class="mb-3">{{ texts.badge }}</nv-badge>
@@ -10,7 +10,9 @@
 
     <div class="mx-auto grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
       <!-- Traditional Paper -->
-      <nv-card class="border-red-500/20 bg-red-950/10 p-6 sm:p-8">
+      <nv-card
+        class="bg-card border-red-500/25 p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 sm:p-8"
+      >
         <div class="mb-6 flex items-center gap-3">
           <div
             class="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-500"
@@ -43,7 +45,7 @@
 
       <!-- Nivo Digital Control -->
       <nv-card
-        class="border-emerald-500/30 bg-emerald-950/10 p-6 shadow-lg sm:p-8"
+        class="bg-card border-emerald-500/35 p-6 shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-emerald-500/5 sm:p-8"
       >
         <div class="mb-6 flex items-center gap-3">
           <div

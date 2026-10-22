@@ -28,7 +28,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       lucideXCircle,
     }),
   ],
-  selector: "app-landing-comparison",
+  selector: "landing-comparison",
   standalone: true,
   templateUrl: "./landing-comparison.component.html",
 })

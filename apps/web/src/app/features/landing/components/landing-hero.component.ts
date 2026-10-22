@@ -26,7 +26,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       lucideSparkles,
     }),
   ],
-  selector: "app-landing-hero",
+  selector: "landing-hero",
   standalone: true,
   templateUrl: "./landing-hero.component.html",
 })

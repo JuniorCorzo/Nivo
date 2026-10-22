@@ -31,7 +31,7 @@ import { LandingSimulatorComponent } from "./components/landing-simulator.compon
     LandingPricingComponent,
     LandingFooterComponent,
   ],
-  selector: "app-landing-page",
+  selector: "landing-page",
   standalone: true,
   templateUrl: "./landing-page.component.html",
 })

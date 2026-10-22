@@ -57,7 +57,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       lucideShieldCheck,
     }),
   ],
-  selector: "app-landing-simulator",
+  selector: "landing-simulator",
   standalone: true,
   templateUrl: "./landing-simulator.component.html",
 })

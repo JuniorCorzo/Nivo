@@ -7,7 +7,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, NgIcon, ButtonComponent],
-  selector: "app-landing-navbar",
+  selector: "landing-navbar",
   standalone: true,
   templateUrl: "./landing-navbar.component.html",
 })

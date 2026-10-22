@@ -35,7 +35,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       lucideSmartphone,
     }),
   ],
-  selector: "app-landing-benefits",
+  selector: "landing-benefits",
   standalone: true,
   templateUrl: "./landing-benefits.component.html",
 })
