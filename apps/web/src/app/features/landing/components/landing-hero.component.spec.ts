@@ -46,10 +46,10 @@ describe("LandingHeroComponent", () => {
     });
 
     /* SAFETY: Querying nv-button elements in DOM fixture */
-    const buttons = fixture.nativeElement.querySelectorAll(
-      "nv-button"
-    ) as NodeListOf<HTMLElement>;
-    const ctaBtn = [...buttons].find((b) =>
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll("nv-button")
+    ) as HTMLElement[];
+    const ctaBtn = buttons.find((b) =>
       b.textContent?.includes(APP_TEXTS.landing.hero.trySimulator)
     );
     ctaBtn?.click();
@@ -64,10 +64,10 @@ describe("LandingHeroComponent", () => {
     });
 
     /* SAFETY: Querying nv-button elements in DOM fixture */
-    const buttons = fixture.nativeElement.querySelectorAll(
-      "nv-button"
-    ) as NodeListOf<HTMLElement>;
-    const registerBtn = [...buttons].find((b) =>
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll("nv-button")
+    ) as HTMLElement[];
+    const registerBtn = buttons.find((b) =>
       b.textContent?.includes(APP_TEXTS.landing.hero.createAccountFree)
     );
     registerBtn?.click();

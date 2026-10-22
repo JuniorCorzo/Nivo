@@ -9,8 +9,10 @@ import { Router } from "@angular/router";
 import type {
   SimulateRateRequest,
   SimulateRateResponse,
-} from "@core/models/simulator.model";
-import { SimulatorService } from "@core/services/simulator.service";
+} from "@core/api/generated/models";
+import { PublicSimulatorService } from "@core/api/generated/services/public-simulator.service";
+import type { VehicleType } from "@core/type/vehicle-type.type";
+import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
 import { LandingBenefitsComponent } from "./components/landing-benefits.component";
 import { LandingComparisonComponent } from "./components/landing-comparison.component";
@@ -36,10 +38,10 @@ import { LandingSimulatorComponent } from "./components/landing-simulator.compon
   templateUrl: "./landing-page.component.html",
 })
 export class LandingPageComponent implements OnInit {
-  private readonly simulatorService = inject(SimulatorService);
+  private readonly publicSimulatorService = inject(PublicSimulatorService);
   private readonly router = inject(Router);
 
-  readonly vehicleType = signal<"CAR" | "MOTORCYCLE" | "BIKE">("CAR");
+  readonly vehicleType = signal<VehicleType>("CAR");
   readonly minutesStayed = signal<number>(90);
   readonly pricePerUnit = signal<number>(4000);
   readonly gracePeriodMinutes = signal<number>(15);
@@ -52,7 +54,7 @@ export class LandingPageComponent implements OnInit {
     this.calculateRate();
   }
 
-  selectVehicle(type: "CAR" | "MOTORCYCLE" | "BIKE"): void {
+  selectVehicle(type: VehicleType): void {
     this.vehicleType.set(type);
     if (type === "CAR") {
       this.pricePerUnit.set(4000);
@@ -81,7 +83,7 @@ export class LandingPageComponent implements OnInit {
       vehicleType: this.vehicleType(),
     };
 
-    this.simulatorService.calculate(request).subscribe({
+    this.publicSimulatorService.calculate({ body: request }).subscribe({
       error: () => {
         this.fallbackCalculation(request);
         this.isCalculating.set(false);
@@ -131,10 +133,10 @@ export class LandingPageComponent implements OnInit {
   }
 
   goToLogin(): void {
-    this.router.navigate(["/auth/login"]);
+    this.router.navigate([APP_ROUTES.auth.login]);
   }
 
   goToRegister(): void {
-    this.router.navigate(["/auth/register"]);
+    this.router.navigate([APP_ROUTES.auth.register]);
   }
 }

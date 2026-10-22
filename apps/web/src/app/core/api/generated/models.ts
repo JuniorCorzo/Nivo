@@ -87,3 +87,6 @@ export type { UserInfo } from "./models/user-info";
 export type { UserInvitationsDto } from "./models/user-invitations-dto";
 export type { UserReference } from "./models/user-reference";
 export type { Users } from "./models/users";
+export type { SimulateRateRequest } from "./models/simulate-rate-request";
+export type { SimulateRateResponse } from "./models/simulate-rate-response";
+

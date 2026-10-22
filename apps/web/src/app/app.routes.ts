@@ -10,6 +10,7 @@ import type {
   RouteNavContext,
 } from "./core/services/navigation-context.service";
 import { APP_ROUTE_PATHS } from "./shared/constants/app-routes.constant";
+import { APP_TEXTS } from "./shared/constants/app-texts.constant";
 
 export const routes: Routes = [
   {
@@ -20,7 +21,7 @@ export const routes: Routes = [
     },
     path: "",
     pathMatch: "full",
-    title: "Nivo - Software para Parqueaderos",
+    title: APP_TEXTS.landing.pageTitle,
   },
   {
     canActivate: [publicGuard],

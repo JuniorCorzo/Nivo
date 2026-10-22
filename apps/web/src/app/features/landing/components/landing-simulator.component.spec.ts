@@ -1,7 +1,7 @@
 import type { ComponentRef } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import type { ComponentFixture } from "@angular/core/testing";
-import type { SimulateRateResponse } from "@core/models/simulator.model";
+import type { SimulateRateResponse } from "@core/api/generated/models";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { beforeEach, describe, expect, it } from "vitest";
 
@@ -70,10 +70,10 @@ describe("LandingSimulatorComponent", () => {
     });
 
     /* SAFETY: Querying nv-button elements in DOM fixture */
-    const buttons = fixture.nativeElement.querySelectorAll(
-      "nv-button"
-    ) as NodeListOf<HTMLElement>;
-    const motoBtn = [...buttons].find((b) =>
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll("nv-button")
+    ) as HTMLElement[];
+    const motoBtn = buttons.find((b) =>
       b.textContent?.includes(APP_TEXTS.landing.simulator.vehicles.motorcycle)
     );
     motoBtn?.click();
@@ -88,12 +88,10 @@ describe("LandingSimulatorComponent", () => {
     });
 
     /* SAFETY: Querying nv-button elements in DOM fixture */
-    const buttons = fixture.nativeElement.querySelectorAll(
-      "nv-button"
-    ) as NodeListOf<HTMLElement>;
-    const presetBtn = [...buttons].find((b) =>
-      b.textContent?.includes("3 horas")
-    );
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll("nv-button")
+    ) as HTMLElement[];
+    const presetBtn = buttons.find((b) => b.textContent?.includes("3 horas"));
     presetBtn?.click();
 
     expect(minutes).toBe(180);
@@ -130,10 +128,10 @@ describe("LandingSimulatorComponent", () => {
     });
 
     /* SAFETY: Querying nv-button elements in DOM fixture */
-    const buttons = fixture.nativeElement.querySelectorAll(
-      "nv-button"
-    ) as NodeListOf<HTMLElement>;
-    const ctaBtn = [...buttons].find((b) =>
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll("nv-button")
+    ) as HTMLElement[];
+    const ctaBtn = buttons.find((b) =>
       b.textContent?.includes(APP_TEXTS.landing.simulator.ctaButton)
     );
     ctaBtn?.click();

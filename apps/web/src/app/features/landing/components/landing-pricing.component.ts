@@ -1,33 +1,23 @@
 import { ChangeDetectionStrategy, Component, output } from "@angular/core";
-import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideCheck } from "@ng-icons/lucide";
 import {
   BadgeComponent,
-  ButtonComponent,
-  CardComponent,
   TypographyH2,
-  TypographyH3,
-  TypographyMuted,
   TypographyP,
 } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
+import {
+  LandingPricingCardComponent,
+  type PricingPlanItem,
+} from "./landing-pricing-card.component";
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    NgIcon,
     BadgeComponent,
-    ButtonComponent,
-    CardComponent,
     TypographyH2,
-    TypographyH3,
     TypographyP,
-    TypographyMuted,
-  ],
-  providers: [
-    provideIcons({
-      lucideCheck,
-    }),
+    LandingPricingCardComponent,
   ],
   selector: "landing-pricing",
   standalone: true,
@@ -36,5 +26,11 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 export class LandingPricingComponent {
   protected readonly texts = APP_TEXTS.landing.pricing;
 
-  readonly registerClick = output();
+  readonly plans: readonly PricingPlanItem[] = [
+    { ...this.texts.basic, isPopular: false },
+    { ...this.texts.pro, isPopular: true },
+    { ...this.texts.multiSite, isPopular: false },
+  ];
+
+  readonly registerClick = output<void>();
 }

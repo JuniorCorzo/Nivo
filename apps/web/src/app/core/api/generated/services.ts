@@ -16,3 +16,5 @@ export { PublicAvailabilityService } from "./services/public-availability.servic
 export { NotificationLogsService } from "./services/notification-logs.service";
 export { DashboardService } from "./services/dashboard.service";
 export { DashboardStreamService } from "./services/dashboard-stream.service";
+export { PublicSimulatorService } from "./services/public-simulator.service";
+

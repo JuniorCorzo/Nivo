@@ -95,3 +95,6 @@ export type { GetHourlyOccupancy$Params as GetHourlyOccupancy$Params } from "./f
 export { getHourlyOccupancy as getHourlyOccupancy } from "./fn/dashboard/get-hourly-occupancy";
 export type { Subscribe$Params as Subscribe$Params } from "./fn/dashboard-stream/subscribe";
 export { subscribe as subscribe } from "./fn/dashboard-stream/subscribe";
+export type { Calculate$Params as Calculate$Params } from "./fn/public-simulator/calculate";
+export { calculate as calculate } from "./fn/public-simulator/calculate";
+

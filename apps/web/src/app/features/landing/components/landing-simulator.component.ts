@@ -1,61 +1,29 @@
-import { DecimalPipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
   input,
   output,
 } from "@angular/core";
-import type { SimulateRateResponse } from "@core/models/simulator.model";
-import { NgIcon, provideIcons } from "@ng-icons/core";
-import {
-  lucideArrowRight,
-  lucideBadgeCheck,
-  lucideBike,
-  lucideCar,
-  lucideMotorbike,
-  lucideReceipt,
-  lucideShieldCheck,
-} from "@ng-icons/lucide";
+import type { SimulateRateResponse } from "@core/api/generated/models";
+import type { VehicleType } from "@core/type/vehicle-type.type";
 import {
   BadgeComponent,
-  ButtonComponent,
-  CardComponent,
-  CardContentComponent,
-  CardDescriptionComponent,
-  CardHeaderComponent,
-  CardTitleComponent,
   TypographyH2,
-  TypographyMuted,
   TypographyP,
 } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
+import { LandingSimulatorControlsComponent } from "./landing-simulator-controls.component";
+import { LandingSimulatorTicketComponent } from "./landing-simulator-ticket.component";
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DecimalPipe,
-    NgIcon,
-    ButtonComponent,
-    CardComponent,
-    CardHeaderComponent,
-    CardTitleComponent,
-    CardDescriptionComponent,
-    CardContentComponent,
     BadgeComponent,
     TypographyH2,
     TypographyP,
-    TypographyMuted,
-  ],
-  providers: [
-    provideIcons({
-      lucideArrowRight,
-      lucideBadgeCheck,
-      lucideBike,
-      lucideCar,
-      lucideMotorbike,
-      lucideReceipt,
-      lucideShieldCheck,
-    }),
+    LandingSimulatorControlsComponent,
+    LandingSimulatorTicketComponent,
   ],
   selector: "landing-simulator",
   standalone: true,
@@ -64,7 +32,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 export class LandingSimulatorComponent {
   protected readonly texts = APP_TEXTS.landing.simulator;
 
-  readonly vehicleType = input.required<"CAR" | "MOTORCYCLE" | "BIKE">();
+  readonly vehicleType = input.required<VehicleType>();
   readonly minutesStayed = input.required<number>();
   readonly pricePerUnit = input.required<number>();
   readonly gracePeriodMinutes = input.required<number>();
@@ -72,16 +40,7 @@ export class LandingSimulatorComponent {
   readonly simulationResult = input<SimulateRateResponse | null>(null);
   readonly isCalculating = input<boolean>(false);
 
-  readonly vehicleTypeChange = output<"CAR" | "MOTORCYCLE" | "BIKE">();
+  readonly vehicleTypeChange = output<VehicleType>();
   readonly durationChange = output<number>();
-  readonly registerClick = output();
-
-  onMinutesInputChange(event: Event): void {
-    /* SAFETY: event.target is bound to HTMLInputElement on input change */
-    const target = event.target as HTMLInputElement;
-    const value = Math.trunc(Number(target.value));
-    if (!Number.isNaN(value) && value > 0) {
-      this.durationChange.emit(value);
-    }
-  }
+  readonly registerClick = output<void>();
 }

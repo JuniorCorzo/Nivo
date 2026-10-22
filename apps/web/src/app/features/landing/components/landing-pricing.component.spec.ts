@@ -43,9 +43,9 @@ describe("LandingPricingComponent", () => {
     });
 
     /* SAFETY: Querying nv-button elements in DOM fixture */
-    const buttons = fixture.nativeElement.querySelectorAll(
-      "nv-button"
-    ) as NodeListOf<HTMLElement>;
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll("nv-button")
+    ) as HTMLElement[];
     buttons[0]?.click();
     buttons[1]?.click();
 

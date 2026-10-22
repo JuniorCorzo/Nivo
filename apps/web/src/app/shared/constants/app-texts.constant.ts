@@ -286,6 +286,7 @@ export const APP_TEXTS = {
     },
   },
   landing: {
+    pageTitle: "Nivo - Software para Parqueaderos",
     benefits: {
       badge: "Ventajas Clave",
       description:

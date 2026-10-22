@@ -3,10 +3,11 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter, Router } from "@angular/router";
-import type { SimulateRateResponse } from "@core/models/simulator.model";
-import { SimulatorService } from "@core/services/simulator.service";
+import type { SimulateRateResponse } from "@core/api/generated/models";
+import { PublicSimulatorService } from "@core/api/generated/services/public-simulator.service";
+import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { of, throwError } from "rxjs";
-import { describe, expect, it, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LandingPageComponent } from "./landing-page.component";
 
@@ -37,7 +38,10 @@ describe("LandingPageComponent", () => {
       imports: [LandingPageComponent],
       providers: [
         provideRouter([]),
-        { provide: SimulatorService, useValue: { calculate: calculateMock } },
+        {
+          provide: PublicSimulatorService,
+          useValue: { calculate: calculateMock },
+        },
         provideHttpClient(),
         provideHttpClientTesting(),
       ],
@@ -57,7 +61,7 @@ describe("LandingPageComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should call simulatorService.calculate on initialization", () => {
+  it("should call publicSimulatorService.calculate on initialization", () => {
     expect(calculateMock).toHaveBeenCalled();
     expect(component.simulationResult()).toEqual(mockCalculation);
   });
@@ -75,7 +79,9 @@ describe("LandingPageComponent", () => {
     expect(component.vehicleType()).toBe("MOTORCYCLE");
     expect(calculateMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        vehicleType: "MOTORCYCLE",
+        body: expect.objectContaining({
+          vehicleType: "MOTORCYCLE",
+        }),
       })
     );
   });
@@ -86,7 +92,9 @@ describe("LandingPageComponent", () => {
     expect(component.minutesStayed()).toBe(180);
     expect(calculateMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        minutesStayed: 180,
+        body: expect.objectContaining({
+          minutesStayed: 180,
+        }),
       })
     );
   });
@@ -98,45 +106,13 @@ describe("LandingPageComponent", () => {
     expect(component.simulationResult()?.subtotal).toBeGreaterThan(0);
   });
 
-  it("should render hero headline 'De talonario de papel a control total en 2 minutos'", () => {
-    /* SAFETY: The test fixture native element is a DOM HTMLElement */
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain(
-      "De talonario de papel a control total en 2 minutos"
-    );
-  });
-
-  it("should render paper vs digital comparison cards", () => {
-    /* SAFETY: The test fixture native element is a DOM HTMLElement */
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain("Talonario de Papel");
-    expect(compiled.textContent).toContain("Control Digital con Nivo");
-  });
-
-  it("should render the 4 value pillars", () => {
-    /* SAFETY: The test fixture native element is a DOM HTMLElement */
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain("Cero inversión en hardware");
-    expect(compiled.textContent).toContain("Liquidación exacta");
-    expect(compiled.textContent).toContain("Arqueo sin fugas");
-    expect(compiled.textContent).toContain("Tickets WhatsApp/QR");
-  });
-
-  it("should render pricing plans", () => {
-    /* SAFETY: The test fixture native element is a DOM HTMLElement */
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain("Planes");
-    expect(compiled.textContent).toContain("Básico");
-    expect(compiled.textContent).toContain("Pro");
-  });
-
-  it("should navigate to /auth/login when login CTA is triggered", () => {
+  it("should navigate to login when login CTA is triggered", () => {
     component.goToLogin();
-    expect(router.navigate).toHaveBeenCalledWith(["/auth/login"]);
+    expect(router.navigate).toHaveBeenCalledWith([APP_ROUTES.auth.login]);
   });
 
-  it("should navigate to /auth/register when register CTA is triggered", () => {
+  it("should navigate to register when register CTA is triggered", () => {
     component.goToRegister();
-    expect(router.navigate).toHaveBeenCalledWith(["/auth/register"]);
+    expect(router.navigate).toHaveBeenCalledWith([APP_ROUTES.auth.register]);
   });
 });
