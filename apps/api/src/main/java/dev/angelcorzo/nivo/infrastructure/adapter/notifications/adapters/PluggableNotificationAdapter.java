@@ -16,8 +16,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Pluggable {@link NotificationGateway} implementation that dynamically routes email dispatches to the configured
- * {@link EmailProviderClient} strategy (SendGrid, Resend, Brevo, or Mock) and centralizes notification lifecycle
- * logging.
+ * {@link EmailProviderClient} strategy (Brevo or Mock) and centralizes notification lifecycle logging.
  *
  * <p>
  * <strong>Layer:</strong> Infrastructure (Driven Adapter - Pluggable Notification Dispatcher)
@@ -36,7 +35,7 @@ public class PluggableNotificationAdapter implements NotificationGateway {
 
   public PluggableNotificationAdapter(
     final List<EmailProviderClient> clients,
-    @Value("${nivo.notification.email.provider:SENDGRID}") final String activeProviderName,
+    @Value("${nivo.notification.email.provider:BREVO}") final String activeProviderName,
     final NotificationsLoggerService notificationsLoggerService) {
     this.clientsByProvider = new EnumMap<>(EmailProviderType.class);
     for (EmailProviderClient client : clients) {
@@ -76,13 +75,13 @@ public class PluggableNotificationAdapter implements NotificationGateway {
 
   private static EmailProviderType resolveProviderType(final String providerName) {
     if (providerName == null || providerName.isBlank()) {
-      return EmailProviderType.SENDGRID;
+      return EmailProviderType.BREVO;
     }
     try {
       return EmailProviderType.valueOf(providerName.trim().toUpperCase());
     } catch (IllegalArgumentException e) {
-      log.warn("Unknown email provider '{}' configured; falling back to default SENDGRID", providerName);
-      return EmailProviderType.SENDGRID;
+      log.warn("Unknown email provider '{}' configured; falling back to default BREVO", providerName);
+      return EmailProviderType.BREVO;
     }
   }
 }

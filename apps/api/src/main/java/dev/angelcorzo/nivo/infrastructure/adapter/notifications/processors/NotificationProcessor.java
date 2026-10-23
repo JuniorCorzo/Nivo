@@ -6,7 +6,6 @@ import dev.angelcorzo.nivo.infrastructure.adapter.notifications.cache.Notificati
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.context.NotificationExecutionContext;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.context.NotificationExecutionContextHolder;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.NotificationDeliveryException;
-import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.SendGridRequestBuildException;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.retrypredicates.EmailExceptionPredicate;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.utils.EmailMaskUtils;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.valueobject.NotificationImmutableKey;
@@ -26,7 +25,7 @@ public class NotificationProcessor {
   private final NotificationTemplateCache notificationTemplatesCache;
   private final NotificationExecutionContextHolder executionContextHolder;
 
-  @Retryable(maxRetries = 5, includes = {SendGridRequestBuildException.class,
+  @Retryable(maxRetries = 5, includes = {
     NotificationDeliveryException.class}, predicate = EmailExceptionPredicate.class, delay = RETRY_INITIAL_DELAY_MILLIS, multiplier = RETRY_DELAY_MULTIPLIER, maxDelay = RETRY_MAX_DELAY_MILLIS)
   public void processEvent(SendNotificationEvent event) {
     if (event.tenantId() == null || event.actorUserId() == null) {

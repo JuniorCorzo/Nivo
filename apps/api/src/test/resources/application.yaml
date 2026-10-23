@@ -29,9 +29,6 @@ jwt:
   access-token-expiration: 900
   refresh-token-expiration: 604800
 
-sendgrid:
-  api-key: "SG.dummy"
-  from-email: "noreply@nivo.dev"
 
 rsa:
   public-key: classpath:keys/public.pem

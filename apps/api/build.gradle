@@ -62,7 +62,6 @@ dependencies {
     implementation 'com.scalar.maven:scalar-webmvc:0.6.63'
 
     // Notifications & Communications
-    implementation 'com.sendgrid:sendgrid-java:4.10.3'
     implementation 'org.slf4j:slf4j-api'
 
     // Security & Tokens
