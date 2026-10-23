@@ -122,13 +122,13 @@ public class JwtProvider implements AuthenticationGateway {
   /** {@inheritDoc} */
   @Override
   public Optional<String> extractClaim(String token, String claimName) {
-    return Optional.of(this.extractTokenClaims(token).get(claimName));
+    return Optional.ofNullable(this.extractTokenClaims(token).get(claimName));
   }
 
   /** {@inheritDoc} */
   @Override
   public Optional<String> extractEmail(String token) {
-    return Optional.of(this.extractTokenClaims(token).get("email"));
+    return Optional.ofNullable(this.extractTokenClaims(token).get("email"));
   }
 
   /**

@@ -143,4 +143,27 @@ class ExceptionHandlerControllerTest {
     assertThat(response.getBody().code()).isEqualTo("VALIDATION_FAILED");
     assertThat(response.getBody().error()).isEqualTo("Validation error");
   }
+
+  @Test
+  @DisplayName("Should handle generic unhandled exceptions with 500 INTERNAL_SERVER_ERROR")
+  void shouldHandleGenericException() throws Exception {
+    Exception ex = new RuntimeException("Unexpected database failure");
+
+    ResponseEntity<ResponseError<Object>> response = exceptionHandlerController.handleGenericException(ex);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().code()).isEqualTo("INTERNAL_SERVER_ERROR");
+    assertThat(response.getBody().error()).isEqualTo("An unexpected error occurred");
+  }
+
+  @Test
+  @DisplayName("Should rethrow AccessDeniedException so Spring Security handles it")
+  void shouldRethrowAccessDeniedException() {
+    org.springframework.security.access.AccessDeniedException ex = new org.springframework.security.access.AccessDeniedException(
+      "Access is denied");
+
+    org.assertj.core.api.Assertions.assertThatThrownBy(() -> exceptionHandlerController.handleGenericException(ex))
+      .isInstanceOf(org.springframework.security.access.AccessDeniedException.class);
+  }
 }

@@ -74,6 +74,8 @@ rsa:
 security:
   aes:
     secret-key: "${AES_SECRET_KEY}"
+  cookie:
+    secure: ${COOKIE_SECURE:false}
 
 jwt:
   issue: "${JWT_ISSUE:https://api.nivo.dev}"

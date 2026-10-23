@@ -4,12 +4,16 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.AppException;
 import dev.angelcorzo.nivo.domain.model.slots.excetions.SlotCannotBeModifiedException;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.dto.ResponseError;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+@Slf4j
 @ControllerAdvice
 public class ExceptionHandlerController {
 
@@ -37,5 +41,16 @@ public class ExceptionHandlerController {
     }
     final HttpStatus status = HttpStatus.BAD_REQUEST;
     return ResponseEntity.status(status).body(ResponseError.of(status, "VALIDATION_FAILED", message, ""));
+  }
+
+  @ExceptionHandler(Exception.class)
+  ResponseEntity<ResponseError<Object>> handleGenericException(Exception ex) throws Exception {
+    if (ex instanceof AccessDeniedException || ex instanceof AuthenticationException) {
+      throw ex;
+    }
+    log.error("Unhandled exception intercepted by ExceptionHandlerController: ", ex);
+    final HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+    return ResponseEntity.status(status)
+      .body(ResponseError.of(status, "INTERNAL_SERVER_ERROR", "An unexpected error occurred", ""));
   }
 }

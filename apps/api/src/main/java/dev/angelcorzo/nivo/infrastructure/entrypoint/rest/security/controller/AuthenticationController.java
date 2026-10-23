@@ -26,15 +26,18 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication", description = "Authentication and session management endpoints")
 public class AuthenticationController {
   private final int refreshTokenExpiration;
+  private final boolean cookieSecure;
 
   private final LoginUseCase loginUseCase;
   private final RefreshSessionUseCase refreshSessionUseCase;
   private final AuthenticationMapper authenticationMapper;
 
   public AuthenticationController(@Value("${jwt.refresh-token-expiration}") int refreshTokenExpiration,
+    @Value("${security.cookie.secure:false}") boolean cookieSecure,
     LoginUseCase loginUseCase, RefreshSessionUseCase refreshSessionUseCase,
     AuthenticationMapper authenticationMapper) {
     this.refreshTokenExpiration = refreshTokenExpiration;
+    this.cookieSecure = cookieSecure;
     this.loginUseCase = loginUseCase;
     this.refreshSessionUseCase = refreshSessionUseCase;
     this.authenticationMapper = authenticationMapper;
@@ -83,7 +86,7 @@ public class AuthenticationController {
   private ResponseCookie createCookie(String value, int maxAgeSeconds) {
     return ResponseCookie.from("refreshToken", value)
       .httpOnly(true)
-      .secure(false)
+      .secure(this.cookieSecure)
       .path("/api")
       .sameSite("Lax")
       .maxAge(Duration.ofSeconds(maxAgeSeconds))

@@ -101,6 +101,27 @@ class AuthenticationControllerTest {
           .content(objectMapper.writeValueAsString(emptyPasswordCredentials)))
         .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @DisplayName("Should include Secure attribute when cookieSecure is true")
+    void shouldIncludeSecureAttributeWhenConfigured() {
+      AuthenticationController controller = new AuthenticationController(86400, true, loginUseCase,
+        refreshSessionUseCase, authenticationMapper);
+      UserCredentialsDTO credentials = new UserCredentialsDTO("admin@nivo.app", "Password123!");
+      LoginUseCase.UserCredentials modelCredentials = new LoginUseCase.UserCredentials("admin@nivo.app",
+        "Password123!");
+      AuthResponse authResponse = new AuthResponse("access-token-xyz", "refresh-token-abc");
+
+      when(authenticationMapper.toModel(any(UserCredentialsDTO.class))).thenReturn(modelCredentials);
+      when(loginUseCase.auth(modelCredentials)).thenReturn(authResponse);
+      when(authenticationMapper.toDTO(authResponse))
+        .thenReturn(new AuthenticationResponseDTO("access-token-xyz", "refresh-token-abc"));
+
+      org.springframework.mock.web.MockHttpServletResponse response = new org.springframework.mock.web.MockHttpServletResponse();
+      controller.login(credentials, response);
+
+      org.assertj.core.api.Assertions.assertThat(response.getHeader("Set-Cookie")).contains("Secure");
+    }
   }
 
   @Nested
