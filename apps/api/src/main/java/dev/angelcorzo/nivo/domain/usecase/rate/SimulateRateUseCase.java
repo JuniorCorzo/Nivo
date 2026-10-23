@@ -18,15 +18,11 @@ public class SimulateRateUseCase {
   private final Clock clock;
 
   public PriceDetailed execute(final SimulateRateCommand command) {
-    final SimulateRateCommand sanitized = command != null
-      ? command
-      : SimulateRateCommand.of(null, 0L, null, null, null, null);
-
-    final RateReference rate = sanitized.toRateReference();
-    final ParkingLotPolicy policy = sanitized.toParkingLotPolicy();
+    final RateReference rate = command.toRateReference();
+    final ParkingLotPolicy policy = command.toParkingLotPolicy();
 
     final OffsetDateTime now = OffsetDateTime.now(this.clock);
-    final OffsetDateTime entryTime = now.minusMinutes(sanitized.minutesStayed());
+    final OffsetDateTime entryTime = now.minusMinutes(command.minutesStayed());
     final StayInterval stayInterval = StayInterval.of(entryTime, now);
 
     final PricingContext context = PricingContext.of(rate, policy, stayInterval);
