@@ -40,6 +40,7 @@ x-api-runtime-env: &api-runtime-env
   SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
   SWAGGER_ENABLED: ${SWAGGER_ENABLED:-false}
   SCALAR_ENABLED: ${SCALAR_ENABLED:-false}
+  ACCOUNT_CREATION_ENABLED: ${ACCOUNT_CREATION_ENABLED:-false}
 
 x-resources-web: &resources-web
   resources:
