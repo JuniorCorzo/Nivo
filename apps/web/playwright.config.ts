@@ -5,15 +5,6 @@ export default defineConfig({
   fullyParallel: true,
   projects: [
     {
-      name: "lightpanda",
-      use: {
-        ...devices["Desktop Chrome"],
-        connectOptions: {
-          wsEndpoint: process.env["LIGHTPANDA_WS"] || "ws://127.0.0.1:9222",
-        },
-      },
-    },
-    {
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],

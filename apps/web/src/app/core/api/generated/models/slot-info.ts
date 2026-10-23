@@ -4,6 +4,6 @@
 export interface SlotInfo {
   id?: string;
   slotNumber?: string;
-  status?: "AVAILABLE" | "OCCUPIED" | "RESERVED" | "MAINTENANCE";
-  type?: "CAR" | "MOTORCYCLE" | "BIKE" | "ELECTRIC_VEHICLE" | "DISABLED";
+  status?: 'AVAILABLE' | 'OCCUPIED' | 'RESERVED' | 'MAINTENANCE';
+  type?: 'CAR' | 'MOTORCYCLE' | 'BIKE' | 'ELECTRIC_VEHICLE' | 'DISABLED';
 }

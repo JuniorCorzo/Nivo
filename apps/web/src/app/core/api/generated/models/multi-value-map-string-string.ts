@@ -3,15 +3,11 @@
 
 export interface MultiValueMapStringString {
   all?: {
-    [key: string]: string;
-  };
+[key: string]: string;
+};
   empty?: boolean;
 
-  [key: string]:
-    | Array<string>
-    | boolean
-    | undefined
-    | {
-        [key: string]: string;
-      };
+  [key: string]: Array<string> | boolean | undefined | {
+[key: string]: string;
+};
 }

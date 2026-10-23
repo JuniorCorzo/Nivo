@@ -67,10 +67,29 @@ describe("TicketService", () => {
   it("should call ParkingTicketsService.createTicket and return mapped TicketSummary", async () => {
     const mockResponse: ResponseParkingTicketsDto = {
       data: {
+        createdAt: "2026-08-27T10:00:00Z",
         entryTime: "2026-08-27T10:00:00Z",
         id: "ticket-1",
         licensePlate: "ABC123",
+        plateCountry: "CO",
+        rate: {
+          description: "Standard rate",
+          id: "rate-1",
+          minChargeTimeMinutes: 0,
+          name: "Standard",
+          pricePerUnit: 1000,
+          timeUnit: "HOURS",
+          vehicleType: "CAR",
+        },
+        slot: {
+          id: "slot-1",
+          slotNumber: "101",
+          status: "OCCUPIED",
+          type: "CAR",
+        },
         status: "OPEN",
+        tenant: { companyName: "Tenant 1", id: "tenant-1" },
+        updatedAt: "2026-08-27T10:00:00Z",
         user: {
           contactInfo: "123",
           email: "op@test.com",
@@ -149,9 +168,20 @@ describe("TicketService", () => {
   it("should call ParkingTicketsService.getActiveTicket and return mapped TicketSummary", async () => {
     const mockResponse: ResponseParkingTicketsDto = {
       data: {
+        createdAt: "2026-08-27T10:00:00Z",
         entryTime: "2026-08-27T10:00:00Z",
         id: "ticket-real-123",
         licensePlate: "XYZ789",
+        plateCountry: "CO",
+        rate: {
+          description: "Standard rate",
+          id: "rate-1",
+          minChargeTimeMinutes: 0,
+          name: "Standard",
+          pricePerUnit: 1000,
+          timeUnit: "HOURS",
+          vehicleType: "CAR",
+        },
         slot: {
           id: "slot-1",
           slotNumber: "101",
@@ -159,6 +189,8 @@ describe("TicketService", () => {
           type: "CAR",
         },
         status: "OPEN",
+        tenant: { companyName: "Tenant 1", id: "tenant-1" },
+        updatedAt: "2026-08-27T10:00:00Z",
         user: {
           contactInfo: "123",
           email: "op@test.com",
