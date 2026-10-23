@@ -23,17 +23,17 @@ public class DisabledPaymentAdapter implements PaymentProviderGateway {
   @Override
   public Result<Transactions, PaymentError> getTransactionDetails(String checkoutSessionId) {
     log.warn(
-        "Payment module is disabled. Cannot get transaction details for checkoutSessionId: {}",
-        checkoutSessionId);
+      "Payment module is disabled. Cannot get transaction details for checkoutSessionId: {}",
+      checkoutSessionId);
     return Result.failure(new PaymentError.ProviderValidation(DISABLED_MESSAGE));
   }
 
   @Override
   public Result<ProviderMetadata, PaymentError> processPayment(
-      ParkingTickets tickets, BigDecimal amount, CheckOut command) {
+    ParkingTickets tickets, BigDecimal amount, CheckOut command) {
     log.warn(
-        "Payment module is disabled. Cannot process payment for ticket: {}",
-        tickets != null ? tickets.getId() : null);
+      "Payment module is disabled. Cannot process payment for ticket: {}",
+      tickets != null ? tickets.getId() : null);
     return Result.failure(new PaymentError.ProviderValidation(DISABLED_MESSAGE));
   }
 

@@ -31,7 +31,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("EpaycoPaymentAdapter Unit Tests")
 class EpaycoPaymentAdapterTest {
 
-  @Mock private PaymentProviderClient paymentProviderClient;
+  @Mock
+  private PaymentProviderClient paymentProviderClient;
 
   private PaymentProviderProperties properties;
   private EpaycoPaymentAdapter adapter;
@@ -50,22 +51,21 @@ class EpaycoPaymentAdapterTest {
   @Test
   @DisplayName("getTransactionDetails should return Transactions on success")
   void shouldReturnTransactionDetailsOnSuccess() {
-    ListPayLinkResponse payLinkDetails =
-        new ListPayLinkResponse(
-            123L,
-            "txtCode",
-            "2026-03-01",
-            "title",
-            "ref-001",
-            "COP",
-            BigDecimal.valueOf(5000),
-            1,
-            ListPayLinkResponse.State.PAID,
-            1L,
-            "routeLink");
+    ListPayLinkResponse payLinkDetails = new ListPayLinkResponse(
+      123L,
+      "txtCode",
+      "2026-03-01",
+      "title",
+      "ref-001",
+      "COP",
+      BigDecimal.valueOf(5000),
+      1,
+      ListPayLinkResponse.State.PAID,
+      1L,
+      "routeLink");
 
     when(paymentProviderClient.getPayLinkDetails("session-1"))
-        .thenReturn(Result.success(payLinkDetails));
+      .thenReturn(Result.success(payLinkDetails));
 
     Result<Transactions, PaymentError> result = adapter.getTransactionDetails("session-1");
 
@@ -79,24 +79,20 @@ class EpaycoPaymentAdapterTest {
   @Test
   @DisplayName("processPayment should succeed with EmailCheckOut")
   void shouldProcessPaymentWithEmailCheckOut() {
-    ParkingTickets ticket =
-        ParkingTickets.builder()
-            .rate(RateReference.builder().name("AUTO").description("desc").build())
-            .build();
-    EmailCheckOut checkOut =
-        new EmailCheckOut(
-            UUID.randomUUID(), UUID.randomUUID(), PaymentsMethods.PAY_LINK, "user@example.com");
+    ParkingTickets ticket = ParkingTickets.builder()
+      .rate(RateReference.builder().name("AUTO").description("desc").build())
+      .build();
+    EmailCheckOut checkOut = new EmailCheckOut(
+      UUID.randomUUID(), UUID.randomUUID(), PaymentsMethods.PAY_LINK, "user@example.com");
 
-    CreatePayLinkResponse response =
-        new CreatePayLinkResponse(
-            1L, "title", "desc", "2026-03-01 12:00:00", 1, "txt", 1L, 1, 1, 0, "COP",
-            "sell", "url", "url", 0, 0, 5000, "inv", "qr", "https://checkout.epayco.co/123",
-            "2026-03-01 13:00:00");
+    CreatePayLinkResponse response = new CreatePayLinkResponse(
+      1L, "title", "desc", "2026-03-01 12:00:00", 1, "txt", 1L, 1, 1, 0, "COP",
+      "sell", "url", "url", 0, 0, 5000, "inv", "qr", "https://checkout.epayco.co/123",
+      "2026-03-01 13:00:00");
 
     when(paymentProviderClient.createPayLink(any())).thenReturn(Result.success(response));
 
-    Result<ProviderMetadata, PaymentError> result =
-        adapter.processPayment(ticket, BigDecimal.valueOf(5000), checkOut);
+    Result<ProviderMetadata, PaymentError> result = adapter.processPayment(ticket, BigDecimal.valueOf(5000), checkOut);
 
     assertThat(result.isSuccess()).isTrue();
     assertThat(result.get().checkoutUrl()).isEqualTo("https://checkout.epayco.co/123");
@@ -105,24 +101,20 @@ class EpaycoPaymentAdapterTest {
   @Test
   @DisplayName("processPayment should succeed with SMSCheckOut")
   void shouldProcessPaymentWithSMSCheckOut() {
-    ParkingTickets ticket =
-        ParkingTickets.builder()
-            .rate(RateReference.builder().name("AUTO").description("desc").build())
-            .build();
-    SMSCheckOut checkOut =
-        new SMSCheckOut(
-            UUID.randomUUID(), UUID.randomUUID(), PaymentsMethods.PAY_LINK, "3001234567");
+    ParkingTickets ticket = ParkingTickets.builder()
+      .rate(RateReference.builder().name("AUTO").description("desc").build())
+      .build();
+    SMSCheckOut checkOut = new SMSCheckOut(
+      UUID.randomUUID(), UUID.randomUUID(), PaymentsMethods.PAY_LINK, "3001234567");
 
-    CreatePayLinkResponse response =
-        new CreatePayLinkResponse(
-            1L, "title", "desc", "2026-03-01 12:00:00", 1, "txt", 1L, 1, 1, 0, "COP",
-            "sell", "url", "url", 0, 0, 5000, "inv", "qr", "https://checkout.epayco.co/456",
-            "2026-03-01 13:00:00");
+    CreatePayLinkResponse response = new CreatePayLinkResponse(
+      1L, "title", "desc", "2026-03-01 12:00:00", 1, "txt", 1L, 1, 1, 0, "COP",
+      "sell", "url", "url", 0, 0, 5000, "inv", "qr", "https://checkout.epayco.co/456",
+      "2026-03-01 13:00:00");
 
     when(paymentProviderClient.createPayLink(any())).thenReturn(Result.success(response));
 
-    Result<ProviderMetadata, PaymentError> result =
-        adapter.processPayment(ticket, BigDecimal.valueOf(5000), checkOut);
+    Result<ProviderMetadata, PaymentError> result = adapter.processPayment(ticket, BigDecimal.valueOf(5000), checkOut);
 
     assertThat(result.isSuccess()).isTrue();
     assertThat(result.get().checkoutUrl()).isEqualTo("https://checkout.epayco.co/456");
@@ -131,24 +123,20 @@ class EpaycoPaymentAdapterTest {
   @Test
   @DisplayName("processPayment should succeed with NoSendCheckOut")
   void shouldProcessPaymentWithNoSendCheckOut() {
-    ParkingTickets ticket =
-        ParkingTickets.builder()
-            .rate(RateReference.builder().name("AUTO").description("desc").build())
-            .build();
-    NoSendCheckOut checkOut =
-        new NoSendCheckOut(
-            UUID.randomUUID(), UUID.randomUUID(), PaymentsMethods.PAY_LINK);
+    ParkingTickets ticket = ParkingTickets.builder()
+      .rate(RateReference.builder().name("AUTO").description("desc").build())
+      .build();
+    NoSendCheckOut checkOut = new NoSendCheckOut(
+      UUID.randomUUID(), UUID.randomUUID(), PaymentsMethods.PAY_LINK);
 
-    CreatePayLinkResponse response =
-        new CreatePayLinkResponse(
-            1L, "title", "desc", "2026-03-01 12:00:00", 1, "txt", 1L, 1, 1, 0, "COP",
-            "sell", "url", "url", 0, 0, 5000, "inv", "qr", "https://checkout.epayco.co/789",
-            "2026-03-01 13:00:00");
+    CreatePayLinkResponse response = new CreatePayLinkResponse(
+      1L, "title", "desc", "2026-03-01 12:00:00", 1, "txt", 1L, 1, 1, 0, "COP",
+      "sell", "url", "url", 0, 0, 5000, "inv", "qr", "https://checkout.epayco.co/789",
+      "2026-03-01 13:00:00");
 
     when(paymentProviderClient.createPayLink(any())).thenReturn(Result.success(response));
 
-    Result<ProviderMetadata, PaymentError> result =
-        adapter.processPayment(ticket, BigDecimal.valueOf(5000), checkOut);
+    Result<ProviderMetadata, PaymentError> result = adapter.processPayment(ticket, BigDecimal.valueOf(5000), checkOut);
 
     assertThat(result.isSuccess()).isTrue();
     assertThat(result.get().checkoutUrl()).isEqualTo("https://checkout.epayco.co/789");

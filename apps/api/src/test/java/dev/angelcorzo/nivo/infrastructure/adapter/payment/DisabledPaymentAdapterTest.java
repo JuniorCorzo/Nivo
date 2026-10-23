@@ -36,34 +36,32 @@ class DisabledPaymentAdapterTest {
     assertThat(result.isFailure()).isTrue();
     assertThat(result.getError()).isInstanceOf(PaymentError.ProviderValidation.class);
     assertThat(result.getError().message())
-        .isEqualTo("Payment module is disabled in this environment");
+      .isEqualTo("Payment module is disabled in this environment");
   }
 
   @Test
   @DisplayName("processPayment should return failure with ProviderValidation when disabled")
   void shouldFailProcessPaymentWhenDisabled() {
     ParkingTickets tickets = mock(ParkingTickets.class);
-    CheckOut checkOut =
-        new NoSendCheckOut(UUID.randomUUID(), UUID.randomUUID(), PaymentsMethods.PAY_LINK);
+    CheckOut checkOut = new NoSendCheckOut(UUID.randomUUID(), UUID.randomUUID(), PaymentsMethods.PAY_LINK);
 
-    Result<ProviderMetadata, PaymentError> result =
-        adapter.processPayment(tickets, BigDecimal.valueOf(10000), checkOut);
+    Result<ProviderMetadata, PaymentError> result = adapter.processPayment(tickets, BigDecimal.valueOf(10000),
+      checkOut);
 
     assertThat(result.isFailure()).isTrue();
     assertThat(result.getError()).isInstanceOf(PaymentError.ProviderValidation.class);
     assertThat(result.getError().message())
-        .isEqualTo("Payment module is disabled in this environment");
+      .isEqualTo("Payment module is disabled in this environment");
   }
 
   @Test
   @DisplayName("confirmationPay should return failure with ProviderValidation when disabled")
   void shouldFailConfirmationPayWhenDisabled() {
-    Result<Transactions, PaymentError> result =
-        adapter.confirmationPay(Map.of("ref_payco", "12345"));
+    Result<Transactions, PaymentError> result = adapter.confirmationPay(Map.of("ref_payco", "12345"));
 
     assertThat(result.isFailure()).isTrue();
     assertThat(result.getError()).isInstanceOf(PaymentError.ProviderValidation.class);
     assertThat(result.getError().message())
-        .isEqualTo("Payment module is disabled in this environment");
+      .isEqualTo("Payment module is disabled in this environment");
   }
 }
