@@ -36,14 +36,16 @@
         <span>{{ texts.trySimulator }}</span>
         <ng-icon name="lucideArrowRight" size="16" />
       </nv-button>
-      <nv-button
-        size="lg"
-        variant="outline"
-        class="transition-transform duration-150 active:scale-95"
-        (click)="registerClick.emit()"
-      >
-        {{ texts.createAccountFree }}
-      </nv-button>
+      @if (accountCreationEnabled()) {
+        <nv-button
+          size="lg"
+          variant="outline"
+          class="transition-transform duration-150 active:scale-95"
+          (click)="registerClick.emit()"
+        >
+          {{ texts.createAccountFree }}
+        </nv-button>
+      }
     </div>
 
     <!-- Quick Stats -->

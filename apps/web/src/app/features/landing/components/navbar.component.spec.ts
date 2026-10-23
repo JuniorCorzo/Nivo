@@ -51,7 +51,21 @@ describe("NavbarComponent", () => {
     expect(emitted).toBe(true);
   });
 
-  it("should emit registerClick when register button is clicked", () => {
+  it("should not render register button when accountCreationEnabled is false", () => {
+    /* SAFETY: Finding button by text content */
+    const buttons = fixture.nativeElement.querySelectorAll(
+      "nv-button"
+    ) as NodeListOf<HTMLElement>;
+    const registerBtn = [...buttons].find((b) =>
+      b.textContent?.includes(APP_TEXTS.landing.navbar.register)
+    );
+    expect(registerBtn).toBeUndefined();
+  });
+
+  it("should emit registerClick when register button is clicked and enabled", () => {
+    fixture.componentRef.setInput("accountCreationEnabled", true);
+    fixture.detectChanges();
+
     let emitted = false;
     component.registerClick.subscribe(() => {
       emitted = true;

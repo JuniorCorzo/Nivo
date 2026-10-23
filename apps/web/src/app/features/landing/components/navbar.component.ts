@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
 import { RouterLink } from "@angular/router";
 import { NgIcon } from "@ng-icons/core";
 import { ButtonComponent } from "@nivo-sass/design-system";
@@ -14,6 +19,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 export class NavbarComponent {
   protected readonly texts = APP_TEXTS.landing.navbar;
 
+  readonly accountCreationEnabled = input<boolean>(false);
   readonly loginClick = output();
   readonly registerClick = output();
 }

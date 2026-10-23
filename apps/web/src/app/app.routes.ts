@@ -1,4 +1,5 @@
 import type { Routes } from "@angular/router";
+import { accountCreationGuard } from "@core/guards/auth/account-creation.guard";
 import { authGuard } from "@core/guards/auth/auth-guard";
 import { publicGuard } from "@core/guards/auth/public-guard";
 import { roleGuard } from "@core/guards/auth/role.guard";
@@ -36,6 +37,7 @@ export const routes: Routes = [
         title: "Iniciar sesión",
       },
       {
+        canActivate: [accountCreationGuard],
         loadComponent: async () => {
           const m =
             await import("@features/auth/register/page/register-page/register-page");

@@ -1,3 +1,4 @@
+import { accountCreationGuard } from "@core/guards/auth/account-creation.guard";
 import { authGuard } from "@core/guards/auth/auth-guard";
 import { publicGuard } from "@core/guards/auth/public-guard";
 import { describe, expect, it } from "vitest";
@@ -18,5 +19,14 @@ describe("App Routes", () => {
     expect(rootRoute?.canActivate).toBeDefined();
     expect(rootRoute?.canActivate).toContain(publicGuard);
     expect(rootRoute?.loadComponent).toBeDefined();
+  });
+
+  it("should protect 'auth/register' path with accountCreationGuard", () => {
+    const authRoute = routes.find((r) => r.path === "auth");
+    const registerRoute = authRoute?.children?.find(
+      (r) => r.path === "register"
+    );
+    expect(registerRoute).toBeDefined();
+    expect(registerRoute?.canActivate).toContain(accountCreationGuard);
   });
 });

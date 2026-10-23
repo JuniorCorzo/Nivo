@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
 import { RouterLink } from "@angular/router";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideArrowRight } from "@ng-icons/lucide";
@@ -25,6 +30,7 @@ export class FooterComponent {
   protected readonly texts = APP_TEXTS.landing.footer;
   protected readonly ctaBannerTexts = APP_TEXTS.landing.ctaBanner;
 
+  readonly accountCreationEnabled = input<boolean>(false);
   readonly ctaClick = output();
 }
 

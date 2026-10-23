@@ -11,6 +11,7 @@ import type {
   SimulateRateResponse,
 } from "@core/api/generated/models";
 import { PublicSimulatorService } from "@core/api/generated/services/public-simulator.service";
+import { FeatureFlagService } from "@core/services/feature-flag.service";
 import type { VehicleType } from "@core/type/vehicle-type.type";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
@@ -39,7 +40,11 @@ import { SimulatorComponent } from "./components/simulator.component";
 })
 export class LandingPageComponent implements OnInit {
   private readonly publicSimulatorService = inject(PublicSimulatorService);
+  private readonly featureFlagService = inject(FeatureFlagService);
   private readonly router = inject(Router);
+
+  readonly accountCreationEnabled =
+    this.featureFlagService.accountCreationEnabled;
 
   readonly vehicleType = signal<VehicleType>("CAR");
   readonly minutesStayed = signal<number>(90);
@@ -137,6 +142,10 @@ export class LandingPageComponent implements OnInit {
   }
 
   goToRegister(): void {
-    this.router.navigate([APP_ROUTES.auth.register]);
+    if (this.accountCreationEnabled()) {
+      this.router.navigate([APP_ROUTES.auth.register]);
+    } else {
+      this.router.navigate([APP_ROUTES.auth.login]);
+    }
   }
 }
