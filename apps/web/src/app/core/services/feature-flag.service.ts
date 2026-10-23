@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { PublicConfigurationService } from "@core/api/generated/services/public-configuration.service";
-import { catchError, of, tap } from 'rxjs';
-import type { Observable } from 'rxjs';
+import { catchError, of, tap } from "rxjs";
+import type { Observable } from "rxjs";
 
 @Injectable({
   providedIn: "root",
