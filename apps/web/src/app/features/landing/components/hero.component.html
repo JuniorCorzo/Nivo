@@ -1,0 +1,77 @@
+<section class="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28">
+  <div
+    class="pointer-events-none absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
+    aria-hidden="true"
+  >
+    <div
+      class="relative left-[calc(50%-11rem)] aspect-1155/678 w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-linear-to-tr from-emerald-500/15 to-sky-500/10 opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+    ></div>
+  </div>
+
+  <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+    <div
+      class="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-medium text-emerald-400"
+    >
+      <ng-icon name="lucideSparkles" size="14" class="text-emerald-400" />
+      <span>{{ texts.badge }}</span>
+    </div>
+
+    <nv-h1
+      class="mx-auto max-w-4xl text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl"
+    >
+      {{ texts.title }}
+    </nv-h1>
+
+    <nv-p class="mx-auto mt-6 max-w-2xl text-lg text-[var(--muted-foreground)]">
+      {{ texts.description }}
+    </nv-p>
+
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+      <nv-button
+        size="lg"
+        variant="default"
+        class="transition-transform duration-150 active:scale-95"
+        (click)="trySimulatorClick.emit()"
+      >
+        <span>{{ texts.trySimulator }}</span>
+        <ng-icon name="lucideArrowRight" size="16" />
+      </nv-button>
+      <nv-button
+        size="lg"
+        variant="outline"
+        class="transition-transform duration-150 active:scale-95"
+        (click)="registerClick.emit()"
+      >
+        {{ texts.createAccountFree }}
+      </nv-button>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-3">
+      <nv-card
+        class="border-border bg-card p-6 text-center shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+      >
+        <div class="font-mono text-3xl font-bold text-emerald-400">
+          {{ texts.stats.hardware.value }}
+        </div>
+        <nv-muted class="mt-1">{{ texts.stats.hardware.label }}</nv-muted>
+      </nv-card>
+      <nv-card
+        class="border-border bg-card p-6 text-center shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+      >
+        <div class="font-mono text-3xl font-bold text-sky-400">
+          {{ texts.stats.time.value }}
+        </div>
+        <nv-muted class="mt-1">{{ texts.stats.time.label }}</nv-muted>
+      </nv-card>
+      <nv-card
+        class="border-border bg-card p-6 text-center shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+      >
+        <div class="font-mono text-3xl font-bold text-[var(--foreground)]">
+          {{ texts.stats.accuracy.value }}
+        </div>
+        <nv-muted class="mt-1">{{ texts.stats.accuracy.label }}</nv-muted>
+      </nv-card>
+    </div>
+  </div>
+</section>

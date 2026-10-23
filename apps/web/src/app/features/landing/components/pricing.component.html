@@ -1,0 +1,21 @@
+<section id="precios" class="border-t border-[var(--border)] py-20">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto mb-14 max-w-3xl text-center">
+      <nv-badge variant="outline" class="mb-3">{{ texts.badge }}</nv-badge>
+      <nv-h2 class="text-3xl font-bold">{{ texts.title }}</nv-h2>
+      <nv-p class="mt-3 text-[var(--muted-foreground)]">
+        {{ texts.description }}
+      </nv-p>
+    </div>
+
+    <div class="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-3">
+      @for (plan of plans; track plan.name) {
+        <app-pricing-card
+          [plan]="plan"
+          [popularBadge]="texts.popularBadge"
+          (ctaClick)="registerClick.emit()"
+        />
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,31 @@
+<section id="beneficios" class="border-t border-[var(--border)] py-20">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-3xl text-center">
+      <nv-badge variant="outline" class="mb-3">{{ texts.badge }}</nv-badge>
+      <nv-h2 class="text-3xl font-bold">{{ texts.title }}</nv-h2>
+      <nv-p class="mt-3 text-[var(--muted-foreground)]">
+        {{ texts.description }}
+      </nv-p>
+    </div>
+
+    <div class="mt-14 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+      @for (item of texts.items; track item.title) {
+        <nv-card
+          class="border-border bg-card flex flex-col justify-between p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/5"
+        >
+          <div>
+            <div
+              class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+            >
+              <ng-icon [name]="item.icon" size="24" />
+            </div>
+            <nv-h4 class="text-lg font-semibold">{{ item.title }}</nv-h4>
+            <nv-muted class="mt-2 block leading-relaxed">
+              {{ item.description }}
+            </nv-muted>
+          </div>
+        </nv-card>
+      }
+    </div>
+  </div>
+</section>

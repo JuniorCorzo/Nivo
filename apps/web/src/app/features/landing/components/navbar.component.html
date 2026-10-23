@@ -1,0 +1,53 @@
+<header
+  class="sticky top-0 z-50 w-full border-b border-[var(--border)] bg-[var(--background)]/90 backdrop-blur-md"
+>
+  <div
+    class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
+  >
+    <div class="flex items-center gap-8">
+      <a
+        routerLink="/"
+        class="flex items-center gap-2 focus:outline-none"
+        [attr.aria-label]="texts.brandAriaLabel"
+      >
+        <ng-icon
+          name="nivo-logo-horizontal"
+          class="h-7! w-24! text-[var(--foreground)]"
+        />
+      </a>
+
+      <nav
+        class="hidden items-center gap-6 md:flex"
+        [attr.aria-label]="texts.navAriaLabel"
+      >
+        <a
+          href="#beneficios"
+          class="text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+        >
+          {{ texts.benefits }}
+        </a>
+        <a
+          href="#simulador"
+          class="text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+        >
+          {{ texts.simulator }}
+        </a>
+        <a
+          href="#precios"
+          class="text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+        >
+          {{ texts.pricing }}
+        </a>
+      </nav>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <nv-button variant="ghost" size="sm" (click)="loginClick.emit()">
+        {{ texts.login }}
+      </nv-button>
+      <nv-button variant="default" size="sm" (click)="registerClick.emit()">
+        {{ texts.register }}
+      </nv-button>
+    </div>
+  </div>
+</header>

@@ -67,19 +67,28 @@ describe("TicketMapper", () => {
 
   it("should map ParkingTicketsDto to TicketSummary", () => {
     const dto: ParkingTicketsDto = {
+      createdAt: "2026-08-27T10:00:00Z",
       entryTime: "2026-08-27T10:00:00Z",
       id: "ticket-99",
       licensePlate: "XYZ789",
+      plateCountry: "CO",
       rate: {
+        description: "Tarifa Carros",
         id: "r-1",
+        minChargeTimeMinutes: 0,
         name: "Tarifa Carros",
-      } as any,
+        pricePerUnit: 2000,
+        timeUnit: "HOURS",
+        vehicleType: "CAR",
+      },
       slot: {
         id: "s-1",
         slotNumber: "101",
         type: "CAR",
       },
       status: "OPEN",
+      tenant: { companyName: "Tenant 1", id: "t-1" },
+      updatedAt: "2026-08-27T10:00:00Z",
       user: {
         contactInfo: "123456",
         email: "op@test.com",

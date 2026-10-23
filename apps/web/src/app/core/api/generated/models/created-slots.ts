@@ -4,6 +4,6 @@
 export interface CreatedSlots {
   numberSlots: number;
   prefix?: string;
-  slotType: "CAR" | "MOTORCYCLE" | "BIKE" | "ELECTRIC_VEHICLE" | "DISABLED";
+  slotType: 'CAR' | 'MOTORCYCLE' | 'BIKE' | 'ELECTRIC_VEHICLE' | 'DISABLED';
   zone?: string;
 }

@@ -1,0 +1,41 @@
+<div
+  class="relative isolate min-h-screen bg-[var(--background)] text-[var(--foreground)] selection:bg-[var(--primary)] selection:text-[var(--primary-foreground)]"
+>
+  <!-- Background Paper Texture (Canvas layer only, behind all cards and buttons) -->
+  <div
+    class="paper-texture pointer-events-none fixed inset-0 z-0 opacity-60 select-none"
+    aria-hidden="true"
+  ></div>
+
+  <div class="relative z-10 flex min-h-screen flex-col">
+    <app-navbar (loginClick)="goToLogin()" (registerClick)="goToRegister()" />
+
+    <main class="flex-1">
+      <app-hero
+        (trySimulatorClick)="scrollToSimulator()"
+        (registerClick)="goToRegister()"
+      />
+
+      <app-benefits />
+
+      <app-simulator
+        [vehicleType]="vehicleType()"
+        [minutesStayed]="minutesStayed()"
+        [pricePerUnit]="pricePerUnit()"
+        [gracePeriodMinutes]="gracePeriodMinutes()"
+        [ivaRate]="ivaRate()"
+        [simulationResult]="simulationResult()"
+        [isCalculating]="isCalculating()"
+        (vehicleTypeChange)="selectVehicle($event)"
+        (durationChange)="setDuration($event)"
+        (registerClick)="goToRegister()"
+      />
+
+      <app-comparison />
+
+      <app-pricing (registerClick)="goToRegister()" />
+    </main>
+
+    <app-footer (ctaClick)="goToRegister()" />
+  </div>
+</div>
