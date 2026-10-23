@@ -15,6 +15,7 @@ export { ScalarWebMvcControllerService } from './services/scalar-web-mvc-control
 export { ReportsService } from './services/reports.service';
 export { PublicTicketsService } from './services/public-tickets.service';
 export { PublicAvailabilityService } from './services/public-availability.service';
+export { PublicConfigurationService } from './services/public-configuration.service';
 export { NotificationLogsService } from './services/notification-logs.service';
 export { DashboardService } from './services/dashboard.service';
 export { DashboardStreamService } from './services/dashboard-stream.service';

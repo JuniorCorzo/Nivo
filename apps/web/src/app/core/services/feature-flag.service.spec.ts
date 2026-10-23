@@ -31,6 +31,8 @@ describe("FeatureFlagService", () => {
 
     expect(service.accountCreationEnabled()).toBe(false);
 
+    service.loadRemoteConfig().subscribe();
+
     const req = httpTesting.expectOne(
       "http://localhost:8080/api/public/config"
     );
@@ -52,6 +54,10 @@ describe("FeatureFlagService", () => {
 
     service = TestBed.inject(FeatureFlagService);
     httpTesting = TestBed.inject(HttpTestingController);
+
+    expect(service.accountCreationEnabled()).toBe(false);
+
+    service.loadRemoteConfig().subscribe();
 
     const req = httpTesting.expectOne(
       "http://localhost:8080/api/public/config"
