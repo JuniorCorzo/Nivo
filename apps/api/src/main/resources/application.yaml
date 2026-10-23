@@ -53,6 +53,7 @@ spring:
 management:
   server:
     port: ${MANAGEMENT_PORT:8081}
+    address: ${MANAGEMENT_ADDRESS:0.0.0.0}
   endpoints:
     web:
       exposure:
@@ -84,6 +85,7 @@ sendgrid:
   from-email: "${SENDGRID_FROM_EMAIL:noreply@nivo.dev}"
 
 payment:
+  enabled: ${PAYMENT_ENABLED:true}
   provider:
     provider-name: "${PAYMENT_PROVIDER_NAME:epayco}"
     url: "${PAYMENT_PROVIDER_URL:https://apify.epayco.co}"

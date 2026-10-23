@@ -1,4 +1,6 @@
 # ── Stage 1: Build ──────────────────────────────────────────────────────────
+# Security: eclipse-temurin:25-jdk-alpine base image.
+# Build with --pull (or pull: true in CI) to ensure fresh upstream security patches.
 FROM eclipse-temurin:25-jdk-alpine AS builder
 
 WORKDIR /workspace
@@ -15,6 +17,8 @@ RUN chmod +x gradlew && \
     ./gradlew bootJar -x test --no-daemon
 
 # ── Stage 2: Runtime ─────────────────────────────────────────────────────────
+# Security: eclipse-temurin:25-jre-alpine minimal runtime base image.
+# Perimeter hardening: unprivileged 'nivo' user; pull fresh upstream security patches during build.
 FROM eclipse-temurin:25-jre-alpine AS runtime
 
 RUN addgroup -S nivo && adduser -S nivo -G nivo

@@ -24,11 +24,13 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 
 @RequiredArgsConstructor
 @Component
+@ConditionalOnProperty(name = "payment.enabled", havingValue = "true", matchIfMissing = true)
 public class EpaycoPaymentAdapter implements PaymentProviderGateway {
   private final PaymentProviderClient paymentProviderClient;
   private final PaymentProviderProperties paymentProviderProperties;
