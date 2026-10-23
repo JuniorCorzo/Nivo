@@ -242,4 +242,70 @@ class BrevoEmailProviderClientTest {
         assertThat(nde.getMessage()).contains("Brevo transport error: Connection timed out");
       });
   }
+
+  @Test
+  @DisplayName("sendEmail should parse combined RFC 822 sender email and extract name and email")
+  void shouldParseCombinedSenderRfc822Format() {
+    brevoProperties.setSenderEmail("Nivo<notifications@nivo.angelcorzo.dev>");
+    brevoProperties.setSenderName("Default Name");
+
+    final NotificationTemplates template = NotificationTemplates.builder().build();
+    final NotificationsData data = new TestNotificationData(
+      "Nivo", "support", "social", "unsub", "addr", "user");
+
+    when(htmlNotificationBuilder.buildSubject(any(), any())).thenReturn("Subject");
+    when(htmlNotificationBuilder.buildHtml(any(), any())).thenReturn("<p>Body</p>");
+
+    mockServer.expect(requestTo("https://api.brevo.com/v3/smtp/email"))
+      .andExpect(method(HttpMethod.POST))
+      .andExpect(content().json("""
+        {
+          "sender": {
+            "name": "Nivo",
+            "email": "notifications@nivo.angelcorzo.dev"
+          },
+          "to": [
+            {
+              "email": "user@example.com"
+            }
+          ]
+        }
+        """))
+      .andRespond(withStatus(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body("{}"));
+
+    client.sendEmail(template, "user@example.com", data);
+    mockServer.verify();
+  }
+
+  @Test
+  @DisplayName("sendEmail should parse recipient with display name and email")
+  void shouldParseRecipientWithRfc822Format() {
+    final NotificationTemplates template = NotificationTemplates.builder().build();
+    final NotificationsData data = new TestNotificationData(
+      "Nivo", "support", "social", "unsub", "addr", "user");
+
+    when(htmlNotificationBuilder.buildSubject(any(), any())).thenReturn("Subject");
+    when(htmlNotificationBuilder.buildHtml(any(), any())).thenReturn("<p>Body</p>");
+
+    mockServer.expect(requestTo("https://api.brevo.com/v3/smtp/email"))
+      .andExpect(method(HttpMethod.POST))
+      .andExpect(content().json("""
+        {
+          "sender": {
+            "name": "Nivo Platform",
+            "email": "no-reply@nivo.dev"
+          },
+          "to": [
+            {
+              "name": "Jane Doe",
+              "email": "jane@example.com"
+            }
+          ]
+        }
+        """))
+      .andRespond(withStatus(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body("{}"));
+
+    client.sendEmail(template, "Jane Doe <jane@example.com>", data);
+    mockServer.verify();
+  }
 }

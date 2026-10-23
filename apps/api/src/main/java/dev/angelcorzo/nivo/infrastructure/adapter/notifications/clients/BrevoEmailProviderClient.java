@@ -15,6 +15,8 @@ import dev.angelcorzo.nivo.infrastructure.adapter.notifications.config.BrevoProp
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.enums.EmailProviderType;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.exceptions.NotificationDeliveryException;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.formatters.HtmlNotificationBuilder;
+import dev.angelcorzo.nivo.infrastructure.adapter.notifications.utils.EmailAddressParser;
+import dev.angelcorzo.nivo.infrastructure.adapter.notifications.utils.EmailAddressParser.ParsedEmailAddress;
 
 /**
  * Brevo (formerly Sendinblue) transactional email delivery provider client.
@@ -52,11 +54,22 @@ public class BrevoEmailProviderClient implements EmailProviderClient {
     final String subject = this.htmlNotificationBuilder.buildSubject(template, content);
     final String htmlContent = this.htmlNotificationBuilder.buildHtml(template, content);
 
+    final ParsedEmailAddress parsedSender = EmailAddressParser.parse(this.brevoProperties.getSenderEmail());
+    final String senderName = (parsedSender.name() != null && !parsedSender.name().isBlank())
+      ? parsedSender.name()
+      : this.brevoProperties.getSenderName();
+    final String senderEmail = parsedSender.email();
+
+    final ParsedEmailAddress parsedRecipient = EmailAddressParser.parse(to);
+    final Map<String, Object> toMap = (parsedRecipient.name() != null && !parsedRecipient.name().isBlank())
+      ? Map.of("email", parsedRecipient.email(), "name", parsedRecipient.name())
+      : Map.of("email", parsedRecipient.email());
+
     final Map<String, Object> payload = Map.of(
       "sender", Map.of(
-        "name", this.brevoProperties.getSenderName(),
-        "email", this.brevoProperties.getSenderEmail()),
-      "to", List.of(Map.of("email", to)),
+        "name", senderName,
+        "email", senderEmail),
+      "to", List.of(toMap),
       "subject", subject,
       "htmlContent", htmlContent);
 
