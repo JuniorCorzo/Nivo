@@ -3,18 +3,18 @@ import type { ComponentFixture } from "@angular/core/testing";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { LandingComparisonComponent } from "./landing-comparison.component";
+import { ComparisonComponent } from "./comparison.component";
 
-describe("LandingComparisonComponent", () => {
-  let component: LandingComparisonComponent;
-  let fixture: ComponentFixture<LandingComparisonComponent>;
+describe("ComparisonComponent", () => {
+  let component: ComparisonComponent;
+  let fixture: ComponentFixture<ComparisonComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LandingComparisonComponent],
+      imports: [ComparisonComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LandingComparisonComponent);
+    fixture = TestBed.createComponent(ComparisonComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -10,7 +10,7 @@
 
     <div class="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-3">
       @for (plan of plans; track plan.name) {
-        <landing-pricing-card
+        <app-pricing-card
           [plan]="plan"
           [popularBadge]="texts.popularBadge"
           (ctaClick)="registerClick.emit()"

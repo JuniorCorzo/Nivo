@@ -37,7 +37,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       lucideMotorbike,
     }),
   ],
-  selector: "landing-simulator-controls",
+  selector: "app-simulator-controls",
   standalone: true,
   template: `
     <nv-card class="border-border bg-card p-6 shadow-xs sm:p-8">
@@ -164,7 +164,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
     </nv-card>
   `,
 })
-export class LandingSimulatorControlsComponent {
+export class SimulatorControlsComponent {
   protected readonly texts = APP_TEXTS.landing.simulator;
 
   readonly vehicleType = input.required<VehicleType>();
@@ -184,3 +184,5 @@ export class LandingSimulatorControlsComponent {
     }
   }
 }
+
+export { SimulatorControlsComponent as LandingSimulatorControlsComponent };

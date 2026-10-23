@@ -26,13 +26,15 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       lucideSparkles,
     }),
   ],
-  selector: "landing-hero",
+  selector: "app-hero",
   standalone: true,
-  templateUrl: "./landing-hero.component.html",
+  templateUrl: "./hero.component.html",
 })
-export class LandingHeroComponent {
+export class HeroComponent {
   protected readonly texts = APP_TEXTS.landing.hero;
 
   readonly trySimulatorClick = output();
   readonly registerClick = output();
 }
+
+export { HeroComponent as LandingHeroComponent };

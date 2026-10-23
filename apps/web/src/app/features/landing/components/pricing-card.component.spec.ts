@@ -3,15 +3,13 @@ import { TestBed } from "@angular/core/testing";
 import type { ComponentFixture } from "@angular/core/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import {
-  LandingPricingCardComponent,
-  type PricingPlanItem,
-} from "./landing-pricing-card.component";
+import { PricingCardComponent } from "./pricing-card.component";
+import type { PricingPlanItem } from "./pricing-card.component";
 
-describe("LandingPricingCardComponent", () => {
-  let component: LandingPricingCardComponent;
-  let componentRef: ComponentRef<LandingPricingCardComponent>;
-  let fixture: ComponentFixture<LandingPricingCardComponent>;
+describe("PricingCardComponent", () => {
+  let component: PricingCardComponent;
+  let componentRef: ComponentRef<PricingCardComponent>;
+  let fixture: ComponentFixture<PricingCardComponent>;
 
   const mockPlan: PricingPlanItem = {
     cta: "Probar Gratis",
@@ -25,10 +23,10 @@ describe("LandingPricingCardComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LandingPricingCardComponent],
+      imports: [PricingCardComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LandingPricingCardComponent);
+    fixture = TestBed.createComponent(PricingCardComponent);
     ({ componentInstance: component, componentRef } = fixture);
 
     componentRef.setInput("plan", mockPlan);

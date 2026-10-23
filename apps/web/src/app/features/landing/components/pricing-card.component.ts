@@ -39,7 +39,7 @@ export interface PricingPlanItem {
       lucideCheck,
     }),
   ],
-  selector: "landing-pricing-card",
+  selector: "app-pricing-card",
   standalone: true,
   template: `
     <nv-card
@@ -104,8 +104,10 @@ export interface PricingPlanItem {
     </nv-card>
   `,
 })
-export class LandingPricingCardComponent {
+export class PricingCardComponent {
   readonly plan = input.required<PricingPlanItem>();
   readonly popularBadge = input<string | null>(null);
-  readonly ctaClick = output<void>();
+  readonly ctaClick = output();
 }
+
+export { PricingCardComponent as LandingPricingCardComponent };

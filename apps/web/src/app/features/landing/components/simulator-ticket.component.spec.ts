@@ -5,12 +5,12 @@ import type { SimulateRateResponse } from "@core/api/generated/models";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { LandingSimulatorTicketComponent } from "./landing-simulator-ticket.component";
+import { SimulatorTicketComponent } from "./simulator-ticket.component";
 
-describe("LandingSimulatorTicketComponent", () => {
-  let component: LandingSimulatorTicketComponent;
-  let componentRef: ComponentRef<LandingSimulatorTicketComponent>;
-  let fixture: ComponentFixture<LandingSimulatorTicketComponent>;
+describe("SimulatorTicketComponent", () => {
+  let component: SimulatorTicketComponent;
+  let componentRef: ComponentRef<SimulatorTicketComponent>;
+  let fixture: ComponentFixture<SimulatorTicketComponent>;
 
   const mockCalculation: SimulateRateResponse = {
     breakpoints: [
@@ -28,10 +28,10 @@ describe("LandingSimulatorTicketComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LandingSimulatorTicketComponent],
+      imports: [SimulatorTicketComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LandingSimulatorTicketComponent);
+    fixture = TestBed.createComponent(SimulatorTicketComponent);
     ({ componentInstance: component, componentRef } = fixture);
 
     componentRef.setInput("vehicleType", "CAR");
@@ -63,9 +63,10 @@ describe("LandingSimulatorTicketComponent", () => {
       clicked = true;
     });
 
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll("nv-button")
-    ) as HTMLElement[];
+    /* SAFETY: Querying nv-button elements in DOM fixture */
+    const buttons = [
+      ...fixture.nativeElement.querySelectorAll("nv-button"),
+    ] as HTMLElement[];
     const ctaBtn = buttons.find((b) =>
       b.textContent?.includes(APP_TEXTS.landing.simulator.ctaButton)
     );

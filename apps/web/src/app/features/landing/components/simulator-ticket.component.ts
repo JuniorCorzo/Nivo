@@ -38,7 +38,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       lucideShieldCheck,
     }),
   ],
-  selector: "landing-simulator-ticket",
+  selector: "app-simulator-ticket",
   standalone: true,
   template: `
     <nv-card
@@ -193,12 +193,14 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
     </nv-card>
   `,
 })
-export class LandingSimulatorTicketComponent {
+export class SimulatorTicketComponent {
   protected readonly texts = APP_TEXTS.landing.simulator;
 
   readonly vehicleType = input.required<VehicleType>();
   readonly minutesStayed = input.required<number>();
   readonly simulationResult = input<SimulateRateResponse | null>(null);
 
-  readonly registerClick = output<void>();
+  readonly registerClick = output();
 }
+
+export { SimulatorTicketComponent as LandingSimulatorTicketComponent };

@@ -3,18 +3,18 @@ import type { ComponentFixture } from "@angular/core/testing";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { LandingHeroComponent } from "./landing-hero.component";
+import { HeroComponent } from "./hero.component";
 
-describe("LandingHeroComponent", () => {
-  let component: LandingHeroComponent;
-  let fixture: ComponentFixture<LandingHeroComponent>;
+describe("HeroComponent", () => {
+  let component: HeroComponent;
+  let fixture: ComponentFixture<HeroComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LandingHeroComponent],
+      imports: [HeroComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LandingHeroComponent);
+    fixture = TestBed.createComponent(HeroComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -46,9 +46,9 @@ describe("LandingHeroComponent", () => {
     });
 
     /* SAFETY: Querying nv-button elements in DOM fixture */
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll("nv-button")
-    ) as HTMLElement[];
+    const buttons = [
+      ...fixture.nativeElement.querySelectorAll("nv-button"),
+    ] as HTMLElement[];
     const ctaBtn = buttons.find((b) =>
       b.textContent?.includes(APP_TEXTS.landing.hero.trySimulator)
     );
@@ -64,9 +64,9 @@ describe("LandingHeroComponent", () => {
     });
 
     /* SAFETY: Querying nv-button elements in DOM fixture */
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll("nv-button")
-    ) as HTMLElement[];
+    const buttons = [
+      ...fixture.nativeElement.querySelectorAll("nv-button"),
+    ] as HTMLElement[];
     const registerBtn = buttons.find((b) =>
       b.textContent?.includes(APP_TEXTS.landing.hero.createAccountFree)
     );

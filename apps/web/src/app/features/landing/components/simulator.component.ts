@@ -13,8 +13,8 @@ import {
 } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
-import { LandingSimulatorControlsComponent } from "./landing-simulator-controls.component";
-import { LandingSimulatorTicketComponent } from "./landing-simulator-ticket.component";
+import { SimulatorControlsComponent } from "./simulator-controls.component";
+import { SimulatorTicketComponent } from "./simulator-ticket.component";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,14 +22,14 @@ import { LandingSimulatorTicketComponent } from "./landing-simulator-ticket.comp
     BadgeComponent,
     TypographyH2,
     TypographyP,
-    LandingSimulatorControlsComponent,
-    LandingSimulatorTicketComponent,
+    SimulatorControlsComponent,
+    SimulatorTicketComponent,
   ],
-  selector: "landing-simulator",
+  selector: "app-simulator",
   standalone: true,
-  templateUrl: "./landing-simulator.component.html",
+  templateUrl: "./simulator.component.html",
 })
-export class LandingSimulatorComponent {
+export class SimulatorComponent {
   protected readonly texts = APP_TEXTS.landing.simulator;
 
   readonly vehicleType = input.required<VehicleType>();
@@ -42,5 +42,7 @@ export class LandingSimulatorComponent {
 
   readonly vehicleTypeChange = output<VehicleType>();
   readonly durationChange = output<number>();
-  readonly registerClick = output<void>();
+  readonly registerClick = output();
 }
+
+export { SimulatorComponent as LandingSimulatorComponent };

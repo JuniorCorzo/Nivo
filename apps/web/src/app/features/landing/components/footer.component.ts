@@ -17,13 +17,15 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       lucideArrowRight,
     }),
   ],
-  selector: "landing-footer",
+  selector: "app-footer",
   standalone: true,
-  templateUrl: "./landing-footer.component.html",
+  templateUrl: "./footer.component.html",
 })
-export class LandingFooterComponent {
+export class FooterComponent {
   protected readonly texts = APP_TEXTS.landing.footer;
   protected readonly ctaBannerTexts = APP_TEXTS.landing.ctaBanner;
 
   readonly ctaClick = output();
 }
+
+export { FooterComponent as LandingFooterComponent };

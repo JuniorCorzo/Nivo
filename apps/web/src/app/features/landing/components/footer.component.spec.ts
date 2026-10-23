@@ -4,19 +4,19 @@ import { provideRouter } from "@angular/router";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { LandingFooterComponent } from "./landing-footer.component";
+import { FooterComponent } from "./footer.component";
 
-describe("LandingFooterComponent", () => {
-  let component: LandingFooterComponent;
-  let fixture: ComponentFixture<LandingFooterComponent>;
+describe("FooterComponent", () => {
+  let component: FooterComponent;
+  let fixture: ComponentFixture<FooterComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LandingFooterComponent],
+      imports: [FooterComponent],
       providers: [provideRouter([])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LandingFooterComponent);
+    fixture = TestBed.createComponent(FooterComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -14,26 +14,26 @@ import { PublicSimulatorService } from "@core/api/generated/services/public-simu
 import type { VehicleType } from "@core/type/vehicle-type.type";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
-import { LandingBenefitsComponent } from "./components/landing-benefits.component";
-import { LandingComparisonComponent } from "./components/landing-comparison.component";
-import { LandingFooterComponent } from "./components/landing-footer.component";
-import { LandingHeroComponent } from "./components/landing-hero.component";
-import { LandingNavbarComponent } from "./components/landing-navbar.component";
-import { LandingPricingComponent } from "./components/landing-pricing.component";
-import { LandingSimulatorComponent } from "./components/landing-simulator.component";
+import { BenefitsComponent } from "./components/benefits.component";
+import { ComparisonComponent } from "./components/comparison.component";
+import { FooterComponent } from "./components/footer.component";
+import { HeroComponent } from "./components/hero.component";
+import { NavbarComponent } from "./components/navbar.component";
+import { PricingComponent } from "./components/pricing.component";
+import { SimulatorComponent } from "./components/simulator.component";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    LandingNavbarComponent,
-    LandingHeroComponent,
-    LandingBenefitsComponent,
-    LandingSimulatorComponent,
-    LandingComparisonComponent,
-    LandingPricingComponent,
-    LandingFooterComponent,
+    NavbarComponent,
+    HeroComponent,
+    BenefitsComponent,
+    SimulatorComponent,
+    ComparisonComponent,
+    PricingComponent,
+    FooterComponent,
   ],
-  selector: "landing-page",
+  selector: "app-landing-page",
   standalone: true,
   templateUrl: "./landing-page.component.html",
 })

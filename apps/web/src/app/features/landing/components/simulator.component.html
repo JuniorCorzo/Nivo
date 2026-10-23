@@ -9,7 +9,7 @@
     </div>
 
     <div class="mx-auto grid max-w-6xl grid-cols-1 gap-8 lg:grid-cols-12">
-      <landing-simulator-controls
+      <app-simulator-controls
         class="lg:col-span-7"
         [vehicleType]="vehicleType()"
         [minutesStayed]="minutesStayed()"
@@ -20,7 +20,7 @@
         (durationChange)="durationChange.emit($event)"
       />
 
-      <landing-simulator-ticket
+      <app-simulator-ticket
         class="lg:col-span-5"
         [vehicleType]="vehicleType()"
         [minutesStayed]="minutesStayed()"

@@ -3,18 +3,18 @@ import type { ComponentFixture } from "@angular/core/testing";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { LandingPricingComponent } from "./landing-pricing.component";
+import { PricingComponent } from "./pricing.component";
 
-describe("LandingPricingComponent", () => {
-  let component: LandingPricingComponent;
-  let fixture: ComponentFixture<LandingPricingComponent>;
+describe("PricingComponent", () => {
+  let component: PricingComponent;
+  let fixture: ComponentFixture<PricingComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LandingPricingComponent],
+      imports: [PricingComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LandingPricingComponent);
+    fixture = TestBed.createComponent(PricingComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -43,9 +43,9 @@ describe("LandingPricingComponent", () => {
     });
 
     /* SAFETY: Querying nv-button elements in DOM fixture */
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll("nv-button")
-    ) as HTMLElement[];
+    const buttons = [
+      ...fixture.nativeElement.querySelectorAll("nv-button"),
+    ] as HTMLElement[];
     buttons[0]?.click();
     buttons[1]?.click();
 

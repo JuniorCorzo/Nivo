@@ -28,10 +28,12 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       lucideXCircle,
     }),
   ],
-  selector: "landing-comparison",
+  selector: "app-comparison",
   standalone: true,
-  templateUrl: "./landing-comparison.component.html",
+  templateUrl: "./comparison.component.html",
 })
-export class LandingComparisonComponent {
+export class ComparisonComponent {
   protected readonly texts = APP_TEXTS.landing.comparison;
 }
+
+export { ComparisonComponent as LandingComparisonComponent };

@@ -4,19 +4,19 @@ import type { ComponentFixture } from "@angular/core/testing";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { LandingSimulatorControlsComponent } from "./landing-simulator-controls.component";
+import { SimulatorControlsComponent } from "./simulator-controls.component";
 
-describe("LandingSimulatorControlsComponent", () => {
-  let component: LandingSimulatorControlsComponent;
-  let componentRef: ComponentRef<LandingSimulatorControlsComponent>;
-  let fixture: ComponentFixture<LandingSimulatorControlsComponent>;
+describe("SimulatorControlsComponent", () => {
+  let component: SimulatorControlsComponent;
+  let componentRef: ComponentRef<SimulatorControlsComponent>;
+  let fixture: ComponentFixture<SimulatorControlsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LandingSimulatorControlsComponent],
+      imports: [SimulatorControlsComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LandingSimulatorControlsComponent);
+    fixture = TestBed.createComponent(SimulatorControlsComponent);
     ({ componentInstance: component, componentRef } = fixture);
 
     componentRef.setInput("vehicleType", "CAR");
@@ -38,9 +38,10 @@ describe("LandingSimulatorControlsComponent", () => {
       selected = val;
     });
 
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll("nv-button")
-    ) as HTMLElement[];
+    /* SAFETY: Querying nv-button elements in DOM fixture */
+    const buttons = [
+      ...fixture.nativeElement.querySelectorAll("nv-button"),
+    ] as HTMLElement[];
     const motoBtn = buttons.find((b) =>
       b.textContent?.includes(APP_TEXTS.landing.simulator.vehicles.motorcycle)
     );
@@ -55,6 +56,7 @@ describe("LandingSimulatorControlsComponent", () => {
       minutes = val;
     });
 
+    /* SAFETY: Querying range input element in DOM fixture */
     const rangeInput = fixture.nativeElement.querySelector(
       'input[type="range"]'
     ) as HTMLInputElement;

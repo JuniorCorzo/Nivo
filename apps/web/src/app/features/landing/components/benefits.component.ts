@@ -35,10 +35,12 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       lucideSmartphone,
     }),
   ],
-  selector: "landing-benefits",
+  selector: "app-benefits",
   standalone: true,
-  templateUrl: "./landing-benefits.component.html",
+  templateUrl: "./benefits.component.html",
 })
-export class LandingBenefitsComponent {
+export class BenefitsComponent {
   protected readonly texts = APP_TEXTS.landing.benefits;
 }
+
+export { BenefitsComponent as LandingBenefitsComponent };

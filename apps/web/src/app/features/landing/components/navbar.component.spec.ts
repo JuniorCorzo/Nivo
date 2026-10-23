@@ -4,19 +4,19 @@ import { provideRouter } from "@angular/router";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { LandingNavbarComponent } from "./landing-navbar.component";
+import { NavbarComponent } from "./navbar.component";
 
-describe("LandingNavbarComponent", () => {
-  let component: LandingNavbarComponent;
-  let fixture: ComponentFixture<LandingNavbarComponent>;
+describe("NavbarComponent", () => {
+  let component: NavbarComponent;
+  let fixture: ComponentFixture<NavbarComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LandingNavbarComponent],
+      imports: [NavbarComponent],
       providers: [provideRouter([])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LandingNavbarComponent);
+    fixture = TestBed.createComponent(NavbarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

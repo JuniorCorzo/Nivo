@@ -8,20 +8,17 @@
   ></div>
 
   <div class="relative z-10 flex min-h-screen flex-col">
-    <landing-navbar
-      (loginClick)="goToLogin()"
-      (registerClick)="goToRegister()"
-    />
+    <app-navbar (loginClick)="goToLogin()" (registerClick)="goToRegister()" />
 
     <main class="flex-1">
-      <landing-hero
+      <app-hero
         (trySimulatorClick)="scrollToSimulator()"
         (registerClick)="goToRegister()"
       />
 
-      <landing-benefits />
+      <app-benefits />
 
-      <landing-simulator
+      <app-simulator
         [vehicleType]="vehicleType()"
         [minutesStayed]="minutesStayed()"
         [pricePerUnit]="pricePerUnit()"
@@ -34,11 +31,11 @@
         (registerClick)="goToRegister()"
       />
 
-      <landing-comparison />
+      <app-comparison />
 
-      <landing-pricing (registerClick)="goToRegister()" />
+      <app-pricing (registerClick)="goToRegister()" />
     </main>
 
-    <landing-footer (ctaClick)="goToRegister()" />
+    <app-footer (ctaClick)="goToRegister()" />
   </div>
 </div>

@@ -5,12 +5,12 @@ import type { SimulateRateResponse } from "@core/api/generated/models";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { LandingSimulatorComponent } from "./landing-simulator.component";
+import { SimulatorComponent } from "./simulator.component";
 
-describe("LandingSimulatorComponent", () => {
-  let component: LandingSimulatorComponent;
-  let componentRef: ComponentRef<LandingSimulatorComponent>;
-  let fixture: ComponentFixture<LandingSimulatorComponent>;
+describe("SimulatorComponent", () => {
+  let component: SimulatorComponent;
+  let componentRef: ComponentRef<SimulatorComponent>;
+  let fixture: ComponentFixture<SimulatorComponent>;
 
   const mockCalculation: SimulateRateResponse = {
     breakpoints: [
@@ -28,10 +28,10 @@ describe("LandingSimulatorComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LandingSimulatorComponent],
+      imports: [SimulatorComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LandingSimulatorComponent);
+    fixture = TestBed.createComponent(SimulatorComponent);
     ({ componentInstance: component, componentRef } = fixture);
 
     componentRef.setInput("vehicleType", "CAR");
@@ -70,9 +70,9 @@ describe("LandingSimulatorComponent", () => {
     });
 
     /* SAFETY: Querying nv-button elements in DOM fixture */
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll("nv-button")
-    ) as HTMLElement[];
+    const buttons = [
+      ...fixture.nativeElement.querySelectorAll("nv-button"),
+    ] as HTMLElement[];
     const motoBtn = buttons.find((b) =>
       b.textContent?.includes(APP_TEXTS.landing.simulator.vehicles.motorcycle)
     );
@@ -88,9 +88,9 @@ describe("LandingSimulatorComponent", () => {
     });
 
     /* SAFETY: Querying nv-button elements in DOM fixture */
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll("nv-button")
-    ) as HTMLElement[];
+    const buttons = [
+      ...fixture.nativeElement.querySelectorAll("nv-button"),
+    ] as HTMLElement[];
     const presetBtn = buttons.find((b) => b.textContent?.includes("3 horas"));
     presetBtn?.click();
 
@@ -128,9 +128,9 @@ describe("LandingSimulatorComponent", () => {
     });
 
     /* SAFETY: Querying nv-button elements in DOM fixture */
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll("nv-button")
-    ) as HTMLElement[];
+    const buttons = [
+      ...fixture.nativeElement.querySelectorAll("nv-button"),
+    ] as HTMLElement[];
     const ctaBtn = buttons.find((b) =>
       b.textContent?.includes(APP_TEXTS.landing.simulator.ctaButton)
     );
