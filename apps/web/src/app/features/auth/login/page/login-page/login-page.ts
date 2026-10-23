@@ -10,6 +10,7 @@ import {
 import { Router, RouterLink } from "@angular/router";
 import type { UserCredentialsModel } from "@core/models/user.model";
 import { AuthService } from "@core/services/auth-service";
+import { FeatureFlagService } from "@core/services/feature-flag.service";
 import { RedirectService } from "@core/services/redirect/redirect-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideLoader } from "@ng-icons/lucide";
@@ -49,6 +50,8 @@ import { exhaustMap, Subject, takeUntil } from "rxjs";
 })
 export class LoginPage implements OnInit, OnDestroy {
   protected readonly texts = APP_TEXTS.auth.login;
+  protected readonly accountCreationEnabled =
+    inject(FeatureFlagService).accountCreationEnabled;
   protected invalidCredentials = signal(false);
   protected isLoading = signal(false);
 

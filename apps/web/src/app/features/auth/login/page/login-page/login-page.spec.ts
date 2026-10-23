@@ -1,9 +1,12 @@
+import { signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter, Router } from "@angular/router";
 import { AuthService } from "@core/services/auth-service";
+import { FeatureFlagService } from "@core/services/feature-flag.service";
 import { RedirectService } from "@core/services/redirect/redirect-service";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { of } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -13,6 +16,7 @@ describe("LoginPage", () => {
   let component: LoginPage;
   let fixture: ComponentFixture<LoginPage>;
   let router: Router;
+  const accountCreationEnabledMock = signal(false);
 
   const mockAuthService = {
     login: vi.fn(),
@@ -25,6 +29,7 @@ describe("LoginPage", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    accountCreationEnabledMock.set(false);
 
     await TestBed.configureTestingModule({
       imports: [LoginPage],
@@ -32,6 +37,12 @@ describe("LoginPage", () => {
         provideRouter([]),
         { provide: AuthService, useValue: mockAuthService },
         { provide: RedirectService, useValue: mockRedirectService },
+        {
+          provide: FeatureFlagService,
+          useValue: {
+            accountCreationEnabled: accountCreationEnabledMock.asReadonly(),
+          },
+        },
       ],
     }).compileComponents();
 
@@ -79,5 +90,25 @@ describe("LoginPage", () => {
     expect(router.navigate).not.toHaveBeenCalled();
     expect(component["invalidCredentials"]()).toBe(true);
     expect(component["isLoading"]()).toBe(false);
+  });
+
+  it("should not render register link when accountCreationEnabled is false", () => {
+    accountCreationEnabledMock.set(false);
+    fixture.detectChanges();
+    /* SAFETY: Fixture native element is an HTMLElement */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).not.toContain(
+      APP_TEXTS.auth.login.actions.register
+    );
+  });
+
+  it("should render register link when accountCreationEnabled is true", () => {
+    accountCreationEnabledMock.set(true);
+    fixture.detectChanges();
+    /* SAFETY: Fixture native element is an HTMLElement */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain(
+      APP_TEXTS.auth.login.actions.register
+    );
   });
 });

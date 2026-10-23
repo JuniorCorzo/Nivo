@@ -8,10 +8,15 @@
   ></div>
 
   <div class="relative z-10 flex min-h-screen flex-col">
-    <app-navbar (loginClick)="goToLogin()" (registerClick)="goToRegister()" />
+    <app-navbar
+      [accountCreationEnabled]="accountCreationEnabled()"
+      (loginClick)="goToLogin()"
+      (registerClick)="goToRegister()"
+    />
 
     <main class="flex-1">
       <app-hero
+        [accountCreationEnabled]="accountCreationEnabled()"
         (trySimulatorClick)="scrollToSimulator()"
         (registerClick)="goToRegister()"
       />
@@ -36,6 +41,9 @@
       <app-pricing (registerClick)="goToRegister()" />
     </main>
 
-    <app-footer (ctaClick)="goToRegister()" />
+    <app-footer
+      [accountCreationEnabled]="accountCreationEnabled()"
+      (ctaClick)="goToRegister()"
+    />
   </div>
 </div>

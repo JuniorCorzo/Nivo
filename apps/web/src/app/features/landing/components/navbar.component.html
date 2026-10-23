@@ -45,9 +45,11 @@
       <nv-button variant="ghost" size="sm" (click)="loginClick.emit()">
         {{ texts.login }}
       </nv-button>
-      <nv-button variant="default" size="sm" (click)="registerClick.emit()">
-        {{ texts.register }}
-      </nv-button>
+      @if (accountCreationEnabled()) {
+        <nv-button variant="default" size="sm" (click)="registerClick.emit()">
+          {{ texts.register }}
+        </nv-button>
+      }
     </div>
   </div>
 </header>

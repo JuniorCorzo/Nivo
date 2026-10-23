@@ -22,6 +22,7 @@ import { authInterceptor } from "@core/http/interceptors/auth-interceptor";
 import { refreshTokenInterceptor } from "@core/http/interceptors/refresh-token-interceptor";
 import { provideSentry } from "@core/monitoring/sentry.config";
 import { AuthService } from "@core/services/auth-service";
+import { FeatureFlagService } from "@core/services/feature-flag.service";
 import { AppTitleStrategy } from "@core/title/app-title-strategy";
 import { provideNgIconLoader, withCaching } from "@ng-icons/core";
 import { provideHotToastConfig } from "@ngxpert/hot-toast";
@@ -71,5 +72,6 @@ export const appConfig: ApplicationConfig = {
         .refreshSession()
         .pipe(catchError(() => of(null)))
     ),
+    provideAppInitializer(() => inject(FeatureFlagService).loadRemoteConfig()),
   ],
 };

@@ -33,7 +33,8 @@ public enum ErrorMessagesModel {
                                     "Un usuario no puede desactivarse a sí mismo"), CANNOT_MODIFY_OWNER_ROLE(
                                       "El rol de un usuario OWNER no puede ser modificado"), SELF_ROLE_MODIFICATION_NOT_ALLOWED(
                                         "Un usuario no puede modificar su propio rol"), USER_ALREADY_EXISTS_IN_TENANT(
-                                          "El usuario %s ya existe en el tenant");
+                                          "El usuario %s ya existe en el tenant"), ACCOUNT_CREATION_DISABLED(
+                                            "La creación de cuentas no está habilitada temporalmente");
 
   private final String template;
 

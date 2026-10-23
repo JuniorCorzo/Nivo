@@ -25,16 +25,33 @@ describe("FooterComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should render cta banner and footer links from APP_TEXTS", () => {
+  it("should render copyright, login, and static links by default without register CTA when disabled", () => {
+    /* SAFETY: Fixture native element is an HTMLElement */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain(APP_TEXTS.landing.footer.copyright);
+    expect(compiled.textContent).toContain(APP_TEXTS.landing.footer.login);
+    expect(compiled.textContent).not.toContain(
+      APP_TEXTS.landing.ctaBanner.title
+    );
+    expect(compiled.textContent).not.toContain(
+      APP_TEXTS.landing.footer.register
+    );
+  });
+
+  it("should render cta banner and register link when accountCreationEnabled is true", () => {
+    fixture.componentRef.setInput("accountCreationEnabled", true);
+    fixture.detectChanges();
+
     /* SAFETY: Fixture native element is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain(APP_TEXTS.landing.ctaBanner.title);
-    expect(compiled.textContent).toContain(APP_TEXTS.landing.footer.copyright);
-    expect(compiled.textContent).toContain(APP_TEXTS.landing.footer.login);
     expect(compiled.textContent).toContain(APP_TEXTS.landing.footer.register);
   });
 
-  it("should emit ctaClick when banner button is clicked", () => {
+  it("should emit ctaClick when banner button is clicked while enabled", () => {
+    fixture.componentRef.setInput("accountCreationEnabled", true);
+    fixture.detectChanges();
+
     let emitted = false;
     component.ctaClick.subscribe(() => {
       emitted = true;

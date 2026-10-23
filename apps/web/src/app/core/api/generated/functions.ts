@@ -89,6 +89,8 @@ export type { GetPublicTicket$Params as GetPublicTicket$Params } from './fn/publ
 export { getPublicTicket as getPublicTicket } from './fn/public-tickets/get-public-ticket';
 export type { GetAvailability$Params as GetAvailability$Params } from './fn/public-availability/get-availability';
 export { getAvailability as getAvailability } from './fn/public-availability/get-availability';
+export type { GetConfig$Params as GetConfig$Params } from './fn/public-configuration/get-config';
+export { getConfig as getConfig } from './fn/public-configuration/get-config';
 export type { GetNotificationsHistory$Params as GetNotificationsHistory$Params } from './fn/notification-logs/get-notifications-history';
 export { getNotificationsHistory as getNotificationsHistory } from './fn/notification-logs/get-notifications-history';
 export type { GetSummary$Params as GetSummary$Params } from './fn/dashboard/get-summary';

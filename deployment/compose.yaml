@@ -27,6 +27,7 @@ x-api-security-env: &api-security-env
   RSA_PUBLIC_KEY_LOCATION: ${RSA_PUBLIC_KEY_LOCATION:-classpath:keys/public.pem}
   RSA_PRIVATE_KEY_LOCATION: ${RSA_PRIVATE_KEY_LOCATION:-classpath:keys/private.pem}
   RSA_KEY_ID: ${RSA_KEY_ID:-nivo-prod-key}
+  COOKIE_SECURE: ${COOKIE_SECURE:-true}
 
 x-api-integrations-env: &api-integrations-env
   SENDGRID_API_KEY: ${SENDGRID_API_KEY}
@@ -40,6 +41,7 @@ x-api-runtime-env: &api-runtime-env
   SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
   SWAGGER_ENABLED: ${SWAGGER_ENABLED:-false}
   SCALAR_ENABLED: ${SCALAR_ENABLED:-false}
+  ACCOUNT_CREATION_ENABLED: ${ACCOUNT_CREATION_ENABLED:-false}
 
 x-resources-web: &resources-web
   resources:

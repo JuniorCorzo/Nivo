@@ -38,6 +38,7 @@ export type { ParkingTicketsDto } from './models/parking-tickets-dto';
 export type { PaymentsDto } from './models/payments-dto';
 export type { PriceDetailed } from './models/price-detailed';
 export type { PriceLine } from './models/price-line';
+export type { PublicConfigResponse } from './models/public-config-response';
 export type { PublicParkingAvailabilityDto } from './models/public-parking-availability-dto';
 export type { PublicTicketDto } from './models/public-ticket-dto';
 export type { RatesDto } from './models/rates-dto';

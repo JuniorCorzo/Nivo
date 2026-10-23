@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideArrowRight, lucideSparkles } from "@ng-icons/lucide";
 import {
@@ -33,6 +38,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 export class HeroComponent {
   protected readonly texts = APP_TEXTS.landing.hero;
 
+  readonly accountCreationEnabled = input<boolean>(false);
   readonly trySimulatorClick = output();
   readonly registerClick = output();
 }

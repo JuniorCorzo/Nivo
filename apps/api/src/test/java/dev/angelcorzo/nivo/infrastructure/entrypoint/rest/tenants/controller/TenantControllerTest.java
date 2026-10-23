@@ -14,6 +14,8 @@ import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
 import dev.angelcorzo.nivo.domain.usecase.policy.CreateSpecialPolicyUseCase;
 import dev.angelcorzo.nivo.domain.usecase.policy.ShowSpecialPoliciesByTenantUseCase;
 import dev.angelcorzo.nivo.domain.usecase.tenant.RegisterTenantUseCase;
+import dev.angelcorzo.nivo.domain.model.tenants.exceptions.AccountCreationDisabledException;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.exception.ExceptionHandlerController;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.specialpolicies.mapper.SpecialPoliciesMapper;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.tenants.dto.RegisterTenantDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.tenants.enums.TenantsMessages;
@@ -39,7 +41,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @ActiveProfiles("test")
 @WebMvcTest(TenantController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@ContextConfiguration(classes = TenantController.class)
+@ContextConfiguration(classes = {TenantController.class, ExceptionHandlerController.class})
 @ExtendWith(MockitoExtension.class)
 class TenantControllerTest {
 
@@ -156,5 +158,29 @@ class TenantControllerTest {
     // Act & Assert
     mockMvc.perform(post("/tenants/register").contentType(MediaType.APPLICATION_JSON)
       .content(objectMapper.writeValueAsString(requestDto))).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("POST /tenants/register - Should return 403 Forbidden when account creation is disabled")
+  void registerTenant_shouldReturn403_whenAccountCreationIsDisabled() throws Exception {
+    // Arrange
+    CreatedUserDTO userDto = CreatedUserDTO.builder()
+      .fullName("Test User")
+      .email("test@user.com")
+      .password("password123")
+      .contactInfo("Test contact info")
+      .build();
+
+    RegisterTenantDTO requestDto = RegisterTenantDTO.builder().companyName("Test Company").user(userDto).build();
+
+    when(userMapper.toModel(any(CreatedUserDTO.class))).thenReturn(Users.builder().build());
+    when(registerTenantUseCase.register(any(Users.class), any(Tenants.class)))
+      .thenThrow(new AccountCreationDisabledException());
+
+    // Act & Assert
+    mockMvc.perform(post("/tenants/register").contentType(MediaType.APPLICATION_JSON)
+      .content(objectMapper.writeValueAsString(requestDto)))
+      .andExpect(status().isForbidden())
+      .andExpect(jsonPath("$.code").value("ACCOUNT_CREATION_DISABLED"));
   }
 }

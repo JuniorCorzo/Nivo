@@ -105,6 +105,22 @@ class JwtProviderTest {
       assertThat(email).isPresent().contains("developer@nivo.app");
       assertThat(sub).isPresent().contains("user-123");
     }
+
+    @Test
+    @DisplayName("Should return Optional.empty without throwing NPE when claim is absent")
+    void shouldReturnEmptyOptionalWhenClaimAbsent() {
+      // Arrange
+      Map<String, String> claims = Map.of("sub", "user-123");
+      String token = jwtProvider.generateAccessToken(claims);
+
+      // Act
+      Optional<String> missing = jwtProvider.extractClaim(token, "non_existent_claim");
+      Optional<String> email = jwtProvider.extractEmail(token);
+
+      // Assert
+      assertThat(missing).isEmpty();
+      assertThat(email).isEmpty();
+    }
   }
 
   @Nested

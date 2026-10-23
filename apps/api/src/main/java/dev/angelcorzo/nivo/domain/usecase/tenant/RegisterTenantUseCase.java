@@ -1,6 +1,8 @@
 package dev.angelcorzo.nivo.domain.usecase.tenant;
 
+import dev.angelcorzo.nivo.domain.model.commons.valueobjects.AppProperties;
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
+import dev.angelcorzo.nivo.domain.model.tenants.exceptions.AccountCreationDisabledException;
 import dev.angelcorzo.nivo.domain.model.tenants.gateways.TenantsRepository;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
 import dev.angelcorzo.nivo.domain.model.users.Users;
@@ -35,6 +37,7 @@ public class RegisterTenantUseCase {
   private final TenantsRepository tenantsRepository;
   private final PasswordEncodeGateway passwordEncode;
   private final RegistrationNotifier registrationNotifier;
+  private final AppProperties appProperties;
 
   /**
    * Registers a new tenant and creates an associated owner user.
@@ -48,6 +51,9 @@ public class RegisterTenantUseCase {
    *           if the email of the provided user already exists in the system.
    */
   public Users register(Users user, final Tenants tenant) {
+    if (!this.appProperties.isAccountCreationEnabled()) {
+      throw new AccountCreationDisabledException();
+    }
     this.validateEmailExists(user);
 
     final Tenants tenantCreated = this.tenantsRepository.save(tenant);

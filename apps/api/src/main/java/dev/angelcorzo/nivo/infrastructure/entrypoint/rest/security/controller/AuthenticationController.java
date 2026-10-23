@@ -1,6 +1,7 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.security.controller;
 
 import dev.angelcorzo.nivo.domain.model.authentication.AuthResponse;
+import dev.angelcorzo.nivo.domain.model.authentication.exceptions.TokenInvalidException;
 import dev.angelcorzo.nivo.domain.usecase.auth.LoginUseCase;
 import dev.angelcorzo.nivo.domain.usecase.auth.RefreshSessionUseCase;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.dto.Response;
@@ -26,15 +27,18 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication", description = "Authentication and session management endpoints")
 public class AuthenticationController {
   private final int refreshTokenExpiration;
+  private final boolean cookieSecure;
 
   private final LoginUseCase loginUseCase;
   private final RefreshSessionUseCase refreshSessionUseCase;
   private final AuthenticationMapper authenticationMapper;
 
   public AuthenticationController(@Value("${jwt.refresh-token-expiration}") int refreshTokenExpiration,
+    @Value("${security.cookie.secure:false}") boolean cookieSecure,
     LoginUseCase loginUseCase, RefreshSessionUseCase refreshSessionUseCase,
     AuthenticationMapper authenticationMapper) {
     this.refreshTokenExpiration = refreshTokenExpiration;
+    this.cookieSecure = cookieSecure;
     this.loginUseCase = loginUseCase;
     this.refreshSessionUseCase = refreshSessionUseCase;
     this.authenticationMapper = authenticationMapper;
@@ -61,8 +65,12 @@ public class AuthenticationController {
   @ApiResponses({@ApiResponse(responseCode = "200", description = "Session refreshed successfully"),
     @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")})
   @PostMapping(value = "/refresh", produces = MediaType.APPLICATION_JSON_VALUE)
-  Response<AuthenticationResponseDTO> refreshSession(@CookieValue("refreshToken") String refreshToken,
+  Response<AuthenticationResponseDTO> refreshSession(
+    @CookieValue(name = "refreshToken", required = false) String refreshToken,
     HttpServletResponse response) {
+    if (refreshToken == null || refreshToken.isBlank()) {
+      throw new TokenInvalidException("Refresh token cookie is missing");
+    }
     AuthResponse newTokens = this.refreshSessionUseCase.refreshAccessToken(refreshToken);
 
     final ResponseCookie refreshTokenCookie = this.createCookie(newTokens.refreshToken(), refreshTokenExpiration);
@@ -83,7 +91,7 @@ public class AuthenticationController {
   private ResponseCookie createCookie(String value, int maxAgeSeconds) {
     return ResponseCookie.from("refreshToken", value)
       .httpOnly(true)
-      .secure(false)
+      .secure(this.cookieSecure)
       .path("/api")
       .sameSite("Lax")
       .maxAge(Duration.ofSeconds(maxAgeSeconds))

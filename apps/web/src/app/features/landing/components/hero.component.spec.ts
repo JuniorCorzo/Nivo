@@ -57,7 +57,21 @@ describe("HeroComponent", () => {
     expect(emitted).toBe(true);
   });
 
-  it("should emit registerClick when free account button is clicked", () => {
+  it("should not render free account button when accountCreationEnabled is false", () => {
+    /* SAFETY: Querying nv-button elements in DOM fixture */
+    const buttons = [
+      ...fixture.nativeElement.querySelectorAll("nv-button"),
+    ] as HTMLElement[];
+    const registerBtn = buttons.find((b) =>
+      b.textContent?.includes(APP_TEXTS.landing.hero.createAccountFree)
+    );
+    expect(registerBtn).toBeUndefined();
+  });
+
+  it("should emit registerClick when free account button is clicked and enabled", () => {
+    fixture.componentRef.setInput("accountCreationEnabled", true);
+    fixture.detectChanges();
+
     let emitted = false;
     component.registerClick.subscribe(() => {
       emitted = true;

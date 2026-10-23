@@ -1,10 +1,12 @@
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter, Router } from "@angular/router";
 import type { SimulateRateResponse } from "@core/api/generated/models";
 import { PublicSimulatorService } from "@core/api/generated/services/public-simulator.service";
+import { FeatureFlagService } from "@core/services/feature-flag.service";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { of, throwError } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -16,6 +18,7 @@ describe("LandingPageComponent", () => {
   let fixture: ComponentFixture<LandingPageComponent>;
   let calculateMock: ReturnType<typeof vi.fn>;
   let router: Router;
+  const accountCreationEnabledMock = signal(false);
 
   const mockCalculation: SimulateRateResponse = {
     breakpoints: [
@@ -33,6 +36,7 @@ describe("LandingPageComponent", () => {
 
   beforeEach(async () => {
     calculateMock = vi.fn().mockReturnValue(of(mockCalculation));
+    accountCreationEnabledMock.set(false);
 
     await TestBed.configureTestingModule({
       imports: [LandingPageComponent],
@@ -41,6 +45,12 @@ describe("LandingPageComponent", () => {
         {
           provide: PublicSimulatorService,
           useValue: { calculate: calculateMock },
+        },
+        {
+          provide: FeatureFlagService,
+          useValue: {
+            accountCreationEnabled: accountCreationEnabledMock.asReadonly(),
+          },
         },
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -111,7 +121,14 @@ describe("LandingPageComponent", () => {
     expect(router.navigate).toHaveBeenCalledWith([APP_ROUTES.auth.login]);
   });
 
-  it("should navigate to register when register CTA is triggered", () => {
+  it("should navigate to login when register CTA is triggered and account creation is disabled", () => {
+    accountCreationEnabledMock.set(false);
+    component.goToRegister();
+    expect(router.navigate).toHaveBeenCalledWith([APP_ROUTES.auth.login]);
+  });
+
+  it("should navigate to register when register CTA is triggered and account creation is enabled", () => {
+    accountCreationEnabledMock.set(true);
     component.goToRegister();
     expect(router.navigate).toHaveBeenCalledWith([APP_ROUTES.auth.register]);
   });
