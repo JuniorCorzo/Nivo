@@ -6,7 +6,9 @@ import lombok.Getter;
 
 @Getter
 public enum TimeUnitsRate {
-  DAYS(ChronoUnit.DAYS, "Dias", "D"), HOURS(ChronoUnit.HOURS, "Horas", "H"), MINUTES(ChronoUnit.MINUTES, "Minutos",
+  DAYS(ChronoUnit.DAYS, "Dias", "D"),
+  HOURS(ChronoUnit.HOURS, "Horas", "H"),
+  MINUTES(ChronoUnit.MINUTES, "Minutos",
     "M");
 
   private final ChronoUnit chronoUnit;

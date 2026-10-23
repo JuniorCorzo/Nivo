@@ -82,9 +82,17 @@ jwt:
   access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:900}
   refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800}
 
-sendgrid:
-  api-key: "${SENDGRID_API_KEY:SG.dev_mock}"
-  from-email: "${SENDGRID_FROM_EMAIL:noreply@nivo.dev}"
+nivo:
+  notification:
+    email:
+      provider: "${NIVO_EMAIL_PROVIDER:BREVO}"
+      brevo:
+        api-key: "${BREVO_API_KEY:xkeysib-dev-key}"
+        url: "${BREVO_API_URL:https://api.brevo.com/v3}"
+        sender-name: "${BREVO_SENDER_NAME:Nivo}"
+        sender-email: "${BREVO_SENDER_EMAIL:noreply@nivo.dev}"
+        connect-timeout: ${BREVO_CONNECT_TIMEOUT_MS:5000}
+        read-timeout: ${BREVO_READ_TIMEOUT_MS:10000}
 
 payment:
   enabled: ${PAYMENT_ENABLED:true}

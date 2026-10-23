@@ -84,9 +84,9 @@ class NotificationsLoggerServiceTest {
   @Test
   @DisplayName("Should register FAILED log with error message")
   void shouldRegisterFailedLog() {
-    service.registerLog(template, "recipient@test.com", "SendGrid error 500");
+    service.registerLog(template, "recipient@test.com", "Brevo error 500");
 
     verify(notificationLogsRepository).save(argThat(log -> log.getStatus() == NotificationLogsStatus.FAILED
-      && "SendGrid error 500".equals(log.getErrorMessage())));
+      && "Brevo error 500".equals(log.getErrorMessage())));
   }
 }

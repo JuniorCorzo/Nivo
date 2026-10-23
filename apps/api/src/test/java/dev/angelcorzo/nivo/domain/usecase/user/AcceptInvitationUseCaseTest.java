@@ -45,6 +45,9 @@ class AcceptInvitationUseCaseTest {
   @Mock
   private dev.angelcorzo.nivo.domain.usecase.notification.notifier.UserNotifier userNotifier;
 
+  @Mock
+  private dev.angelcorzo.nivo.domain.usecase.notification.notifier.RegistrationNotifier registrationNotifier;
+
   @InjectMocks
   private AcceptInvitationUseCase useCase;
 
@@ -88,6 +91,7 @@ class AcceptInvitationUseCaseTest {
     assertNotNull(savedUser.getPassword());
 
     verify(invitationsRepository).acceptedInvitation(pendingInvitation.getId());
+    verify(registrationNotifier).notifyUserSelfRegistered(savedUser);
   }
 
   @Test
@@ -138,6 +142,7 @@ class AcceptInvitationUseCaseTest {
     assertEquals(existingUser.getFullName(), updatedUser.getFullName()); // Name should not change
 
     verify(invitationsRepository).acceptedInvitation(pendingInvitation.getId());
+    verify(registrationNotifier).notifyUserSelfRegistered(updatedUser);
   }
 
   @Test

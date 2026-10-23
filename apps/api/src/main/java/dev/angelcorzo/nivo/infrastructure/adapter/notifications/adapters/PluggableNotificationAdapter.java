@@ -5,6 +5,7 @@ import dev.angelcorzo.nivo.domain.model.commons.notifications.gateway.Notificati
 import dev.angelcorzo.nivo.domain.model.notificationtemplates.NotificationTemplates;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.clients.EmailProviderClient;
 import dev.angelcorzo.nivo.infrastructure.adapter.notifications.enums.EmailProviderType;
+import dev.angelcorzo.nivo.infrastructure.adapter.notifications.services.NotificationsLoggerService;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Pluggable {@link NotificationGateway} implementation that dynamically routes email dispatches to the configured
- * {@link EmailProviderClient} strategy (SendGrid, Resend, Brevo, or Mock).
+ * {@link EmailProviderClient} strategy (Brevo or Mock) and centralizes notification lifecycle logging.
  *
  * <p>
  * <strong>Layer:</strong> Infrastructure (Driven Adapter - Pluggable Notification Dispatcher)
@@ -30,16 +31,22 @@ public class PluggableNotificationAdapter implements NotificationGateway {
 
   private final Map<EmailProviderType, EmailProviderClient> clientsByProvider;
   private final EmailProviderType activeProvider;
+  private final NotificationsLoggerService notificationsLoggerService;
 
-  public PluggableNotificationAdapter(final List<EmailProviderClient> clients,
-    @Value("${nivo.notification.email.provider:SENDGRID}") final String activeProviderName) {
+  public PluggableNotificationAdapter(
+    final List<EmailProviderClient> clients,
+    @Value("${nivo.notification.email.provider:BREVO}") final String activeProviderName,
+    final NotificationsLoggerService notificationsLoggerService) {
     this.clientsByProvider = new EnumMap<>(EmailProviderType.class);
     for (EmailProviderClient client : clients) {
       this.clientsByProvider.put(client.getProviderType(), client);
     }
     this.activeProvider = resolveProviderType(activeProviderName);
-    log.info("Initialized PluggableNotificationAdapter with active email provider: {} (registered providers: {})",
-      this.activeProvider, this.clientsByProvider.keySet());
+    this.notificationsLoggerService = notificationsLoggerService;
+    log.info(
+      "Initialized PluggableNotificationAdapter with active email provider: {} (registered providers: {})",
+      this.activeProvider,
+      this.clientsByProvider.keySet());
   }
 
   @Override
@@ -53,7 +60,13 @@ public class PluggableNotificationAdapter implements NotificationGateway {
     log.debug("Delegating email dispatch to provider={} for template={}", this.activeProvider,
       template != null ? template.getTemplateReference() : "N/A");
 
-    client.sendEmail(template, to, content);
+    try {
+      client.sendEmail(template, to, content);
+      this.notificationsLoggerService.registerLog(template, to);
+    } catch (Exception e) {
+      this.notificationsLoggerService.registerLog(template, to, e.getMessage());
+      throw e;
+    }
   }
 
   public EmailProviderType getActiveProvider() {
@@ -62,13 +75,13 @@ public class PluggableNotificationAdapter implements NotificationGateway {
 
   private static EmailProviderType resolveProviderType(final String providerName) {
     if (providerName == null || providerName.isBlank()) {
-      return EmailProviderType.SENDGRID;
+      return EmailProviderType.BREVO;
     }
     try {
       return EmailProviderType.valueOf(providerName.trim().toUpperCase());
     } catch (IllegalArgumentException e) {
-      log.warn("Unknown email provider '{}' configured; falling back to default SENDGRID", providerName);
-      return EmailProviderType.SENDGRID;
+      log.warn("Unknown email provider '{}' configured; falling back to default BREVO", providerName);
+      return EmailProviderType.BREVO;
     }
   }
 }
