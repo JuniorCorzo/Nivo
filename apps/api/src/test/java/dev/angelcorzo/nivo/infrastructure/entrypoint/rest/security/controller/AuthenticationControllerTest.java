@@ -1,5 +1,6 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.security.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -23,8 +24,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.exception.ExceptionHandlerController;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -33,7 +36,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @ActiveProfiles("test")
 @WebMvcTest(AuthenticationController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@ContextConfiguration(classes = AuthenticationController.class)
+@ContextConfiguration(classes = {AuthenticationController.class, ExceptionHandlerController.class})
 @TestPropertySource(properties = "jwt.refresh-token-expiration=86400")
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuthenticationController Tests")
@@ -117,10 +120,10 @@ class AuthenticationControllerTest {
       when(authenticationMapper.toDTO(authResponse))
         .thenReturn(new AuthenticationResponseDTO("access-token-xyz", "refresh-token-abc"));
 
-      org.springframework.mock.web.MockHttpServletResponse response = new org.springframework.mock.web.MockHttpServletResponse();
+      MockHttpServletResponse response = new MockHttpServletResponse();
       controller.login(credentials, response);
 
-      org.assertj.core.api.Assertions.assertThat(response.getHeader("Set-Cookie")).contains("Secure");
+      assertThat(response.getHeader("Set-Cookie")).contains("Secure");
     }
   }
 
@@ -146,6 +149,13 @@ class AuthenticationControllerTest {
         .andExpect(header().exists("Set-Cookie"))
         .andExpect(jsonPath("$.data.accessToken").value("new-access-token"))
         .andExpect(jsonPath("$.message").value("Refresh successful"));
+    }
+
+    @Test
+    @DisplayName("Should return 401 Unauthorized when refreshToken cookie is missing")
+    void shouldReturn401WhenRefreshTokenCookieIsMissing() throws Exception {
+      mockMvc.perform(post("/auth/refresh"))
+        .andExpect(status().isUnauthorized());
     }
   }
 

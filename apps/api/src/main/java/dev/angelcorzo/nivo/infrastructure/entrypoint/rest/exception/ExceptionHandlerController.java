@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -41,6 +42,14 @@ public class ExceptionHandlerController {
     }
     final HttpStatus status = HttpStatus.BAD_REQUEST;
     return ResponseEntity.status(status).body(ResponseError.of(status, "VALIDATION_FAILED", message, ""));
+  }
+
+  @ExceptionHandler(MissingRequestCookieException.class)
+  ResponseEntity<ResponseError<Object>> handleMissingRequestCookie(MissingRequestCookieException ex) {
+    final boolean isRefreshToken = "refreshToken".equals(ex.getCookieName());
+    final HttpStatus status = isRefreshToken ? HttpStatus.UNAUTHORIZED : HttpStatus.BAD_REQUEST;
+    final String code = isRefreshToken ? "UNAUTHORIZED" : "MISSING_COOKIE";
+    return ResponseEntity.status(status).body(ResponseError.of(status, code, ex.getMessage(), ""));
   }
 
   @ExceptionHandler(Exception.class)
