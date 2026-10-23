@@ -13,4 +13,5 @@ public abstract class AppProperties {
   private String socialUrl;
   private String unsubscribeUrl;
   private String addressCompany;
+  private boolean accountCreationEnabled;
 }

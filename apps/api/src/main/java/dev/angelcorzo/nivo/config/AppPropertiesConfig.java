@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class AppPropertiesConfig extends AppProperties {
 
   public AppPropertiesConfig(String currency, String ctaUrl, String companyName, String supportUrl, String socialUrl,
-    String unsubscribeUrl, String addressCompany) {
-    super(currency, ctaUrl, companyName, supportUrl, socialUrl, unsubscribeUrl, addressCompany);
+    String unsubscribeUrl, String addressCompany, boolean accountCreationEnabled) {
+    super(currency, ctaUrl, companyName, supportUrl, socialUrl, unsubscribeUrl, addressCompany, accountCreationEnabled);
   }
 }

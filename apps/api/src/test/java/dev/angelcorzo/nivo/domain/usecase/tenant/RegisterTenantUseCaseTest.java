@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
+import dev.angelcorzo.nivo.domain.model.tenants.exceptions.AccountCreationDisabledException;
 import dev.angelcorzo.nivo.domain.model.tenants.gateways.TenantsRepository;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
 import dev.angelcorzo.nivo.domain.model.users.Users;
@@ -40,6 +41,9 @@ class RegisterTenantUseCaseTest {
   @Mock
   private dev.angelcorzo.nivo.domain.usecase.notification.notifier.RegistrationNotifier registrationNotifier;
 
+  @Mock
+  private dev.angelcorzo.nivo.domain.model.commons.valueobjects.AppProperties appProperties;
+
   @InjectMocks
   private RegisterTenantUseCase registerTenantUseCase;
 
@@ -70,6 +74,7 @@ class RegisterTenantUseCaseTest {
     Users userReturn = userToRegister;
     userReturn.setTenant(TenantReference.of(tenant));
 
+    when(appProperties.isAccountCreationEnabled()).thenReturn(true);
     // 1. When checking if email exists, return false (does not exist)
     when(usersRepository.existsByEmail(userToRegister.getEmail())).thenReturn(false);
 
@@ -110,6 +115,7 @@ class RegisterTenantUseCaseTest {
   void shouldThrowExceptionWhenEmailAlreadyExists() {
     // Arrange
 
+    when(appProperties.isAccountCreationEnabled()).thenReturn(true);
     // 1. When checking if email exists, return true (it does exist)
     when(usersRepository.existsByEmail(userToRegister.getEmail())).thenReturn(true);
 
@@ -124,6 +130,21 @@ class RegisterTenantUseCaseTest {
     assertEquals("El email test@example.com ya existe", exception.getMessage());
 
     // VERY IMPORTANT: Verify that nothing was attempted to be saved
+    verify(tenantsRepository, never()).save(any(Tenants.class));
+    verify(usersRepository, never()).save(any(Users.class));
+  }
+
+  @Test
+  @DisplayName("Should throw AccountCreationDisabledException when account creation is disabled")
+  void shouldThrowAccountCreationDisabledExceptionWhenDisabled() {
+    // Arrange
+    when(appProperties.isAccountCreationEnabled()).thenReturn(false);
+
+    // Act & Assert
+    assertThrows(AccountCreationDisabledException.class, () -> {
+      registerTenantUseCase.register(userToRegister, tenantToRegister);
+    });
+
     verify(tenantsRepository, never()).save(any(Tenants.class));
     verify(usersRepository, never()).save(any(Users.class));
   }
