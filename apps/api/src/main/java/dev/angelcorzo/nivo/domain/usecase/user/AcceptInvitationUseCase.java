@@ -9,6 +9,7 @@ import dev.angelcorzo.nivo.domain.model.users.Users;
 import dev.angelcorzo.nivo.domain.model.users.exceptions.UserAlreadyExistsInTenantException;
 import dev.angelcorzo.nivo.domain.model.users.gateways.PasswordEncodeGateway;
 import dev.angelcorzo.nivo.domain.model.users.gateways.UsersRepository;
+import dev.angelcorzo.nivo.domain.usecase.notification.notifier.RegistrationNotifier;
 import dev.angelcorzo.nivo.domain.usecase.notification.notifier.UserNotifier;
 import dev.angelcorzo.nivo.domain.usecase.user.exceptions.InvitationAlreadyAcceptedException;
 import dev.angelcorzo.nivo.domain.usecase.user.exceptions.InvitationExpiredException;
@@ -39,6 +40,7 @@ public class AcceptInvitationUseCase {
   private final UsersRepository usersRepository;
   private final PasswordEncodeGateway passwordEncode;
   private final UserNotifier userNotifier;
+  private final RegistrationNotifier registrationNotifier;
 
   /**
    * Executes the process of accepting an invitation.
@@ -70,6 +72,7 @@ public class AcceptInvitationUseCase {
     final UserInvitations acceptedInvitation = this.invitationsRepository.acceptedInvitation(invitation.getId());
 
     this.userNotifier.notifyUserInvitationAccepted(acceptedInvitation, user);
+    this.registrationNotifier.notifyUserSelfRegistered(user);
 
     return acceptedInvitation;
   }

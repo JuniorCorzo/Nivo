@@ -5,7 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import dev.angelcorzo.nivo.domain.model.commons.notifications.enums.NotificationEvents;
 import dev.angelcorzo.nivo.domain.model.commons.notifications.enums.NotificationsChannel;
 import dev.angelcorzo.nivo.domain.model.commons.notifications.valueobjects.UserInvitedData;
+import dev.angelcorzo.nivo.domain.model.commons.notifications.valueobjects.UserSelfRegisterData;
 import dev.angelcorzo.nivo.domain.model.notificationtemplates.NotificationTemplates;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -197,5 +201,91 @@ class HtmlNotificationBuilderTest {
     assertThat(html).contains("Nivo");
     assertThat(html).contains("John Doe");
     assertThat(html).contains("Nivo Inc");
+  }
+
+  @Test
+  @DisplayName("Should interpolate Impeccable welcome template and subject correctly")
+  void shouldInterpolateImpeccableWelcomeTemplateAndSubject() throws IOException {
+    final String templateHtml;
+    try (final InputStream in = getClass().getResourceAsStream("/templates/emails/user-self-registered.html")) {
+      assertThat(in).isNotNull();
+      templateHtml = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+    }
+
+    final NotificationTemplates template = NotificationTemplates.builder()
+      .name("Bienvenido a {{companyName}}")
+      .eventType(NotificationEvents.USER_SELF_REGISTERED)
+      .channel(NotificationsChannel.EMAIL)
+      .templateReference("brevo-user-self-registered")
+      .body(templateHtml)
+      .build();
+
+    final UserSelfRegisterData registerData = UserSelfRegisterData.builder()
+      .userName("Carlos Gomez")
+      .email("carlos@example.com")
+      .companyName("Nivo Operations")
+      .ctaUrl("https://nivo.dev/dashboard")
+      .supportUrl("https://nivo.dev/support")
+      .companyAddress("Calle 100 #15-20, Bogota")
+      .socialUrl("https://twitter.com/nivo")
+      .unsubscribeUrl("https://nivo.dev/unsubscribe")
+      .build();
+
+    final String subject = builder.buildSubject(template, registerData);
+    final String html = builder.buildHtml(template, registerData);
+
+    assertThat(subject).isEqualTo("Bienvenido a Nivo Operations");
+    assertThat(html).contains("Tu cuenta en Nivo Operations está lista");
+    assertThat(html).contains("Hola Carlos Gomez, tu registro fue exitoso.");
+    assertThat(html).contains("carlos@example.com");
+    assertThat(html).contains("https://nivo.dev/dashboard");
+    assertThat(html).contains("Calle 100 #15-20, Bogota");
+    assertThat(html).contains("https://nivo.dev/support");
+    assertThat(html).contains("https://nivo.dev/unsubscribe");
+    assertThat(html).doesNotContain("{{").doesNotContain("}}");
+  }
+
+  @Test
+  @DisplayName("Should interpolate Impeccable invited user template and subject correctly")
+  void shouldInterpolateImpeccableInvitedUserTemplateAndSubject() throws IOException {
+    final String templateHtml;
+    try (final InputStream in = getClass().getResourceAsStream("/templates/emails/user-invited.html")) {
+      assertThat(in).isNotNull();
+      templateHtml = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+    }
+
+    final NotificationTemplates template = NotificationTemplates.builder()
+      .name("Te han invitado a unirte a {{organizationName}} en Nivo")
+      .eventType(NotificationEvents.USER_INVITED)
+      .channel(NotificationsChannel.EMAIL)
+      .templateReference("brevo-user-invited")
+      .body(templateHtml)
+      .build();
+
+    final UserInvitedData invitedData = UserInvitedData.builder()
+      .userName("Maria Lopez")
+      .inviterName("Carlos Gomez")
+      .organizationName("Parqueaderos Norte")
+      .roleName("OPERATOR")
+      .ctaUrl("https://nivo.dev/invitation/accept?token=abc-123")
+      .expirationDate("30 de Noviembre, 2026")
+      .companyName("Nivo Inc")
+      .companyAddress("Carrera 7 #71-21, Bogota")
+      .supportUrl("https://nivo.dev/support")
+      .unsubscribeUrl("https://nivo.dev/unsubscribe")
+      .build();
+
+    final String subject = builder.buildSubject(template, invitedData);
+    final String html = builder.buildHtml(template, invitedData);
+
+    assertThat(subject).isEqualTo("Te han invitado a unirte a Parqueaderos Norte en Nivo");
+    assertThat(html).contains("Te han invitado a unirte a Parqueaderos Norte");
+    assertThat(html).contains("Hola Maria Lopez");
+    assertThat(html).contains("Carlos Gomez");
+    assertThat(html).contains("OPERATOR");
+    assertThat(html).contains("30 de Noviembre, 2026");
+    assertThat(html).contains("https://nivo.dev/invitation/accept?token=abc-123");
+    assertThat(html).contains("Carrera 7 #71-21, Bogota");
+    assertThat(html).doesNotContain("{{").doesNotContain("}}");
   }
 }

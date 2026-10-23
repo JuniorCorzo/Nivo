@@ -20,7 +20,7 @@ public enum NotificationEvents {
   TICKET_CLOSED(false),
   PAYMENT_COMPLETED(true),
   PAYMENT_CHECKOUT(true),
-  USER_SELF_REGISTERED(false),
+  USER_SELF_REGISTERED(true),
   USER_INVITED(true),
   USER_INVITATION_ACCEPTED(false),
   USER_ROLE_ASSIGNED(false);

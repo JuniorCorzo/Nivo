@@ -563,9 +563,124 @@ INSERT INTO notification_templates (
 )
 VALUES
     ('a3f43ba0-173b-4585-ad61-c4f2ef4f7c4d',
-     'USER_SELF_REGISTERED_EMAIL', 'USER_SELF_REGISTERED', 'EMAIL',
-     'd-0a990c47c77c49e2b9527afaaebdd9a3',
-     'External SendGrid template for user self-registration notification.',
+     'Bienvenido a {{companyName}}', 'USER_SELF_REGISTERED', 'EMAIL',
+     'brevo-user-self-registered',
+     '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bienvenido a {{companyName}}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #fafafa; font-family: -apple-system, BlinkMacSystemFont, ''Segoe UI'', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; color: #09090b;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #fafafa; width: 100%; padding: 40px 16px 40px 16px;">
+    <tr>
+      <td align="center">
+        <!-- Main Card Container -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; overflow: hidden; border-collapse: separate;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="padding: 32px 36px 24px 36px; border-bottom: 1px solid #f4f4f5;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="left" style="vertical-align: middle;">
+                    <span style="font-size: 20px; font-weight: 800; letter-spacing: -0.05em; color: #09090b; text-decoration: none;">NIVO</span>
+                  </td>
+                  <td align="right" style="vertical-align: middle;">
+                    <span style="display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 10px; background-color: #f4f4f5; border: 1px solid #e4e4e7; border-radius: 9999px; color: #09090b;">PARKING OPERATIONS</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Hero & Body Content -->
+          <tr>
+            <td style="padding: 36px 36px 36px 36px;">
+              <!-- Hero Heading -->
+              <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; line-height: 1.3; color: #09090b; letter-spacing: -0.025em;">Tu cuenta en {{companyName}} está lista</h1>
+              
+              <!-- Greeting -->
+              <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #52525b;">Hola {{userName}}, tu registro fue exitoso. Te damos la bienvenida a la plataforma operativa diseñada para optimizar y controlar la operación de tus estacionamientos en tiempo real.</p>
+
+              <!-- Email Card -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 28px 0; background-color: #fafafa; border: 1px solid #e4e4e7; border-radius: 8px;">
+                <tr>
+                  <td style="padding: 16px 20px;">
+                    <div style="font-size: 11px; font-weight: 600; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 4px 0;">CORREO ELECTRÓNICO REGISTRADO</div>
+                    <div style="font-size: 15px; font-weight: 600; color: #09090b; font-family: -apple-system, BlinkMacSystemFont, ''Segoe UI'', Roboto, monospace;">{{email}}</div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Section Title: Onboarding Steps -->
+              <h2 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #09090b; letter-spacing: -0.01em;">Próximos pasos para empezar</h2>
+
+              <!-- Steps List -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 32px 0;">
+                <!-- Step 1 -->
+                <tr>
+                  <td style="padding: 12px 0; vertical-align: top; width: 32px;">
+                    <div style="width: 24px; height: 24px; line-height: 24px; background-color: #18181b; color: #fafafa; font-size: 12px; font-weight: 700; border-radius: 50%; text-align: center;">1</div>
+                  </td>
+                  <td style="padding: 12px 0 12px 12px; vertical-align: top;">
+                    <div style="font-size: 14px; font-weight: 600; color: #09090b; margin: 0 0 2px 0;">Configura tu primer estacionamiento</div>
+                    <div style="font-size: 13px; line-height: 1.5; color: #52525b;">Registra las zonas, niveles y capacidad total de plazas para vehículos y motocicletas.</div>
+                  </td>
+                </tr>
+                <!-- Step 2 -->
+                <tr>
+                  <td style="padding: 12px 0; vertical-align: top; width: 32px; border-top: 1px solid #f4f4f5;">
+                    <div style="width: 24px; height: 24px; line-height: 24px; background-color: #18181b; color: #fafafa; font-size: 12px; font-weight: 700; border-radius: 50%; text-align: center;">2</div>
+                  </td>
+                  <td style="padding: 12px 0 12px 12px; vertical-align: top; border-top: 1px solid #f4f4f5;">
+                    <div style="font-size: 14px; font-weight: 600; color: #09090b; margin: 0 0 2px 0;">Define tarifas horarias</div>
+                    <div style="font-size: 13px; line-height: 1.5; color: #52525b;">Establece precios base por hora o fracción, periodos de gracia y políticas de cobro.</div>
+                  </td>
+                </tr>
+                <!-- Step 3 -->
+                <tr>
+                  <td style="padding: 12px 0; vertical-align: top; width: 32px; border-top: 1px solid #f4f4f5;">
+                    <div style="width: 24px; height: 24px; line-height: 24px; background-color: #18181b; color: #fafafa; font-size: 12px; font-weight: 700; border-radius: 50%; text-align: center;">3</div>
+                  </td>
+                  <td style="padding: 12px 0 12px 12px; vertical-align: top; border-top: 1px solid #f4f4f5;">
+                    <div style="font-size: 14px; font-weight: 600; color: #09090b; margin: 0 0 2px 0;">Invita a tus operadores</div>
+                    <div style="font-size: 13px; line-height: 1.5; color: #52525b;">Asigna accesos con roles granulares de cajero, operador o auditor para cada sede.</div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Primary CTA Button -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center">
+                    <a href="{{ctaUrl}}" style="display: block; width: 100%; box-sizing: border-box; text-align: center; padding: 14px 24px; background-color: #18181b; color: #fafafa; font-size: 14px; font-weight: 600; border-radius: 8px; text-decoration: none; letter-spacing: 0.01em;">Comenzar ahora</a>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 28px 36px; background-color: #fafafa; border-top: 1px solid #e4e4e7; font-size: 12px; color: #71717a; text-align: center; line-height: 1.6;">
+              <div style="margin: 0 0 8px 0;">&copy; {{companyName}}. {{companyAddress}}</div>
+              <div>
+                <a href="{{supportUrl}}" style="color: #09090b; text-decoration: underline; margin-right: 12px;">Centro de ayuda</a>
+                <a href="{{unsubscribeUrl}}" style="color: #71717a; text-decoration: underline;">Gestionar notificaciones</a>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+',
      TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     ('1c5624bc-e8c7-49ca-b15e-a7fc698c7b6e',
      'PAYMENT_CHECKOUT_EMAIL', 'PAYMENT_CHECKOUT', 'EMAIL',
@@ -593,13 +708,131 @@ VALUES
      'External SendGrid template for user invitation accepted notification.',
      TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     ('ca4c5d38-3dda-4804-95d3-f92d7d4c91ab',
-     'USER_INVITED_EMAIL', 'USER_INVITED', 'EMAIL',
-     'd-e487660392604f2a97e49c2e91665b47',
-     'External SendGrid template for user invited notification.',
+     'Te han invitado a unirte a {{organizationName}} en Nivo', 'USER_INVITED', 'EMAIL',
+     'brevo-user-invited',
+     '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invitación a {{organizationName}}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #fafafa; font-family: -apple-system, BlinkMacSystemFont, ''Segoe UI'', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; color: #09090b;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #fafafa; width: 100%; padding: 40px 16px 40px 16px;">
+    <tr>
+      <td align="center">
+        <!-- Main Card Container -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; overflow: hidden; border-collapse: separate;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="padding: 32px 36px 24px 36px; border-bottom: 1px solid #f4f4f5;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="left" style="vertical-align: middle;">
+                    <span style="font-size: 20px; font-weight: 800; letter-spacing: -0.05em; color: #09090b; text-decoration: none;">NIVO</span>
+                  </td>
+                  <td align="right" style="vertical-align: middle;">
+                    <span style="display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 10px; background-color: #f4f4f5; border: 1px solid #e4e4e7; border-radius: 9999px; color: #09090b;">PARKING OPERATIONS</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Hero & Body Content -->
+          <tr>
+            <td style="padding: 36px 36px 36px 36px;">
+              <!-- Hero Heading -->
+              <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; line-height: 1.3; color: #09090b; letter-spacing: -0.025em;">Te han invitado a unirte a {{organizationName}}</h1>
+              
+              <!-- Invitation explanation -->
+              <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #52525b;">Hola {{userName}}, <strong>{{inviterName}}</strong> te ha invitado a formar parte del equipo de <strong>{{organizationName}}</strong> en Nivo para colaborar en la gestión operativa con el rol de <strong>{{roleName}}</strong>.</p>
+
+              <!-- Invitation Details Card -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0; background-color: #fafafa; border: 1px solid #e4e4e7; border-radius: 8px;">
+                <tr>
+                  <td style="padding: 16px 20px; border-bottom: 1px solid #f4f4f5;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="font-size: 12px; font-weight: 600; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em; width: 40%;">ORGANIZACIÓN</td>
+                        <td style="font-size: 14px; font-weight: 600; color: #09090b;">{{organizationName}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 16px 20px; border-bottom: 1px solid #f4f4f5;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="font-size: 12px; font-weight: 600; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em; width: 40%;">INVITADO POR</td>
+                        <td style="font-size: 14px; font-weight: 600; color: #09090b;">{{inviterName}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 16px 20px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="font-size: 12px; font-weight: 600; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em; width: 40%;">ROL ASIGNADO</td>
+                        <td style="font-size: 14px; font-weight: 600; color: #09090b;">{{roleName}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Expiration Notice Callout -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 28px 0; background-color: #f4f4f5; border: 1px solid #e4e4e7; border-radius: 8px;">
+                <tr>
+                  <td style="padding: 12px 16px; font-size: 13px; line-height: 1.5; color: #52525b;">
+                    <strong>Importante:</strong> Esta invitación es válida hasta el <strong>{{expirationDate}}</strong>. Después de esta fecha, el enlace expirará por razones de seguridad.
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Primary CTA Button -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center">
+                    <a href="{{ctaUrl}}" style="display: block; width: 100%; box-sizing: border-box; text-align: center; padding: 14px 24px; background-color: #18181b; color: #fafafa; font-size: 14px; font-weight: 600; border-radius: 8px; text-decoration: none; letter-spacing: 0.01em;">Aceptar invitación</a>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 28px 36px; background-color: #fafafa; border-top: 1px solid #e4e4e7; font-size: 12px; color: #71717a; text-align: center; line-height: 1.6;">
+              <div style="margin: 0 0 8px 0;">&copy; {{companyName}}. {{companyAddress}}</div>
+              <div>
+                <a href="{{supportUrl}}" style="color: #09090b; text-decoration: underline; margin-right: 12px;">Centro de ayuda</a>
+                <a href="{{unsubscribeUrl}}" style="color: #71717a; text-decoration: underline;">Gestionar notificaciones</a>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+',
      TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     ('86ca87d8-4f2f-4c57-8045-910fcb19b114',
      'USER_ROLE_ASSIGNED_EMAIL', 'USER_ROLE_ASSIGNED', 'EMAIL',
      'd-a7ee033e3b8441df95f7c724d136a7e4',
      'External SendGrid template for user role assigned notification.',
      TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    event_type = EXCLUDED.event_type,
+    channel = EXCLUDED.channel,
+    template_reference = EXCLUDED.template_reference,
+    body = EXCLUDED.body,
+    is_active = EXCLUDED.is_active,
+    updated_at = CURRENT_TIMESTAMP;
