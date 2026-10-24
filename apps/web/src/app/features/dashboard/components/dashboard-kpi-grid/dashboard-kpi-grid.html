@@ -70,9 +70,6 @@
             <ng-icon name="lucideTrendingUp" class="h-3.5 w-3.5" />
             <span>{{ occupancyDeltaText() }}</span>
           </span>
-          <span class="text-muted-foreground"
-            >{{ texts.kpis.occupancy.comparison }}</span
-          >
         </div>
       </nv-card-content>
     </nv-card>
@@ -103,27 +100,6 @@
               {{ summary()?.currency ?? "COP" }}
             </span>
           </div>
-          <p
-            class="text-muted-foreground mt-2 flex items-center gap-1.5 text-xs"
-          >
-            <span
-              class="inline-block h-2 w-2 rounded-full bg-emerald-500"
-            ></span>
-            <span>82% {{ texts.kpis.revenue.digitalRatio }}</span>
-          </p>
-        </div>
-        <div
-          class="flex flex-wrap items-center justify-between gap-1 border-t border-zinc-900 pt-1 text-xs"
-        >
-          <span
-            class="flex items-center gap-1 font-mono font-medium text-emerald-400"
-          >
-            <ng-icon name="lucideArrowUpRight" class="h-3.5 w-3.5" />
-            <span>+14.8%</span>
-          </span>
-          <span class="text-muted-foreground"
-            >{{ texts.kpis.revenue.comparison }}</span
-          >
         </div>
       </nv-card-content>
     </nv-card>
@@ -208,22 +184,12 @@
           <p
             class="text-muted-foreground mt-2 flex items-center justify-between text-xs"
           >
-            <span>{{ texts.kpis.stay.gracePeriod }}</span>
-            <span class="text-foreground font-mono font-semibold">15 min</span>
+            <span>{{ texts.chart.exits }}</span>
+            <span class="text-foreground font-mono font-semibold">
+              {{ summary()?.completedTickets ?? 0 | number }} {{
+              texts.chart.unitVeh }}
+            </span>
           </p>
-        </div>
-        <div
-          class="flex flex-wrap items-center justify-between gap-1 border-t border-zinc-900 pt-1 text-xs"
-        >
-          <span
-            class="flex items-center gap-1 font-mono font-medium text-emerald-400"
-          >
-            <ng-icon name="lucideArrowDownRight" class="h-3.5 w-3.5" />
-            <span>-6 min</span>
-          </span>
-          <span class="text-muted-foreground"
-            >{{ texts.kpis.stay.comparison }}</span
-          >
         </div>
       </nv-card-content>
     </nv-card>

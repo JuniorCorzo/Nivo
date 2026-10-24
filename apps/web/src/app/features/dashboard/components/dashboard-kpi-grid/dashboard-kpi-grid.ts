@@ -9,8 +9,6 @@ import type { DashboardSummaryModel } from "@core/models/dashboard.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideActivity,
-  lucideArrowDownRight,
-  lucideArrowUpRight,
   lucideClock,
   lucideDollarSign,
   lucideTicket,
@@ -25,8 +23,6 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
   providers: [
     provideIcons({
       lucideActivity,
-      lucideArrowDownRight,
-      lucideArrowUpRight,
       lucideClock,
       lucideDollarSign,
       lucideTicket,
@@ -104,6 +100,7 @@ export class DashboardKpiGridComponent {
 
   readonly netFlowRateText = computed(() => {
     const active = this.summary()?.activeTickets ?? 0;
-    return active > 0 ? `+${Math.round(active * 0.05) || 12} veh/h` : "0 veh/h";
+    const flow = Math.round(active * 0.05);
+    return flow > 0 ? `+${flow} veh/h` : "0 veh/h";
   });
 }

@@ -40,7 +40,7 @@ describe("DashboardKpiGridComponent", () => {
     expect(compiled.querySelector('ng-icon[name="lucideClock"]')).toBeTruthy();
   });
 
-  it("debe renderizar micro-estadísticas calculadas y textos desde APP_TEXTS", () => {
+  it("debe renderizar micro-estadísticas reales y no incluir métricas comparativas hardcodeadas", () => {
     fixture.componentRef.setInput("summary", {
       activeTickets: 42,
       availableSlots: 58,
@@ -59,18 +59,60 @@ describe("DashboardKpiGridComponent", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.kpis.revenue.digitalRatio
-    );
+
+    // Real dynamic metrics must be rendered
     expect(compiled.textContent).toContain(
       APP_TEXTS.dashboard.kpis.tickets.rotation
-    );
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.kpis.stay.gracePeriod
     );
     expect(compiled.textContent).toContain("95 min");
     expect(compiled.textContent).toContain("~1h 35m");
     expect(compiled.textContent).toContain("42.0%");
+    expect(compiled.textContent).toContain(
+      APP_TEXTS.dashboard.kpis.occupancy.normal
+    );
+
+    // Hardcoded comparative and fake metrics must NOT be present
+    expect(compiled.textContent).not.toContain("+14.8%");
+    expect(compiled.textContent).not.toContain("-6 min");
+    expect(compiled.textContent).not.toContain("82%");
+    expect(compiled.textContent).not.toContain(
+      APP_TEXTS.dashboard.kpis.revenue.comparison
+    );
+    expect(compiled.textContent).not.toContain(
+      APP_TEXTS.dashboard.kpis.revenue.digitalRatio
+    );
+    expect(compiled.textContent).not.toContain(
+      APP_TEXTS.dashboard.kpis.stay.comparison
+    );
+    expect(compiled.textContent).not.toContain(
+      APP_TEXTS.dashboard.kpis.stay.gracePeriod
+    );
+    expect(compiled.textContent).not.toContain(
+      APP_TEXTS.dashboard.kpis.occupancy.comparison
+    );
+  });
+
+  it("no debe utilizar fallback engañoso de 12 veh/h cuando el flujo neto es bajo", () => {
+    fixture.componentRef.setInput("summary", {
+      activeTickets: 2,
+      availableSlots: 98,
+      avgStayMinutes: 30,
+      completedTickets: 5,
+      currency: "COP",
+      occupancyRate: 2,
+      occupiedSlots: 2,
+      scope: "GLOBAL",
+      todayRevenue: 50_000,
+      totalCapacity: 100,
+      totalTickets: 7,
+    });
+    fixture.componentRef.setInput("occupancyPercentage", 2);
+    fixture.detectChanges();
+
+    /* SAFETY: Test fixture nativeElement is an HTMLElement */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).not.toContain("+12 veh/h");
+    expect(compiled.textContent).toContain("0 veh/h");
   });
 
   it("debe aplicar clase de color de umbral en barra de progreso según porcentaje", () => {
