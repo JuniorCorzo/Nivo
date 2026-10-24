@@ -55,11 +55,21 @@
             class="text-muted-foreground block text-[10px] font-medium sm:text-xs"
             >Placa del Vehículo</span
           >
-          <span
-            class="text-foreground font-mono text-lg font-black tracking-wider sm:text-xl"
-          >
-            {{ facade.selectedTicket()?.licensePlate }}
-          </span>
+          <div class="flex items-center gap-2">
+            <span
+              class="text-foreground font-mono text-lg font-black tracking-wider sm:text-xl"
+            >
+              {{ facade.selectedTicket()?.licensePlate }}
+            </span>
+            @if ( facade.selectedTicket()?.plateCountry === 'UNPLATED' ||
+            !facade.selectedTicket()?.licensePlate ||
+            facade.selectedTicket()?.licensePlate === 'SIN PLACA' ) {
+            <nv-badge variant="warning" class="gap-1">
+              <ng-icon name="lucideCamera" class="text-xs" />
+              <span>SIN PLACA</span>
+            </nv-badge>
+            }
+          </div>
         </div>
         <div class="flex items-center gap-3">
           <div class="text-right">
@@ -83,6 +93,25 @@
           </nv-button>
         </div>
       </div>
+
+      <!-- Entry Photo (if vehicle has captured photo) -->
+      @if (facade.selectedTicket()?.photoUrl) {
+      <div
+        class="border-border bg-muted/30 overflow-hidden rounded-xl border p-2.5"
+      >
+        <div
+          class="text-muted-foreground mb-1.5 flex items-center gap-1.5 text-[11px] font-medium"
+        >
+          <ng-icon name="lucideCamera" class="text-xs" />
+          <span>Fotografía de ingreso</span>
+        </div>
+        <img
+          [src]="facade.selectedTicket()?.photoUrl"
+          alt="Fotografía capturada al ingreso"
+          class="h-44 w-full rounded-lg object-cover"
+        />
+      </div>
+      }
 
       <!-- Live Price Breakdown -->
       <div

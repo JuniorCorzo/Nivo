@@ -153,6 +153,9 @@ CREATE TABLE IF NOT EXISTS parking_tickets (
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     special_policies_id UUID REFERENCES special_policies(id) ON DELETE SET NULL,
     license_plate VARCHAR(20),
+    plate_country VARCHAR(20) NOT NULL DEFAULT 'CO',
+    photo_url TEXT,
+    phone_number VARCHAR(30),
     entry_time TIMESTAMP WITH TIME ZONE NOT NULL,
     exit_time TIMESTAMP WITH TIME ZONE,
     reservation_id UUID REFERENCES reservations(id) ON DELETE SET NULL,
@@ -164,6 +167,13 @@ CREATE TABLE IF NOT EXISTS parking_tickets (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE IF NOT EXISTS parking_lot_ticket_sequences (
+    parking_lot_id UUID PRIMARY KEY,
+    last_sequence BIGINT NOT NULL DEFAULT 1000,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tabla de pagos/transacciones

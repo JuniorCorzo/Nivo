@@ -1,5 +1,6 @@
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
+import type { TicketSummary } from "@core/models/ticket.model";
 import { ParkingService } from "@core/services/parking-service";
 import { SlotService } from "@core/services/slot-service";
 import { TicketService } from "@core/services/ticket-service";
@@ -137,5 +138,79 @@ describe("CheckOutModalComponent", () => {
     expect(slotBtn).toBeTruthy();
     slotBtn.click();
     expect(selectSlotSpy).toHaveBeenCalledWith(occupiedSlot);
+  });
+
+  it("should render 'SIN PLACA' badge when vehicle has plateCountry UNPLATED", () => {
+    const unplatedTicket: TicketSummary = {
+      id: "ticket-unplated-1",
+      licensePlate: "SP-1001",
+      plateCountry: "UNPLATED",
+      slotNumber: "02",
+      entryTime: "2026-08-27T10:00:00Z",
+      status: "OPEN",
+    };
+
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.componentRef.setInput("parkingId", "parking-1");
+    fixture.componentRef.setInput("ticket", unplatedTicket);
+    fixture.detectChanges();
+
+    const nativeEl: HTMLElement = fixture.nativeElement;
+    const badge = nativeEl.querySelector("nv-badge[variant='warning']");
+    expect(badge).toBeTruthy();
+    expect(badge?.textContent).toContain("SIN PLACA");
+    expect(nativeEl.textContent).toContain("SP-1001");
+  });
+
+  it("should render captured entry photo when ticket has photoUrl", () => {
+    const ticketWithPhoto: TicketSummary = {
+      id: "ticket-photo-1",
+      licensePlate: "SP-1002",
+      plateCountry: "UNPLATED",
+      photoUrl: "https://example.com/captured-entry.jpg",
+      slotNumber: "03",
+      entryTime: "2026-08-27T10:00:00Z",
+      status: "OPEN",
+    };
+
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.componentRef.setInput("parkingId", "parking-1");
+    fixture.componentRef.setInput("ticket", ticketWithPhoto);
+    fixture.detectChanges();
+
+    const nativeEl: HTMLElement = fixture.nativeElement;
+    const photoImg = nativeEl.querySelector(
+      "img[src='https://example.com/captured-entry.jpg']"
+    ) as HTMLImageElement;
+    expect(photoImg).toBeTruthy();
+    expect(photoImg.getAttribute("alt")).toBe(
+      "Fotografía capturada al ingreso"
+    );
+    expect(nativeEl.textContent).toContain("Fotografía de ingreso");
+  });
+
+  it("should not render photo container when ticket does not have photoUrl", () => {
+    const ticketWithoutPhoto: TicketSummary = {
+      id: "ticket-standard-1",
+      licensePlate: "XYZ789",
+      plateCountry: "CO",
+      slotNumber: "04",
+      entryTime: "2026-08-27T10:00:00Z",
+      status: "OPEN",
+    };
+
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.componentRef.setInput("parkingId", "parking-1");
+    fixture.componentRef.setInput("ticket", ticketWithoutPhoto);
+    fixture.detectChanges();
+
+    const nativeEl: HTMLElement = fixture.nativeElement;
+    const photoImg = nativeEl.querySelector(
+      "img[alt='Fotografía capturada al ingreso']"
+    );
+    expect(photoImg).toBeNull();
+    expect(nativeEl.textContent).not.toContain("Fotografía de ingreso");
+    const badge = nativeEl.querySelector("nv-badge[variant='warning']");
+    expect(badge).toBeNull();
   });
 });
