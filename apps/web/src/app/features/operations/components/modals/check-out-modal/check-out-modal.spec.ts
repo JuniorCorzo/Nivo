@@ -213,4 +213,23 @@ describe("CheckOutModalComponent", () => {
     const badge = nativeEl.querySelector("nv-badge[variant='warning']");
     expect(badge).toBeNull();
   });
+
+  it("should render 0% IVA line when IVA rate is configured to 0%", () => {
+    const ticket: TicketSummary = {
+      entryTime: "2026-08-27T10:00:00Z",
+      id: "ticket-zero-iva",
+      licensePlate: "IVA000",
+      plateCountry: "CO",
+      slotNumber: "05",
+      status: "OPEN",
+    };
+
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.componentRef.setInput("parkingId", "parking-1");
+    fixture.componentRef.setInput("ticket", ticket);
+    fixture.detectChanges();
+
+    const nativeEl: HTMLElement = fixture.nativeElement;
+    expect(nativeEl.textContent).toContain("IVA (0%)");
+  });
 });

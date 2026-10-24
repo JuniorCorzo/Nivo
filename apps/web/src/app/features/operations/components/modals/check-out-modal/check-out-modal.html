@@ -160,7 +160,7 @@
               >${{ calc.subtotal | number: "1.0-0" }}</span
             >
           </div>
-          @if (calc.ivaAmount > 0) {
+          @if (calc.ivaRate !== null && calc.ivaRate !== undefined) {
           <div class="flex justify-between">
             <span>IVA ({{ calc.ivaRate }}%)</span>
             <span class="font-mono"
