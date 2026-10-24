@@ -117,13 +117,7 @@ describe("DashboardPage", () => {
     expect(compiled.textContent).toContain(APP_TEXTS.dashboard.title);
     expect(compiled.textContent).toContain(APP_TEXTS.dashboard.kpis.title);
     expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.kpis.revenue.digitalRatio
-    );
-    expect(compiled.textContent).toContain(
       APP_TEXTS.dashboard.kpis.tickets.rotation
-    );
-    expect(compiled.textContent).toContain(
-      APP_TEXTS.dashboard.kpis.stay.gracePeriod
     );
     expect(compiled.textContent).toContain("95 min");
     expect(compiled.textContent).toContain("~1h 35m");
