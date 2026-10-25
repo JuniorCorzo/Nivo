@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
@@ -26,26 +27,43 @@ public class GetDashboardSummaryUseCase {
   private final AuthenticationContextGateway authenticationContext;
 
   public DashboardSummaryDTO execute(final UUID parkingId) {
+    return execute(parkingId, LocalDate.now());
+  }
+
+  public DashboardSummaryDTO execute(final UUID parkingId, final LocalDate targetDate) {
     final UUID tenantId = authenticationContext.getCurrentTenantId();
-    return execute(tenantId, parkingId);
+    return execute(tenantId, parkingId, targetDate);
   }
 
   public DashboardSummaryDTO execute(final UUID tenantId, final UUID parkingId) {
-    if (parkingId != null) {
-      return executeSingleParking(tenantId, parkingId);
-    }
-    return executeGlobalTenant(tenantId);
+    return execute(tenantId, parkingId, LocalDate.now());
   }
 
-  private DashboardSummaryDTO executeSingleParking(final UUID tenantId, final UUID parkingId) {
+  public DashboardSummaryDTO execute(final UUID tenantId, final UUID parkingId, final LocalDate targetDate) {
+    final LocalDate effectiveDate = targetDate != null ? targetDate : LocalDate.now();
+    if (parkingId != null) {
+      return executeSingleParking(tenantId, parkingId, effectiveDate);
+    }
+    return executeGlobalTenant(tenantId, effectiveDate);
+  }
+
+  private DashboardSummaryDTO executeSingleParking(final UUID tenantId, final UUID parkingId,
+    final LocalDate effectiveDate) {
     final ParkingLots parkingLot = parkingLotsRepository.findById(parkingId)
       .orElseThrow(() -> new ParkingNotExistsException(parkingId));
     if (!parkingLot.getTenant().id().equals(tenantId)) {
       throw new ParkingNotExistsException(parkingId);
     }
 
-    final LocalDate today = LocalDate.now();
-    final Optional<DailySummaryModel> dailyOpt = dailyGateway.findByParkingLotIdAndSummaryDate(parkingId, today);
+    final List<LocalDate> summaryDates = List.of(effectiveDate, effectiveDate.minusDays(7));
+    final List<DailySummaryModel> summaries = dailyGateway.findByParkingLotIdAndSummaryDates(parkingId, summaryDates);
+    final Optional<DailySummaryModel> dailyOpt = summaries.stream()
+      .filter(s -> effectiveDate.equals(s.getSummaryDate()))
+      .findFirst();
+    final Optional<DailySummaryModel> prevDailyOpt = summaries.stream()
+      .filter(s -> effectiveDate.minusDays(7).equals(s.getSummaryDate()))
+      .findFirst();
+
     final Optional<HourlyOccupancyModel> latestHourlyOpt = hourlyGateway.findLatestByParkingLotId(parkingId);
     final Optional<ParkingLotListItem> parkingItemOpt = parkingLotsRepository.findByTenantId(tenantId)
       .stream()
@@ -90,9 +108,22 @@ public class GetDashboardSummaryUseCase {
       occupied = rawOccupied;
     }
     final int available = Math.max(0, totalCapacity - occupied);
+    final int gracePeriod = parkingLot.getPolicy().gracePeriodMinutes();
 
     if (dailyOpt.isPresent()) {
       final DailySummaryModel d = dailyOpt.get();
+      final BigDecimal totalRev = d.getTotalRevenue() != null ? d.getTotalRevenue() : BigDecimal.ZERO;
+      final BigDecimal prevRev = prevDailyOpt.map(DailySummaryModel::getTotalRevenue).orElse(null);
+      final Double prevStay = prevDailyOpt.map(DailySummaryModel::getAvgDurationMinutes).orElse(null);
+
+      final Double revDelta = prevDailyOpt.isPresent()
+        ? calculateRevenueDeltaPercentage(totalRev, prevRev != null ? prevRev : BigDecimal.ZERO)
+        : null;
+      final Double stayDelta = prevDailyOpt.isPresent()
+        ? calculateAvgStayDeltaMinutes(d.getAvgDurationMinutes(), prevStay)
+        : null;
+      final Double digitalRatio = calculateDigitalPaymentRatio(totalRev, d.getDigitalRevenue());
+
       return DashboardSummaryDTO.builder()
         .scope("SINGLE")
         .parkingId(parkingId)
@@ -100,12 +131,16 @@ public class GetDashboardSummaryUseCase {
         .occupiedSlots(occupied)
         .availableSlots(available)
         .occupancyRate(occupancyRate)
-        .todayRevenue(d.getTotalRevenue() != null ? d.getTotalRevenue() : BigDecimal.ZERO)
+        .todayRevenue(totalRev)
         .currency(d.getCurrency() != null ? d.getCurrency() : "COP")
         .avgStayMinutes(d.getAvgDurationMinutes())
         .totalTickets(d.getTotalTickets())
         .activeTickets(d.getOngoingTickets())
         .completedTickets(d.getCompletedTickets())
+        .revenueDeltaPercentage(revDelta)
+        .avgStayDeltaMinutes(stayDelta)
+        .digitalPaymentRatio(digitalRatio)
+        .gracePeriodMinutes(gracePeriod)
         .build();
     }
 
@@ -129,6 +164,9 @@ public class GetDashboardSummaryUseCase {
       final BigDecimal totalRevenue = fallbackSummaries.stream()
         .map(s -> s.getTotalRevenue() != null ? s.getTotalRevenue() : BigDecimal.ZERO)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
+      final BigDecimal digitalRevenue = fallbackSummaries.stream()
+        .map(s -> s.getDigitalRevenue() != null ? s.getDigitalRevenue() : BigDecimal.ZERO)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
 
       final double avgStay = fallbackSummaries.stream()
         .filter(s -> s.getAvgDurationMinutes() != null && s.getAvgDurationMinutes() > 0)
@@ -146,6 +184,7 @@ public class GetDashboardSummaryUseCase {
       final int fallbackOccupied = (occupied == 0 && ongoingTickets > 0)
         ? (int) Math.min(totalCapacity, ongoingTickets) : occupied;
       final int fallbackAvailable = Math.max(0, totalCapacity - fallbackOccupied);
+      final Double digitalRatio = calculateDigitalPaymentRatio(totalRevenue, digitalRevenue);
 
       return DashboardSummaryDTO.builder()
         .scope("SINGLE")
@@ -160,6 +199,10 @@ public class GetDashboardSummaryUseCase {
         .totalTickets(totalTickets)
         .activeTickets(ongoingTickets)
         .completedTickets(completedTickets)
+        .revenueDeltaPercentage(null)
+        .avgStayDeltaMinutes(null)
+        .digitalPaymentRatio(digitalRatio)
+        .gracePeriodMinutes(gracePeriod)
         .build();
     }
 
@@ -176,14 +219,28 @@ public class GetDashboardSummaryUseCase {
       .totalTickets(0L)
       .activeTickets(0L)
       .completedTickets(0L)
+      .revenueDeltaPercentage(null)
+      .avgStayDeltaMinutes(null)
+      .digitalPaymentRatio(0.0)
+      .gracePeriodMinutes(gracePeriod)
       .build();
   }
 
-  private DashboardSummaryDTO executeGlobalTenant(final UUID tenantId) {
-    final LocalDate today = LocalDate.now();
-    final List<DailySummaryModel> dailySummaries = dailyGateway.findAllByTenantIdAndSummaryDate(tenantId, today);
-    final List<DailySummaryModel> summaries = dailySummaries.isEmpty() ? dailyGateway.findAllByTenantId(tenantId)
-      : dailySummaries;
+  private DashboardSummaryDTO executeGlobalTenant(final UUID tenantId, final LocalDate effectiveDate) {
+    final List<LocalDate> summaryDates = List.of(effectiveDate, effectiveDate.minusDays(7));
+    final List<DailySummaryModel> dailySummaries = dailyGateway.findAllByTenantIdAndSummaryDates(tenantId,
+      summaryDates);
+
+    final List<DailySummaryModel> todaySummaries = dailySummaries.stream()
+      .filter(s -> effectiveDate.equals(s.getSummaryDate()))
+      .toList();
+    final List<DailySummaryModel> prevSummaries = dailySummaries.stream()
+      .filter(s -> effectiveDate.minusDays(7).equals(s.getSummaryDate()))
+      .toList();
+
+    final List<DailySummaryModel> summaries = !todaySummaries.isEmpty()
+      ? todaySummaries
+      : dailyGateway.findAllByTenantId(tenantId);
 
     final long totalTickets = summaries.stream()
       .mapToLong(s -> s.getTotalTickets() != null ? s.getTotalTickets() : 0L)
@@ -196,6 +253,9 @@ public class GetDashboardSummaryUseCase {
       .sum();
     final BigDecimal totalRevenue = summaries.stream()
       .map(s -> s.getTotalRevenue() != null ? s.getTotalRevenue() : BigDecimal.ZERO)
+      .reduce(BigDecimal.ZERO, BigDecimal::add);
+    final BigDecimal digitalRevenue = summaries.stream()
+      .map(s -> s.getDigitalRevenue() != null ? s.getDigitalRevenue() : BigDecimal.ZERO)
       .reduce(BigDecimal.ZERO, BigDecimal::add);
 
     final double avgStay = summaries.stream()
@@ -210,6 +270,32 @@ public class GetDashboardSummaryUseCase {
       .filter(c -> c != null && !c.isBlank())
       .findFirst()
       .orElse("COP");
+
+    final Double digitalPaymentRatio = calculateDigitalPaymentRatio(totalRevenue, digitalRevenue);
+
+    final Double revenueDeltaPercentage;
+    final Double avgStayDeltaMinutes;
+
+    if (!prevSummaries.isEmpty()) {
+      final BigDecimal prevRevenue = prevSummaries.stream()
+        .map(s -> s.getTotalRevenue() != null ? s.getTotalRevenue() : BigDecimal.ZERO)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+      revenueDeltaPercentage = calculateRevenueDeltaPercentage(totalRevenue, prevRevenue);
+
+      final OptionalDouble prevAvgOpt = prevSummaries.stream()
+        .filter(s -> s.getAvgDurationMinutes() != null && s.getAvgDurationMinutes() > 0)
+        .mapToDouble(DailySummaryModel::getAvgDurationMinutes)
+        .average();
+      if (prevAvgOpt.isPresent()) {
+        final double prevRoundedAvgStay = Math.round(prevAvgOpt.getAsDouble() * 10.0) / 10.0;
+        avgStayDeltaMinutes = calculateAvgStayDeltaMinutes(roundedAvgStay, prevRoundedAvgStay);
+      } else {
+        avgStayDeltaMinutes = null;
+      }
+    } else {
+      revenueDeltaPercentage = null;
+      avgStayDeltaMinutes = null;
+    }
 
     final List<ParkingLotListItem> parkings = parkingLotsRepository.findByTenantId(tenantId);
     final int totalCapacity;
@@ -259,6 +345,44 @@ public class GetDashboardSummaryUseCase {
       .totalTickets(totalTickets)
       .activeTickets(ongoingTickets)
       .completedTickets(completedTickets)
+      .revenueDeltaPercentage(revenueDeltaPercentage)
+      .avgStayDeltaMinutes(avgStayDeltaMinutes)
+      .digitalPaymentRatio(digitalPaymentRatio)
+      .gracePeriodMinutes(null)
       .build();
+  }
+
+  private Double calculateRevenueDeltaPercentage(final BigDecimal currentRevenue, final BigDecimal previousRevenue) {
+    if (previousRevenue == null) {
+      return null;
+    }
+    if (previousRevenue.compareTo(BigDecimal.ZERO) > 0) {
+      final double cur = currentRevenue != null ? currentRevenue.doubleValue() : 0.0;
+      final double prev = previousRevenue.doubleValue();
+      final double delta = ((cur - prev) / prev) * 100.0;
+      return Math.round(delta * 10.0) / 10.0;
+    }
+    if (currentRevenue != null && currentRevenue.compareTo(BigDecimal.ZERO) > 0) {
+      return 100.0;
+    }
+    return 0.0;
+  }
+
+  private Double calculateAvgStayDeltaMinutes(final Double currentAvgStay, final Double previousAvgStay) {
+    if (currentAvgStay == null || previousAvgStay == null) {
+      return null;
+    }
+    final double delta = currentAvgStay - previousAvgStay;
+    return Math.round(delta * 10.0) / 10.0;
+  }
+
+  private Double calculateDigitalPaymentRatio(final BigDecimal totalRevenue, final BigDecimal digitalRevenue) {
+    if (totalRevenue == null || totalRevenue.compareTo(BigDecimal.ZERO) <= 0) {
+      return 0.0;
+    }
+    final double total = totalRevenue.doubleValue();
+    final double digital = digitalRevenue != null ? digitalRevenue.doubleValue() : 0.0;
+    final double ratio = (digital / total) * 100.0;
+    return Math.round(ratio * 10.0) / 10.0;
   }
 }

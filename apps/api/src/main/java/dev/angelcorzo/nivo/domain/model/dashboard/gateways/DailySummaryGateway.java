@@ -9,7 +9,11 @@ import java.util.UUID;
 public interface DailySummaryGateway {
   Optional<DailySummaryModel> findByParkingLotIdAndSummaryDate(UUID parkingLotId, LocalDate summaryDate);
 
+  List<DailySummaryModel> findByParkingLotIdAndSummaryDates(UUID parkingLotId, List<LocalDate> summaryDates);
+
   List<DailySummaryModel> findAllByTenantIdAndSummaryDate(UUID tenantId, LocalDate summaryDate);
+
+  List<DailySummaryModel> findAllByTenantIdAndSummaryDates(UUID tenantId, List<LocalDate> summaryDates);
 
   List<DailySummaryModel> findAllByTenantId(UUID tenantId);
 

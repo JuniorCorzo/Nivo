@@ -35,8 +35,26 @@ public class DashboardViewsAdapter implements DailySummaryGateway, HourlyOccupan
   }
 
   @Override
+  public List<DailySummaryModel> findByParkingLotIdAndSummaryDates(final UUID parkingLotId,
+    final List<LocalDate> summaryDates) {
+    return dailySummaryRepository.findByParkingLotIdAndSummaryDateIn(parkingLotId, summaryDates)
+      .stream()
+      .map(this::toModel)
+      .toList();
+  }
+
+  @Override
   public List<DailySummaryModel> findAllByTenantIdAndSummaryDate(final UUID tenantId, final LocalDate summaryDate) {
     return dailySummaryRepository.findAllByTenantIdAndSummaryDate(tenantId, summaryDate)
+      .stream()
+      .map(this::toModel)
+      .toList();
+  }
+
+  @Override
+  public List<DailySummaryModel> findAllByTenantIdAndSummaryDates(final UUID tenantId,
+    final List<LocalDate> summaryDates) {
+    return dailySummaryRepository.findAllByTenantIdAndSummaryDateIn(tenantId, summaryDates)
       .stream()
       .map(this::toModel)
       .toList();
@@ -141,6 +159,7 @@ public class DashboardViewsAdapter implements DailySummaryGateway, HourlyOccupan
       .ongoingTickets(e.getOngoingTickets())
       .uniqueVehicles(e.getUniqueVehicles())
       .totalRevenue(e.getTotalRevenue())
+      .digitalRevenue(e.getDigitalRevenue())
       .avgDurationMinutes(e.getAvgDurationMinutes())
       .currency(e.getCurrency())
       .build();

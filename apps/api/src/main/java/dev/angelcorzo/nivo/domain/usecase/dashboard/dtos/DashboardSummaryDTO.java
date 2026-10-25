@@ -50,4 +50,16 @@ public class DashboardSummaryDTO {
 
   @Schema(description = "Completed tickets finalized today", example = "85")
   private Long completedTickets;
+
+  @Schema(description = "Percentage delta in revenue compared to previous period", example = "12.5")
+  private Double revenueDeltaPercentage;
+
+  @Schema(description = "Delta in average stay minutes compared to previous period", example = "-5.0")
+  private Double avgStayDeltaMinutes;
+
+  @Schema(description = "Ratio of digital payments compared to total revenue (0.0 - 100.0)", example = "75.0")
+  private Double digitalPaymentRatio;
+
+  @Schema(description = "Grace period in minutes before billing starts", example = "15")
+  private Integer gracePeriodMinutes;
 }
