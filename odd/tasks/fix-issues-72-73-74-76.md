@@ -1,6 +1,6 @@
 # Feature: Core Fixes Issues 73, 74, 76, 72
 Objective: Implement architectural bugfixes and improvements for issues #73, #74, #76, and #72.
-Branch: fix/issues-72-73-74-76
+Branch: feat/dashboard-kpis-and-operational-fixes
 Delivery Strategy: ask-on-risk
 Test Runners: ./gradlew test (apps/api), bun test (apps/web)
 

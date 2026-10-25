@@ -45,12 +45,16 @@ describe("DashboardMapper", () => {
       const dto: DashboardSummaryDto = {
         activeTickets: 25,
         availableSlots: 75,
+        avgStayDeltaMinutes: -4.5,
         avgStayMinutes: 45.5,
         completedTickets: 30,
         currency: "COP",
+        digitalPaymentRatio: 75,
+        gracePeriodMinutes: 15,
         occupancyRate: 25,
         occupiedSlots: 25,
         parkingId: "pkg-1",
+        revenueDeltaPercentage: 12.5,
         scope: "SINGLE",
         todayRevenue: 250_000,
         totalCapacity: 100,
@@ -62,12 +66,16 @@ describe("DashboardMapper", () => {
       expect(model).toEqual({
         activeTickets: 25,
         availableSlots: 75,
+        avgStayDeltaMinutes: -4.5,
         avgStayMinutes: 45.5,
         completedTickets: 30,
         currency: "COP",
+        digitalPaymentRatio: 75,
+        gracePeriodMinutes: 15,
         occupancyRate: 25,
         occupiedSlots: 25,
         parkingId: "pkg-1",
+        revenueDeltaPercentage: 12.5,
         scope: "SINGLE",
         todayRevenue: 250_000,
         totalCapacity: 100,
@@ -86,6 +94,10 @@ describe("DashboardMapper", () => {
       expect(model.occupancyRate).toBe(0);
       expect(model.todayRevenue).toBe(0);
       expect(model.parkingId).toBeUndefined();
+      expect(model.revenueDeltaPercentage).toBeUndefined();
+      expect(model.avgStayDeltaMinutes).toBeUndefined();
+      expect(model.digitalPaymentRatio).toBeUndefined();
+      expect(model.gracePeriodMinutes).toBeUndefined();
     });
   });
 

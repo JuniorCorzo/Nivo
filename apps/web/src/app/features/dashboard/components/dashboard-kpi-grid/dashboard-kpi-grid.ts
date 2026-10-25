@@ -9,8 +9,11 @@ import type { DashboardSummaryModel } from "@core/models/dashboard.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideActivity,
+  lucideArrowDownRight,
+  lucideArrowUpRight,
   lucideClock,
   lucideDollarSign,
+  lucideMinus,
   lucideTicket,
   lucideTrendingUp,
 } from "@ng-icons/lucide";
@@ -23,8 +26,11 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
   providers: [
     provideIcons({
       lucideActivity,
+      lucideArrowDownRight,
+      lucideArrowUpRight,
       lucideClock,
       lucideDollarSign,
+      lucideMinus,
       lucideTicket,
       lucideTrendingUp,
     }),
@@ -102,5 +108,91 @@ export class DashboardKpiGridComponent {
     const active = this.summary()?.activeTickets ?? 0;
     const flow = Math.round(active * 0.05);
     return flow > 0 ? `+${flow} veh/h` : "0 veh/h";
+  });
+
+  readonly hasDigitalRatio = computed(
+    () =>
+      this.summary()?.digitalPaymentRatio !== undefined &&
+      this.summary()?.digitalPaymentRatio !== null
+  );
+
+  readonly digitalPaymentRatioText = computed(
+    () => `${Math.round(this.summary()?.digitalPaymentRatio ?? 0)}%`
+  );
+
+  readonly hasRevenueDelta = computed(
+    () =>
+      this.summary()?.revenueDeltaPercentage !== undefined &&
+      this.summary()?.revenueDeltaPercentage !== null
+  );
+
+  readonly revenueDelta = computed(
+    () => this.summary()?.revenueDeltaPercentage ?? 0
+  );
+
+  readonly revenueDeltaText = computed(() => {
+    const d = this.revenueDelta();
+    return d > 0 ? `+${d.toFixed(1)}%` : `${d.toFixed(1)}%`;
+  });
+
+  readonly revenueDeltaClass = computed(() => {
+    const d = this.revenueDelta();
+    if (d > 0) {
+      return "text-emerald-400";
+    }
+    if (d < 0) {
+      return "text-rose-400";
+    }
+    return "text-zinc-400";
+  });
+
+  readonly revenueDeltaIcon = computed(() => {
+    const d = this.revenueDelta();
+    if (d > 0) {
+      return "lucideArrowUpRight";
+    }
+    if (d < 0) {
+      return "lucideArrowDownRight";
+    }
+    return "lucideMinus";
+  });
+
+  readonly hasGracePeriod = computed(
+    () => (this.summary()?.gracePeriodMinutes ?? 0) > 0
+  );
+
+  readonly hasStayDelta = computed(
+    () =>
+      this.summary()?.avgStayDeltaMinutes !== undefined &&
+      this.summary()?.avgStayDeltaMinutes !== null
+  );
+
+  readonly stayDelta = computed(() => this.summary()?.avgStayDeltaMinutes ?? 0);
+
+  readonly stayDeltaText = computed(() => {
+    const d = this.stayDelta();
+    return d > 0 ? `+${d.toFixed(1)} min` : `${d.toFixed(1)} min`;
+  });
+
+  readonly stayDeltaClass = computed(() => {
+    const d = this.stayDelta();
+    if (d < 0) {
+      return "text-emerald-400";
+    }
+    if (d > 0) {
+      return "text-rose-400";
+    }
+    return "text-zinc-400";
+  });
+
+  readonly stayDeltaIcon = computed(() => {
+    const d = this.stayDelta();
+    if (d < 0) {
+      return "lucideArrowDownRight";
+    }
+    if (d > 0) {
+      return "lucideArrowUpRight";
+    }
+    return "lucideMinus";
   });
 }

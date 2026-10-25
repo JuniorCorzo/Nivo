@@ -100,7 +100,40 @@
               {{ summary()?.currency ?? "COP" }}
             </span>
           </div>
+          @if (hasDigitalRatio()) {
+          <p
+            class="text-muted-foreground mt-2 flex items-center gap-1.5 text-xs"
+          >
+            <span
+              class="inline-block h-2 w-2 rounded-full bg-emerald-500"
+            ></span
+            ><span
+              >{{ digitalPaymentRatioText() }} {{
+              texts.kpis.revenue.digitalRatio }}</span
+            >
+          </p>
+          }
         </div>
+        @if (hasRevenueDelta()) {
+        <div
+          class="flex flex-wrap items-center justify-between gap-1 border-t border-zinc-900 pt-1 text-xs"
+        >
+          <span
+            class="flex items-center gap-1 font-mono font-medium"
+            [class]="revenueDeltaClass()"
+          >
+            <ng-icon
+              [name]="revenueDeltaIcon()"
+              [attr.name]="revenueDeltaIcon()"
+              class="h-3.5 w-3.5"
+            />
+            <span>{{ revenueDeltaText() }}</span>
+          </span>
+          <span class="text-muted-foreground"
+            >{{ texts.kpis.revenue.comparison }}</span
+          >
+        </div>
+        }
       </nv-card-content>
     </nv-card>
 
@@ -190,7 +223,37 @@
               texts.chart.unitVeh }}
             </span>
           </p>
+          @if (hasGracePeriod()) {
+          <p
+            class="text-muted-foreground mt-2 flex items-center justify-between text-xs"
+          >
+            <span>{{ texts.kpis.stay.gracePeriod }}</span>
+            <span class="text-foreground font-mono font-semibold"
+              >{{ summary()?.gracePeriodMinutes }} min</span
+            >
+          </p>
+          }
         </div>
+        @if (hasStayDelta()) {
+        <div
+          class="flex flex-wrap items-center justify-between gap-1 border-t border-zinc-900 pt-1 text-xs"
+        >
+          <span
+            class="flex items-center gap-1 font-mono font-medium"
+            [class]="stayDeltaClass()"
+          >
+            <ng-icon
+              [name]="stayDeltaIcon()"
+              [attr.name]="stayDeltaIcon()"
+              class="h-3.5 w-3.5"
+            />
+            <span>{{ stayDeltaText() }}</span>
+          </span>
+          <span class="text-muted-foreground"
+            >{{ texts.kpis.stay.comparison }}</span
+          >
+        </div>
+        }
       </nv-card-content>
     </nv-card>
   </div>

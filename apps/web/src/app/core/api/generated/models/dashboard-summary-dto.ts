@@ -66,4 +66,24 @@ export interface DashboardSummaryDto {
    * Total tickets generated today
    */
   totalTickets?: number;
+
+  /**
+   * Comparative revenue delta percentage vs previous week
+   */
+  revenueDeltaPercentage?: number;
+
+  /**
+   * Average stay duration delta in minutes vs previous week
+   */
+  avgStayDeltaMinutes?: number;
+
+  /**
+   * Digital payment ratio percentage
+   */
+  digitalPaymentRatio?: number;
+
+  /**
+   * Grace period in minutes
+   */
+  gracePeriodMinutes?: number;
 }
