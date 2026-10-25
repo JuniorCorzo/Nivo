@@ -3,7 +3,6 @@ package dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.repository;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.DailySummaryId;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.DailySummaryViewEntity;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,13 +14,13 @@ public interface DailySummaryViewRepository extends JpaRepository<DailySummaryVi
   Optional<DailySummaryViewEntity> findByParkingLotIdAndSummaryDate(UUID parkingLotId, LocalDate summaryDate);
 
   List<DailySummaryViewEntity> findByParkingLotIdAndSummaryDateIn(UUID parkingLotId,
-    Collection<LocalDate> summaryDates);
+    List<LocalDate> summaryDates);
 
   List<DailySummaryViewEntity> findAllByTenantId(UUID tenantId);
 
   List<DailySummaryViewEntity> findAllByTenantIdAndSummaryDate(UUID tenantId, LocalDate summaryDate);
 
-  List<DailySummaryViewEntity> findAllByTenantIdAndSummaryDateIn(UUID tenantId, Collection<LocalDate> summaryDates);
+  List<DailySummaryViewEntity> findAllByTenantIdAndSummaryDateIn(UUID tenantId, List<LocalDate> summaryDates);
 
   List<DailySummaryViewEntity> findAllByTenantIdAndParkingLotId(UUID tenantId, UUID parkingLotId);
 
