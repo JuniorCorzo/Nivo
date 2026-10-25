@@ -19,13 +19,17 @@ describe("DashboardMapper", () => {
   describe("isDashboardSummaryDto", () => {
     it("should return true for valid DashboardSummaryDto objects", () => {
       const validDto: DashboardSummaryDto = {
+        activeTickets: 10,
         availableSlots: 50,
+        avgStayMinutes: 45,
+        completedTickets: 20,
         currency: "COP",
         occupancyRate: 50,
         occupiedSlots: 50,
         scope: "GLOBAL",
         todayRevenue: 100_000,
         totalCapacity: 100,
+        totalTickets: 30,
       };
       expect(isDashboardSummaryDto(validDto)).toBe(true);
     });
@@ -37,6 +41,17 @@ describe("DashboardMapper", () => {
       expect(isDashboardSummaryDto(123)).toBe(false);
       expect(isDashboardSummaryDto({})).toBe(false);
       expect(isDashboardSummaryDto({ scope: 123 })).toBe(false);
+      expect(
+        isDashboardSummaryDto({
+          availableSlots: 50,
+          currency: "COP",
+          occupancyRate: 50,
+          occupiedSlots: 50,
+          scope: "GLOBAL",
+          todayRevenue: 100_000,
+          totalCapacity: 100,
+        })
+      ).toBe(false);
     });
   });
 
@@ -45,12 +60,16 @@ describe("DashboardMapper", () => {
       const dto: DashboardSummaryDto = {
         activeTickets: 25,
         availableSlots: 75,
+        avgStayDeltaMinutes: -4.5,
         avgStayMinutes: 45.5,
         completedTickets: 30,
         currency: "COP",
+        digitalPaymentRatio: 75,
+        gracePeriodMinutes: 15,
         occupancyRate: 25,
         occupiedSlots: 25,
         parkingId: "pkg-1",
+        revenueDeltaPercentage: 12.5,
         scope: "SINGLE",
         todayRevenue: 250_000,
         totalCapacity: 100,
@@ -62,12 +81,16 @@ describe("DashboardMapper", () => {
       expect(model).toEqual({
         activeTickets: 25,
         availableSlots: 75,
+        avgStayDeltaMinutes: -4.5,
         avgStayMinutes: 45.5,
         completedTickets: 30,
         currency: "COP",
+        digitalPaymentRatio: 75,
+        gracePeriodMinutes: 15,
         occupancyRate: 25,
         occupiedSlots: 25,
         parkingId: "pkg-1",
+        revenueDeltaPercentage: 12.5,
         scope: "SINGLE",
         todayRevenue: 250_000,
         totalCapacity: 100,
@@ -76,7 +99,7 @@ describe("DashboardMapper", () => {
     });
 
     it("should map incomplete DTO with safe fallbacks", () => {
-      const dto: DashboardSummaryDto = {};
+      const dto: Partial<DashboardSummaryDto> = {};
       const model = mapToDashboardSummaryModel(dto);
 
       expect(model.scope).toBe("GLOBAL");
@@ -85,7 +108,16 @@ describe("DashboardMapper", () => {
       expect(model.availableSlots).toBe(0);
       expect(model.occupancyRate).toBe(0);
       expect(model.todayRevenue).toBe(0);
+      expect(model.currency).toBe("COP");
+      expect(model.avgStayMinutes).toBe(0);
+      expect(model.totalTickets).toBe(0);
+      expect(model.activeTickets).toBe(0);
+      expect(model.completedTickets).toBe(0);
       expect(model.parkingId).toBeUndefined();
+      expect(model.revenueDeltaPercentage).toBeUndefined();
+      expect(model.avgStayDeltaMinutes).toBeUndefined();
+      expect(model.digitalPaymentRatio).toBeUndefined();
+      expect(model.gracePeriodMinutes).toBeUndefined();
     });
   });
 

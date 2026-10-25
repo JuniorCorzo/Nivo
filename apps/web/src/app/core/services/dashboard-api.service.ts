@@ -2,6 +2,7 @@ import { HttpClient, HttpContext, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import type { GetHourlyOccupancy$Params } from "@core/api/generated/fn/dashboard/get-hourly-occupancy";
 import type { GetParkingsComparison$Params } from "@core/api/generated/fn/dashboard/get-parkings-comparison";
+import type { GetSummary$Params } from "@core/api/generated/fn/dashboard/get-summary";
 import { DashboardService, ReportsService } from "@core/api/generated/services";
 import { AUTHORIZED } from "@core/http/context/auth.token";
 import {
@@ -72,14 +73,23 @@ export class DashboardApiService {
     }
   }
 
-  getSummary(parkingId?: string): Observable<DashboardSummaryModel> {
-    const cacheKey = `summary:${parkingId ?? "global"}`;
+  getSummary(
+    parkingId?: string,
+    date?: string
+  ): Observable<DashboardSummaryModel> {
+    const cacheKey = `summary:${parkingId ?? "global"}:${date ?? "today"}`;
     const cached = this.getFromCache<DashboardSummaryModel>(cacheKey);
     if (cached) {
       return of(cached);
     }
 
-    const params = parkingId ? { parkingId } : {};
+    const params: GetSummary$Params = {};
+    if (parkingId) {
+      params.parkingId = parkingId;
+    }
+    if (date) {
+      params.date = date;
+    }
     return this.dashboardService
       .getSummary(params, DashboardApiService.httpContext())
       .pipe(

@@ -196,6 +196,7 @@ SELECT
     COUNT(CASE WHEN t.status = 'OPEN' THEN t.id ELSE NULL END) AS ongoing_tickets,
     COUNT(DISTINCT t.license_plate) AS unique_vehicles,
     COALESCE(SUM(CASE WHEN pay.status = 'PAID' THEN pay.amount ELSE 0 END), 0.00) AS total_revenue,
+    COALESCE(SUM(CASE WHEN pay.status = 'PAID' AND pay.payment_method IN ('PAY_LINK', 'CARD') THEN pay.amount ELSE 0 END), 0.00) AS digital_revenue,
     ROUND(AVG(CASE WHEN t.status = 'CLOSED' THEN (EXTRACT(EPOCH FROM t.exit_time) - EXTRACT(EPOCH FROM t.entry_time)) / 60.0 ELSE NULL END), 2) AS avg_duration_minutes,
     p.currency
 FROM parking_tickets t

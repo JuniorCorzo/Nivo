@@ -15,39 +15,51 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Aggregated operational and financial summary for dashboard KPIs")
 public class DashboardSummaryDTO {
 
-  @Schema(description = "Scope of the summary (GLOBAL across tenant or SINGLE for specific parking)", example = "GLOBAL")
+  @Schema(description = "Scope of the summary (GLOBAL across tenant or SINGLE for specific parking)", example = "GLOBAL", requiredMode = Schema.RequiredMode.REQUIRED)
   private String scope;
 
-  @Schema(description = "Parking lot identifier when in SINGLE scope, null when in GLOBAL scope", example = "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d")
+  @Schema(description = "Parking lot identifier when in SINGLE scope, null when in GLOBAL scope", example = "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   private UUID parkingId;
 
-  @Schema(description = "Total capacity of parking slots", example = "150")
+  @Schema(description = "Total capacity of parking slots", example = "150", requiredMode = Schema.RequiredMode.REQUIRED)
   private Integer totalCapacity;
 
-  @Schema(description = "Currently occupied parking slots", example = "90")
+  @Schema(description = "Currently occupied parking slots", example = "90", requiredMode = Schema.RequiredMode.REQUIRED)
   private Integer occupiedSlots;
 
-  @Schema(description = "Currently available parking slots", example = "60")
+  @Schema(description = "Currently available parking slots", example = "60", requiredMode = Schema.RequiredMode.REQUIRED)
   private Integer availableSlots;
 
-  @Schema(description = "Current occupancy rate percentage (0.0 - 100.0)", example = "60.0")
+  @Schema(description = "Current occupancy rate percentage (0.0 - 100.0)", example = "60.0", requiredMode = Schema.RequiredMode.REQUIRED)
   private Double occupancyRate;
 
-  @Schema(description = "Total revenue collected today", example = "450000.00")
+  @Schema(description = "Total revenue collected today", example = "450000.00", requiredMode = Schema.RequiredMode.REQUIRED)
   private BigDecimal todayRevenue;
 
-  @Schema(description = "Currency code used for transactions", example = "COP")
+  @Schema(description = "Currency code used for transactions", example = "COP", requiredMode = Schema.RequiredMode.REQUIRED)
   private String currency;
 
-  @Schema(description = "Average stay duration in minutes for completed parking sessions", example = "45.5")
+  @Schema(description = "Average stay duration in minutes for completed parking sessions", example = "45.5", requiredMode = Schema.RequiredMode.REQUIRED)
   private Double avgStayMinutes;
 
-  @Schema(description = "Total tickets generated today", example = "120")
+  @Schema(description = "Total tickets generated today", example = "120", requiredMode = Schema.RequiredMode.REQUIRED)
   private Long totalTickets;
 
-  @Schema(description = "Active tickets currently in progress (vehicles parked)", example = "35")
+  @Schema(description = "Active tickets currently in progress (vehicles parked)", example = "35", requiredMode = Schema.RequiredMode.REQUIRED)
   private Long activeTickets;
 
-  @Schema(description = "Completed tickets finalized today", example = "85")
+  @Schema(description = "Completed tickets finalized today", example = "85", requiredMode = Schema.RequiredMode.REQUIRED)
   private Long completedTickets;
+
+  @Schema(description = "Percentage delta in revenue compared to previous period", example = "12.5", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  private Double revenueDeltaPercentage;
+
+  @Schema(description = "Delta in average stay minutes compared to previous period", example = "-5.0", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  private Double avgStayDeltaMinutes;
+
+  @Schema(description = "Ratio of digital payments compared to total revenue (0.0 - 100.0)", example = "75.0", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  private Double digitalPaymentRatio;
+
+  @Schema(description = "Grace period in minutes before billing starts", example = "15", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  private Integer gracePeriodMinutes;
 }
