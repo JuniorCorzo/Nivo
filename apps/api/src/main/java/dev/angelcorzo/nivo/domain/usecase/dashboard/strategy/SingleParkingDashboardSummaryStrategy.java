@@ -49,8 +49,8 @@ public class SingleParkingDashboardSummaryStrategy implements DashboardSummarySt
       : 0;
     final String currency = parkingLot.getCurrency() != null
       && !parkingLot.getCurrency().isBlank()
-      ? parkingLot.getCurrency()
-      : "COP";
+        ? parkingLot.getCurrency()
+        : "COP";
 
     return DashboardSummaryDTO.builder()
       .scope("SINGLE")

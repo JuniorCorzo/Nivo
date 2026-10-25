@@ -47,10 +47,10 @@ class GetDashboardSummaryUseCaseTest {
 
   @BeforeEach
   void setUp() {
-    final SingleParkingDashboardSummaryStrategy singleParkingStrategy =
-      new SingleParkingDashboardSummaryStrategy(dailyGateway, hourlyGateway, parkingLotsRepository);
-    final GlobalTenantDashboardSummaryStrategy globalTenantStrategy =
-      new GlobalTenantDashboardSummaryStrategy(dailyGateway, hourlyGateway, parkingLotsRepository);
+    final SingleParkingDashboardSummaryStrategy singleParkingStrategy = new SingleParkingDashboardSummaryStrategy(
+      dailyGateway, hourlyGateway, parkingLotsRepository);
+    final GlobalTenantDashboardSummaryStrategy globalTenantStrategy = new GlobalTenantDashboardSummaryStrategy(
+      dailyGateway, hourlyGateway, parkingLotsRepository);
     useCase = new GetDashboardSummaryUseCase(
       List.of(singleParkingStrategy, globalTenantStrategy), authenticationContext);
   }
