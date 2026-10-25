@@ -7,6 +7,8 @@ import dev.angelcorzo.nivo.domain.model.dashboard.PageResult;
 import dev.angelcorzo.nivo.domain.model.dashboard.gateways.DailySummaryGateway;
 import dev.angelcorzo.nivo.domain.model.dashboard.gateways.HourlyOccupancyGateway;
 import dev.angelcorzo.nivo.domain.model.dashboard.gateways.OperationalReportGateway;
+import dev.angelcorzo.nivo.domain.usecase.dashboard.dtos.DashboardSummaryDTO;
+import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.projection.DashboardSummaryProjection;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.repository.DailySummaryViewRepository;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.repository.HourlyOccupancyViewRepository;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.dashboard.repository.OperationalReportViewRepository;
@@ -27,6 +29,15 @@ public class DashboardViewsAdapter implements DailySummaryGateway, HourlyOccupan
   private final DailySummaryViewRepository dailySummaryRepository;
   private final HourlyOccupancyViewRepository hourlyOccupancyRepository;
   private final OperationalReportViewRepository operationalReportRepository;
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> Optional<T> findDashboardSummary(final UUID tenantId, final UUID parkingId,
+    final LocalDate targetDate, final int comparisonDays) {
+    return (Optional<T>) dailySummaryRepository
+      .findDashboardSummary(tenantId, parkingId, targetDate, comparisonDays)
+      .map(this::toSummaryDTO);
+  }
 
   @Override
   public Optional<DailySummaryModel> findByParkingLotIdAndSummaryDate(final UUID parkingLotId,
@@ -201,6 +212,27 @@ public class DashboardViewsAdapter implements DailySummaryGateway, HourlyOccupan
       .paymentDate(e.getPaymentDate())
       .operatorOrUserName(e.getOperatorOrUserName())
       .userEmail(e.getUserEmail())
+      .build();
+  }
+
+  private DashboardSummaryDTO toSummaryDTO(final DashboardSummaryProjection p) {
+    return DashboardSummaryDTO.builder()
+      .scope(p.getScope())
+      .parkingId(p.getParkingId())
+      .totalCapacity(p.getTotalCapacity())
+      .occupiedSlots(p.getOccupiedSlots())
+      .availableSlots(p.getAvailableSlots())
+      .occupancyRate(p.getOccupancyRate())
+      .todayRevenue(p.getTodayRevenue())
+      .currency(p.getCurrency())
+      .avgStayMinutes(p.getAvgStayMinutes())
+      .totalTickets(p.getTotalTickets())
+      .activeTickets(p.getActiveTickets())
+      .completedTickets(p.getCompletedTickets())
+      .revenueDeltaPercentage(p.getRevenueDeltaPercentage())
+      .avgStayDeltaMinutes(p.getAvgStayDeltaMinutes())
+      .digitalPaymentRatio(p.getDigitalPaymentRatio())
+      .gracePeriodMinutes(p.getGracePeriodMinutes())
       .build();
   }
 }

@@ -7,6 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DailySummaryGateway {
+  <T> Optional<T> findDashboardSummary(UUID tenantId, UUID parkingId, LocalDate targetDate,
+    int comparisonDays);
+
   Optional<DailySummaryModel> findByParkingLotIdAndSummaryDate(UUID parkingLotId, LocalDate summaryDate);
 
   List<DailySummaryModel> findByParkingLotIdAndSummaryDates(UUID parkingLotId, List<LocalDate> summaryDates);
