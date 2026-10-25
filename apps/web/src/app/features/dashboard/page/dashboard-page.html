@@ -14,6 +14,7 @@
 
   <app-dashboard-kpi-grid
     [title]="kpiSectionTitle()"
+    [metrics]="facade.kpiMetrics()"
     [summary]="facade.summary()"
     [occupancyPercentage]="facade.occupancyPercentage()"
   />

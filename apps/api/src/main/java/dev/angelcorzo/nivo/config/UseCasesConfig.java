@@ -72,4 +72,22 @@ public class UseCasesConfig {
     return new PricingEngine(
       List.of(new GracePeriodStage(), new BaseRateStage(), new SpecialPolicyStage(), new DayCapStage()));
   }
+
+  @Bean
+  public dev.angelcorzo.nivo.domain.usecase.dashboard.strategy.SingleParkingDashboardSummaryStrategy singleParkingDashboardSummaryStrategy(
+    dev.angelcorzo.nivo.domain.model.dashboard.gateways.DailySummaryGateway dailyGateway,
+    dev.angelcorzo.nivo.domain.model.dashboard.gateways.HourlyOccupancyGateway hourlyGateway,
+    dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository parkingLotsRepository) {
+    return new dev.angelcorzo.nivo.domain.usecase.dashboard.strategy.SingleParkingDashboardSummaryStrategy(
+      dailyGateway, hourlyGateway, parkingLotsRepository);
+  }
+
+  @Bean
+  public dev.angelcorzo.nivo.domain.usecase.dashboard.strategy.GlobalTenantDashboardSummaryStrategy globalTenantDashboardSummaryStrategy(
+    dev.angelcorzo.nivo.domain.model.dashboard.gateways.DailySummaryGateway dailyGateway,
+    dev.angelcorzo.nivo.domain.model.dashboard.gateways.HourlyOccupancyGateway hourlyGateway,
+    dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository parkingLotsRepository) {
+    return new dev.angelcorzo.nivo.domain.usecase.dashboard.strategy.GlobalTenantDashboardSummaryStrategy(
+      dailyGateway, hourlyGateway, parkingLotsRepository);
+  }
 }

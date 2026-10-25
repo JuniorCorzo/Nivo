@@ -75,6 +75,32 @@ describe("DashboardApiService", () => {
     });
   });
 
+  it("should get summary for single parking scope with parkingId and date params", () => {
+    service.getSummary("pkg-123", "2026-10-24").subscribe((summary) => {
+      expect(summary.parkingId).toBe("pkg-123");
+      expect(summary.occupancyRate).toBe(75);
+    });
+
+    const req = httpMock.expectOne(
+      (r) =>
+        r.url.endsWith("/dashboard/summary") &&
+        r.params.get("parkingId") === "pkg-123" &&
+        r.params.get("date") === "2026-10-24"
+    );
+    expect(req.request.method).toBe("GET");
+    expect(req.request.context.get(AUTHORIZED)).toBe(true);
+
+    req.flush({
+      availableSlots: 25,
+      occupancyRate: 75,
+      occupiedSlots: 75,
+      parkingId: "pkg-123",
+      scope: "SINGLE",
+      todayRevenue: 200_000,
+      totalCapacity: 100,
+    });
+  });
+
   it("should get hourly occupancy and map to domain model array", () => {
     service.getHourlyOccupancy("pkg-123").subscribe((points) => {
       expect(points.length).toBe(1);
