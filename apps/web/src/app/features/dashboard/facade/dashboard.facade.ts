@@ -11,6 +11,9 @@ import { DashboardApiService } from "@core/services/dashboard-api.service";
 import { DashboardSseService } from "@core/services/dashboard-sse.service";
 import type { Observable } from "rxjs";
 
+import { buildDashboardKpiMetrics } from "../models/dashboard-kpi.model";
+import type { DashboardKpiMetrics } from "../models/dashboard-kpi.model";
+
 export type {
   DashboardSummaryModel as DashboardSummary,
   HourlyOccupancyPointModel as HourlyOccupancyPoint,
@@ -19,6 +22,7 @@ export type {
   ParkingItem,
   ScopeState,
 } from "@core/models/dashboard.model";
+export type { DashboardKpiMetrics } from "../models/dashboard-kpi.model";
 
 export type TimeGranularity = "today" | "7days" | "30days";
 
@@ -95,6 +99,10 @@ export class DashboardFacade {
 
   readonly occupancyPercentage = computed(
     () => this.summary()?.occupancyRate ?? 0
+  );
+
+  readonly kpiMetrics = computed<DashboardKpiMetrics>(() =>
+    buildDashboardKpiMetrics(this.summary(), this.occupancyPercentage())
   );
 
   constructor() {

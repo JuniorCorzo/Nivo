@@ -25,26 +25,36 @@ export const isDashboardSummaryDto = (
     typeof candidate.scope === "string" &&
     typeof candidate.totalCapacity === "number" &&
     typeof candidate.occupiedSlots === "number" &&
+    typeof candidate.availableSlots === "number" &&
     typeof candidate.occupancyRate === "number" &&
-    typeof candidate.todayRevenue === "number"
+    typeof candidate.todayRevenue === "number" &&
+    typeof candidate.currency === "string" &&
+    typeof candidate.avgStayMinutes === "number" &&
+    typeof candidate.totalTickets === "number" &&
+    typeof candidate.activeTickets === "number" &&
+    typeof candidate.completedTickets === "number"
   );
 };
 
 export const mapToDashboardSummaryModel = (
-  dto: DashboardSummaryDto
+  dto: Partial<DashboardSummaryDto>
 ): DashboardSummaryModel => ({
-  activeTickets: dto.activeTickets ?? undefined,
+  activeTickets: dto.activeTickets ?? 0,
   availableSlots: dto.availableSlots ?? 0,
-  avgStayMinutes: dto.avgStayMinutes ?? undefined,
-  completedTickets: dto.completedTickets ?? undefined,
-  currency: dto.currency ?? undefined,
+  avgStayDeltaMinutes: dto.avgStayDeltaMinutes ?? undefined,
+  avgStayMinutes: dto.avgStayMinutes ?? 0,
+  completedTickets: dto.completedTickets ?? 0,
+  currency: dto.currency ?? "COP",
+  digitalPaymentRatio: dto.digitalPaymentRatio ?? undefined,
+  gracePeriodMinutes: dto.gracePeriodMinutes ?? undefined,
   occupancyRate: dto.occupancyRate ?? 0,
   occupiedSlots: dto.occupiedSlots ?? 0,
   parkingId: dto.parkingId ?? undefined,
+  revenueDeltaPercentage: dto.revenueDeltaPercentage ?? undefined,
   scope: dto.scope ?? "GLOBAL",
   todayRevenue: dto.todayRevenue ?? 0,
   totalCapacity: dto.totalCapacity ?? 0,
-  totalTickets: dto.totalTickets ?? undefined,
+  totalTickets: dto.totalTickets ?? 0,
 });
 
 export const mapToHourlyOccupancyPoint = (

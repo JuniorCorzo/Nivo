@@ -58,13 +58,17 @@ describe("DashboardSseService", () => {
     });
 
     service.handleSseMessage("snapshot", {
+      activeTickets: 10,
       availableSlots: 60,
+      avgStayMinutes: 45,
+      completedTickets: 20,
       currency: "COP",
       occupancyRate: 40,
       occupiedSlots: 40,
       scope: "GLOBAL",
       todayRevenue: 400_000,
       totalCapacity: 100,
+      totalTickets: 30,
     });
 
     expect(service.updates()?.occupancyRate).toBe(40);
