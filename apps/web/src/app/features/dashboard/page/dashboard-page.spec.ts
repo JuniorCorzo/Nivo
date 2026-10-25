@@ -125,12 +125,17 @@ describe("DashboardPage", () => {
 
   it("debe aplicar clase de color de umbral en barra de progreso de ocupación según el porcentaje", () => {
     facade.summary.set({
+      activeTickets: 10,
       availableSlots: 60,
+      avgStayMinutes: 30,
+      completedTickets: 20,
+      currency: "COP",
       occupancyRate: 40,
       occupiedSlots: 40,
       scope: "GLOBAL",
       todayRevenue: 500_000,
       totalCapacity: 100,
+      totalTickets: 30,
     });
     fixture.detectChanges();
 
@@ -139,23 +144,33 @@ describe("DashboardPage", () => {
     expect(compiled.querySelector(".bg-emerald-500")).toBeTruthy();
 
     facade.summary.set({
+      activeTickets: 25,
       availableSlots: 25,
+      avgStayMinutes: 45,
+      completedTickets: 40,
+      currency: "COP",
       occupancyRate: 75,
       occupiedSlots: 75,
       scope: "GLOBAL",
       todayRevenue: 800_000,
       totalCapacity: 100,
+      totalTickets: 65,
     });
     fixture.detectChanges();
     expect(compiled.querySelector(".bg-amber-500")).toBeTruthy();
 
     facade.summary.set({
+      activeTickets: 50,
       availableSlots: 5,
+      avgStayMinutes: 60,
+      completedTickets: 60,
+      currency: "COP",
       occupancyRate: 95,
       occupiedSlots: 95,
       scope: "GLOBAL",
       todayRevenue: 1_500_000,
       totalCapacity: 100,
+      totalTickets: 110,
     });
     fixture.detectChanges();
     expect(compiled.querySelector(".bg-rose-500")).toBeTruthy();

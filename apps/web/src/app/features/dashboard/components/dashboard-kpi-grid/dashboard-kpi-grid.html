@@ -33,7 +33,7 @@
             <ng-icon
               name="lucideTrendingUp"
               class="h-4 w-4"
-              [class]="occupancyDeltaClass()"
+              [class]="effectiveMetrics().occupancy.deltaClass"
             />
           </div>
         </div>
@@ -42,11 +42,11 @@
             <span
               class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
             >
-              {{ occupancyPercentage() | number: "1.1-1" }}%
+              {{ effectiveMetrics().occupancy.percentage | number: "1.1-1" }}%
             </span>
             <span class="text-muted-foreground font-mono text-xs">
-              {{ summary()?.occupiedSlots ?? 0 }} / {{ summary()?.totalCapacity
-              ?? 0 }}
+              {{ effectiveMetrics().occupancy.occupiedSlots }} / {{
+              effectiveMetrics().occupancy.totalCapacity }}
             </span>
           </div>
           <!-- Progress bar colored by threshold -->
@@ -55,8 +55,8 @@
           >
             <div
               class="h-1.5 rounded-full transition-all duration-500"
-              [class]="occupancyProgressClass()"
-              [style.width.%]="occupancyClampedPercentage()"
+              [class]="effectiveMetrics().occupancy.progressClass"
+              [style.width.%]="effectiveMetrics().occupancy.clampedPercentage"
             ></div>
           </div>
         </div>
@@ -65,10 +65,10 @@
         >
           <span
             class="flex items-center gap-1 font-mono font-medium"
-            [class]="occupancyDeltaClass()"
+            [class]="effectiveMetrics().occupancy.deltaClass"
           >
             <ng-icon name="lucideTrendingUp" class="h-3.5 w-3.5" />
-            <span>{{ occupancyDeltaText() }}</span>
+            <span>{{ effectiveMetrics().occupancy.deltaText }}</span>
           </span>
         </div>
       </nv-card-content>
@@ -94,13 +94,13 @@
             <span
               class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
             >
-              ${{ summary()?.todayRevenue ?? 0 | number: "1.0-0" }}
+              ${{ effectiveMetrics().revenue.todayRevenue | number: "1.0-0" }}
             </span>
             <span class="text-muted-foreground font-mono text-xs">
-              {{ summary()?.currency ?? "COP" }}
+              {{ effectiveMetrics().revenue.currency }}
             </span>
           </div>
-          @if (hasDigitalRatio()) {
+          @if (effectiveMetrics().revenue.hasDigitalRatio) {
           <p
             class="text-muted-foreground mt-2 flex items-center gap-1.5 text-xs"
           >
@@ -108,26 +108,26 @@
               class="inline-block h-2 w-2 rounded-full bg-emerald-500"
             ></span
             ><span
-              >{{ digitalPaymentRatioText() }} {{
+              >{{ effectiveMetrics().revenue.digitalPaymentRatioText }} {{
               texts.kpis.revenue.digitalRatio }}</span
             >
           </p>
           }
         </div>
-        @if (hasRevenueDelta()) {
+        @if (effectiveMetrics().revenue.hasRevenueDelta) {
         <div
           class="flex flex-wrap items-center justify-between gap-1 border-t border-zinc-900 pt-1 text-xs"
         >
           <span
             class="flex items-center gap-1 font-mono font-medium"
-            [class]="revenueDeltaClass()"
+            [class]="effectiveMetrics().revenue.revenueDeltaClass"
           >
             <ng-icon
-              [name]="revenueDeltaIcon()"
-              [attr.name]="revenueDeltaIcon()"
+              [name]="effectiveMetrics().revenue.revenueDeltaIcon"
+              [attr.name]="effectiveMetrics().revenue.revenueDeltaIcon"
               class="h-3.5 w-3.5"
             />
-            <span>{{ revenueDeltaText() }}</span>
+            <span>{{ effectiveMetrics().revenue.revenueDeltaText }}</span>
           </span>
           <span class="text-muted-foreground"
             >{{ texts.kpis.revenue.comparison }}</span
@@ -157,7 +157,7 @@
             <span
               class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
             >
-              {{ summary()?.activeTickets ?? 0 }}
+              {{ effectiveMetrics().tickets.activeTickets }}
             </span>
             <span class="text-muted-foreground font-mono text-xs"
               >{{ texts.kpis.tickets.vehiclesInside }}</span
@@ -168,7 +168,8 @@
           >
             <span>{{ texts.kpis.tickets.rotation }}</span>
             <span class="text-foreground font-mono font-semibold">
-              {{ totalOrCompletedTickets() | number }} {{ texts.chart.unitVeh }}
+              {{ effectiveMetrics().tickets.totalOrCompletedTickets | number }}
+              {{ texts.chart.unitVeh }}
             </span>
           </p>
         </div>
@@ -179,7 +180,7 @@
             class="flex items-center gap-1 font-mono font-medium text-sky-400"
           >
             <ng-icon name="lucideActivity" class="h-3.5 w-3.5" />
-            <span>{{ netFlowRateText() }}</span>
+            <span>{{ effectiveMetrics().tickets.netFlowRateText }}</span>
           </span>
           <span class="text-muted-foreground"
             >{{ texts.kpis.tickets.netFlow }}</span
@@ -208,10 +209,10 @@
             <span
               class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
             >
-              {{ formattedAvgStayMinutes() }} min
+              {{ effectiveMetrics().stay.formattedAvgStayMinutes }} min
             </span>
             <span class="text-muted-foreground font-mono text-xs">
-              {{ formattedAvgStayHours() }}
+              {{ effectiveMetrics().stay.formattedAvgStayHours }}
             </span>
           </div>
           <p
@@ -219,35 +220,35 @@
           >
             <span>{{ texts.chart.exits }}</span>
             <span class="text-foreground font-mono font-semibold">
-              {{ summary()?.completedTickets ?? 0 | number }} {{
+              {{ effectiveMetrics().stay.completedTickets | number }} {{
               texts.chart.unitVeh }}
             </span>
           </p>
-          @if (hasGracePeriod()) {
+          @if (effectiveMetrics().stay.hasGracePeriod) {
           <p
             class="text-muted-foreground mt-2 flex items-center justify-between text-xs"
           >
             <span>{{ texts.kpis.stay.gracePeriod }}</span>
             <span class="text-foreground font-mono font-semibold"
-              >{{ summary()?.gracePeriodMinutes }} min</span
+              >{{ effectiveMetrics().stay.gracePeriodMinutes }} min</span
             >
           </p>
           }
         </div>
-        @if (hasStayDelta()) {
+        @if (effectiveMetrics().stay.hasStayDelta) {
         <div
           class="flex flex-wrap items-center justify-between gap-1 border-t border-zinc-900 pt-1 text-xs"
         >
           <span
             class="flex items-center gap-1 font-mono font-medium"
-            [class]="stayDeltaClass()"
+            [class]="effectiveMetrics().stay.stayDeltaClass"
           >
             <ng-icon
-              [name]="stayDeltaIcon()"
-              [attr.name]="stayDeltaIcon()"
+              [name]="effectiveMetrics().stay.stayDeltaIcon"
+              [attr.name]="effectiveMetrics().stay.stayDeltaIcon"
               class="h-3.5 w-3.5"
             />
-            <span>{{ stayDeltaText() }}</span>
+            <span>{{ effectiveMetrics().stay.stayDeltaText }}</span>
           </span>
           <span class="text-muted-foreground"
             >{{ texts.kpis.stay.comparison }}</span

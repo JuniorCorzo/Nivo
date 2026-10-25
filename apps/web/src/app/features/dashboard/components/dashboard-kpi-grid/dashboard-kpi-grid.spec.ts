@@ -189,12 +189,16 @@ describe("DashboardKpiGridComponent", () => {
     fixture.componentRef.setInput("summary", {
       activeTickets: 10,
       availableSlots: 90,
+      avgStayMinutes: 30,
+      completedTickets: 15,
+      currency: "COP",
       occupancyRate: 10,
       occupiedSlots: 10,
       revenueDeltaPercentage: -8.3,
       scope: "GLOBAL",
       todayRevenue: 100_000,
       totalCapacity: 100,
+      totalTickets: 25,
     });
     fixture.detectChanges();
 
@@ -213,11 +217,15 @@ describe("DashboardKpiGridComponent", () => {
       activeTickets: 10,
       availableSlots: 90,
       avgStayDeltaMinutes: 5,
+      avgStayMinutes: 45,
+      completedTickets: 15,
+      currency: "COP",
       occupancyRate: 10,
       occupiedSlots: 10,
       scope: "GLOBAL",
       todayRevenue: 100_000,
       totalCapacity: 100,
+      totalTickets: 25,
     });
     fixture.detectChanges();
 
@@ -229,5 +237,59 @@ describe("DashboardKpiGridComponent", () => {
     expect(
       stayDeltaEl?.querySelector('ng-icon[name="lucideArrowUpRight"]')
     ).toBeTruthy();
+  });
+
+  it("debe aceptar y renderizar metrics provisto directamente via input", () => {
+    fixture.componentRef.setInput("metrics", {
+      occupancy: {
+        clampedPercentage: 55,
+        deltaClass: "text-emerald-400",
+        deltaText: "Normal <70%",
+        occupiedSlots: 55,
+        percentage: 55,
+        progressClass: "bg-emerald-500",
+        totalCapacity: 100,
+      },
+      revenue: {
+        currency: "COP",
+        digitalPaymentRatioText: "80%",
+        hasDigitalRatio: true,
+        hasRevenueDelta: true,
+        revenueDeltaClass: "text-emerald-400",
+        revenueDeltaIcon: "lucideArrowUpRight",
+        revenueDeltaText: "+15.0%",
+        todayRevenue: 300_000,
+      },
+      stay: {
+        completedTickets: 50,
+        formattedAvgStayHours: "~1h 0m",
+        formattedAvgStayMinutes: 60,
+        gracePeriodMinutes: 10,
+        hasGracePeriod: true,
+        hasStayDelta: true,
+        stayDeltaClass: "text-rose-400",
+        stayDeltaIcon: "lucideArrowUpRight",
+        stayDeltaText: "+10.0 min",
+      },
+      tickets: {
+        activeTickets: 25,
+        netFlowRateText: "+1 veh/h",
+        totalOrCompletedTickets: 50,
+      },
+    });
+    fixture.detectChanges();
+
+    /* SAFETY: Test fixture nativeElement is an HTMLElement */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain("55.0%");
+    expect(compiled.textContent).toContain("55 / 100");
+    expect(compiled.textContent).toContain("$300,000");
+    expect(compiled.textContent).toContain("+15.0%");
+    expect(compiled.textContent).toContain("80%");
+    expect(compiled.textContent).toContain("25");
+    expect(compiled.textContent).toContain("+1 veh/h");
+    expect(compiled.textContent).toContain("60 min");
+    expect(compiled.textContent).toContain("~1h 0m");
+    expect(compiled.textContent).toContain("+10.0 min");
   });
 });
