@@ -50,7 +50,11 @@ class GetDashboardSummaryUseCaseTest {
 
   @BeforeEach
   void setUp() {
-    useCase = new GetDashboardSummaryUseCase(dailyGateway, hourlyGateway, parkingLotsRepository,
+    final dev.angelcorzo.nivo.domain.usecase.dashboard.strategy.SingleParkingDashboardSummaryStrategy singleParkingStrategy = new dev.angelcorzo.nivo.domain.usecase.dashboard.strategy.SingleParkingDashboardSummaryStrategy(
+      dailyGateway, hourlyGateway, parkingLotsRepository);
+    final dev.angelcorzo.nivo.domain.usecase.dashboard.strategy.GlobalTenantDashboardSummaryStrategy globalTenantStrategy = new dev.angelcorzo.nivo.domain.usecase.dashboard.strategy.GlobalTenantDashboardSummaryStrategy(
+      dailyGateway, hourlyGateway, parkingLotsRepository);
+    useCase = new GetDashboardSummaryUseCase(List.of(singleParkingStrategy, globalTenantStrategy),
       authenticationContext);
   }
 
@@ -192,7 +196,7 @@ class GetDashboardSummaryUseCaseTest {
       .build();
     when(hourlyGateway.findByTenantId(tenantId)).thenReturn(List.of(hourly1, hourly2));
 
-    final DashboardSummaryDTO summary = useCase.execute(null);
+    final DashboardSummaryDTO summary = useCase.execute((UUID) null);
 
     assertThat(summary).isNotNull();
     assertThat(summary.getScope()).isEqualTo("GLOBAL");
@@ -276,7 +280,7 @@ class GetDashboardSummaryUseCaseTest {
     when(dailyGateway.findAllByTenantIdAndSummaryDates(eq(tenantId), eq(List.of(today, previousWeek))))
       .thenReturn(List.of(daily));
 
-    final DashboardSummaryDTO summary = useCase.execute(null);
+    final DashboardSummaryDTO summary = useCase.execute((UUID) null);
 
     assertThat(summary).isNotNull();
     assertThat(summary.getScope()).isEqualTo("GLOBAL");
