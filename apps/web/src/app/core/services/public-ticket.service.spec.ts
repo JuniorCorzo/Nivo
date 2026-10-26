@@ -1,63 +1,85 @@
-import { GlobalWindow } from "happy-dom";
-
-const happyWindow = new GlobalWindow();
-(globalThis as any).window = happyWindow;
-(globalThis as any).document = happyWindow.document;
-
-import "@angular/compiler";
-import { provideHttpClient } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
-import {
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting,
-} from "@angular/platform-browser-dynamic/testing";
+import type { ResponsePublicTicketDto } from "@core/api/generated/models";
+import { PublicTicketsService } from "@core/api/generated/services";
+import { firstValueFrom, of } from "rxjs";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PublicTicketService } from "./public-ticket.service";
 
-try {
-  TestBed.initTestEnvironment(
-    BrowserDynamicTestingModule,
-    platformBrowserDynamicTesting()
-  );
-} catch {
-  // Already initialized
+interface MockPublicTicketsService {
+  getPublicTicket: ReturnType<typeof vi.fn>;
 }
 
 describe("PublicTicketService", () => {
   let service: PublicTicketService;
-  let httpTesting: HttpTestingController;
+  let publicTicketsServiceMock: MockPublicTicketsService;
+
+  const mockPublicTicketDto = {
+    entryTime: "2026-10-14T01:00:00Z",
+    exitTime: "2026-10-14T03:00:00Z",
+    id: "ticket-uuid-1",
+    licensePlate: "SP-1001",
+    phoneNumber: "+573001234567",
+    photoUrl: "data:image/jpeg;base64,mock",
+    plateCountry: "UNPLATED" as const,
+    rate: {
+      description: "Tarifa Motos",
+      id: "rate-moto",
+      minChargeTimeMinutes: 15,
+      name: "Tarifa Moto",
+      pricePerUnit: 2000,
+      timeUnit: "HOURS" as const,
+      vehicleType: "MOTORCYCLE" as const,
+    },
+    slotSnapshot: {
+      slotNumber: "M-01",
+    },
+    status: "OPEN" as const,
+    totalToCharge: 5000,
+  };
+
+  const mockEnvelopeResponse: ResponsePublicTicketDto = {
+    data: mockPublicTicketDto,
+    message: "Public ticket retrieved successfully",
+    status: "200 OK",
+    timestamp: "2026-10-25T20:00:00Z",
+  };
 
   beforeEach(() => {
-    TestBed.resetTestingModule();
+    publicTicketsServiceMock = {
+      getPublicTicket: vi.fn().mockReturnValue(of(mockEnvelopeResponse)),
+    };
+
     TestBed.configureTestingModule({
       providers: [
         PublicTicketService,
-        provideHttpClient(),
-        provideHttpClientTesting(),
+        {
+          provide: PublicTicketsService,
+          useValue: publicTicketsServiceMock,
+        },
       ],
     });
 
     service = TestBed.inject(PublicTicketService);
-    httpTesting = TestBed.inject(HttpTestingController);
-  });
-
-  afterEach(() => {
-    httpTesting.verify();
   });
 
   it("should be created", () => {
     expect(service).toBeTruthy();
   });
 
-  it("should unwrap data property when response wraps ticket in data field", () => {
-    const mockTicket = {
-      entryTime: "2026-10-14T01:00:00Z",
+  it("should call PublicTicketsService.getPublicTicket with { id } and return mapped PublicTicketModel", async () => {
+    const result = await firstValueFrom(
+      service.getPublicTicket("ticket-uuid-1")
+    );
+
+    expect(publicTicketsServiceMock.getPublicTicket).toHaveBeenCalledWith({
       id: "ticket-uuid-1",
-      parkingLotName: "Parqueadero Central",
+    });
+    expect(result).toEqual({
+      entryTime: "2026-10-14T01:00:00Z",
+      exitTime: "2026-10-14T03:00:00Z",
+      id: "ticket-uuid-1",
+      phoneNumber: "+573001234567",
       photoUrl: "data:image/jpeg;base64,mock",
       plate: "SP-1001",
       plateCountry: "UNPLATED",
@@ -66,48 +88,58 @@ describe("PublicTicketService", () => {
       rateTimeUnit: "HOURS",
       slotNumber: "M-01",
       status: "OPEN",
-    };
-
-    const apiResponse = {
-      status: "200 OK",
-      message: "Public ticket retrieved successfully",
-      data: mockTicket,
-    };
-
-    service.getPublicTicket("ticket-uuid-1").subscribe((ticket) => {
-      expect(ticket).toEqual(mockTicket as any);
-      expect(ticket.plate).toBe("SP-1001");
-      expect(ticket.plateCountry).toBe("UNPLATED");
+      totalToCharge: 5000,
     });
-
-    const req = httpTesting.expectOne("/api/public/tickets/ticket-uuid-1");
-    expect(req.request.method).toBe("GET");
-    req.flush(apiResponse);
   });
 
-  it("should handle raw response when data property is absent", () => {
-    const mockTicket = {
-      entryTime: "2026-10-14T01:00:00Z",
-      id: "ticket-uuid-1",
-      parkingLotName: "Parqueadero Central",
-      photoUrl: "data:image/jpeg;base64,mock",
-      plate: "SP-1001",
-      plateCountry: "UNPLATED",
-      rateName: "Tarifa Moto",
-      ratePricePerUnit: 2000,
-      rateTimeUnit: "HOURS",
-      slotNumber: "M-01",
-      status: "OPEN",
+  it("should correctly map ticket when optional fields are omitted", async () => {
+    const minimalEnvelope: ResponsePublicTicketDto = {
+      data: {
+        entryTime: "2026-10-14T01:00:00Z",
+        id: "ticket-uuid-2",
+        licensePlate: "ABC-123",
+        plateCountry: "CO",
+        rate: {
+          description: "Tarifa Carros",
+          id: "rate-car",
+          minChargeTimeMinutes: 0,
+          name: "Standard Car",
+          pricePerUnit: 4000,
+          timeUnit: "HOURS",
+          vehicleType: "CAR",
+        },
+        status: "OPEN",
+      },
+      message: "Retrieved",
+      status: "200 OK",
+      timestamp: "2026-10-25T20:00:00Z",
     };
 
-    service.getPublicTicket("ticket-uuid-1").subscribe((ticket) => {
-      expect(ticket).toEqual(mockTicket as any);
-      expect(ticket.plate).toBe("SP-1001");
-      expect(ticket.plateCountry).toBe("UNPLATED");
-    });
+    publicTicketsServiceMock.getPublicTicket.mockReturnValue(
+      of(minimalEnvelope)
+    );
 
-    const req = httpTesting.expectOne("/api/public/tickets/ticket-uuid-1");
-    expect(req.request.method).toBe("GET");
-    req.flush(mockTicket);
+    const result = await firstValueFrom(
+      service.getPublicTicket("ticket-uuid-2")
+    );
+
+    expect(publicTicketsServiceMock.getPublicTicket).toHaveBeenCalledWith({
+      id: "ticket-uuid-2",
+    });
+    expect(result).toEqual({
+      entryTime: "2026-10-14T01:00:00Z",
+      exitTime: undefined,
+      id: "ticket-uuid-2",
+      phoneNumber: undefined,
+      photoUrl: undefined,
+      plate: "ABC-123",
+      plateCountry: "CO",
+      rateName: "Standard Car",
+      ratePricePerUnit: 4000,
+      rateTimeUnit: "HOURS",
+      slotNumber: undefined,
+      status: "OPEN",
+      totalToCharge: undefined,
+    });
   });
 });

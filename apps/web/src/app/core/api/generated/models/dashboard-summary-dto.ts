@@ -18,6 +18,11 @@ export interface DashboardSummaryDto {
   availableSlots: number;
 
   /**
+   * Delta in average stay minutes compared to previous period
+   */
+  avgStayDeltaMinutes?: number;
+
+  /**
    * Average stay duration in minutes for completed parking sessions
    */
   avgStayMinutes: number;
@@ -33,6 +38,16 @@ export interface DashboardSummaryDto {
   currency: string;
 
   /**
+   * Ratio of digital payments compared to total revenue (0.0 - 100.0)
+   */
+  digitalPaymentRatio?: number;
+
+  /**
+   * Grace period in minutes before billing starts
+   */
+  gracePeriodMinutes?: number;
+
+  /**
    * Current occupancy rate percentage (0.0 - 100.0)
    */
   occupancyRate: number;
@@ -46,6 +61,11 @@ export interface DashboardSummaryDto {
    * Parking lot identifier when in SINGLE scope, null when in GLOBAL scope
    */
   parkingId?: string;
+
+  /**
+   * Percentage delta in revenue compared to previous period
+   */
+  revenueDeltaPercentage?: number;
 
   /**
    * Scope of the summary (GLOBAL across tenant or SINGLE for specific parking)
@@ -66,24 +86,4 @@ export interface DashboardSummaryDto {
    * Total tickets generated today
    */
   totalTickets: number;
-
-  /**
-   * Comparative revenue delta percentage vs previous week
-   */
-  revenueDeltaPercentage?: number;
-
-  /**
-   * Average stay duration delta in minutes vs previous week
-   */
-  avgStayDeltaMinutes?: number;
-
-  /**
-   * Digital payment ratio percentage
-   */
-  digitalPaymentRatio?: number;
-
-  /**
-   * Grace period in minutes
-   */
-  gracePeriodMinutes?: number;
 }
