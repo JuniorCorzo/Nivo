@@ -98,4 +98,51 @@ describe("TicketDetailDrawerComponent", () => {
     expect(compiled.textContent).toContain("EFECTIVO");
     expect(compiled.textContent).toContain("REF-999");
   });
+
+  it("should render vehicle photo and camera icon when photoUrl is present", () => {
+    const ticketWithPhoto: TicketSummary = {
+      ...mockOpenTicket,
+      photoUrl: "https://example.com/captured-entry.jpg",
+    };
+    fixture.componentRef.setInput("ticket", ticketWithPhoto);
+    fixture.detectChanges();
+
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    /* SAFETY: querySelector returns HTMLImageElement when img exists */
+    const img = compiled.querySelector(
+      'img[src="https://example.com/captured-entry.jpg"]'
+    ) as HTMLImageElement;
+    expect(img).toBeTruthy();
+    expect(img.getAttribute("alt")).toBe("Fotografía capturada al ingreso");
+    expect(compiled.textContent).toContain("Fotografía de ingreso");
+  });
+
+  it("should render SIN PLACA badge when vehicle is unplated", () => {
+    const unplatedTicket: TicketSummary = {
+      ...mockOpenTicket,
+      licensePlate: "SP-1001",
+      plateCountry: "UNPLATED",
+    };
+    fixture.componentRef.setInput("ticket", unplatedTicket);
+    fixture.detectChanges();
+
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const badge = compiled.querySelector("nv-badge[variant='warning']");
+    expect(badge).toBeTruthy();
+    expect(badge?.textContent).toContain("SIN PLACA");
+    expect(compiled.textContent).toContain("SP-1001");
+  });
+
+  it("should not render photo container when photoUrl is absent", () => {
+    fixture.componentRef.setInput("ticket", mockOpenTicket);
+    fixture.detectChanges();
+
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const img = compiled.querySelector("img");
+    expect(img).toBeNull();
+    expect(compiled.textContent).not.toContain("Fotografía de ingreso");
+  });
 });

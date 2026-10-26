@@ -983,6 +983,8 @@ export const APP_TEXTS = {
     detail: {
       close: "Cerrar detalle",
       elapsedTime: "Tiempo transcurrido:",
+      entryPhoto: "Fotografía de ingreso",
+      entryPhotoAlt: "Fotografía capturada al ingreso",
       entryTime: "Fecha y hora de entrada:",
       exitTime: "Fecha y hora de salida:",
       finalizedPayment: {
@@ -1007,6 +1009,7 @@ export const APP_TEXTS = {
       statusLabel: "Estado del Ticket",
       statusOpen: "Activo (En Estancia)",
       title: "Detalle del Ticket",
+      unplatedBadge: "SIN PLACA",
     },
     emptyState: {
       description:

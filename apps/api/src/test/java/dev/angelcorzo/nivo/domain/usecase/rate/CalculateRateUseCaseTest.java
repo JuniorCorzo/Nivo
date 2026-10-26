@@ -10,12 +10,18 @@ import dev.angelcorzo.nivo.domain.model.commons.exceptions.InvalidDomainExceptio
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLotPolicy;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLots;
 import dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository;
+import dev.angelcorzo.nivo.domain.model.parkinglots.valueobject.ParkingLotsReference;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTicketNotFound;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.ParkingTicketsRepository;
 import dev.angelcorzo.nivo.domain.model.rates.enums.TimeUnitsRate;
 import dev.angelcorzo.nivo.domain.model.rates.enums.VehicleType;
 import dev.angelcorzo.nivo.domain.model.rates.valueobject.RateReference;
+import dev.angelcorzo.nivo.domain.model.slots.Slots;
+import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
+import dev.angelcorzo.nivo.domain.model.slots.enums.SlotType;
+import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
+import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotsReference;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.ModifiesTypes;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.OperationsTypes;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.valueobjects.SpecialPoliciesReference;
@@ -41,6 +47,7 @@ class CalculateRateUseCaseTest {
 
   private ParkingTicketsRepository ticketsRepository;
   private ParkingLotsRepository parkingLotsRepository;
+  private SlotsRepository slotsRepository;
   private AuthenticationContextGateway authGateway;
   private Clock fixedClock;
   private CalculateRateUseCase calculateRateUseCase;
@@ -49,14 +56,15 @@ class CalculateRateUseCaseTest {
   void setUp() {
     ticketsRepository = mock(ParkingTicketsRepository.class);
     parkingLotsRepository = mock(ParkingLotsRepository.class);
+    slotsRepository = mock(SlotsRepository.class);
     authGateway = mock(AuthenticationContextGateway.class);
     fixedClock = Clock.fixed(Instant.parse("2026-09-07T12:00:00Z"), ZoneOffset.UTC);
 
     PricingEngine engine = new PricingEngine(
       List.of(new GracePeriodStage(), new BaseRateStage(), new SpecialPolicyStage(), new DayCapStage()));
 
-    calculateRateUseCase = new CalculateRateUseCase(ticketsRepository, parkingLotsRepository, authGateway, engine,
-      fixedClock);
+    calculateRateUseCase = new CalculateRateUseCase(ticketsRepository, parkingLotsRepository, slotsRepository,
+      authGateway, engine, fixedClock);
   }
 
   private RateReference createRateReference() {
@@ -159,6 +167,56 @@ class CalculateRateUseCaseTest {
     assertThat(price).isNotNull();
     assertThat(price.getSubtotal()).isEqualByComparingTo(new BigDecimal("10000.00"));
     assertThat(price.getTotal()).isEqualByComparingTo(new BigDecimal("11900.00"));
+  }
+
+  @Test
+  @DisplayName("Should use 0% IVA when parking lot policy is configured with zero IVA")
+  void shouldUseZeroIvaWhenParkingLotPolicyConfiguredWithZeroIva() {
+    final UUID ticketId = UUID.randomUUID();
+    final UUID parkingId = UUID.randomUUID();
+    final UUID slotId = UUID.randomUUID();
+
+    final ParkingLotPolicy policy = new ParkingLotPolicy(15, BigDecimal.ZERO, BigDecimal.ZERO);
+    final ParkingLots parking = ParkingLots.builder().id(parkingId).policy(policy).build();
+
+    final RateReference rate = createRateReference();
+
+    final SlotsReference slotRef = SlotsReference.builder()
+      .id(slotId)
+      .slotNumber("A-01")
+      .type(SlotType.CAR)
+      .status(SlotStatus.OCCUPIED)
+      .build();
+
+    final ParkingTickets ticket = ParkingTickets.builder()
+      .id(ticketId)
+      .rate(rate)
+      .slot(slotRef)
+      .entryTime(OffsetDateTime.parse("2026-09-07T10:00:00Z")) // 2 hours stay
+      .build();
+
+    final ParkingLotsReference parkingLotsRef = ParkingLotsReference.builder()
+      .id(parkingId)
+      .name("Central Parking")
+      .build();
+
+    final Slots slot = Slots.builder()
+      .id(slotId)
+      .parking(parkingLotsRef)
+      .build();
+
+    when(ticketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
+    when(slotsRepository.findById(slotId)).thenReturn(Optional.of(slot));
+    when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(parking));
+    when(authGateway.getCurrentTenant()).thenReturn(Tenants.builder().companyName("Central Parking").build());
+
+    final PriceDetailed price = calculateRateUseCase.execute(ticketId);
+
+    assertThat(price).isNotNull();
+    assertThat(price.getSubtotal()).isEqualByComparingTo(new BigDecimal("10000.00"));
+    assertThat(price.getIvaRate()).isEqualByComparingTo(BigDecimal.ZERO);
+    assertThat(price.getIvaAmount()).isEqualByComparingTo(new BigDecimal("0.00"));
+    assertThat(price.getTotal()).isEqualByComparingTo(new BigDecimal("10000.00"));
   }
 
   @Test
