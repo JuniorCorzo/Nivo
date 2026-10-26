@@ -6,7 +6,10 @@ import type {
   PaymentsDto,
   PriceDetailed,
   PriceLine,
+  PublicTicketDto,
+  RatesInfo,
 } from "@core/api/generated/models";
+import type { PublicTicketModel } from "@core/models/public-ticket.model";
 import type {
   CheckOutPayload,
   CreateTicketPayload,
@@ -99,3 +102,26 @@ export const mapToPaymentRecord = (dto: PaymentsDto): PaymentRecord => ({
   paymentUrl: dto.checkoutUrl,
   status: dto.status ?? "PAID",
 });
+
+export const mapToPublicTicketModel = (
+  dto: PublicTicketDto
+): PublicTicketModel => {
+  // SAFETY: Backend RatesInfo OpenAPI schema specifies pricePerUnit, but legacy or alternative payloads may provide price.
+  const rate = dto.rate as (RatesInfo & { price?: number }) | undefined;
+
+  return {
+    entryTime: dto.entryTime,
+    exitTime: dto.exitTime,
+    id: dto.id,
+    phoneNumber: dto.phoneNumber,
+    photoUrl: dto.photoUrl,
+    plate: dto.licensePlate,
+    plateCountry: dto.plateCountry,
+    rateName: dto.rate?.name,
+    ratePricePerUnit: rate?.price ?? rate?.pricePerUnit,
+    rateTimeUnit: dto.rate?.timeUnit,
+    slotNumber: dto.slotSnapshot?.slotNumber,
+    status: dto.status,
+    totalToCharge: dto.totalToCharge,
+  };
+};

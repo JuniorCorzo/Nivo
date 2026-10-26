@@ -22,6 +22,7 @@ public class DailySummaryModel {
   private Long ongoingTickets;
   private Long uniqueVehicles;
   private BigDecimal totalRevenue;
+  private BigDecimal digitalRevenue;
   private Double avgDurationMinutes;
   private String currency;
 }

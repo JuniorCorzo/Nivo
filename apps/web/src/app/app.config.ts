@@ -15,6 +15,7 @@ import {
 import {
   TitleStrategy,
   provideRouter,
+  withComponentInputBinding,
   withViewTransitions,
 } from "@angular/router";
 import { addWithCredentialsInterceptor } from "@core/http/interceptors/add-with-credentials.interceptor";
@@ -37,7 +38,11 @@ export const appConfig: ApplicationConfig = {
     provideApiConfiguration(isDevMode() ? "http://localhost:8080/api" : "/api"),
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideRouter(routes, withViewTransitions({ skipInitialTransition: true })),
+    provideRouter(
+      routes,
+      withComponentInputBinding(),
+      withViewTransitions({ skipInitialTransition: true })
+    ),
     ...provideSentry({
       tracePropagationTargets: ["localhost", /^\/api/u],
     }),

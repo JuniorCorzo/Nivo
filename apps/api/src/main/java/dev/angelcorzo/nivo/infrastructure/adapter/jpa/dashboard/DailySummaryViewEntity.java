@@ -53,6 +53,9 @@ public class DailySummaryViewEntity {
   @Column(name = "total_revenue")
   private BigDecimal totalRevenue;
 
+  @Column(name = "digital_revenue")
+  private BigDecimal digitalRevenue;
+
   @Column(name = "avg_duration_minutes")
   private Double avgDurationMinutes;
 

@@ -6,6 +6,8 @@ import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.dto.common
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.slot.dto.CreatedSlots;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import java.math.BigDecimal;
@@ -21,5 +23,6 @@ public record UpsertParkingLotsRequest(UUID id, @NotBlank String name, @Valid Ad
   @Pattern(regexp = "^UTC([+-]([0-9]{1,2}|1[0-4])(:[0-5][0-9])?)?$") String timezone,
 
   @NotBlank String currency, @Valid OperatingHoursDTO operatingHours, @Valid List<CreatedSlots> slots,
-  Integer gracePeriodMinutes, BigDecimal gracePeriodPrice, BigDecimal ivaRate) {
+  Integer gracePeriodMinutes, BigDecimal gracePeriodPrice,
+  @DecimalMin(value = "0.0", inclusive = true) @DecimalMax(value = "1.0", inclusive = true) BigDecimal ivaRate) {
 }

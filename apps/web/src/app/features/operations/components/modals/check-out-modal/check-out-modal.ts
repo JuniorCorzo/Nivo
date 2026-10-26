@@ -12,6 +12,7 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideAlertCircle,
   lucideArrowLeft,
+  lucideCamera,
   lucideCar,
   lucideCheck,
   lucideCoins,
@@ -40,6 +41,7 @@ import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-rece
     provideIcons({
       lucideAlertCircle,
       lucideArrowLeft,
+      lucideCamera,
       lucideCar,
       lucideCheck,
       lucideCoins,

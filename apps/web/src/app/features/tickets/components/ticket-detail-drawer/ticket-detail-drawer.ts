@@ -13,6 +13,7 @@ import type {
 } from "@core/models/ticket.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
+  lucideCamera,
   lucideCar,
   lucideClock,
   lucideCreditCard,
@@ -48,6 +49,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
   ],
   providers: [
     provideIcons({
+      lucideCamera,
       lucideCar,
       lucideClock,
       lucideCreditCard,
