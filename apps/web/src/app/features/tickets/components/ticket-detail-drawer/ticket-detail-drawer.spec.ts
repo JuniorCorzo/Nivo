@@ -109,6 +109,7 @@ describe("TicketDetailDrawerComponent", () => {
 
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
+    /* SAFETY: querySelector returns HTMLImageElement when img exists */
     const img = compiled.querySelector(
       'img[src="https://example.com/captured-entry.jpg"]'
     ) as HTMLImageElement;
