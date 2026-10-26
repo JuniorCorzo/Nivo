@@ -10,37 +10,52 @@ export interface DashboardSummaryDto {
   /**
    * Active tickets currently in progress (vehicles parked)
    */
-  activeTickets?: number;
+  activeTickets: number;
 
   /**
    * Currently available parking slots
    */
-  availableSlots?: number;
+  availableSlots: number;
+
+  /**
+   * Delta in average stay minutes compared to previous period
+   */
+  avgStayDeltaMinutes?: number;
 
   /**
    * Average stay duration in minutes for completed parking sessions
    */
-  avgStayMinutes?: number;
+  avgStayMinutes: number;
 
   /**
    * Completed tickets finalized today
    */
-  completedTickets?: number;
+  completedTickets: number;
 
   /**
    * Currency code used for transactions
    */
-  currency?: string;
+  currency: string;
+
+  /**
+   * Ratio of digital payments compared to total revenue (0.0 - 100.0)
+   */
+  digitalPaymentRatio?: number;
+
+  /**
+   * Grace period in minutes before billing starts
+   */
+  gracePeriodMinutes?: number;
 
   /**
    * Current occupancy rate percentage (0.0 - 100.0)
    */
-  occupancyRate?: number;
+  occupancyRate: number;
 
   /**
    * Currently occupied parking slots
    */
-  occupiedSlots?: number;
+  occupiedSlots: number;
 
   /**
    * Parking lot identifier when in SINGLE scope, null when in GLOBAL scope
@@ -48,22 +63,27 @@ export interface DashboardSummaryDto {
   parkingId?: string;
 
   /**
+   * Percentage delta in revenue compared to previous period
+   */
+  revenueDeltaPercentage?: number;
+
+  /**
    * Scope of the summary (GLOBAL across tenant or SINGLE for specific parking)
    */
-  scope?: string;
+  scope: string;
 
   /**
    * Total revenue collected today
    */
-  todayRevenue?: number;
+  todayRevenue: number;
 
   /**
    * Total capacity of parking slots
    */
-  totalCapacity?: number;
+  totalCapacity: number;
 
   /**
    * Total tickets generated today
    */
-  totalTickets?: number;
+  totalTickets: number;
 }

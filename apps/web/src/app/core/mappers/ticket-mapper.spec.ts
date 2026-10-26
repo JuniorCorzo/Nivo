@@ -3,6 +3,7 @@ import type {
   ParkingTicketsDto,
   PaymentsDto,
   PriceDetailed,
+  PublicTicketDto,
 } from "@core/api/generated/models";
 import type {
   CheckOutPayload,
@@ -14,6 +15,7 @@ import {
   mapToCreateTicketDto,
   mapToPaymentRecord,
   mapToPriceDetailedModel,
+  mapToPublicTicketModel,
   mapToTicketSummary,
 } from "./ticket.mapper";
 
@@ -150,5 +152,116 @@ describe("TicketMapper", () => {
     expect(model.amount).toBe(11_900);
     expect(model.paymentMethod).toBe("EFFECTIVE");
     expect(model.status).toBe("PAID");
+  });
+
+  describe("mapToPublicTicketModel", () => {
+    it("should map complete PublicTicketDto to PublicTicketModel", () => {
+      const dto: PublicTicketDto = {
+        entryTime: "2026-10-14T01:00:00Z",
+        exitTime: "2026-10-14T03:00:00Z",
+        id: "ticket-101",
+        licensePlate: "SP-1042",
+        phoneNumber: "+573009876543",
+        photoUrl: "https://photos.example.com/ticket-101.jpg",
+        plateCountry: "UNPLATED",
+        rate: {
+          description: "Tarifa estándar motos",
+          id: "r-moto",
+          minChargeTimeMinutes: 15,
+          name: "Tarifa Motos",
+          pricePerUnit: 2500,
+          timeUnit: "HOURS",
+          vehicleType: "MOTORCYCLE",
+        },
+        slotSnapshot: {
+          hasCharger: false,
+          id: "slot-m1",
+          isAccessible: false,
+          prefix: "M",
+          slotNumber: "M-02",
+          type: "MOTORCYCLE",
+          zone: "A",
+        },
+        status: "OPEN",
+        totalToCharge: 5000,
+      };
+
+      const model = mapToPublicTicketModel(dto);
+
+      expect(model.id).toBe("ticket-101");
+      expect(model.plate).toBe("SP-1042");
+      expect(model.plateCountry).toBe("UNPLATED");
+      expect(model.status).toBe("OPEN");
+      expect(model.entryTime).toBe("2026-10-14T01:00:00Z");
+      expect(model.exitTime).toBe("2026-10-14T03:00:00Z");
+      expect(model.totalToCharge).toBe(5000);
+      expect(model.slotNumber).toBe("M-02");
+      expect(model.rateName).toBe("Tarifa Motos");
+      expect(model.ratePricePerUnit).toBe(2500);
+      expect(model.rateTimeUnit).toBe("HOURS");
+      expect(model.photoUrl).toBe("https://photos.example.com/ticket-101.jpg");
+      expect(model.phoneNumber).toBe("+573009876543");
+    });
+
+    it("should handle omitted optional fields", () => {
+      const dto: PublicTicketDto = {
+        entryTime: "2026-10-14T01:00:00Z",
+        id: "ticket-102",
+        licensePlate: "COL-999",
+        plateCountry: "CO",
+        rate: {
+          description: "Desc",
+          id: "r-car",
+          minChargeTimeMinutes: 0,
+          name: "Carros",
+          pricePerUnit: 3500,
+          timeUnit: "HOURS",
+          vehicleType: "CAR",
+        },
+        status: "CLOSED",
+      };
+
+      const model = mapToPublicTicketModel(dto);
+
+      expect(model.id).toBe("ticket-102");
+      expect(model.plate).toBe("COL-999");
+      expect(model.plateCountry).toBe("CO");
+      expect(model.status).toBe("CLOSED");
+      expect(model.entryTime).toBe("2026-10-14T01:00:00Z");
+      expect(model.exitTime).toBeUndefined();
+      expect(model.totalToCharge).toBeUndefined();
+      expect(model.slotNumber).toBeUndefined();
+      expect(model.rateName).toBe("Carros");
+      expect(model.ratePricePerUnit).toBe(3500);
+      expect(model.rateTimeUnit).toBe("HOURS");
+      expect(model.photoUrl).toBeUndefined();
+      expect(model.phoneNumber).toBeUndefined();
+    });
+
+    it("should support legacy price property on rate when price is present", () => {
+      const dto: PublicTicketDto = {
+        entryTime: "2026-10-14T01:00:00Z",
+        id: "ticket-103",
+        licensePlate: "LEG-001",
+        plateCountry: "CO",
+        rate: {
+          description: "Tarifa",
+          id: "r-leg",
+          minChargeTimeMinutes: 0,
+          name: "Legacy Rate",
+          pricePerUnit: 1800,
+          timeUnit: "HOURS",
+          vehicleType: "MOTORCYCLE",
+        },
+        status: "OPEN",
+      };
+
+      // SAFETY: Testing fallback behavior when legacy price property is attached to rate object.
+      Object.assign(dto.rate, { price: 1800 });
+      const model = mapToPublicTicketModel(dto);
+
+      expect(model.ratePricePerUnit).toBe(1800);
+      expect(model.rateName).toBe("Legacy Rate");
+    });
   });
 });

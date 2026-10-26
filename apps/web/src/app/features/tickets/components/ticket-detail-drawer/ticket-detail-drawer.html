@@ -22,9 +22,18 @@
         <ng-icon name="lucideCar" class="text-xl" />
       </div>
       <div>
-        <nv-h3 class="font-mono text-lg font-bold">
-          {{ ticket()?.licensePlate }}
-        </nv-h3>
+        <div class="flex items-center gap-2">
+          <nv-h3 class="font-mono text-lg font-bold">
+            {{ ticket()?.licensePlate }}
+          </nv-h3>
+          @if (ticket()?.plateCountry === 'UNPLATED' || !ticket()?.licensePlate
+          || ticket()?.licensePlate === 'SIN PLACA') {
+          <nv-badge variant="warning" class="gap-1">
+            <ng-icon name="lucideCamera" class="text-xs" />
+            <span>{{ texts.unplatedBadge }}</span>
+          </nv-badge>
+          }
+        </div>
         <nv-muted class="text-xs">
           {{ texts.idPrefix }} {{ ticket()?.id }}
         </nv-muted>
@@ -57,6 +66,24 @@
       <nv-badge variant="outline">{{ ticket()?.status }}</nv-badge>
       }
     </div>
+
+    @if (ticket()?.photoUrl) {
+    <div
+      class="border-border bg-muted/30 overflow-hidden rounded-xl border p-2.5"
+    >
+      <div
+        class="text-muted-foreground mb-1.5 flex items-center gap-1.5 text-[11px] font-medium"
+      >
+        <ng-icon name="lucideCamera" class="text-xs" />
+        <span>{{ texts.entryPhoto }}</span>
+      </div>
+      <img
+        [src]="ticket()?.photoUrl"
+        [alt]="texts.entryPhotoAlt"
+        class="h-48 w-full rounded-lg object-cover"
+      />
+    </div>
+    }
 
     <!-- Stay Metadata Card -->
     <nv-card>

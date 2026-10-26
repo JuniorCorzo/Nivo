@@ -51,7 +51,8 @@ public class SecurityChain {
   @Bean
   @Order(2)
   public SecurityFilterChain apiSecurityFilterChain(final HttpSecurity http) throws Exception {
-    return http.csrf(AbstractHttpConfigurer::disable)
+    return http
+      .csrf(AbstractHttpConfigurer::disable)
       .sessionManagement(
         sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())

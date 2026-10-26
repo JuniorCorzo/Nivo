@@ -4,10 +4,13 @@ import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationCon
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLotPolicy;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLots;
 import dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository;
+import dev.angelcorzo.nivo.domain.model.parkinglots.valueobject.ParkingLotsReference;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTicketNotFound;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.ParkingTicketsRepository;
 import dev.angelcorzo.nivo.domain.model.rates.valueobject.RateReference;
+import dev.angelcorzo.nivo.domain.model.slots.Slots;
+import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
 import dev.angelcorzo.nivo.domain.usecase.rate.engine.PricingContext;
 import dev.angelcorzo.nivo.domain.usecase.rate.engine.PricingEngine;
@@ -21,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class CalculateRateUseCase {
   private final ParkingTicketsRepository parkingTicketsRepository;
   private final ParkingLotsRepository parkingLotsRepository;
+  private final SlotsRepository slotsRepository;
   private final AuthenticationContextGateway authenticationContextGateway;
   private final PricingEngine pricingEngine;
   private final Clock clock;
@@ -58,8 +62,13 @@ public class CalculateRateUseCase {
     return this.pricingEngine.calculate(context, tenantName);
   }
 
-  private UUID resolveParkingIdFromTicket(ParkingTickets ticket) {
-    // Falls back to safe default if slot does not have parking reference
+  private UUID resolveParkingIdFromTicket(final ParkingTickets ticket) {
+    if (ticket.getSlot() != null && ticket.getSlot().id() != null) {
+      return this.slotsRepository.findById(ticket.getSlot().id())
+        .map(Slots::getParking)
+        .map(ParkingLotsReference::id)
+        .orElse(null);
+    }
     return null;
   }
 }

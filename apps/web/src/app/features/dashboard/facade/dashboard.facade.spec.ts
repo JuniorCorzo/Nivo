@@ -111,13 +111,17 @@ describe("DashboardFacade", () => {
 
   it("debe procesar eventos SSE y actualizar Signals reactivamente", () => {
     facade.handleSseMessage("snapshot", {
+      activeTickets: 25,
       availableSlots: 100,
+      avgStayMinutes: 45,
+      completedTickets: 30,
       currency: "COP",
       occupancyRate: 50,
       occupiedSlots: 100,
       scope: "GLOBAL",
       todayRevenue: 250_000,
       totalCapacity: 200,
+      totalTickets: 55,
     });
 
     expect(sseServiceMock.handleSseMessage).toHaveBeenCalled();
@@ -361,13 +365,17 @@ describe("DashboardFacade", () => {
 
   it("debe actualizar la caché de DashboardApiService al recibir actualización SSE de summary", () => {
     facade.handleSseMessage("snapshot", {
+      activeTickets: 25,
       availableSlots: 100,
+      avgStayMinutes: 45,
+      completedTickets: 30,
       currency: "COP",
       occupancyRate: 50,
       occupiedSlots: 100,
       scope: "GLOBAL",
       todayRevenue: 250_000,
       totalCapacity: 200,
+      totalTickets: 55,
     });
 
     expect(apiServiceMock.setCache).toHaveBeenCalledWith(
@@ -399,7 +407,10 @@ describe("DashboardFacade", () => {
     facade.setScope("SINGLE", "p1");
 
     const p1Summary: DashboardSummaryModel = {
+      activeTickets: 20,
       availableSlots: 20,
+      avgStayMinutes: 45,
+      completedTickets: 30,
       currency: "COP",
       occupancyRate: 80,
       occupiedSlots: 80,
@@ -407,13 +418,17 @@ describe("DashboardFacade", () => {
       scope: "SINGLE",
       todayRevenue: 200_000,
       totalCapacity: 100,
+      totalTickets: 50,
     };
     facade.handleSseMessage("snapshot", p1Summary);
     expect(facade.summary()?.parkingId).toBe("p1");
     expect(facade.summary()?.occupancyRate).toBe(80);
 
     const p2Summary: DashboardSummaryModel = {
+      activeTickets: 15,
       availableSlots: 40,
+      avgStayMinutes: 30,
+      completedTickets: 25,
       currency: "COP",
       occupancyRate: 60,
       occupiedSlots: 60,
@@ -421,6 +436,7 @@ describe("DashboardFacade", () => {
       scope: "SINGLE",
       todayRevenue: 150_000,
       totalCapacity: 100,
+      totalTickets: 40,
     };
     facade.handleSseMessage("snapshot", p2Summary);
 
@@ -443,19 +459,26 @@ describe("DashboardFacade", () => {
     facade.setScope("GLOBAL");
 
     const globalSummary: DashboardSummaryModel = {
+      activeTickets: 35,
       availableSlots: 100,
+      avgStayMinutes: 50,
+      completedTickets: 55,
       currency: "COP",
       occupancyRate: 50,
       occupiedSlots: 100,
       scope: "GLOBAL",
       todayRevenue: 500_000,
       totalCapacity: 200,
+      totalTickets: 90,
     };
     facade.handleSseMessage("snapshot", globalSummary);
     expect(facade.summary()?.scope).toBe("GLOBAL");
 
     const p1Summary: DashboardSummaryModel = {
+      activeTickets: 30,
       availableSlots: 10,
+      avgStayMinutes: 60,
+      completedTickets: 40,
       currency: "COP",
       occupancyRate: 90,
       occupiedSlots: 90,
@@ -463,6 +486,7 @@ describe("DashboardFacade", () => {
       scope: "SINGLE",
       todayRevenue: 250_000,
       totalCapacity: 100,
+      totalTickets: 70,
     };
     facade.handleSseMessage("snapshot", p1Summary);
 
@@ -472,5 +496,118 @@ describe("DashboardFacade", () => {
       "summary:p1",
       p1Summary
     );
+  });
+
+  describe("kpiMetrics", () => {
+    it("should return default fallback metrics when summary is null", () => {
+      facade.summary.set(null);
+      const metrics = facade.kpiMetrics();
+
+      expect(metrics.occupancy.percentage).toBe(0);
+      expect(metrics.occupancy.clampedPercentage).toBe(0);
+      expect(metrics.occupancy.occupiedSlots).toBe(0);
+      expect(metrics.occupancy.totalCapacity).toBe(0);
+      expect(metrics.occupancy.progressClass).toBe("bg-emerald-500");
+      expect(metrics.occupancy.deltaClass).toBe("text-emerald-400");
+      expect(metrics.occupancy.deltaText).toBe("Normal <70%");
+
+      expect(metrics.revenue.todayRevenue).toBe(0);
+      expect(metrics.revenue.currency).toBe("COP");
+      expect(metrics.revenue.hasDigitalRatio).toBe(false);
+      expect(metrics.revenue.hasRevenueDelta).toBe(false);
+
+      expect(metrics.tickets.activeTickets).toBe(0);
+      expect(metrics.tickets.totalOrCompletedTickets).toBe(0);
+      expect(metrics.tickets.netFlowRateText).toBe("0 veh/h");
+
+      expect(metrics.stay.formattedAvgStayMinutes).toBe(0);
+      expect(metrics.stay.formattedAvgStayHours).toBe("~0m");
+      expect(metrics.stay.completedTickets).toBe(0);
+      expect(metrics.stay.hasGracePeriod).toBe(false);
+      expect(metrics.stay.hasStayDelta).toBe(false);
+    });
+
+    it("should correctly calculate occupancy thresholds", () => {
+      const baseSummary: DashboardSummaryModel = {
+        activeTickets: 10,
+        availableSlots: 60,
+        avgStayMinutes: 45,
+        completedTickets: 15,
+        currency: "COP",
+        occupancyRate: 40,
+        occupiedSlots: 40,
+        scope: "GLOBAL",
+        todayRevenue: 200_000,
+        totalCapacity: 100,
+        totalTickets: 25,
+      };
+      facade.summary.set(baseSummary);
+
+      let metrics = facade.kpiMetrics();
+      expect(metrics.occupancy.progressClass).toBe("bg-emerald-500");
+      expect(metrics.occupancy.deltaClass).toBe("text-emerald-400");
+      expect(metrics.occupancy.deltaText).toBe("Normal <70%");
+
+      facade.summary.set({
+        ...baseSummary,
+        occupancyRate: 75,
+        occupiedSlots: 75,
+      });
+      metrics = facade.kpiMetrics();
+      expect(metrics.occupancy.progressClass).toBe("bg-amber-500");
+      expect(metrics.occupancy.deltaClass).toBe("text-amber-400");
+      expect(metrics.occupancy.deltaText).toBe("Alerta 70-89%");
+
+      facade.summary.set({
+        ...baseSummary,
+        occupancyRate: 95,
+        occupiedSlots: 95,
+      });
+      metrics = facade.kpiMetrics();
+      expect(metrics.occupancy.progressClass).toBe("bg-rose-500");
+      expect(metrics.occupancy.deltaClass).toBe("text-rose-400");
+      expect(metrics.occupancy.deltaText).toBe("Crítico ≥90%");
+    });
+
+    it("should correctly calculate comparative deltas, digital ratio, and stay formatting", () => {
+      facade.summary.set({
+        activeTickets: 42,
+        availableSlots: 58,
+        avgStayDeltaMinutes: -4.5,
+        avgStayMinutes: 95.3,
+        completedTickets: 120,
+        currency: "COP",
+        digitalPaymentRatio: 75,
+        gracePeriodMinutes: 15,
+        occupancyRate: 42,
+        occupiedSlots: 42,
+        revenueDeltaPercentage: 12.5,
+        scope: "GLOBAL",
+        todayRevenue: 1_250_000,
+        totalCapacity: 100,
+        totalTickets: 162,
+      });
+
+      const metrics = facade.kpiMetrics();
+      expect(metrics.revenue.hasDigitalRatio).toBe(true);
+      expect(metrics.revenue.digitalPaymentRatioText).toBe("75%");
+      expect(metrics.revenue.hasRevenueDelta).toBe(true);
+      expect(metrics.revenue.revenueDeltaText).toBe("+12.5%");
+      expect(metrics.revenue.revenueDeltaClass).toBe("text-emerald-400");
+      expect(metrics.revenue.revenueDeltaIcon).toBe("lucideArrowUpRight");
+
+      expect(metrics.tickets.activeTickets).toBe(42);
+      expect(metrics.tickets.totalOrCompletedTickets).toBe(120);
+      expect(metrics.tickets.netFlowRateText).toBe("+2 veh/h");
+
+      expect(metrics.stay.formattedAvgStayMinutes).toBe(95);
+      expect(metrics.stay.formattedAvgStayHours).toBe("~1h 35m");
+      expect(metrics.stay.hasGracePeriod).toBe(true);
+      expect(metrics.stay.gracePeriodMinutes).toBe(15);
+      expect(metrics.stay.hasStayDelta).toBe(true);
+      expect(metrics.stay.stayDeltaText).toBe("-4.5 min");
+      expect(metrics.stay.stayDeltaClass).toBe("text-emerald-400");
+      expect(metrics.stay.stayDeltaIcon).toBe("lucideArrowDownRight");
+    });
   });
 });

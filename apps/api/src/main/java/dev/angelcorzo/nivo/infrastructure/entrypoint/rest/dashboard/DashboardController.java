@@ -34,9 +34,11 @@ public class DashboardController {
 
   @GetMapping("/summary")
   @Operation(summary = "Get dashboard summary", description = "Dual-scope summary: single parking if parkingId provided, else consolidated global tenant summary")
-  public ResponseEntity<DashboardSummaryDTO> getSummary(@RequestParam(required = false) final UUID parkingId) {
+  public ResponseEntity<DashboardSummaryDTO> getSummary(
+    @RequestParam(required = false) final UUID parkingId,
+    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date) {
     try {
-      return ResponseEntity.ok(summaryUseCase.execute(parkingId));
+      return ResponseEntity.ok(summaryUseCase.execute(parkingId, date));
     } finally {
       if (metricsManager != null) {
         metricsManager.recordAnalyticsQueryDuration("daily", () -> {});

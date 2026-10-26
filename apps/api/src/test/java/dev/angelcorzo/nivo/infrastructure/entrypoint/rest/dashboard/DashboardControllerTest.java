@@ -18,6 +18,7 @@ import dev.angelcorzo.nivo.domain.usecase.dashboard.dtos.ParkingComparisonDTO;
 import dev.angelcorzo.nivo.infrastructure.adapter.metrics.BackendOperationsMetricsManager;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.exception.ExceptionHandlerController;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -69,16 +70,24 @@ class DashboardControllerTest {
       .occupancyRate(72.0)
       .todayRevenue(new BigDecimal("145000.00"))
       .currency("COP")
+      .revenueDeltaPercentage(12.5)
+      .avgStayDeltaMinutes(-5.0)
+      .digitalPaymentRatio(75.0)
+      .gracePeriodMinutes(15)
       .build();
 
-    when(summaryUseCase.execute(parkingId)).thenReturn(mockSummary);
+    when(summaryUseCase.execute(parkingId, (LocalDate) null)).thenReturn(mockSummary);
 
     mockMvc.perform(get("/dashboard/summary").param("parkingId", parkingId.toString()))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.scope").value("SINGLE"))
       .andExpect(jsonPath("$.parkingId").value(parkingId.toString()))
       .andExpect(jsonPath("$.occupancyRate").value(72.0))
-      .andExpect(jsonPath("$.totalCapacity").value(150));
+      .andExpect(jsonPath("$.totalCapacity").value(150))
+      .andExpect(jsonPath("$.revenueDeltaPercentage").value(12.5))
+      .andExpect(jsonPath("$.avgStayDeltaMinutes").value(-5.0))
+      .andExpect(jsonPath("$.digitalPaymentRatio").value(75.0))
+      .andExpect(jsonPath("$.gracePeriodMinutes").value(15));
   }
 
   @Test
@@ -93,16 +102,50 @@ class DashboardControllerTest {
       .occupancyRate(57.14)
       .todayRevenue(new BigDecimal("500000.00"))
       .currency("COP")
+      .revenueDeltaPercentage(10.0)
+      .avgStayDeltaMinutes(2.5)
+      .digitalPaymentRatio(60.0)
+      .gracePeriodMinutes(null)
       .build();
 
-    when(summaryUseCase.execute(null)).thenReturn(globalSummary);
+    when(summaryUseCase.execute((UUID) null, (LocalDate) null)).thenReturn(globalSummary);
 
     mockMvc.perform(get("/dashboard/summary"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.scope").value("GLOBAL"))
       .andExpect(jsonPath("$.parkingId").doesNotExist())
       .andExpect(jsonPath("$.totalCapacity").value(350))
-      .andExpect(jsonPath("$.todayRevenue").value(500000.00));
+      .andExpect(jsonPath("$.todayRevenue").value(500000.00))
+      .andExpect(jsonPath("$.revenueDeltaPercentage").value(10.0))
+      .andExpect(jsonPath("$.avgStayDeltaMinutes").value(2.5))
+      .andExpect(jsonPath("$.digitalPaymentRatio").value(60.0));
+  }
+
+  @Test
+  @DisplayName("GET /dashboard/summary con date y parkingId reenvía ambos parámetros al caso de uso")
+  void shouldPassDateParamToSummaryUseCaseWhenProvided() throws Exception {
+    final UUID parkingId = UUID.randomUUID();
+    final LocalDate queryDate = LocalDate.of(2026, 10, 24);
+
+    final DashboardSummaryDTO mockSummary = DashboardSummaryDTO.builder()
+      .scope("SINGLE")
+      .parkingId(parkingId)
+      .totalCapacity(100)
+      .revenueDeltaPercentage(10.0)
+      .digitalPaymentRatio(80.0)
+      .gracePeriodMinutes(20)
+      .build();
+
+    when(summaryUseCase.execute(parkingId, queryDate)).thenReturn(mockSummary);
+
+    mockMvc.perform(get("/dashboard/summary")
+      .param("parkingId", parkingId.toString())
+      .param("date", "2026-10-24"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.scope").value("SINGLE"))
+      .andExpect(jsonPath("$.revenueDeltaPercentage").value(10.0))
+      .andExpect(jsonPath("$.digitalPaymentRatio").value(80.0))
+      .andExpect(jsonPath("$.gracePeriodMinutes").value(20));
   }
 
   @Test
@@ -159,7 +202,8 @@ class DashboardControllerTest {
   @DisplayName("Seguridad multi-tenant: solicitar parkingId ajeno retorna 404 vía ParkingNotExistsException")
   void shouldRejectCrossTenantParkingAccess() throws Exception {
     final UUID foreignParking = UUID.randomUUID();
-    when(summaryUseCase.execute(foreignParking)).thenThrow(new ParkingNotExistsException(foreignParking));
+    when(summaryUseCase.execute(foreignParking, (LocalDate) null))
+      .thenThrow(new ParkingNotExistsException(foreignParking));
 
     mockMvc.perform(get("/dashboard/summary").param("parkingId", foreignParking.toString()))
       .andExpect(status().isNotFound());

@@ -11,12 +11,14 @@ import { DashboardSummaryDto } from '../../models/dashboard-summary-dto';
 
 export interface GetSummary$Params {
   parkingId?: string;
+  date?: string;
 }
 
 export function getSummary(http: HttpClient, rootUrl: string, params?: GetSummary$Params, context?: HttpContext): Observable<StrictHttpResponse<DashboardSummaryDto>> {
   const rb = new RequestBuilder(rootUrl, getSummary.PATH, 'get');
   if (params) {
     rb.query('parkingId', params.parkingId, {});
+    rb.query('date', params.date, {});
   }
 
   return http.request(

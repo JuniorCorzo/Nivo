@@ -16,11 +16,15 @@ export interface DashboardSummaryModel {
   availableSlots: number;
   occupancyRate: number;
   todayRevenue: number;
-  currency?: string;
-  avgStayMinutes?: number;
-  totalTickets?: number;
-  activeTickets?: number;
-  completedTickets?: number;
+  currency: string;
+  avgStayMinutes: number;
+  totalTickets: number;
+  activeTickets: number;
+  completedTickets: number;
+  revenueDeltaPercentage?: number;
+  avgStayDeltaMinutes?: number;
+  digitalPaymentRatio?: number;
+  gracePeriodMinutes?: number;
 }
 
 export interface HourlyOccupancyPointModel {
