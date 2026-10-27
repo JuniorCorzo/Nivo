@@ -94,6 +94,7 @@ export class OperationsPageComponent {
   readonly parkingId = signal<string | null>(null);
 
   readonly isCheckInModalOpen = signal<boolean>(false);
+  readonly selectedCheckInSlot = signal<SlotSummary | null>(null);
   readonly isCheckOutModalOpen = signal<boolean>(false);
   readonly selectedCheckoutTicket = signal<TicketSummary | null>(null);
 
@@ -260,17 +261,76 @@ export class OperationsPageComponent {
     this.searchTicketQuery.set(input?.value ?? "");
   }
 
+  onSlotClick(slot: SlotSummary): void {
+    if (slot.status === "AVAILABLE") {
+      this.checkInSpecificSlot(slot);
+    } else if (slot.status === "OCCUPIED") {
+      this.checkOutSpecificSlot(slot);
+    }
+  }
+
+  getActiveTicketForSlot(slot: SlotSummary): TicketSummary | undefined {
+    return this.activeTickets().find(
+      (t) =>
+        (t.slotId && t.slotId === slot.id) ||
+        (t.slotNumber && t.slotNumber === slot.slotNumber)
+    );
+  }
+
   openCheckInModal(): void {
+    this.selectedCheckInSlot.set(null);
     this.isCheckInModalOpen.set(true);
   }
 
   closeCheckInModal(): void {
     this.isCheckInModalOpen.set(false);
+    this.selectedCheckInSlot.set(null);
     this.refreshActiveTickets();
   }
 
-  checkInSpecificSlot(_slot: SlotSummary): void {
+  checkInSpecificSlot(slot: SlotSummary): void {
+    this.selectedCheckInSlot.set(slot);
     this.isCheckInModalOpen.set(true);
+  }
+
+  submitExpressCheckOutByQuery(): void {
+    const query = this.searchTicketQuery().trim().toLowerCase();
+    if (!query) {
+      this.toast.showToast({
+        message: "Ingresa una placa o bahía para cobrar salida.",
+        type: "error",
+      });
+      return;
+    }
+
+    const matches = this.filteredActiveTickets();
+    if (matches.length === 1) {
+      this.checkOutWithTicket(matches[0]);
+      return;
+    }
+
+    const exact = matches.find(
+      (t) =>
+        t.licensePlate?.toLowerCase() === query ||
+        t.slotNumber?.toLowerCase() === query
+    );
+    if (exact) {
+      this.checkOutWithTicket(exact);
+      return;
+    }
+
+    if (matches.length > 1) {
+      this.toast.showToast({
+        message: "Múltiples vehículos coinciden. Selecciona uno de la lista.",
+        type: "warning",
+      });
+      return;
+    }
+
+    this.toast.showToast({
+      message: "No se encontró ningún vehículo activo con ese criterio.",
+      type: "error",
+    });
   }
 
   openDirectCheckOutModal(): void {

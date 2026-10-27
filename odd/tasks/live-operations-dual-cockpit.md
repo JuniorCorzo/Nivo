@@ -13,9 +13,10 @@ Test Runner: bun --cwd apps/web ng test --watch=false --include="src/app/feature
 
 ## Tasks
 - [x] T1 (linked S1, S2): Implementar Dock Express Superior con Aforo e Ingreso Express y componente/servicio de escaneo QR para check-in. | Route: delegated direct | Commit: implemented
-- [ ] T2 (linked S3, S4): Rediseñar Grilla de Bahías a Clean Tap Cards táctiles y Salida Express. | Route: delegated direct | Commit: pending
+- [x] T2 (linked S3, S4): Rediseñar Grilla de Bahías a Clean Tap Cards táctiles y Salida Express. | Route: delegated direct | Commit: implemented
 - [ ] T3 (linked S5): Actualizar suite de tests de operaciones y ejecutar verificación completa de regresión. | Route: delegated direct | Commit: pending
 
 ## Log
 - L1 (2026-10-27): User requested: "dejemos la propuesta 1, tambien darle soporte a hacer checkin escaneando el codigo qr" after reviewing interactive mockups for dual operations (ordered and unordered parking flows).
 - L2 (2026-10-27): Task T1 completed: Created QrScannerModalComponent (WebRTC + BarcodeDetector + physical scanner input + parseScannedData supporting raw plates, JSON, and URLs). Integrated Dock Express Superior into OperationsPageComponent with real-time Aforo meter, express plate input with auto-bay assignment, vehicle type toggle, hotkey Q, and full unit test coverage (128 passing tests).
+- L3 (2026-10-27): Task T2 completed: Transformed slot grid into Clean Tap Cards with unified interactive surface (`role="button"`, ARIA labels, visual states for available/occupied/maintenance, occupied license plate lookup via `getActiveTicketForSlot`, and tactile action footers `+ Asignar bahía` / `⏱ Cobrar Salida`). Added `preselectedSlot` input and banner in `CheckInModalComponent`. Implemented Salida Express with Enter trigger and `Cobrar Salida Directa` action (`submitExpressCheckOutByQuery`). Added unit test coverage (139 passing tests). Oxlint and oxfmt verified cleanly.
