@@ -23,7 +23,6 @@ import org.hibernate.annotations.*;
 @Setter
 @Table(name = "rates")
 @Entity
-@SQLRestriction(value = "deleted_at IS NULL")
 @SQLDelete(sql = "UPDATE rates SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 public class RateData {
   @Id
