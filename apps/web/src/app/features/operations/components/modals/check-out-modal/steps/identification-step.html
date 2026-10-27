@@ -1,0 +1,254 @@
+<div class="space-y-4">
+  <!-- Fast Search Bar -->
+  <div class="relative">
+    <div
+      class="text-muted-foreground pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+    >
+      <ng-icon name="lucideSearch" class="text-base" />
+    </div>
+    <input
+      type="text"
+      [value]="facade.searchQuery()"
+      (input)="onSearchInput($event)"
+      placeholder="Buscar por placa (ej. ABC-123) o código de ticket..."
+      class="border-border bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 w-full rounded-xl border py-2.5 pr-10 pl-9 text-xs transition-colors focus:ring-2 focus:outline-none sm:text-sm"
+      autocomplete="off"
+    />
+    @if (facade.searchQuery()) {
+    <button
+      type="button"
+      (click)="onClearSearch()"
+      class="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3"
+      title="Limpiar búsqueda"
+    >
+      <ng-icon name="lucideX" class="text-base" />
+    </button>
+    }
+  </div>
+
+  <!-- Loading State -->
+  @if (facade.isLoadingOccupiedSlots() || facade.isLoadingTicket()) {
+  <div
+    class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-10 text-xs"
+  >
+    <ng-icon name="lucideLoader2" class="animate-spin text-2xl" />
+    <span>
+      {{ facade.isLoadingTicket() ? "Cargando liquidación del cupo..." :
+      "Cargando cupos ocupados..." }}
+    </span>
+  </div>
+  } @else if (facade.searchQuery().trim()) {
+  <!-- Search Results Mode -->
+  <div class="space-y-3">
+    @if (facade.filteredTickets().length === 0 &&
+    facade.filteredOccupiedSlots().length === 0) {
+    <!-- Empty Search State -->
+    <div
+      class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border p-8 text-center"
+    >
+      <div
+        class="bg-muted text-muted-foreground mb-3 flex h-12 w-12 items-center justify-center rounded-full"
+      >
+        <ng-icon name="lucideSearch" class="text-2xl" />
+      </div>
+      <h3 class="text-foreground text-sm font-semibold">
+        No se encontró ningún vehículo con esa placa
+      </h3>
+      <p class="text-muted-foreground mt-1 max-w-xs text-xs">
+        Verifique el número de placa o código e intente de nuevo.
+      </p>
+    </div>
+    } @else {
+    <!-- Matching Active Tickets -->
+    @if (facade.filteredTickets().length > 0) {
+    <div>
+      <div class="mb-2 flex items-center justify-between">
+        <span
+          class="text-muted-foreground block text-[11px] font-semibold tracking-wider uppercase"
+        >
+          Tickets Coincidentes ({{ facade.filteredTickets().length }})
+        </span>
+      </div>
+      <div class="max-h-60 space-y-2 overflow-y-auto pr-1">
+        @for (ticket of facade.filteredTickets(); track ticket.id) {
+        <button
+          type="button"
+          (click)="facade.selectTicket(ticket)"
+          class="border-border hover:border-primary/60 hover:bg-accent/40 focus-visible:ring-ring group flex w-full cursor-pointer items-center justify-between rounded-xl border p-3 text-left transition-all focus-visible:ring-2 focus-visible:outline-none"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors"
+            >
+              <ng-icon name="lucideCar" class="text-lg" />
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span
+                  class="text-foreground group-hover:text-primary font-mono text-base font-bold transition-colors"
+                >
+                  {{ ticket.licensePlate }}
+                </span>
+                @if (ticket.slotNumber) {
+                <nv-badge variant="outline" class="px-1.5 py-0.5 text-[10px]">
+                  Cupo {{ ticket.slotNumber }}
+                </nv-badge>
+                } @if (ticket.slotType) {
+                <nv-badge variant="info" class="px-1.5 py-0.5 text-[10px]">
+                  {{ ticket.slotType }}
+                </nv-badge>
+                }
+              </div>
+              @if (ticket.entryTime) {
+              <div
+                class="text-muted-foreground mt-0.5 flex items-center gap-1 text-[11px]"
+              >
+                <ng-icon name="lucideClock" class="text-xs" />
+                <span>Entrada: {{ ticket.entryTime | date: "shortTime" }}</span>
+              </div>
+              }
+            </div>
+          </div>
+
+          <div
+            class="text-primary inline-flex items-center gap-1 text-xs font-semibold"
+          >
+            <span>Seleccionar</span>
+            <ng-icon name="lucideArrowRight" class="text-xs" />
+          </div>
+        </button>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Matching Occupied Slots (when searching) -->
+    @if (facade.filteredOccupiedSlots().length > 0) {
+    <div>
+      <div class="mb-2 flex items-center justify-between">
+        <span
+          class="text-muted-foreground block text-[11px] font-semibold tracking-wider uppercase"
+        >
+          Cupos Coincidentes ({{ facade.filteredOccupiedSlots().length }})
+        </span>
+      </div>
+      <div
+        class="grid max-h-52 grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3"
+      >
+        @for (slot of facade.filteredOccupiedSlots(); track slot.id) {
+        <button
+          type="button"
+          (click)="facade.selectSlot(slot)"
+          class="border-border hover:border-primary/60 hover:bg-accent/40 focus-visible:ring-ring group flex cursor-pointer flex-col justify-between rounded-xl border p-3 text-left transition-all focus-visible:ring-2 focus-visible:outline-none"
+        >
+          <div class="flex w-full items-center justify-between">
+            <span
+              class="text-muted-foreground text-[10px] font-bold tracking-wider uppercase"
+            >
+              {{ slot.zone ? slot.zone : "Cupo" }}
+            </span>
+            <nv-badge variant="info" class="px-1.5 py-0.5 text-[10px]">
+              Ocupado
+            </nv-badge>
+          </div>
+
+          <div class="my-2">
+            <div
+              class="text-foreground group-hover:text-primary font-mono text-base font-bold transition-colors"
+            >
+              {{ slot.prefix ? slot.prefix + "-" : "" }}{{ slot.slotNumber }}
+            </div>
+            <span
+              class="text-muted-foreground text-[10px] font-medium uppercase"
+            >
+              {{ slot.type }}
+            </span>
+          </div>
+
+          <div
+            class="text-primary inline-flex items-center gap-1 text-[11px] font-semibold"
+          >
+            <span>Procesar</span>
+            <span>→</span>
+          </div>
+        </button>
+        }
+      </div>
+    </div>
+    } }
+  </div>
+  } @else {
+  <!-- Occupied Slots Grid (Non-searching Mode) -->
+  <div>
+    <div class="mb-2 flex items-center justify-between">
+      <label
+        class="text-muted-foreground block text-xs font-semibold tracking-wider uppercase"
+      >
+        Seleccionar Cupo Ocupado
+      </label>
+      <span class="text-muted-foreground font-mono text-xs">
+        {{ facade.occupiedSlots().length }} vehículos activos
+      </span>
+    </div>
+
+    @if (facade.occupiedSlots().length === 0) {
+    <div
+      class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border p-8 text-center"
+    >
+      <div
+        class="bg-muted text-muted-foreground mb-3 flex h-12 w-12 items-center justify-center rounded-full"
+      >
+        <ng-icon name="lucideParkingSquare" class="text-2xl" />
+      </div>
+      <h3 class="text-foreground text-sm font-semibold">
+        No hay vehículos para retirar
+      </h3>
+      <p class="text-muted-foreground mt-1 max-w-xs text-xs">
+        Actualmente todos los cupos de este parqueadero están disponibles.
+      </p>
+    </div>
+    } @else {
+    <div
+      class="grid max-h-72 grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3"
+    >
+      @for (slot of facade.filteredOccupiedSlots(); track slot.id) {
+      <button
+        type="button"
+        (click)="facade.selectSlot(slot)"
+        class="border-border hover:border-primary/60 hover:bg-accent/40 focus-visible:ring-ring group flex cursor-pointer flex-col justify-between rounded-xl border p-3 text-left transition-all focus-visible:ring-2 focus-visible:outline-none"
+      >
+        <div class="flex w-full items-center justify-between">
+          <span
+            class="text-muted-foreground text-[10px] font-bold tracking-wider uppercase"
+          >
+            {{ slot.zone ? slot.zone : "Cupo" }}
+          </span>
+          <nv-badge variant="info" class="px-1.5 py-0.5 text-[10px]">
+            Ocupado
+          </nv-badge>
+        </div>
+
+        <div class="my-2">
+          <div
+            class="text-foreground group-hover:text-primary font-mono text-base font-bold transition-colors"
+          >
+            {{ slot.prefix ? slot.prefix + "-" : "" }}{{ slot.slotNumber }}
+          </div>
+          <span class="text-muted-foreground text-[10px] font-medium uppercase">
+            {{ slot.type }}
+          </span>
+        </div>
+
+        <div
+          class="text-primary inline-flex items-center gap-1 text-[11px] font-semibold"
+        >
+          <span>Procesar</span>
+          <span>→</span>
+        </div>
+      </button>
+      }
+    </div>
+    }
+  </div>
+  }
+</div>

@@ -20,18 +20,19 @@ import {
   lucideParkingSquare,
   lucideX,
 } from "@ng-icons/lucide";
-import { BadgeComponent, ButtonComponent } from "@nivo-sass/design-system";
+import { ButtonComponent } from "@nivo-sass/design-system";
 
 import { CheckOutFacade } from "../../../facades/check-out.facade";
 import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-receipt";
+import { IdentificationStepComponent } from "./steps/identification-step";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    BadgeComponent,
     ButtonComponent,
     CommonModule,
     DecimalPipe,
+    IdentificationStepComponent,
     NgIcon,
     TicketReceiptComponent,
   ],

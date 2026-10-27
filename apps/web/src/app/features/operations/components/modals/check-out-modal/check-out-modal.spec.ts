@@ -12,6 +12,7 @@ interface MockTicketService {
   calculatePrice: ReturnType<typeof vi.fn>;
   checkOutVehicle: ReturnType<typeof vi.fn>;
   getActiveTicketBySlot: ReturnType<typeof vi.fn>;
+  listTicketsByParkingLot: ReturnType<typeof vi.fn>;
 }
 
 interface MockSlotService {
@@ -57,6 +58,7 @@ describe("CheckOutModalComponent", () => {
           status: "OPEN",
         })
       ),
+      listTicketsByParkingLot: vi.fn().mockReturnValue(of([])),
     };
     slotServiceSpy = {
       getAllSlotSummariesByParkingId: vi.fn().mockReturnValue(of([])),
@@ -137,5 +139,38 @@ describe("CheckOutModalComponent", () => {
     expect(slotBtn).toBeTruthy();
     slotBtn.click();
     expect(selectSlotSpy).toHaveBeenCalledWith(occupiedSlot);
+  });
+
+  it("should filter tickets when search query is entered and select on click", () => {
+    const activeTicket = {
+      entryTime: "2026-08-27T10:00:00Z",
+      id: "ticket-1",
+      licensePlate: "ABC123",
+      slotId: "slot-1",
+      slotNumber: "01",
+      status: "OPEN" as const,
+    };
+    ticketServiceSpy.listTicketsByParkingLot.mockReturnValue(
+      of([activeTicket])
+    );
+    const selectTicketSpy = vi.spyOn(component.facade, "selectTicket");
+
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.componentRef.setInput("parkingId", "parking-1");
+    fixture.detectChanges();
+
+    component.facade.setSearchQuery("ABC");
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("ABC123");
+
+    /* SAFETY: The ticket item rendered in search results is a button HTML element */
+    const ticketBtn = fixture.nativeElement.querySelector(
+      "button.group"
+    ) as HTMLButtonElement;
+    expect(ticketBtn).toBeTruthy();
+    ticketBtn.click();
+    expect(selectTicketSpy).toHaveBeenCalledWith(activeTicket);
   });
 });

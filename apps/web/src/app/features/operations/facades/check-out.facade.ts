@@ -24,6 +24,9 @@ export class CheckOutFacade {
   readonly selectedTicket = signal<TicketSummary | null>(null);
   readonly priceCalculation = signal<PriceDetailedModel | null>(null);
 
+  readonly searchQuery = signal<string>("");
+  readonly activeTickets = signal<TicketSummary[]>([]);
+
   readonly isLoadingCalculation = signal<boolean>(false);
   readonly isLoadingOccupiedSlots = signal<boolean>(false);
   readonly isLoadingTicket = signal<boolean>(false);
@@ -46,6 +49,41 @@ export class CheckOutFacade {
     return slots.filter((slot) => slot.status === "OCCUPIED");
   });
 
+  readonly filteredTickets = computed<TicketSummary[]>(() => {
+    const query = this.searchQuery().trim().toLowerCase();
+    if (!query) {
+      return [];
+    }
+    return this.activeTickets().filter((ticket) => {
+      const plate = ticket.licensePlate?.toLowerCase() ?? "";
+      const barcode = ticket.barcode?.toLowerCase() ?? "";
+      const id = ticket.id?.toLowerCase() ?? "";
+      return (
+        plate.includes(query) || barcode.includes(query) || id.includes(query)
+      );
+    });
+  });
+
+  readonly filteredOccupiedSlots = computed<SlotSummary[]>(() => {
+    const slots = this.occupiedSlots();
+    const query = this.searchQuery().trim().toLowerCase();
+    if (!query) {
+      return slots;
+    }
+    return slots.filter((slot) => {
+      const slotNum = slot.slotNumber?.toLowerCase() ?? "";
+      const prefix = slot.prefix?.toLowerCase() ?? "";
+      const zone = slot.zone?.toLowerCase() ?? "";
+      const combined = `${prefix ? `${prefix}-` : ""}${slotNum}`.toLowerCase();
+      return (
+        slotNum.includes(query) ||
+        prefix.includes(query) ||
+        zone.includes(query) ||
+        combined.includes(query)
+      );
+    });
+  });
+
   readonly isZeroPayment = computed<boolean>(() => {
     const calc = this.priceCalculation();
     if (!calc) {
@@ -63,6 +101,10 @@ export class CheckOutFacade {
       !this.isSubmitting()
   );
 
+  setSearchQuery(query: string): void {
+    this.searchQuery.set(query);
+  }
+
   init(parkingId: string): void {
     this.parkingId.set(parkingId);
     this.loadOccupiedSlots(parkingId);
@@ -78,6 +120,19 @@ export class CheckOutFacade {
         this.isLoadingOccupiedSlots.set(false);
       },
     });
+
+    if (this.ticketService.listTicketsByParkingLot) {
+      this.ticketService.listTicketsByParkingLot(parkingId).subscribe({
+        error: () => {
+          this.activeTickets.set([]);
+        },
+        next: (tickets) => {
+          this.activeTickets.set(
+            (tickets ?? []).filter((ticket) => ticket.status === "OPEN")
+          );
+        },
+      });
+    }
   }
 
   selectSlot(slot: SlotSummary): void {
@@ -104,6 +159,7 @@ export class CheckOutFacade {
     this.selectedTicket.set(null);
     this.priceCalculation.set(null);
     this.errorMessage.set(null);
+    this.searchQuery.set("");
     const pId = this.parkingId();
     if (pId) {
       this.loadOccupiedSlots(pId);
@@ -198,6 +254,7 @@ export class CheckOutFacade {
     this.selectedTicket.set(null);
     this.priceCalculation.set(null);
     this.lastPaymentRecord.set(null);
+    this.searchQuery.set("");
   }
 
   reset(): void {
@@ -206,5 +263,6 @@ export class CheckOutFacade {
     this.errorMessage.set(null);
     this.lastPaymentRecord.set(null);
     this.isReceiptOpen.set(false);
+    this.searchQuery.set("");
   }
 }
