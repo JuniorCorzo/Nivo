@@ -26,6 +26,7 @@ export class CheckOutFacade {
 
   readonly searchQuery = signal<string>("");
   readonly activeTickets = signal<TicketSummary[]>([]);
+  readonly activeStep = signal<1 | 2 | 3>(1);
 
   readonly isLoadingCalculation = signal<boolean>(false);
   readonly isLoadingOccupiedSlots = signal<boolean>(false);
@@ -105,6 +106,22 @@ export class CheckOutFacade {
     this.searchQuery.set(query);
   }
 
+  setStep(step: 1 | 2 | 3): void {
+    this.activeStep.set(step);
+  }
+
+  goToStep(step: 1 | 2 | 3): void {
+    this.activeStep.set(step);
+  }
+
+  proceedToPayment(): void {
+    this.activeStep.set(3);
+  }
+
+  backToSettlement(): void {
+    this.activeStep.set(2);
+  }
+
   init(parkingId: string): void {
     this.parkingId.set(parkingId);
     this.loadOccupiedSlots(parkingId);
@@ -160,6 +177,7 @@ export class CheckOutFacade {
     this.priceCalculation.set(null);
     this.errorMessage.set(null);
     this.searchQuery.set("");
+    this.activeStep.set(1);
     const pId = this.parkingId();
     if (pId) {
       this.loadOccupiedSlots(pId);
@@ -170,6 +188,7 @@ export class CheckOutFacade {
     this.selectedTicket.set(ticket);
     this.errorMessage.set(null);
     this.priceCalculation.set(null);
+    this.activeStep.set(2);
     this.loadPriceCalculation(ticket.id);
   }
 
@@ -255,6 +274,7 @@ export class CheckOutFacade {
     this.priceCalculation.set(null);
     this.lastPaymentRecord.set(null);
     this.searchQuery.set("");
+    this.activeStep.set(1);
   }
 
   reset(): void {
@@ -264,5 +284,6 @@ export class CheckOutFacade {
     this.lastPaymentRecord.set(null);
     this.isReceiptOpen.set(false);
     this.searchQuery.set("");
+    this.activeStep.set(1);
   }
 }

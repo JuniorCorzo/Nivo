@@ -1,7 +1,8 @@
 import { CommonModule, DecimalPipe } from "@angular/common";
 import {
-  Component,
   ChangeDetectionStrategy,
+  Component,
+  computed,
   effect,
   inject,
   input,
@@ -12,9 +13,11 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideAlertCircle,
   lucideArrowLeft,
+  lucideArrowRight,
   lucideCar,
   lucideCheck,
   lucideCoins,
+  lucideCreditCard,
   lucideLoader2,
   lucideLogOut,
   lucideParkingSquare,
@@ -25,6 +28,7 @@ import { ButtonComponent } from "@nivo-sass/design-system";
 import { CheckOutFacade } from "../../../facades/check-out.facade";
 import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-receipt";
 import { IdentificationStepComponent } from "./steps/identification-step";
+import { SettlementStepComponent } from "./steps/settlement-step";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,6 +38,7 @@ import { IdentificationStepComponent } from "./steps/identification-step";
     DecimalPipe,
     IdentificationStepComponent,
     NgIcon,
+    SettlementStepComponent,
     TicketReceiptComponent,
   ],
   providers: [
@@ -41,9 +46,11 @@ import { IdentificationStepComponent } from "./steps/identification-step";
     provideIcons({
       lucideAlertCircle,
       lucideArrowLeft,
+      lucideArrowRight,
       lucideCar,
       lucideCheck,
       lucideCoins,
+      lucideCreditCard,
       lucideLoader2,
       lucideLogOut,
       lucideParkingSquare,
@@ -63,6 +70,8 @@ export class CheckOutModalComponent {
   readonly ticket = input<TicketSummary | null>(null);
 
   readonly closed = output();
+
+  readonly activeStep = computed(() => this.facade.activeStep());
 
   constructor() {
     effect(() => {

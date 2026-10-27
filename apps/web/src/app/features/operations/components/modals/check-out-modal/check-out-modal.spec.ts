@@ -1,5 +1,6 @@
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
+import type { TicketSummary } from "@core/models/ticket.model";
 import { ParkingService } from "@core/services/parking-service";
 import { SlotService } from "@core/services/slot-service";
 import { TicketService } from "@core/services/ticket-service";
@@ -41,12 +42,15 @@ describe("CheckOutModalComponent", () => {
     ticketServiceSpy = {
       calculatePrice: vi.fn().mockReturnValue(
         of({
-          breakdown: [],
-          ivaAmount: 0,
-          ivaRate: 0,
+          breakdown: [
+            { amount: 3000, concept: "Hora Inicial" },
+            { amount: 2000, concept: "Hora Adicional" },
+          ],
+          ivaAmount: 950,
+          ivaRate: 19,
           name: "Standard",
           subtotal: 5000,
-          total: 5000,
+          total: 5950,
         })
       ),
       checkOutVehicle: vi.fn().mockReturnValue(of({})),
@@ -172,5 +176,125 @@ describe("CheckOutModalComponent", () => {
     expect(ticketBtn).toBeTruthy();
     ticketBtn.click();
     expect(selectTicketSpy).toHaveBeenCalledWith(activeTicket);
+  });
+
+  it("should render step indicator header with 3 steps", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("Identificación");
+    expect(text).toContain("Liquidación");
+    expect(text).toContain("Pago");
+  });
+
+  it("should transition to Step 2 when ticket is selected and render SettlementStepComponent", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const ticket: TicketSummary = {
+      entryTime: "2026-10-26T10:00:00Z",
+      id: "ticket-1",
+      licensePlate: "XYZ-999",
+      slotNumber: "B-05",
+      status: "OPEN",
+    };
+
+    component.facade.selectTicket(ticket);
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(2);
+    const settlementStepEl = fixture.nativeElement.querySelector(
+      "app-settlement-step"
+    );
+    expect(settlementStepEl).toBeTruthy();
+    expect(fixture.nativeElement.textContent).toContain("XYZ-999");
+    expect(fixture.nativeElement.textContent).toContain("B-05");
+  });
+
+  it("should advance from Step 2 to Step 3 and show payment controls", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const ticket: TicketSummary = {
+      entryTime: "2026-10-26T10:00:00Z",
+      id: "ticket-1",
+      licensePlate: "XYZ-999",
+      slotNumber: "B-05",
+      status: "OPEN",
+    };
+
+    component.facade.selectTicket(ticket);
+    fixture.detectChanges();
+
+    component.facade.proceedToPayment();
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(3);
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("Método de Pago");
+    expect(text).toContain("Envío de Comprobante");
+    expect(text).toContain("Volver a Liquidación");
+    expect(text).toContain("Cobrar y Registrar Salida");
+  });
+
+  it("should go back from Step 3 to Step 2 when 'Volver a Liquidación' is clicked", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const ticket: TicketSummary = {
+      entryTime: "2026-10-26T10:00:00Z",
+      id: "ticket-1",
+      licensePlate: "XYZ-999",
+      slotNumber: "B-05",
+      status: "OPEN",
+    };
+
+    component.facade.selectTicket(ticket);
+    component.facade.proceedToPayment();
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(3);
+
+    /* SAFETY: Back button contains 'Volver a Liquidación' text */
+    const backBtn = Array.from(
+      fixture.nativeElement.querySelectorAll("button")
+    ).find((btn) =>
+      (btn as HTMLButtonElement).textContent?.includes("Volver a Liquidación")
+    ) as HTMLButtonElement;
+    expect(backBtn).toBeTruthy();
+
+    backBtn.click();
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(2);
+    expect(
+      fixture.nativeElement.querySelector("app-settlement-step")
+    ).toBeTruthy();
+  });
+
+  it("should return to Step 1 when clearSelectedTicket is called", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const ticket: TicketSummary = {
+      entryTime: "2026-10-26T10:00:00Z",
+      id: "ticket-1",
+      licensePlate: "XYZ-999",
+      status: "OPEN",
+    };
+
+    component.facade.selectTicket(ticket);
+    fixture.detectChanges();
+    expect(component.facade.activeStep()).toBe(2);
+
+    component.facade.clearSelectedTicket();
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(1);
+    expect(component.facade.selectedTicket()).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector("app-identification-step")
+    ).toBeTruthy();
   });
 });
