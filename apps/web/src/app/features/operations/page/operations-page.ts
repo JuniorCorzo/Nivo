@@ -8,7 +8,9 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, RouterLink } from "@angular/router";
+import type { VehicleType } from "@core/models/rate.model";
 import type { SlotSummary } from "@core/models/slot.model";
 import type { TicketSummary } from "@core/models/ticket.model";
 import { ParkingService } from "@core/services/parking-service";
@@ -24,6 +26,7 @@ import {
   lucideLogIn,
   lucideLogOut,
   lucideParkingSquare,
+  lucideQrCode,
   lucideSearch,
   lucideTicket,
 } from "@ng-icons/lucide";
@@ -36,22 +39,27 @@ import {
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
+import { PlateMaskDirective } from "@shared/directives/plate-mask";
 
 import { CheckInModalComponent } from "../components/modals/check-in-modal/check-in-modal";
 import { CheckOutModalComponent } from "../components/modals/check-out-modal/check-out-modal";
+import { QrScannerModalComponent } from "../components/modals/qr-scanner-modal/qr-scanner-modal";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
+    FormsModule,
     RouterLink,
     NgIcon,
     BadgeComponent,
     ButtonComponent,
     DividerComponent,
     PageHeaderComponent,
+    PlateMaskDirective,
     CheckInModalComponent,
     CheckOutModalComponent,
+    QrScannerModalComponent,
   ],
   providers: [
     provideIcons({
@@ -62,6 +70,7 @@ import { CheckOutModalComponent } from "../components/modals/check-out-modal/che
       lucideLogIn,
       lucideLogOut,
       lucideParkingSquare,
+      lucideQrCode,
       lucideSearch,
       lucideTicket,
     }),
@@ -87,6 +96,11 @@ export class OperationsPageComponent {
   readonly isCheckInModalOpen = signal<boolean>(false);
   readonly isCheckOutModalOpen = signal<boolean>(false);
   readonly selectedCheckoutTicket = signal<TicketSummary | null>(null);
+
+  readonly expressPlate = signal<string>("");
+  readonly expressVehicleType = signal<VehicleType>("CAR");
+  readonly isSubmittingExpressCheckIn = signal<boolean>(false);
+  readonly isQrScannerOpen = signal<boolean>(false);
 
   readonly activeTickets = signal<TicketSummary[]>([]);
   readonly searchTicketQuery = signal<string>("");
@@ -290,6 +304,90 @@ export class OperationsPageComponent {
     this.refreshActiveTickets();
   }
 
+  openQrScanner(): void {
+    this.isQrScannerOpen.set(true);
+  }
+
+  closeQrScanner(): void {
+    this.isQrScannerOpen.set(false);
+  }
+
+  onQrScanned(data: { plate: string; vehicleType?: VehicleType }): void {
+    this.submitExpressCheckIn(data.plate, data.vehicleType);
+  }
+
+  setExpressVehicleType(type: VehicleType): void {
+    this.expressVehicleType.set(type);
+  }
+
+  submitExpressCheckIn(
+    plateOverride?: string,
+    typeOverride?: VehicleType
+  ): void {
+    const rawPlate = plateOverride ?? this.expressPlate();
+    const cleanPlate = (rawPlate ?? "")
+      .replaceAll(/[^a-zA-Z0-9]/gu, "")
+      .toUpperCase();
+
+    if (!cleanPlate) {
+      this.toast.showToast({
+        message: "Por favor ingresa una placa válida.",
+        type: "error",
+      });
+      return;
+    }
+
+    const targetType = typeOverride ?? this.expressVehicleType();
+    const availableSlot = this.slots().find(
+      (s) => s.status === "AVAILABLE" && s.type === targetType
+    );
+
+    if (!availableSlot) {
+      this.toast.showToast({
+        message: `No hay cupos disponibles para ${targetType === "CAR" ? "carros" : "motos"}.`,
+        type: "error",
+      });
+      return;
+    }
+
+    const activeRate = this.rates().find((r) => r.vehicleType === targetType);
+
+    if (!activeRate) {
+      this.toast.showToast({
+        message: "No se encontró una tarifa activa para este vehículo.",
+        type: "error",
+      });
+      return;
+    }
+
+    this.isSubmittingExpressCheckIn.set(true);
+    this.ticketService
+      .createTicket({
+        plate: cleanPlate,
+        rateId: activeRate.id,
+        slotId: availableSlot.id,
+      })
+      .subscribe({
+        error: (err) => {
+          this.isSubmittingExpressCheckIn.set(false);
+          const msg =
+            err?.error?.message || "Error al registrar ingreso express.";
+          this.toast.showToast({ message: msg, type: "error" });
+        },
+        next: (ticket) => {
+          this.isSubmittingExpressCheckIn.set(false);
+          this.expressPlate.set("");
+          const slotNum =
+            availableSlot.slotNumber || ticket.slotNumber || "asignada";
+          this.toast.showToast({
+            message: `¡Ingreso registrado! Placa ${ticket.licensePlate || cleanPlate} en bahía #${slotNum}.`,
+            type: "success",
+          });
+          this.refreshActiveTickets();
+        },
+      });
+  }
+
   @HostListener("window:keydown", ["$event"])
   handleKeyboardShortcuts(event: KeyboardEvent): void {
     /* SAFETY: event.target is HTMLElement or null on window keyboard event */
@@ -310,6 +408,9 @@ export class OperationsPageComponent {
     } else if (event.key === "o" || event.key === "O") {
       event.preventDefault();
       this.openDirectCheckOutModal();
+    } else if (event.key === "q" || event.key === "Q") {
+      event.preventDefault();
+      this.openQrScanner();
     }
   }
 }

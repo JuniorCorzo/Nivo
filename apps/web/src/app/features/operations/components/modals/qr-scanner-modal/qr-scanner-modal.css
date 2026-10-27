@@ -1,0 +1,29 @@
+.scanner-laser-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #10b981 50%,
+    transparent 100%
+  );
+  box-shadow: 0 0 8px 1px #10b981;
+  animation: scan-vertical 2s ease-in-out infinite alternate;
+}
+
+@keyframes scan-vertical {
+  0% {
+    top: 5%;
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 95%;
+    opacity: 0.8;
+  }
+}

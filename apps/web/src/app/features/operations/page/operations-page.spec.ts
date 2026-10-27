@@ -149,7 +149,7 @@ describe("OperationsPageComponent", () => {
     ticketServiceSpy = {
       calculatePrice: vi.fn(),
       checkOutVehicle: vi.fn(),
-      createTicket: vi.fn(),
+      createTicket: vi.fn().mockReturnValue(of({ id: "t-mock" })),
       getActiveTicketBySlot: vi.fn(),
       listTicketsByParkingLot: vi.fn().mockReturnValue(of([])),
     };
@@ -474,9 +474,10 @@ describe("OperationsPageComponent", () => {
       );
     });
 
-    it("should trigger hotkeys I and O to open modals when target is not an input", () => {
+    it("should trigger hotkeys I, O, and Q to open modals when target is not an input", () => {
       const checkInSpy = vi.spyOn(component, "openCheckInModal");
       const checkOutSpy = vi.spyOn(component, "openDirectCheckOutModal");
+      const qrSpy = vi.spyOn(component, "openQrScanner");
 
       // Press I
       window.dispatchEvent(new KeyboardEvent("keydown", { key: "i" }));
@@ -485,10 +486,15 @@ describe("OperationsPageComponent", () => {
       // Press O
       window.dispatchEvent(new KeyboardEvent("keydown", { key: "o" }));
       expect(checkOutSpy).toHaveBeenCalledTimes(1);
+
+      // Press Q
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "q" }));
+      expect(qrSpy).toHaveBeenCalledTimes(1);
     });
 
     it("should ignore hotkeys when typing in input or textarea", () => {
       const checkInSpy = vi.spyOn(component, "openCheckInModal");
+      const qrSpy = vi.spyOn(component, "openQrScanner");
 
       const input = document.createElement("input");
       document.body.append(input);
@@ -496,14 +502,100 @@ describe("OperationsPageComponent", () => {
       const event = new KeyboardEvent("keydown", {
         bubbles: true,
         cancelable: true,
-        key: "i",
+        key: "q",
       });
       Object.defineProperty(event, "target", { value: input, writable: false });
 
       component.handleKeyboardShortcuts(event);
       expect(checkInSpy).not.toHaveBeenCalled();
+      expect(qrSpy).not.toHaveBeenCalled();
 
       input.remove();
+    });
+
+    it("should render Dock Express Superior with aforo meter and express check-in bar", () => {
+      fixture.detectChanges();
+      const compiled: HTMLElement = fixture.nativeElement;
+      expect(compiled.textContent).toContain("Aforo General");
+      expect(compiled.textContent).toContain("libres de 4 totales");
+      expect(compiled.textContent).toContain("+ Ingresar");
+      expect(compiled.textContent).toContain("Escanear QR");
+    });
+
+    it("should toggle QR scanner modal open and close", () => {
+      expect(component.isQrScannerOpen()).toBe(false);
+      component.openQrScanner();
+      expect(component.isQrScannerOpen()).toBe(true);
+      component.closeQrScanner();
+      expect(component.isQrScannerOpen()).toBe(false);
+    });
+
+    it("should submit express check-in successfully for car", () => {
+      const mockCreatedTicket = {
+        entryTime: "2026-10-27T10:00:00",
+        id: "t-new",
+        licensePlate: "EXP123",
+        parkingLotId: "p-1",
+        rateId: "r-1",
+        slotId: "s-1",
+        slotNumber: "101",
+        status: "OPEN" as const,
+      };
+      ticketServiceSpy.createTicket.mockReturnValue(of(mockCreatedTicket));
+      const refreshSpy = vi.spyOn(component, "refreshActiveTickets");
+
+      component.expressPlate.set("EXP-123");
+      component.setExpressVehicleType("CAR");
+      component.submitExpressCheckIn();
+
+      expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith({
+        plate: "EXP123",
+        rateId: "r-1",
+        slotId: "s-1",
+      });
+      expect(toastSpy.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "success",
+        })
+      );
+      expect(component.expressPlate()).toBe("");
+      expect(refreshSpy).toHaveBeenCalled();
+    });
+
+    it("should handle onQrScanned and process express check-in", () => {
+      const submitSpy = vi
+        .spyOn(component, "submitExpressCheckIn")
+        .mockImplementation(() => {});
+      component.onQrScanned({ plate: "QR123", vehicleType: "CAR" });
+      expect(submitSpy).toHaveBeenCalledWith("QR123", "CAR");
+    });
+
+    it("should show error toast if plate is empty on express check-in", () => {
+      component.expressPlate.set("   ");
+      component.submitExpressCheckIn();
+
+      expect(toastSpy.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining(
+            "Por favor ingresa una placa válida"
+          ),
+          type: "error",
+        })
+      );
+      expect(ticketServiceSpy.createTicket).not.toHaveBeenCalled();
+    });
+
+    it("should show error toast if no slots are available for requested vehicle type", () => {
+      // Set vehicle type to one without rate or slot
+      component.expressPlate.set("ABC123");
+      component.submitExpressCheckIn("ABC123", "BIKE");
+
+      expect(toastSpy.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "error",
+        })
+      );
+      expect(ticketServiceSpy.createTicket).not.toHaveBeenCalled();
     });
   });
 });

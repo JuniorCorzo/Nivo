@@ -55,6 +55,147 @@
     </div>
   </app-page-header>
 
+  <!-- Dock Express Superior (Flujo Desordenado / Libre): Aforo en Vivo & Check-In Rápido -->
+  <div
+    class="border-border bg-card text-card-foreground rounded-2xl border p-4 shadow-xs sm:p-5"
+  >
+    <div
+      class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+    >
+      <!-- Aforo en Vivo -->
+      <div class="flex items-center gap-4 sm:gap-6">
+        <div class="flex items-center gap-3">
+          <div
+            class="bg-primary/10 text-primary border-primary/20 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border"
+          >
+            <ng-icon name="lucideGauge" class="text-2xl" />
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-foreground text-sm font-bold tracking-tight">
+                Aforo General
+              </span>
+              <nv-badge
+                [variant]="occupationPercentage() >= 90 ? 'destructive' : occupationPercentage() >= 75 ? 'warning' : 'outline'"
+                class="font-mono text-xs"
+              >
+                {{ occupationPercentage() }}%
+              </nv-badge>
+            </div>
+            <p class="text-muted-foreground text-xs">
+              <strong class="text-foreground font-semibold"
+                >{{ availableSlotsCount() }}</strong
+              >
+              libres de {{ totalSlotsCount() }} totales
+            </p>
+          </div>
+        </div>
+
+        <!-- Mini Progress Bar -->
+        <div class="hidden w-28 flex-col gap-1 sm:flex">
+          <div class="bg-muted h-2 w-full overflow-hidden rounded-full">
+            <div
+              class="h-full rounded-full transition-all duration-500"
+              [class.bg-emerald-500]="occupationPercentage() < 75"
+              [class.bg-amber-500]="occupationPercentage() >= 75 && occupationPercentage() < 90"
+              [class.bg-rose-500]="occupationPercentage() >= 90"
+              [style.width.%]="occupationPercentage()"
+            ></div>
+          </div>
+          <span class="text-muted-foreground text-[10px]"
+            >{{ occupiedSlotsCount() }} ocupados</span
+          >
+        </div>
+      </div>
+
+      <!-- Express Check-In Control Bar -->
+      <form
+        (submit)="$event.preventDefault(); submitExpressCheckIn()"
+        class="flex flex-1 flex-wrap items-center gap-2 lg:max-w-2xl lg:justify-end"
+      >
+        <!-- Vehicle Type Selector -->
+        <div
+          class="bg-muted/60 border-border inline-flex rounded-lg border p-1 text-xs"
+        >
+          <button
+            type="button"
+            (click)="setExpressVehicleType('CAR')"
+            [class.bg-card]="expressVehicleType() === 'CAR'"
+            [class.text-foreground]="expressVehicleType() === 'CAR'"
+            [class.shadow-xs]="expressVehicleType() === 'CAR'"
+            [class.text-muted-foreground]="expressVehicleType() !== 'CAR'"
+            class="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium transition-all"
+          >
+            <ng-icon name="lucideCar" class="text-sm" />
+            <span>Carro</span>
+            <span class="text-muted-foreground text-[10px]"
+              >({{ availableCarSlotsCount() }})</span
+            >
+          </button>
+          <button
+            type="button"
+            (click)="setExpressVehicleType('MOTORCYCLE')"
+            [class.bg-card]="expressVehicleType() === 'MOTORCYCLE'"
+            [class.text-foreground]="expressVehicleType() === 'MOTORCYCLE'"
+            [class.shadow-xs]="expressVehicleType() === 'MOTORCYCLE'"
+            [class.text-muted-foreground]="expressVehicleType() !== 'MOTORCYCLE'"
+            class="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium transition-all"
+          >
+            <ng-icon name="lucideBike" class="text-sm" />
+            <span>Moto</span>
+            <span class="text-muted-foreground text-[10px]"
+              >({{ availableMotoSlotsCount() }})</span
+            >
+          </button>
+        </div>
+
+        <!-- Plate Input with mask -->
+        <div class="relative min-w-[140px] flex-1 sm:max-w-[190px]">
+          <input
+            type="text"
+            appPlateMask
+            [vehicleType]="expressVehicleType()"
+            placeholder="PLACA (ej. ABC123)"
+            [ngModel]="expressPlate()"
+            (ngModelChange)="expressPlate.set($event)"
+            name="expressPlate"
+            maxlength="8"
+            class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 text-center font-mono text-sm font-bold tracking-wider uppercase transition-colors focus:ring-2 focus:outline-hidden"
+          />
+        </div>
+
+        <!-- Submit Express Button -->
+        <nv-button
+          type="submit"
+          [disabled]="isSubmittingExpressCheckIn() || !expressPlate().trim()"
+          class="shrink-0"
+        >
+          <ng-icon name="lucideLogIn" class="text-base" />
+          <span>+ Ingresar</span>
+          <kbd
+            class="border-primary-foreground/30 bg-primary-foreground/20 text-primary-foreground ml-1 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+            >Enter</kbd
+          >
+        </nv-button>
+
+        <!-- Escanear QR Button -->
+        <nv-button
+          type="button"
+          variant="outline"
+          (click)="openQrScanner()"
+          class="shrink-0"
+        >
+          <ng-icon name="lucideQrCode" class="text-primary text-base" />
+          <span>Escanear QR</span>
+          <kbd
+            class="border-border bg-muted text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+            >Q</kbd
+          >
+        </nv-button>
+      </form>
+    </div>
+  </div>
+
   <!-- Summary Cards Grid -->
   <div class="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
     <!-- Cupos Carros -->
@@ -472,11 +613,18 @@
 
 <!-- Check-out Modal Component -->
 @defer (when isCheckOutModalOpen()) {
-  <app-check-out-modal
-    [isOpen]="isCheckOutModalOpen()"
-    [parkingId]="parkingId()"
-    [ticket]="selectedCheckoutTicket()"
-    (closed)="closeCheckOutModal()"
-  />
+<app-check-out-modal
+  [isOpen]="isCheckOutModalOpen()"
+  [parkingId]="parkingId()"
+  [ticket]="selectedCheckoutTicket()"
+  (closed)="closeCheckOutModal()"
+/>
 }
 
+<!-- QR Scanner Modal Component -->
+<app-qr-scanner-modal
+  [isOpen]="isQrScannerOpen()"
+  [parkingId]="parkingId()"
+  (closed)="closeQrScanner()"
+  (scanned)="onQrScanned($event)"
+/>
