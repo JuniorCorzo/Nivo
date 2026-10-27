@@ -1,4 +1,4 @@
-import { CommonModule, DecimalPipe } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -28,6 +28,7 @@ import { ButtonComponent } from "@nivo-sass/design-system";
 import { CheckOutFacade } from "../../../facades/check-out.facade";
 import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-receipt";
 import { IdentificationStepComponent } from "./steps/identification-step";
+import { PaymentStepComponent } from "./steps/payment-step";
 import { SettlementStepComponent } from "./steps/settlement-step";
 
 @Component({
@@ -35,9 +36,9 @@ import { SettlementStepComponent } from "./steps/settlement-step";
   imports: [
     ButtonComponent,
     CommonModule,
-    DecimalPipe,
     IdentificationStepComponent,
     NgIcon,
+    PaymentStepComponent,
     SettlementStepComponent,
     TicketReceiptComponent,
   ],

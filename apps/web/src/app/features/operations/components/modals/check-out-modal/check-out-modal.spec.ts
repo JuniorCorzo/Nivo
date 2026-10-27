@@ -231,11 +231,84 @@ describe("CheckOutModalComponent", () => {
     fixture.detectChanges();
 
     expect(component.facade.activeStep()).toBe(3);
+    expect(
+      fixture.nativeElement.querySelector("app-payment-step")
+    ).toBeTruthy();
     const text = fixture.nativeElement.textContent;
     expect(text).toContain("Método de Pago");
     expect(text).toContain("Envío de Comprobante");
     expect(text).toContain("Volver a Liquidación");
     expect(text).toContain("Cobrar y Registrar Salida");
+  });
+
+  it("should complete full multi-step flow from Step 1 through Step 3 and open receipt", () => {
+    ticketServiceSpy.checkOutVehicle.mockReturnValue(
+      of({
+        amount: 5950,
+        id: "pay-1",
+        paymentMethod: "EFFECTIVE",
+        status: "APPROVED",
+      })
+    );
+
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.componentRef.setInput("parkingId", "parking-1");
+    fixture.detectChanges();
+
+    // Step 1: Identification
+    expect(component.facade.activeStep()).toBe(1);
+    expect(
+      fixture.nativeElement.querySelector("app-identification-step")
+    ).toBeTruthy();
+
+    const ticket: TicketSummary = {
+      entryTime: "2026-10-26T10:00:00Z",
+      id: "ticket-1",
+      licensePlate: "XYZ-999",
+      slotNumber: "B-05",
+      status: "OPEN",
+    };
+
+    // Step 2: Settlement
+    component.facade.selectTicket(ticket);
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(2);
+    expect(
+      fixture.nativeElement.querySelector("app-settlement-step")
+    ).toBeTruthy();
+
+    // Step 3: Payment
+    component.facade.proceedToPayment();
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(3);
+    const paymentStepEl =
+      fixture.nativeElement.querySelector("app-payment-step");
+    expect(paymentStepEl).toBeTruthy();
+
+    // Select Tarjeta / Datáfono and confirm checkout
+    component.facade.setPaymentMethod("PAY_LINK");
+    fixture.detectChanges();
+
+    const confirmBtn = Array.from(
+      fixture.nativeElement.querySelectorAll("button")
+    ).find((btn) =>
+      (btn as HTMLButtonElement).textContent?.includes(
+        "Cobrar y Registrar Salida"
+      )
+    ) as HTMLButtonElement;
+    expect(confirmBtn).toBeTruthy();
+    confirmBtn.click();
+    fixture.detectChanges();
+
+    expect(ticketServiceSpy.checkOutVehicle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        paymentMethod: "PAY_LINK",
+        ticketId: "ticket-1",
+      })
+    );
+    expect(component.facade.isReceiptOpen()).toBe(true);
   });
 
   it("should go back from Step 3 to Step 2 when 'Volver a Liquidación' is clicked", () => {

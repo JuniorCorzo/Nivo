@@ -1,0 +1,257 @@
+<div class="space-y-4">
+  <!-- Total to Pay Summary Card -->
+  <div
+    class="border-border bg-muted/40 flex items-center justify-between rounded-xl border p-3.5 sm:p-4"
+  >
+    <div class="flex items-center gap-3">
+      <div
+        class="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+      >
+        <ng-icon name="lucideCar" class="text-xl" />
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span
+            class="text-foreground font-mono text-base font-black tracking-wider sm:text-lg"
+          >
+            {{ facade.selectedTicket()?.licensePlate }}
+          </span>
+          @if (facade.selectedTicket()?.slotType) {
+          <nv-badge variant="info" class="px-1.5 py-0.5 text-[10px]">
+            {{ facade.selectedTicket()?.slotType }}
+          </nv-badge>
+          }
+        </div>
+        <span class="text-muted-foreground font-mono text-xs">
+          Cupo {{ facade.selectedTicket()?.slotNumber || "Asignado" }}
+        </span>
+      </div>
+    </div>
+
+    <div class="text-right">
+      <span
+        class="text-muted-foreground block text-[10px] font-medium tracking-wider uppercase sm:text-xs"
+      >
+        Total a Pagar
+      </span>
+      <span class="text-foreground font-mono text-base font-black sm:text-lg">
+        ${{ facade.priceCalculation()?.total | number: "1.0-0" }} COP
+      </span>
+    </div>
+  </div>
+
+  <!-- Dynamic Payment Method Selector (Only if total > 0) -->
+  @if (!facade.isZeroPayment()) {
+  <div class="space-y-2">
+    <div class="flex items-center justify-between">
+      <label
+        class="text-muted-foreground block text-xs font-semibold tracking-wider uppercase"
+      >
+        Método de Pago
+      </label>
+      <span class="text-muted-foreground text-[11px]">
+        Selecciona la forma de pago
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+      <!-- Option 1: Efectivo -->
+      <button
+        type="button"
+        (click)="selectPaymentMethod('EFFECTIVE')"
+        [class.border-primary]="isPaymentMethodActive('EFFECTIVE')"
+        [class.bg-primary/10]="isPaymentMethodActive('EFFECTIVE')"
+        [class.text-primary]="isPaymentMethodActive('EFFECTIVE')"
+        [class.ring-2]="isPaymentMethodActive('EFFECTIVE')"
+        [class.ring-primary/20]="isPaymentMethodActive('EFFECTIVE')"
+        [class.border-border]="!isPaymentMethodActive('EFFECTIVE')"
+        [class.bg-card]="!isPaymentMethodActive('EFFECTIVE')"
+        [class.text-muted-foreground]="!isPaymentMethodActive('EFFECTIVE')"
+        class="hover:border-primary/50 hover:bg-muted/50 hover:text-foreground focus-visible:ring-ring flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border p-3 text-center transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none sm:items-start sm:text-left"
+      >
+        <div class="flex items-center gap-2">
+          <ng-icon name="lucideCoins" class="text-lg" />
+          <span class="text-foreground text-xs font-bold">Efectivo</span>
+        </div>
+        <span class="text-muted-foreground text-[11px]">Pago en caja</span>
+      </button>
+
+      <!-- Option 2: Tarjeta / Datáfono -->
+      <button
+        type="button"
+        (click)="selectPaymentMethod('PAY_LINK')"
+        [class.border-primary]="isPaymentMethodActive('PAY_LINK')"
+        [class.bg-primary/10]="isPaymentMethodActive('PAY_LINK')"
+        [class.text-primary]="isPaymentMethodActive('PAY_LINK')"
+        [class.ring-2]="isPaymentMethodActive('PAY_LINK')"
+        [class.ring-primary/20]="isPaymentMethodActive('PAY_LINK')"
+        [class.border-border]="!isPaymentMethodActive('PAY_LINK')"
+        [class.bg-card]="!isPaymentMethodActive('PAY_LINK')"
+        [class.text-muted-foreground]="!isPaymentMethodActive('PAY_LINK')"
+        class="hover:border-primary/50 hover:bg-muted/50 hover:text-foreground focus-visible:ring-ring flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border p-3 text-center transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none sm:items-start sm:text-left"
+      >
+        <div class="flex items-center gap-2">
+          <ng-icon name="lucideCreditCard" class="text-lg" />
+          <span class="text-foreground text-xs font-bold"
+            >Tarjeta / Datáfono</span
+          >
+        </div>
+        <span class="text-muted-foreground text-[11px]">Débito / Crédito</span>
+      </button>
+
+      <!-- Option 3: Transferencia / QR Bancario -->
+      <button
+        type="button"
+        (click)="selectPaymentMethod('TRANSFER')"
+        [class.border-primary]="isPaymentMethodActive('TRANSFER')"
+        [class.bg-primary/10]="isPaymentMethodActive('TRANSFER')"
+        [class.text-primary]="isPaymentMethodActive('TRANSFER')"
+        [class.ring-2]="isPaymentMethodActive('TRANSFER')"
+        [class.ring-primary/20]="isPaymentMethodActive('TRANSFER')"
+        [class.border-border]="!isPaymentMethodActive('TRANSFER')"
+        [class.bg-card]="!isPaymentMethodActive('TRANSFER')"
+        [class.text-muted-foreground]="!isPaymentMethodActive('TRANSFER')"
+        class="hover:border-primary/50 hover:bg-muted/50 hover:text-foreground focus-visible:ring-ring flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border p-3 text-center transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none sm:items-start sm:text-left"
+      >
+        <div class="flex items-center gap-2">
+          <ng-icon name="lucideQrCode" class="text-lg" />
+          <span class="text-foreground text-xs font-bold"
+            >Transferencia / QR</span
+          >
+        </div>
+        <span class="text-muted-foreground text-[11px]"
+          >Bancolombia / Nequi</span
+        >
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- Multi-Channel Receipt Delivery Options -->
+  <div class="space-y-2">
+    <label
+      class="text-muted-foreground block text-xs font-semibold tracking-wider uppercase"
+    >
+      Envío de Comprobante
+    </label>
+    <div
+      role="group"
+      aria-label="Método de entrega de comprobante"
+      class="grid grid-cols-2 gap-2"
+    >
+      <button
+        type="button"
+        (click)="selectSendVia('URL')"
+        [class.border-primary]="facade.sendVia() === 'URL'"
+        [class.bg-primary/10]="facade.sendVia() === 'URL'"
+        [class.text-primary]="facade.sendVia() === 'URL'"
+        [class.ring-2]="facade.sendVia() === 'URL'"
+        [class.ring-primary/20]="facade.sendVia() === 'URL'"
+        [class.border-border]="facade.sendVia() !== 'URL'"
+        [class.bg-card]="facade.sendVia() !== 'URL'"
+        [class.text-muted-foreground]="facade.sendVia() !== 'URL'"
+        class="hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring flex cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none"
+      >
+        <ng-icon name="lucidePrinter" class="text-base" />
+        <span>En Pantalla / Impreso</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="selectSendVia('EMAIL')"
+        [class.border-primary]="facade.sendVia() === 'EMAIL'"
+        [class.bg-primary/10]="facade.sendVia() === 'EMAIL'"
+        [class.text-primary]="facade.sendVia() === 'EMAIL'"
+        [class.ring-2]="facade.sendVia() === 'EMAIL'"
+        [class.ring-primary/20]="facade.sendVia() === 'EMAIL'"
+        [class.border-border]="facade.sendVia() !== 'EMAIL'"
+        [class.bg-card]="facade.sendVia() !== 'EMAIL'"
+        [class.text-muted-foreground]="facade.sendVia() !== 'EMAIL'"
+        class="hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring flex cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none"
+      >
+        <ng-icon name="lucideMail" class="text-base" />
+        <span>Correo Electrónico</span>
+      </button>
+    </div>
+
+    <!-- Animated Email Input when EMAIL is selected -->
+    @if (facade.sendVia() === "EMAIL") {
+    <div
+      class="animate-in fade-in slide-in-from-top-1 border-border bg-card/50 space-y-1.5 rounded-xl border p-3 duration-200"
+    >
+      <div class="flex items-center justify-between">
+        <label
+          for="receipt-email-input"
+          class="text-foreground text-xs font-medium"
+        >
+          Correo Electrónico del Cliente
+        </label>
+        @if (emailTouched() && !isEmailValid()) {
+        <span
+          class="text-destructive flex items-center gap-1 text-[11px] font-medium"
+        >
+          <ng-icon name="lucideAlertCircle" class="text-xs" />
+          Formato inválido
+        </span>
+        }
+      </div>
+
+      <div class="relative">
+        <div
+          class="text-muted-foreground pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+        >
+          <ng-icon name="lucideMail" class="text-base" />
+        </div>
+        <input
+          id="receipt-email-input"
+          type="email"
+          [value]="facade.receiptEmail()"
+          (input)="onEmailInput($event)"
+          (blur)="onEmailBlur()"
+          placeholder="correo@ejemplo.com"
+          [class.border-destructive]="emailTouched() && !isEmailValid()"
+          [class.focus:border-destructive]="emailTouched() && !isEmailValid()"
+          class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-lg border py-2 pr-3 pl-9 text-xs transition-colors focus:outline-hidden"
+        />
+      </div>
+      <p class="text-muted-foreground text-[10px]">
+        El comprobante con el detalle de cobro y código de salida se enviará a
+        esta dirección.
+      </p>
+    </div>
+    }
+  </div>
+
+  <!-- Action Buttons -->
+  <div
+    class="border-border mt-6 flex flex-col-reverse items-stretch justify-end gap-2 border-t pt-3 sm:flex-row sm:items-center"
+  >
+    <nv-button
+      type="button"
+      variant="outline"
+      (click)="onBack()"
+      class="w-full sm:w-auto"
+    >
+      <ng-icon name="lucideArrowLeft" class="text-sm" />
+      <span>Volver a Liquidación</span>
+    </nv-button>
+
+    <nv-button
+      type="button"
+      (click)="onConfirm()"
+      [disabled]="!facade.canCheckOut() || facade.isSubmitting()"
+      class="w-full sm:w-auto"
+    >
+      @if (facade.isSubmitting()) {
+      <ng-icon name="lucideLoader2" class="animate-spin text-sm" />
+      <span>Procesando Salida...</span>
+      } @else if (facade.isZeroPayment()) {
+      <ng-icon name="lucideCheck" class="text-sm" />
+      <span>Autorizar Salida Gratuita</span>
+      } @else {
+      <ng-icon name="lucideLogOut" class="text-sm" />
+      <span>Cobrar y Registrar Salida</span>
+      }
+    </nv-button>
+  </div>
+</div>

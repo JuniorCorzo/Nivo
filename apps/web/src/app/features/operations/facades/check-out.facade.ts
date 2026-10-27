@@ -13,6 +13,8 @@ import { SlotService } from "@core/services/slot-service";
 import { TicketService } from "@core/services/ticket-service";
 import { ToastService } from "@nivo-sass/design-system";
 
+export type CheckoutPaymentMethod = TicketPaymentMethod | "CARD" | "TRANSFER";
+
 @Injectable()
 export class CheckOutFacade {
   private readonly ticketService = inject(TicketService);
@@ -35,7 +37,7 @@ export class CheckOutFacade {
   readonly errorMessage = signal<string | null>(null);
 
   readonly sendVia = signal<TicketSendVia>("URL");
-  readonly paymentMethod = signal<TicketPaymentMethod>("EFFECTIVE");
+  readonly paymentMethod = signal<CheckoutPaymentMethod>("EFFECTIVE");
   readonly receiptEmail = signal<string>("");
 
   readonly lastPaymentRecord = signal<PaymentRecord | null>(null);
@@ -93,13 +95,25 @@ export class CheckOutFacade {
     return calc.total <= 0;
   });
 
+  readonly isEmailValid = computed<boolean>(() => {
+    if (this.sendVia() !== "EMAIL") {
+      return true;
+    }
+    const email = this.receiptEmail().trim();
+    if (!email) {
+      return false;
+    }
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  });
+
   readonly canCheckOut = computed<boolean>(
     () =>
       this.selectedTicket() !== null &&
       this.priceCalculation() !== null &&
       !this.isLoadingCalculation() &&
       !this.isLoadingTicket() &&
-      !this.isSubmitting()
+      !this.isSubmitting() &&
+      this.isEmailValid()
   );
 
   setSearchQuery(query: string): void {
@@ -217,7 +231,7 @@ export class CheckOutFacade {
     this.sendVia.set(sendVia);
   }
 
-  setPaymentMethod(method: TicketPaymentMethod): void {
+  setPaymentMethod(method: CheckoutPaymentMethod): void {
     this.paymentMethod.set(method);
   }
 
@@ -226,6 +240,10 @@ export class CheckOutFacade {
   }
 
   confirmCheckOut(): void {
+    if (this.isSubmitting()) {
+      return;
+    }
+
     const ticket = this.selectedTicket();
     if (!ticket || !this.canCheckOut()) {
       return;
@@ -234,9 +252,13 @@ export class CheckOutFacade {
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
 
+    const method = this.paymentMethod();
+    const backendPaymentMethod: TicketPaymentMethod =
+      method === "CARD" || method === "TRANSFER" ? "PAY_LINK" : method;
+
     const payload: CheckOutPayload = {
       email: this.sendVia() === "EMAIL" ? this.receiptEmail() : undefined,
-      paymentMethod: this.paymentMethod(),
+      paymentMethod: backendPaymentMethod,
       sendVia: this.sendVia(),
       ticketId: ticket.id,
     };
@@ -274,6 +296,9 @@ export class CheckOutFacade {
     this.priceCalculation.set(null);
     this.lastPaymentRecord.set(null);
     this.searchQuery.set("");
+    this.paymentMethod.set("EFFECTIVE");
+    this.sendVia.set("URL");
+    this.receiptEmail.set("");
     this.activeStep.set(1);
   }
 
@@ -284,6 +309,9 @@ export class CheckOutFacade {
     this.lastPaymentRecord.set(null);
     this.isReceiptOpen.set(false);
     this.searchQuery.set("");
+    this.paymentMethod.set("EFFECTIVE");
+    this.sendVia.set("URL");
+    this.receiptEmail.set("");
     this.activeStep.set(1);
   }
 }
