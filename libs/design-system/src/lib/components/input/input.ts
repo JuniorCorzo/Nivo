@@ -37,11 +37,11 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
       @if (label()) {
         <label
           [for]="id()"
-          class="font-sans text-sm font-medium text-(--foreground)"
+          class="font-sans text-sm font-medium text-[var(--foreground)]"
         >
           {{ label() }}
           @if (required()) {
-            <span class="ml-0.5 text-(--destructive)" aria-hidden="true"
+            <span class="ml-0.5 text-[var(--destructive)]" aria-hidden="true"
               >*</span
             >
           }
@@ -53,16 +53,17 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
             <ng-icon
               [name]="startIcon()!"
               size="16"
-              class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-(--muted-foreground)"
+              class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[var(--muted-foreground)]"
               aria-hidden="true"
             />
           }
           <input
             [id]="id()"
             [attr.aria-describedby]="ariaDescribedBy()"
+            [attr.aria-invalid]="hasErrors() ? 'true' : null"
             [type]="actualType()"
             [placeholder]="placeholder()"
-            [disabled]="disabled()"
+            [disabled]="isDisabled()"
             [value]="value()"
             (input)="onInput($event)"
             (blur)="onBlur()"
@@ -71,7 +72,9 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
           @if (type() === "password") {
             <button
               type="button"
-              class="absolute top-1/2 right-3 -translate-y-1/2 text-(--muted-foreground) transition-colors hover:text-(--foreground)"
+              class="absolute top-1/2 right-3 -translate-y-1/2 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+              [disabled]="isDisabled()"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
               (click)="togglePasswordVisibility()"
             >
               <ng-icon
@@ -84,10 +87,10 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
       </div>
       @if (hasErrors()) {
         <ul
-          class="mt-1 space-y-1 font-sans text-xs text-(--destructive)"
+          class="mt-1 space-y-1 font-sans text-xs text-[var(--destructive)]"
           aria-live="polite"
           role="alert"
-          [id]="ariaDescribedBy()"
+          [id]="id() + '-error'"
         >
           @for (err of error(); track $index) {
             <li>
@@ -97,7 +100,10 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
         </ul>
       }
       @if (hint() && !hasErrors()) {
-        <p class="font-sans text-xs text-(--muted-foreground)">
+        <p
+          class="font-sans text-xs text-[var(--muted-foreground)]"
+          [id]="id() + '-hint'"
+        >
           {{ hint() }}
         </p>
       }
@@ -108,16 +114,30 @@ export class InputComponent implements ControlValueAccessor {
   readonly id = input<string>(
     `nv-input-${Math.random().toString(36).slice(2)}`
   );
-  readonly ariaDescribedBy = computed(() => `${this.id()}-error`);
   readonly label = input<string>("");
   readonly required = input<boolean>(false);
   readonly type = input<string>("text");
   readonly placeholder = input<string>("");
   readonly disabled = input<boolean>(false);
+  private readonly formDisabled = signal(false);
+  readonly isDisabled = computed(() => this.disabled() || this.formDisabled());
+
   readonly startIcon = input<string | undefined>();
-  readonly error = input<ValidationError.WithFieldTree[] | undefined>();
+  readonly error = input<
+    ValidationError.WithFieldTree[] | Array<{ message: string }> | undefined
+  >();
   readonly hint = input<string>("");
   readonly hasErrors = computed(() => (this.error()?.length ?? 0) > 0);
+
+  readonly ariaDescribedBy = computed(() => {
+    if (this.hasErrors()) {
+      return `${this.id()}-error`;
+    }
+    if (this.hint()) {
+      return `${this.id()}-hint`;
+    }
+    return null;
+  });
 
   readonly showPassword = signal(false);
   readonly actualType = computed(() =>
@@ -156,14 +176,14 @@ export class InputComponent implements ControlValueAccessor {
 
   readonly classes = computed(() => {
     const base =
-      "flex h-10 w-full rounded-md border bg-transparent px-3 py-2 text-sm font-sans transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50";
+      "flex h-10 w-full rounded-md border bg-transparent px-3 py-2 text-sm font-sans transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-[var(--muted-foreground)]";
     const errorClass = this.hasErrors()
-      ? "border-[var(--destructive)]"
+      ? "border-[var(--destructive)] focus-visible:ring-[var(--destructive)]"
       : "border-[var(--input)]";
     const startIconClass = this.startIcon() ? "pl-9" : "";
     const passwordClass = this.type() === "password" ? "pr-10" : "";
 
-    return `${base} ${errorClass} ${startIconClass} ${passwordClass} text-[var(--foreground)]`;
+    return `${base} ${errorClass} ${startIconClass} ${passwordClass} text-[var(--foreground)]`.trim();
   });
 
   writeValue(value: string): void {
@@ -176,5 +196,9 @@ export class InputComponent implements ControlValueAccessor {
 
   registerOnTouched(fn: () => void): void {
     this.onModelTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.formDisabled.set(isDisabled);
   }
 }
