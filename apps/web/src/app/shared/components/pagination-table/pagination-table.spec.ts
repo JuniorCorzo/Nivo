@@ -29,4 +29,12 @@ describe("PaginationTable", () => {
   it("should create", () => {
     expect(component).toBeTruthy();
   });
+
+  it("should have accessibility aria-labels on pagination buttons", () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const buttons = compiled.querySelectorAll("button");
+    expect(buttons.length).toBe(2);
+    expect(buttons[0].getAttribute("aria-label")).toBe("Página anterior");
+    expect(buttons[1].getAttribute("aria-label")).toBe("Página siguiente");
+  });
 });

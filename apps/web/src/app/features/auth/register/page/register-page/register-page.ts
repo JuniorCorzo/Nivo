@@ -5,6 +5,7 @@ import {
   form,
   maxLength,
   minLength,
+  pattern,
   required,
   validateTree,
   FormField,
@@ -106,6 +107,9 @@ export class RegisterPage implements OnInit, OnDestroy {
     required(schemePath.email, { message: email.errors.required });
 
     required(schemePath.contactInfo, { message: contactInfo.errors.required });
+    pattern(schemePath.contactInfo, /^\+?[0-9\s-]{7,20}$/, {
+      message: contactInfo.errors.invalid,
+    });
 
     required(schemePath.password, { message: password.errors.required });
     minLength(schemePath.password, 8, { message: password.errors.minLength });

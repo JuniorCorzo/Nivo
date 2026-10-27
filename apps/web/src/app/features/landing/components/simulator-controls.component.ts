@@ -133,13 +133,22 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
               (input)="onMinutesInputChange($event)"
               class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-[var(--muted)] accent-[var(--primary)]"
               [attr.aria-label]="texts.rangeAriaLabel"
+              [attr.aria-valuemin]="15"
+              [attr.aria-valuemax]="480"
+              [attr.aria-valuenow]="minutesStayed()"
+              [attr.aria-valuetext]="
+                texts.minutesStayedText(
+                  minutesStayed(),
+                  (minutesStayed() / 60 | number: '1.1-1') ?? '0'
+                )
+              "
             />
           </div>
         </div>
 
         <!-- Rate Parameters Summary -->
         <div
-          class="space-y-2 rounded-md border border-[var(--border)] bg-[var(--muted)]/40 p-4 text-xs"
+          class="space-y-2 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 p-4 text-xs"
         >
           <div class="flex justify-between text-[var(--muted-foreground)]">
             <span>{{ texts.baseRateLabel }}</span>

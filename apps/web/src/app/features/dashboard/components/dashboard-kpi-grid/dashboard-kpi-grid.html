@@ -8,9 +8,7 @@
       </h2>
     </div>
     <nv-badge variant="success" class="gap-1.5">
-      <span
-        class="bg-success h-1.5 w-1.5 animate-pulse rounded-full"
-      ></span>
+      <span class="bg-success h-1.5 w-1.5 animate-pulse rounded-full"></span>
       {{ texts.kpis.liveStatus }}
     </nv-badge>
   </div>
@@ -38,19 +36,17 @@
         <div>
           <div class="flex items-baseline gap-2">
             <span
-              class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
+              class="text-foreground truncate font-mono text-2xl font-bold tracking-tight tabular-nums sm:text-3xl"
             >
               {{ occupancyPercentage() | number: "1.1-1" }}%
             </span>
-            <span class="text-muted-foreground font-mono text-xs">
+            <span class="text-muted-foreground font-mono text-xs tabular-nums">
               {{ summary()?.occupiedSlots ?? 0 }} / {{ summary()?.totalCapacity
               ?? 0 }}
             </span>
           </div>
           <!-- Progress bar colored by threshold -->
-          <div
-            class="bg-muted mt-3 h-1.5 w-full overflow-hidden rounded-full"
-          >
+          <div class="bg-muted mt-3 h-1.5 w-full overflow-hidden rounded-full">
             <div
               class="h-1.5 rounded-full transition-all duration-500"
               [class]="occupancyProgressClass()"
@@ -62,7 +58,7 @@
           class="border-border flex flex-wrap items-center justify-between gap-1 border-t pt-1 text-xs"
         >
           <span
-            class="flex items-center gap-1 font-mono font-medium"
+            class="flex items-center gap-1 font-mono font-medium tabular-nums"
             [class]="occupancyDeltaClass()"
           >
             <ng-icon name="lucideTrendingUp" class="h-3.5 w-3.5" />
@@ -93,7 +89,7 @@
         <div>
           <div class="flex items-baseline gap-2">
             <span
-              class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
+              class="text-foreground truncate font-mono text-2xl font-bold tracking-tight tabular-nums sm:text-3xl"
             >
               ${{ summary()?.todayRevenue ?? 0 | number: "1.0-0" }}
             </span>
@@ -104,9 +100,7 @@
           <p
             class="text-muted-foreground mt-2 flex items-center gap-1.5 text-xs"
           >
-            <span
-              class="bg-success inline-block h-2 w-2 rounded-full"
-            ></span>
+            <span class="bg-success inline-block h-2 w-2 rounded-full"></span>
             <span>82% {{ texts.kpis.revenue.digitalRatio }}</span>
           </p>
         </div>
@@ -114,7 +108,7 @@
           class="border-border flex flex-wrap items-center justify-between gap-1 border-t pt-1 text-xs"
         >
           <span
-            class="text-success flex items-center gap-1 font-mono font-medium"
+            class="text-success flex items-center gap-1 font-mono font-medium tabular-nums"
           >
             <ng-icon name="lucideArrowUpRight" class="h-3.5 w-3.5" />
             <span>+14.8%</span>
@@ -144,7 +138,7 @@
         <div>
           <div class="flex items-baseline gap-2">
             <span
-              class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
+              class="text-foreground truncate font-mono text-2xl font-bold tracking-tight tabular-nums sm:text-3xl"
             >
               {{ summary()?.activeTickets ?? 0 }}
             </span>
@@ -156,7 +150,7 @@
             class="text-muted-foreground mt-2 flex items-center justify-between text-xs"
           >
             <span>{{ texts.kpis.tickets.rotation }}</span>
-            <span class="text-foreground font-mono font-semibold">
+            <span class="text-foreground font-mono font-semibold tabular-nums">
               {{ totalOrCompletedTickets() | number }} {{ texts.chart.unitVeh }}
             </span>
           </p>
@@ -165,7 +159,7 @@
           class="border-border flex flex-wrap items-center justify-between gap-1 border-t pt-1 text-xs"
         >
           <span
-            class="text-info flex items-center gap-1 font-mono font-medium"
+            class="text-info flex items-center gap-1 font-mono font-medium tabular-nums"
           >
             <ng-icon name="lucideActivity" class="h-3.5 w-3.5" />
             <span>{{ netFlowRateText() }}</span>
@@ -195,11 +189,11 @@
         <div>
           <div class="flex items-baseline gap-2">
             <span
-              class="text-foreground truncate font-mono text-2xl font-bold tracking-tight sm:text-3xl"
+              class="text-foreground truncate font-mono text-2xl font-bold tracking-tight tabular-nums sm:text-3xl"
             >
               {{ formattedAvgStayMinutes() }} min
             </span>
-            <span class="text-muted-foreground font-mono text-xs">
+            <span class="text-muted-foreground font-mono text-xs tabular-nums">
               {{ formattedAvgStayHours() }}
             </span>
           </div>
@@ -207,14 +201,16 @@
             class="text-muted-foreground mt-2 flex items-center justify-between text-xs"
           >
             <span>{{ texts.kpis.stay.gracePeriod }}</span>
-            <span class="text-foreground font-mono font-semibold">15 min</span>
+            <span class="text-foreground font-mono font-semibold tabular-nums"
+              >15 min</span
+            >
           </p>
         </div>
         <div
           class="border-border flex flex-wrap items-center justify-between gap-1 border-t pt-1 text-xs"
         >
           <span
-            class="text-success flex items-center gap-1 font-mono font-medium"
+            class="text-success flex items-center gap-1 font-mono font-medium tabular-nums"
           >
             <ng-icon name="lucideArrowDownRight" class="h-3.5 w-3.5" />
             <span>-6 min</span>

@@ -47,18 +47,15 @@ export interface PricingPlanItem {
       [class.border-border]="!plan().isPopular"
       [class.shadow-xs]="!plan().isPopular"
       [class.border-2]="plan().isPopular"
-      [class.border-emerald-500/50]="plan().isPopular"
+      [class.border-[var(--semantic-success)]/50]="plan().isPopular"
       [class.shadow-xl]="plan().isPopular"
-      [class.shadow-emerald-500/5]="plan().isPopular"
-      [class.hover:border-emerald-500]="plan().isPopular"
-      [class.hover:shadow-emerald-500/10]="plan().isPopular"
+      [class.shadow-[var(--semantic-success)]/10]="plan().isPopular"
+      [class.hover:border-[var(--semantic-success)]]="plan().isPopular"
+      [class.hover:shadow-[var(--semantic-success)]/20]="plan().isPopular"
     >
       @if (plan().isPopular && popularBadge()) {
         <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-          <nv-badge
-            variant="default"
-            class="bg-emerald-500 px-3 text-xs font-semibold text-zinc-950"
-          >
+          <nv-badge variant="success" class="px-3 text-xs font-semibold">
             {{ popularBadge() }}
           </nv-badge>
         </div>
@@ -73,7 +70,7 @@ export interface PricingPlanItem {
         <div class="my-6">
           <span
             class="font-mono text-4xl font-bold"
-            [class.text-emerald-400]="plan().isPopular"
+            [class.text-[var(--semantic-success)]]="plan().isPopular"
           >
             {{ plan().price }}
           </span>
@@ -85,7 +82,11 @@ export interface PricingPlanItem {
         <ul class="space-y-3 text-sm text-[var(--muted-foreground)]">
           @for (feature of plan().features; track feature) {
             <li class="flex items-center gap-2">
-              <ng-icon name="lucideCheck" size="16" class="text-emerald-500" />
+              <ng-icon
+                name="lucideCheck"
+                size="16"
+                class="text-[var(--semantic-success)]"
+              />
               <span>{{ feature }}</span>
             </li>
           }

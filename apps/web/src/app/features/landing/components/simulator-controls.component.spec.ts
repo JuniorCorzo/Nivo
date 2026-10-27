@@ -65,4 +65,16 @@ describe("SimulatorControlsComponent", () => {
 
     expect(minutes).toBe(180);
   });
+
+  it("should have correct accessibility attributes on range input", () => {
+    /* SAFETY: Querying range input element in DOM fixture */
+    const rangeInput = fixture.nativeElement.querySelector(
+      'input[type="range"]'
+    ) as HTMLInputElement;
+
+    expect(rangeInput.getAttribute("aria-valuemin")).toBe("15");
+    expect(rangeInput.getAttribute("aria-valuemax")).toBe("480");
+    expect(rangeInput.getAttribute("aria-valuenow")).toBe("90");
+    expect(rangeInput.getAttribute("aria-valuetext")).toContain("90");
+  });
 });

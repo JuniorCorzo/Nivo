@@ -50,6 +50,49 @@
           {{ texts.register }}
         </nv-button>
       }
+      <nv-button
+        variant="ghost"
+        size="sm"
+        class="md:hidden"
+        (click)="toggleMobileMenu()"
+        [attr.aria-expanded]="isMobileMenuOpen()"
+        aria-label="Toggle navigation menu"
+      >
+        <ng-icon
+          [name]="isMobileMenuOpen() ? 'lucideX' : 'lucideMenu'"
+          size="20"
+        />
+      </nv-button>
     </div>
   </div>
+
+  @if (isMobileMenuOpen()) {
+    <div
+      class="border-t border-[var(--border)] bg-[var(--background)] px-4 py-4 md:hidden"
+    >
+      <nav class="flex flex-col gap-3">
+        <a
+          href="#beneficios"
+          (click)="closeMobileMenu()"
+          class="text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+        >
+          {{ texts.benefits }}
+        </a>
+        <a
+          href="#simulador"
+          (click)="closeMobileMenu()"
+          class="text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+        >
+          {{ texts.simulator }}
+        </a>
+        <a
+          href="#precios"
+          (click)="closeMobileMenu()"
+          class="text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+        >
+          {{ texts.pricing }}
+        </a>
+      </nav>
+    </div>
+  }
 </header>

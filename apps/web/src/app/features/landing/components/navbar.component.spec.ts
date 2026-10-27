@@ -82,4 +82,42 @@ describe("NavbarComponent", () => {
 
     expect(emitted).toBe(true);
   });
+
+  it("should toggle mobile menu open state when toggle button is clicked", () => {
+    expect(component.isMobileMenuOpen()).toBe(false);
+
+    /* SAFETY: Querying toggle button by aria-label */
+    const toggleBtn = fixture.nativeElement.querySelector(
+      'nv-button[aria-label="Toggle navigation menu"]'
+    ) as HTMLElement;
+    toggleBtn?.click();
+    fixture.detectChanges();
+
+    expect(component.isMobileMenuOpen()).toBe(true);
+    expect(toggleBtn?.getAttribute("aria-expanded")).toBe("true");
+
+    toggleBtn?.click();
+    fixture.detectChanges();
+
+    expect(component.isMobileMenuOpen()).toBe(false);
+    expect(toggleBtn?.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("should close mobile menu when a mobile nav link is clicked", () => {
+    component.toggleMobileMenu();
+    fixture.detectChanges();
+
+    expect(component.isMobileMenuOpen()).toBe(true);
+
+    /* SAFETY: Querying mobile nav link */
+    const mobileLink = fixture.nativeElement.querySelector(
+      'div.border-t nav a[href="#beneficios"]'
+    ) as HTMLElement;
+    expect(mobileLink).not.toBeNull();
+
+    mobileLink?.click();
+    fixture.detectChanges();
+
+    expect(component.isMobileMenuOpen()).toBe(false);
+  });
 });
