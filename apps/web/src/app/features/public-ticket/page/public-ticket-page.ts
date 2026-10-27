@@ -24,12 +24,13 @@ import {
   lucideRefreshCw,
   lucideShare2,
 } from "@ng-icons/lucide";
+import { BadgeComponent, ButtonComponent } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import QRCode from "qrcode";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DecimalPipe, NgIcon],
+  imports: [CommonModule, DecimalPipe, NgIcon, BadgeComponent, ButtonComponent],
   providers: [
     provideIcons({
       lucideAlertCircle,
@@ -139,6 +140,13 @@ export class PublicTicketPageComponent {
     const ticketId = this.id();
     if (ticketId) {
       this.loadTicket(ticketId);
+    }
+  }
+
+  openWhatsApp(): void {
+    const link = this.whatsAppLink();
+    if (link && typeof window !== "undefined") {
+      window.open(link, "_blank", "noopener,noreferrer");
     }
   }
 

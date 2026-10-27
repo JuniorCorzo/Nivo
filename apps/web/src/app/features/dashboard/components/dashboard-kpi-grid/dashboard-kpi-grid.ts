@@ -16,12 +16,22 @@ import {
   lucideTicket,
   lucideTrendingUp,
 } from "@ng-icons/lucide";
-import { CardComponent, CardContentComponent } from "@nivo-sass/design-system";
+import {
+  BadgeComponent,
+  CardComponent,
+  CardContentComponent,
+} from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, NgIcon, CardComponent, CardContentComponent],
+  imports: [
+    DecimalPipe,
+    NgIcon,
+    CardComponent,
+    CardContentComponent,
+    BadgeComponent,
+  ],
   providers: [
     provideIcons({
       lucideActivity,
@@ -52,23 +62,23 @@ export class DashboardKpiGridComponent {
   readonly occupancyProgressClass = computed(() => {
     const pct = this.occupancyPercentage();
     if (pct >= 90) {
-      return "bg-rose-500";
+      return "bg-destructive bg-rose-500";
     }
     if (pct >= 70) {
-      return "bg-amber-500";
+      return "bg-warning bg-amber-500";
     }
-    return "bg-emerald-500";
+    return "bg-success bg-emerald-500";
   });
 
   readonly occupancyDeltaClass = computed(() => {
     const pct = this.occupancyPercentage();
     if (pct >= 90) {
-      return "text-rose-400";
+      return "text-destructive";
     }
     if (pct >= 70) {
-      return "text-amber-400";
+      return "text-warning";
     }
-    return "text-emerald-400";
+    return "text-success";
   });
 
   readonly occupancyDeltaText = computed(() => {
