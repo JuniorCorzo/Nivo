@@ -7,6 +7,7 @@ import {
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideArrowRight, lucideSparkles } from "@ng-icons/lucide";
 import {
+  BadgeComponent,
   ButtonComponent,
   CardComponent,
   TypographyH1,
@@ -19,6 +20,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     NgIcon,
+    BadgeComponent,
     ButtonComponent,
     CardComponent,
     TypographyH1,
