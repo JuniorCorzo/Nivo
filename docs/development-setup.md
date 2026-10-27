@@ -44,13 +44,13 @@ bun run dev:db:down
 Generate local development RSA keys for JWT signing and verification:
 
 ```bash
-mkdir -p apps/api/applications/app-service/src/main/resources/keys
+mkdir -p apps/api/src/main/resources/keys
 
 # Generate private key
-openssl genrsa -out apps/api/applications/app-service/src/main/resources/keys/private.pem 2048
+openssl genrsa -out apps/api/src/main/resources/keys/private.pem 2048
 
 # Extract public key
-openssl rsa -in apps/api/applications/app-service/src/main/resources/keys/private.pem -pubout -out apps/api/applications/app-service/src/main/resources/keys/public.pem
+openssl rsa -in apps/api/src/main/resources/keys/private.pem -pubout -out apps/api/src/main/resources/keys/public.pem
 ```
 
 ### Step 3: Run the Spring Boot API
@@ -58,12 +58,15 @@ openssl rsa -in apps/api/applications/app-service/src/main/resources/keys/privat
 From the repository root or `apps/api` directory:
 
 ```bash
-# From root:
-./apps/api/gradlew -p apps/api :app-service:bootRun
+# From root (unified):
+bun run dev:api
+
+# Or directly with Gradle wrapper:
+./apps/api/gradlew -p apps/api bootRun
 
 # Or within apps/api:
 cd apps/api
-./gradlew :app-service:bootRun
+./gradlew bootRun
 ```
 
 The API will start on `http://localhost:8080/api` with the `dev` profile active.
@@ -105,5 +108,5 @@ In `dev` profile (`application-dev.yaml`):
 ## 5. Troubleshooting
 
 - **Database connection failure**: Check if PostGIS container is healthy with `docker ps` and check logs with `bun run dev:db:logs`.
-- **Missing Key Error**: Ensure `keys/public.pem` and `keys/private.pem` exist in `apps/api/applications/app-service/src/main/resources/keys/`.
+- **Missing Key Error**: Ensure `keys/public.pem` and `keys/private.pem` exist in `apps/api/src/main/resources/keys/`.
 - **Port Conflicts**: Ensure ports `8080`, `5432`, and `4200` are free on your machine.

@@ -1,114 +1,130 @@
-# Nivo Design System
+# Nivo Design System (`@nivo-sass/design-system`)
 
-Este es el design system oficial de Nivo. Contiene los elementos de identidad visual y componentes UI reutilizables para construir interfaces consistentes en todas las aplicaciones de Nivo.
+Official design system for Nivo. Provides harmonic OKLCH visual tokens, accessible and reusable Angular 21 standalone components, and an interactive catalog in Storybook 10.
 
-## Publicacion en npm
+## Quick Path
 
-Publica siempre el paquete compilado de `dist`, no la raiz del repo.
+### 1. Start Storybook
 
-```bash
-# 1) Build
-npm run build
-
-# 2) Verificacion de archivos a publicar
-npm run pack:dist
-
-# 3) Publicar solo dist
-npm run publish:dist
-```
-
-Si ejecutas `npm publish` en la raiz, se intentaria publicar codigo fuente y docs. Este repo tiene una proteccion en `prepublishOnly` para bloquear ese error.
-
-## Estructura
-
-```
-src/
-├── lib/
-│   ├── tokens/       # Design tokens (colores, tipografía, espacios, sombras, etc.)
-│   ├── components/   # Componentes UI reutilizables (Button, Input, Card, etc.)
-│   └── styles/       # Configuración global de estilos, temas y utilidades
-```
-
-## Uso
-
-Para usar el design system en cualquier aplicación o librería:
+Explore and interact with the complete component catalog:
 
 ```bash
-# Instalar dependencias (si es necesario)
-bun install
+# From libs/design-system:
+bun run storybook
 
-# Build de la librería
-bunx ng-packagr -p ng-package.json
-
-# Empaquetar (genera .tgz en dist/libs/design-system)
-cd ../../dist/libs/design-system
-bun pm pack
-
-# En otro proyecto: instalar el paquete local
-bun add /ruta/a/design-system-0.0.1.tgz
+# Or from monorepo root:
+bun run dev:design-system
 ```
 
-En tu código Angular standalone:
+Available at [http://localhost:6006](http://localhost:6006).
 
-```ts
-import { ButtonComponent } from "@nivo/design-system";
-```
+### 2. Build Library
 
-```ts
-@Component({
-  standalone: true,
-  imports: [ButtonComponent],
-  template: `<nv-button>Guardar</nv-button>`,
-})
-export class ExampleComponent {}
-```
-
-### Usar tokens.css desde npm
-
-El archivo `tokens.css` se empaqueta dentro del paquete en `styles/tokens.css`. Ademas, el paquete ahora exporta explicitamente `./styles/tokens.css` para que funcione con proyectos que respetan `exports` en `package.json`.
-
-En una app Angular, agregalo en `angular.json`:
-
-```json
-{
-  "styles": ["src/styles.css", "node_modules/@nivo-sass/design-system/styles/tokens.css"]
-}
-```
-
-Alternativa: importarlo en tu `styles.css` global:
-
-```css
-@import "@nivo-sass/design-system/styles/tokens.css";
-```
-
-## Desarrollo
-
-### Construir el design system
+Generates design tokens, compiles with `ng-packagr`, builds Tailwind CSS v4, and generates publication artifacts in `dist/libs/design-system`:
 
 ```bash
+# From libs/design-system:
 bun run build
+
+# Or from monorepo root:
+bun run dev:build
 ```
 
-### Ejecutar tests
+### 3. Run Tests
 
 ```bash
 bun run test
 ```
 
-### Lint
+---
 
-```bash
-bun run lint
+## Available Components
+
+All components are built with **Angular Standalone Components** and adhere to `OnPush` change detection:
+
+| Component | Selector | Description |
+|---|---|---|
+| **Alert** | `nv-alert` | Contextual banners (info, success, warning, danger) |
+| **Avatar** | `nv-avatar` | User avatar supporting initials, image URLs, and online/offline status |
+| **Badge** | `nv-badge` | Status tags for vehicles, parking slots, and payment states |
+| **Button** | `nv-button` | Primary, secondary, outline, ghost, and destructive action buttons |
+| **Card** | `nv-card` | Structured container supporting header, body, and footer content projection |
+| **Checkbox** | `nv-checkbox` | Accessible boolean selection control |
+| **Combobox** | `nv-combobox` | Searchable dropdown with live autocomplete |
+| **Divider** | `nv-divider` | Horizontal and vertical layout separators |
+| **Input** | `nv-input` | Accessible text, search, number, and password input fields |
+| **Loader** | `nv-loader` | Progress spinners and loading indicators |
+| **Modal** | `nv-modal` | Accessible dialogs for vehicle check-in, check-out, and settings |
+| **Select** | `nv-select` | Strongly typed dropdown menus |
+| **Table** | `nv-table` | Data tables compatible with `@tanstack/angular-table` |
+| **Toasts** | Provider | Floating toast notifications integrated with `@ngxpert/hot-toast` |
+| **Typography** | `nv-typography` | Scalable typographic hierarchy |
+
+---
+
+## Project Structure
+
+```
+libs/design-system/
+├── scripts/                     # Automation scripts (token generation, packaging patches)
+├── src/
+│   ├── lib/
+│   │   ├── components/          # Standalone Angular components
+│   │   ├── styles/              # CSS tokens (tokens.css) and component utility classes (components.css)
+│   │   └── tokens/              # OKLCH color palettes and typographic design tokens
+│   └── public-api.ts            # Public entry point of the package
+├── ng-package.json              # ng-packagr configuration
+└── package.json                 # @nivo-sass/design-system manifest
 ```
 
-## Guías de contribución
+---
 
-1. **Tokens**: Los cambios en los tokens deben ser cuidadosos ya que afectan a toda la aplicación
-2. **Componentes**: Nuevos componentes deben seguir los principios de accesibilidad y reutilización
-3. **Documentación**: Cada componente público debe tener ejemplos de uso
+## Usage & Integration
 
-## Temas
+### In Monorepo Angular Applications
 
-El design system soporta múltiples temas (claro, oscuro, alto contraste) que pueden ser seleccionados mediante el provider de tema.
+`@nivo-sass/design-system` is configured as a workspace package (`workspace:*`).
 
-Ver `src/lib/styles/themes/` para más detalles.
+1. **Import standalone components**:
+   ```ts
+   import { Component } from '@angular/core';
+   import { ButtonComponent, CardComponent, BadgeComponent } from '@nivo-sass/design-system';
+
+   @Component({
+     standalone: true,
+     imports: [ButtonComponent, CardComponent, BadgeComponent],
+     template: `
+       <nv-card>
+         <nv-badge variant="success">Occupied</nv-badge>
+         <nv-button variant="primary">View Details</nv-button>
+       </nv-card>
+     `
+   })
+   export class SlotCardComponent {}
+   ```
+
+2. **Import global styles and tokens**:
+   In your global `styles.css` (or through Tailwind CSS):
+   ```css
+   @import "@nivo-sass/design-system/styles/tokens.css";
+   @import "@nivo-sass/design-system/styles/components.css";
+   ```
+
+---
+
+## Available Commands
+
+| Command | Description |
+|---|---|
+| `bun run storybook` | Start local Storybook development server (`:6006`) |
+| `bun run build-storybook` | Compile static Storybook bundle for deployment |
+| `bun run generate:tokens` | Regenerate CSS token variables from base definitions |
+| `bun run build` | Full pipeline: tokens -> ng-packagr -> CSS -> patch exports |
+| `bun run test` | Run unit tests with Vitest |
+| `bun run check` | Run linter and formatter diagnostics (`ultracite check`) |
+| `bun run fix` | Auto-fix formatting and style issues (`ultracite fix`) |
+| `npm run pack:dist` | Create local test tarball from `dist/libs/design-system` |
+| `npm run publish:dist` | Publish compiled package to npm (`--access public`) |
+
+> [!IMPORTANT]
+> Never run `npm publish` from the root of `libs/design-system`. The `prepublishOnly` lifecycle hook blocks accidental publication of uncompiled source code. Always use `npm run publish:dist`.
