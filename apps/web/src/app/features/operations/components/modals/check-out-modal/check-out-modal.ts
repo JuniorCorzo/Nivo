@@ -76,21 +76,18 @@ export class CheckOutModalComponent {
 
   constructor() {
     effect(() => {
+      const open = this.isOpen();
       const pId = this.parkingId();
-      if (pId) {
-        this.facade.init(pId);
-      }
-    });
-
-    effect(() => {
       const t = this.ticket();
-      if (t && this.isOpen()) {
+
+      if (!open || !pId) {
+        return;
+      }
+
+      this.facade.init(pId);
+
+      if (t) {
         this.facade.selectTicket(t);
-      } else if (!t && this.isOpen()) {
-        const pId = this.parkingId();
-        if (pId) {
-          this.facade.loadOccupiedSlots(pId);
-        }
       }
     });
   }
