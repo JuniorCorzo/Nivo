@@ -49,10 +49,15 @@ export class TicketsFacade {
       const plate = row.original.licensePlate?.toUpperCase() ?? "";
       const parkingLot = row.original.parkingLotName?.toUpperCase() ?? "";
       const barcode = row.original.barcode?.toUpperCase() ?? "";
+      const normSearch = search.replaceAll(/[^A-Z0-9]/gu, "");
+      const normPlate = plate.replaceAll(/[^A-Z0-9]/gu, "");
+      const normBarcode = barcode.replaceAll(/[^A-Z0-9]/gu, "");
       return (
         plate.includes(search) ||
         parkingLot.includes(search) ||
-        barcode.includes(search)
+        barcode.includes(search) ||
+        (normSearch.length >= 2 &&
+          (normPlate.includes(normSearch) || normBarcode.includes(normSearch)))
       );
     },
     initialVisibility: {
