@@ -8,7 +8,37 @@
     [showParkingSelector]="true"
     [subtitle]="activeParkingSubtitle()"
   >
-    <app-parking-action-button actions />
+    <div actions class="flex flex-wrap items-center gap-2">
+      <nv-button
+        variant="default"
+        size="md"
+        (click)="facade.onManageOperations()"
+        class="w-full whitespace-nowrap sm:w-auto"
+      >
+        <ng-icon name="lucideZap" size="16" class="shrink-0" />
+        <span class="whitespace-nowrap">⚡ Ir a Taquilla Directa</span>
+      </nv-button>
+
+      <nv-button
+        variant="outline"
+        size="md"
+        (click)="facade.onManageRates()"
+        class="w-full whitespace-nowrap sm:w-auto"
+      >
+        <ng-icon name="lucideCoins" size="16" class="text-primary shrink-0" />
+        <span class="whitespace-nowrap">Configurar Tarifas</span>
+      </nv-button>
+
+      <nv-button
+        variant="outline"
+        size="md"
+        (click)="facade.onEdit()"
+        class="w-full whitespace-nowrap sm:w-auto"
+      >
+        <ng-icon name="lucideEdit" size="16" class="shrink-0" />
+        <span class="whitespace-nowrap">Editar Sede</span>
+      </nv-button>
+    </div>
   </app-page-header>
 
   <!-- Summary Metrics Grid Sub-component -->
@@ -34,18 +64,90 @@
   />
   }
 
-  <!-- Map Card -->
-  <nv-card class="flex flex-col gap-3 rounded-2xl p-4 sm:gap-4 sm:p-6">
-    <div class="flex items-center gap-2">
-      <ng-icon name="lucideMapPin" size="18" class="text-primary shrink-0" />
-      <nv-h3 class="text-sm font-bold sm:text-base">
-        {{ LABELS_DETAIL.map.title }}
-      </nv-h3>
-    </div>
+  <!-- Hero Map Presentation Card -->
+  <nv-card class="border-border overflow-hidden rounded-2xl border p-0">
+    <!-- Header topbar inside card -->
     <div
-      class="border-border h-[200px] overflow-hidden rounded-xl border shadow-inner sm:h-[240px]"
+      class="border-border bg-muted/40 flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2.5 text-xs sm:px-6"
+    >
+      <div class="flex items-center gap-2">
+        <ng-icon
+          name="lucideMapPin"
+          size="16"
+          class="shrink-0 text-emerald-500"
+        />
+        <span class="text-foreground font-bold">
+          Mapa Georeferenciado en Vivo
+        </span>
+        <span class="text-muted-foreground/60">·</span>
+        <span class="text-muted-foreground hidden sm:inline">
+          OpenStreetMap (Estética Zinc 950)
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-muted-foreground font-mono text-[11px]">
+          {{ formatGps(p.coordinates) }}
+        </span>
+        <span class="relative flex h-2 w-2">
+          <span
+            class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"
+          ></span>
+          <span
+            class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"
+          ></span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Leaflet map container -->
+    <div
+      class="border-border h-[260px] w-full overflow-hidden border-b sm:h-[300px]"
     >
       <app-parking-map [initialPosition]="p.coordinates" [readonly]="true" />
+    </div>
+
+    <!-- Operational Quick Dock Bar -->
+    <div
+      class="bg-card/60 flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6"
+    >
+      <div
+        class="text-muted-foreground flex items-center gap-2 text-xs font-semibold"
+      >
+        <ng-icon
+          name="lucideLayers"
+          size="15"
+          class="shrink-0 text-emerald-500"
+        />
+        <span>Centro de Comandos Operativos de Sede</span>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <nv-button
+          variant="outline"
+          size="sm"
+          (click)="facade.onManageSlots()"
+          class="text-xs"
+        >
+          🔍 Auditar Bahías
+        </nv-button>
+        <nv-button
+          variant="default"
+          size="sm"
+          (click)="facade.onManageOperations()"
+          class="text-xs"
+        >
+          ⚡ Taquilla Directa
+        </nv-button>
+        <nv-button
+          variant="outline"
+          size="sm"
+          (click)="facade.onManageRates()"
+          class="text-xs"
+        >
+          🏷️ Configurar Tarifas
+        </nv-button>
+      </div>
     </div>
   </nv-card>
 </div>

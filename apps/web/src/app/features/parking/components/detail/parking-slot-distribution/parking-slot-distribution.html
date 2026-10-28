@@ -71,5 +71,79 @@
       {{ LABELS_DETAIL.slotDistribution.totalSlots(totalSlots()) }}
     </nv-mono>
   </div>
+
+  <!-- Visual Matrix of Bahías & Plazas (bahias-card) -->
+  <div class="border-border mt-3 border-t pt-4 sm:mt-4 sm:pt-5">
+    <div
+      class="mb-3.5 flex flex-col justify-between gap-2 sm:flex-row sm:items-center"
+    >
+      <div>
+        <nv-h3 class="text-sm font-bold sm:text-base">
+          Distribución de Bahías en Tiempo Real
+        </nv-h3>
+        <nv-muted class="mt-0.5 block text-xs">
+          Haz click en cualquier bahía para auditar o asignar ingreso.
+        </nv-muted>
+      </div>
+
+      <!-- Legend -->
+      <div class="flex items-center gap-3.5 text-xs">
+        <div class="flex items-center gap-1.5">
+          <span
+            class="border-border bg-muted h-2.5 w-2.5 rounded-xs border"
+          ></span>
+          <span class="text-muted-foreground">
+            Ocupada ({{ occupiedSlots() }})
+          </span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span
+            class="h-2.5 w-2.5 rounded-xs border border-emerald-500/40 bg-emerald-500/20"
+          ></span>
+          <span class="font-semibold text-emerald-500">
+            Disponible ({{ availableSlots() }})
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Responsive Grid of slot cells -->
+    <div class="grid grid-cols-3 gap-2.5 sm:grid-cols-4 md:grid-cols-6">
+      @for (slot of visualSlots(); track slot.name) {
+      <button
+        type="button"
+        (click)="onSlotClick(slot)"
+        [class]="
+          slot.isOccupied
+            ? 'border-border bg-card hover:bg-muted/60'
+            : 'border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20'
+        "
+        class="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border p-2.5 text-center transition-all hover:-translate-y-0.5"
+      >
+        <span
+          class="font-mono text-xs font-bold"
+          [class.text-foreground]="slot.isOccupied"
+          [class.text-emerald-500]="!slot.isOccupied"
+        >
+          {{ slot.name }}
+        </span>
+
+        @if (slot.isOccupied) {
+        <span
+          class="rounded bg-yellow-400 px-1.5 py-0.5 font-mono text-[10px] font-extrabold tracking-wider text-black"
+        >
+          {{ slot.plate || "OCUPADA" }}
+        </span>
+        } @else {
+        <span
+          class="rounded bg-emerald-500/20 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-emerald-500"
+        >
+          LIBRE
+        </span>
+        }
+      </button>
+      }
+    </div>
+  </div>
 </nv-card>
 }

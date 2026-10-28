@@ -47,23 +47,31 @@ describe("ParkingStatsGrid", () => {
     compiled = fixture.nativeElement;
   });
 
-  it("should render all 4 stat cards with proper values", () => {
+  it("should render all 3 telemetry cards with proper values and metrics", () => {
     const textContent = compiled.textContent || "";
-    expect(textContent).toContain("Plazas Ocupadas");
-    expect(textContent).toContain("45 / 100");
-    expect(textContent).toContain("55 disponibles");
 
-    expect(textContent).toContain("Ocupación");
+    // Card 1: Global Occupancy Gauge
+    expect(textContent).toContain("Ocupación General del Patio");
     expect(textContent).toContain("45%");
+    expect(textContent).toContain("45 / 100 Plazas");
+    expect(textContent).toContain("🚗 Autos en Sitio");
+    expect(textContent).toContain("🏍️ Motos en Sitio");
 
-    expect(textContent).toContain("Moneda Base");
-    expect(textContent).toContain("COP");
+    // Card 2: Recaudo Acumulado Turno
+    expect(textContent).toContain("Recaudo Acumulado Turno");
+    expect(textContent).toContain("Turno en curso · Taquilla 01");
+    expect(textContent).toContain("Promedio ticket: $ 7.200");
+    expect(textContent).toContain("Meta turno: 104%");
 
-    expect(textContent).toContain("Coordenadas");
-    expect(textContent).toContain("4,6097, -74,0817");
+    // Card 3: Rotación & Permanencia
+    expect(textContent).toContain("Rotación & Permanencia");
+    expect(textContent).toContain("1h 35m");
+    expect(textContent).toContain("Tiempo promedio de permanencia");
+    expect(textContent).toContain("Índice Rotación: 4.2x / día");
+    expect(textContent).toContain("En mora > 8h: 3");
   });
 
-  it("should update display when inputs change", () => {
+  it("should update display and metrics when inputs change", () => {
     hostComponent.totalSlots.set(200);
     hostComponent.occupiedSlots.set(160);
     hostComponent.availableSlots.set(40);
@@ -73,11 +81,26 @@ describe("ParkingStatsGrid", () => {
     fixture.detectChanges();
 
     const textContent = compiled.textContent || "";
-    expect(textContent).toContain("160 / 200");
-    expect(textContent).toContain("40 disponibles");
+    expect(textContent).toContain("160 / 200 Plazas");
     expect(textContent).toContain("80%");
-    expect(textContent).toContain("USD");
-    expect(textContent).toContain("40,7128, -74,0060");
+  });
+
+  it("should apply correct gauge color class based on occupationRate", () => {
+    const gauge = compiled.querySelector(".rounded-full > div");
+    expect(gauge).toBeTruthy();
+
+    // 45% -> emerald
+    expect(gauge?.classList.contains("bg-emerald-500")).toBe(true);
+
+    // 75% -> amber
+    hostComponent.occupationRate.set(75);
+    fixture.detectChanges();
+    expect(gauge?.classList.contains("bg-amber-500")).toBe(true);
+
+    // 95% -> red
+    hostComponent.occupationRate.set(95);
+    fixture.detectChanges();
+    expect(gauge?.classList.contains("bg-red-500")).toBe(true);
   });
 
   it("should compute formattedCoords properly when initialized directly", () => {

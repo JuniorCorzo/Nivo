@@ -26,11 +26,15 @@ import { lucideCamera } from "@ng-icons/lucide";
         <span>{{ plate() }}</span>
       </span>
     } @else {
-      <span
-        class="inline-flex items-center gap-1.5 rounded border border-zinc-700 bg-amber-400 px-2 py-0.5 font-mono text-xs font-bold tracking-wider text-zinc-950 uppercase tabular-nums shadow-xs"
+      <div
+        class="inline-flex flex-col items-center rounded-md border border-zinc-950 bg-amber-400 px-2.5 py-0.5 font-mono leading-none font-extrabold text-zinc-950 shadow-xs select-none"
       >
-        {{ plate() }}
-      </span>
+        <span
+          class="text-[8px] font-bold tracking-widest text-zinc-800/80 uppercase"
+          >COLOMBIA</span
+        >
+        <span class="text-xs font-black tracking-wider">{{ plate() }}</span>
+      </div>
     }
   `,
 })
