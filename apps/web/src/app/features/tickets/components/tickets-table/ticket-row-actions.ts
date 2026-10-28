@@ -6,11 +6,7 @@ import {
 } from "@angular/core";
 import type { TicketSummary } from "@core/models/ticket.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import {
-  lucideCreditCard,
-  lucideEye,
-  lucidePrinter,
-} from "@ng-icons/lucide";
+import { lucideCreditCard, lucideEye, lucidePrinter } from "@ng-icons/lucide";
 import { ButtonComponent } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 

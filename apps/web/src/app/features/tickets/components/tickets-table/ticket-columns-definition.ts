@@ -23,7 +23,7 @@ import { TicketVehicleBadgeComponent } from "./ticket-vehicle-badge";
   selector: "app-ticket-total-cell",
   standalone: true,
   template: `
-    <span class="font-mono font-bold tabular-nums text-foreground">
+    <span class="text-foreground font-mono font-bold tabular-nums">
       {{ formatted() }}
     </span>
   `,
