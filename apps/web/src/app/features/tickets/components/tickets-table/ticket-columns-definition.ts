@@ -12,6 +12,7 @@ import {
   flexRenderComponent,
 } from "@tanstack/angular-table";
 
+import { TicketDurationCellComponent } from "./ticket-duration-cell";
 import { TicketParkingBadgeComponent } from "./ticket-parking-badge";
 import { TicketPlateCellComponent } from "./ticket-plate-cell";
 import { TicketRowActionsComponent } from "./ticket-row-actions";
@@ -124,7 +125,13 @@ export const createTicketColumns = (
       id: "slotType",
     }),
     columnHelper.accessor("entryTime", {
-      cell: (info) => formatTicketDate(info.getValue()),
+      cell: (info) =>
+        flexRenderComponent(TicketDurationCellComponent, {
+          inputs: {
+            entryTime: info.getValue(),
+            exitTime: info.row.original.exitTime,
+          },
+        }),
       enableSorting: true,
       filterFn: (row, columnId, filterValue: unknown) => {
         if (!isDateRangeFilter(filterValue)) {
@@ -161,10 +168,23 @@ export const createTicketColumns = (
           inputs: { status: info.getValue() },
         }),
       enableSorting: true,
-      filterFn: (row, columnId, filterValue: string) =>
-        !filterValue ||
-        filterValue === "ALL" ||
-        row.getValue(columnId) === filterValue,
+      filterFn: (row, columnId, filterValue: string) => {
+        if (!filterValue || filterValue === "ALL") {
+          return true;
+        }
+        if (filterValue === "MORA") {
+          const entryTime = row.original.entryTime;
+          if (row.original.status !== "OPEN" || !entryTime) {
+            return false;
+          }
+          const entryDate = new Date(entryTime).getTime();
+          return (
+            !Number.isNaN(entryDate) &&
+            Date.now() - entryDate > 8 * 60 * 60 * 1000
+          );
+        }
+        return row.getValue(columnId) === filterValue;
+      },
       header: APP_TEXTS.tickets.table.columns.status,
       id: "status",
     }),

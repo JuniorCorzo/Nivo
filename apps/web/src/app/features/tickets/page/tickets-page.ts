@@ -8,7 +8,7 @@ import {
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TicketReceiptComponent } from "@features/operations/components/receipt/ticket-receipt/ticket-receipt";
-import { NgIcon, provideIcons } from "@ng-icons/core";
+import { provideIcons } from "@ng-icons/core";
 import {
   lucideArrowLeft,
   lucideCheckCircle2,
@@ -28,6 +28,7 @@ import { TicketDetailDrawerComponent } from "../components/ticket-detail-drawer/
 import { TicketFiltersComponent } from "../components/ticket-filters/ticket-filters";
 import { TicketsTableComponent } from "../components/tickets-table/tickets-table";
 import { TicketsFacade } from "../facades/tickets.facade";
+import type { TicketFilterCriteria } from "../models/ticket-filter.model";
 
 interface HeaderContext {
   title: string;
@@ -39,7 +40,6 @@ interface HeaderContext {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    NgIcon,
     CardComponent,
     CardContentComponent,
     TypographyMuted,
@@ -75,6 +75,14 @@ export class TicketsPageComponent implements OnInit {
   );
 
   protected readonly headerContext = computed(() => this.initHeaderContext());
+  protected readonly filterCriteriaForComponent =
+    computed<TicketFilterCriteria>(() => {
+      const f = this.facade.filters();
+      return {
+        ...f,
+        status: f.status === "MORA" ? "OPEN" : f.status,
+      };
+    });
 
   ngOnInit(): void {
     const parkingId = this.route.snapshot.paramMap.get("parkingId");

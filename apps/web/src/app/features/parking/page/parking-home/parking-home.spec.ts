@@ -111,7 +111,9 @@ describe("ParkingHome Component", () => {
     expect(selector).toBeTruthy();
     const actions = header.querySelector("[actions]");
     expect(actions).toBeTruthy();
-    expect(header.textContent).toContain("Operaciones en vivo");
+    expect(header.textContent).toContain("⚡ Ir a Taquilla Directa");
+    expect(header.textContent).toContain("Configurar Tarifas");
+    expect(header.textContent).toContain("Editar Sede");
     expect(header.textContent).toContain("Calle 100 # 15-20, Bogotá");
     expect(header.textContent).not.toContain("Parqueadero Central — Calle 100");
     const breadcrumb = header.querySelector(
@@ -119,6 +121,57 @@ describe("ParkingHome Component", () => {
     );
     expect(breadcrumb).toBeTruthy();
     expect(breadcrumb.textContent).toContain("Home");
+  });
+
+  it("should trigger facade methods when clicking header action buttons", () => {
+    const buttons = fixture.nativeElement.querySelectorAll(
+      "app-page-header [actions] nv-button"
+    );
+    expect(buttons.length).toBe(3);
+
+    buttons[0].click();
+    expect(mockFacade.onManageOperations).toHaveBeenCalled();
+
+    buttons[1].click();
+    expect(mockFacade.onManageRates).toHaveBeenCalled();
+
+    buttons[2].click();
+    expect(mockFacade.onEdit).toHaveBeenCalled();
+  });
+
+  it("should render hero map card with topbar, coordinates, and operational quick dock bar", () => {
+    const native = fixture.nativeElement;
+    expect(native.textContent).toContain("Mapa Georeferenciado en Vivo");
+    expect(native.textContent).toContain(
+      "Centro de Comandos Operativos de Sede"
+    );
+    expect(native.textContent).toContain("🔍 Auditar Bahías");
+    expect(native.textContent).toContain("⚡ Taquilla Directa");
+    expect(native.textContent).toContain("🏷️ Configurar Tarifas");
+
+    const dockButtons = native.querySelectorAll(
+      "nv-card:last-of-type nv-button"
+    );
+    expect(dockButtons.length).toBe(3);
+
+    dockButtons[0].click();
+    expect(mockFacade.onManageSlots).toHaveBeenCalled();
+
+    dockButtons[1].click();
+    expect(mockFacade.onManageOperations).toHaveBeenCalled();
+
+    dockButtons[2].click();
+    expect(mockFacade.onManageRates).toHaveBeenCalled();
+  });
+
+  it("should format coordinates properly with formatGps", () => {
+    expect(component.formatGps({ latitude: 4.7012, longitude: -74.0321 })).toBe(
+      "4.7012° N · 74.0321° W"
+    );
+    expect(
+      component.formatGps({ latitude: -12.0464, longitude: 77.0428 })
+    ).toBe("12.0464° S · 77.0428° E");
+    expect(component.formatGps(undefined)).toBe("0.0000° N · 0.0000° W");
   });
 
   it("should compute activeParkingSubtitle with only address when active lot is present", () => {

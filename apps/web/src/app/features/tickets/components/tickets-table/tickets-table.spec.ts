@@ -231,4 +231,37 @@ describe("TicketsTableComponent", () => {
     const totalSpan = totalCells[1].querySelector(".tabular-nums.font-bold");
     expect(totalSpan).not.toBeNull();
   });
+
+  it("should emit selectTicket when clicking a row in the table", () => {
+    let selected: TicketSummary | null = null;
+    component.selectTicket.subscribe((t) => {
+      selected = t;
+    });
+
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const row = compiled.querySelector(
+      "tbody tr:first-child"
+    ) as HTMLElement | null;
+    row?.click();
+
+    expect(selected).toEqual(mockTickets[0]);
+  });
+
+  it("should render COLOMBIA country tag on standard plate chip", () => {
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const countryTag = compiled.querySelector(".bg-amber-400 .tracking-widest");
+    expect(countryTag).not.toBeNull();
+    expect(countryTag?.textContent).toContain("COLOMBIA");
+  });
+
+  it("should render ticket duration cell with elapsed time and micro-progress track", () => {
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const durationCell = compiled.querySelector("app-ticket-duration-cell");
+    expect(durationCell).not.toBeNull();
+    const progressTrack = durationCell?.querySelector(".bg-muted.rounded-full");
+    expect(progressTrack).not.toBeNull();
+  });
 });
