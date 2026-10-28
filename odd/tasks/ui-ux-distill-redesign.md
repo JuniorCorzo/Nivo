@@ -6,13 +6,13 @@ Test Runner: vitest via @angular/build:unit-test (bun run --cwd apps/web test)
 
 ## Specs
 - S1: Page Header Distillation: Remove bulky card wrapper from `app-page-header`. Convert to sleek horizontal flow saving ~60px vertical space, retaining breadcrumbs, title, badge and actions without card-in-card nesting.
-- S2: Leaflet Map Dark Theme Integration: Replace default bright OpenStreetMap tiles in `ParkingMapComponent` with CartoDB Dark Matter / Positron tiles matching Nivo Zinc OKLCH tokens, plus custom styled marker and popup.
+- S2: Leaflet Map Dark Theme Integration: Use standard free OpenStreetMap tiles (100% free, $0 cost) with zero-cost CSS dark filter inversion on .leaflet-tile-pane matching Nivo Zinc OKLCH tokens, plus custom styled emerald radar marker.
 - S3: Tickets Page & Table Overhaul: Add actionable Metric Ribbon on top (Active, Overtime/Alert, Closed today, Revenue) that filters the table on click. Redesign table columns to feature high-contrast vehicular plate chips, live duration indicator with progress bar, JetBrains Mono currency formatting, and direct checkout action.
 - S4: Design System & Rules Compliance: All UI components must strictly use `@nivo-sass/design-system` (`nv-button`, `nv-badge`, `nv-card`, `nv-typography`). All text in `APP_TEXTS`. Zero hardcoded strings or raw HTML buttons/inputs. No emojis in templates. Enforce OnPush change detection.
 
 ## Tasks
 - [x] T1 (linked S1, S4): Destilar `app-page-header` removiendo envoltorio tosco de card y optimizando flujo vertical. | Route: delegated direct | Commit: pending
-- [x] T2 (linked S2, S4): Integrar tiles CartoDB Dark Matter y estilo Zinc en ParkingMapComponent. | Route: delegated direct | Commit: pending
+- [x] T2 (linked S2, S4): Revertir a tiles OpenStreetMap gratuitos con filtro CSS oscuro e icono radar esmeralda en ParkingMapComponent. | Route: delegated direct | Commit: pending
 - [x] T3 (linked S3, S4): Rediseñar vista de Tickets: Metric Ribbon interactivo, chip de placa vehicular, temporizador de estadía y acción directa en fila. | Route: delegated direct | Commit: pending
 - [x] T4 (linked S4): Verificación integral con pruebas unitarias (`bun run --cwd apps/web test`), `impeccable detect` y formateo (`oxfmt`). | Route: delegated direct | Commit: pending
 
@@ -22,6 +22,7 @@ Test Runner: vitest via @angular/build:unit-test (bun run --cwd apps/web test)
 - L3 (2026-10-28): Completed T2. Replaced default OSM tiles with CartoDB Dark Matter (`CARTO_DARK_TILES`), added custom Nivo Emerald Radar marker with `L.divIcon`, styled Leaflet controls, zoom, attribution and container matching Zinc tokens. 13/13 parking-map unit tests passing.
 - L4 (2026-10-28): Completed T3. Redesigned tickets view: interactive Metric Ribbon with active states and keyboard a11y, authentic Colombian yellow plate chips with camera badges for SP-, pulsing live emerald dot for OPEN status badge, direct Cobrar button in row actions, and bold tabular numbers for total to charge. 37/37 tickets unit tests passing.
 - L5 (2026-10-28): Completed T4. Formatted all modified files with `bunx oxfmt --write` and validated via `bunx oxfmt --check`. Verified test suite with 10 test files and 106 unit tests passing (`bun run --cwd apps/web test`). Zero lint/type errors and impeccable detect clean.
+- L6 (2026-10-28): Reverted map tiles from CartoDB to 100% free OpenStreetMap official tiles (`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`) to enforce $0 cost constraint. Applied pure CSS dark invert/contrast filter on `.leaflet-tile-pane` in dark theme. 13/13 tests passing.
 
 ## Key Learnings
 - Destiling container padding from `@sm:p-6` to `@sm:py-3 @sm:px-0` and removing card encapsulation gives headers natural flow while saving ~60px vertical height without altering inner layout slots or container query breakpoints.
