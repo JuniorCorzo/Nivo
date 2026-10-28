@@ -171,6 +171,9 @@ describe("ParkingMapComponent", () => {
       expect(privateComp.marker).toBeTruthy();
       expect(privateComp.marker?.getLatLng().lat).toBe(4.6097);
       expect(privateComp.marker?.getLatLng().lng).toBe(-74.0817);
+      /* SAFETY: Accessing custom divIcon options for verification */
+      const markerIcon = privateComp.marker?.options.icon as L.DivIcon;
+      expect(markerIcon?.options.className).toBe("nivo-map-marker-container");
     });
 
     it("should update existing marker on subsequent map click", () => {
