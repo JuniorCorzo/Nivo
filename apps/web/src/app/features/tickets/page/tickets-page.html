@@ -11,7 +11,7 @@
     <nv-card
       role="button"
       tabindex="0"
-      class="cursor-pointer transition-all duration-200 hover:border-primary/40 hover:shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      class="hover:border-primary/40 focus-visible:ring-primary cursor-pointer transition-all duration-200 hover:shadow-xs focus-visible:ring-2 focus-visible:outline-none"
       [class.border-primary]="facade.filters().status === 'ALL'"
       [class.ring-1]="facade.filters().status === 'ALL'"
       [class.ring-primary]="facade.filters().status === 'ALL'"
@@ -40,7 +40,7 @@
     <nv-card
       role="button"
       tabindex="0"
-      class="cursor-pointer transition-all duration-200 hover:border-primary/40 hover:shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+      class="hover:border-primary/40 cursor-pointer transition-all duration-200 hover:shadow-xs focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
       [class.border-emerald-500]="facade.filters().status === 'OPEN'"
       [class.ring-1]="facade.filters().status === 'OPEN'"
       [class.ring-emerald-500]="facade.filters().status === 'OPEN'"
@@ -61,7 +61,7 @@
               >{{ texts.stats.open }}</nv-muted
             >
             <span
-              class="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse"
+              class="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-500"
             ></span>
           </div>
           <div class="font-mono text-2xl font-bold tabular-nums">
@@ -74,7 +74,7 @@
     <nv-card
       role="button"
       tabindex="0"
-      class="cursor-pointer transition-all duration-200 hover:border-primary/40 hover:shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      class="hover:border-primary/40 focus-visible:ring-primary cursor-pointer transition-all duration-200 hover:shadow-xs focus-visible:ring-2 focus-visible:outline-none"
       [class.border-primary]="facade.filters().status === 'CLOSED'"
       [class.ring-1]="facade.filters().status === 'CLOSED'"
       [class.ring-primary]="facade.filters().status === 'CLOSED'"

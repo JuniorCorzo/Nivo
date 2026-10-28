@@ -27,7 +27,7 @@ import { lucideCamera } from "@ng-icons/lucide";
       </span>
     } @else {
       <span
-        class="inline-flex items-center gap-1.5 rounded border border-zinc-700 bg-amber-400 px-2 py-0.5 font-mono text-xs font-bold text-zinc-950 shadow-xs tabular-nums tracking-wider uppercase"
+        class="inline-flex items-center gap-1.5 rounded border border-zinc-700 bg-amber-400 px-2 py-0.5 font-mono text-xs font-bold tracking-wider text-zinc-950 uppercase tabular-nums shadow-xs"
       >
         {{ plate() }}
       </span>
@@ -37,5 +37,7 @@ import { lucideCamera } from "@ng-icons/lucide";
 export class TicketPlateCellComponent {
   readonly plate = input.required<string>();
 
-  readonly isUnplated = computed(() => this.plate()?.startsWith("SP-") ?? false);
+  readonly isUnplated = computed(
+    () => this.plate()?.startsWith("SP-") ?? false
+  );
 }

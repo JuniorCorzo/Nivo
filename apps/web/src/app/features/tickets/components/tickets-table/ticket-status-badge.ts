@@ -10,7 +10,9 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
   template: `
     @if (status() === "OPEN") {
       <nv-badge variant="success" class="inline-flex items-center gap-1.5">
-        <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span
+          class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400"
+        ></span>
         {{ texts.open }}
       </nv-badge>
     } @else if (status() === "CLOSED") {
