@@ -13,10 +13,9 @@ import L from "leaflet";
 
 const DEFAULT_CENTER: L.LatLngExpression = [4.711, -74.0721];
 const DEFAULT_ZOOM = 13;
-const CARTO_DARK_TILES =
-  "https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png";
-const CARTO_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+const TILE_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
 const NIVO_PIN_ICON = L.divIcon({
   className: "nivo-map-marker-container",
@@ -81,10 +80,9 @@ export class ParkingMapComponent implements OnDestroy {
       zoomControl: true,
     });
 
-    L.tileLayer(CARTO_DARK_TILES, {
-      attribution: CARTO_ATTRIBUTION,
-      maxZoom: 20,
-      subdomains: ["a", "b", "c", "d"],
+    L.tileLayer(TILE_URL, {
+      attribution: TILE_ATTRIBUTION,
+      maxZoom: 19,
     }).addTo(this.map);
 
     // Show initial marker if position is provided
