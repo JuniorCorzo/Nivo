@@ -76,6 +76,15 @@ export class UserMenu {
     return `https://ui-avatars.com/api/?name=${name.replaceAll(" ", "+")}`;
   });
 
+  readonly roleLabel = computed(() => {
+    const role = this.user()?.role;
+    if (role === "SUPERADMIN") return "Superadmin";
+    if (role === "OWNER") return "Propietario";
+    if (role === "MANAGER") return "Gerente";
+    if (role === "OPERATOR") return "Operador";
+    return this.user()?.email ?? "";
+  });
+
   readonly overlayPositions: ConnectedPosition[] = USER_MENU_OVERLAY_POSITIONS;
 
   toggleOpen(): void {

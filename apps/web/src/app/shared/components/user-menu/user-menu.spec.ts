@@ -153,4 +153,26 @@ describe("UserMenu", () => {
     const menu = overlayContainerElement.querySelector('[role="menu"]');
     expect(menu?.textContent).not.toContain("Invitado");
   });
+
+  it("should compute correct roleLabel for various roles", () => {
+    currentUserSignal.set({ ...mockUser, role: "OWNER" });
+    expect(component.roleLabel()).toBe("Propietario");
+
+    currentUserSignal.set({ ...mockUser, role: "SUPERADMIN" });
+    expect(component.roleLabel()).toBe("Superadmin");
+
+    currentUserSignal.set({ ...mockUser, role: "MANAGER" });
+    expect(component.roleLabel()).toBe("Gerente");
+
+    currentUserSignal.set({ ...mockUser, role: "OPERATOR" });
+    expect(component.roleLabel()).toBe("Operador");
+
+    currentUserSignal.set(null);
+    expect(component.roleLabel()).toBe("");
+  });
+
+  it("should render online status dot on trigger avatar", () => {
+    const onlineDot = fixture.nativeElement.querySelector(".bg-emerald-500");
+    expect(onlineDot).toBeTruthy();
+  });
 });
