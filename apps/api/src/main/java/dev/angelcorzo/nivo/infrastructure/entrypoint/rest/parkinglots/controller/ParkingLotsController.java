@@ -2,11 +2,13 @@ package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.controlle
 
 import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLots;
+import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingTelemetry;
 import dev.angelcorzo.nivo.domain.model.parkinglots.dto.UpsertParkingLotsDTO;
 import dev.angelcorzo.nivo.domain.model.rates.Rates;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotType;
 import dev.angelcorzo.nivo.domain.usecase.parkinglot.CreateParkingUseCase;
 import dev.angelcorzo.nivo.domain.usecase.parkinglot.DeleteParkingLotUseCase;
+import dev.angelcorzo.nivo.domain.usecase.parkinglot.GetParkingTelemetryUseCase;
 import dev.angelcorzo.nivo.domain.usecase.parkinglot.ListParkingLotsUseCase;
 import dev.angelcorzo.nivo.domain.usecase.parkinglot.UpdateParkingLotsUseCase;
 import dev.angelcorzo.nivo.domain.usecase.rate.RateConfigurationUseCase;
@@ -16,6 +18,7 @@ import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.dto.Response;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.dto.request.UpsertParkingLotsRequest;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.dto.response.ParkingLotListItemResponse;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.dto.response.ParkingLotsResponse;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.dto.response.ParkingTelemetryResponse;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.enums.ParkingLotsMessages;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.mappers.ParkingLotsMapper;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.rates.dto.CreateRate;
@@ -51,6 +54,7 @@ public class ParkingLotsController {
   private final ShowRatesByParkingLotUseCase showRatesByParkingLotUseCase;
   private final DeleteSlotGroupUseCase deleteSlotGroupUseCase;
   private final DeleteParkingLotUseCase deleteParkingLotUseCase;
+  private final GetParkingTelemetryUseCase getParkingTelemetryUseCase;
 
   @Operation(summary = "List parking lots", description = "Retrieves all parking lots belonging to the current tenant")
   @ApiResponses({@ApiResponse(responseCode = "200", description = "Parking lots list retrieved"),
@@ -81,6 +85,20 @@ public class ParkingLotsController {
       .toList();
 
     return Response.ok(listRates, RateMessages.SHOW_RATES_BY_TENANT.format());
+  }
+
+  @Operation(summary = "Get parking telemetry", description = "Retrieves real-time operational telemetry for a parking facility (occupancy, vehicle breakdown, mora, shift revenue)")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Parking telemetry retrieved successfully"),
+    @ApiResponse(responseCode = "403", description = "Forbidden - Operator role required")
+  })
+  @GetMapping("/{parkingId}/telemetry")
+  @PreAuthorize("hasRole('OPERATOR')")
+  public Response<ParkingTelemetryResponse> getParkingTelemetry(
+    @Parameter(description = "Parking lot ID", required = true) @PathVariable UUID parkingId) {
+    final ParkingTelemetry telemetry = this.getParkingTelemetryUseCase.execute(parkingId);
+    return Response.ok(this.parkingLotsMapper.toTelemetryResponse(telemetry),
+      ParkingLotsMessages.PARKING_TELEMETRY_RETRIEVED.format());
   }
 
   @Operation(summary = "Create parking lot", description = "Creates a new parking lot with operating hours, slots, address, and coordinates")
