@@ -201,9 +201,10 @@
 
         <!-- Leaflet map container -->
         <div
-          class="border-border min-h-[300px] w-full flex-1 overflow-hidden border-b sm:min-h-[360px]"
+          class="border-border flex min-h-[380px] w-full flex-1 flex-col overflow-hidden border-b"
         >
           <app-parking-map
+            class="block h-full w-full flex-1"
             [initialPosition]="p.coordinates"
             [parkingName]="p.name"
             [readonly]="true"
