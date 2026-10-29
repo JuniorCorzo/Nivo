@@ -1,6 +1,8 @@
 import "@angular/compiler";
-import { Injector, runInInjectionContext, signal } from "@angular/core";
+import { signal } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
+import type { ParkingTelemetryModel } from "@core/models/parking-telemetry.model";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import { ActiveParkingService } from "@core/services/active-parking.service";
 import { ParkingService } from "@core/services/parking-service";
@@ -13,6 +15,7 @@ import { ParkingHomeFacade } from "./parking-home.facade";
 
 interface MockParkingService {
   delete: ReturnType<typeof vi.fn>;
+  getTelemetry: ReturnType<typeof vi.fn>;
 }
 
 interface MockToastService {
@@ -88,12 +91,13 @@ describe("ParkingHomeFacade", () => {
     };
     mockParkingService = {
       delete: vi.fn().mockReturnValue(of(null)),
+      getTelemetry: vi.fn().mockReturnValue(of(null)),
     };
     mockToastService = {
       showToast: vi.fn(),
     };
 
-    const injector = Injector.create({
+    TestBed.configureTestingModule({
       providers: [
         ParkingHomeFacade,
         {
@@ -117,7 +121,7 @@ describe("ParkingHomeFacade", () => {
       ],
     });
 
-    facade = runInInjectionContext(injector, () => new ParkingHomeFacade());
+    facade = TestBed.inject(ParkingHomeFacade);
   });
 
   describe("Initialization and Computed Signals", () => {
@@ -135,6 +139,8 @@ describe("ParkingHomeFacade", () => {
       expect(facade.totalSlots()).toBe(50);
       expect(facade.occupiedSlots()).toBe(20);
       expect(facade.availableSlots()).toBe(30);
+      expect(facade.occupationRate()).toBe(40);
+      expect(facade.occupiedSlotsDetail()).toEqual([]);
     });
 
     it("should return 0 for metrics when activeParkingLot is null", () => {
@@ -142,6 +148,61 @@ describe("ParkingHomeFacade", () => {
       expect(facade.totalSlots()).toBe(0);
       expect(facade.occupiedSlots()).toBe(0);
       expect(facade.availableSlots()).toBe(0);
+      expect(facade.occupationRate()).toBe(0);
+      expect(facade.occupiedSlotsDetail()).toEqual([]);
+    });
+
+    it("should call parkingService.getTelemetry when activeParkingLot changes", () => {
+      TestBed.flushEffects();
+      expect(mockParkingService.getTelemetry).toHaveBeenCalledWith("lot-1");
+
+      mockActiveParkingLotSignal.set(mockLots[1]);
+      TestBed.flushEffects();
+      expect(mockParkingService.getTelemetry).toHaveBeenCalledWith("lot-2");
+    });
+
+    it("should prioritize telemetry data when telemetry is loaded", () => {
+      const mockTelemetry: ParkingTelemetryModel = {
+        availableSlots: 45,
+        carOccupied: 25,
+        carRate: 50,
+        carTotal: 50,
+        motoOccupied: 10,
+        motoRate: 33.3,
+        motoTotal: 30,
+        occupancyRate: 43.75,
+        occupiedSlots: 35,
+        occupiedSlotsDetail: [
+          {
+            licensePlate: "XYZ789",
+            prefix: "A",
+            slotNumber: "01",
+            type: "CAR",
+            zone: "Norte",
+          },
+        ],
+        parkingId: "lot-1",
+        totalCapacity: 80,
+      };
+
+      facade.telemetry.set(mockTelemetry);
+
+      expect(facade.totalSlots()).toBe(80);
+      expect(facade.occupiedSlots()).toBe(35);
+      expect(facade.availableSlots()).toBe(45);
+      expect(facade.occupationRate()).toBe(43.75);
+      expect(facade.occupiedSlotsDetail()).toEqual(
+        mockTelemetry.occupiedSlotsDetail
+      );
+    });
+
+    it("should handle error in loadTelemetry gracefully by clearing telemetry to null", () => {
+      mockParkingService.getTelemetry.mockReturnValue(
+        throwError(() => new Error("Network error"))
+      );
+      facade.loadTelemetry("lot-1");
+      expect(facade.telemetry()).toBeNull();
+      expect(facade.totalSlots()).toBe(50);
     });
   });
 

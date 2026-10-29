@@ -1,6 +1,7 @@
 import { Component, signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
+import type { ParkingTelemetryModel } from "@core/models/parking-telemetry.model";
 import type { Coordinates } from "@core/type/coordinates.type";
 import type { OperatingHours } from "@core/type/operating-hours.type";
 import type { SlotDistribution } from "@core/type/slot-distribution.type";
@@ -22,6 +23,7 @@ import { ParkingStatsGrid } from "./parking-stats-grid";
       [operatingHours]="operatingHours()"
       [gracePeriodMinutes]="gracePeriodMinutes()"
       [gracePeriodPrice]="gracePeriodPrice()"
+      [telemetry]="telemetry()"
     />
   `,
 })
@@ -45,6 +47,7 @@ class TestHostComponent {
   });
   public gracePeriodMinutes = signal(15);
   public gracePeriodPrice = signal(5000);
+  public telemetry = signal<ParkingTelemetryModel | null>(null);
 }
 
 describe("ParkingStatsGrid", () => {
@@ -136,5 +139,28 @@ describe("ParkingStatsGrid", () => {
 
     const grid = gridFixture.componentInstance;
     expect(grid.formattedCoords()).toBe("10,5000, -66,9000");
+  });
+
+  it("should prioritize telemetry input values over calculated ratios", () => {
+    hostComponent.telemetry.set({
+      availableSlots: 60,
+      carOccupied: 28,
+      carRate: 56,
+      carTotal: 50,
+      motoOccupied: 12,
+      motoRate: 24,
+      motoTotal: 50,
+      occupancyRate: 40,
+      occupiedSlots: 40,
+      parkingId: "lot-1",
+      totalCapacity: 100,
+    });
+    fixture.detectChanges();
+
+    const textContent = compiled.textContent || "";
+    expect(textContent).toContain("28 / 50 Plazas (56%)");
+    expect(textContent).toContain("12 / 50 Plazas (24%)");
+    expect(textContent).toContain("Autos: 50");
+    expect(textContent).toContain("Motos: 50");
   });
 });

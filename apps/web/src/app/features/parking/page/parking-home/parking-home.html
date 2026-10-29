@@ -109,13 +109,14 @@
     [totalSlots]="facade.totalSlots()"
     [occupiedSlots]="facade.occupiedSlots()"
     [availableSlots]="facade.availableSlots()"
-    [occupationRate]="p.occuppationRate || 0"
+    [occupationRate]="facade.occupationRate()"
     [currency]="p.currency"
     [coordinates]="p.coordinates"
     [slotDistribution]="p.slotDistribution"
     [operatingHours]="p.operatingHours"
     [gracePeriodMinutes]="p.gracePeriodMinutes"
     [gracePeriodPrice]="p.gracePeriodPrice"
+    [telemetry]="facade.telemetry()"
   />
 
   <!-- Operational Bridge Banner to Live Operations POS -->
@@ -147,6 +148,7 @@
     [occupiedSlots]="facade.occupiedSlots()"
     [availableSlots]="facade.availableSlots()"
     [totalSlots]="facade.totalSlots()"
+    [occupiedSlotsDetail]="facade.occupiedSlotsDetail()"
   />
   } }
 
