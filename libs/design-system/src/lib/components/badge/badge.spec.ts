@@ -12,7 +12,9 @@ import type { BadgeVariant } from "./badge";
   template: `
     <nv-badge id="default-badge">Default</nv-badge>
     <nv-badge id="secondary-badge" variant="secondary">Secondary</nv-badge>
-    <nv-badge id="destructive-badge" variant="destructive">Destructive</nv-badge>
+    <nv-badge id="destructive-badge" variant="destructive"
+      >Destructive</nv-badge
+    >
     <nv-badge id="outline-badge" variant="outline">Outline</nv-badge>
     <nv-badge id="success-badge" variant="success">Success</nv-badge>
     <nv-badge id="warning-badge" variant="warning">Warning</nv-badge>

@@ -8,7 +8,8 @@ public enum ParkingLotsMessages {
     "Lista de parqueaderos obtenida con exito"),
   SLOT_GROUP_DELETED(
     "Grupo de slots eliminado con exito"),
-  PARKING_LOT_DELETED("Parqueadero eliminado con exito"),;
+  PARKING_LOT_DELETED("Parqueadero eliminado con exito"),
+  PARKING_TELEMETRY_RETRIEVED("Telemetria del parqueadero obtenida con exito");
 
   private final String template;
 
