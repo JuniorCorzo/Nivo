@@ -30,6 +30,7 @@ Objective: Rediseñar y destilar componentes clave de la UI/UX en `apps/web`: de
 - [x] T6 (linked S6, S4): Implementar paridad completa de Parking: Accesos directos en header, Ribbon con Occupancy Gauge y desglose por vehículo, Card de Mapa con Dock Operativo y Matriz Visual de Bahías. | Route: delegated direct | Commit: pending
 - [x] T7 (linked S4): Verificación integral, pruebas unitarias y formateo oxfmt. | Route: delegated direct | Commit: pending
 - [x] T8 (linked S5, S4): Normalizar estilo de placa a monospace estándar y remover barra de progreso de celda de fecha/hora. | Route: delegated direct | Commit: pending
+- [x] T9 (linked S6, S4): Refinar vistas de parking: purgar métricas simuladas en parking-stats-grid por datos reales (slotDistribution y políticas), tira puente compacta hacia taquilla con lucideTicket, inversión de columnas en tab 2 y coordenadas GPS limpias sin cortes. | Route: delegated direct | Commit: pending
 
 ## Log
 
@@ -42,6 +43,7 @@ Objective: Rediseñar y destilar componentes clave de la UI/UX en `apps/web`: de
 - L7 (2026-10-28): User requested full alignment with all elements from `full-pages-redesign.html` sketch. Switched companion server active screen by removing old logo artifact, opened companion in browser via xdg-open, and expanded specs S5-S6 for complete Tickets & Parking detail mockup parity.
 - L8 (2026-10-28): Completed T5, T6, and T7. Tickets view overhauled with 4-card actionable ribbon, Colombian reflective plate chip, vehicle pills, relative duration with microbar, and table row click to drawer. Parking home overhauled with 3-card telemetry ribbon, Hero Map with GPS topbar & Operational Dock bar, and Visual Slot Matrix. All unit tests passing and formatted with oxfmt.
 - L9 (2026-10-28): User feedback: removed yellow badge simulation and COLOMBIA tag from plate cell (standardized to clean monospace); eliminated progress bar from date/duration cell in favor of clean timestamp and relative duration text. Updated unit tests (42/42 passing) and verified in live UI via agent-browser.
+- L10 (2026-10-29): Completed T9. Purged mockup numbers from parking-stats-grid; enforced 100% real domain metrics for car/moto breakdown, total patio distribution, and operational policies (hours, grace period minutes & rate). Replaced POS card with sleek compact bridge strip and changed lucideZap to lucideTicket. Inverted tab 2 layout placing general info on left (col-5) and map on right (col-7). Cleaned coordinate GPS format without mid-number wrapping.
 
 ## Key Learnings
 
@@ -49,3 +51,4 @@ Objective: Rediseñar y destilar componentes clave de la UI/UX en `apps/web`: de
 - Leaflet default `divIcon` injects `.leaflet-div-icon` styling with white background and border; overriding `:host ::ng-deep .nivo-map-marker-container` with transparent background and zero border enables clean animated radar ping markers.
 - Encapsulating table cell styling into dedicated standalone presentational components (`TicketTotalCellComponent`) via `flexRenderComponent` allows clean tabular-nums and typography styling in TanStack table definitions without polluting templates with conditional cell logic.
 - Documenting user-driven UI refinements in ODD spec documents maintains complete auditability between live browser feedback and repository specifications.
+- Replacing simulated mockup metrics with real data points from domain models prevents user confusion and builds trust in operational telemetry.

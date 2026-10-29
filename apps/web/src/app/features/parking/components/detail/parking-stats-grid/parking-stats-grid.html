@@ -1,139 +1,186 @@
-<div class="grid grid-cols-1 gap-3.5 lg:grid-cols-[1.4fr_1fr_1fr]">
+<div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
   <!-- Card 1: Global Occupancy Gauge -->
   <nv-card
-    class="border-border flex flex-col justify-between rounded-xl border p-4 sm:p-5"
+    class="border-border bg-card flex flex-col justify-between rounded-2xl border p-5 shadow-xs"
   >
-    <div class="flex flex-col gap-2.5">
-      <div class="flex items-baseline justify-between gap-2">
-        <div>
-          <span
-            class="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
-          >
-            Ocupación General del Patio
-          </span>
-          <div
-            class="text-foreground mt-1 font-mono text-3xl leading-none font-extrabold"
-          >
-            {{ occupationRate() }}%
-          </div>
-        </div>
-        <div class="text-muted-foreground font-mono text-sm font-semibold">
-          {{ occupiedSlots() }} / {{ totalSlots() }} Plazas
-        </div>
+    <div>
+      <div class="flex items-center justify-between gap-2">
+        <span
+          class="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
+        >
+          Ocupación General del Patio
+        </span>
+        <span class="text-muted-foreground font-mono text-xs font-semibold">
+          <span class="tabular-nums">{{ occupiedSlots() }}</span> /
+          <span class="tabular-nums">{{ totalSlots() }}</span> Plazas
+        </span>
       </div>
+      <div
+        class="text-foreground mt-2 font-mono text-3xl leading-none font-extrabold tabular-nums"
+      >
+        {{ occupationRate() }}%
+      </div>
+      <div class="text-muted-foreground mt-1.5 text-xs">
+        Capacidad operativa en tiempo real
+      </div>
+    </div>
 
+    <div class="mt-4 flex flex-col gap-3">
       <!-- Linear gauge progress bar -->
       <div
         class="border-border/50 bg-muted relative h-2.5 w-full overflow-hidden rounded-full border"
       >
         <div
           class="h-full rounded-full transition-all duration-500"
-          [class.bg-emerald-500]="occupationRate() < 70"
-          [class.bg-amber-500]="occupationRate() >= 70 && occupationRate() < 90"
-          [class.bg-red-500]="occupationRate() >= 90"
+          [class.bg-success]="occupationRate() < 70"
+          [class.bg-warning]="occupationRate() >= 70 && occupationRate() < 90"
+          [class.bg-destructive]="occupationRate() >= 90"
           [style.width.%]="clampedOccupationRate()"
         ></div>
       </div>
 
       <!-- Sub-counts breakdown -->
-      <div class="mt-1 grid grid-cols-2 gap-3 pt-1">
-        <div class="flex flex-col gap-0.5">
-          <span class="text-muted-foreground text-[11px] font-semibold">
-            🚗 Autos en Sitio
+      <div class="grid grid-cols-2 gap-2 pt-0.5">
+        <div
+          class="border-border/60 bg-muted/40 flex flex-col gap-0.5 rounded-xl border p-2.5"
+        >
+          <span
+            class="text-muted-foreground flex items-center gap-1.5 text-[11px] font-semibold"
+          >
+            <ng-icon name="lucideCar" class="text-xs" />
+            <span>Autos en Sitio</span>
           </span>
-          <span class="text-foreground font-mono text-sm font-bold">
-            {{ carOccupied() }}
-            <span class="text-muted-foreground text-[11px] font-normal">
-              / {{ carTotal() }} Plazas ({{ carRate() }}%)
-            </span>
-          </span>
+          <span class="text-foreground font-mono text-xs font-bold tabular-nums"
+            >{{ carOccupied() }}
+            <span class="text-muted-foreground text-[10px] font-normal"
+              >/ {{ carTotal() }} Plazas ({{ carRate() }}%)</span
+            ></span
+          >
         </div>
-        <div class="flex flex-col gap-0.5">
-          <span class="text-muted-foreground text-[11px] font-semibold">
-            🏍️ Motos en Sitio
+        <div
+          class="border-border/60 bg-muted/40 flex flex-col gap-0.5 rounded-xl border p-2.5"
+        >
+          <span
+            class="text-muted-foreground flex items-center gap-1.5 text-[11px] font-semibold"
+          >
+            <ng-icon name="lucideBike" class="text-xs" />
+            <span>Motos en Sitio</span>
           </span>
-          <span class="text-foreground font-mono text-sm font-bold">
-            {{ motoOccupied() }}
-            <span class="text-muted-foreground text-[11px] font-normal">
-              / {{ motoTotal() }} Plazas ({{ motoRate() }}%)
-            </span>
-          </span>
+          <span class="text-foreground font-mono text-xs font-bold tabular-nums"
+            >{{ motoOccupied() }}
+            <span class="text-muted-foreground text-[10px] font-normal"
+              >/ {{ motoTotal() }} Plazas ({{ motoRate() }}%)</span
+            ></span
+          >
         </div>
       </div>
     </div>
   </nv-card>
 
-  <!-- Card 2: Recaudo Acumulado Turno -->
+  <!-- Card 2: Distribución y Zonas de Patio -->
   <nv-card
-    class="border-border flex flex-col justify-between rounded-xl border p-4 sm:p-5"
+    class="border-border bg-card flex flex-col justify-between rounded-2xl border p-5 shadow-xs"
   >
     <div>
       <div class="flex items-center justify-between">
         <span
           class="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
         >
-          Recaudo Acumulado Turno
+          Distribución y Zonas de Patio
         </span>
-        <span
-          class="h-2 w-2 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50"
-        ></span>
+        <span class="text-muted-foreground font-mono text-xs font-semibold">
+          <span class="tabular-nums">{{ totalZones() }}</span>
+          {{ totalZones() === 1 ? 'Zona' : 'Zonas' }}
+        </span>
       </div>
       <div
-        class="mt-2 font-mono text-3xl leading-none font-extrabold text-blue-500"
+        class="text-foreground mt-2 font-mono text-3xl leading-none font-extrabold tabular-nums"
       >
-        $ {{ estimatedTurno() | number }}
+        {{ totalSlots() }}
       </div>
       <div class="text-muted-foreground mt-1.5 text-xs">
-        Turno en curso · Taquilla 01
+        Total de plazas configuradas en patio
       </div>
     </div>
 
     <div
-      class="border-border text-muted-foreground mt-4 flex items-center justify-between border-t pt-2.5 text-[11px]"
+      class="border-border text-muted-foreground mt-4 flex items-center justify-between border-t pt-3 text-[11px]"
     >
-      <span>
-        Promedio ticket:
-        <strong class="text-foreground font-mono">$ 7.200</strong>
+      <span class="flex items-center gap-1.5">
+        <ng-icon name="lucideCar" class="text-primary text-xs" />
+        <span
+          >Autos:
+          <strong class="text-foreground font-mono tabular-nums"
+            >{{ carTotal() }}</strong
+          ></span
+        >
       </span>
-      <span class="font-semibold text-emerald-500">Meta turno: 104%</span>
+      <span class="flex items-center gap-1.5">
+        <ng-icon name="lucideBike" class="text-primary text-xs" />
+        <span
+          >Motos:
+          <strong class="text-foreground font-mono tabular-nums"
+            >{{ motoTotal() }}</strong
+          ></span
+        >
+      </span>
+      <span class="flex items-center gap-1.5">
+        <ng-icon name="lucideLayers" class="text-primary text-xs" />
+        <span
+          >Zonas:
+          <strong class="text-foreground font-mono tabular-nums"
+            >{{ totalZones() }}</strong
+          ></span
+        >
+      </span>
     </div>
   </nv-card>
 
-  <!-- Card 3: Rotación & Permanencia -->
+  <!-- Card 3: Operación & Políticas -->
   <nv-card
-    class="border-border flex flex-col justify-between rounded-xl border p-4 sm:p-5"
+    class="border-border bg-card flex flex-col justify-between rounded-2xl border p-5 shadow-xs"
   >
     <div>
       <div class="flex items-center justify-between">
         <span
           class="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
         >
-          Rotación & Permanencia
+          Operación & Políticas
         </span>
-        <span
-          class="h-2 w-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"
-        ></span>
+        <span class="text-muted-foreground font-mono text-xs font-semibold">
+          {{ operatingHoursText() || "24 Horas" }}
+        </span>
       </div>
       <div
-        class="text-foreground mt-2 font-mono text-3xl leading-none font-extrabold"
+        class="text-foreground mt-2 font-mono text-3xl leading-none font-extrabold tabular-nums"
       >
-        1h 35m
+        {{ gracePeriodText() || "0 min" }}
       </div>
       <div class="text-muted-foreground mt-1.5 text-xs">
-        Tiempo promedio de permanencia
+        Tiempo de gracia para salida sin cobro
       </div>
     </div>
 
     <div
-      class="border-border text-muted-foreground mt-4 flex items-center justify-between border-t pt-2.5 text-[11px]"
+      class="border-border text-muted-foreground mt-4 flex items-center justify-between border-t pt-3 text-[11px]"
     >
-      <span>
-        Índice Rotación:
-        <strong class="text-foreground font-mono">4.2x / día</strong>
+      <span class="flex items-center gap-1.5">
+        <ng-icon name="lucideClock" class="text-muted-foreground text-xs" />
+        <span
+          >Horario:
+          <strong class="text-foreground"
+            >{{ operatingHoursText() || "24 Horas" }}</strong
+          ></span
+        >
       </span>
-      <span>
-        En mora &gt; 8h:
-        <strong class="font-mono text-amber-500">3</strong>
+      <span class="flex items-center gap-1.5">
+        <ng-icon name="lucideCoins" class="text-muted-foreground text-xs" />
+        <span
+          >Tarifa gracia:
+          <strong class="text-foreground font-mono tabular-nums"
+            >{{ gracePeriodPriceText() || "$ 0" }}</strong
+          ></span
+        >
       </span>
     </div>
   </nv-card>

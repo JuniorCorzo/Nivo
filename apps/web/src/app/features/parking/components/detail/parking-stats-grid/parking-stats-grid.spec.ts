@@ -2,6 +2,8 @@ import { Component, signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import type { Coordinates } from "@core/type/coordinates.type";
+import type { OperatingHours } from "@core/type/operating-hours.type";
+import type { SlotDistribution } from "@core/type/slot-distribution.type";
 
 import { ParkingStatsGrid } from "./parking-stats-grid";
 
@@ -16,6 +18,10 @@ import { ParkingStatsGrid } from "./parking-stats-grid";
       [occupationRate]="occupationRate()"
       [currency]="currency()"
       [coordinates]="coordinates()"
+      [slotDistribution]="slotDistribution()"
+      [operatingHours]="operatingHours()"
+      [gracePeriodMinutes]="gracePeriodMinutes()"
+      [gracePeriodPrice]="gracePeriodPrice()"
     />
   `,
 })
@@ -29,6 +35,16 @@ class TestHostComponent {
     latitude: 4.6097,
     longitude: -74.0817,
   });
+  public slotDistribution = signal<SlotDistribution[]>([
+    { count: 60, prefix: "A", type: "CAR", zone: "Piso 1" },
+    { count: 40, prefix: "M", type: "MOTORCYCLE", zone: "Piso 2" },
+  ]);
+  public operatingHours = signal<OperatingHours>({
+    closeTime: "22:00",
+    openTime: "06:00",
+  });
+  public gracePeriodMinutes = signal(15);
+  public gracePeriodPrice = signal(5000);
 }
 
 describe("ParkingStatsGrid", () => {
@@ -54,21 +70,23 @@ describe("ParkingStatsGrid", () => {
     expect(textContent).toContain("Ocupación General del Patio");
     expect(textContent).toContain("45%");
     expect(textContent).toContain("45 / 100 Plazas");
-    expect(textContent).toContain("🚗 Autos en Sitio");
-    expect(textContent).toContain("🏍️ Motos en Sitio");
+    expect(textContent).toContain("Autos en Sitio");
+    expect(textContent).toContain("Motos en Sitio");
+    expect(textContent).toContain("27 / 60 Plazas");
+    expect(textContent).toContain("18 / 40 Plazas");
 
-    // Card 2: Recaudo Acumulado Turno
-    expect(textContent).toContain("Recaudo Acumulado Turno");
-    expect(textContent).toContain("Turno en curso · Taquilla 01");
-    expect(textContent).toContain("Promedio ticket: $ 7.200");
-    expect(textContent).toContain("Meta turno: 104%");
+    // Card 2: Distribución y Zonas de Patio
+    expect(textContent).toContain("Distribución y Zonas de Patio");
+    expect(textContent).toContain("2 Zonas");
+    expect(textContent).toContain("Autos: 60");
+    expect(textContent).toContain("Motos: 40");
+    expect(textContent).toContain("Zonas: 2");
 
-    // Card 3: Rotación & Permanencia
-    expect(textContent).toContain("Rotación & Permanencia");
-    expect(textContent).toContain("1h 35m");
-    expect(textContent).toContain("Tiempo promedio de permanencia");
-    expect(textContent).toContain("Índice Rotación: 4.2x / día");
-    expect(textContent).toContain("En mora > 8h: 3");
+    // Card 3: Operación & Políticas
+    expect(textContent).toContain("Operación & Políticas");
+    expect(textContent).toContain("15 min");
+    expect(textContent).toContain("06:00 - 22:00");
+    expect(textContent).toContain("Tarifa gracia: $ 5.000");
   });
 
   it("should update display and metrics when inputs change", () => {
@@ -89,18 +107,18 @@ describe("ParkingStatsGrid", () => {
     const gauge = compiled.querySelector(".rounded-full > div");
     expect(gauge).toBeTruthy();
 
-    // 45% -> emerald
-    expect(gauge?.classList.contains("bg-emerald-500")).toBe(true);
+    // 45% -> success
+    expect(gauge?.classList.contains("bg-success")).toBe(true);
 
-    // 75% -> amber
+    // 75% -> warning
     hostComponent.occupationRate.set(75);
     fixture.detectChanges();
-    expect(gauge?.classList.contains("bg-amber-500")).toBe(true);
+    expect(gauge?.classList.contains("bg-warning")).toBe(true);
 
-    // 95% -> red
+    // 95% -> destructive
     hostComponent.occupationRate.set(95);
     fixture.detectChanges();
-    expect(gauge?.classList.contains("bg-red-500")).toBe(true);
+    expect(gauge?.classList.contains("bg-destructive")).toBe(true);
   });
 
   it("should compute formattedCoords properly when initialized directly", () => {

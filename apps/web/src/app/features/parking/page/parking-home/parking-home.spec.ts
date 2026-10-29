@@ -6,6 +6,21 @@ import { provideRouter } from "@angular/router";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import { ActiveParkingService } from "@core/services/active-parking.service";
 import { ParkingService } from "@core/services/parking-service";
+import { provideIcons } from "@ng-icons/core";
+import {
+  lucideBuilding2,
+  lucideCoins,
+  lucideEdit,
+  lucideLayers,
+  lucideLogIn,
+  lucideMapPin,
+  lucideParkingSquare,
+  lucidePencil,
+  lucideSearch,
+  lucideTag,
+  lucideTicket,
+  lucideTrash2,
+} from "@ng-icons/lucide";
 
 import { ParkingHomeFacade } from "../../facades/parking-home.facade";
 import { ParkingHome } from "./parking-home";
@@ -82,7 +97,23 @@ describe("ParkingHome Component", () => {
     })
       .overrideComponent(ParkingHome, {
         set: {
-          providers: [{ provide: ParkingHomeFacade, useValue: mockFacade }],
+          providers: [
+            { provide: ParkingHomeFacade, useValue: mockFacade },
+            provideIcons({
+              lucideBuilding2,
+              lucideCoins,
+              lucideEdit,
+              lucideLayers,
+              lucideLogIn,
+              lucideMapPin,
+              lucideParkingSquare,
+              lucidePencil,
+              lucideSearch,
+              lucideTag,
+              lucideTicket,
+              lucideTrash2,
+            }),
+          ],
         },
       })
       .compileComponents();
@@ -96,11 +127,53 @@ describe("ParkingHome Component", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should render parking stats and general info when active parking is present", () => {
+  it("should render stats-grid and slot-distribution in capacity tab by default", () => {
     const el: HTMLElement = fixture.nativeElement;
+    expect(component.activeTab()).toBe("capacity");
     expect(el.querySelector("app-parking-stats-grid")).toBeTruthy();
-    expect(el.querySelector("app-parking-general-info")).toBeTruthy();
+    expect(el.querySelector("app-parking-slot-distribution")).toBeTruthy();
+    expect(el.querySelector("app-parking-general-info")).toBeNull();
+    expect(el.querySelector("app-parking-map")).toBeNull();
     expect(el.querySelector("app-parking-empty-state")).toBeNull();
+  });
+
+  it("should switch to technical tab and render general info and map", () => {
+    const el: HTMLElement = fixture.nativeElement;
+    component.setTab("technical");
+    fixture.detectChanges();
+
+    expect(component.activeTab()).toBe("technical");
+    expect(el.querySelector("app-parking-general-info")).toBeTruthy();
+    expect(el.querySelector("app-parking-map")).toBeTruthy();
+    expect(el.querySelector("app-parking-stats-grid")).toBeNull();
+    expect(el.querySelector("app-parking-slot-distribution")).toBeNull();
+  });
+
+  it("should switch tabs when clicking segmented control tabs", () => {
+    const tabButtons =
+      fixture.nativeElement.querySelectorAll('button[role="tab"]');
+    expect(tabButtons.length).toBe(2);
+
+    tabButtons[1].click();
+    fixture.detectChanges();
+    expect(component.activeTab()).toBe("technical");
+
+    tabButtons[0].click();
+    fixture.detectChanges();
+    expect(component.activeTab()).toBe("capacity");
+  });
+
+  it("should trigger facade.onManageOperations from the live operations banner in capacity tab", () => {
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll("nv-button")
+    ) as HTMLElement[];
+    const bannerButton = buttons.find((btn) =>
+      btn.textContent?.includes("Ir a Taquilla en Vivo")
+    );
+
+    expect(bannerButton).toBeTruthy();
+    bannerButton?.click();
+    expect(mockFacade.onManageOperations).toHaveBeenCalled();
   });
 
   it("should render app-page-header with parking selector, actions, and breadcrumbs", () => {
@@ -111,7 +184,7 @@ describe("ParkingHome Component", () => {
     expect(selector).toBeTruthy();
     const actions = header.querySelector("[actions]");
     expect(actions).toBeTruthy();
-    expect(header.textContent).toContain("⚡ Ir a Taquilla Directa");
+    expect(header.textContent).toContain("Ir a Taquilla Directa");
     expect(header.textContent).toContain("Configurar Tarifas");
     expect(header.textContent).toContain("Editar Sede");
     expect(header.textContent).toContain("Calle 100 # 15-20, Bogotá");
@@ -139,19 +212,20 @@ describe("ParkingHome Component", () => {
     expect(mockFacade.onEdit).toHaveBeenCalled();
   });
 
-  it("should render hero map card with topbar, coordinates, and operational quick dock bar", () => {
+  it("should render hero map card with topbar, coordinates, and operational quick dock bar in technical tab", () => {
+    component.setTab("technical");
+    fixture.detectChanges();
+
     const native = fixture.nativeElement;
     expect(native.textContent).toContain("Mapa Georeferenciado en Vivo");
     expect(native.textContent).toContain(
       "Centro de Comandos Operativos de Sede"
     );
-    expect(native.textContent).toContain("🔍 Auditar Bahías");
-    expect(native.textContent).toContain("⚡ Taquilla Directa");
-    expect(native.textContent).toContain("🏷️ Configurar Tarifas");
+    expect(native.textContent).toContain("Auditar Bahías");
+    expect(native.textContent).toContain("Taquilla Directa");
+    expect(native.textContent).toContain("Configurar Tarifas");
 
-    const dockButtons = native.querySelectorAll(
-      "nv-card:last-of-type nv-button"
-    );
+    const dockButtons = native.querySelectorAll("nv-card nv-button");
     expect(dockButtons.length).toBe(3);
 
     dockButtons[0].click();
