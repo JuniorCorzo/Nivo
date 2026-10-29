@@ -35,7 +35,9 @@
           >
             {{ item.licensePlate || "SIN-PLACA" }}
           </span>
-          <span class="text-muted-foreground">{{ item.slotType || "Automóvil" }}</span>
+          <span class="text-muted-foreground"
+            >{{ item.slotType || "Automóvil" }}</span
+          >
           @if (item.parkingName) {
           <span class="text-muted-foreground text-[10px]"
             >• {{ item.parkingName }}</span
