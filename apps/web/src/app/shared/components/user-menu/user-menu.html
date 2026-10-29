@@ -14,11 +14,22 @@
   [class.gap-2]="!collapsed()"
   [attr.title]="collapsed() ? name || null : null"
 >
-  <img [src]="userProfileImage()" alt="" class="size-8 shrink-0 rounded-full" />
+  <div class="relative size-8 shrink-0">
+    <img
+      [src]="userProfileImage()"
+      alt=""
+      class="border-border size-8 rounded-full border"
+    />
+    <span
+      class="border-background absolute right-0 bottom-0 size-2 rounded-full border-[1.5px] bg-emerald-500"
+    ></span>
+  </div>
   @if (!collapsed()) {
   <span class="flex min-w-0 flex-1 flex-col overflow-hidden">
     <span class="truncate text-sm font-medium">{{ name }}</span>
-    <span class="text-muted-foreground truncate text-xs">{{ email }}</span>
+    <span class="text-muted-foreground truncate text-xs"
+      >{{ roleLabel() }}</span
+    >
   </span>
   <ng-icon
     name="lucideChevronsUpDown"
