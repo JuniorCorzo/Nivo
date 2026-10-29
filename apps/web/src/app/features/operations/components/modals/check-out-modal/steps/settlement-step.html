@@ -17,7 +17,7 @@
         </span>
         <div class="flex items-center gap-2">
           <span
-            class="text-foreground font-mono text-lg font-black tracking-wider sm:text-xl"
+            class="text-foreground font-mono text-lg font-black tracking-wider tabular-nums sm:text-xl"
           >
             {{ facade.selectedTicket()?.licensePlate }}
           </span>
@@ -35,7 +35,9 @@
         <span class="text-muted-foreground block text-[10px] sm:text-xs">
           Cupo
         </span>
-        <span class="text-foreground font-mono text-xs font-bold sm:text-sm">
+        <span
+          class="text-foreground font-mono text-xs font-bold tabular-nums sm:text-sm"
+        >
           {{ facade.selectedTicket()?.slotNumber || "Asignado" }}
         </span>
       </div>
@@ -60,7 +62,7 @@
         <ng-icon name="lucideTimer" class="text-primary text-sm" />
         Tiempo de Estadía
       </span>
-      <span class="text-foreground font-mono text-xs font-bold">
+      <span class="text-foreground font-mono text-xs font-bold tabular-nums">
         {{ stayDuration().formatted }}
       </span>
     </div>
@@ -82,10 +84,10 @@
         <span class="text-foreground mt-1.5 text-[11px] font-semibold">
           Entrada
         </span>
-        <span class="text-muted-foreground font-mono text-[10px]">
+        <span class="text-muted-foreground font-mono text-[10px] tabular-nums">
           {{ facade.selectedTicket()?.entryTime | date: "shortTime" }}
         </span>
-        <span class="text-muted-foreground text-[9px]">
+        <span class="text-muted-foreground text-[9px] tabular-nums">
           {{ facade.selectedTicket()?.entryTime | date: "dd/MM/yyyy" }}
         </span>
       </div>
@@ -93,7 +95,7 @@
       <!-- Duration Pill in middle -->
       <div class="relative z-10 flex flex-col items-center px-1">
         <div
-          class="border-border bg-muted/80 text-foreground flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[11px] font-bold shadow-xs"
+          class="border-border bg-muted/80 text-foreground flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[11px] font-bold tabular-nums shadow-xs"
         >
           <ng-icon name="lucideTimer" class="text-primary text-xs" />
           <span>{{ stayDuration().formatted }}</span>
@@ -113,10 +115,10 @@
         <span class="text-foreground mt-1.5 text-[11px] font-semibold">
           Salida / Cálculo
         </span>
-        <span class="text-muted-foreground font-mono text-[10px]">
+        <span class="text-muted-foreground font-mono text-[10px] tabular-nums">
           {{ calculationTime() | date: "shortTime" }}
         </span>
-        <span class="text-muted-foreground text-[9px]">
+        <span class="text-muted-foreground text-[9px] tabular-nums">
           {{ calculationTime() | date: "dd/MM/yyyy" }}
         </span>
       </div>
@@ -162,7 +164,7 @@
       @for (line of calc.breakdown; track line.concept) {
       <div class="flex items-center justify-between">
         <span class="text-foreground">{{ line.concept }}</span>
-        <span class="text-foreground font-mono font-medium">
+        <span class="text-foreground font-mono font-medium tabular-nums">
           ${{ line.amount | number: "1.0-0" }} COP
         </span>
       </div>
@@ -176,14 +178,14 @@
     >
       <div class="flex justify-between">
         <span>Subtotal</span>
-        <span class="font-mono font-medium"
+        <span class="font-mono font-medium tabular-nums"
           >${{ calc.subtotal | number: "1.0-0" }} COP</span
         >
       </div>
       @if (calc.ivaAmount > 0) {
       <div class="flex justify-between">
         <span>IVA ({{ calc.ivaRate }}%)</span>
-        <span class="font-mono font-medium"
+        <span class="font-mono font-medium tabular-nums"
           >${{ calc.ivaAmount | number: "1.0-0" }} COP</span
         >
       </div>
@@ -210,7 +212,9 @@
           >
         </div>
         <div class="text-right">
-          <span class="text-foreground font-mono text-2xl font-black">
+          <span
+            class="text-foreground font-mono text-2xl font-black tabular-nums"
+          >
             ${{ calc.total | number: "1.0-0" }}
           </span>
           <span class="text-muted-foreground ml-1 text-xs font-normal"

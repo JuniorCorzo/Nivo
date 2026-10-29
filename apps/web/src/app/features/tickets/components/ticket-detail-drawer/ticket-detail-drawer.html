@@ -58,6 +58,23 @@
       }
     </div>
 
+    <!-- Vehicle Photograph Section -->
+    @if (ticket()?.photoUrl) {
+    <div class="space-y-2">
+      <div class="flex items-center gap-2 text-sm font-semibold">
+        <ng-icon name="lucideCamera" class="text-primary text-base" />
+        <span>{{ texts.photoTitle }}</span>
+      </div>
+      <div class="border-border bg-muted/20 overflow-hidden rounded-xl border">
+        <img
+          [src]="ticket()?.photoUrl"
+          [alt]="texts.photoAlt"
+          class="aspect-video w-full object-cover"
+        />
+      </div>
+    </div>
+    }
+
     <!-- Stay Metadata Card -->
     <nv-card>
       <nv-card-content class="space-y-3 p-4">
@@ -196,15 +213,28 @@
     <nv-button type="button" variant="outline" size="md" (click)="close.emit()">
       {{ actionTexts.closeDrawer }}
     </nv-button>
-    <nv-button
-      type="button"
-      variant="default"
-      size="md"
-      (click)="reprintReceipt.emit(ticket()!)"
-    >
-      <ng-icon name="lucidePrinter" size="16" />
-      {{ actionTexts.reprintReceipt }}
-    </nv-button>
+    <div class="flex items-center gap-2">
+      <nv-button
+        type="button"
+        [variant]="ticket()?.status === 'OPEN' ? 'outline' : 'default'"
+        size="md"
+        (click)="reprintReceipt.emit(ticket()!)"
+      >
+        <ng-icon name="lucidePrinter" size="16" />
+        {{ actionTexts.reprintReceipt }}
+      </nv-button>
+      @if (ticket()?.status === "OPEN") {
+      <nv-button
+        type="button"
+        variant="default"
+        size="md"
+        (click)="checkoutInTaquilla.emit(ticket()!)"
+      >
+        <ng-icon name="lucideLogOut" size="16" />
+        {{ actionTexts.checkoutInTaquilla }}
+      </nv-button>
+      }
+    </div>
   </div>
 </aside>
 }

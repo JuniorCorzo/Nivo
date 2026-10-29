@@ -72,6 +72,7 @@ export class CheckInModalComponent {
   readonly isOpen = input<boolean>(false);
   readonly parkingId = input<string | null>(null);
   readonly preselectedSlot = input<SlotSummary | null>(null);
+  readonly initialUnplated = input<boolean>(false);
 
   readonly closed = output();
 
@@ -88,6 +89,9 @@ export class CheckInModalComponent {
     effect(() => {
       if (this.isOpen()) {
         this.facade.reset();
+        if (this.initialUnplated()) {
+          this.facade.setIsUnplated(true);
+        }
         const preselected = this.preselectedSlot();
         if (preselected) {
           const vType: VehicleType =

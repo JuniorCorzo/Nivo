@@ -12,7 +12,7 @@
       <div>
         <div class="flex items-center gap-2">
           <span
-            class="text-foreground font-mono text-base font-black tracking-wider sm:text-lg"
+            class="text-foreground font-mono text-base font-black tracking-wider tabular-nums sm:text-lg"
           >
             {{ facade.selectedTicket()?.licensePlate }}
           </span>
@@ -22,7 +22,7 @@
           </nv-badge>
           }
         </div>
-        <span class="text-muted-foreground font-mono text-xs">
+        <span class="text-muted-foreground font-mono text-xs tabular-nums">
           Cupo {{ facade.selectedTicket()?.slotNumber || "Asignado" }}
         </span>
       </div>
@@ -34,7 +34,9 @@
       >
         Total a Pagar
       </span>
-      <span class="text-foreground font-mono text-base font-black sm:text-lg">
+      <span
+        class="text-foreground font-mono text-base font-black tabular-nums sm:text-lg"
+      >
         ${{ facade.priceCalculation()?.total | number: "1.0-0" }} COP
       </span>
     </div>

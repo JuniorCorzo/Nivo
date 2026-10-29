@@ -218,4 +218,15 @@ describe("CheckInModalComponent", () => {
       "Bahía Asignada: A-101 (MOTORCYCLE)"
     );
   });
+
+  it("should set unplated mode in facade when initialUnplated is true on open", () => {
+    const setIsUnplatedSpy = vi.spyOn(component.facade, "setIsUnplated");
+
+    fixture.componentRef.setInput("initialUnplated", true);
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    expect(setIsUnplatedSpy).toHaveBeenCalledWith(true);
+    expect(component.facade.isUnplated()).toBe(true);
+  });
 });

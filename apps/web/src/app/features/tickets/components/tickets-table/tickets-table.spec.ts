@@ -99,7 +99,15 @@ describe("TicketsTableComponent", () => {
       selected = t;
     });
 
-    component.selectTicket.emit(mockTickets[0]);
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const viewDetailBtn = compiled.querySelector(
+      'tbody tr:first-child nv-button[aria-label="Ver detalle"]'
+    ) as HTMLElement | null;
+    expect(viewDetailBtn).not.toBeNull();
+    const innerBtn = viewDetailBtn?.querySelector("button");
+    innerBtn?.click();
+
     expect(selected).toEqual(mockTickets[0]);
   });
 
@@ -109,8 +117,16 @@ describe("TicketsTableComponent", () => {
       selected = t;
     });
 
-    component.reprintReceipt.emit(mockTickets[1]);
-    expect(selected).toEqual(mockTickets[1]);
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const reprintBtn = compiled.querySelector(
+      'tbody tr:first-child nv-button[aria-label="Reimprimir Comprobante"]'
+    ) as HTMLElement | null;
+    expect(reprintBtn).not.toBeNull();
+    const innerBtn = reprintBtn?.querySelector("button");
+    innerBtn?.click();
+
+    expect(selected).toEqual(mockTickets[0]);
   });
 
   it("should emit resetFilters when clicking reset filters button", () => {
@@ -138,42 +154,32 @@ describe("TicketsTableComponent", () => {
     expect(compiled.textContent).toContain("Parqueadero Central");
   });
 
-  it("should render direct Cobrar action button for OPEN tickets only", () => {
+  it("should NOT render Cobrar button on any ticket rows", () => {
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const cobrarButtons = compiled.querySelectorAll(
+      'nv-button[aria-label="Cobrar"]'
+    );
+    expect(cobrarButtons.length).toBe(0);
+    expect(compiled.textContent).not.toContain("Cobrar");
+  });
+
+  it("should render Ver detalle and Reimprimir Comprobante action buttons on ticket rows", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
     const rows = compiled.querySelectorAll("tbody tr");
     expect(rows.length).toBe(2);
 
-    // Row 0 is OPEN -> contains Cobrar button
-    const firstRowCobrar = rows[0].querySelector(
-      'nv-button[aria-label="Cobrar"]'
-    );
-    expect(firstRowCobrar).not.toBeNull();
-    expect(firstRowCobrar?.textContent).toContain("Cobrar");
-
-    // Row 1 is CLOSED -> does NOT contain Cobrar button
-    const secondRowCobrar = rows[1].querySelector(
-      'nv-button[aria-label="Cobrar"]'
-    );
-    expect(secondRowCobrar).toBeNull();
-  });
-
-  it("should emit selectTicket when clicking direct Cobrar button", () => {
-    let selected: TicketSummary | null = null;
-    component.selectTicket.subscribe((t) => {
-      selected = t;
-    });
-
-    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
-    const compiled = fixture.nativeElement as HTMLElement;
-    const cobrarBtn = compiled.querySelector(
-      'tbody tr:first-child nv-button[aria-label="Cobrar"]'
-    ) as HTMLElement | null;
-    expect(cobrarBtn).not.toBeNull();
-    const innerBtn = cobrarBtn?.querySelector("button");
-    innerBtn?.click();
-
-    expect(selected).toEqual(mockTickets[0]);
+    for (const row of Array.from(rows)) {
+      const viewDetailBtn = row.querySelector(
+        'nv-button[aria-label="Ver detalle"]'
+      );
+      const reprintBtn = row.querySelector(
+        'nv-button[aria-label="Reimprimir Comprobante"]'
+      );
+      expect(viewDetailBtn).not.toBeNull();
+      expect(reprintBtn).not.toBeNull();
+    }
   });
 
   it("should render clean monospace plate for regular tickets and camera icon for unplated tickets", () => {
@@ -208,7 +214,7 @@ describe("TicketsTableComponent", () => {
 
     // Row 2 has unplated chip with camera icon
     const unplatedChip = rows[2].querySelector(
-      "app-ticket-plate-cell span.text-amber-500"
+      "app-ticket-plate-cell span.text-warning"
     );
     expect(unplatedChip).not.toBeNull();
     expect(unplatedChip?.textContent).toContain("SP-999");
@@ -221,7 +227,7 @@ describe("TicketsTableComponent", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
     const openRow = compiled.querySelector("tbody tr:first-child");
-    const pulseDot = openRow?.querySelector(".animate-pulse.bg-emerald-400");
+    const pulseDot = openRow?.querySelector(".animate-pulse.bg-success");
     expect(pulseDot).not.toBeNull();
   });
 

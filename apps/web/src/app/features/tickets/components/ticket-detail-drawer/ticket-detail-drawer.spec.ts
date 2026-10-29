@@ -98,4 +98,72 @@ describe("TicketDetailDrawerComponent", () => {
     expect(compiled.textContent).toContain("EFECTIVO");
     expect(compiled.textContent).toContain("REF-999");
   });
+
+  it("should render vehicle photograph section when photoUrl is present", () => {
+    const ticketWithPhoto: TicketSummary = {
+      ...mockOpenTicket,
+      photoUrl: "https://example.com/vehicle-photo.jpg",
+    };
+
+    fixture.componentRef.setInput("ticket", ticketWithPhoto);
+    fixture.detectChanges();
+
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain("Registro Fotográfico");
+    const img = compiled.querySelector(
+      'img[src="https://example.com/vehicle-photo.jpg"]'
+    ) as HTMLImageElement | null;
+    expect(img).not.toBeNull();
+    expect(img?.getAttribute("alt")).toBe("Registro fotográfico del vehículo");
+  });
+
+  it("should not render vehicle photograph section when photoUrl is missing", () => {
+    fixture.componentRef.setInput("ticket", mockOpenTicket);
+    fixture.detectChanges();
+
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).not.toContain("Registro Fotográfico");
+    const img = compiled.querySelector("img");
+    expect(img).toBeNull();
+  });
+
+  it("should render Cerrar en Taquilla button for OPEN ticket and emit checkoutInTaquilla on click", () => {
+    let emittedTicket: TicketSummary | null = null;
+    component.checkoutInTaquilla.subscribe((t) => {
+      emittedTicket = t;
+    });
+
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const buttons = Array.from(compiled.querySelectorAll("nv-button"));
+    const checkoutBtn = buttons.find((b) =>
+      b.textContent?.includes("Cerrar en Taquilla")
+    );
+    expect(checkoutBtn).toBeDefined();
+
+    const innerBtn = checkoutBtn?.querySelector("button");
+    innerBtn?.click();
+
+    expect(emittedTicket).toEqual(mockOpenTicket);
+  });
+
+  it("should NOT render Cerrar en Taquilla button for CLOSED ticket", () => {
+    const closedTicket: TicketSummary = {
+      ...mockOpenTicket,
+      status: "CLOSED",
+    };
+
+    fixture.componentRef.setInput("ticket", closedTicket);
+    fixture.detectChanges();
+
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const buttons = Array.from(compiled.querySelectorAll("nv-button"));
+    const checkoutBtn = buttons.find((b) =>
+      b.textContent?.includes("Cerrar en Taquilla")
+    );
+    expect(checkoutBtn).toBeUndefined();
+  });
 });
