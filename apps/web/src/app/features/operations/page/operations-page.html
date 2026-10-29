@@ -7,294 +7,344 @@
     badge="En vivo"
     badgeVariant="info"
   >
-    <div
-      actions
-      class="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center"
-    >
-      @if (parkingId(); as pId) {
+    @if (parkingId(); as pId) {
+    <div actions class="flex items-center">
       <a
         nv-button
         variant="outline"
         [routerLink]="APP_ROUTES.app.parkingLotTickets(pId)"
-        class="col-span-2 w-full justify-center text-nowrap sm:w-auto"
+        class="w-full justify-center text-nowrap sm:w-auto"
       >
         <ng-icon name="lucideTicket" size="16" class="shrink-0" />
         <span>{{ ticketTexts.viewTickets }}</span>
       </a>
-
-      <nv-divider orientation="vertical" class="mx-2 hidden h-7 sm:block" />
-      <nv-divider class="col-span-2 my-2 sm:hidden" />
-      }
-
-      <nv-button
-        type="button"
-        (click)="openCheckInModal()"
-        class="w-full justify-center text-nowrap sm:w-auto"
-      >
-        <ng-icon name="lucideLogIn" size="16" class="shrink-0" />
-        <span>Registrar Ingreso</span>
-        <kbd
-          class="border-primary-foreground/30 bg-primary-foreground/20 text-primary-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
-          >I</kbd
-        >
-      </nv-button>
-
-      <nv-button
-        type="button"
-        variant="secondary"
-        (click)="openDirectCheckOutModal()"
-        class="w-full justify-center text-nowrap sm:w-auto"
-      >
-        <ng-icon name="lucideLogOut" size="16" class="shrink-0" />
-        <span>Procesar Salida</span>
-        <kbd
-          class="border-border bg-background text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
-          >O</kbd
-        >
-      </nv-button>
     </div>
+    }
   </app-page-header>
 
-  <!-- Dock Express Superior (Flujo Desordenado / Libre): Aforo en Vivo & Check-In Rápido -->
+  <!-- Unified KPI Ribbon: Capacidad Global, Carros, Motos, Vehículos Activos -->
   <div
     class="border-border bg-card text-card-foreground rounded-2xl border p-4 shadow-xs sm:p-5"
   >
     <div
-      class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+      class="divide-border grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:divide-x"
     >
-      <!-- Aforo en Vivo -->
-      <div class="flex items-center gap-4 sm:gap-6">
-        <div class="flex items-center gap-3">
-          <div
-            class="bg-primary/10 text-primary border-primary/20 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border"
-          >
-            <ng-icon name="lucideGauge" class="text-2xl" />
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-foreground text-sm font-bold tracking-tight">
-                Aforo General
-              </span>
-              <nv-badge
-                [variant]="occupationPercentage() >= 90 ? 'destructive' : occupationPercentage() >= 75 ? 'warning' : 'outline'"
-                class="font-mono text-xs"
-              >
-                {{ occupationPercentage() }}%
-              </nv-badge>
+      <!-- Capacidad Global -->
+      <div class="flex flex-col justify-between gap-2 lg:pr-4">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <div
+              class="bg-primary/10 text-primary border-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
+            >
+              <ng-icon name="lucideGauge" size="18" class="shrink-0" />
             </div>
-            <p class="text-muted-foreground text-xs">
-              <strong class="text-foreground font-semibold"
-                >{{ availableSlotsCount() }}</strong
-              >
-              libres de {{ totalSlotsCount() }} totales
-            </p>
+            <span class="text-foreground text-xs font-bold sm:text-sm">
+              Capacidad Global
+            </span>
           </div>
+          <nv-badge
+            [variant]="occupationPercentage() >= 90 ? 'destructive' : occupationPercentage() >= 75 ? 'warning' : 'outline'"
+            class="font-mono text-xs tabular-nums"
+          >
+            {{ occupationPercentage() }}%
+          </nv-badge>
         </div>
-
-        <!-- Mini Progress Bar -->
-        <div class="hidden w-28 flex-col gap-1 sm:flex">
-          <div class="bg-muted h-2 w-full overflow-hidden rounded-full">
+        <div>
+          <p class="text-muted-foreground text-xs">
+            <strong class="text-foreground font-semibold tabular-nums"
+              >{{ availableSlotsCount() }}</strong
+            >
+            libres de <span class="tabular-nums">{{ totalSlotsCount() }}</span>
+          </p>
+          <div
+            class="bg-muted mt-1.5 h-1.5 w-full overflow-hidden rounded-full"
+          >
             <div
               class="h-full rounded-full transition-all duration-500"
-              [class.bg-emerald-500]="occupationPercentage() < 75"
-              [class.bg-amber-500]="occupationPercentage() >= 75 && occupationPercentage() < 90"
-              [class.bg-rose-500]="occupationPercentage() >= 90"
-              [style.width.%]="occupationPercentage()"
+              [class.bg-success]="occupationPercentage() < 75"
+              [class.bg-warning]="occupationPercentage() >= 75 && occupationPercentage() < 90"
+              [class.bg-destructive]="occupationPercentage() >= 90"
+              [style.width.%]="occupationBarPercentage()"
             ></div>
           </div>
-          <span class="text-muted-foreground text-[10px]"
-            >{{ occupiedSlotsCount() }} ocupados</span
-          >
         </div>
       </div>
 
-      <!-- Express Check-In Control Bar -->
-      <form
-        (submit)="$event.preventDefault(); submitExpressCheckIn()"
-        class="flex flex-1 flex-wrap items-center gap-2 lg:max-w-2xl lg:justify-end"
-      >
-        <!-- Vehicle Type Selector -->
+      <!-- Cupos Carros -->
+      <div class="flex items-center gap-3 lg:px-4">
         <div
-          class="bg-muted/60 border-border inline-flex rounded-lg border p-1 text-xs"
+          class="bg-success/10 text-success border-success/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
         >
-          <button
-            type="button"
-            (click)="setExpressVehicleType('CAR')"
-            [class.bg-card]="expressVehicleType() === 'CAR'"
-            [class.text-foreground]="expressVehicleType() === 'CAR'"
-            [class.shadow-xs]="expressVehicleType() === 'CAR'"
-            [class.text-muted-foreground]="expressVehicleType() !== 'CAR'"
-            class="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium transition-all"
-          >
-            <ng-icon name="lucideCar" class="text-sm" />
-            <span>Carro</span>
-            <span class="text-muted-foreground text-[10px]"
-              >({{ availableCarSlotsCount() }})</span
-            >
-          </button>
-          <button
-            type="button"
-            (click)="setExpressVehicleType('MOTORCYCLE')"
-            [class.bg-card]="expressVehicleType() === 'MOTORCYCLE'"
-            [class.text-foreground]="expressVehicleType() === 'MOTORCYCLE'"
-            [class.shadow-xs]="expressVehicleType() === 'MOTORCYCLE'"
-            [class.text-muted-foreground]="expressVehicleType() !== 'MOTORCYCLE'"
-            class="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium transition-all"
-          >
-            <ng-icon name="lucideBike" class="text-sm" />
-            <span>Moto</span>
-            <span class="text-muted-foreground text-[10px]"
-              >({{ availableMotoSlotsCount() }})</span
-            >
-          </button>
+          <ng-icon name="lucideCar" size="20" class="shrink-0" />
         </div>
-
-        <!-- Plate Input with mask -->
-        <div class="relative min-w-[140px] flex-1 sm:max-w-[190px]">
-          <input
-            type="text"
-            appPlateMask
-            [vehicleType]="expressVehicleType()"
-            placeholder="PLACA (ej. ABC123)"
-            [ngModel]="expressPlate()"
-            (ngModelChange)="expressPlate.set($event)"
-            name="expressPlate"
-            maxlength="8"
-            class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 text-center font-mono text-sm font-bold tracking-wider uppercase transition-colors focus:ring-2 focus:outline-hidden"
-          />
+        <div class="min-w-0 flex-1">
+          <span
+            class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
+          >
+            Carros
+          </span>
+          <div class="flex items-baseline gap-1.5">
+            <span
+              class="text-foreground font-mono text-xl font-bold tabular-nums sm:text-2xl"
+            >
+              {{ availableCarSlotsCount() }}
+            </span>
+            <span class="text-muted-foreground font-mono text-xs">
+              libres /
+              <span class="tabular-nums">{{ totalCarSlotsCount() }}</span>
+            </span>
+          </div>
         </div>
+      </div>
 
-        <!-- Submit Express Button -->
-        <nv-button
-          type="submit"
-          [disabled]="isSubmittingExpressCheckIn() || !expressPlate().trim()"
-          class="shrink-0"
+      <!-- Cupos Motos -->
+      <div class="flex items-center gap-3 lg:px-4">
+        <div
+          class="bg-primary/10 text-primary border-primary/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
         >
-          <ng-icon name="lucideLogIn" class="text-base" />
-          <span>+ Ingresar</span>
-          <kbd
-            class="border-primary-foreground/30 bg-primary-foreground/20 text-primary-foreground ml-1 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
-            >Enter</kbd
+          <ng-icon name="lucideBike" size="20" class="shrink-0" />
+        </div>
+        <div class="min-w-0 flex-1">
+          <span
+            class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
           >
-        </nv-button>
+            Motos
+          </span>
+          <div class="flex items-baseline gap-1.5">
+            <span
+              class="text-foreground font-mono text-xl font-bold tabular-nums sm:text-2xl"
+            >
+              {{ availableMotoSlotsCount() }}
+            </span>
+            <span class="text-muted-foreground font-mono text-xs">
+              libres /
+              <span class="tabular-nums">{{ totalMotoSlotsCount() }}</span>
+            </span>
+          </div>
+        </div>
+      </div>
 
-        <!-- Escanear QR Button -->
-        <nv-button
-          type="button"
-          variant="outline"
-          (click)="openQrScanner()"
-          class="shrink-0"
+      <!-- Vehículos Dentro / Activos -->
+      <div class="flex items-center gap-3 lg:pl-4">
+        <div
+          class="bg-info/10 text-info border-info/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
         >
-          <ng-icon name="lucideQrCode" class="text-primary text-base" />
-          <span>Escanear QR</span>
-          <kbd
-            class="border-border bg-muted text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
-            >Q</kbd
+          <ng-icon name="lucideCar" size="20" class="shrink-0" />
+        </div>
+        <div class="min-w-0 flex-1">
+          <span
+            class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
           >
-        </nv-button>
-      </form>
+            Activos
+          </span>
+          <div class="flex items-baseline gap-1.5">
+            <span
+              class="text-foreground font-mono text-xl font-bold tabular-nums sm:text-2xl"
+            >
+              {{ occupiedSlotsCount() }}
+            </span>
+            <span class="text-muted-foreground font-mono text-xs">
+              activos
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Summary Cards Grid -->
-  <div class="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-    <!-- Cupos Carros -->
-    <div
-      class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
-    >
-      <div class="flex items-center justify-between">
-        <span
-          class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
-          >Cupos Carros</span
-        >
-        <div
-          class="bg-success/10 text-success border-success/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
-        >
-          <ng-icon name="lucideCar" size="18" class="shrink-0" />
+  <!-- Omnibar Táctico de Taquilla (Dual Action Bar: Ingreso Exprés + Salida Exprés) -->
+  <div
+    class="border-border bg-card text-card-foreground rounded-2xl border p-4 shadow-xs sm:p-5"
+  >
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-6">
+      <!-- Left section: Ingreso Exprés (Flujo Libre) -->
+      <div class="flex flex-1 flex-col gap-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="bg-success inline-block h-2 w-2 rounded-full"></span>
+            <span
+              class="text-foreground font-mono text-xs font-bold tracking-wider uppercase"
+            >
+              Ingreso Exprés
+            </span>
+            <span class="text-muted-foreground text-xs font-medium">
+              · Flujo Libre
+            </span>
+          </div>
+          <span
+            class="text-muted-foreground hidden font-mono text-xs sm:inline-block"
+          >
+            Atajo: [Enter]
+          </span>
         </div>
-      </div>
-      <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
-        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
-          >{{ availableCarSlotsCount() }}</span
-        >
-        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
-          >/ {{ totalCarSlotsCount() }}</span
-        >
-      </div>
-    </div>
 
-    <!-- Cupos Motos -->
-    <div
-      class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
-    >
-      <div class="flex items-center justify-between">
-        <span
-          class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
-          >Cupos Motos</span
+        <form
+          (submit)="$event.preventDefault(); submitExpressCheckIn()"
+          class="flex flex-col gap-2.5"
         >
-        <div
-          class="bg-primary/10 text-primary border-primary/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
-        >
-          <ng-icon name="lucideBike" size="18" class="shrink-0" />
-        </div>
-      </div>
-      <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
-        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
-          >{{ availableMotoSlotsCount() }}</span
-        >
-        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
-          >/ {{ totalMotoSlotsCount() }}</span
-        >
-      </div>
-    </div>
+          <!-- Row 1: Vehicle type toggle + Plate input -->
+          <div class="flex items-center gap-2">
+            <!-- Vehicle Type Selector -->
+            <div
+              class="bg-muted/60 border-border inline-flex shrink-0 rounded-lg border p-1 text-xs"
+            >
+              <button
+                type="button"
+                (click)="setExpressVehicleType('CAR')"
+                [class.bg-card]="expressVehicleType() === 'CAR'"
+                [class.text-foreground]="expressVehicleType() === 'CAR'"
+                [class.shadow-xs]="expressVehicleType() === 'CAR'"
+                [class.text-muted-foreground]="expressVehicleType() !== 'CAR'"
+                class="flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium transition-all"
+              >
+                <ng-icon name="lucideCar" class="text-sm" />
+                <span>Carro</span>
+                <span class="text-muted-foreground text-[10px] tabular-nums"
+                  >({{ availableCarSlotsCount() }})</span
+                >
+              </button>
+              <button
+                type="button"
+                (click)="setExpressVehicleType('MOTORCYCLE')"
+                [class.bg-card]="expressVehicleType() === 'MOTORCYCLE'"
+                [class.text-foreground]="expressVehicleType() === 'MOTORCYCLE'"
+                [class.shadow-xs]="expressVehicleType() === 'MOTORCYCLE'"
+                [class.text-muted-foreground]="expressVehicleType() !== 'MOTORCYCLE'"
+                class="flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium transition-all"
+              >
+                <ng-icon name="lucideBike" class="text-sm" />
+                <span>Moto</span>
+                <span class="text-muted-foreground text-[10px] tabular-nums"
+                  >({{ availableMotoSlotsCount() }})</span
+                >
+              </button>
+            </div>
 
-    <!-- Vehículos Dentro -->
-    <div
-      class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
-    >
-      <div class="flex items-center justify-between">
-        <span
-          class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
-          >Vehículos Dentro</span
-        >
-        <div
-          class="bg-info/10 text-info border-info/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
-        >
-          <ng-icon name="lucideCar" size="18" class="shrink-0" />
-        </div>
-      </div>
-      <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
-        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
-          >{{ occupiedSlotsCount() }}</span
-        >
-        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
-          >activos</span
-        >
-      </div>
-    </div>
+            <!-- Plate input with appPlateMask -->
+            <div class="relative min-w-[130px] flex-1">
+              <input
+                type="text"
+                appPlateMask
+                [vehicleType]="expressVehicleType()"
+                placeholder="PLACA (ABC123)"
+                [ngModel]="expressPlate()"
+                (ngModelChange)="expressPlate.set($event)"
+                name="expressPlate"
+                maxlength="8"
+                class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 text-center font-mono text-sm font-bold tracking-wider uppercase transition-colors focus:ring-2 focus:outline-hidden"
+              />
+            </div>
+          </div>
 
-    <!-- Nivel Ocupación -->
-    <div
-      class="bg-card text-card-foreground border-border rounded-2xl border p-3.5 shadow-xs sm:p-5"
-    >
-      <div class="flex items-center justify-between">
-        <span
-          class="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase sm:text-xs"
-          >Nivel Ocupación</span
-        >
-        <div
-          class="bg-warning/10 text-warning border-warning/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
-        >
-          <ng-icon name="lucideGauge" size="18" class="shrink-0" />
-        </div>
+          <!-- Row 2: Action buttons flex row -->
+          <div class="flex items-center gap-2">
+            <nv-button
+              type="button"
+              (click)="submitExpressCheckIn()"
+              [disabled]="isSubmittingExpressCheckIn() || !expressPlate().trim()"
+              class="flex-1 sm:flex-initial"
+            >
+              <ng-icon name="lucideLogIn" class="text-base" />
+              <span>+ Ingresar</span>
+              <kbd
+                class="border-primary-foreground/30 bg-primary-foreground/20 text-primary-foreground ml-1 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+                >Enter</kbd
+              >
+            </nv-button>
+
+            <nv-button
+              type="button"
+              variant="outline"
+              (click)="openCheckInModal(true)"
+              class="shrink-0"
+              title="Registrar ingreso de vehículo sin placa con captura de foto"
+            >
+              <ng-icon name="lucideCamera" class="text-base" />
+              <span>Sin Placa</span>
+            </nv-button>
+          </div>
+        </form>
       </div>
-      <div class="mt-2.5 flex items-baseline gap-1.5 sm:mt-3 sm:gap-2">
-        <span class="text-foreground font-mono text-2xl font-bold sm:text-3xl"
-          >{{ occupationPercentage() }}%</span
-        >
-        <span class="text-muted-foreground font-mono text-[10px] sm:text-xs"
-          >capacidad</span
-        >
+
+      <!-- Divider: vertical divider on lg screens, horizontal on mobile -->
+      <nv-divider
+        orientation="vertical"
+        class="hidden h-auto self-stretch lg:block"
+      />
+      <nv-divider class="lg:hidden" />
+
+      <!-- Right section: Cobro & Salida Exprés (Por Placa, Bahía o QR) -->
+      <div class="flex flex-1 flex-col gap-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="bg-info inline-block h-2 w-2 rounded-full"></span>
+            <span
+              class="text-foreground font-mono text-xs font-bold tracking-wider uppercase"
+            >
+              Cobro & Salida Exprés
+            </span>
+            <span class="text-muted-foreground text-xs font-medium">
+              · Por Placa, Bahía o QR
+            </span>
+          </div>
+          <span
+            class="text-muted-foreground hidden font-mono text-xs sm:inline-block"
+          >
+            Atajos: [O] · [Q]
+          </span>
+        </div>
+
+        <div class="flex flex-col gap-2.5">
+          <!-- Row 1: Search query input with lucideSearch icon taking full width -->
+          <div class="relative w-full min-w-[160px] flex-1">
+            <ng-icon
+              name="lucideSearch"
+              size="16"
+              class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+            />
+            <input
+              type="text"
+              aria-label="Buscar placa o bahía para cobrar salida"
+              [value]="searchTicketQuery()"
+              (input)="onSearchQueryChange($event)"
+              (keydown.enter)="submitExpressCheckOutByQuery()"
+              placeholder="Buscar placa o bahía..."
+              class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-lg border py-2 pr-3 pl-9 font-mono text-sm uppercase transition-colors focus:ring-2 focus:outline-hidden"
+            />
+          </div>
+
+          <!-- Row 2: Action buttons flex row -->
+          <div class="flex items-center gap-2">
+            <nv-button
+              type="button"
+              variant="secondary"
+              (click)="submitExpressCheckOutByQuery()"
+              class="flex-1 sm:flex-initial"
+            >
+              <ng-icon name="lucideLogOut" class="text-base" />
+              <span>Cobrar Salida</span>
+              <kbd
+                class="border-border bg-background text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+                >O</kbd
+              >
+            </nv-button>
+
+            <nv-button
+              type="button"
+              variant="outline"
+              (click)="openQrScanner()"
+              class="shrink-0"
+              title="Escanear ticket QR para cobrar salida"
+            >
+              <ng-icon name="lucideQrCode" class="text-primary text-base" />
+              <span>Escanear QR</span>
+              <kbd
+                class="border-border bg-muted text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+                >Q</kbd
+              >
+            </nv-button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -311,7 +361,7 @@
         <h2 class="text-foreground text-sm font-bold sm:text-base">
           Estado de Cupos y Ocupación
         </h2>
-        <span class="text-muted-foreground font-mono text-xs"
+        <span class="text-muted-foreground font-mono text-xs tabular-nums"
           >({{ filteredSlots().length }})</span
         >
       </div>
@@ -401,8 +451,29 @@
     <!-- Slots Grid Visualizer -->
     <div class="p-3.5 sm:p-5">
       @if (filteredSlots().length === 0) {
-      <div class="text-muted-foreground py-12 text-center text-xs">
-        No se encontraron cupos con los filtros seleccionados.
+      <div
+        class="text-muted-foreground flex flex-col items-center justify-center py-12 text-center text-xs"
+      >
+        <ng-icon
+          name="lucideParkingSquare"
+          size="32"
+          class="text-muted-foreground/60 mb-2"
+        />
+        <p class="text-foreground font-medium">
+          No se encontraron bahías con los filtros seleccionados.
+        </p>
+        <span class="text-muted-foreground/80 mt-1 text-[11px]">
+          Prueba cambiando el tipo de vehículo o el estado.
+        </span>
+        <nv-button
+          type="button"
+          size="sm"
+          variant="outline"
+          (click)="resetSlotFilters()"
+          class="mt-4"
+        >
+          <span>Restablecer filtros</span>
+        </nv-button>
       </div>
       } @else {
       <div
@@ -428,7 +499,7 @@
           (click)="onSlotClick(slot)"
           (keydown.enter)="onSlotClick(slot)"
           (keydown.space)="onSlotClick(slot); $event.preventDefault()"
-          class="group relative flex flex-col justify-between rounded-xl border p-3 shadow-xs transition-all select-none"
+          class="group focus-visible:ring-primary relative flex flex-col justify-between rounded-xl border p-3 shadow-xs transition-all duration-150 select-none hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:outline-hidden active:translate-y-0 active:scale-[0.98]"
           [class.border-success/30]="slot.status === 'AVAILABLE'"
           [class.bg-success/10]="slot.status === 'AVAILABLE'"
           [class.hover:border-success]="slot.status === 'AVAILABLE'"
@@ -438,7 +509,6 @@
           [class.hover:border-info]="slot.status === 'OCCUPIED'"
           [class.hover:bg-info/15]="slot.status === 'OCCUPIED'"
           [class.cursor-pointer]="slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED'"
-          [class.active:scale-[0.98]]="slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED'"
           [class.border-border]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
           [class.bg-muted/40]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
           [class.cursor-not-allowed]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
@@ -467,7 +537,7 @@
           <!-- Middle: Slot Number & Details -->
           <div class="my-2.5">
             <div
-              class="text-foreground truncate font-mono text-base font-bold sm:text-lg"
+              class="text-foreground truncate font-mono text-base font-bold tabular-nums sm:text-lg"
             >
               {{ slot.prefix ? slot.prefix + "-" : "" }}{{ slot.slotNumber }}
             </div>
@@ -485,7 +555,7 @@
             (getActiveTicketForSlot(slot); as ticket) {
             <div class="mt-1 flex items-center gap-1.5">
               <span
-                class="border-info/30 bg-info/20 text-info rounded border px-1.5 py-0.5 font-mono text-xs font-bold tracking-wider"
+                class="border-info/30 bg-info/20 text-info block max-w-[120px] truncate rounded border px-1.5 py-0.5 font-mono text-xs font-bold tracking-wider tabular-nums"
               >
                 {{ ticket.licensePlate }}
               </span>
@@ -511,15 +581,17 @@
           <div>
             @if (slot.status === 'AVAILABLE') {
             <div
-              class="border-success/30 bg-success/20 text-success group-hover:bg-success group-hover:text-primary-foreground flex items-center justify-center rounded-lg border py-1.5 text-center text-[11px] font-bold transition-colors"
+              class="border-success/30 bg-success/20 text-success group-hover:bg-success group-hover:text-primary-foreground flex items-center justify-center gap-1 rounded-lg border py-1.5 text-center text-[11px] font-bold transition-colors"
             >
-              + Asignar bahía
+              <ng-icon name="lucidePlus" class="text-xs" />
+              <span>Asignar bahía</span>
             </div>
             } @else if (slot.status === 'OCCUPIED') {
             <div
-              class="border-info/30 bg-info/20 text-info group-hover:bg-info group-hover:text-primary-foreground flex items-center justify-center rounded-lg border py-1.5 text-center text-[11px] font-bold transition-colors"
+              class="border-info/30 bg-info/20 text-info group-hover:bg-info group-hover:text-primary-foreground flex items-center justify-center gap-1 rounded-lg border py-1.5 text-center text-[11px] font-bold transition-colors"
             >
-              ⏱ Cobrar Salida
+              <ng-icon name="lucideClock" class="text-xs" />
+              <span>Cobrar Salida</span>
             </div>
             } @else {
             <span
@@ -548,7 +620,7 @@
         <h2 class="text-foreground text-sm font-bold sm:text-base">
           Vehículos Activos en Taquilla
         </h2>
-        <nv-badge variant="secondary" class="font-mono text-xs">
+        <nv-badge variant="secondary" class="font-mono text-xs tabular-nums">
           {{ filteredActiveTickets().length }}
         </nv-badge>
       </div>
@@ -568,8 +640,18 @@
             (input)="onSearchQueryChange($event)"
             (keydown.enter)="submitExpressCheckOutByQuery()"
             placeholder="Buscar placa o bahía..."
-            class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-lg border py-1.5 pr-3 pl-9 text-xs focus:outline-hidden"
+            class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-lg border py-1.5 pr-8 pl-9 text-xs focus:outline-hidden"
           />
+          @if (searchTicketQuery()) {
+          <button
+            type="button"
+            (click)="setSearchTicketQuery('')"
+            aria-label="Limpiar búsqueda"
+            class="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer rounded-sm p-0.5 transition-colors"
+          >
+            <ng-icon name="lucideX" size="14" />
+          </button>
+          }
         </div>
         <nv-button
           type="button"
@@ -618,7 +700,7 @@
             <td class="px-4 py-3 sm:px-6">
               <div class="flex items-center gap-2">
                 <span
-                  class="text-foreground font-mono text-sm font-bold tracking-wider"
+                  class="text-foreground font-mono text-sm font-bold tracking-wider tabular-nums"
                 >
                   {{ ticket.licensePlate }}
                 </span>
@@ -638,7 +720,7 @@
               </div>
             </td>
             <td class="px-4 py-3 sm:px-6">
-              <div class="text-foreground font-medium">
+              <div class="text-foreground font-medium tabular-nums">
                 {{ ticket.slotNumber ? "Bahía " + ticket.slotNumber : "—" }}
               </div>
               @if (ticket.slotType) {
@@ -648,7 +730,7 @@
               }
             </td>
             <td class="px-4 py-3 sm:px-6">
-              <div class="text-foreground font-mono text-xs">
+              <div class="text-foreground font-mono text-xs tabular-nums">
                 {{ ticket.entryTime | date: "dd/MM/yyyy HH:mm" }}
               </div>
             </td>
@@ -678,6 +760,7 @@
   [isOpen]="isCheckInModalOpen()"
   [parkingId]="parkingId()"
   [preselectedSlot]="selectedCheckInSlot()"
+  [initialUnplated]="checkInModalInitialUnplated()"
   (closed)="closeCheckInModal()"
 />
 

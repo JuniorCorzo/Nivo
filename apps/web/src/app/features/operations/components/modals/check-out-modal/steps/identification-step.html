@@ -66,7 +66,9 @@
         <span
           class="text-muted-foreground block text-[11px] font-semibold tracking-wider uppercase"
         >
-          Tickets Coincidentes ({{ facade.filteredTickets().length }})
+          Tickets Coincidentes (<span class="tabular-nums"
+            >{{ facade.filteredTickets().length }}</span
+          >)
         </span>
       </div>
       <div class="max-h-60 space-y-2 overflow-y-auto pr-1">
@@ -85,12 +87,15 @@
             <div>
               <div class="flex items-center gap-2">
                 <span
-                  class="text-foreground group-hover:text-primary font-mono text-base font-bold transition-colors"
+                  class="text-foreground group-hover:text-primary font-mono text-base font-bold tabular-nums transition-colors"
                 >
                   {{ ticket.licensePlate }}
                 </span>
                 @if (ticket.slotNumber) {
-                <nv-badge variant="outline" class="px-1.5 py-0.5 text-[10px]">
+                <nv-badge
+                  variant="outline"
+                  class="px-1.5 py-0.5 text-[10px] tabular-nums"
+                >
                   Cupo {{ ticket.slotNumber }}
                 </nv-badge>
                 } @if (ticket.slotType) {
@@ -104,7 +109,12 @@
                 class="text-muted-foreground mt-0.5 flex items-center gap-1 text-[11px]"
               >
                 <ng-icon name="lucideClock" class="text-xs" />
-                <span>Entrada: {{ ticket.entryTime | date: "shortTime" }}</span>
+                <span
+                  >Entrada:
+                  <span class="tabular-nums"
+                    >{{ ticket.entryTime | date: "shortTime" }}</span
+                  ></span
+                >
               </div>
               }
             </div>
@@ -129,7 +139,9 @@
         <span
           class="text-muted-foreground block text-[11px] font-semibold tracking-wider uppercase"
         >
-          Cupos Coincidentes ({{ facade.filteredOccupiedSlots().length }})
+          Cupos Coincidentes (<span class="tabular-nums"
+            >{{ facade.filteredOccupiedSlots().length }}</span
+          >)
         </span>
       </div>
       <div
@@ -154,7 +166,7 @@
 
           <div class="my-2">
             <div
-              class="text-foreground group-hover:text-primary font-mono text-base font-bold transition-colors"
+              class="text-foreground group-hover:text-primary font-mono text-base font-bold tabular-nums transition-colors"
             >
               {{ slot.prefix ? slot.prefix + "-" : "" }}{{ slot.slotNumber }}
             </div>
@@ -187,7 +199,8 @@
         Seleccionar Cupo Ocupado
       </label>
       <span class="text-muted-foreground font-mono text-xs">
-        {{ facade.occupiedSlots().length }} vehículos activos
+        <span class="tabular-nums">{{ facade.occupiedSlots().length }}</span>
+        vehículos activos
       </span>
     </div>
 
@@ -230,7 +243,7 @@
 
         <div class="my-2">
           <div
-            class="text-foreground group-hover:text-primary font-mono text-base font-bold transition-colors"
+            class="text-foreground group-hover:text-primary font-mono text-base font-bold tabular-nums transition-colors"
           >
             {{ slot.prefix ? slot.prefix + "-" : "" }}{{ slot.slotNumber }}
           </div>
