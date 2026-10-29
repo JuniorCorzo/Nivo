@@ -1,6 +1,7 @@
 import { Component, signal } from "@angular/core";
 import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
+import type { OccupiedSlotDetail } from "@core/models/parking-telemetry.model";
 import type { SlotDistribution } from "@core/type/slot-distribution.type";
 
 import { ParkingSlotDistribution } from "./parking-slot-distribution";
@@ -14,6 +15,7 @@ import { ParkingSlotDistribution } from "./parking-slot-distribution";
       [occupiedSlots]="occupiedSlots()"
       [availableSlots]="availableSlots()"
       [totalSlots]="totalSlots()"
+      [occupiedSlotsDetail]="occupiedSlotsDetail()"
     />
   `,
 })
@@ -25,6 +27,7 @@ class TestHostComponent {
   public occupiedSlots = signal(20);
   public availableSlots = signal(30);
   public totalSlots = signal(50);
+  public occupiedSlotsDetail = signal<OccupiedSlotDetail[]>([]);
 }
 
 describe("ParkingSlotDistribution", () => {
@@ -113,5 +116,71 @@ describe("ParkingSlotDistribution", () => {
     hostComponent.slotDistribution.set([]);
     fixture.detectChanges();
     expect(compiled.querySelector("nv-card")).toBeNull();
+  });
+
+  it("should render real occupiedSlotsDetail with license plates and available slots without plates", () => {
+    hostComponent.occupiedSlotsDetail.set([
+      {
+        licensePlate: "NVO 123",
+        prefix: "A",
+        slotNumber: "A-01",
+        type: "CAR",
+        zone: "Norte",
+      },
+      {
+        licensePlate: "MOT 456",
+        prefix: "M",
+        slotNumber: "M-02",
+        type: "MOTORCYCLE",
+        zone: "Sur",
+      },
+    ]);
+    fixture.detectChanges();
+
+    const textContent = compiled.textContent || "";
+    expect(textContent).toContain("NVO 123");
+    expect(textContent).toContain("MOT 456");
+    expect(textContent).not.toContain("KLM 482");
+    expect(textContent).not.toContain("BDX 910");
+
+    const compFixture = TestBed.createComponent(ParkingSlotDistribution);
+    compFixture.componentRef.setInput("slotDistribution", [
+      { count: 10, prefix: "A", type: "CAR", zone: "Norte" },
+    ]);
+    compFixture.componentRef.setInput("occupiedSlots", 2);
+    compFixture.componentRef.setInput("availableSlots", 8);
+    compFixture.componentRef.setInput("totalSlots", 10);
+    compFixture.componentRef.setInput("occupiedSlotsDetail", [
+      {
+        licensePlate: "REAL 999",
+        prefix: "A",
+        slotNumber: "01",
+        type: "CAR",
+        zone: "Norte",
+      },
+    ]);
+    compFixture.detectChanges();
+
+    const comp = compFixture.componentInstance;
+    const slots = comp.visualSlots();
+    expect(slots[0]).toEqual({
+      isOccupied: true,
+      name: "A-01",
+      plate: "REAL 999",
+      type: "CAR",
+    });
+    expect(slots[1].isOccupied).toBe(false);
+    expect(slots[1].plate).toBeUndefined();
+  });
+
+  it("should render OCUPADA label when occupiedSlotsDetail is empty and slots are occupied", () => {
+    hostComponent.occupiedSlotsDetail.set([]);
+    fixture.detectChanges();
+
+    const textContent = compiled.textContent || "";
+    expect(textContent).toContain("OCUPADA");
+    expect(textContent).not.toContain("KLM 482");
+    expect(textContent).not.toContain("BDX 910");
+    expect(textContent).not.toContain("TKR 502");
   });
 });

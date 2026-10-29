@@ -1,5 +1,9 @@
-import { computed, inject, Injectable, signal } from "@angular/core";
+import { computed, effect, inject, Injectable, signal } from "@angular/core";
 import { Router } from "@angular/router";
+import type {
+  OccupiedSlotDetail,
+  ParkingTelemetryModel,
+} from "@core/models/parking-telemetry.model";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import { ActiveParkingService } from "@core/services/active-parking.service";
 import { ParkingService } from "@core/services/parking-service";
@@ -16,12 +20,17 @@ export class ParkingHomeFacade {
 
   readonly isDeleteModalOpen = signal(false);
   readonly selectedParkingId = signal<string | null>(null);
+  readonly telemetry = signal<ParkingTelemetryModel | null>(null);
 
   readonly activeParkingLot = computed<ParkingLotListItemModel | null>(() =>
     this.activeParkingService.activeParkingLot()
   );
 
   readonly totalSlots = computed(() => {
+    const telemetry = this.telemetry();
+    if (telemetry != null) {
+      return telemetry.totalCapacity;
+    }
     const p = this.activeParkingLot();
     if (!p) {
       return 0;
@@ -29,16 +38,54 @@ export class ParkingHomeFacade {
     return (p.slotDistribution ?? []).reduce((sum, s) => sum + s.count, 0);
   });
 
-  readonly occupiedSlots = computed(() =>
-    Math.round(
+  readonly occupiedSlots = computed(() => {
+    const telemetry = this.telemetry();
+    if (telemetry != null) {
+      return telemetry.occupiedSlots;
+    }
+    return Math.round(
       (this.totalSlots() * (this.activeParkingLot()?.occuppationRate || 0)) /
         100
-    )
+    );
+  });
+
+  readonly availableSlots = computed(() => {
+    const telemetry = this.telemetry();
+    if (telemetry != null) {
+      return telemetry.availableSlots;
+    }
+    return Math.max(0, this.totalSlots() - this.occupiedSlots());
+  });
+
+  readonly occupationRate = computed(() => {
+    const telemetry = this.telemetry();
+    if (telemetry != null) {
+      return telemetry.occupancyRate;
+    }
+    return this.activeParkingLot()?.occuppationRate || 0;
+  });
+
+  readonly occupiedSlotsDetail = computed<OccupiedSlotDetail[]>(
+    () => this.telemetry()?.occupiedSlotsDetail ?? []
   );
 
-  readonly availableSlots = computed(() =>
-    Math.max(0, this.totalSlots() - this.occupiedSlots())
-  );
+  constructor() {
+    effect(() => {
+      const lot = this.activeParkingLot();
+      if (lot?.id) {
+        this.loadTelemetry(lot.id);
+      } else {
+        this.telemetry.set(null);
+      }
+    });
+  }
+
+  loadTelemetry(parkingId: string): void {
+    this.parkingService.getTelemetry(parkingId).subscribe({
+      next: (data) => this.telemetry.set(data),
+      error: () => this.telemetry.set(null),
+    });
+  }
 
   onCreateParking(): void {
     this.router.navigate([APP_ROUTES.app.createParkingLots]);

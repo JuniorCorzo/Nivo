@@ -11,7 +11,9 @@
         <nv-muted class="text-xs font-semibold tracking-wider uppercase">
           {{ texts.totalUsers }}
         </nv-muted>
-        <div class="font-mono text-2xl font-bold">{{ total() }}</div>
+        <div class="font-mono text-2xl font-bold tabular-nums">
+          {{ total() }}
+        </div>
       </div>
     </nv-card-content>
   </nv-card>
@@ -20,7 +22,7 @@
   <nv-card>
     <nv-card-content class="flex items-center gap-4 p-5">
       <div
-        class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+        class="bg-success/10 text-success flex h-12 w-12 items-center justify-center rounded-xl"
       >
         <ng-icon name="lucideShieldCheck" size="24" />
       </div>
@@ -28,7 +30,9 @@
         <nv-muted class="text-xs font-semibold tracking-wider uppercase">
           {{ texts.activeOperators }}
         </nv-muted>
-        <div class="font-mono text-2xl font-bold">{{ activeOperators() }}</div>
+        <div class="font-mono text-2xl font-bold tabular-nums">
+          {{ activeOperators() }}
+        </div>
       </div>
     </nv-card-content>
   </nv-card>
@@ -37,7 +41,7 @@
   <nv-card>
     <nv-card-content class="flex items-center gap-4 p-5">
       <div
-        class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400"
+        class="bg-info/10 text-info flex h-12 w-12 items-center justify-center rounded-xl"
       >
         <ng-icon name="lucideShield" size="24" />
       </div>
@@ -45,7 +49,9 @@
         <nv-muted class="text-xs font-semibold tracking-wider uppercase">
           {{ texts.managers }}
         </nv-muted>
-        <div class="font-mono text-2xl font-bold">{{ managers() }}</div>
+        <div class="font-mono text-2xl font-bold tabular-nums">
+          {{ managers() }}
+        </div>
       </div>
     </nv-card-content>
   </nv-card>
@@ -54,7 +60,7 @@
   <nv-card>
     <nv-card-content class="flex items-center gap-4 p-5">
       <div
-        class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-500/10 text-slate-600 dark:text-slate-400"
+        class="bg-muted text-muted-foreground flex h-12 w-12 items-center justify-center rounded-xl"
       >
         <ng-icon name="lucideUserX" size="24" />
       </div>
@@ -62,7 +68,9 @@
         <nv-muted class="text-xs font-semibold tracking-wider uppercase">
           {{ texts.deactivated }}
         </nv-muted>
-        <div class="font-mono text-2xl font-bold">{{ deactivated() }}</div>
+        <div class="font-mono text-2xl font-bold tabular-nums">
+          {{ deactivated() }}
+        </div>
       </div>
     </nv-card-content>
   </nv-card>

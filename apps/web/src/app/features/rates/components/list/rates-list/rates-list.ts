@@ -113,7 +113,7 @@ export class RateListComponent {
       list = list.filter(
         (r) =>
           r.name.toLowerCase().includes(query) ||
-          r.description.toLowerCase().includes(query) ||
+          (r.description ?? "").toLowerCase().includes(query) ||
           r.vehicleType.toLowerCase().includes(query)
       );
     }
