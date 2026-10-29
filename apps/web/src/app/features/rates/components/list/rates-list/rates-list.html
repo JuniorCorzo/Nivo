@@ -62,14 +62,16 @@
           </div>
           <div class="flex items-center justify-between">
             <span class="text-muted-foreground">Precio base:</span>
-            <span class="text-foreground font-mono text-base font-bold">
+            <span
+              class="text-foreground font-mono text-base font-bold tabular-nums"
+            >
               {{ rate.pricePerUnit | currency: "COP" : "symbol-narrow" : "1.0-0"
               }}
             </span>
           </div>
           <div class="text-muted-foreground flex items-center justify-between">
             <span>Tiempo de gracia:</span>
-            <span class="text-foreground font-semibold"
+            <span class="text-foreground font-semibold tabular-nums"
               >{{ rate.minChargeTimeMinutes }} min</span
             >
           </div>
