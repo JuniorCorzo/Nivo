@@ -93,6 +93,7 @@ export const createTicketColumns = (
           .includes(filterValue.trim().toUpperCase()),
       header: APP_TEXTS.tickets.table.columns.plate,
       id: "licensePlate",
+      size: 130,
     }),
   ];
 
@@ -106,6 +107,7 @@ export const createTicketColumns = (
         enableSorting: true,
         header: APP_TEXTS.tickets.table.columns.parkingLot,
         id: "parkingLotName",
+        size: 170,
       })
     );
   }
@@ -123,6 +125,7 @@ export const createTicketColumns = (
         row.getValue(columnId) === filterValue,
       header: APP_TEXTS.tickets.table.columns.vehicleType,
       id: "slotType",
+      size: 110,
     }),
     columnHelper.accessor("entryTime", {
       cell: (info) =>
@@ -161,6 +164,7 @@ export const createTicketColumns = (
       },
       header: APP_TEXTS.tickets.table.columns.entryTime,
       id: "entryTime",
+      size: 160,
     }),
     columnHelper.accessor("status", {
       cell: (info) =>
@@ -187,6 +191,7 @@ export const createTicketColumns = (
       },
       header: APP_TEXTS.tickets.table.columns.status,
       id: "status",
+      size: 120,
     }),
     columnHelper.accessor("totalToCharge", {
       cell: (info) =>
@@ -196,6 +201,7 @@ export const createTicketColumns = (
       enableSorting: true,
       header: APP_TEXTS.tickets.table.columns.total,
       id: "totalToCharge",
+      size: 120,
     }),
     columnHelper.display({
       cell: (info) =>
@@ -209,6 +215,7 @@ export const createTicketColumns = (
       enableSorting: false,
       header: APP_TEXTS.tickets.table.columns.actions,
       id: "actions",
+      size: 110,
     }),
     // Hidden column for parkingLotId filtering
     columnHelper.accessor("parkingLotId", {

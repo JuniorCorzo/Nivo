@@ -13,10 +13,12 @@ import type {
 } from "@core/models/ticket.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
+  lucideCamera,
   lucideCar,
   lucideClock,
   lucideCreditCard,
   lucideLayers,
+  lucideLogOut,
   lucidePrinter,
   lucideShieldCheck,
   lucideX,
@@ -48,10 +50,12 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
   ],
   providers: [
     provideIcons({
+      lucideCamera,
       lucideCar,
       lucideClock,
       lucideCreditCard,
       lucideLayers,
+      lucideLogOut,
       lucidePrinter,
       lucideShieldCheck,
       lucideX,
@@ -72,6 +76,7 @@ export class TicketDetailDrawerComponent {
 
   readonly close = output();
   readonly reprintReceipt = output<TicketSummary>();
+  readonly checkoutInTaquilla = output<TicketSummary>();
 
   @HostListener("document:keydown.escape", ["$event"])
   onEscape(event: Event): void {
