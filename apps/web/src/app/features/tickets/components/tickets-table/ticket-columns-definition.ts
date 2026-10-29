@@ -1,3 +1,9 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 import type { TicketSummary } from "@core/models/ticket.model";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import type { ColumnDef } from "@tanstack/angular-table";
@@ -11,6 +17,21 @@ import { TicketPlateCellComponent } from "./ticket-plate-cell";
 import { TicketRowActionsComponent } from "./ticket-row-actions";
 import { TicketStatusBadgeComponent } from "./ticket-status-badge";
 import { TicketVehicleBadgeComponent } from "./ticket-vehicle-badge";
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-ticket-total-cell",
+  standalone: true,
+  template: `
+    <span class="text-foreground font-mono font-bold tabular-nums">
+      {{ formatted() }}
+    </span>
+  `,
+})
+export class TicketTotalCellComponent {
+  readonly amount = input<number | null | undefined>();
+  readonly formatted = computed(() => formatTicketCurrency(this.amount()));
+}
 
 export const formatTicketDate = (dateStr?: string): string => {
   if (!dateStr) {
@@ -148,7 +169,10 @@ export const createTicketColumns = (
       id: "status",
     }),
     columnHelper.accessor("totalToCharge", {
-      cell: (info) => formatTicketCurrency(info.getValue()),
+      cell: (info) =>
+        flexRenderComponent(TicketTotalCellComponent, {
+          inputs: { amount: info.getValue() },
+        }),
       enableSorting: true,
       header: APP_TEXTS.tickets.table.columns.total,
       id: "totalToCharge",

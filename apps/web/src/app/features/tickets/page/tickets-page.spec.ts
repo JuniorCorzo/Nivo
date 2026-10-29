@@ -67,4 +67,51 @@ describe("TicketsPageComponent", () => {
 
     expect(mockTicketService.listTicketsByTenant).toHaveBeenCalled();
   });
+
+  it("should update filter when clicking Metric Ribbon cards", () => {
+    const fixture = TestBed.createComponent(TicketsPageComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const updateFiltersSpy = vi.spyOn(component.facade, "updateFilters");
+    /* SAFETY: Querying nv-card elements rendered for metric ribbon */
+    const cards = fixture.nativeElement.querySelectorAll(
+      'nv-card[role="button"]'
+    ) as NodeListOf<HTMLElement>;
+    expect(cards.length).toBe(3);
+
+    // Click Activos card (index 1)
+    cards[1].click();
+    expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "OPEN" });
+
+    // Click Finalizados card (index 2)
+    cards[2].click();
+    expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "CLOSED" });
+
+    // Click Total card (index 0)
+    cards[0].click();
+    expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "ALL" });
+  });
+
+  it("should support keyboard navigation (Enter and Space) on Metric Ribbon cards", () => {
+    const fixture = TestBed.createComponent(TicketsPageComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const updateFiltersSpy = vi.spyOn(component.facade, "updateFilters");
+    /* SAFETY: Querying nv-card elements rendered for metric ribbon */
+    const cards = fixture.nativeElement.querySelectorAll(
+      'nv-card[role="button"]'
+    ) as NodeListOf<HTMLElement>;
+
+    cards[1].dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+    );
+    expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "OPEN" });
+
+    cards[2].dispatchEvent(
+      new KeyboardEvent("keydown", { key: " ", bubbles: true })
+    );
+    expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "CLOSED" });
+  });
 });
