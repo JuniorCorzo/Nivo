@@ -64,7 +64,9 @@ export interface CoordinateSummary {
     </div>
 
     <div class="relative flex flex-col gap-3" (click)="mapInteracted.emit()">
-      <div class="border-border overflow-hidden rounded-xl border shadow-inner">
+      <div
+        class="border-border h-[250px] overflow-hidden rounded-xl border shadow-inner"
+      >
         <app-parking-map
           [initialPosition]="initialPosition()"
           [readonly]="false"
