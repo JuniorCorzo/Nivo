@@ -88,6 +88,27 @@ describe("InviteUserModalComponent", () => {
     expect(userServiceMock.inviteUser).not.toHaveBeenCalled();
   });
 
+  it("should validate phone pattern on contactInfo when provided", () => {
+    component.form.controls.fullName.setValue("Carlos Gómez");
+    component.form.controls.email.setValue("carlos@nivo.com");
+    component.form.controls.role.setValue("OPERATOR");
+
+    component.form.controls.contactInfo.setValue("not-a-phone");
+    expect(component.form.controls.contactInfo.invalid).toBe(true);
+    expect(component.form.invalid).toBe(true);
+
+    component.form.controls.contactInfo.setValue("123");
+    expect(component.form.controls.contactInfo.invalid).toBe(true);
+
+    component.form.controls.contactInfo.setValue("+57 (300) 123-4567");
+    expect(component.form.controls.contactInfo.valid).toBe(true);
+    expect(component.form.valid).toBe(true);
+
+    component.form.controls.contactInfo.setValue("");
+    expect(component.form.controls.contactInfo.valid).toBe(true);
+    expect(component.form.valid).toBe(true);
+  });
+
   it("should call userService.inviteUser and emit outputs on valid submission", () => {
     let invitedCalled = false;
     let closedCalled = false;

@@ -100,7 +100,10 @@ export class InviteUserModalComponent {
   readonly roleValue = roleOptionValue;
 
   readonly form = new FormGroup({
-    contactInfo: new FormControl<string>("", { nonNullable: true }),
+    contactInfo: new FormControl<string>("", {
+      nonNullable: true,
+      validators: [Validators.pattern(/^[+0-9\s()-]{7,20}$/u)],
+    }),
     email: new FormControl<string>("", {
       nonNullable: true,
       validators: [Validators.required, Validators.email],
