@@ -11,10 +11,10 @@
     <nv-card
       role="button"
       tabindex="0"
-      class="cursor-pointer transition-all duration-200 hover:border-emerald-500/50 hover:shadow-xs focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
-      [class.border-emerald-500]="facade.filters().status === 'OPEN'"
+      class="hover:border-success/50 focus-visible:ring-success cursor-pointer transition-all duration-200 hover:shadow-xs focus-visible:ring-2 focus-visible:outline-none"
+      [class.border-success]="facade.filters().status === 'OPEN'"
       [class.ring-1]="facade.filters().status === 'OPEN'"
-      [class.ring-emerald-500]="facade.filters().status === 'OPEN'"
+      [class.ring-success]="facade.filters().status === 'OPEN'"
       [attr.aria-pressed]="facade.filters().status === 'OPEN'"
       (click)="facade.updateFilters({ status: 'OPEN' })"
       (keydown.enter)="facade.updateFilters({ status: 'OPEN' })"
@@ -27,10 +27,10 @@
           </nv-muted>
           <span class="relative flex h-2.5 w-2.5 items-center justify-center">
             <span
-              class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"
+              class="bg-success absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
             ></span>
             <span
-              class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"
+              class="bg-success relative inline-flex h-2 w-2 rounded-full"
             ></span>
           </span>
         </div>
@@ -40,7 +40,7 @@
           {{ facade.ticketStats().open }}
         </div>
         <div class="text-muted-foreground flex items-center gap-1.5 text-xs">
-          <span class="font-bold text-emerald-500"
+          <span class="text-success font-bold tabular-nums"
             >$ {{ facade.ticketStats().activeRevenue | number }}</span
           >
           <span>acumulado vivo</span>
@@ -51,10 +51,10 @@
     <nv-card
       role="button"
       tabindex="0"
-      class="cursor-pointer transition-all duration-200 hover:border-amber-500/50 hover:shadow-xs focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
-      [class.border-amber-500]="facade.filters().status === 'MORA'"
+      class="hover:border-warning/50 focus-visible:ring-warning cursor-pointer transition-all duration-200 hover:shadow-xs focus-visible:ring-2 focus-visible:outline-none"
+      [class.border-warning]="facade.filters().status === 'MORA'"
       [class.ring-1]="facade.filters().status === 'MORA'"
-      [class.ring-amber-500]="facade.filters().status === 'MORA'"
+      [class.ring-warning]="facade.filters().status === 'MORA'"
       [attr.aria-pressed]="facade.filters().status === 'MORA'"
       (click)="facade.updateFilters({ status: 'MORA' })"
       (keydown.enter)="facade.updateFilters({ status: 'MORA' })"
@@ -65,15 +65,15 @@
           <nv-muted class="text-xs font-bold tracking-wider uppercase">
             En Alerta / Mora
           </nv-muted>
-          <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+          <span class="bg-warning h-2 w-2 rounded-full"></span>
         </div>
         <div
-          class="mb-1 font-mono text-3xl font-extrabold tracking-tight text-amber-500 tabular-nums"
+          class="text-warning mb-1 font-mono text-3xl font-extrabold tracking-tight tabular-nums"
         >
           {{ facade.ticketStats().moraCount }}
         </div>
         <div class="text-muted-foreground flex items-center gap-1.5 text-xs">
-          <span class="font-bold text-amber-500">&gt; 8h continuas</span>
+          <span class="text-warning font-bold">&gt; 8h continuas</span>
           <span>(revisar bahía)</span>
         </div>
       </nv-card-content>
@@ -82,10 +82,10 @@
     <nv-card
       role="button"
       tabindex="0"
-      class="cursor-pointer transition-all duration-200 hover:border-sky-500/50 hover:shadow-xs focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
-      [class.border-sky-500]="facade.filters().status === 'CLOSED'"
+      class="hover:border-info/50 focus-visible:ring-info cursor-pointer transition-all duration-200 hover:shadow-xs focus-visible:ring-2 focus-visible:outline-none"
+      [class.border-info]="facade.filters().status === 'CLOSED'"
       [class.ring-1]="facade.filters().status === 'CLOSED'"
-      [class.ring-sky-500]="facade.filters().status === 'CLOSED'"
+      [class.ring-info]="facade.filters().status === 'CLOSED'"
       [attr.aria-pressed]="facade.filters().status === 'CLOSED'"
       (click)="facade.updateFilters({ status: 'CLOSED' })"
       (keydown.enter)="facade.updateFilters({ status: 'CLOSED' })"
@@ -96,7 +96,7 @@
           <nv-muted class="text-xs font-bold tracking-wider uppercase">
             Cerrados Hoy
           </nv-muted>
-          <span class="h-2 w-2 rounded-full bg-sky-500"></span>
+          <span class="bg-info h-2 w-2 rounded-full"></span>
         </div>
         <div
           class="text-foreground mb-1 font-mono text-3xl font-extrabold tracking-tight tabular-nums"
@@ -104,7 +104,7 @@
           {{ facade.ticketStats().closed }}
         </div>
         <div class="text-muted-foreground flex items-center gap-1.5 text-xs">
-          <span class="font-bold text-sky-500"
+          <span class="text-info font-bold tabular-nums"
             >$ {{ facade.ticketStats().closedRevenue | number }}</span
           >
           <span>cobrado en turno</span>
@@ -115,10 +115,10 @@
     <nv-card
       role="button"
       tabindex="0"
-      class="cursor-pointer transition-all duration-200 hover:border-purple-500/50 hover:shadow-xs focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:outline-none"
-      [class.border-purple-500]="facade.filters().status === 'ALL'"
+      class="hover:border-primary/50 focus-visible:ring-primary cursor-pointer transition-all duration-200 hover:shadow-xs focus-visible:ring-2 focus-visible:outline-none"
+      [class.border-primary]="facade.filters().status === 'ALL'"
       [class.ring-1]="facade.filters().status === 'ALL'"
-      [class.ring-purple-500]="facade.filters().status === 'ALL'"
+      [class.ring-primary]="facade.filters().status === 'ALL'"
       [attr.aria-pressed]="facade.filters().status === 'ALL'"
       (click)="facade.updateFilters({ status: 'ALL' })"
       (keydown.enter)="facade.updateFilters({ status: 'ALL' })"
@@ -129,7 +129,7 @@
           <nv-muted class="text-xs font-bold tracking-wider uppercase">
             Rotación / Todos
           </nv-muted>
-          <span class="h-2 w-2 rounded-full bg-purple-500"></span>
+          <span class="bg-primary h-2 w-2 rounded-full"></span>
         </div>
         <div
           class="text-foreground mb-1 font-mono text-3xl font-extrabold tracking-tight tabular-nums"
@@ -171,29 +171,40 @@
         [class.text-muted-foreground]="facade.filters().vehicleType !== 'ALL'"
         (click)="facade.updateFilters({ vehicleType: 'ALL' })"
       >
-        Todos ({{ facade.ticketStats().total }})
+        Todos (<span class="tabular-nums">{{ facade.ticketStats().total }}</span
+        >)
       </button>
       <button
         type="button"
-        class="cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold transition-all"
+        class="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all"
         [class.bg-background]="facade.filters().vehicleType === 'CAR'"
         [class.text-foreground]="facade.filters().vehicleType === 'CAR'"
         [class.shadow-xs]="facade.filters().vehicleType === 'CAR'"
         [class.text-muted-foreground]="facade.filters().vehicleType !== 'CAR'"
         (click)="facade.updateFilters({ vehicleType: 'CAR' })"
       >
-        🚗 Carros ({{ facade.ticketStats().carCount }})
+        <ng-icon name="lucideCar" class="text-sm" />
+        <span
+          >Carros (<span class="tabular-nums"
+            >{{ facade.ticketStats().carCount }}</span
+          >)</span
+        >
       </button>
       <button
         type="button"
-        class="cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold transition-all"
+        class="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all"
         [class.bg-background]="facade.filters().vehicleType === 'MOTORCYCLE'"
         [class.text-foreground]="facade.filters().vehicleType === 'MOTORCYCLE'"
         [class.shadow-xs]="facade.filters().vehicleType === 'MOTORCYCLE'"
         [class.text-muted-foreground]="facade.filters().vehicleType !== 'MOTORCYCLE'"
         (click)="facade.updateFilters({ vehicleType: 'MOTORCYCLE' })"
       >
-        🏍️ Motos ({{ facade.ticketStats().motoCount }})
+        <ng-icon name="lucideBike" class="text-sm" />
+        <span
+          >Motos (<span class="tabular-nums"
+            >{{ facade.ticketStats().motoCount }}</span
+          >)</span
+        >
       </button>
     </div>
   </div>
@@ -215,6 +226,7 @@
     [isLoadingRate]="facade.isCalculatingRate()"
     (close)="facade.closeDetail()"
     (reprintReceipt)="facade.openReceipt($event)"
+    (checkoutInTaquilla)="onCheckoutInTaquilla($event)"
   />
 
   <!-- Ticket Receipt Modal -->

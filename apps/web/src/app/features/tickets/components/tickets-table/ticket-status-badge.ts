@@ -11,7 +11,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
     @if (status() === "OPEN") {
       <nv-badge variant="success" class="inline-flex items-center gap-1.5">
         <span
-          class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400"
+          class="bg-success inline-block h-1.5 w-1.5 animate-pulse rounded-full"
         ></span>
         {{ texts.open }}
       </nv-badge>

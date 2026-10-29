@@ -6,11 +6,14 @@ import {
   computed,
   inject,
 } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
+import type { TicketSummary } from "@core/models/ticket.model";
 import { TicketReceiptComponent } from "@features/operations/components/receipt/ticket-receipt/ticket-receipt";
-import { provideIcons } from "@ng-icons/core";
+import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideArrowLeft,
+  lucideBike,
+  lucideCar,
   lucideCheckCircle2,
   lucideClock,
   lucideTicket,
@@ -40,6 +43,7 @@ interface HeaderContext {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
+    NgIcon,
     CardComponent,
     CardContentComponent,
     TypographyMuted,
@@ -53,6 +57,8 @@ interface HeaderContext {
     TicketsFacade,
     provideIcons({
       lucideArrowLeft,
+      lucideBike,
+      lucideCar,
       lucideCheckCircle2,
       lucideClock,
       lucideTicket,
@@ -64,6 +70,7 @@ interface HeaderContext {
 })
 export class TicketsPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   readonly facade = inject(TicketsFacade);
 
   protected readonly APP_ROUTES = APP_ROUTES;
@@ -87,6 +94,19 @@ export class TicketsPageComponent implements OnInit {
   ngOnInit(): void {
     const parkingId = this.route.snapshot.paramMap.get("parkingId");
     this.facade.loadTickets(parkingId);
+  }
+
+  onCheckoutInTaquilla(ticket: TicketSummary): void {
+    this.facade.closeDetail();
+    const parkingLotId = ticket.parkingLotId || this.facade.parkingId();
+    if (parkingLotId) {
+      void this.router.navigate(
+        [APP_ROUTES.app.parkingLotOperations(parkingLotId)],
+        {
+          queryParams: { checkoutTicketId: ticket.id },
+        }
+      );
+    }
   }
 
   private initHeaderContext(): HeaderContext {
