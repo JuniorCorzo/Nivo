@@ -1,7 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from "@angular/core";
 import type { Coordinates } from "@core/type/coordinates.type";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
+  lucideBuilding2,
   lucideCoins,
   lucideEdit,
   lucideLayers,
@@ -9,8 +15,10 @@ import {
   lucideMapPin,
   lucideParkingSquare,
   lucidePencil,
+  lucideSearch,
+  lucideTag,
+  lucideTicket,
   lucideTrash2,
-  lucideZap,
 } from "@ng-icons/lucide";
 import {
   ButtonComponent,
@@ -46,6 +54,7 @@ import { ParkingHomeFacade } from "../../facades/parking-home.facade";
   providers: [
     ParkingHomeFacade,
     provideIcons({
+      lucideBuilding2,
       lucideCoins,
       lucideEdit,
       lucideLayers,
@@ -53,8 +62,10 @@ import { ParkingHomeFacade } from "../../facades/parking-home.facade";
       lucideMapPin,
       lucideParkingSquare,
       lucidePencil,
+      lucideSearch,
+      lucideTag,
+      lucideTicket,
       lucideTrash2,
-      lucideZap,
     }),
   ],
   selector: "app-parking-home",
@@ -62,8 +73,13 @@ import { ParkingHomeFacade } from "../../facades/parking-home.facade";
   templateUrl: "./parking-home.html",
 })
 export class ParkingHome {
+  public readonly activeTab = signal<"capacity" | "technical">("capacity");
   protected readonly LABELS_DETAIL = APP_TEXTS.parking.detail;
   protected readonly facade = inject(ParkingHomeFacade);
+
+  public setTab(tab: "capacity" | "technical"): void {
+    this.activeTab.set(tab);
+  }
 
   public activeParkingSubtitle(): string {
     const lot = this.facade.activeParkingLot();
