@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { ActivatedRoute, RouterLink } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, RouterLink } from "@angular/router";
 import type { VehicleType } from "@core/models/rate.model";
 import type { SlotSummary } from "@core/models/slot.model";
 import type { TicketSummary } from "@core/models/ticket.model";
@@ -20,15 +20,19 @@ import { TicketService } from "@core/services/ticket-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideBike,
+  lucideCamera,
   lucideCar,
+  lucideClock,
   lucideCoins,
   lucideGauge,
   lucideLogIn,
   lucideLogOut,
   lucideParkingSquare,
+  lucidePlus,
   lucideQrCode,
   lucideSearch,
   lucideTicket,
+  lucideX,
 } from "@ng-icons/lucide";
 import {
   BadgeComponent,
@@ -40,6 +44,7 @@ import { PageHeaderComponent } from "@shared/components/page-header/page-header"
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { PlateMaskDirective } from "@shared/directives/plate-mask";
+import { of } from "rxjs";
 
 import { CheckInModalComponent } from "../components/modals/check-in-modal/check-in-modal";
 import { CheckOutModalComponent } from "../components/modals/check-out-modal/check-out-modal";
@@ -65,15 +70,19 @@ import type { ScannedQrData } from "../components/modals/qr-scanner-modal/qr-sca
   providers: [
     provideIcons({
       lucideBike,
+      lucideCamera,
       lucideCar,
+      lucideClock,
       lucideCoins,
       lucideGauge,
       lucideLogIn,
       lucideLogOut,
       lucideParkingSquare,
+      lucidePlus,
       lucideQrCode,
       lucideSearch,
       lucideTicket,
+      lucideX,
     }),
   ],
   selector: "app-operations-page",
@@ -96,6 +105,7 @@ export class OperationsPageComponent {
 
   readonly isCheckInModalOpen = signal<boolean>(false);
   readonly selectedCheckInSlot = signal<SlotSummary | null>(null);
+  readonly checkInModalInitialUnplated = signal<boolean>(false);
   readonly isCheckOutModalOpen = signal<boolean>(false);
   readonly selectedCheckoutTicket = signal<TicketSummary | null>(null);
 
@@ -178,6 +188,10 @@ export class OperationsPageComponent {
     return Math.round((this.occupiedSlotsCount() / total) * 100);
   });
 
+  readonly occupationBarPercentage = computed(() =>
+    Math.min(this.occupationPercentage(), 100)
+  );
+
   readonly filteredSlots = computed(() => {
     let list = this.slots();
     const vFilter = this.vehicleFilter();
@@ -207,6 +221,8 @@ export class OperationsPageComponent {
     });
   });
 
+  private pendingCheckoutTicketId: string | null = null;
+
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       const id = params.get("parkingId");
@@ -217,15 +233,42 @@ export class OperationsPageComponent {
         this.ticketService.listTicketsByParkingLot(id).subscribe({
           error: () => this.activeTickets.set([]),
           next: (tickets) => {
-            this.activeTickets.set(
-              (tickets ?? []).filter((t) => t.status === "OPEN")
+            const openTickets = (tickets ?? []).filter(
+              (t) => t.status === "OPEN"
             );
+            this.activeTickets.set(openTickets);
+            this.tryProcessPendingCheckout(openTickets);
           },
         });
       } else {
         this.activeTickets.set([]);
       }
     });
+
+    (this.route.queryParamMap ?? of(convertToParamMap({})))
+      .pipe(takeUntilDestroyed())
+      .subscribe((queryParams) => {
+        const checkoutTicketId = queryParams.get("checkoutTicketId");
+        if (checkoutTicketId) {
+          this.pendingCheckoutTicketId = checkoutTicketId;
+          this.tryProcessPendingCheckout(this.activeTickets());
+        } else {
+          this.pendingCheckoutTicketId = null;
+        }
+      });
+  }
+
+  private tryProcessPendingCheckout(
+    tickets: TicketSummary[] = this.activeTickets()
+  ): void {
+    if (!this.pendingCheckoutTicketId) {
+      return;
+    }
+    const match = tickets.find((t) => t.id === this.pendingCheckoutTicketId);
+    if (match) {
+      this.pendingCheckoutTicketId = null;
+      this.checkOutWithTicket(match);
+    }
   }
 
   refreshActiveTickets(): void {
@@ -237,9 +280,9 @@ export class OperationsPageComponent {
     this.ticketService.listTicketsByParkingLot(id).subscribe({
       error: () => this.activeTickets.set([]),
       next: (tickets) => {
-        this.activeTickets.set(
-          (tickets ?? []).filter((t) => t.status === "OPEN")
-        );
+        const openTickets = (tickets ?? []).filter((t) => t.status === "OPEN");
+        this.activeTickets.set(openTickets);
+        this.tryProcessPendingCheckout(openTickets);
       },
     });
   }
@@ -250,6 +293,11 @@ export class OperationsPageComponent {
 
   setStatusFilter(val: string): void {
     this.statusFilter.set(val);
+  }
+
+  resetSlotFilters(): void {
+    this.vehicleFilter.set("ALL");
+    this.statusFilter.set("ALL");
   }
 
   setSearchTicketQuery(query: string): void {
@@ -278,43 +326,65 @@ export class OperationsPageComponent {
     );
   }
 
-  openCheckInModal(): void {
+  openCheckInModal(unplated = false): void {
     this.selectedCheckInSlot.set(null);
+    this.checkInModalInitialUnplated.set(unplated);
     this.isCheckInModalOpen.set(true);
   }
 
   closeCheckInModal(): void {
     this.isCheckInModalOpen.set(false);
     this.selectedCheckInSlot.set(null);
+    this.checkInModalInitialUnplated.set(false);
     this.refreshActiveTickets();
   }
 
   checkInSpecificSlot(slot: SlotSummary): void {
     this.selectedCheckInSlot.set(slot);
+    this.checkInModalInitialUnplated.set(false);
     this.isCheckInModalOpen.set(true);
   }
 
-  submitExpressCheckOutByQuery(): void {
-    const query = this.searchTicketQuery().trim().toLowerCase();
+  submitExpressCheckOutByQuery(queryOverride?: string): void {
+    const rawQuery = queryOverride ?? this.searchTicketQuery();
+    const query = rawQuery.trim().toLowerCase();
     if (!query) {
-      this.toast.showToast({
-        message: "Ingresa una placa o bahía para cobrar salida.",
-        type: "error",
-      });
+      this.openDirectCheckOutModal();
       return;
     }
 
-    const matches = this.filteredActiveTickets();
+    const normQuery = query.replaceAll(/[^a-z0-9]/giu, "").toLowerCase();
+
+    const matches = this.activeTickets().filter((t) => {
+      const plate = (t.licensePlate ?? "").toLowerCase();
+      const slot = (t.slotNumber ?? "").toLowerCase();
+      const normPlate = plate.replaceAll(/[^a-z0-9]/giu, "");
+      const normSlot = slot.replaceAll(/[^a-z0-9]/giu, "");
+      return (
+        plate.includes(query) ||
+        slot.includes(query) ||
+        (normQuery.length >= 2 &&
+          (normPlate.includes(normQuery) || normSlot.includes(normQuery)))
+      );
+    });
+
     if (matches.length === 1) {
       this.checkOutWithTicket(matches[0]);
       return;
     }
 
-    const exact = matches.find(
-      (t) =>
-        t.licensePlate?.toLowerCase() === query ||
-        t.slotNumber?.toLowerCase() === query
-    );
+    const exact = matches.find((t) => {
+      const plate = (t.licensePlate ?? "").toLowerCase();
+      const slot = (t.slotNumber ?? "").toLowerCase();
+      const normPlate = plate.replaceAll(/[^a-z0-9]/giu, "");
+      const normSlot = slot.replaceAll(/[^a-z0-9]/giu, "");
+      return (
+        plate === query ||
+        slot === query ||
+        (normQuery.length >= 3 &&
+          (normPlate === normQuery || normSlot === normQuery))
+      );
+    });
     if (exact) {
       this.checkOutWithTicket(exact);
       return;
@@ -423,14 +493,17 @@ export class OperationsPageComponent {
     plateOverride?: string,
     typeOverride?: VehicleType
   ): void {
+    if (this.isSubmittingExpressCheckIn()) {
+      return;
+    }
     const rawPlate = plateOverride ?? this.expressPlate();
     const cleanPlate = (rawPlate ?? "")
       .replaceAll(/[^a-zA-Z0-9]/gu, "")
       .toUpperCase();
 
-    if (!cleanPlate) {
+    if (cleanPlate.length < 3) {
       this.toast.showToast({
-        message: "Por favor ingresa una placa válida.",
+        message: "Por favor ingresa una placa válida (mínimo 3 caracteres).",
         type: "error",
       });
       return;
@@ -489,6 +562,14 @@ export class OperationsPageComponent {
 
   @HostListener("window:keydown", ["$event"])
   handleKeyboardShortcuts(event: KeyboardEvent): void {
+    if (
+      this.isCheckInModalOpen() ||
+      this.isCheckOutModalOpen() ||
+      this.isQrScannerOpen()
+    ) {
+      return;
+    }
+
     /* SAFETY: event.target is HTMLElement or null on window keyboard event */
     const target = event.target as HTMLElement | null;
     const tagName = target?.tagName?.toUpperCase();
