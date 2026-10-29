@@ -8,8 +8,31 @@ import { TicketService } from "@core/services/ticket-service";
 import { DataTableState } from "@shared/components/data-table";
 
 import { createTicketColumns } from "../components/tickets-table/ticket-columns-definition";
-import type { TicketFilterCriteria } from "../models/ticket-filter.model";
+import type {
+  TicketFilterCriteria,
+  TicketStatusFilter,
+} from "../models/ticket-filter.model";
 import { INITIAL_TICKET_FILTERS } from "../models/ticket-filter.model";
+
+export type TicketStatusFilterWithMora = TicketStatusFilter | "MORA";
+
+export interface TicketFilterCriteriaWithMora extends Omit<
+  TicketFilterCriteria,
+  "status"
+> {
+  status: TicketStatusFilterWithMora;
+}
+
+export interface TicketStats {
+  activeRevenue: number;
+  carCount: number;
+  closed: number;
+  closedRevenue: number;
+  moraCount: number;
+  motoCount: number;
+  open: number;
+  total: number;
+}
 
 @Injectable()
 export class TicketsFacade {
@@ -21,7 +44,9 @@ export class TicketsFacade {
   readonly parkingId = signal<string | null>(null);
   readonly isTenantView = computed(() => !this.parkingId());
   readonly tickets = signal<TicketSummary[]>([]);
-  readonly filters = signal<TicketFilterCriteria>(INITIAL_TICKET_FILTERS);
+  readonly filters = signal<TicketFilterCriteriaWithMora>(
+    INITIAL_TICKET_FILTERS
+  );
   readonly selectedTicket = signal<TicketSummary | null>(null);
   readonly liveRatePreview = signal<PriceDetailedModel | null>(null);
   readonly isLoading = signal<boolean>(false);
@@ -69,11 +94,51 @@ export class TicketsFacade {
     this.table.getFilteredRowModel().rows.map((row) => row.original)
   );
 
-  readonly ticketStats = computed(() => {
+  readonly ticketStats = computed<TicketStats>(() => {
     const all = this.tickets();
-    const open = all.filter((t) => t.status === "OPEN").length;
-    const closed = all.filter((t) => t.status === "CLOSED").length;
-    return { closed, open, total: all.length };
+    const now = Date.now();
+    const eightHoursMs = 8 * 60 * 60 * 1000;
+
+    let open = 0;
+    let closed = 0;
+    let moraCount = 0;
+    let activeRevenue = 0;
+    let closedRevenue = 0;
+    let carCount = 0;
+    let motoCount = 0;
+
+    for (const t of all) {
+      if (t.status === "OPEN") {
+        open++;
+        activeRevenue += t.totalToCharge ?? 0;
+        if (t.entryTime) {
+          const entryTimeMs = new Date(t.entryTime).getTime();
+          if (!Number.isNaN(entryTimeMs) && now - entryTimeMs > eightHoursMs) {
+            moraCount++;
+          }
+        }
+      } else if (t.status === "CLOSED") {
+        closed++;
+        closedRevenue += t.totalToCharge ?? 0;
+      }
+
+      if (t.slotType === "CAR") {
+        carCount++;
+      } else if (t.slotType === "MOTORCYCLE") {
+        motoCount++;
+      }
+    }
+
+    return {
+      activeRevenue,
+      carCount,
+      closed,
+      closedRevenue,
+      moraCount,
+      motoCount,
+      open,
+      total: all.length,
+    };
   });
 
   loadTickets(parkingId?: string | null): void {
@@ -96,7 +161,7 @@ export class TicketsFacade {
     });
   }
 
-  updateFilters(criteria: Partial<TicketFilterCriteria>): void {
+  updateFilters(criteria: Partial<TicketFilterCriteriaWithMora>): void {
     this.filters.update((current) => ({
       ...current,
       ...criteria,

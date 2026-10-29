@@ -20,15 +20,13 @@ import { lucideCamera } from "@ng-icons/lucide";
   template: `
     @if (isUnplated()) {
       <span
-        class="inline-flex items-center gap-1 rounded border border-amber-500/30 bg-amber-500/15 px-2 py-0.5 font-mono text-xs font-bold text-amber-400 tabular-nums"
+        class="inline-flex items-center gap-1 font-mono text-xs font-semibold text-amber-500 dark:text-amber-400"
       >
         <ng-icon name="lucideCamera" size="13" />
         <span>{{ plate() }}</span>
       </span>
     } @else {
-      <span
-        class="inline-flex items-center gap-1.5 rounded border border-zinc-700 bg-amber-400 px-2 py-0.5 font-mono text-xs font-bold tracking-wider text-zinc-950 uppercase tabular-nums shadow-xs"
-      >
+      <span class="text-foreground font-mono text-sm font-bold tracking-wider">
         {{ plate() }}
       </span>
     }

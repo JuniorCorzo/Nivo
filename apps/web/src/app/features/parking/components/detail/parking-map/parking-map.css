@@ -1,14 +1,13 @@
 :host {
   display: block;
   width: 100%;
+  height: 100%;
 }
 
 .parking-map {
   width: 100%;
-  min-height: 200px;
-  height: 250px;
-  border-radius: 0.75rem;
-  border: 1px solid var(--border);
+  height: 100%;
+  min-height: 250px;
   background-color: var(--background);
   z-index: 0;
 }
@@ -38,6 +37,12 @@
   font-family: inherit !important;
 }
 
+:host-context(.dark) ::ng-deep .leaflet-tile-pane,
+:host-context([data-theme="dark"]) ::ng-deep .leaflet-tile-pane {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3)
+    brightness(0.7);
+}
+
 :host ::ng-deep .leaflet-control-attribution {
   background: rgba(24, 24, 27, 0.75) !important;
   color: var(--muted-foreground) !important;
@@ -52,4 +57,5 @@
 :host ::ng-deep .nivo-map-marker-container {
   background: transparent !important;
   border: none !important;
+  overflow: visible !important;
 }

@@ -176,7 +176,7 @@ describe("TicketsTableComponent", () => {
     expect(selected).toEqual(mockTickets[0]);
   });
 
-  it("should render authentic automotive plate chip for regular and unplated tickets", () => {
+  it("should render clean monospace plate for regular tickets and camera icon for unplated tickets", () => {
     const withUnplated: TicketSummary[] = [
       ...mockTickets,
       {
@@ -198,13 +198,18 @@ describe("TicketsTableComponent", () => {
     const rows = compiled.querySelectorAll("tbody tr");
     expect(rows.length).toBe(3);
 
-    // Row 0 has Colombian yellow plate chip
-    const yellowChip = rows[0].querySelector(".bg-amber-400");
-    expect(yellowChip).not.toBeNull();
-    expect(yellowChip?.textContent).toContain("ABC123");
+    // Row 0 has clean monospace plate
+    const standardPlate = rows[0].querySelector(
+      "app-ticket-plate-cell span.font-mono"
+    );
+    expect(standardPlate).not.toBeNull();
+    expect(standardPlate?.textContent).toContain("ABC123");
+    expect(rows[0].querySelector(".bg-amber-400")).toBeNull();
 
     // Row 2 has unplated chip with camera icon
-    const unplatedChip = rows[2].querySelector(".bg-amber-500\\/15");
+    const unplatedChip = rows[2].querySelector(
+      "app-ticket-plate-cell span.text-amber-500"
+    );
     expect(unplatedChip).not.toBeNull();
     expect(unplatedChip?.textContent).toContain("SP-999");
     expect(
@@ -229,5 +234,45 @@ describe("TicketsTableComponent", () => {
     expect(totalCells[1].textContent).toContain("$3,500");
     const totalSpan = totalCells[1].querySelector(".tabular-nums.font-bold");
     expect(totalSpan).not.toBeNull();
+  });
+
+  it("should emit selectTicket when clicking a row in the table", () => {
+    let selected: TicketSummary | null = null;
+    component.selectTicket.subscribe((t) => {
+      selected = t;
+    });
+
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const row = compiled.querySelector(
+      "tbody tr:first-child"
+    ) as HTMLElement | null;
+    row?.click();
+
+    expect(selected).toEqual(mockTickets[0]);
+  });
+
+  it("should render standard plate with clean typography without country tag", () => {
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const plateCell = compiled.querySelector("app-ticket-plate-cell");
+    expect(plateCell).not.toBeNull();
+    expect(plateCell?.textContent).toContain("ABC123");
+    expect(plateCell?.textContent).not.toContain("COLOMBIA");
+    const standardPlate = plateCell?.querySelector("span.tracking-wider");
+    expect(standardPlate).not.toBeNull();
+  });
+
+  it("should render ticket duration cell with entry date/time and elapsed duration without progress bar", () => {
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const durationCell = compiled.querySelector("app-ticket-duration-cell");
+    expect(durationCell).not.toBeNull();
+    const progressTrack = durationCell?.querySelector(".bg-muted.rounded-full");
+    expect(progressTrack).toBeNull();
+    const spans = durationCell?.querySelectorAll("span");
+    expect(spans?.length).toBe(2);
+    expect(spans?.[0].classList.contains("font-mono")).toBe(true);
+    expect(spans?.[1].classList.contains("text-muted-foreground")).toBe(true);
   });
 });

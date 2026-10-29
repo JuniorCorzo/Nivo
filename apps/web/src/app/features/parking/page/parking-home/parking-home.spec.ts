@@ -6,6 +6,21 @@ import { provideRouter } from "@angular/router";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import { ActiveParkingService } from "@core/services/active-parking.service";
 import { ParkingService } from "@core/services/parking-service";
+import { provideIcons } from "@ng-icons/core";
+import {
+  lucideBuilding2,
+  lucideCoins,
+  lucideEdit,
+  lucideLayers,
+  lucideLogIn,
+  lucideMapPin,
+  lucideParkingSquare,
+  lucidePencil,
+  lucideSearch,
+  lucideTag,
+  lucideTicket,
+  lucideTrash2,
+} from "@ng-icons/lucide";
 
 import { ParkingHomeFacade } from "../../facades/parking-home.facade";
 import { ParkingHome } from "./parking-home";
@@ -82,7 +97,23 @@ describe("ParkingHome Component", () => {
     })
       .overrideComponent(ParkingHome, {
         set: {
-          providers: [{ provide: ParkingHomeFacade, useValue: mockFacade }],
+          providers: [
+            { provide: ParkingHomeFacade, useValue: mockFacade },
+            provideIcons({
+              lucideBuilding2,
+              lucideCoins,
+              lucideEdit,
+              lucideLayers,
+              lucideLogIn,
+              lucideMapPin,
+              lucideParkingSquare,
+              lucidePencil,
+              lucideSearch,
+              lucideTag,
+              lucideTicket,
+              lucideTrash2,
+            }),
+          ],
         },
       })
       .compileComponents();
@@ -96,11 +127,53 @@ describe("ParkingHome Component", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should render parking stats and general info when active parking is present", () => {
+  it("should render stats-grid and slot-distribution in capacity tab by default", () => {
     const el: HTMLElement = fixture.nativeElement;
+    expect(component.activeTab()).toBe("capacity");
     expect(el.querySelector("app-parking-stats-grid")).toBeTruthy();
-    expect(el.querySelector("app-parking-general-info")).toBeTruthy();
+    expect(el.querySelector("app-parking-slot-distribution")).toBeTruthy();
+    expect(el.querySelector("app-parking-general-info")).toBeNull();
+    expect(el.querySelector("app-parking-map")).toBeNull();
     expect(el.querySelector("app-parking-empty-state")).toBeNull();
+  });
+
+  it("should switch to technical tab and render general info and map", () => {
+    const el: HTMLElement = fixture.nativeElement;
+    component.setTab("technical");
+    fixture.detectChanges();
+
+    expect(component.activeTab()).toBe("technical");
+    expect(el.querySelector("app-parking-general-info")).toBeTruthy();
+    expect(el.querySelector("app-parking-map")).toBeTruthy();
+    expect(el.querySelector("app-parking-stats-grid")).toBeNull();
+    expect(el.querySelector("app-parking-slot-distribution")).toBeNull();
+  });
+
+  it("should switch tabs when clicking segmented control tabs", () => {
+    const tabButtons =
+      fixture.nativeElement.querySelectorAll('button[role="tab"]');
+    expect(tabButtons.length).toBe(2);
+
+    tabButtons[1].click();
+    fixture.detectChanges();
+    expect(component.activeTab()).toBe("technical");
+
+    tabButtons[0].click();
+    fixture.detectChanges();
+    expect(component.activeTab()).toBe("capacity");
+  });
+
+  it("should trigger facade.onManageOperations from the live operations banner in capacity tab", () => {
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll("nv-button")
+    ) as HTMLElement[];
+    const bannerButton = buttons.find((btn) =>
+      btn.textContent?.includes("Ir a Taquilla en Vivo")
+    );
+
+    expect(bannerButton).toBeTruthy();
+    bannerButton?.click();
+    expect(mockFacade.onManageOperations).toHaveBeenCalled();
   });
 
   it("should render app-page-header with parking selector, actions, and breadcrumbs", () => {
@@ -111,7 +184,9 @@ describe("ParkingHome Component", () => {
     expect(selector).toBeTruthy();
     const actions = header.querySelector("[actions]");
     expect(actions).toBeTruthy();
-    expect(header.textContent).toContain("Operaciones en vivo");
+    expect(header.textContent).toContain("Ir a Taquilla Directa");
+    expect(header.textContent).toContain("Configurar Tarifas");
+    expect(header.textContent).toContain("Editar Sede");
     expect(header.textContent).toContain("Calle 100 # 15-20, Bogotá");
     expect(header.textContent).not.toContain("Parqueadero Central — Calle 100");
     const breadcrumb = header.querySelector(
@@ -119,6 +194,58 @@ describe("ParkingHome Component", () => {
     );
     expect(breadcrumb).toBeTruthy();
     expect(breadcrumb.textContent).toContain("Home");
+  });
+
+  it("should trigger facade methods when clicking header action buttons", () => {
+    const buttons = fixture.nativeElement.querySelectorAll(
+      "app-page-header [actions] nv-button"
+    );
+    expect(buttons.length).toBe(3);
+
+    buttons[0].click();
+    expect(mockFacade.onManageOperations).toHaveBeenCalled();
+
+    buttons[1].click();
+    expect(mockFacade.onManageRates).toHaveBeenCalled();
+
+    buttons[2].click();
+    expect(mockFacade.onEdit).toHaveBeenCalled();
+  });
+
+  it("should render hero map card with topbar, coordinates, and operational quick dock bar in technical tab", () => {
+    component.setTab("technical");
+    fixture.detectChanges();
+
+    const native = fixture.nativeElement;
+    expect(native.textContent).toContain("Mapa Georeferenciado en Vivo");
+    expect(native.textContent).toContain(
+      "Centro de Comandos Operativos de Sede"
+    );
+    expect(native.textContent).toContain("Auditar Bahías");
+    expect(native.textContent).toContain("Taquilla Directa");
+    expect(native.textContent).toContain("Configurar Tarifas");
+
+    const dockButtons = native.querySelectorAll("nv-card nv-button");
+    expect(dockButtons.length).toBe(3);
+
+    dockButtons[0].click();
+    expect(mockFacade.onManageSlots).toHaveBeenCalled();
+
+    dockButtons[1].click();
+    expect(mockFacade.onManageOperations).toHaveBeenCalled();
+
+    dockButtons[2].click();
+    expect(mockFacade.onManageRates).toHaveBeenCalled();
+  });
+
+  it("should format coordinates properly with formatGps", () => {
+    expect(component.formatGps({ latitude: 4.7012, longitude: -74.0321 })).toBe(
+      "4.7012° N · 74.0321° W"
+    );
+    expect(
+      component.formatGps({ latitude: -12.0464, longitude: 77.0428 })
+    ).toBe("12.0464° S · 77.0428° E");
+    expect(component.formatGps(undefined)).toBe("0.0000° N · 0.0000° W");
   });
 
   it("should compute activeParkingSubtitle with only address when active lot is present", () => {

@@ -1,129 +1,187 @@
-<div class="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-  <!-- Total Capacity & Plazas Ocupadas -->
+<div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+  <!-- Card 1: Global Occupancy Gauge -->
   <nv-card
-    class="flex h-full min-h-[110px] flex-col justify-between rounded-xl shadow-xs"
+    class="border-border bg-card flex flex-col justify-between rounded-2xl border p-5 shadow-xs"
   >
-    <div class="p-4">
-      <div class="flex items-center justify-between gap-1">
-        <nv-muted
-          class="block truncate text-[11px] font-semibold tracking-wider uppercase"
+    <div>
+      <div class="flex items-center justify-between gap-2">
+        <span
+          class="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
         >
-          Plazas Ocupadas
-        </nv-muted>
-        <div
-          class="bg-primary/10 text-primary border-primary/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
-        >
-          <ng-icon name="lucideParkingSquare" size="18" class="shrink-0" />
-        </div>
+          Ocupación General del Patio
+        </span>
+        <span class="text-muted-foreground font-mono text-xs font-semibold">
+          <span class="tabular-nums">{{ occupiedSlots() }}</span> /
+          <span class="tabular-nums">{{ totalSlots() }}</span> Plazas
+        </span>
       </div>
-      <div class="mt-2 flex flex-col">
-        <div class="flex items-baseline gap-2">
-          <nv-mono class="text-foreground font-mono text-2xl font-bold">
-            {{ occupiedSlots() }} / {{ totalSlots() }}
-          </nv-mono>
-        </div>
-        <nv-muted class="mt-0.5 block truncate font-mono text-[11px]">
-          {{ availableSlots() }} disponibles
-        </nv-muted>
+      <div
+        class="text-foreground mt-2 font-mono text-3xl leading-none font-extrabold tabular-nums"
+      >
+        {{ occupationRate() }}%
+      </div>
+      <div class="text-muted-foreground mt-1.5 text-xs">
+        Capacidad operativa en tiempo real
       </div>
     </div>
-  </nv-card>
 
-  <!-- Occupancy Rate -->
-  <nv-card
-    class="flex h-full min-h-[110px] flex-col justify-between rounded-xl shadow-xs"
-  >
-    <div class="p-4">
-      <div class="flex items-center justify-between gap-1">
-        <nv-muted
-          class="block truncate text-[11px] font-semibold tracking-wider uppercase"
-        >
-          Ocupación
-        </nv-muted>
+    <div class="mt-4 flex flex-col gap-3">
+      <!-- Linear gauge progress bar -->
+      <div
+        class="border-border/50 bg-muted relative h-2.5 w-full overflow-hidden rounded-full border"
+      >
         <div
-          class="bg-info/10 text-info border-info/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
-        >
-          <ng-icon name="lucideCar" size="18" class="shrink-0" />
-        </div>
+          class="h-full rounded-full transition-all duration-500"
+          [class.bg-success]="occupationRate() < 70"
+          [class.bg-warning]="occupationRate() >= 70 && occupationRate() < 90"
+          [class.bg-destructive]="occupationRate() >= 90"
+          [style.width.%]="clampedOccupationRate()"
+        ></div>
       </div>
-      <div class="mt-2 flex flex-col">
-        <div class="flex items-baseline justify-between gap-2">
-          <nv-mono class="text-foreground font-mono text-2xl font-bold">
-            {{ occupationRate() }}%
-          </nv-mono>
-          <nv-muted class="xs:inline hidden text-[11px]">en vivo</nv-muted>
-        </div>
-        <!-- Progress Bar Indicator -->
-        <div class="bg-muted mt-1.5 h-1.5 w-full overflow-hidden rounded-full">
-          <div
-            class="h-full rounded-full transition-all duration-300"
-            [class.bg-emerald-500]="occupationRate() < 70"
-            [class.bg-amber-500]="occupationRate() >= 70 && occupationRate() < 90"
-            [class.bg-rose-500]="occupationRate() >= 90"
-            [style.width.%]="occupationRate()"
-          ></div>
-        </div>
-      </div>
-    </div>
-  </nv-card>
 
-  <!-- Currency & Billing -->
-  <nv-card
-    class="flex h-full min-h-12 flex-col justify-between rounded-xl shadow-xs"
-  >
-    <div class="p-4">
-      <div class="flex items-center justify-between gap-1">
-        <nv-muted
-          class="block truncate text-[11px] font-semibold tracking-wider uppercase"
-        >
-          Moneda Base
-        </nv-muted>
+      <!-- Sub-counts breakdown -->
+      <div class="grid grid-cols-2 gap-2 pt-0.5">
         <div
-          class="bg-primary/10 text-primary border-primary/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
+          class="border-border/60 bg-muted/40 flex flex-col gap-0.5 rounded-xl border p-2.5"
         >
-          <ng-icon name="lucideCoins" size="18" class="shrink-0" />
-        </div>
-      </div>
-      <div class="mt-2 flex flex-col">
-        <div class="flex items-baseline gap-2">
-          <nv-mono class="text-foreground font-mono text-2xl font-bold">
-            {{ currency() }}
-          </nv-mono>
-        </div>
-        <nv-muted class="mt-0.5 block truncate text-[11px]">
-          facturación
-        </nv-muted>
-      </div>
-    </div>
-  </nv-card>
-
-  <!-- Coordenadas -->
-  <nv-card
-    class="flex h-full min-h-[110px] flex-col justify-between rounded-xl shadow-xs"
-  >
-    <div class="p-4">
-      <div class="flex items-center justify-between gap-1">
-        <nv-muted
-          class="block truncate text-[11px] font-semibold tracking-wider uppercase"
-        >
-          Coordenadas
-        </nv-muted>
-        <div
-          class="bg-warning/10 text-warning border-warning/20 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border sm:h-8 sm:w-8"
-        >
-          <ng-icon name="lucideMapPin" size="18" class="shrink-0" />
-        </div>
-      </div>
-      <div class="mt-2 flex flex-col">
-        <div class="flex items-baseline gap-2">
-          <nv-mono
-            class="text-foreground block truncate font-mono text-xs font-bold sm:text-sm"
+          <span
+            class="text-muted-foreground flex items-center gap-1.5 text-[11px] font-semibold"
           >
-            {{ formattedCoords() }}
-          </nv-mono>
+            <ng-icon name="lucideCar" class="text-xs" />
+            <span>Autos en Sitio</span>
+          </span>
+          <span class="text-foreground font-mono text-xs font-bold tabular-nums"
+            >{{ carOccupied() }}
+            <span class="text-muted-foreground text-[10px] font-normal"
+              >/ {{ carTotal() }} Plazas ({{ carRate() }}%)</span
+            ></span
+          >
         </div>
-        <nv-muted class="mt-0.5 block truncate text-[11px]"> GPS </nv-muted>
+        <div
+          class="border-border/60 bg-muted/40 flex flex-col gap-0.5 rounded-xl border p-2.5"
+        >
+          <span
+            class="text-muted-foreground flex items-center gap-1.5 text-[11px] font-semibold"
+          >
+            <ng-icon name="lucideBike" class="text-xs" />
+            <span>Motos en Sitio</span>
+          </span>
+          <span class="text-foreground font-mono text-xs font-bold tabular-nums"
+            >{{ motoOccupied() }}
+            <span class="text-muted-foreground text-[10px] font-normal"
+              >/ {{ motoTotal() }} Plazas ({{ motoRate() }}%)</span
+            ></span
+          >
+        </div>
       </div>
+    </div>
+  </nv-card>
+
+  <!-- Card 2: Distribución y Zonas de Patio -->
+  <nv-card
+    class="border-border bg-card flex flex-col justify-between rounded-2xl border p-5 shadow-xs"
+  >
+    <div>
+      <div class="flex items-center justify-between">
+        <span
+          class="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
+        >
+          Distribución y Zonas de Patio
+        </span>
+        <span class="text-muted-foreground font-mono text-xs font-semibold">
+          <span class="tabular-nums">{{ totalZones() }}</span>
+          {{ totalZones() === 1 ? 'Zona' : 'Zonas' }}
+        </span>
+      </div>
+      <div
+        class="text-foreground mt-2 font-mono text-3xl leading-none font-extrabold tabular-nums"
+      >
+        {{ totalSlots() }}
+      </div>
+      <div class="text-muted-foreground mt-1.5 text-xs">
+        Total de plazas configuradas en patio
+      </div>
+    </div>
+
+    <div
+      class="border-border text-muted-foreground mt-4 flex items-center justify-between border-t pt-3 text-[11px]"
+    >
+      <span class="flex items-center gap-1.5">
+        <ng-icon name="lucideCar" class="text-primary text-xs" />
+        <span
+          >Autos:
+          <strong class="text-foreground font-mono tabular-nums"
+            >{{ carTotal() }}</strong
+          ></span
+        >
+      </span>
+      <span class="flex items-center gap-1.5">
+        <ng-icon name="lucideBike" class="text-primary text-xs" />
+        <span
+          >Motos:
+          <strong class="text-foreground font-mono tabular-nums"
+            >{{ motoTotal() }}</strong
+          ></span
+        >
+      </span>
+      <span class="flex items-center gap-1.5">
+        <ng-icon name="lucideLayers" class="text-primary text-xs" />
+        <span
+          >Zonas:
+          <strong class="text-foreground font-mono tabular-nums"
+            >{{ totalZones() }}</strong
+          ></span
+        >
+      </span>
+    </div>
+  </nv-card>
+
+  <!-- Card 3: Operación & Políticas -->
+  <nv-card
+    class="border-border bg-card flex flex-col justify-between rounded-2xl border p-5 shadow-xs"
+  >
+    <div>
+      <div class="flex items-center justify-between">
+        <span
+          class="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
+        >
+          Operación & Políticas
+        </span>
+        <span class="text-muted-foreground font-mono text-xs font-semibold">
+          {{ operatingHoursText() || "24 Horas" }}
+        </span>
+      </div>
+      <div
+        class="text-foreground mt-2 font-mono text-3xl leading-none font-extrabold tabular-nums"
+      >
+        {{ gracePeriodText() || "0 min" }}
+      </div>
+      <div class="text-muted-foreground mt-1.5 text-xs">
+        Tiempo de gracia para salida sin cobro
+      </div>
+    </div>
+
+    <div
+      class="border-border text-muted-foreground mt-4 flex items-center justify-between border-t pt-3 text-[11px]"
+    >
+      <span class="flex items-center gap-1.5">
+        <ng-icon name="lucideClock" class="text-muted-foreground text-xs" />
+        <span
+          >Horario:
+          <strong class="text-foreground"
+            >{{ operatingHoursText() || "24 Horas" }}</strong
+          ></span
+        >
+      </span>
+      <span class="flex items-center gap-1.5">
+        <ng-icon name="lucideCoins" class="text-muted-foreground text-xs" />
+        <span
+          >Tarifa gracia:
+          <strong class="text-foreground font-mono tabular-nums"
+            >{{ gracePeriodPriceText() || "$ 0" }}</strong
+          ></span
+        >
+      </span>
     </div>
   </nv-card>
 </div>

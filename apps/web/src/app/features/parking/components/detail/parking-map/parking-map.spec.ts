@@ -4,7 +4,7 @@ import { TestBed } from "@angular/core/testing";
 import type { Coordinates } from "@core/type/coordinates.type";
 import L from "leaflet";
 
-import { ParkingMapComponent } from "./parking-map";
+import { createParkingMarkerIcon, ParkingMapComponent } from "./parking-map";
 
 interface ParkingMapStatic {
   isValidCoordinates: (coords: unknown) => boolean;
@@ -13,6 +13,7 @@ interface ParkingMapStatic {
 interface ParkingMapInternal {
   map: L.Map | null;
   marker: L.Marker | null;
+  resizeObserver: ResizeObserver | null;
   setMarkerPosition: (lat: number, lng: number) => void;
   onMapClick: (latlng: L.LatLng) => void;
 }
@@ -27,6 +28,7 @@ interface PositionHolder {
   template: `
     <app-parking-map
       [initialPosition]="initialPosition()"
+      [parkingName]="parkingName()"
       [readonly]="readonly()"
       (positionChange)="onPositionChange($event)"
     />
@@ -34,6 +36,7 @@ interface PositionHolder {
 })
 class TestHostComponent {
   public initialPosition = signal<Coordinates | null>(null);
+  public parkingName = signal<string | null>(null);
   public readonly = signal<boolean>(false);
   public lastEmittedPosition: Coordinates | null = null;
 
@@ -228,6 +231,73 @@ describe("ParkingMapComponent", () => {
 
     it("should handle ngOnDestroy when map and marker were never initialized", () => {
       expect(() => component.ngOnDestroy()).not.toThrow();
+    });
+
+    it("should disconnect and clear resizeObserver upon ngOnDestroy", () => {
+      /* SAFETY: Accessing internal component state for testing */
+      const privateComp: ParkingMapInternal = component as never;
+      const disconnectSpy = vi.fn();
+      privateComp.resizeObserver = {
+        disconnect: disconnectSpy,
+        observe: vi.fn(),
+        unobserve: vi.fn(),
+      };
+
+      component.ngOnDestroy();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+      expect(privateComp.resizeObserver).toBeNull();
+    });
+  });
+
+  describe("parkingName and location banner marker icon", () => {
+    it("should default parkingName input to null", () => {
+      expect(component.parkingName()).toBeNull();
+    });
+
+    it("should accept parkingName input", () => {
+      fixture.componentRef.setInput("parkingName", "Sede Chapinero");
+      fixture.detectChanges();
+      expect(component.parkingName()).toBe("Sede Chapinero");
+    });
+
+    it("should create location banner marker icon with default label when name is not provided", () => {
+      const icon = createParkingMarkerIcon();
+      expect(icon.options.className).toBe("nivo-map-marker-container");
+      expect(icon.options.html).toContain("Sede de Parqueo");
+      expect(icon.options.html).toContain("animate-ping");
+      expect(icon.options.html).toContain(
+        "M20 10c0 4.993-5.539 10.193-7.399 11.799"
+      );
+      expect(icon.options.html).not.toContain("polygon");
+    });
+
+    it("should create location banner marker icon with custom parking name", () => {
+      const icon = createParkingMarkerIcon("Parqueadero Zona Rosa");
+      expect(icon.options.html).toContain("Parqueadero Zona Rosa");
+    });
+
+    it("should update marker icon when parkingName input changes", () => {
+      /* SAFETY: Accessing internal map state for unit testing */
+      const privateComp: ParkingMapInternal = component as never;
+
+      const container = document.createElement("div");
+      privateComp.map = new L.Map(container, {
+        center: [4.711, -74.0721],
+        zoom: 13,
+      });
+
+      fixture.componentRef.setInput("initialPosition", {
+        latitude: 4.711,
+        longitude: -74.0721,
+      });
+      fixture.componentRef.setInput("parkingName", "Sede Central Nivo");
+      fixture.detectChanges();
+
+      const marker = privateComp.marker;
+      expect(marker).toBeTruthy();
+      const markerIcon = marker?.options.icon as L.DivIcon;
+      expect(markerIcon.options.html).toContain("Sede Central Nivo");
     });
   });
 });

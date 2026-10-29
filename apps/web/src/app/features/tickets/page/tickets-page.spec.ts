@@ -78,18 +78,22 @@ describe("TicketsPageComponent", () => {
     const cards = fixture.nativeElement.querySelectorAll(
       'nv-card[role="button"]'
     ) as NodeListOf<HTMLElement>;
-    expect(cards.length).toBe(3);
+    expect(cards.length).toBe(4);
 
-    // Click Activos card (index 1)
-    cards[1].click();
+    // Click Activos card (index 0)
+    cards[0].click();
     expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "OPEN" });
 
-    // Click Finalizados card (index 2)
+    // Click Mora card (index 1)
+    cards[1].click();
+    expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "MORA" });
+
+    // Click Cerrados card (index 2)
     cards[2].click();
     expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "CLOSED" });
 
-    // Click Total card (index 0)
-    cards[0].click();
+    // Click Total card (index 3)
+    cards[3].click();
     expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "ALL" });
   });
 
@@ -104,14 +108,50 @@ describe("TicketsPageComponent", () => {
       'nv-card[role="button"]'
     ) as NodeListOf<HTMLElement>;
 
-    cards[1].dispatchEvent(
+    cards[0].dispatchEvent(
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
     );
     expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "OPEN" });
 
-    cards[2].dispatchEvent(
+    cards[1].dispatchEvent(
       new KeyboardEvent("keydown", { key: " ", bubbles: true })
     );
+    expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "MORA" });
+
+    cards[2].dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+    );
     expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "CLOSED" });
+
+    cards[3].dispatchEvent(
+      new KeyboardEvent("keydown", { key: " ", bubbles: true })
+    );
+    expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "ALL" });
+  });
+
+  it("should update vehicle filter when clicking vehicle filter pills", () => {
+    const fixture = TestBed.createComponent(TicketsPageComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const updateFiltersSpy = vi.spyOn(component.facade, "updateFilters");
+    const pills = fixture.nativeElement.querySelectorAll(
+      '[data-testid="vehicle-filter-pills"] button'
+    ) as NodeListOf<HTMLButtonElement>;
+    expect(pills.length).toBe(3);
+
+    // Click Carros pill (index 1)
+    pills[1].click();
+    expect(updateFiltersSpy).toHaveBeenCalledWith({ vehicleType: "CAR" });
+
+    // Click Motos pill (index 2)
+    pills[2].click();
+    expect(updateFiltersSpy).toHaveBeenCalledWith({
+      vehicleType: "MOTORCYCLE",
+    });
+
+    // Click Todos pill (index 0)
+    pills[0].click();
+    expect(updateFiltersSpy).toHaveBeenCalledWith({ vehicleType: "ALL" });
   });
 });

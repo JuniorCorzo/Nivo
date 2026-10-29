@@ -96,6 +96,20 @@ describe("TicketsFacade", () => {
     expect(stats.total).toBe(3);
     expect(stats.open).toBe(1);
     expect(stats.closed).toBe(2);
+    expect(stats.moraCount).toBe(1);
+    expect(stats.activeRevenue).toBe(0);
+    expect(stats.closedRevenue).toBe(11500);
+    expect(stats.carCount).toBe(2);
+    expect(stats.motoCount).toBe(1);
+  });
+
+  it("should filter tickets by MORA status", () => {
+    facade.loadTickets("parking-123");
+    facade.updateFilters({ status: "MORA" });
+
+    const filtered = facade.filteredTickets();
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].id).toBe("t-1");
   });
 
   it("should filter tickets by license plate substring (case-insensitive)", () => {
