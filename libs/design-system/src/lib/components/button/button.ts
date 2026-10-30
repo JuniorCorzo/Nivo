@@ -61,14 +61,15 @@ export class ButtonComponent {
 
     const variants = {
       default:
-        "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/90",
+        "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/90 active:bg-[var(--primary)]/80",
       destructive:
-        "bg-[var(--destructive)] text-[var(--destructive-foreground)] hover:bg-[var(--destructive)]/90",
-      ghost: "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]",
+        "bg-[var(--destructive)] text-[var(--destructive-foreground)] hover:bg-[var(--destructive)]/90 active:bg-[var(--destructive)]/80",
+      ghost:
+        "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] active:bg-[var(--accent)]/80",
       outline:
-        "border border-[var(--border)] bg-transparent hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]",
+        "border border-[var(--border)] bg-transparent hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] active:bg-[var(--accent)]/80",
       secondary:
-        "bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--secondary)]/80",
+        "bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--secondary)]/80 active:bg-[var(--secondary)]/70",
     } as const;
 
     const sizes = {

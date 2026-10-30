@@ -5,6 +5,15 @@ import {
   input,
 } from "@angular/core";
 
+export type BadgeVariant =
+  | "default"
+  | "secondary"
+  | "destructive"
+  | "success"
+  | "warning"
+  | "info"
+  | "outline";
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -15,15 +24,7 @@ import {
   template: `<ng-content />`,
 })
 export class BadgeComponent {
-  readonly variant = input<
-    | "default"
-    | "secondary"
-    | "destructive"
-    | "success"
-    | "warning"
-    | "info"
-    | "outline"
-  >("default");
+  readonly variant = input<BadgeVariant>("default");
 
   readonly classes = computed(() => {
     const base =
@@ -34,14 +35,14 @@ export class BadgeComponent {
         "border-transparent bg-[var(--primary)] text-[var(--primary-foreground)]",
       destructive:
         "border-transparent bg-[var(--destructive)] text-[var(--destructive-foreground)]",
-      info: "border-transparent bg-[var(--semantic-info)]/20 text-[var(--semantic-info)]",
+      info: "border-transparent bg-[var(--semantic-info)]/15 text-[var(--semantic-info)]",
       outline: "border-[var(--border)] text-[var(--foreground)]",
       secondary:
         "border-transparent bg-[var(--secondary)] text-[var(--secondary-foreground)]",
       success:
-        "border-transparent bg-[var(--semantic-success)]/20 text-[var(--semantic-success)]",
+        "border-transparent bg-[var(--semantic-success)]/15 text-[var(--semantic-success)]",
       warning:
-        "border-transparent bg-[var(--semantic-warning)]/20 text-[var(--semantic-warning)]",
+        "border-transparent bg-[var(--semantic-warning)]/15 text-[var(--semantic-warning)]",
     } as const;
 
     return `${base} ${variants[this.variant()]}`;
