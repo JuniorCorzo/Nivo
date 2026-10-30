@@ -472,11 +472,10 @@
 
 <!-- Check-out Modal Component -->
 @defer (when isCheckOutModalOpen()) {
-  <app-check-out-modal
-    [isOpen]="isCheckOutModalOpen()"
-    [parkingId]="parkingId()"
-    [ticket]="selectedCheckoutTicket()"
-    (closed)="closeCheckOutModal()"
-  />
+<app-check-out-modal
+  [isOpen]="isCheckOutModalOpen()"
+  [parkingId]="parkingId()"
+  [ticket]="selectedCheckoutTicket()"
+  (closed)="closeCheckOutModal()"
+/>
 }
-

@@ -9,18 +9,21 @@
   </div>
 
   <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-    <nv-badge variant="success" class="mb-6 inline-flex items-center gap-2 px-3.5 py-1">
+    <nv-badge
+      variant="success"
+      class="mb-6 inline-flex items-center gap-2 px-3.5 py-1"
+    >
       <ng-icon name="lucideSparkles" size="14" class="text-success" />
       <span>{{ texts.badge }}</span>
     </nv-badge>
 
     <nv-h1
-      class="mx-auto max-w-4xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl"
+      class="text-foreground mx-auto max-w-4xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
     >
       {{ texts.title }}
     </nv-h1>
 
-    <nv-p class="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+    <nv-p class="text-muted-foreground mx-auto mt-6 max-w-2xl text-lg">
       {{ texts.description }}
     </nv-p>
 
@@ -51,7 +54,7 @@
       <nv-card
         class="border-border bg-card p-6 text-center shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
       >
-        <div class="font-mono text-3xl font-bold text-success">
+        <div class="text-success font-mono text-3xl font-bold">
           {{ texts.stats.hardware.value }}
         </div>
         <nv-muted class="mt-1">{{ texts.stats.hardware.label }}</nv-muted>
@@ -59,7 +62,7 @@
       <nv-card
         class="border-border bg-card p-6 text-center shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
       >
-        <div class="font-mono text-3xl font-bold text-info">
+        <div class="text-info font-mono text-3xl font-bold">
           {{ texts.stats.time.value }}
         </div>
         <nv-muted class="mt-1">{{ texts.stats.time.label }}</nv-muted>
@@ -67,7 +70,7 @@
       <nv-card
         class="border-border bg-card p-6 text-center shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
       >
-        <div class="font-mono text-3xl font-bold text-foreground">
+        <div class="text-foreground font-mono text-3xl font-bold">
           {{ texts.stats.accuracy.value }}
         </div>
         <nv-muted class="mt-1">{{ texts.stats.accuracy.label }}</nv-muted>

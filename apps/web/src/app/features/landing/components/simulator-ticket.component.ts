@@ -48,11 +48,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
         class="border-border flex items-center justify-between border-b border-dashed pb-4"
       >
         <div class="flex items-center gap-2">
-          <ng-icon
-            name="lucideReceipt"
-            size="20"
-            class="text-foreground"
-          />
+          <ng-icon name="lucideReceipt" size="20" class="text-foreground" />
           <span class="font-mono text-sm font-bold tracking-wider uppercase">
             {{ texts.ticketTitle }}
           </span>
@@ -82,9 +78,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
           <nv-muted class="text-xs">{{ texts.demoNit }}</nv-muted>
         </div>
 
-        <div
-          class="bg-muted/50 space-y-1.5 rounded p-3 font-mono text-xs"
-        >
+        <div class="bg-muted/50 space-y-1.5 rounded p-3 font-mono text-xs">
           <div class="flex justify-between">
             <span class="text-muted-foreground">
               {{ texts.ticketVehicleLabel }}
@@ -113,17 +107,13 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
         <!-- Lines Breakdowns -->
         @if (simulationResult(); as res) {
-          <div
-            class="border-border space-y-2 border-y border-dashed py-2"
-          >
+          <div class="border-border space-y-2 border-y border-dashed py-2">
             @for (line of res.breakpoints; track line.concept) {
               <div class="flex justify-between text-xs">
                 <span class="text-muted-foreground pr-2">
                   {{ line.concept }}
                 </span>
-                <span
-                  class="text-foreground shrink-0 font-mono font-medium"
-                >
+                <span class="text-foreground shrink-0 font-mono font-medium">
                   $ {{ line.amount | number: "1.0-0" }}
                 </span>
               </div>
@@ -170,11 +160,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
           <div
             class="text-muted-foreground inline-flex items-center gap-1.5 text-xs"
           >
-            <ng-icon
-              name="lucideShieldCheck"
-              size="14"
-              class="text-success"
-            />
+            <ng-icon name="lucideShieldCheck" size="14" class="text-success" />
             <span>{{ texts.securityNotice }}</span>
           </div>
         </div>
