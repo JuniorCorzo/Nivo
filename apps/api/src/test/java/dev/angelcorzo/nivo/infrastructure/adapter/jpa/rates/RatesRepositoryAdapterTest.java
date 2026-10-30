@@ -63,4 +63,3 @@ class RatesRepositoryAdapterTest {
     verify(repository).deleteById(id);
   }
 }
-
