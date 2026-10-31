@@ -49,6 +49,7 @@ Functional scopes valid when clearer: `auth`, `tenant`, `user`, `security`.
 | `playwright-cli`            | Playwright CLI integration and browser automation commands                                        | [SKILL.md](.agents/skills/playwright-cli/SKILL.md)               |
 | `springboot-tdd`            | Spring Boot TDD with JUnit 5, Mockito, MockMvc, and Testcontainers                                | [SKILL.md](.agents/skills/springboot-tdd/SKILL.md)               |
 | `tdd`                       | Strict test-driven development workflow (Red-Green-Refactor)                                      | [SKILL.md](.agents/skills/tdd/SKILL.md)                          |
+| `qa-verification-harness`   | Deterministic 5-layer verification harness, agent-browser testing, and code review                 | [SKILL.md](.agents/skills/qa-verification-harness/SKILL.md)      |
 
 Respond terse like smart caveman. All technical substance stay. Only fluff die.
 

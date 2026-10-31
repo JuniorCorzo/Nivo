@@ -1,3 +1,4 @@
+import { signal, type WritableSignal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import type { SlotSummary } from "@core/models/slot.model";
 import type {
@@ -5,6 +6,7 @@ import type {
   PriceDetailedModel,
   TicketSummary,
 } from "@core/models/ticket.model";
+import { FeatureFlagService } from "@core/services/feature-flag.service";
 import { ParkingService } from "@core/services/parking-service";
 import { SlotService } from "@core/services/slot-service";
 import { TicketService } from "@core/services/ticket-service";
@@ -39,6 +41,7 @@ describe("CheckOutFacade", () => {
   let slotServiceSpy: MockSlotService;
   let parkingServiceSpy: MockParkingService;
   let toastSpy: MockToastService;
+  let mockPaymentEnabled: WritableSignal<boolean>;
 
   beforeEach(() => {
     ticketServiceSpy = {
@@ -91,6 +94,7 @@ describe("CheckOutFacade", () => {
       parkingLots: () => [],
     };
     toastSpy = { showToast: vi.fn() };
+    mockPaymentEnabled = signal<boolean>(true);
 
     TestBed.configureTestingModule({
       providers: [
@@ -99,6 +103,13 @@ describe("CheckOutFacade", () => {
         { provide: SlotService, useValue: slotServiceSpy },
         { provide: ParkingService, useValue: parkingServiceSpy },
         { provide: ToastService, useValue: toastSpy },
+        {
+          provide: FeatureFlagService,
+          useValue: {
+            accountCreationEnabled: signal(false).asReadonly(),
+            paymentEnabled: mockPaymentEnabled.asReadonly(),
+          },
+        },
       ],
     });
 
@@ -262,5 +273,57 @@ describe("CheckOutFacade", () => {
     expect(facade.isZeroPayment()).toBe(false);
     expect(facade.canCheckOut()).toBe(false);
     expect(facade.errorMessage()).toBe("Network error");
+  });
+
+  it("should allow setting PAY_LINK or TRANSFER when paymentEnabled is true", () => {
+    mockPaymentEnabled.set(true);
+
+    facade.setPaymentMethod("PAY_LINK");
+    expect(facade.paymentMethod()).toBe("PAY_LINK");
+
+    facade.setPaymentMethod("TRANSFER");
+    expect(facade.paymentMethod()).toBe("TRANSFER");
+  });
+
+  it("should force EFFECTIVE when paymentEnabled is false and setPaymentMethod is called", () => {
+    mockPaymentEnabled.set(false);
+
+    facade.setPaymentMethod("PAY_LINK");
+    expect(facade.paymentMethod()).toBe("EFFECTIVE");
+
+    facade.setPaymentMethod("TRANSFER");
+    expect(facade.paymentMethod()).toBe("EFFECTIVE");
+  });
+
+  it("should send paymentMethod EFFECTIVE on confirmCheckOut when paymentEnabled is false", () => {
+    mockPaymentEnabled.set(false);
+
+    const mockPayment: PaymentRecord = {
+      amount: 5950,
+      id: "pay-1",
+      paymentMethod: "EFFECTIVE",
+      status: "APPROVED",
+    };
+    ticketServiceSpy.checkOutVehicle.mockReturnValue(of(mockPayment));
+
+    const ticket: TicketSummary = {
+      entryTime: "2026-08-27T10:00:00Z",
+      id: "ticket-1",
+      licensePlate: "ABC123",
+      status: "OPEN",
+    };
+
+    facade.init("parking-1");
+    facade.selectTicket(ticket);
+    facade.setSendVia("URL");
+
+    facade.confirmCheckOut();
+
+    expect(ticketServiceSpy.checkOutVehicle).toHaveBeenCalledWith({
+      email: undefined,
+      paymentMethod: "EFFECTIVE",
+      sendVia: "URL",
+      ticketId: "ticket-1",
+    });
   });
 });

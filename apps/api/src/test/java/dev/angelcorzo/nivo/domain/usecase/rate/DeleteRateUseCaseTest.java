@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.model.rates.Rates;
+import dev.angelcorzo.nivo.domain.model.rates.exceptions.RateInUseException;
 import dev.angelcorzo.nivo.domain.model.rates.exceptions.RateNotFoundException;
 import dev.angelcorzo.nivo.domain.model.rates.gateways.RatesRepository;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
@@ -36,6 +37,7 @@ class DeleteRateUseCaseTest {
     Rates rate = Rates.builder().id(rateId).tenant(TenantReference.builder().id(tenantId).build()).build();
 
     when(ratesRepository.findById(rateId)).thenReturn(Optional.of(rate));
+    when(ratesRepository.hasActiveTickets(rateId)).thenReturn(false);
 
     useCase.execute(rateId, tenantId);
 
@@ -51,10 +53,26 @@ class DeleteRateUseCaseTest {
 
     when(authenticationContext.getCurrentTenantId()).thenReturn(tenantId);
     when(ratesRepository.findById(rateId)).thenReturn(Optional.of(rate));
+    when(ratesRepository.hasActiveTickets(rateId)).thenReturn(false);
 
     useCase.execute(rateId);
 
     verify(ratesRepository).deleteById(rateId);
+  }
+
+  @Test
+  @DisplayName("Should throw RateInUseException when rate has active tickets")
+  void shouldThrowRateInUseExceptionWhenRateHasActiveTickets() {
+    UUID tenantId = UUID.randomUUID();
+    UUID rateId = UUID.randomUUID();
+    Rates rate = Rates.builder().id(rateId).tenant(TenantReference.builder().id(tenantId).build()).build();
+
+    when(ratesRepository.findById(rateId)).thenReturn(Optional.of(rate));
+    when(ratesRepository.hasActiveTickets(rateId)).thenReturn(true);
+
+    assertThatThrownBy(() -> useCase.execute(rateId, tenantId)).isInstanceOf(RateInUseException.class);
+
+    verify(ratesRepository, never()).deleteById(any());
   }
 
   @Test

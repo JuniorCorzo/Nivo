@@ -30,10 +30,19 @@
     "format:api:check": "./apps/api/gradlew -p apps/api spotlessCheck",
     "format:api:fix": "./apps/api/gradlew -p apps/api spotlessApply",
     "format:all:check": "bun run format:api:check && bun run format:check",
-    "format:all:fix": "bun run format:api:fix && bun run format:fix"
+    "format:all:fix": "bun run format:api:fix && bun run format:fix",
+    "check:knip": "knip",
+    "check:deps": "depcruise --config .dependency-cruiser.cjs apps/web/src libs/design-system/src",
+    "check:spotbugs": "./apps/api/gradlew -p apps/api spotbugsMain",
+    "check:secrets": "gitleaks protect --staged",
+    "check:vuln": "trivy fs --severity HIGH,CRITICAL ."
   },
   "workspaces": [
     "apps/web",
     "libs/design-system"
-  ]
+  ],
+  "devDependencies": {
+    "dependency-cruiser": "^18.7.0",
+    "knip": "^6.44.0"
+  }
 }

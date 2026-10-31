@@ -1,8 +1,6 @@
 import type { RegisterTenantDto } from "@core/api/generated/models";
-import type {
-  RegisterTenant,
-  TenantInfoModel,
-} from "@core/models/tenants.model";
+import type { RegisterTenant } from "@core/models/auth.model";
+import type { TenantInfoModel } from "@core/models/tenants.model";
 
 import { mapToCreatedRegisterDto } from "./user.mapper";
 

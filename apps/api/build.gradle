@@ -5,6 +5,7 @@ plugins {
     id 'jacoco'
     id 'io.sentry.jvm.gradle' version '6.23.0'
     id 'com.diffplug.spotless' version '7.0.2'
+    id 'com.github.spotbugs' version '6.1.7'
 }
 
 group = 'dev.angelcorzo.nivo'
@@ -201,4 +202,26 @@ spotless {
         trimTrailingWhitespace()
         endWithNewline()
     }
+}
+
+spotbugs {
+    ignoreFailures = true
+    effort = 'default'
+    reportLevel = 'medium'
+}
+
+spotbugsMain {
+    reports {
+        html {
+            required = true
+            outputLocation = layout.buildDirectory.file("reports/spotbugs/main.html")
+        }
+        xml {
+            required = false
+        }
+    }
+}
+
+spotbugsTest {
+    enabled = false
 }

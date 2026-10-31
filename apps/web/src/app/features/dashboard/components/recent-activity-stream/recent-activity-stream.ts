@@ -8,10 +8,11 @@ import {
   lucideArrowUpRight,
   lucideRadio,
 } from "@ng-icons/lucide";
+import { PlateFormatPipe } from "@shared/pipes/plate-format.pipe";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DecimalPipe, NgIcon],
+  imports: [CommonModule, DecimalPipe, NgIcon, PlateFormatPipe],
   providers: [
     provideIcons({
       lucideAlertTriangle,

@@ -17,7 +17,11 @@ import {
   lucideTicket,
   lucideTrendingUp,
 } from "@ng-icons/lucide";
-import { CardComponent, CardContentComponent } from "@nivo-sass/design-system";
+import {
+  BadgeComponent,
+  CardComponent,
+  CardContentComponent,
+} from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 import { buildDashboardKpiMetrics } from "../../models/dashboard-kpi.model";
@@ -25,7 +29,13 @@ import type { DashboardKpiMetrics } from "../../models/dashboard-kpi.model";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, NgIcon, CardComponent, CardContentComponent],
+  imports: [
+    DecimalPipe,
+    NgIcon,
+    CardComponent,
+    CardContentComponent,
+    BadgeComponent,
+  ],
   providers: [
     provideIcons({
       lucideActivity,

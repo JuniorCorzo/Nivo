@@ -27,7 +27,7 @@ public class RatesRepositoryAdapter extends AdapterOperations<Rates, RateData, U
 
   @Override
   public List<Rates> findAllByParkingLotId(UUID parkingLotId) {
-    return super.repository.findAllByParking_Id(parkingLotId).stream().map(super::toEntity).toList();
+    return super.repository.findAllActiveByParkingId(parkingLotId).stream().map(super::toEntity).toList();
   }
 
   @Override
@@ -43,5 +43,10 @@ public class RatesRepositoryAdapter extends AdapterOperations<Rates, RateData, U
   @Override
   public void deleteById(UUID uuid) {
     super.repository.deleteById(uuid);
+  }
+
+  @Override
+  public boolean hasActiveTickets(final UUID rateId) {
+    return super.repository.hasActiveTickets(rateId);
   }
 }

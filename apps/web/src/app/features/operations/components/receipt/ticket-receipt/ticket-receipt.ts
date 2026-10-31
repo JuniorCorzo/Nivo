@@ -19,11 +19,12 @@ import {
   lucideX,
 } from "@ng-icons/lucide";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
+import { PlateFormatPipe } from "@shared/pipes/plate-format.pipe";
 import QRCode from "qrcode";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DecimalPipe, NgIcon],
+  imports: [CommonModule, DecimalPipe, NgIcon, PlateFormatPipe],
   providers: [
     provideIcons({
       lucideCamera,

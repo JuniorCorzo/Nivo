@@ -11,7 +11,7 @@ import {
   submit,
 } from "@angular/forms/signals";
 import { Router, RouterLink } from "@angular/router";
-import type { RegisterTenant } from "@core/models/tenants.model";
+import type { RegisterTenant } from "@core/models/auth.model";
 import { TenantService } from "@core/services/tenant-service";
 import { PhoneMask } from "@features/auth/register-page/directives/phone-mask";
 import { NgIcon, provideIcons } from "@ng-icons/core";

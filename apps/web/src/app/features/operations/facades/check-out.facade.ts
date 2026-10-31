@@ -2,27 +2,39 @@ import { Injectable, computed, inject, signal } from "@angular/core";
 import type { SlotSummary } from "@core/models/slot.model";
 import type {
   CheckOutPayload,
+  CheckoutPaymentMethod,
   PaymentRecord,
   PriceDetailedModel,
   TicketPaymentMethod,
   TicketSendVia,
   TicketSummary,
 } from "@core/models/ticket.model";
+import { FeatureFlagService } from "@core/services/feature-flag.service";
 import { ParkingService } from "@core/services/parking-service";
 import { SlotService } from "@core/services/slot-service";
 import { TicketService } from "@core/services/ticket-service";
 import { ToastService } from "@nivo-sass/design-system";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
+
+export type { CheckoutPaymentMethod };
 
 @Injectable()
 export class CheckOutFacade {
   private readonly ticketService = inject(TicketService);
   private readonly slotService = inject(SlotService);
   private readonly parkingService = inject(ParkingService);
+  private readonly featureFlagService = inject(FeatureFlagService);
   private readonly toast = inject(ToastService);
+
+  readonly isPaymentModuleEnabled = this.featureFlagService.paymentEnabled;
 
   readonly parkingId = signal<string | null>(null);
   readonly selectedTicket = signal<TicketSummary | null>(null);
   readonly priceCalculation = signal<PriceDetailedModel | null>(null);
+
+  readonly searchQuery = signal<string>("");
+  readonly activeTickets = signal<TicketSummary[]>([]);
+  readonly activeStep = signal<1 | 2 | 3>(1);
 
   readonly isLoadingCalculation = signal<boolean>(false);
   readonly isLoadingOccupiedSlots = signal<boolean>(false);
@@ -31,7 +43,7 @@ export class CheckOutFacade {
   readonly errorMessage = signal<string | null>(null);
 
   readonly sendVia = signal<TicketSendVia>("URL");
-  readonly paymentMethod = signal<TicketPaymentMethod>("EFFECTIVE");
+  readonly paymentMethod = signal<CheckoutPaymentMethod>("EFFECTIVE");
   readonly receiptEmail = signal<string>("");
 
   readonly lastPaymentRecord = signal<PaymentRecord | null>(null);
@@ -46,6 +58,41 @@ export class CheckOutFacade {
     return slots.filter((slot) => slot.status === "OCCUPIED");
   });
 
+  readonly filteredTickets = computed<TicketSummary[]>(() => {
+    const query = this.searchQuery().trim().toLowerCase();
+    if (!query) {
+      return [];
+    }
+    return this.activeTickets().filter((ticket) => {
+      const plate = ticket.licensePlate?.toLowerCase() ?? "";
+      const barcode = ticket.barcode?.toLowerCase() ?? "";
+      const id = ticket.id?.toLowerCase() ?? "";
+      return (
+        plate.includes(query) || barcode.includes(query) || id.includes(query)
+      );
+    });
+  });
+
+  readonly filteredOccupiedSlots = computed<SlotSummary[]>(() => {
+    const slots = this.occupiedSlots();
+    const query = this.searchQuery().trim().toLowerCase();
+    if (!query) {
+      return slots;
+    }
+    return slots.filter((slot) => {
+      const slotNum = slot.slotNumber?.toLowerCase() ?? "";
+      const prefix = slot.prefix?.toLowerCase() ?? "";
+      const zone = slot.zone?.toLowerCase() ?? "";
+      const combined = `${prefix ? `${prefix}-` : ""}${slotNum}`.toLowerCase();
+      return (
+        slotNum.includes(query) ||
+        prefix.includes(query) ||
+        zone.includes(query) ||
+        combined.includes(query)
+      );
+    });
+  });
+
   readonly isZeroPayment = computed<boolean>(() => {
     const calc = this.priceCalculation();
     if (!calc) {
@@ -54,14 +101,46 @@ export class CheckOutFacade {
     return calc.total <= 0;
   });
 
+  readonly isEmailValid = computed<boolean>(() => {
+    if (this.sendVia() !== "EMAIL") {
+      return true;
+    }
+    const email = this.receiptEmail().trim();
+    if (!email) {
+      return false;
+    }
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  });
+
   readonly canCheckOut = computed<boolean>(
     () =>
       this.selectedTicket() !== null &&
       this.priceCalculation() !== null &&
       !this.isLoadingCalculation() &&
       !this.isLoadingTicket() &&
-      !this.isSubmitting()
+      !this.isSubmitting() &&
+      this.isEmailValid()
   );
+
+  setSearchQuery(query: string): void {
+    this.searchQuery.set(query);
+  }
+
+  setStep(step: 1 | 2 | 3): void {
+    this.activeStep.set(step);
+  }
+
+  goToStep(step: 1 | 2 | 3): void {
+    this.activeStep.set(step);
+  }
+
+  proceedToPayment(): void {
+    this.activeStep.set(3);
+  }
+
+  backToSettlement(): void {
+    this.activeStep.set(2);
+  }
 
   init(parkingId: string): void {
     this.parkingId.set(parkingId);
@@ -78,6 +157,19 @@ export class CheckOutFacade {
         this.isLoadingOccupiedSlots.set(false);
       },
     });
+
+    if (this.ticketService.listTicketsByParkingLot) {
+      this.ticketService.listTicketsByParkingLot(parkingId).subscribe({
+        error: () => {
+          this.activeTickets.set([]);
+        },
+        next: (tickets) => {
+          this.activeTickets.set(
+            (tickets ?? []).filter((ticket) => ticket.status === "OPEN")
+          );
+        },
+      });
+    }
   }
 
   selectSlot(slot: SlotSummary): void {
@@ -89,7 +181,7 @@ export class CheckOutFacade {
         const errorMsg =
           err?.error?.message ||
           err?.message ||
-          "No se encontró un ticket activo para este cupo.";
+          APP_TEXTS.operations.checkoutModal.toasts.noActiveTicket;
         this.errorMessage.set(errorMsg);
         this.toast.showToast({ message: errorMsg, type: "error" });
       },
@@ -104,6 +196,8 @@ export class CheckOutFacade {
     this.selectedTicket.set(null);
     this.priceCalculation.set(null);
     this.errorMessage.set(null);
+    this.searchQuery.set("");
+    this.activeStep.set(1);
     const pId = this.parkingId();
     if (pId) {
       this.loadOccupiedSlots(pId);
@@ -114,6 +208,7 @@ export class CheckOutFacade {
     this.selectedTicket.set(ticket);
     this.errorMessage.set(null);
     this.priceCalculation.set(null);
+    this.activeStep.set(2);
     this.loadPriceCalculation(ticket.id);
   }
 
@@ -127,7 +222,7 @@ export class CheckOutFacade {
         const errorMsg =
           err?.error?.message ||
           err?.message ||
-          "Error al calcular la tarifa de salida.";
+          APP_TEXTS.operations.checkoutModal.toasts.calculateError;
         this.errorMessage.set(errorMsg);
         this.toast.showToast({ message: errorMsg, type: "error" });
       },
@@ -142,7 +237,11 @@ export class CheckOutFacade {
     this.sendVia.set(sendVia);
   }
 
-  setPaymentMethod(method: TicketPaymentMethod): void {
+  setPaymentMethod(method: CheckoutPaymentMethod): void {
+    if (!this.isPaymentModuleEnabled()) {
+      this.paymentMethod.set("EFFECTIVE");
+      return;
+    }
     this.paymentMethod.set(method);
   }
 
@@ -151,6 +250,10 @@ export class CheckOutFacade {
   }
 
   confirmCheckOut(): void {
+    if (this.isSubmitting()) {
+      return;
+    }
+
     const ticket = this.selectedTicket();
     if (!ticket || !this.canCheckOut()) {
       return;
@@ -159,9 +262,17 @@ export class CheckOutFacade {
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
 
+    const effectiveMethod = this.isPaymentModuleEnabled()
+      ? this.paymentMethod()
+      : "EFFECTIVE";
+    const backendPaymentMethod: TicketPaymentMethod =
+      effectiveMethod === "CARD" || effectiveMethod === "TRANSFER"
+        ? "PAY_LINK"
+        : effectiveMethod;
+
     const payload: CheckOutPayload = {
       email: this.sendVia() === "EMAIL" ? this.receiptEmail() : undefined,
-      paymentMethod: this.paymentMethod(),
+      paymentMethod: backendPaymentMethod,
       sendVia: this.sendVia(),
       ticketId: ticket.id,
     };
@@ -172,7 +283,7 @@ export class CheckOutFacade {
         const errorMsg =
           err?.error?.message ||
           err?.message ||
-          "Error al procesar la salida del vehículo.";
+          APP_TEXTS.operations.checkoutModal.toasts.checkoutError;
         this.errorMessage.set(errorMsg);
         this.toast.showToast({ message: errorMsg, type: "error" });
       },
@@ -181,7 +292,7 @@ export class CheckOutFacade {
         this.lastPaymentRecord.set(payment);
         this.isReceiptOpen.set(true);
         this.toast.showToast({
-          message: "Salida procesada con éxito",
+          message: APP_TEXTS.operations.checkoutModal.toasts.checkoutSuccess,
           type: "success",
         });
 
@@ -198,6 +309,11 @@ export class CheckOutFacade {
     this.selectedTicket.set(null);
     this.priceCalculation.set(null);
     this.lastPaymentRecord.set(null);
+    this.searchQuery.set("");
+    this.paymentMethod.set("EFFECTIVE");
+    this.sendVia.set("URL");
+    this.receiptEmail.set("");
+    this.activeStep.set(1);
   }
 
   reset(): void {
@@ -206,5 +322,10 @@ export class CheckOutFacade {
     this.errorMessage.set(null);
     this.lastPaymentRecord.set(null);
     this.isReceiptOpen.set(false);
+    this.searchQuery.set("");
+    this.paymentMethod.set("EFFECTIVE");
+    this.sendVia.set("URL");
+    this.receiptEmail.set("");
+    this.activeStep.set(1);
   }
 }

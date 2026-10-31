@@ -66,4 +66,55 @@ describe("FeatureFlagService", () => {
 
     expect(service.accountCreationEnabled()).toBe(false);
   });
+
+  it("should initialize paymentEnabled with true by default and update when remote config responds", () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideApiConfiguration("http://localhost:8080/api"),
+        FeatureFlagService,
+      ],
+    });
+
+    service = TestBed.inject(FeatureFlagService);
+    httpTesting = TestBed.inject(HttpTestingController);
+
+    expect(service.paymentEnabled()).toBe(true);
+
+    service.loadRemoteConfig().subscribe();
+
+    const req = httpTesting.expectOne(
+      "http://localhost:8080/api/public/config"
+    );
+    expect(req.request.method).toBe("GET");
+    req.flush({ paymentEnabled: false });
+
+    expect(service.paymentEnabled()).toBe(false);
+  });
+
+  it("should retain paymentEnabled default true when network error occurs", () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideApiConfiguration("http://localhost:8080/api"),
+        FeatureFlagService,
+      ],
+    });
+
+    service = TestBed.inject(FeatureFlagService);
+    httpTesting = TestBed.inject(HttpTestingController);
+
+    expect(service.paymentEnabled()).toBe(true);
+
+    service.loadRemoteConfig().subscribe();
+
+    const req = httpTesting.expectOne(
+      "http://localhost:8080/api/public/config"
+    );
+    req.error(new ProgressEvent("Network error"));
+
+    expect(service.paymentEnabled()).toBe(true);
+  });
 });

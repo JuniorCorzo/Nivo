@@ -9,6 +9,13 @@ import {
 } from "@angular/core";
 import type { VehicleType } from "@core/models/rate.model";
 import type { PlateCountry } from "@core/models/ticket.model";
+import {
+  detectPlateCountry,
+  formatColombian,
+  formatPlate,
+  formatVenezuelan,
+  normalizeRawPlate,
+} from "@shared/utils/plate.utils";
 
 interface DelimiterBackspaceResult {
   readonly updatedCaretCount: number;
@@ -102,7 +109,7 @@ export class PlateMaskDirective {
     ).length;
 
     // 2. Extract sanitized alphanumeric content and determine effective country
-    let raw = originalValue.replaceAll(/[^A-Za-z0-9]/gu, "").toUpperCase();
+    let raw = normalizeRawPlate(originalValue);
     const effectiveCountry = this.resolveEffectiveCountry(raw);
     const maxRawLength = effectiveCountry === "VE" ? 7 : 6;
     raw = raw.slice(0, maxRawLength);
@@ -149,18 +156,15 @@ export class PlateMaskDirective {
 
   private resolveEffectiveCountry(raw: string): PlateCountry {
     const currentCountry = this.country();
-    if (currentCountry === "CO" || currentCountry === "VE") {
+    if (
+      currentCountry === "CO" ||
+      currentCountry === "VE" ||
+      currentCountry === "UNPLATED"
+    ) {
       return currentCountry;
     }
-    if (currentCountry === "AUTO" && raw.length >= 3) {
-      if (/\d/u.test(raw[2])) {
-        return "VE";
-      }
-      if (/[A-Z]/u.test(raw[2])) {
-        return "CO";
-      }
-    }
-    return "CO";
+    const detected = detectPlateCountry(raw);
+    return detected === "VE" ? "VE" : "CO";
   }
 
   private handleDelimiterBackspace(
@@ -203,45 +207,19 @@ export class PlateMaskDirective {
   private static formatPlate(
     raw: string,
     country: PlateCountry,
-    vehicleType: VehicleType
+    _vehicleType: VehicleType
   ): string {
-    if (country === "CO") {
-      return PlateMaskDirective.formatColombian(raw, vehicleType);
-    }
-    if (country === "VE") {
-      return PlateMaskDirective.formatVenezuelan(raw);
-    }
-    return raw;
+    return formatPlate(raw, country);
   }
 
   private static formatColombian(
     raw: string,
-    _vehicleType: VehicleType
+    _vehicleType?: VehicleType
   ): string {
-    // Max 6 alphanumeric characters: AAA-000 (Car) or AAA-00A (Motorcycle)
-    const truncated = raw.slice(0, 6);
-    if (truncated.length <= 3) {
-      return truncated;
-    }
-    // If letters (2 or 3) followed only by digits, split cleanly at the delimiter
-    const letterDigitMatch = truncated.match(
-      /^(?<letters>[A-Z]{2,3})(?<digits>\d+)$/u
-    );
-    if (letterDigitMatch?.groups) {
-      return `${letterDigitMatch.groups["letters"]}-${letterDigitMatch.groups["digits"]}`;
-    }
-    return `${truncated.slice(0, 3)}-${truncated.slice(3)}`;
+    return formatColombian(raw);
   }
 
   private static formatVenezuelan(raw: string): string {
-    // Max 7 alphanumeric characters: AA-000-AA
-    const truncated = raw.slice(0, 7);
-    if (truncated.length <= 2) {
-      return truncated;
-    }
-    if (truncated.length <= 5) {
-      return `${truncated.slice(0, 2)}-${truncated.slice(2)}`;
-    }
-    return `${truncated.slice(0, 2)}-${truncated.slice(2, 5)}-${truncated.slice(5)}`;
+    return formatVenezuelan(raw);
   }
 }

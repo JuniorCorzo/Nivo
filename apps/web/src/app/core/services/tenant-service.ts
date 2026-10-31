@@ -4,7 +4,7 @@ import { TenantsService } from "@core/api/generated/services";
 import { AUTHORIZED } from "@core/http/context/auth.token";
 import { mapToRegisterTenantDto } from "@core/mappers/tenant.mapper";
 import { mapToUserModel } from "@core/mappers/user.mapper";
-import type { RegisterTenant } from "@core/models/tenants.model";
+import type { RegisterTenant } from "@core/models/auth.model";
 import { map } from "rxjs";
 
 @Injectable({

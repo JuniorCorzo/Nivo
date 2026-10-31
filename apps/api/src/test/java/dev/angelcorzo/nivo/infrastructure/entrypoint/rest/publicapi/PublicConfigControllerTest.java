@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import dev.angelcorzo.nivo.domain.model.commons.valueobjects.AppProperties;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,6 +16,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,22 +34,41 @@ class PublicConfigControllerTest {
   private AppProperties appProperties;
 
   @Test
-  @DisplayName("GET /public/config - Should return accountCreationEnabled false when disabled")
+  @DisplayName("GET /public/config - Should return accountCreationEnabled false and default paymentEnabled true")
   void shouldReturnDisabledConfig() throws Exception {
     when(appProperties.isAccountCreationEnabled()).thenReturn(false);
 
     mockMvc.perform(get("/public/config"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.accountCreationEnabled").value(false));
+      .andExpect(jsonPath("$.accountCreationEnabled").value(false))
+      .andExpect(jsonPath("$.paymentEnabled").value(true));
   }
 
   @Test
-  @DisplayName("GET /public/config - Should return accountCreationEnabled true when enabled")
+  @DisplayName("GET /public/config - Should return accountCreationEnabled true and default paymentEnabled true")
   void shouldReturnEnabledConfig() throws Exception {
     when(appProperties.isAccountCreationEnabled()).thenReturn(true);
 
     mockMvc.perform(get("/public/config"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.accountCreationEnabled").value(true));
+      .andExpect(jsonPath("$.accountCreationEnabled").value(true))
+      .andExpect(jsonPath("$.paymentEnabled").value(true));
+  }
+
+  @Nested
+  @DisplayName("When payment.enabled is false")
+  @TestPropertySource(properties = "payment.enabled=false")
+  class WhenPaymentDisabled {
+
+    @Test
+    @DisplayName("GET /public/config - Should return paymentEnabled false")
+    void shouldReturnPaymentDisabled() throws Exception {
+      when(appProperties.isAccountCreationEnabled()).thenReturn(true);
+
+      mockMvc.perform(get("/public/config"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.accountCreationEnabled").value(true))
+        .andExpect(jsonPath("$.paymentEnabled").value(false));
+    }
   }
 }

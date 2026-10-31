@@ -8,7 +8,7 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideChevronLeft } from "@ng-icons/lucide";
 import { BadgeComponent, ButtonComponent } from "@nivo-sass/design-system";
 
-import type { PageHeaderBadgeVariant } from "../page-header";
+import type { PageHeaderBadgeVariant } from "../page-header.types";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

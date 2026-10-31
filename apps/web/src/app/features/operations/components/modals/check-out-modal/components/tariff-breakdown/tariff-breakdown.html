@@ -1,0 +1,94 @@
+<div class="border-border bg-card space-y-3 rounded-xl border p-3.5 sm:p-4">
+  <div class="border-border flex items-center justify-between border-b pb-2">
+    <span
+      class="text-muted-foreground text-xs font-bold tracking-wider uppercase"
+    >
+      {{ texts.tariffSettlement }}
+    </span>
+    @if (isLoading()) {
+    <div class="text-muted-foreground inline-flex items-center gap-1.5 text-xs">
+      <ng-icon name="lucideLoader2" class="animate-spin text-xs" />
+      <span>{{ texts.calculatingTariff }}</span>
+    </div>
+    } @else if (priceCalculation()?.name) {
+    <span class="text-muted-foreground font-mono text-xs font-semibold">
+      {{ priceCalculation()?.name }}
+    </span>
+    }
+  </div>
+
+  @if (isLoading()) {
+  <div
+    class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-8 text-xs"
+  >
+    <ng-icon name="lucideLoader2" class="text-primary animate-spin text-2xl" />
+    <span>{{ texts.realtimeQuery }}</span>
+  </div>
+  } @else if (priceCalculation(); as calc) {
+  <!-- Detailed Breakdown Lines -->
+  @if (calc.breakdown.length > 0) {
+  <div class="text-muted-foreground space-y-1.5 text-xs">
+    @for (line of calc.breakdown; track line.concept) {
+    <div class="flex items-center justify-between">
+      <span class="text-foreground">{{ line.concept }}</span>
+      <span class="text-foreground font-mono font-medium">
+        ${{ line.amount | number: "1.0-0" }} COP
+      </span>
+    </div>
+    }
+  </div>
+  }
+
+  <!-- Subtotal and IVA breakdown -->
+  <div
+    class="border-border text-muted-foreground space-y-1 border-t pt-2 text-xs"
+  >
+    <div class="flex justify-between">
+      <span>{{ texts.subtotal }}</span>
+      <span class="font-mono font-medium"
+        >${{ calc.subtotal | number: "1.0-0" }} COP</span
+      >
+    </div>
+    @if (calc.ivaRate !== null && calc.ivaRate !== undefined) {
+    <div class="flex justify-between">
+      <span>{{ texts.iva }} ({{ calc.ivaRate }}%)</span>
+      <span class="font-mono font-medium"
+        >${{ (calc.ivaAmount || 0) | number: "1.0-0" }} COP</span
+      >
+    </div>
+    }
+  </div>
+
+  <!-- Total or Grace Period Banner -->
+  <div class="border-border border-t pt-3">
+    @if (isZeroPayment()) {
+    <div
+      class="border-success/20 bg-success/10 text-success mb-2.5 flex items-center gap-2 rounded-lg border p-2.5 text-xs font-semibold"
+    >
+      <ng-icon name="lucideCheck" class="shrink-0 text-base" />
+      <span>{{ texts.gracePeriodNotice }}</span>
+    </div>
+    }
+    <div class="flex items-center justify-between">
+      <div>
+        <span class="text-foreground block text-xs font-semibold"
+          >{{ texts.totalToCollect }}</span
+        >
+        <span class="text-muted-foreground text-[11px]"
+          >{{ texts.finalTariffCalculated }}</span
+        >
+      </div>
+      <div class="text-right">
+        <span class="text-foreground font-mono text-2xl font-black">
+          ${{ calc.total | number: "1.0-0" }}
+        </span>
+        <span class="text-muted-foreground ml-1 text-xs font-normal">COP</span>
+      </div>
+    </div>
+  </div>
+  } @else {
+  <div class="text-muted-foreground py-4 text-center text-xs">
+    {{ texts.tariffCalculationUnavailable }}
+  </div>
+  }
+</div>

@@ -1,0 +1,70 @@
+<div class="border-border bg-card space-y-3 rounded-xl border p-3.5 sm:p-4">
+  <div class="flex items-center justify-between">
+    <span
+      class="text-muted-foreground flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase"
+    >
+      <ng-icon name="lucideTimer" class="text-primary text-sm" />
+      {{ texts.stayDuration }}
+    </span>
+    <span class="text-foreground font-mono text-xs font-bold">
+      {{ stayDuration().formatted }}
+    </span>
+  </div>
+
+  <!-- Timeline Stepper Bar -->
+  <div class="relative flex items-center justify-between pt-1">
+    <!-- Connecting dashed line -->
+    <div
+      class="border-border absolute top-4.5 right-8 left-8 -translate-y-1/2 border-t-2 border-dashed"
+    ></div>
+
+    <!-- Step: Entry -->
+    <div class="relative z-10 flex flex-col items-center">
+      <div
+        class="bg-primary/10 text-primary border-primary/20 flex h-9 w-9 items-center justify-center rounded-full border shadow-xs"
+      >
+        <ng-icon name="lucideClock" class="text-base" />
+      </div>
+      <span class="text-foreground mt-1.5 text-[11px] font-semibold">
+        {{ texts.entry }}
+      </span>
+      <span class="text-muted-foreground font-mono text-[10px]">
+        {{ entryTime() | date: "shortTime" }}
+      </span>
+      <span class="text-muted-foreground text-[9px]">
+        {{ entryTime() | date: "dd/MM/yyyy" }}
+      </span>
+    </div>
+
+    <!-- Duration Pill in middle -->
+    <div class="relative z-10 flex flex-col items-center px-1">
+      <div
+        class="border-border bg-muted/80 text-foreground flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[11px] font-bold shadow-xs"
+      >
+        <ng-icon name="lucideTimer" class="text-primary text-xs" />
+        <span>{{ stayDuration().formatted }}</span>
+      </div>
+      <span class="text-muted-foreground mt-1 text-[10px]">
+        {{ texts.elapsed }}
+      </span>
+    </div>
+
+    <!-- Step: Calculation / Exit -->
+    <div class="relative z-10 flex flex-col items-center">
+      <div
+        class="bg-warning/10 text-warning border-warning/20 flex h-9 w-9 items-center justify-center rounded-full border shadow-xs"
+      >
+        <ng-icon name="lucideLogOut" class="text-base" />
+      </div>
+      <span class="text-foreground mt-1.5 text-[11px] font-semibold">
+        {{ texts.exitCalculation }}
+      </span>
+      <span class="text-muted-foreground font-mono text-[10px]">
+        {{ calculationTime() | date: "shortTime" }}
+      </span>
+      <span class="text-muted-foreground text-[9px]">
+        {{ calculationTime() | date: "dd/MM/yyyy" }}
+      </span>
+    </div>
+  </div>
+</div>

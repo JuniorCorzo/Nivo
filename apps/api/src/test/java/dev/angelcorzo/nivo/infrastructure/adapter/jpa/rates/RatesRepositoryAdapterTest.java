@@ -32,13 +32,25 @@ class RatesRepositoryAdapterTest {
     RateData data = new RateData();
     Rates entity = Rates.builder().id(UUID.randomUUID()).build();
 
-    when(repository.findAllByParking_Id(parkingId)).thenReturn(List.of(data));
+    when(repository.findAllActiveByParkingId(parkingId)).thenReturn(List.of(data));
     when(mapper.toEntity(data)).thenReturn(entity);
 
     List<Rates> result = adapter.findAllByParkingLotId(parkingId);
 
     assertThat(result).hasSize(1);
-    verify(repository).findAllByParking_Id(parkingId);
+    verify(repository).findAllActiveByParkingId(parkingId);
+  }
+
+  @Test
+  @DisplayName("Should check if rate has active tickets")
+  void shouldCheckHasActiveTickets() {
+    UUID rateId = UUID.randomUUID();
+    when(repository.hasActiveTickets(rateId)).thenReturn(true);
+
+    boolean result = adapter.hasActiveTickets(rateId);
+
+    assertThat(result).isTrue();
+    verify(repository).hasActiveTickets(rateId);
   }
 
   @Test

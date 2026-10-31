@@ -67,3 +67,11 @@ deployment/.env.*
 deployment/.env.local
 !*.env.example
 !**/.env.example
+
+# Local scratch & mockup data
+mockup*.html
+parking_tickets.json
+solo_data.sql
+.superpowers/
+.agents/skills/security-audit/
+

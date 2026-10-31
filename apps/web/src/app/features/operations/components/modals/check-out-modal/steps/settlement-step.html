@@ -1,0 +1,121 @@
+<div class="space-y-4">
+  <!-- Vehicle Header Card -->
+  <div
+    class="bg-muted/60 border-border flex items-center justify-between rounded-xl border p-3 sm:p-3.5"
+  >
+    <div class="flex items-center gap-3">
+      <div
+        class="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+      >
+        <ng-icon name="lucideCar" class="text-xl" />
+      </div>
+      <div>
+        <span
+          class="text-muted-foreground block text-[10px] font-medium sm:text-xs"
+        >
+          {{ texts.settlement.vehiclePlate }}
+        </span>
+        <div class="flex items-center gap-2">
+          <span
+            class="text-foreground font-mono text-lg font-black tracking-wider sm:text-xl"
+          >
+            {{ facade.selectedTicket()?.licensePlate | appPlateFormat:
+            facade.selectedTicket()?.plateCountry }}
+          </span>
+          @if (facade.selectedTicket()?.plateCountry === 'UNPLATED' ||
+          !facade.selectedTicket()?.licensePlate ||
+          facade.selectedTicket()?.licensePlate === 'SIN PLACA') {
+          <nv-badge variant="warning" class="gap-1">
+            <ng-icon name="lucideCamera" class="text-xs" />
+            <span>SIN PLACA</span>
+          </nv-badge>
+          } @if (facade.selectedTicket()?.slotType) {
+          <nv-badge variant="info" class="px-1.5 py-0.5 text-[10px]">
+            {{ facade.selectedTicket()?.slotType }}
+          </nv-badge>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div class="text-right">
+        <span class="text-muted-foreground block text-[10px] sm:text-xs"
+          >{{ texts.settlement.slot }}</span
+        >
+        <span class="text-foreground font-mono text-xs font-bold sm:text-sm">
+          {{ facade.selectedTicket()?.slotNumber || texts.settlement.assigned }}
+        </span>
+      </div>
+      <nv-button
+        variant="outline"
+        size="sm"
+        type="button"
+        (click)="onChangeVehicle()"
+        [title]="texts.settlement.changeVehicle"
+      >
+        {{ texts.settlement.changeVehicle }}
+      </nv-button>
+    </div>
+  </div>
+
+  <!-- Entry Photo (if vehicle has captured photo) -->
+  @if (facade.selectedTicket()?.photoUrl) {
+  <div
+    class="border-border bg-muted/30 overflow-hidden rounded-xl border p-2.5"
+  >
+    <div
+      class="text-muted-foreground mb-1.5 flex items-center gap-1.5 text-[11px] font-medium"
+    >
+      <ng-icon name="lucideCamera" class="text-xs" />
+      <span>Fotografía de ingreso</span>
+    </div>
+    <img
+      [src]="facade.selectedTicket()?.photoUrl"
+      alt="Fotografía capturada al ingreso"
+      class="h-44 w-full rounded-lg object-cover"
+    />
+  </div>
+  }
+
+  <!-- Real-time Stay Duration Timeline -->
+  <app-stay-timeline
+    [stayDuration]="stayDuration()"
+    [entryTime]="facade.selectedTicket()?.entryTime"
+    [calculationTime]="calculationTime()"
+  />
+
+  <!-- Detailed Live Price Breakdown -->
+  <app-tariff-breakdown
+    [priceCalculation]="facade.priceCalculation()"
+    [isLoading]="facade.isLoadingCalculation()"
+  />
+
+  <!-- Action Buttons -->
+  <div
+    class="border-border mt-6 flex flex-col-reverse items-stretch justify-end gap-2 border-t pt-3 sm:flex-row sm:items-center"
+  >
+    <nv-button
+      type="button"
+      variant="outline"
+      (click)="onChangeVehicle()"
+      class="w-full sm:w-auto"
+    >
+      {{ texts.settlement.changeVehicle }}
+    </nv-button>
+    <nv-button
+      type="button"
+      (click)="onContinue()"
+      [disabled]="!facade.canCheckOut()"
+      class="w-full sm:w-auto"
+    >
+      @if (facade.isZeroPayment()) {
+      <ng-icon name="lucideCheck" class="text-sm" />
+      <span>{{ texts.payment.freeExit }}</span>
+      } @else {
+      <span>{{ texts.settlement.continueToPayment }}</span>
+      <ng-icon name="lucideArrowRight" class="text-sm" />
+      }
+    </nv-button>
+  </div>
+</div>

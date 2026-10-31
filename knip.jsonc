@@ -1,0 +1,36 @@
+{
+  "$schema": "https://unpkg.com/knip@5/overview/configuration/jsonc/schema.json",
+  "workspaces": {
+    "apps/web": {
+      "ignore": [
+        "src/app/core/api/generated/**"
+      ]
+    },
+    "libs/design-system": {}
+  },
+  "ignore": [
+    "apps/api/**",
+    ".agents/**",
+    "oxfmt.config.ts"
+  ],
+  "ignoreDependencies": [
+    "@socketsecurity/bun-security-scanner",
+    "@vitest/coverage-v8"
+  ],
+  "ignoreBinaries": [
+    "gitleaks",
+    "trivy",
+    "oxfmt",
+    "lefthook"
+  ],
+  "rules": {
+    "files": "warn",
+    "dependencies": "warn",
+    "unlisted": "warn",
+    "binaries": "warn",
+    "unresolved": "warn",
+    "exports": "warn",
+    "types": "warn",
+    "duplicates": "warn"
+  }
+}

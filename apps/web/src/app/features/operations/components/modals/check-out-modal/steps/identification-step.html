@@ -1,0 +1,155 @@
+<div class="space-y-4">
+  @if ($any(facade).selectedTicket?.()) {
+  <div class="hidden" aria-hidden="true">
+    {{ facade.selectedTicket()?.licensePlate | appPlateFormat:
+    facade.selectedTicket()?.plateCountry }}
+  </div>
+  }
+  <!-- Fast Search Bar -->
+  <div class="relative">
+    <nv-input
+      [placeholder]="texts.identification.searchPlaceholder"
+      startIcon="lucideSearch"
+      [value]="facade.searchQuery()"
+      (input)="onSearchInput($event)"
+      autocomplete="off"
+    />
+    @if (facade.searchQuery()) {
+    <nv-button
+      type="button"
+      variant="ghost"
+      size="sm"
+      (click)="onClearSearch()"
+      class="text-muted-foreground hover:text-foreground absolute top-1/2 right-1 h-7 w-7 -translate-y-1/2 p-0"
+      [title]="texts.identification.clearSearch"
+    >
+      <ng-icon name="lucideX" class="text-base" />
+    </nv-button>
+    }
+  </div>
+
+  <!-- Loading State -->
+  @if (facade.isLoadingOccupiedSlots() || facade.isLoadingTicket()) {
+  <div
+    class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-10 text-xs"
+  >
+    <ng-icon name="lucideLoader2" class="animate-spin text-2xl" />
+    <span>
+      {{ facade.isLoadingTicket() ? texts.identification.loadingCalculation :
+      texts.identification.loadingOccupiedSlots }}
+    </span>
+  </div>
+  } @else if (facade.searchQuery().trim()) {
+  <!-- Search Results Mode -->
+  <div class="space-y-3">
+    @if (facade.filteredTickets().length === 0 &&
+    facade.filteredOccupiedSlots().length === 0) {
+    <!-- Empty Search State -->
+    <div
+      class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border p-8 text-center"
+    >
+      <div
+        class="bg-muted text-muted-foreground mb-3 flex h-12 w-12 items-center justify-center rounded-full"
+      >
+        <ng-icon name="lucideSearch" class="text-2xl" />
+      </div>
+      <h3 class="text-foreground text-sm font-semibold">
+        {{ texts.identification.emptySearchTitle }}
+      </h3>
+      <p class="text-muted-foreground mt-1 max-w-xs text-xs">
+        {{ texts.identification.emptySearchDescription }}
+      </p>
+    </div>
+    } @else {
+    <!-- Matching Active Tickets -->
+    @if (facade.filteredTickets().length > 0) {
+    <div>
+      <div class="mb-2 flex items-center justify-between">
+        <span
+          class="text-muted-foreground block text-[11px] font-semibold tracking-wider uppercase"
+        >
+          {{ texts.identification.matchingTickets }} ({{
+          facade.filteredTickets().length }})
+        </span>
+      </div>
+      <div class="max-h-60 space-y-2 overflow-y-auto pr-1">
+        @for (ticket of facade.filteredTickets(); track ticket.id) {
+        <app-checkout-ticket-card
+          [ticket]="ticket"
+          (selected)="facade.selectTicket($event)"
+        />
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Matching Occupied Slots (when searching) -->
+    @if (facade.filteredOccupiedSlots().length > 0) {
+    <div>
+      <div class="mb-2 flex items-center justify-between">
+        <span
+          class="text-muted-foreground block text-[11px] font-semibold tracking-wider uppercase"
+        >
+          {{ texts.identification.occupiedSlots }} ({{
+          facade.filteredOccupiedSlots().length }})
+        </span>
+      </div>
+      <div
+        class="grid max-h-52 grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3"
+      >
+        @for (slot of facade.filteredOccupiedSlots(); track slot.id) {
+        <app-occupied-slot-card
+          [slot]="slot"
+          (selected)="facade.selectSlot($event)"
+        />
+        }
+      </div>
+    </div>
+    } }
+  </div>
+  } @else {
+  <!-- Occupied Slots Grid (Non-searching Mode) -->
+  <div>
+    <div class="mb-2 flex items-center justify-between">
+      <label
+        class="text-muted-foreground block text-xs font-semibold tracking-wider uppercase"
+      >
+        {{ texts.identification.occupiedSlots }}
+      </label>
+      <span class="text-muted-foreground font-mono text-xs">
+        {{ facade.occupiedSlots().length }} {{
+        texts.identification.activeVehicles }}
+      </span>
+    </div>
+
+    @if (facade.occupiedSlots().length === 0) {
+    <div
+      class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border p-8 text-center"
+    >
+      <div
+        class="bg-muted text-muted-foreground mb-3 flex h-12 w-12 items-center justify-center rounded-full"
+      >
+        <ng-icon name="lucideParkingSquare" class="text-2xl" />
+      </div>
+      <h3 class="text-foreground text-sm font-semibold">
+        {{ texts.identification.emptyOccupiedTitle }}
+      </h3>
+      <p class="text-muted-foreground mt-1 max-w-xs text-xs">
+        {{ texts.identification.emptyOccupiedDescription }}
+      </p>
+    </div>
+    } @else {
+    <div
+      class="grid max-h-72 grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3"
+    >
+      @for (slot of facade.filteredOccupiedSlots(); track slot.id) {
+      <app-occupied-slot-card
+        [slot]="slot"
+        (selected)="facade.selectSlot($event)"
+      />
+      }
+    </div>
+    }
+  </div>
+  }
+</div>

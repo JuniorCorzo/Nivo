@@ -13,6 +13,7 @@ interface MockTicketService {
   calculatePrice: ReturnType<typeof vi.fn>;
   checkOutVehicle: ReturnType<typeof vi.fn>;
   getActiveTicketBySlot: ReturnType<typeof vi.fn>;
+  listTicketsByParkingLot: ReturnType<typeof vi.fn>;
 }
 
 interface MockSlotService {
@@ -41,12 +42,15 @@ describe("CheckOutModalComponent", () => {
     ticketServiceSpy = {
       calculatePrice: vi.fn().mockReturnValue(
         of({
-          breakdown: [],
-          ivaAmount: 0,
-          ivaRate: 0,
+          breakdown: [
+            { amount: 3000, concept: "Hora Inicial" },
+            { amount: 2000, concept: "Hora Adicional" },
+          ],
+          ivaAmount: 950,
+          ivaRate: 19,
           name: "Standard",
           subtotal: 5000,
-          total: 5000,
+          total: 5950,
         })
       ),
       checkOutVehicle: vi.fn().mockReturnValue(of({})),
@@ -58,6 +62,7 @@ describe("CheckOutModalComponent", () => {
           status: "OPEN",
         })
       ),
+      listTicketsByParkingLot: vi.fn().mockReturnValue(of([])),
     };
     slotServiceSpy = {
       getAllSlotSummariesByParkingId: vi.fn().mockReturnValue(of([])),
@@ -140,6 +145,232 @@ describe("CheckOutModalComponent", () => {
     expect(selectSlotSpy).toHaveBeenCalledWith(occupiedSlot);
   });
 
+  it("should filter tickets when search query is entered and select on click", () => {
+    const activeTicket = {
+      entryTime: "2026-08-27T10:00:00Z",
+      id: "ticket-1",
+      licensePlate: "ABC123",
+      slotId: "slot-1",
+      slotNumber: "01",
+      status: "OPEN" as const,
+    };
+    ticketServiceSpy.listTicketsByParkingLot.mockReturnValue(
+      of([activeTicket])
+    );
+    const selectTicketSpy = vi.spyOn(component.facade, "selectTicket");
+
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.componentRef.setInput("parkingId", "parking-1");
+    fixture.detectChanges();
+
+    component.facade.setSearchQuery("ABC");
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("ABC123");
+
+    /* SAFETY: The ticket item rendered in search results is a button HTML element */
+    const ticketBtn = fixture.nativeElement.querySelector(
+      "button.group"
+    ) as HTMLButtonElement;
+    expect(ticketBtn).toBeTruthy();
+    ticketBtn.click();
+    expect(selectTicketSpy).toHaveBeenCalledWith(activeTicket);
+  });
+
+  it("should render step indicator header with 3 steps", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("Identificación");
+    expect(text).toContain("Liquidación");
+    expect(text).toContain("Pago");
+  });
+
+  it("should transition to Step 2 when ticket is selected and render SettlementStepComponent", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const ticket: TicketSummary = {
+      entryTime: "2026-10-26T10:00:00Z",
+      id: "ticket-1",
+      licensePlate: "XYZ-999",
+      slotNumber: "B-05",
+      status: "OPEN",
+    };
+
+    component.facade.selectTicket(ticket);
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(2);
+    const settlementStepEl = fixture.nativeElement.querySelector(
+      "app-settlement-step"
+    );
+    expect(settlementStepEl).toBeTruthy();
+    expect(fixture.nativeElement.textContent).toContain("XYZ-999");
+    expect(fixture.nativeElement.textContent).toContain("B-05");
+  });
+
+  it("should advance from Step 2 to Step 3 and show payment controls", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const ticket: TicketSummary = {
+      entryTime: "2026-10-26T10:00:00Z",
+      id: "ticket-1",
+      licensePlate: "XYZ-999",
+      slotNumber: "B-05",
+      status: "OPEN",
+    };
+
+    component.facade.selectTicket(ticket);
+    fixture.detectChanges();
+
+    component.facade.proceedToPayment();
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(3);
+    expect(
+      fixture.nativeElement.querySelector("app-payment-step")
+    ).toBeTruthy();
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("Método de Pago");
+    expect(text).toContain("Envío de Comprobante");
+    expect(text).toContain("Volver a Liquidación");
+    expect(text).toContain("Cobrar y Registrar Salida");
+  });
+
+  it("should complete full multi-step flow from Step 1 through Step 3 and open receipt", () => {
+    ticketServiceSpy.checkOutVehicle.mockReturnValue(
+      of({
+        amount: 5950,
+        id: "pay-1",
+        paymentMethod: "EFFECTIVE",
+        status: "APPROVED",
+      })
+    );
+
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.componentRef.setInput("parkingId", "parking-1");
+    fixture.detectChanges();
+
+    // Step 1: Identification
+    expect(component.facade.activeStep()).toBe(1);
+    expect(
+      fixture.nativeElement.querySelector("app-identification-step")
+    ).toBeTruthy();
+
+    const ticket: TicketSummary = {
+      entryTime: "2026-10-26T10:00:00Z",
+      id: "ticket-1",
+      licensePlate: "XYZ-999",
+      slotNumber: "B-05",
+      status: "OPEN",
+    };
+
+    // Step 2: Settlement
+    component.facade.selectTicket(ticket);
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(2);
+    expect(
+      fixture.nativeElement.querySelector("app-settlement-step")
+    ).toBeTruthy();
+
+    // Step 3: Payment
+    component.facade.proceedToPayment();
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(3);
+    const paymentStepEl =
+      fixture.nativeElement.querySelector("app-payment-step");
+    expect(paymentStepEl).toBeTruthy();
+
+    // Select Tarjeta / Datáfono and confirm checkout
+    component.facade.setPaymentMethod("PAY_LINK");
+    fixture.detectChanges();
+
+    const confirmBtn = Array.from(
+      fixture.nativeElement.querySelectorAll("button")
+    ).find((btn) =>
+      (btn as HTMLButtonElement).textContent?.includes(
+        "Cobrar y Registrar Salida"
+      )
+    ) as HTMLButtonElement;
+    expect(confirmBtn).toBeTruthy();
+    confirmBtn.click();
+    fixture.detectChanges();
+
+    expect(ticketServiceSpy.checkOutVehicle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        paymentMethod: "PAY_LINK",
+        ticketId: "ticket-1",
+      })
+    );
+    expect(component.facade.isReceiptOpen()).toBe(true);
+  });
+
+  it("should go back from Step 3 to Step 2 when 'Volver a Liquidación' is clicked", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const ticket: TicketSummary = {
+      entryTime: "2026-10-26T10:00:00Z",
+      id: "ticket-1",
+      licensePlate: "XYZ-999",
+      slotNumber: "B-05",
+      status: "OPEN",
+    };
+
+    component.facade.selectTicket(ticket);
+    component.facade.proceedToPayment();
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(3);
+
+    /* SAFETY: Back button contains 'Volver a Liquidación' text */
+    const backBtn = Array.from(
+      fixture.nativeElement.querySelectorAll("button")
+    ).find((btn) =>
+      (btn as HTMLButtonElement).textContent?.includes("Volver a Liquidación")
+    ) as HTMLButtonElement;
+    expect(backBtn).toBeTruthy();
+
+    backBtn.click();
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(2);
+    expect(
+      fixture.nativeElement.querySelector("app-settlement-step")
+    ).toBeTruthy();
+  });
+
+  it("should return to Step 1 when clearSelectedTicket is called", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const ticket: TicketSummary = {
+      entryTime: "2026-10-26T10:00:00Z",
+      id: "ticket-1",
+      licensePlate: "XYZ-999",
+      status: "OPEN",
+    };
+
+    component.facade.selectTicket(ticket);
+    fixture.detectChanges();
+    expect(component.facade.activeStep()).toBe(2);
+
+    component.facade.clearSelectedTicket();
+    fixture.detectChanges();
+
+    expect(component.facade.activeStep()).toBe(1);
+    expect(component.facade.selectedTicket()).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector("app-identification-step")
+    ).toBeTruthy();
+  });
+
   it("should render 'SIN PLACA' badge when vehicle has plateCountry UNPLATED", () => {
     const unplatedTicket: TicketSummary = {
       id: "ticket-unplated-1",
@@ -215,6 +446,16 @@ describe("CheckOutModalComponent", () => {
   });
 
   it("should render 0% IVA line when IVA rate is configured to 0%", () => {
+    ticketServiceSpy.calculatePrice.mockReturnValue(
+      of({
+        breakdown: [],
+        ivaAmount: 0,
+        ivaRate: 0,
+        name: "Standard",
+        subtotal: 5000,
+        total: 5000,
+      })
+    );
     const ticket: TicketSummary = {
       entryTime: "2026-08-27T10:00:00Z",
       id: "ticket-zero-iva",

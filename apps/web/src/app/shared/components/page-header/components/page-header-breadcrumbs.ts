@@ -21,7 +21,7 @@ import {
   lucideTicket,
 } from "@ng-icons/lucide";
 
-import type { PageHeaderBreadcrumbItem } from "../page-header";
+import type { PageHeaderBreadcrumbItem } from "../page-header.types";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

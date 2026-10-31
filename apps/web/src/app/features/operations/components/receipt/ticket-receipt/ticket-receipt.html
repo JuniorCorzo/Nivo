@@ -33,7 +33,7 @@
         <span
           class="text-foreground font-mono text-xl font-black tracking-widest sm:text-2xl"
         >
-          {{ ticket()?.licensePlate || texts.unplatedVehicle }}
+          {{ ticket()?.licensePlate | appPlateFormat: ticket()?.plateCountry }}
         </span>
       </div>
 

@@ -56,7 +56,9 @@ public enum ErrorMessagesModel {
   USER_ALREADY_EXISTS_IN_TENANT(
     "El usuario %s ya existe en el tenant"),
   ACCOUNT_CREATION_DISABLED(
-    "La creación de cuentas no está habilitada temporalmente");
+    "La creación de cuentas no está habilitada temporalmente"),
+  RATE_IN_USE(
+    "La tarifa con ID %s no puede ser desactivada porque está en uso por tickets activos");
 
   private final String template;
 

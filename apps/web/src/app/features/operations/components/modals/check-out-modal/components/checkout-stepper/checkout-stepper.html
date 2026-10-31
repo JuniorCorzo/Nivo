@@ -1,0 +1,81 @@
+<div
+  class="border-border bg-muted/20 -mx-5 border-b px-5 py-2.5 sm:-mx-6 sm:px-6"
+>
+  <div class="flex items-center justify-between text-xs">
+    <!-- Step 1: Identificación -->
+    <div class="flex items-center gap-1.5 font-medium">
+      <div
+        class="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition-colors"
+        [class.bg-primary]="activeStep() === 1"
+        [class.text-primary-foreground]="activeStep() === 1"
+        [class.bg-muted]="activeStep() > 1"
+        [class.text-muted-foreground]="activeStep() > 1"
+      >
+        @if (activeStep() > 1) {
+        <ng-icon name="lucideCheck" class="text-xs" />
+        } @else { 1 }
+      </div>
+      <span
+        [class.text-primary]="activeStep() === 1"
+        [class.font-bold]="activeStep() === 1"
+        [class.text-muted-foreground]="activeStep() !== 1"
+      >
+        {{ texts.step1 }}
+      </span>
+    </div>
+
+    <div
+      class="mx-2 h-0.5 flex-1 transition-colors"
+      [class.bg-primary]="activeStep() > 1"
+      [class.bg-border]="activeStep() <= 1"
+    ></div>
+
+    <!-- Step 2: Liquidación -->
+    <div class="flex items-center gap-1.5 font-medium">
+      <div
+        class="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition-colors"
+        [class.bg-primary]="activeStep() === 2"
+        [class.text-primary-foreground]="activeStep() === 2"
+        [class.bg-muted]="activeStep() !== 2"
+        [class.text-muted-foreground]="activeStep() < 2"
+      >
+        @if (activeStep() > 2) {
+        <ng-icon name="lucideCheck" class="text-xs" />
+        } @else { 2 }
+      </div>
+      <span
+        [class.text-primary]="activeStep() === 2"
+        [class.font-bold]="activeStep() === 2"
+        [class.text-muted-foreground]="activeStep() !== 2"
+      >
+        {{ texts.step2 }}
+      </span>
+    </div>
+
+    <div
+      class="mx-2 h-0.5 flex-1 transition-colors"
+      [class.bg-primary]="activeStep() > 2"
+      [class.bg-border]="activeStep() <= 2"
+    ></div>
+
+    <!-- Step 3: Pago -->
+    <div class="flex items-center gap-1.5 font-medium">
+      <div
+        class="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition-colors"
+        [class.bg-primary]="activeStep() === 3"
+        [class.text-primary-foreground]="activeStep() === 3"
+        [class.bg-muted]="activeStep() !== 3"
+        [class.text-muted-foreground]="activeStep() < 3"
+      >
+        3
+      </div>
+      <span
+        [class.text-primary]="activeStep() === 3"
+        [class.font-bold]="activeStep() === 3"
+        [class.text-muted-foreground]="activeStep() !== 3"
+      >
+        {{ texts.step3 }}
+      </span>
+    </div>
+  </div>
+</div>

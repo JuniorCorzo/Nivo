@@ -11,4 +11,9 @@ export interface PublicConfigResponse {
    * Indicates whether tenant/account registration is enabled
    */
   accountCreationEnabled?: boolean;
+
+  /**
+   * Indicates whether online/digital payment module is enabled
+   */
+  paymentEnabled?: boolean;
 }

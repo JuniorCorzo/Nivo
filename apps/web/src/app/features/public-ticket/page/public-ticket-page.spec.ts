@@ -141,4 +141,61 @@ describe("PublicTicketPageComponent", () => {
       vi.useRealTimers();
     }
   });
+
+  it("should render nv-badge with variant success when ticket is open", async () => {
+    fixture.componentRef.setInput("id", "uuid-ticket-1");
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const badges = compiled.querySelectorAll("nv-badge");
+    expect(badges.length).toBeGreaterThan(0);
+    expect(compiled.textContent).toContain(component.texts.activeStatus);
+  });
+
+  it("should render nv-badge with variant secondary when ticket is closed", async () => {
+    publicTicketServiceMock.getPublicTicket.mockReturnValue(
+      of({ ...mockTicket, status: "CLOSED" })
+    );
+
+    fixture.componentRef.setInput("id", "uuid-ticket-1");
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain(component.texts.closedStatus);
+  });
+
+  it("should render nv-badge with variant outline for vehicle plate country", async () => {
+    fixture.componentRef.setInput("id", "uuid-ticket-1");
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain(component.texts.originUnplated);
+  });
+
+  it("should render nv-button components and handle WhatsApp share and refresh", async () => {
+    const windowSpy = vi.spyOn(window, "open").mockImplementation(() => null);
+
+    fixture.componentRef.setInput("id", "uuid-ticket-1");
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const buttons = compiled.querySelectorAll("nv-button");
+    expect(buttons.length).toBe(2);
+
+    component.openWhatsApp();
+    expect(windowSpy).toHaveBeenCalledWith(
+      component.whatsAppLink(),
+      "_blank",
+      "noopener,noreferrer"
+    );
+
+    component.refresh();
+    expect(publicTicketServiceMock.getPublicTicket).toHaveBeenCalledTimes(2);
+
+    windowSpy.mockRestore();
+  });
 });

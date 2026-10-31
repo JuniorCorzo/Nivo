@@ -48,8 +48,7 @@ export { AvatarComponent } from "./lib/components/avatar/avatar";
 export { AlertComponent } from "./lib/components/alert/alert";
 
 // Toasts
-export { ToastService } from "./lib/components/toasts/toast.service";
-export { ToastsComponent } from "./lib/components/toasts/toast";
+export { ToastService, ToastsComponent } from "./lib/components/toasts/index";
 
 // Table
 export {

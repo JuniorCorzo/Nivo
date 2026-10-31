@@ -45,14 +45,10 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       class="border-border bg-card relative border-2 p-6 shadow-md sm:p-8"
     >
       <div
-        class="flex items-center justify-between border-b border-dashed border-[var(--border)] pb-4"
+        class="border-border flex items-center justify-between border-b border-dashed pb-4"
       >
         <div class="flex items-center gap-2">
-          <ng-icon
-            name="lucideReceipt"
-            size="20"
-            class="text-[var(--foreground)]"
-          />
+          <ng-icon name="lucideReceipt" size="20" class="text-foreground" />
           <span class="font-mono text-sm font-bold tracking-wider uppercase">
             {{ texts.ticketTitle }}
           </span>
@@ -63,10 +59,10 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
         >
           <span class="relative flex h-2 w-2">
             <span
-              class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"
+              class="bg-success absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
             ></span>
             <span
-              class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"
+              class="bg-success relative inline-flex h-2 w-2 rounded-full"
             ></span>
           </span>
           <span>{{ texts.ticketBadge }}</span>
@@ -76,36 +72,34 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       <!-- Ticket Body -->
       <div class="space-y-4 pt-6">
         <div class="pb-2 text-center">
-          <div class="text-lg font-bold text-[var(--foreground)]">
+          <div class="text-foreground text-lg font-bold">
             {{ texts.demoFacilityName }}
           </div>
           <nv-muted class="text-xs">{{ texts.demoNit }}</nv-muted>
         </div>
 
-        <div
-          class="space-y-1.5 rounded bg-[var(--muted)]/50 p-3 font-mono text-xs"
-        >
+        <div class="bg-muted/50 space-y-1.5 rounded p-3 font-mono text-xs">
           <div class="flex justify-between">
-            <span class="text-[var(--muted-foreground)]">
+            <span class="text-muted-foreground">
               {{ texts.ticketVehicleLabel }}
             </span>
-            <span class="font-semibold text-[var(--foreground)]">
+            <span class="text-foreground font-semibold">
               {{ vehicleType() }}
             </span>
           </div>
           <div class="flex justify-between">
-            <span class="text-[var(--muted-foreground)]">
+            <span class="text-muted-foreground">
               {{ texts.ticketStayLabel }}
             </span>
-            <span class="font-semibold text-[var(--foreground)]">
+            <span class="text-foreground font-semibold">
               {{ minutesStayed() }} {{ texts.min }}
             </span>
           </div>
           <div class="flex justify-between">
-            <span class="text-[var(--muted-foreground)]">
+            <span class="text-muted-foreground">
               {{ texts.ticketDeliveryLabel }}
             </span>
-            <span class="font-semibold text-emerald-500">
+            <span class="text-success font-semibold">
               {{ texts.ticketDeliveryValue }}
             </span>
           </div>
@@ -113,17 +107,13 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
         <!-- Lines Breakdowns -->
         @if (simulationResult(); as res) {
-          <div
-            class="space-y-2 border-y border-dashed border-[var(--border)] py-2"
-          >
+          <div class="border-border space-y-2 border-y border-dashed py-2">
             @for (line of res.breakpoints; track line.concept) {
               <div class="flex justify-between text-xs">
-                <span class="pr-2 text-[var(--muted-foreground)]">
+                <span class="text-muted-foreground pr-2">
                   {{ line.concept }}
                 </span>
-                <span
-                  class="shrink-0 font-mono font-medium text-[var(--foreground)]"
-                >
+                <span class="text-foreground shrink-0 font-mono font-medium">
                   $ {{ line.amount | number: "1.0-0" }}
                 </span>
               </div>
@@ -132,35 +122,35 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
           <!-- Totals -->
           <div class="space-y-1.5 pt-2 text-xs">
-            <div class="flex justify-between text-[var(--muted-foreground)]">
+            <div class="text-muted-foreground flex justify-between">
               <span>{{ texts.subtotalLabel }}</span>
-              <span class="font-mono text-[var(--foreground)]">
+              <span class="text-foreground font-mono">
                 $ {{ res.subtotal | number: "1.0-0" }} {{ texts.cop }}
               </span>
             </div>
-            <div class="flex justify-between text-[var(--muted-foreground)]">
+            <div class="text-muted-foreground flex justify-between">
               <span>
                 {{
                   texts.ivaLabel((res.ivaRate * 100 | number: "1.0-0") ?? "0")
                 }}
               </span>
-              <span class="font-mono text-[var(--foreground)]">
+              <span class="text-foreground font-mono">
                 $ {{ res.ivaAmount | number: "1.0-0" }} {{ texts.cop }}
               </span>
             </div>
             <div
-              class="flex items-baseline justify-between border-t border-[var(--border)] pt-2 text-base font-bold"
+              class="border-border flex items-baseline justify-between border-t pt-2 text-base font-bold"
             >
-              <span class="text-[var(--foreground)]">
+              <span class="text-foreground">
                 {{ texts.totalToPay }}
               </span>
-              <span class="font-mono text-2xl font-bold text-emerald-400">
+              <span class="text-success font-mono text-2xl font-bold">
                 $ {{ res.total | number: "1.0-0" }} {{ texts.cop }}
               </span>
             </div>
           </div>
         } @else {
-          <div class="py-6 text-center text-sm text-[var(--muted-foreground)]">
+          <div class="text-muted-foreground py-6 text-center text-sm">
             {{ texts.calculating }}
           </div>
         }
@@ -168,13 +158,9 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
         <!-- Security notice -->
         <div class="pt-4 text-center">
           <div
-            class="inline-flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]"
+            class="text-muted-foreground inline-flex items-center gap-1.5 text-xs"
           >
-            <ng-icon
-              name="lucideShieldCheck"
-              size="14"
-              class="text-emerald-500"
-            />
+            <ng-icon name="lucideShieldCheck" size="14" class="text-success" />
             <span>{{ texts.securityNotice }}</span>
           </div>
         </div>
