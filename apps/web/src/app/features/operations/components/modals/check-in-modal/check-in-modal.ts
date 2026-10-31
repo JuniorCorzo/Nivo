@@ -9,6 +9,8 @@ import {
   input,
   output,
 } from "@angular/core";
+import type { VehicleType } from "@core/models/rate.model";
+import type { SlotSummary } from "@core/models/slot.model";
 import type { PlateCountry } from "@core/models/ticket.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
@@ -20,6 +22,7 @@ import {
   lucideCheckCircle2,
   lucideLoader2,
   lucideLogIn,
+  lucideParkingSquare,
   lucidePhone,
   lucideX,
 } from "@ng-icons/lucide";
@@ -52,6 +55,7 @@ import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-rece
       lucideCheckCircle2,
       lucideLoader2,
       lucideLogIn,
+      lucideParkingSquare,
       lucidePhone,
       lucideX,
     }),
@@ -67,6 +71,7 @@ export class CheckInModalComponent {
 
   readonly isOpen = input<boolean>(false);
   readonly parkingId = input<string | null>(null);
+  readonly preselectedSlot = input<SlotSummary | null>(null);
 
   readonly closed = output();
 
@@ -83,6 +88,15 @@ export class CheckInModalComponent {
     effect(() => {
       if (this.isOpen()) {
         this.facade.reset();
+        const preselected = this.preselectedSlot();
+        if (preselected) {
+          const vType: VehicleType =
+            preselected.type === "MOTORCYCLE" || preselected.type === "BIKE"
+              ? preselected.type
+              : "CAR";
+          this.facade.setVehicleType(vType);
+          this.facade.setSlotId(preselected.id);
+        }
         setTimeout(() => {
           this.plateInputRef?.nativeElement.focus();
         }, 50);
