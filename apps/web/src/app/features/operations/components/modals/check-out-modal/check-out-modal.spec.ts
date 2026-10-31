@@ -167,7 +167,7 @@ describe("CheckOutModalComponent", () => {
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent;
-    expect(text).toContain("ABC123");
+    expect(text).toContain("ABC-123");
 
     /* SAFETY: The ticket item rendered in search results is a button HTML element */
     const ticketBtn = fixture.nativeElement.querySelector(
