@@ -14,7 +14,7 @@ import type {
 } from "../models/ticket-filter.model";
 import { INITIAL_TICKET_FILTERS } from "../models/ticket-filter.model";
 
-export type TicketStatusFilterWithMora = TicketStatusFilter | "MORA";
+type TicketStatusFilterWithMora = TicketStatusFilter | "MORA";
 
 export interface TicketFilterCriteriaWithMora extends Omit<
   TicketFilterCriteria,
@@ -109,23 +109,23 @@ export class TicketsFacade {
 
     for (const t of all) {
       if (t.status === "OPEN") {
-        open++;
+        open += 1;
         activeRevenue += t.totalToCharge ?? 0;
         if (t.entryTime) {
           const entryTimeMs = new Date(t.entryTime).getTime();
           if (!Number.isNaN(entryTimeMs) && now - entryTimeMs > eightHoursMs) {
-            moraCount++;
+            moraCount += 1;
           }
         }
       } else if (t.status === "CLOSED") {
-        closed++;
+        closed += 1;
         closedRevenue += t.totalToCharge ?? 0;
       }
 
       if (t.slotType === "CAR") {
-        carCount++;
+        carCount += 1;
       } else if (t.slotType === "MOTORCYCLE") {
-        motoCount++;
+        motoCount += 1;
       }
     }
 

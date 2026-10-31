@@ -294,8 +294,9 @@ describe("ParkingMapComponent", () => {
       fixture.componentRef.setInput("parkingName", "Sede Central Nivo");
       fixture.detectChanges();
 
-      const marker = privateComp.marker;
+      const { marker } = privateComp;
       expect(marker).toBeTruthy();
+      /* SAFETY: Marker icon is a DivIcon configured in component */
       const markerIcon = marker?.options.icon as L.DivIcon;
       expect(markerIcon.options.html).toContain("Sede Central Nivo");
     });

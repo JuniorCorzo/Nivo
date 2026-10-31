@@ -109,22 +109,22 @@ describe("TicketsPageComponent", () => {
     ) as NodeListOf<HTMLElement>;
 
     cards[0].dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+      new KeyboardEvent("keydown", { bubbles: true, key: "Enter" })
     );
     expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "OPEN" });
 
     cards[1].dispatchEvent(
-      new KeyboardEvent("keydown", { key: " ", bubbles: true })
+      new KeyboardEvent("keydown", { bubbles: true, key: " " })
     );
     expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "MORA" });
 
     cards[2].dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+      new KeyboardEvent("keydown", { bubbles: true, key: "Enter" })
     );
     expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "CLOSED" });
 
     cards[3].dispatchEvent(
-      new KeyboardEvent("keydown", { key: " ", bubbles: true })
+      new KeyboardEvent("keydown", { bubbles: true, key: " " })
     );
     expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "ALL" });
   });
@@ -135,6 +135,7 @@ describe("TicketsPageComponent", () => {
     fixture.detectChanges();
 
     const updateFiltersSpy = vi.spyOn(component.facade, "updateFilters");
+    /* SAFETY: Elements queried from test fixture DOM */
     const pills = fixture.nativeElement.querySelectorAll(
       '[data-testid="vehicle-filter-pills"] button'
     ) as NodeListOf<HTMLButtonElement>;

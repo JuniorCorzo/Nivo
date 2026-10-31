@@ -102,7 +102,7 @@ export class ParkingSlotDistribution {
     const maxSlots = 12;
 
     let remaining = maxSlots;
-    for (let g = 0; g < dist.length; g++) {
+    for (let g = 0; g < dist.length; g += 1) {
       const group = dist[g];
       const isLast = g === dist.length - 1;
       const groupCount = isLast
@@ -114,7 +114,7 @@ export class ParkingSlotDistribution {
       remaining -= groupCount;
 
       const prefix = group.prefix || "P";
-      for (let i = 1; i <= groupCount; i++) {
+      for (let i = 1; i <= groupCount; i += 1) {
         const slotNum = i < 10 ? `0${i}` : `${i}`;
         items.push({
           isOccupied: false,
@@ -125,12 +125,12 @@ export class ParkingSlotDistribution {
     }
 
     let plateIdx = 0;
-    for (let i = 0; i < items.length; i++) {
+    for (let i = 0; i < items.length; i += 1) {
       const shouldOccupy = i < occupiedTarget;
       if (shouldOccupy) {
         items[i].isOccupied = true;
         items[i].plate = samplePlates[plateIdx % samplePlates.length];
-        plateIdx++;
+        plateIdx += 1;
       }
     }
 

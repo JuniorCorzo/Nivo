@@ -98,7 +98,7 @@ describe("TicketsFacade", () => {
     expect(stats.closed).toBe(2);
     expect(stats.moraCount).toBe(1);
     expect(stats.activeRevenue).toBe(0);
-    expect(stats.closedRevenue).toBe(11500);
+    expect(stats.closedRevenue).toBe(11_500);
     expect(stats.carCount).toBe(2);
     expect(stats.motoCount).toBe(1);
   });

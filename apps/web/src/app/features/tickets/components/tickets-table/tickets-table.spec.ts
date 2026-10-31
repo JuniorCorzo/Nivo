@@ -245,6 +245,7 @@ describe("TicketsTableComponent", () => {
 
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
+    /* SAFETY: Element queried from test fixture DOM */
     const row = compiled.querySelector(
       "tbody tr:first-child"
     ) as HTMLElement | null;

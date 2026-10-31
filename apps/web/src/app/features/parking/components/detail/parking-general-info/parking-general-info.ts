@@ -79,7 +79,13 @@ export class ParkingGeneralInfo {
 
   public readonly formattedCoords = computed<string>(() => {
     const coords = this.parking()?.coordinates;
-    if (!coords || coords.latitude == null || coords.longitude == null) {
+    if (
+      !coords ||
+      coords.latitude === null ||
+      coords.latitude === undefined ||
+      coords.longitude === null ||
+      coords.longitude === undefined
+    ) {
       return "";
     }
     const latDir = coords.latitude >= 0 ? "N" : "S";

@@ -17,7 +17,7 @@ const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const TILE_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
-export function createParkingMarkerIcon(name?: string | null): L.DivIcon {
+export const createParkingMarkerIcon = (name?: string | null): L.DivIcon => {
   const displayName = name?.trim() || "Sede de Parqueo";
   return L.divIcon({
     className: "nivo-map-marker-container",
@@ -41,7 +41,7 @@ export function createParkingMarkerIcon(name?: string | null): L.DivIcon {
     iconAnchor: [0, 0],
     iconSize: [0, 0],
   });
-}
+};
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -105,7 +105,7 @@ export class ParkingMapComponent implements OnDestroy {
       maxZoom: 19,
     }).addTo(this.map);
 
-    if (typeof ResizeObserver !== "undefined") {
+    if ("ResizeObserver" in globalThis) {
       this.resizeObserver = new ResizeObserver(() => {
         this.map?.invalidateSize();
       });

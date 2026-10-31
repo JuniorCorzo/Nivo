@@ -103,9 +103,16 @@ describe("ParkingSlotDistribution", () => {
     const slots = comp.visualSlots();
     expect(slots.length).toBe(12);
 
+    const lastSlot = slots.at(-1);
+    expect(lastSlot).toBeDefined();
+
     expect(() => {
-      comp.onSlotClick(slots[0]); // Occupied
-      comp.onSlotClick(slots[slots.length - 1]); // Available
+      // Occupied
+      comp.onSlotClick(slots[0]);
+      // Available
+      if (lastSlot) {
+        comp.onSlotClick(lastSlot);
+      }
     }).not.toThrow();
   });
 

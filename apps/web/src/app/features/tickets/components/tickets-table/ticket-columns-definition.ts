@@ -19,7 +19,7 @@ import { TicketRowActionsComponent } from "./ticket-row-actions";
 import { TicketStatusBadgeComponent } from "./ticket-status-badge";
 import { TicketVehicleBadgeComponent } from "./ticket-vehicle-badge";
 
-export const formatTicketDate = (dateStr?: string): string => {
+const formatTicketDate = (dateStr?: string): string => {
   if (!dateStr) {
     return APP_TEXTS.tickets.table.emptyFallback;
   }
@@ -35,7 +35,7 @@ export const formatTicketDate = (dateStr?: string): string => {
   return `${day}/${month}/${year} ${hours}:${minutes}`;
 };
 
-export const formatTicketCurrency = (amount?: number | null): string => {
+const formatTicketCurrency = (amount?: number | null): string => {
   if (amount === undefined || amount === null) {
     return APP_TEXTS.tickets.table.emptyFallback;
   }
@@ -52,7 +52,7 @@ export const formatTicketCurrency = (amount?: number | null): string => {
     </span>
   `,
 })
-export class TicketTotalCellComponent {
+class TicketTotalCellComponent {
   readonly amount = input<number | null | undefined>();
   readonly formatted = computed(() => formatTicketCurrency(this.amount()));
 }
@@ -173,7 +173,7 @@ export const createTicketColumns = (
           return true;
         }
         if (filterValue === "MORA") {
-          const entryTime = row.original.entryTime;
+          const { entryTime } = row.original;
           if (row.original.status !== "OPEN" || !entryTime) {
             return false;
           }
