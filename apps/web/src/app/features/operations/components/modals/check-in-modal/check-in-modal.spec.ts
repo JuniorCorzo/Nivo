@@ -194,4 +194,28 @@ describe("CheckInModalComponent", () => {
     component.onCountryChange("CO");
     expect(component.facade.plateCountry()).toBe("CO");
   });
+
+  it("should pre-set vehicle type and slotId in facade and render banner when preselectedSlot is provided on open", () => {
+    const mockSlot = {
+      id: "slot-custom-1",
+      parkingName: "Central",
+      prefix: "A",
+      slotNumber: "101",
+      status: "AVAILABLE" as const,
+      type: "MOTORCYCLE" as const,
+      zone: "Z1",
+    };
+    const setVehicleTypeSpy = vi.spyOn(component.facade, "setVehicleType");
+    const setSlotIdSpy = vi.spyOn(component.facade, "setSlotId");
+
+    fixture.componentRef.setInput("preselectedSlot", mockSlot);
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    expect(setVehicleTypeSpy).toHaveBeenCalledWith("MOTORCYCLE");
+    expect(setSlotIdSpy).toHaveBeenCalledWith("slot-custom-1");
+    expect(fixture.nativeElement.textContent).toContain(
+      "Bahía Asignada: A-101 (MOTORCYCLE)"
+    );
+  });
 });

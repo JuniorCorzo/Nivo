@@ -454,9 +454,8 @@ describe("OperationsPageComponent", () => {
       expect(compiled.textContent).toContain("ABC-123");
       expect(compiled.textContent).toContain("Bahía 101");
 
-      const cobrarButton = fixture.debugElement
-        .queryAll(By.directive(ButtonComponent))
-        .find((btn) => btn.nativeElement.textContent.includes("Cobrar"));
+      const table = fixture.debugElement.query(By.css("table"));
+      const cobrarButton = table?.query(By.directive(ButtonComponent));
       expect(cobrarButton).toBeDefined();
 
       cobrarButton?.nativeElement.click();
@@ -596,6 +595,182 @@ describe("OperationsPageComponent", () => {
         })
       );
       expect(ticketServiceSpy.createTicket).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Clean Tap Cards & Salida Express", () => {
+    it("should trigger check-in with preselected slot when onSlotClick is called on an available slot", () => {
+      const [availableSlot] = component.slots();
+      expect(availableSlot.status).toBe("AVAILABLE");
+
+      component.onSlotClick(availableSlot);
+
+      expect(component.selectedCheckInSlot()).toEqual(availableSlot);
+      expect(component.isCheckInModalOpen()).toBe(true);
+
+      // Closing modal clears preselected slot
+      component.closeCheckInModal();
+      expect(component.selectedCheckInSlot()).toBeNull();
+      expect(component.isCheckInModalOpen()).toBe(false);
+    });
+
+    it("should trigger check-out when onSlotClick is called on an occupied slot", () => {
+      const [, occupiedSlot] = component.slots();
+      expect(occupiedSlot.status).toBe("OCCUPIED");
+
+      const checkOutSpy = vi
+        .spyOn(component, "checkOutSpecificSlot")
+        .mockImplementation(() => {});
+      component.onSlotClick(occupiedSlot);
+
+      expect(checkOutSpy).toHaveBeenCalledWith(occupiedSlot);
+    });
+
+    it("should do nothing when onSlotClick is called on a slot that is neither available nor occupied", () => {
+      const maintenanceSlot = {
+        ...component.slots()[0],
+        status: "MAINTENANCE" as const,
+      };
+      const checkInSpy = vi.spyOn(component, "checkInSpecificSlot");
+      const checkOutSpy = vi.spyOn(component, "checkOutSpecificSlot");
+
+      component.onSlotClick(maintenanceSlot);
+
+      expect(checkInSpy).not.toHaveBeenCalled();
+      expect(checkOutSpy).not.toHaveBeenCalled();
+    });
+
+    it("should find active ticket for slot by slotId or slotNumber in getActiveTicketForSlot", () => {
+      const mockTicket = {
+        entryTime: "2026-10-16T10:00:00Z",
+        id: "t-1",
+        licensePlate: "ABC-123",
+        slotId: "s-2",
+        slotNumber: "102",
+        status: "OPEN" as const,
+      };
+      component.activeTickets.set([mockTicket]);
+
+      const matchingSlot = component.slots().find((s) => s.id === "s-2");
+      expect(matchingSlot).toBeDefined();
+      if (matchingSlot) {
+        expect(component.getActiveTicketForSlot(matchingSlot)).toEqual(
+          mockTicket
+        );
+      }
+
+      const nonMatchingSlot = component.slots().find((s) => s.id === "s-1");
+      expect(nonMatchingSlot).toBeDefined();
+      if (nonMatchingSlot) {
+        expect(
+          component.getActiveTicketForSlot(nonMatchingSlot)
+        ).toBeUndefined();
+      }
+    });
+
+    it("should render clean tap cards with accessible attributes and footer badges", () => {
+      component.activeTickets.set([
+        {
+          entryTime: "2026-10-16T10:00:00Z",
+          id: "t-1",
+          licensePlate: "ABC-123",
+          slotId: "s-2",
+          slotNumber: "102",
+          status: "OPEN" as const,
+        },
+      ]);
+      fixture.detectChanges();
+
+      const cards: HTMLElement[] =
+        fixture.nativeElement.querySelectorAll("div[role='button']");
+      expect(cards.length).toBeGreaterThanOrEqual(4);
+
+      // Verify available card footer
+      expect(fixture.nativeElement.textContent).toContain("+ Asignar bahía");
+      // Verify occupied card footer
+      expect(fixture.nativeElement.textContent).toContain("⏱ Cobrar Salida");
+      // Verify plate is shown inside occupied card
+      expect(fixture.nativeElement.textContent).toContain("ABC-123");
+      // Verify Cobrar Salida Directa button exists
+      expect(fixture.nativeElement.textContent).toContain(
+        "Cobrar Salida Directa"
+      );
+    });
+
+    describe("submitExpressCheckOutByQuery", () => {
+      const mockTickets = [
+        {
+          entryTime: "2026-10-16T10:00:00Z",
+          id: "t-1",
+          licensePlate: "ABC-123",
+          slotNumber: "101",
+          status: "OPEN" as const,
+        },
+        {
+          entryTime: "2026-10-16T10:30:00Z",
+          id: "t-2",
+          licensePlate: "XYZ-999",
+          slotNumber: "102",
+          status: "OPEN" as const,
+        },
+      ];
+
+      beforeEach(() => {
+        component.activeTickets.set(mockTickets);
+      });
+
+      it("should show error toast if query is empty", () => {
+        component.setSearchTicketQuery("");
+        component.submitExpressCheckOutByQuery();
+
+        expect(toastSpy.showToast).toHaveBeenCalledWith({
+          message: "Ingresa una placa o bahía para cobrar salida.",
+          type: "error",
+        });
+        expect(component.isCheckOutModalOpen()).toBe(false);
+      });
+
+      it("should open checkout modal directly when query has a single unique match", () => {
+        component.setSearchTicketQuery("XYZ");
+        component.submitExpressCheckOutByQuery();
+
+        expect(component.selectedCheckoutTicket()).toEqual(mockTickets[1]);
+        expect(component.isCheckOutModalOpen()).toBe(true);
+      });
+
+      it("should open checkout modal when query has an exact match even among multiple matches", () => {
+        component.setSearchTicketQuery("101");
+        component.submitExpressCheckOutByQuery();
+
+        expect(component.selectedCheckoutTicket()).toEqual(mockTickets[0]);
+        expect(component.isCheckOutModalOpen()).toBe(true);
+      });
+
+      it("should show warning toast when multiple matches are found without exact match", () => {
+        component.activeTickets.set([
+          { ...mockTickets[0], licensePlate: "ABC-100" },
+          { ...mockTickets[1], licensePlate: "ABC-200" },
+        ]);
+        component.setSearchTicketQuery("ABC");
+        component.submitExpressCheckOutByQuery();
+
+        expect(toastSpy.showToast).toHaveBeenCalledWith({
+          message: "Múltiples vehículos coinciden. Selecciona uno de la lista.",
+          type: "warning",
+        });
+        expect(component.isCheckOutModalOpen()).toBe(false);
+      });
+
+      it("should show error toast when no active vehicles match the query", () => {
+        component.setSearchTicketQuery("NONEXISTENT");
+        component.submitExpressCheckOutByQuery();
+
+        expect(toastSpy.showToast).toHaveBeenCalledWith({
+          message: "No se encontró ningún vehículo activo con ese criterio.",
+          type: "error",
+        });
+        expect(component.isCheckOutModalOpen()).toBe(false);
+      });
     });
   });
 });
