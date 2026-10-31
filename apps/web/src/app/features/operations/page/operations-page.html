@@ -55,6 +55,137 @@
     </div>
   </app-page-header>
 
+  <!-- Dock Express Superior (Flujo Desordenado / Libre): Aforo en Vivo & Check-In Rápido -->
+  <div
+    class="border-border bg-card text-card-foreground rounded-2xl border p-4 shadow-xs sm:p-5"
+  >
+    <div
+      class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+    >
+      <!-- Aforo en Vivo -->
+      <div class="flex items-center gap-4 sm:gap-6">
+        <div class="flex items-center gap-3">
+          <div
+            class="bg-primary/10 text-primary border-primary/20 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border"
+          >
+            <ng-icon name="lucideGauge" class="text-2xl" />
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-foreground text-sm font-bold tracking-tight">
+                Aforo General
+              </span>
+              <nv-badge
+                [variant]="occupationPercentage() >= 90 ? 'destructive' : occupationPercentage() >= 75 ? 'warning' : 'outline'"
+                class="font-mono text-xs"
+              >
+                {{ occupationPercentage() }}%
+              </nv-badge>
+            </div>
+            <p class="text-muted-foreground text-xs">
+              <strong class="text-foreground font-semibold"
+                >{{ availableSlotsCount() }}</strong
+              >
+              libres de {{ totalSlotsCount() }} totales
+            </p>
+          </div>
+        </div>
+
+        <!-- Mini Progress Bar -->
+        <div class="hidden w-28 flex-col gap-1 sm:flex">
+          <div class="bg-muted h-2 w-full overflow-hidden rounded-full">
+            <div
+              class="h-full rounded-full transition-all duration-500"
+              [class.bg-emerald-500]="occupationPercentage() < 75"
+              [class.bg-amber-500]="occupationPercentage() >= 75 && occupationPercentage() < 90"
+              [class.bg-rose-500]="occupationPercentage() >= 90"
+              [style.width.%]="occupationPercentage()"
+            ></div>
+          </div>
+          <span class="text-muted-foreground text-[10px]"
+            >{{ occupiedSlotsCount() }} ocupados</span
+          >
+        </div>
+      </div>
+
+      <!-- Express Check-In Control Bar -->
+      <form
+        (submit)="$event.preventDefault(); submitExpressCheckIn()"
+        class="flex flex-1 flex-wrap items-center gap-2 lg:max-w-2xl lg:justify-end"
+      >
+        <!-- Vehicle Type Selector -->
+        <div
+          class="bg-muted/60 border-border inline-flex rounded-lg border p-1 text-xs"
+        >
+          <button
+            type="button"
+            (click)="setExpressVehicleType('CAR')"
+            [attr.aria-pressed]="expressVehicleType() === 'CAR'"
+            aria-label="Seleccionar tipo de vehículo Carro"
+            [class.bg-card]="expressVehicleType() === 'CAR'"
+            [class.text-foreground]="expressVehicleType() === 'CAR'"
+            [class.shadow-xs]="expressVehicleType() === 'CAR'"
+            [class.text-muted-foreground]="expressVehicleType() !== 'CAR'"
+            class="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium transition-all"
+          >
+            <ng-icon name="lucideCar" class="text-sm" />
+            <span>Carro</span>
+            <span class="text-muted-foreground text-[10px]"
+              >({{ availableCarSlotsCount() }})</span
+            >
+          </button>
+          <button
+            type="button"
+            (click)="setExpressVehicleType('MOTORCYCLE')"
+            [attr.aria-pressed]="expressVehicleType() === 'MOTORCYCLE'"
+            aria-label="Seleccionar tipo de vehículo Moto"
+            [class.bg-card]="expressVehicleType() === 'MOTORCYCLE'"
+            [class.text-foreground]="expressVehicleType() === 'MOTORCYCLE'"
+            [class.shadow-xs]="expressVehicleType() === 'MOTORCYCLE'"
+            [class.text-muted-foreground]="expressVehicleType() !== 'MOTORCYCLE'"
+            class="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium transition-all"
+          >
+            <ng-icon name="lucideBike" class="text-sm" />
+            <span>Moto</span>
+            <span class="text-muted-foreground text-[10px]"
+              >({{ availableMotoSlotsCount() }})</span
+            >
+          </button>
+        </div>
+
+        <!-- Plate Input with mask -->
+        <div class="relative min-w-[140px] flex-1 sm:max-w-[190px]">
+          <input
+            type="text"
+            appPlateMask
+            [vehicleType]="expressVehicleType()"
+            placeholder="PLACA (ej. ABC123)"
+            aria-label="Placa de vehículo para ingreso express"
+            [ngModel]="expressPlate()"
+            (ngModelChange)="expressPlate.set($event)"
+            name="expressPlate"
+            maxlength="8"
+            class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 text-center font-mono text-sm font-bold tracking-wider uppercase transition-colors focus:ring-2 focus:outline-hidden"
+          />
+        </div>
+
+        <!-- Submit Express Button -->
+        <nv-button
+          type="submit"
+          [disabled]="isSubmittingExpressCheckIn() || !expressPlate().trim()"
+          class="shrink-0"
+        >
+          <ng-icon name="lucideLogIn" class="text-base" />
+          <span>+ Ingresar</span>
+          <kbd
+            class="border-primary-foreground/30 bg-primary-foreground/20 text-primary-foreground ml-1 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+            >Enter</kbd
+          >
+        </nv-button>
+      </form>
+    </div>
+  </div>
+
   <!-- Summary Cards Grid -->
   <div class="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
     <!-- Cupos Carros -->
@@ -269,14 +400,41 @@
       >
         @for (slot of filteredSlots(); track slot.id) {
         <div
-          class="relative flex flex-col justify-between rounded-xl border p-2.5 transition-all sm:p-3"
+          [attr.role]="
+            slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED'
+              ? 'button'
+              : undefined
+          "
+          [attr.tabindex]="
+            slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED' ? 0 : -1
+          "
+          [attr.aria-label]="
+            slot.status === 'AVAILABLE'
+              ? 'Bahía ' + (slot.prefix ? slot.prefix + '-' : '') + slot.slotNumber + ' disponible para ' + slot.type + '. Clic para asignar ingreso.'
+              : slot.status === 'OCCUPIED'
+                ? 'Bahía ' + (slot.prefix ? slot.prefix + '-' : '') + slot.slotNumber + ' ocupada. Clic para cobrar salida.'
+                : 'Bahía ' + (slot.prefix ? slot.prefix + '-' : '') + slot.slotNumber + ' ' + slot.status
+          "
+          (click)="onSlotClick(slot)"
+          (keydown.enter)="onSlotClick(slot)"
+          (keydown.space)="onSlotClick(slot); $event.preventDefault()"
+          class="group relative flex flex-col justify-between rounded-xl border p-3 shadow-xs transition-all select-none"
           [class.border-success/30]="slot.status === 'AVAILABLE'"
           [class.bg-success/10]="slot.status === 'AVAILABLE'"
+          [class.hover:border-success]="slot.status === 'AVAILABLE'"
+          [class.hover:bg-success/15]="slot.status === 'AVAILABLE'"
           [class.border-info/30]="slot.status === 'OCCUPIED'"
           [class.bg-info/10]="slot.status === 'OCCUPIED'"
+          [class.hover:border-info]="slot.status === 'OCCUPIED'"
+          [class.hover:bg-info/15]="slot.status === 'OCCUPIED'"
+          [class.cursor-pointer]="slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED'"
+          [class.active:scale-[0.98]]="slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED'"
           [class.border-border]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
           [class.bg-muted/40]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+          [class.cursor-not-allowed]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+          [class.opacity-60]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
         >
+          <!-- Top: Zone & Dot Indicator -->
           <div class="flex items-center justify-between">
             <span
               class="text-muted-foreground text-[10px] font-bold tracking-wider uppercase"
@@ -284,46 +442,75 @@
               {{ slot.zone ? slot.zone : "P" }}
             </span>
             <span
-              class="inline-block h-2 w-2 rounded-full"
+              class="inline-block h-2.5 w-2.5 rounded-full"
               [class.bg-success]="slot.status === 'AVAILABLE'"
+              [class.ring-2]="slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED'"
+              [class.ring-success/20]="slot.status === 'AVAILABLE'"
               [class.bg-info]="slot.status === 'OCCUPIED'"
+              [class.ring-info/20]="slot.status === 'OCCUPIED'"
               [class.bg-muted-foreground]="
-                    slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'
-                  "
+                slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'
+              "
             ></span>
           </div>
 
-          <div class="my-2">
+          <!-- Middle: Slot Number & Details -->
+          <div class="my-2.5">
             <div
               class="text-foreground truncate font-mono text-base font-bold sm:text-lg"
             >
               {{ slot.prefix ? slot.prefix + "-" : "" }}{{ slot.slotNumber }}
             </div>
+            @if (slot.status === 'AVAILABLE') {
+            <div
+              class="text-muted-foreground mt-0.5 flex items-center gap-1 text-[11px] font-medium uppercase"
+            >
+              <ng-icon
+                [name]="slot.type === 'CAR' ? 'lucideCar' : 'lucideBike'"
+                class="text-xs"
+              />
+              <span>{{ slot.type }}</span>
+            </div>
+            } @else if (slot.status === 'OCCUPIED') { @if
+            (getActiveTicketForSlot(slot); as ticket) {
+            <div class="mt-1 flex items-center gap-1.5">
+              <span
+                class="border-info/30 bg-info/20 text-info rounded border px-1.5 py-0.5 font-mono text-xs font-bold tracking-wider"
+              >
+                {{ ticket.licensePlate }}
+              </span>
+            </div>
+            } @else {
+            <div class="mt-1">
+              <span
+                class="border-info/30 bg-info/20 text-info rounded border px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase"
+              >
+                OCUPADO
+              </span>
+            </div>
+            } } @else {
             <span
               class="text-muted-foreground text-[10px] font-medium uppercase"
             >
               {{ slot.type }}
             </span>
+            }
           </div>
 
-          <!-- Quick Slot Action -->
+          <!-- Action Footer Badge -->
           <div>
-            @if (slot.status === "AVAILABLE") {
-            <button
-              type="button"
-              (click)="checkInSpecificSlot(slot)"
-              class="bg-success text-primary-foreground hover:bg-success/90 focus-visible:ring-ring w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            @if (slot.status === 'AVAILABLE') {
+            <div
+              class="border-success/30 bg-success/20 text-success group-hover:bg-success group-hover:text-primary-foreground flex items-center justify-center rounded-lg border py-1.5 text-center text-[11px] font-bold transition-colors"
             >
-              + Ingresar
-            </button>
-            } @else if (slot.status === "OCCUPIED") {
-            <button
-              type="button"
-              (click)="checkOutSpecificSlot(slot)"
-              class="bg-info text-primary-foreground hover:bg-info/90 focus-visible:ring-ring w-full cursor-pointer rounded-lg px-2 py-1.5 text-[11px] font-bold transition-colors focus-visible:ring-2 focus-visible:outline-none"
+              + Asignar bahía
+            </div>
+            } @else if (slot.status === 'OCCUPIED') {
+            <div
+              class="border-info/30 bg-info/20 text-info group-hover:bg-info group-hover:text-primary-foreground flex items-center justify-center rounded-lg border py-1.5 text-center text-[11px] font-bold transition-colors"
             >
-              Salida
-            </button>
+              ⏱ Cobrar Salida
+            </div>
             } @else {
             <span
               class="text-muted-foreground block py-1.5 text-center text-[10px] font-medium"
@@ -356,21 +543,50 @@
         </nv-badge>
       </div>
 
-      <!-- Search input -->
-      <div class="relative w-full sm:w-64">
-        <ng-icon
-          name="lucideSearch"
-          size="16"
-          class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
-        />
-        <input
-          type="text"
-          aria-label="Buscar placa o bahía"
-          [value]="searchTicketQuery()"
-          (input)="onSearchQueryChange($event)"
-          placeholder="Buscar placa o bahía..."
-          class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-lg border py-1.5 pr-3 pl-9 text-xs focus:outline-hidden"
-        />
+      <!-- Search input & Salida Express action -->
+      <div class="flex w-full items-center gap-2 sm:w-auto">
+        <div class="relative w-full sm:w-64">
+          <ng-icon
+            name="lucideSearch"
+            size="16"
+            class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+          />
+          <input
+            type="text"
+            aria-label="Buscar placa o bahía"
+            [value]="searchTicketQuery()"
+            (input)="onSearchQueryChange($event)"
+            (keydown.enter)="submitExpressCheckOutByQuery()"
+            placeholder="Buscar placa o bahía..."
+            class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-lg border py-1.5 pr-3 pl-9 text-xs focus:outline-hidden"
+          />
+        </div>
+        <nv-button
+          type="button"
+          size="sm"
+          variant="secondary"
+          (click)="submitExpressCheckOutByQuery()"
+          class="shrink-0 text-nowrap"
+        >
+          <ng-icon name="lucideLogOut" size="14" class="mr-1" />
+          <span>Cobrar Salida Directa</span>
+        </nv-button>
+        <nv-button
+          type="button"
+          size="sm"
+          variant="outline"
+          (click)="openQrScanner()"
+          class="shrink-0 text-nowrap"
+          title="Escanear ticket QR para cobrar salida"
+          aria-label="Escanear ticket QR para cobrar salida"
+        >
+          <ng-icon name="lucideQrCode" class="text-primary mr-1 text-sm" />
+          <span>Escanear QR</span>
+          <kbd
+            class="border-border bg-muted text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+            >Q</kbd
+          >
+        </nv-button>
       </div>
     </div>
 
@@ -467,6 +683,7 @@
 <app-check-in-modal
   [isOpen]="isCheckInModalOpen()"
   [parkingId]="parkingId()"
+  [preselectedSlot]="selectedCheckInSlot()"
   (closed)="closeCheckInModal()"
 />
 
@@ -479,3 +696,11 @@
   (closed)="closeCheckOutModal()"
 />
 }
+
+<!-- QR Scanner Modal Component -->
+<app-qr-scanner-modal
+  [isOpen]="isQrScannerOpen()"
+  [parkingId]="parkingId()"
+  (closed)="closeQrScanner()"
+  (scanned)="onQrScanned($event)"
+/>
