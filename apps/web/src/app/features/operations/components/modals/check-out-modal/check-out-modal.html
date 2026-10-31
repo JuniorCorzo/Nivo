@@ -33,6 +33,89 @@
       </nv-button>
     </div>
 
+    <!-- Step Indicator Header (1: Identificación -> 2: Liquidación -> 3: Pago) -->
+    <div
+      class="border-border bg-muted/20 -mx-5 border-b px-5 py-2.5 sm:-mx-6 sm:px-6"
+    >
+      <div class="flex items-center justify-between text-xs">
+        <!-- Step 1: Identificación -->
+        <div class="flex items-center gap-1.5 font-medium">
+          <div
+            class="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition-colors"
+            [class.bg-primary]="facade.activeStep() === 1"
+            [class.text-primary-foreground]="facade.activeStep() === 1"
+            [class.bg-muted]="facade.activeStep() > 1"
+            [class.text-muted-foreground]="facade.activeStep() > 1"
+          >
+            @if (facade.activeStep() > 1) {
+            <ng-icon name="lucideCheck" class="text-xs" />
+            } @else { 1 }
+          </div>
+          <span
+            [class.text-primary]="facade.activeStep() === 1"
+            [class.font-bold]="facade.activeStep() === 1"
+            [class.text-muted-foreground]="facade.activeStep() !== 1"
+          >
+            Identificación
+          </span>
+        </div>
+
+        <div
+          class="mx-2 h-0.5 flex-1 transition-colors"
+          [class.bg-primary]="facade.activeStep() > 1"
+          [class.bg-border]="facade.activeStep() <= 1"
+        ></div>
+
+        <!-- Step 2: Liquidación -->
+        <div class="flex items-center gap-1.5 font-medium">
+          <div
+            class="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition-colors"
+            [class.bg-primary]="facade.activeStep() === 2"
+            [class.text-primary-foreground]="facade.activeStep() === 2"
+            [class.bg-muted]="facade.activeStep() !== 2"
+            [class.text-muted-foreground]="facade.activeStep() < 2"
+          >
+            @if (facade.activeStep() > 2) {
+            <ng-icon name="lucideCheck" class="text-xs" />
+            } @else { 2 }
+          </div>
+          <span
+            [class.text-primary]="facade.activeStep() === 2"
+            [class.font-bold]="facade.activeStep() === 2"
+            [class.text-muted-foreground]="facade.activeStep() !== 2"
+          >
+            Liquidación
+          </span>
+        </div>
+
+        <div
+          class="mx-2 h-0.5 flex-1 transition-colors"
+          [class.bg-primary]="facade.activeStep() > 2"
+          [class.bg-border]="facade.activeStep() <= 2"
+        ></div>
+
+        <!-- Step 3: Pago -->
+        <div class="flex items-center gap-1.5 font-medium">
+          <div
+            class="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition-colors"
+            [class.bg-primary]="facade.activeStep() === 3"
+            [class.text-primary-foreground]="facade.activeStep() === 3"
+            [class.bg-muted]="facade.activeStep() !== 3"
+            [class.text-muted-foreground]="facade.activeStep() < 3"
+          >
+            3
+          </div>
+          <span
+            [class.text-primary]="facade.activeStep() === 3"
+            [class.font-bold]="facade.activeStep() === 3"
+            [class.text-muted-foreground]="facade.activeStep() !== 3"
+          >
+            Pago
+          </span>
+        </div>
+      </div>
+    </div>
+
     <!-- Error Alert -->
     @if (facade.errorMessage()) {
     <div
@@ -43,320 +126,35 @@
     </div>
     }
 
-    <!-- Ticket & Rate Preview Content -->
-    <div class="mt-4 space-y-4">
-      @if (facade.selectedTicket()) {
-      <!-- Ticket Header Card -->
-      <div
-        class="bg-muted/60 border-border flex items-center justify-between rounded-xl border p-3 sm:p-3.5"
-      >
-        <div>
-          <span
-            class="text-muted-foreground block text-[10px] font-medium sm:text-xs"
-            >Placa del Vehículo</span
-          >
-          <span
-            class="text-foreground font-mono text-lg font-black tracking-wider sm:text-xl"
-          >
-            {{ facade.selectedTicket()?.licensePlate }}
-          </span>
-        </div>
-        <div class="flex items-center gap-3">
-          <div class="text-right">
-            <span class="text-muted-foreground block text-[10px] sm:text-xs"
-              >Cupo</span
-            >
-            <span
-              class="text-foreground font-mono text-xs font-bold sm:text-sm"
-            >
-              {{ facade.selectedTicket()?.slotNumber || "Asignado" }}
-            </span>
-          </div>
-          <nv-button
-            variant="outline"
-            size="sm"
-            type="button"
-            (click)="facade.clearSelectedTicket()"
-            title="Elegir otro cupo"
-          >
-            Cambiar
-          </nv-button>
-        </div>
+    <!-- Step Flow Content -->
+    <div class="mt-4">
+      @if (!facade.selectedTicket() || facade.activeStep() === 1) {
+      <!-- Step 1: Identification & Selection -->
+      <app-identification-step />
+
+      <div class="border-border mt-6 flex justify-end border-t pt-3">
+        <nv-button
+          type="button"
+          variant="outline"
+          (click)="onClose()"
+          class="w-full sm:w-auto"
+        >
+          Cerrar
+        </nv-button>
       </div>
-
-      <!-- Live Price Breakdown -->
-      <div
-        class="border-border bg-card space-y-3 rounded-xl border p-3.5 sm:p-4"
-      >
-        <div
-          class="border-border flex items-center justify-between border-b pb-2"
-        >
-          <span
-            class="text-muted-foreground text-xs font-bold tracking-wider uppercase"
-          >
-            Liquidación de Tarifa
-          </span>
-          @if (facade.isLoadingCalculation()) {
-          <div
-            class="text-muted-foreground inline-flex items-center gap-1 text-xs"
-          >
-            <ng-icon name="lucideLoader2" class="animate-spin text-xs" />
-            <span>Calculando...</span>
-          </div>
-          }
-        </div>
-
-        @if (facade.priceCalculation(); as calc) {
-        <!-- Detailed Breakpoint Lines -->
-        @if (calc.breakdown.length > 0) {
-        <div class="text-muted-foreground space-y-1.5 text-xs">
-          @for (line of calc.breakdown; track line.concept) {
-          <div class="flex justify-between">
-            <span class="text-foreground">{{ line.concept }}</span>
-            <span class="text-foreground font-mono"
-              >${{ line.amount | number: "1.0-0" }}</span
-            >
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Subtotal & Taxes -->
-        <div
-          class="border-border text-muted-foreground space-y-1 border-t pt-2 text-xs"
-        >
-          <div class="flex justify-between">
-            <span>Subtotal</span>
-            <span class="font-mono"
-              >${{ calc.subtotal | number: "1.0-0" }}</span
-            >
-          </div>
-          @if (calc.ivaAmount > 0) {
-          <div class="flex justify-between">
-            <span>IVA ({{ calc.ivaRate }}%)</span>
-            <span class="font-mono"
-              >${{ calc.ivaAmount | number: "1.0-0" }}</span
-            >
-          </div>
-          }
-        </div>
-
-        <!-- Total or Zero-Payment Clearance Banner -->
-        <div
-          class="border-border flex items-center justify-between border-t pt-2.5"
-        >
-          <div>
-            <span class="text-foreground block text-xs font-semibold"
-              >Total a Cobrar</span
-            >
-            @if (facade.isZeroPayment()) {
-            <span
-              class="text-success inline-flex items-center gap-1 text-[11px] font-semibold"
-            >
-              <ng-icon name="lucideCheck" class="text-xs" />
-              Período de gracia / Sin cobro
-            </span>
-            }
-          </div>
-          <span
-            class="text-foreground font-mono text-xl font-black sm:text-2xl"
-          >
-            ${{ calc.total | number: "1.0-0" }}
-            <span class="text-muted-foreground text-xs font-normal">COP</span>
-          </span>
-        </div>
-        } @else if (!facade.isLoadingCalculation()) {
-        <div class="text-muted-foreground py-4 text-center text-xs">
-          Tarifa calculada al confirmar salida.
-        </div>
-        }
-      </div>
-
-      <!-- Payment Method (Only if total > 0) -->
-      @if (!facade.isZeroPayment()) {
-      <div>
-        <label
-          class="text-muted-foreground mb-1.5 block text-xs font-semibold tracking-wider uppercase"
-        >
-          Método de Pago
-        </label>
-        <div class="grid grid-cols-1 gap-2">
-          <button
-            type="button"
-            (click)="facade.setPaymentMethod('EFFECTIVE')"
-            [class.border-primary]="facade.paymentMethod() === 'EFFECTIVE'"
-            [class.bg-primary/10]="facade.paymentMethod() === 'EFFECTIVE'"
-            [class.text-primary]="facade.paymentMethod() === 'EFFECTIVE'"
-            class="border-border text-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring flex cursor-pointer items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none"
-          >
-            <ng-icon name="lucideCoins" class="text-base" />
-            <span>Efectivo</span>
-          </button>
-        </div>
-      </div>
-      }
-
-      <!-- Delivery Mode -->
-      <div>
-        <label
-          class="text-muted-foreground mb-1.5 block text-xs font-semibold tracking-wider uppercase"
-        >
-          Envío de Comprobante
-        </label>
-        <div
-          role="group"
-          aria-label="Método de entrega de comprobante"
-          class="flex gap-2"
-        >
-          <button
-            type="button"
-            (click)="facade.setSendVia('URL')"
-            [class.bg-primary]="facade.sendVia() === 'URL'"
-            [class.text-primary-foreground]="facade.sendVia() === 'URL'"
-            class="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring flex-1 cursor-pointer rounded-lg border px-3 py-2 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none"
-          >
-            En Pantalla / Impreso
-          </button>
-          <button
-            type="button"
-            (click)="facade.setSendVia('EMAIL')"
-            [class.bg-primary]="facade.sendVia() === 'EMAIL'"
-            [class.text-primary-foreground]="facade.sendVia() === 'EMAIL'"
-            class="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring flex-1 cursor-pointer rounded-lg border px-3 py-2 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none"
-          >
-            Por Correo
-          </button>
-        </div>
-
-        @if (facade.sendVia() === "EMAIL") {
-        <input
-          type="email"
-          [value]="facade.receiptEmail()"
-          (input)="onEmailInput($event)"
-          placeholder="correo@ejemplo.com"
-          class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring mt-2 w-full rounded-lg border px-3 py-2 text-xs focus:outline-hidden"
-        />
-        }
-      </div>
-      } @else {
-      <!-- Occupied Slots Picker -->
-      <div>
-        <div class="mb-2 flex items-center justify-between">
-          <label
-            class="text-muted-foreground block text-xs font-semibold tracking-wider uppercase"
-          >
-            Seleccionar Cupo Ocupado
-          </label>
-          <span class="text-muted-foreground font-mono text-xs">
-            {{ facade.occupiedSlots().length }} vehículos activos
-          </span>
-        </div>
-
-        @if (facade.isLoadingOccupiedSlots() || facade.isLoadingTicket()) {
-        <div
-          class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-10 text-xs"
-        >
-          <ng-icon name="lucideLoader2" class="animate-spin text-2xl" />
-          <span>
-            {{ facade.isLoadingTicket() ? "Cargando liquidación del cupo..." :
-            "Cargando cupos ocupados..." }}
-          </span>
-        </div>
-        } @else if (facade.occupiedSlots().length === 0) {
-        <div
-          class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border p-8 text-center"
-        >
-          <div
-            class="bg-muted text-muted-foreground mb-3 flex h-12 w-12 items-center justify-center rounded-full"
-          >
-            <ng-icon name="lucideParkingSquare" class="text-2xl" />
-          </div>
-          <h3 class="text-foreground text-sm font-semibold">
-            No hay vehículos para retirar
-          </h3>
-          <p class="text-muted-foreground mt-1 max-w-xs text-xs">
-            Actualmente todos los cupos de este parqueadero están disponibles.
-          </p>
-        </div>
-        } @else {
-        <div
-          class="grid max-h-72 grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3"
-        >
-          @for (slot of facade.occupiedSlots(); track slot.id) {
-          <button
-            type="button"
-            (click)="facade.selectSlot(slot)"
-            class="border-border hover:border-primary/60 hover:bg-accent/40 focus-visible:ring-ring group flex cursor-pointer flex-col justify-between rounded-xl border p-3 text-left transition-all focus-visible:ring-2 focus-visible:outline-none"
-          >
-            <div class="flex w-full items-center justify-between">
-              <span
-                class="text-muted-foreground text-[10px] font-bold tracking-wider uppercase"
-              >
-                {{ slot.zone ? slot.zone : "Cupo" }}
-              </span>
-              <nv-badge variant="info" class="px-1.5 py-0.5 text-[10px]">
-                Ocupado
-              </nv-badge>
-            </div>
-
-            <div class="my-2">
-              <div
-                class="text-foreground group-hover:text-primary font-mono text-base font-bold transition-colors"
-              >
-                {{ slot.prefix ? slot.prefix + "-" : "" }}{{ slot.slotNumber }}
-              </div>
-              <span
-                class="text-muted-foreground text-[10px] font-medium uppercase"
-              >
-                {{ slot.type }}
-              </span>
-            </div>
-
-            <div
-              class="text-primary inline-flex items-center gap-1 text-[11px] font-semibold"
-            >
-              <span>Procesar</span>
-              <span>→</span>
-            </div>
-          </button>
-          }
-        </div>
-        }
-      </div>
-      }
-    </div>
-
-    <!-- Actions -->
-    <div
-      class="border-border mt-6 flex flex-col-reverse items-stretch justify-end gap-2 border-t pt-3 sm:flex-row sm:items-center"
-    >
-      <nv-button
-        type="button"
-        variant="outline"
-        (click)="onClose()"
-        class="w-full sm:w-auto"
-      >
-        {{ facade.selectedTicket() ? "Cancelar" : "Cerrar" }}
-      </nv-button>
-
-      @if (facade.selectedTicket()) {
-      <nv-button
-        type="button"
-        (click)="onConfirmCheckOut()"
-        [disabled]="!facade.canCheckOut()"
-        class="w-full sm:w-auto"
-      >
-        @if (facade.isSubmitting()) {
-        <ng-icon name="lucideLoader2" class="animate-spin text-sm" />
-        <span>Procesando Salida...</span>
-        } @else if (facade.isZeroPayment()) {
-        <ng-icon name="lucideCheck" class="text-sm" />
-        <span>Autorizar Salida Gratuita</span>
-        } @else {
-        <ng-icon name="lucideLogOut" class="text-sm" />
-        <span>Cobrar y Registrar Salida</span>
-        }
-      </nv-button>
+      } @else if (facade.activeStep() === 2) {
+      <!-- Step 2: Tariff Settlement & Real-time Timeline -->
+      <app-settlement-step
+        (continue)="facade.proceedToPayment()"
+        (nextStep)="facade.proceedToPayment()"
+        (changeVehicle)="facade.clearSelectedTicket()"
+      />
+      } @else if (facade.activeStep() === 3) {
+      <!-- Step 3: Payment Method & Delivery -->
+      <app-payment-step
+        (back)="facade.backToSettlement()"
+        (confirm)="onConfirmCheckOut()"
+      />
       }
     </div>
   </div>

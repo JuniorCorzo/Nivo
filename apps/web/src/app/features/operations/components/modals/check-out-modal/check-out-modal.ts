@@ -1,7 +1,8 @@
-import { CommonModule, DecimalPipe } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import {
-  Component,
   ChangeDetectionStrategy,
+  Component,
+  computed,
   effect,
   inject,
   input,
@@ -12,27 +13,33 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideAlertCircle,
   lucideArrowLeft,
+  lucideArrowRight,
   lucideCar,
   lucideCheck,
   lucideCoins,
+  lucideCreditCard,
   lucideLoader2,
   lucideLogOut,
   lucideParkingSquare,
   lucideX,
 } from "@ng-icons/lucide";
-import { BadgeComponent, ButtonComponent } from "@nivo-sass/design-system";
+import { ButtonComponent } from "@nivo-sass/design-system";
 
 import { CheckOutFacade } from "../../../facades/check-out.facade";
 import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-receipt";
+import { IdentificationStepComponent } from "./steps/identification-step";
+import { PaymentStepComponent } from "./steps/payment-step";
+import { SettlementStepComponent } from "./steps/settlement-step";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    BadgeComponent,
     ButtonComponent,
     CommonModule,
-    DecimalPipe,
+    IdentificationStepComponent,
     NgIcon,
+    PaymentStepComponent,
+    SettlementStepComponent,
     TicketReceiptComponent,
   ],
   providers: [
@@ -40,9 +47,11 @@ import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-rece
     provideIcons({
       lucideAlertCircle,
       lucideArrowLeft,
+      lucideArrowRight,
       lucideCar,
       lucideCheck,
       lucideCoins,
+      lucideCreditCard,
       lucideLoader2,
       lucideLogOut,
       lucideParkingSquare,
@@ -63,23 +72,22 @@ export class CheckOutModalComponent {
 
   readonly closed = output();
 
+  readonly activeStep = computed(() => this.facade.activeStep());
+
   constructor() {
     effect(() => {
+      const open = this.isOpen();
       const pId = this.parkingId();
-      if (pId) {
-        this.facade.init(pId);
-      }
-    });
-
-    effect(() => {
       const t = this.ticket();
-      if (t && this.isOpen()) {
+
+      if (!open || !pId) {
+        return;
+      }
+
+      this.facade.init(pId);
+
+      if (t) {
         this.facade.selectTicket(t);
-      } else if (!t && this.isOpen()) {
-        const pId = this.parkingId();
-        if (pId) {
-          this.facade.loadOccupiedSlots(pId);
-        }
       }
     });
   }

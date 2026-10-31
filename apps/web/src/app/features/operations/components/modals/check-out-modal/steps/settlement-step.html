@@ -1,0 +1,256 @@
+<div class="space-y-4">
+  <!-- Vehicle Header Card -->
+  <div
+    class="bg-muted/60 border-border flex items-center justify-between rounded-xl border p-3 sm:p-3.5"
+  >
+    <div class="flex items-center gap-3">
+      <div
+        class="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+      >
+        <ng-icon name="lucideCar" class="text-xl" />
+      </div>
+      <div>
+        <span
+          class="text-muted-foreground block text-[10px] font-medium sm:text-xs"
+        >
+          Placa del Vehículo
+        </span>
+        <div class="flex items-center gap-2">
+          <span
+            class="text-foreground font-mono text-lg font-black tracking-wider sm:text-xl"
+          >
+            {{ facade.selectedTicket()?.licensePlate }}
+          </span>
+          @if (facade.selectedTicket()?.slotType) {
+          <nv-badge variant="info" class="px-1.5 py-0.5 text-[10px]">
+            {{ facade.selectedTicket()?.slotType }}
+          </nv-badge>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div class="text-right">
+        <span class="text-muted-foreground block text-[10px] sm:text-xs">
+          Cupo
+        </span>
+        <span class="text-foreground font-mono text-xs font-bold sm:text-sm">
+          {{ facade.selectedTicket()?.slotNumber || "Asignado" }}
+        </span>
+      </div>
+      <nv-button
+        variant="outline"
+        size="sm"
+        type="button"
+        (click)="onChangeVehicle()"
+        title="Cambiar vehículo"
+      >
+        Cambiar vehículo
+      </nv-button>
+    </div>
+  </div>
+
+  <!-- Real-time Stay Duration Timeline -->
+  <div class="border-border bg-card space-y-3 rounded-xl border p-3.5 sm:p-4">
+    <div class="flex items-center justify-between">
+      <span
+        class="text-muted-foreground flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase"
+      >
+        <ng-icon name="lucideTimer" class="text-primary text-sm" />
+        Tiempo de Estadía
+      </span>
+      <span class="text-foreground font-mono text-xs font-bold">
+        {{ stayDuration().formatted }}
+      </span>
+    </div>
+
+    <!-- Timeline Stepper Bar -->
+    <div class="relative flex items-center justify-between pt-1">
+      <!-- Connecting dashed line -->
+      <div
+        class="border-border absolute top-4.5 right-8 left-8 -translate-y-1/2 border-t-2 border-dashed"
+      ></div>
+
+      <!-- Step: Entry -->
+      <div class="relative z-10 flex flex-col items-center">
+        <div
+          class="bg-primary/10 text-primary border-primary/20 flex h-9 w-9 items-center justify-center rounded-full border shadow-xs"
+        >
+          <ng-icon name="lucideClock" class="text-base" />
+        </div>
+        <span class="text-foreground mt-1.5 text-[11px] font-semibold">
+          Entrada
+        </span>
+        <span class="text-muted-foreground font-mono text-[10px]">
+          {{ facade.selectedTicket()?.entryTime | date: "shortTime" }}
+        </span>
+        <span class="text-muted-foreground text-[9px]">
+          {{ facade.selectedTicket()?.entryTime | date: "dd/MM/yyyy" }}
+        </span>
+      </div>
+
+      <!-- Duration Pill in middle -->
+      <div class="relative z-10 flex flex-col items-center px-1">
+        <div
+          class="border-border bg-muted/80 text-foreground flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[11px] font-bold shadow-xs"
+        >
+          <ng-icon name="lucideTimer" class="text-primary text-xs" />
+          <span>{{ stayDuration().formatted }}</span>
+        </div>
+        <span class="text-muted-foreground mt-1 text-[10px]"
+          >transcurridos</span
+        >
+      </div>
+
+      <!-- Step: Calculation / Exit -->
+      <div class="relative z-10 flex flex-col items-center">
+        <div
+          class="bg-warning/10 text-warning border-warning/20 flex h-9 w-9 items-center justify-center rounded-full border shadow-xs"
+        >
+          <ng-icon name="lucideLogOut" class="text-base" />
+        </div>
+        <span class="text-foreground mt-1.5 text-[11px] font-semibold">
+          Salida / Cálculo
+        </span>
+        <span class="text-muted-foreground font-mono text-[10px]">
+          {{ calculationTime() | date: "shortTime" }}
+        </span>
+        <span class="text-muted-foreground text-[9px]">
+          {{ calculationTime() | date: "dd/MM/yyyy" }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Live Price Breakdown -->
+  <div class="border-border bg-card space-y-3 rounded-xl border p-3.5 sm:p-4">
+    <div class="border-border flex items-center justify-between border-b pb-2">
+      <span
+        class="text-muted-foreground text-xs font-bold tracking-wider uppercase"
+      >
+        Liquidación de Tarifa
+      </span>
+      @if (facade.isLoadingCalculation()) {
+      <div
+        class="text-muted-foreground inline-flex items-center gap-1.5 text-xs"
+      >
+        <ng-icon name="lucideLoader2" class="animate-spin text-xs" />
+        <span>Calculando tarifa...</span>
+      </div>
+      } @else if (facade.priceCalculation()?.name) {
+      <span class="text-muted-foreground font-mono text-xs font-semibold">
+        {{ facade.priceCalculation()?.name }}
+      </span>
+      }
+    </div>
+
+    @if (facade.isLoadingCalculation()) {
+    <div
+      class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-8 text-xs"
+    >
+      <ng-icon
+        name="lucideLoader2"
+        class="text-primary animate-spin text-2xl"
+      />
+      <span>Consultando tarifas en tiempo real...</span>
+    </div>
+    } @else if (facade.priceCalculation(); as calc) {
+    <!-- Detailed Breakdown Lines -->
+    @if (calc.breakdown.length > 0) {
+    <div class="text-muted-foreground space-y-1.5 text-xs">
+      @for (line of calc.breakdown; track line.concept) {
+      <div class="flex items-center justify-between">
+        <span class="text-foreground">{{ line.concept }}</span>
+        <span class="text-foreground font-mono font-medium">
+          ${{ line.amount | number: "1.0-0" }} COP
+        </span>
+      </div>
+      }
+    </div>
+    }
+
+    <!-- Subtotal and IVA breakdown -->
+    <div
+      class="border-border text-muted-foreground space-y-1 border-t pt-2 text-xs"
+    >
+      <div class="flex justify-between">
+        <span>Subtotal</span>
+        <span class="font-mono font-medium"
+          >${{ calc.subtotal | number: "1.0-0" }} COP</span
+        >
+      </div>
+      @if (calc.ivaAmount > 0) {
+      <div class="flex justify-between">
+        <span>IVA ({{ calc.ivaRate }}%)</span>
+        <span class="font-mono font-medium"
+          >${{ calc.ivaAmount | number: "1.0-0" }} COP</span
+        >
+      </div>
+      }
+    </div>
+
+    <!-- Total or Grace Period Banner -->
+    <div class="border-border border-t pt-3">
+      @if (facade.isZeroPayment()) {
+      <div
+        class="border-success/20 bg-success/10 text-success mb-2.5 flex items-center gap-2 rounded-lg border p-2.5 text-xs font-semibold"
+      >
+        <ng-icon name="lucideCheck" class="shrink-0 text-base" />
+        <span>Período de gracia / Salida sin cobro</span>
+      </div>
+      }
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-foreground block text-xs font-semibold"
+            >Total a Cobrar</span
+          >
+          <span class="text-muted-foreground text-[11px]"
+            >Tarifa final calculada</span
+          >
+        </div>
+        <div class="text-right">
+          <span class="text-foreground font-mono text-2xl font-black">
+            ${{ calc.total | number: "1.0-0" }}
+          </span>
+          <span class="text-muted-foreground ml-1 text-xs font-normal"
+            >COP</span
+          >
+        </div>
+      </div>
+    </div>
+    } @else {
+    <div class="text-muted-foreground py-4 text-center text-xs">
+      No se pudo obtener el cálculo de tarifa.
+    </div>
+    }
+  </div>
+
+  <!-- Action Buttons -->
+  <div
+    class="border-border mt-6 flex flex-col-reverse items-stretch justify-end gap-2 border-t pt-3 sm:flex-row sm:items-center"
+  >
+    <nv-button
+      type="button"
+      variant="outline"
+      (click)="onChangeVehicle()"
+      class="w-full sm:w-auto"
+    >
+      Cambiar Vehículo
+    </nv-button>
+    <nv-button
+      type="button"
+      (click)="onContinue()"
+      [disabled]="!facade.canCheckOut()"
+      class="w-full sm:w-auto"
+    >
+      @if (facade.isZeroPayment()) {
+      <ng-icon name="lucideCheck" class="text-sm" />
+      <span>Autorizar Salida Gratuita</span>
+      } @else {
+      <span>Continuar a Pago</span>
+      <ng-icon name="lucideArrowRight" class="text-sm" />
+      }
+    </nv-button>
+  </div>
+</div>

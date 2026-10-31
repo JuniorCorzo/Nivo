@@ -19,4 +19,6 @@ public interface RatesRepository {
   Rates save(Rates rate);
 
   void deleteById(UUID uuid);
+
+  boolean hasActiveTickets(UUID rateId);
 }

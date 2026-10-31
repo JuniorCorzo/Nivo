@@ -23,6 +23,7 @@ describe("DashboardKpiGridComponent", () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain("Métricas de la Sede");
     expect(compiled.textContent).toContain(APP_TEXTS.dashboard.kpis.liveStatus);
+    expect(compiled.querySelector("nv-badge")).toBeTruthy();
   });
 
   it("debe renderizar iconos Lucide en las cuatro tarjetas de KPI", () => {
@@ -79,14 +80,14 @@ describe("DashboardKpiGridComponent", () => {
 
     /* SAFETY: Test fixture nativeElement is an HTMLElement */
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector(".bg-emerald-500")).toBeTruthy();
+    expect(compiled.querySelector(".bg-success")).toBeTruthy();
 
     fixture.componentRef.setInput("occupancyPercentage", 75);
     fixture.detectChanges();
-    expect(compiled.querySelector(".bg-amber-500")).toBeTruthy();
+    expect(compiled.querySelector(".bg-warning")).toBeTruthy();
 
     fixture.componentRef.setInput("occupancyPercentage", 95);
     fixture.detectChanges();
-    expect(compiled.querySelector(".bg-rose-500")).toBeTruthy();
+    expect(compiled.querySelector(".bg-destructive")).toBeTruthy();
   });
 });
