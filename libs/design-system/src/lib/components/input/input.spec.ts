@@ -62,12 +62,8 @@ describe("InputComponent", () => {
 
   describe("Label and Basic Rendering", () => {
     it("should render label with for attribute matching input id and show asterisk for required field", () => {
-      const label = element.querySelector<HTMLLabelElement>(
-        "#test-text-input label"
-      );
-      const input = element.querySelector<HTMLInputElement>(
-        "#test-text-input input"
-      );
+      const label = element.querySelector<HTMLLabelElement>("#test-text-input label");
+      const input = element.querySelector<HTMLInputElement>("#test-text-input input");
 
       expect(label).not.toBeNull();
       expect(input).not.toBeNull();
@@ -81,19 +77,14 @@ describe("InputComponent", () => {
     });
 
     it("should render placeholder and placeholder styling classes", () => {
-      const input = element.querySelector<HTMLInputElement>(
-        "#test-text-input input"
-      );
+      const input = element.querySelector<HTMLInputElement>("#test-text-input input");
       expect(input?.placeholder).toBe("Enter your username");
-      expect(input?.className).toContain(
-        "placeholder:text-[var(--muted-foreground)]"
-      );
+      expect(input?.className).toContain("placeholder:text-[var(--muted-foreground)]");
       expect(input?.className).toContain("border-[var(--input)]");
     });
 
     it("should display hint text when no errors are present", () => {
-      const hint =
-        element.querySelector<HTMLParagraphElement>("#test-text-input p");
+      const hint = element.querySelector<HTMLParagraphElement>("#test-text-input p");
       expect(hint).not.toBeNull();
       expect(hint?.textContent?.trim()).toBe("Must be unique");
     });
@@ -101,9 +92,7 @@ describe("InputComponent", () => {
 
   describe("Value Binding and CVA", () => {
     it("should bind initial value from FormControl and update when control changes", () => {
-      const input = element.querySelector<HTMLInputElement>(
-        "#test-text-input input"
-      );
+      const input = element.querySelector<HTMLInputElement>("#test-text-input input");
       expect(input?.value).toBe("initial");
 
       hostComponent.textControl.setValue("updated-username");
@@ -112,9 +101,7 @@ describe("InputComponent", () => {
     });
 
     it("should update form control value when input event fires", () => {
-      const input = element.querySelector<HTMLInputElement>(
-        "#test-text-input input"
-      );
+      const input = element.querySelector<HTMLInputElement>("#test-text-input input");
       expect(input).not.toBeNull();
 
       if (input) {
@@ -127,21 +114,15 @@ describe("InputComponent", () => {
     });
 
     it("should render preset value from input binding", () => {
-      const input = element.querySelector<HTMLInputElement>(
-        "#test-disabled-input input"
-      );
+      const input = element.querySelector<HTMLInputElement>("#test-disabled-input input");
       expect(input?.value).toBe("Preset Value");
     });
   });
 
   describe("Password Visibility Toggle", () => {
     it("should start with type password and render toggle button", () => {
-      const input = element.querySelector<HTMLInputElement>(
-        "#test-password-input input"
-      );
-      const toggleBtn = element.querySelector<HTMLButtonElement>(
-        "#test-password-input button"
-      );
+      const input = element.querySelector<HTMLInputElement>("#test-password-input input");
+      const toggleBtn = element.querySelector<HTMLButtonElement>("#test-password-input button");
 
       expect(input?.type).toBe("password");
       expect(toggleBtn).not.toBeNull();
@@ -149,12 +130,8 @@ describe("InputComponent", () => {
     });
 
     it("should toggle type to text when toggle button is clicked, then back to password", () => {
-      const input = element.querySelector<HTMLInputElement>(
-        "#test-password-input input"
-      );
-      const toggleBtn = element.querySelector<HTMLButtonElement>(
-        "#test-password-input button"
-      );
+      const input = element.querySelector<HTMLInputElement>("#test-password-input input");
+      const toggleBtn = element.querySelector<HTMLButtonElement>("#test-password-input button");
 
       toggleBtn?.click();
       fixture.detectChanges();
@@ -172,9 +149,7 @@ describe("InputComponent", () => {
 
   describe("Error State & Accessibility", () => {
     it("should not mark input as aria-invalid when there are no errors", () => {
-      const input = element.querySelector<HTMLInputElement>(
-        "#test-text-input input"
-      );
+      const input = element.querySelector<HTMLInputElement>("#test-text-input input");
       expect(input?.getAttribute("aria-invalid")).toBeNull();
     });
 
@@ -182,15 +157,11 @@ describe("InputComponent", () => {
       hostComponent.errors.set([{ message: "Username is already taken" }]);
       fixture.detectChanges();
 
-      const input = element.querySelector<HTMLInputElement>(
-        "#test-text-input input"
-      );
+      const input = element.querySelector<HTMLInputElement>("#test-text-input input");
       expect(input?.getAttribute("aria-invalid")).toBe("true");
       expect(input?.className).toContain("border-[var(--destructive)]");
 
-      const errorList = element.querySelector<HTMLUListElement>(
-        "#test-text-input ul"
-      );
+      const errorList = element.querySelector<HTMLUListElement>("#test-text-input ul");
       expect(errorList).not.toBeNull();
       expect(errorList?.getAttribute("role")).toBe("alert");
       expect(errorList?.getAttribute("aria-live")).toBe("polite");
@@ -203,18 +174,14 @@ describe("InputComponent", () => {
 
   describe("Disabled State", () => {
     it("should disable input when disabled input is true", () => {
-      const input = element.querySelector<HTMLInputElement>(
-        "#test-disabled-input input"
-      );
+      const input = element.querySelector<HTMLInputElement>("#test-disabled-input input");
       expect(input?.disabled).toBe(true);
       expect(input?.className).toContain("disabled:cursor-not-allowed");
       expect(input?.className).toContain("disabled:opacity-50");
     });
 
     it("should disable input when FormControl is disabled via CVA setDisabledState", () => {
-      const input = element.querySelector<HTMLInputElement>(
-        "#test-text-input input"
-      );
+      const input = element.querySelector<HTMLInputElement>("#test-text-input input");
       expect(input?.disabled).toBe(false);
 
       hostComponent.textControl.disable();

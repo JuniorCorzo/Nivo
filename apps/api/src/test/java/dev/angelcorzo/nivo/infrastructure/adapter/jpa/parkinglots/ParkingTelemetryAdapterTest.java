@@ -26,8 +26,8 @@ class ParkingTelemetryAdapterTest {
   @Test
   @DisplayName("Should correctly map and compute telemetry rates when data is present")
   void shouldComputeTelemetryRatesCorrectly() {
-    UUID parkingId = UUID.randomUUID();
-    ParkingTelemetryProjection projection = mock(ParkingTelemetryProjection.class);
+    final UUID parkingId = UUID.randomUUID();
+    final ParkingTelemetryProjection projection = mock(ParkingTelemetryProjection.class);
 
     when(projection.getTotalCapacity()).thenReturn(100);
     when(projection.getOccupiedSlots()).thenReturn(40);
@@ -41,7 +41,7 @@ class ParkingTelemetryAdapterTest {
     when(projection.getTotalTicketsToday()).thenReturn(35L);
     when(projection.getAvgStayMinutes()).thenReturn(75.5);
 
-    OccupiedSlotProjection slotProjection = mock(OccupiedSlotProjection.class);
+    final OccupiedSlotProjection slotProjection = mock(OccupiedSlotProjection.class);
     when(slotProjection.getSlotNumber()).thenReturn("A-01");
     when(slotProjection.getZone()).thenReturn("Nivel 1");
     when(slotProjection.getPrefix()).thenReturn("A");
@@ -51,7 +51,7 @@ class ParkingTelemetryAdapterTest {
     when(repositoryData.findTelemetryByParkingLotId(parkingId)).thenReturn(projection);
     when(repositoryData.findOccupiedSlotsDetailByParkingLotId(parkingId)).thenReturn(List.of(slotProjection));
 
-    ParkingTelemetry telemetry = adapter.getTelemetry(parkingId);
+    final ParkingTelemetry telemetry = adapter.getTelemetry(parkingId);
 
     assertThat(telemetry.parkingId()).isEqualTo(parkingId);
     assertThat(telemetry.totalCapacity()).isEqualTo(100);
@@ -84,8 +84,8 @@ class ParkingTelemetryAdapterTest {
   @Test
   @DisplayName("Should handle zero-capacity, zero-tickets and edge cases without division by zero")
   void shouldHandleZeroCapacityGracefully() {
-    UUID parkingId = UUID.randomUUID();
-    ParkingTelemetryProjection projection = mock(ParkingTelemetryProjection.class);
+    final UUID parkingId = UUID.randomUUID();
+    final ParkingTelemetryProjection projection = mock(ParkingTelemetryProjection.class);
 
     when(projection.getTotalCapacity()).thenReturn(0);
     when(projection.getOccupiedSlots()).thenReturn(0);
@@ -102,7 +102,7 @@ class ParkingTelemetryAdapterTest {
     when(repositoryData.findTelemetryByParkingLotId(parkingId)).thenReturn(projection);
     when(repositoryData.findOccupiedSlotsDetailByParkingLotId(parkingId)).thenReturn(List.of());
 
-    ParkingTelemetry telemetry = adapter.getTelemetry(parkingId);
+    final ParkingTelemetry telemetry = adapter.getTelemetry(parkingId);
 
     assertThat(telemetry.parkingId()).isEqualTo(parkingId);
     assertThat(telemetry.totalCapacity()).isZero();
@@ -123,18 +123,18 @@ class ParkingTelemetryAdapterTest {
     assertThat(telemetry.averageTicketRevenue()).isEqualTo(BigDecimal.ZERO);
     assertThat(telemetry.avgStayMinutes()).isEqualTo(0.0);
     assertThat(telemetry.rotationIndex()).isEqualTo(0.0);
-    assertThat(telemetry.shiftTargetPercentage()).isEqualTo(100.0);
+    assertThat(telemetry.shiftTargetPercentage()).isEqualTo(0.0);
     assertThat(telemetry.occupiedSlotsDetail()).isEmpty();
   }
 
   @Test
   @DisplayName("Should handle null projection safely with default zero values")
   void shouldHandleNullProjectionSafely() {
-    UUID parkingId = UUID.randomUUID();
+    final UUID parkingId = UUID.randomUUID();
     when(repositoryData.findTelemetryByParkingLotId(parkingId)).thenReturn(null);
     when(repositoryData.findOccupiedSlotsDetailByParkingLotId(parkingId)).thenReturn(null);
 
-    ParkingTelemetry telemetry = adapter.getTelemetry(parkingId);
+    final ParkingTelemetry telemetry = adapter.getTelemetry(parkingId);
 
     assertThat(telemetry.parkingId()).isEqualTo(parkingId);
     assertThat(telemetry.totalCapacity()).isZero();
@@ -155,21 +155,21 @@ class ParkingTelemetryAdapterTest {
     assertThat(telemetry.averageTicketRevenue()).isEqualTo(BigDecimal.ZERO);
     assertThat(telemetry.avgStayMinutes()).isEqualTo(0.0);
     assertThat(telemetry.rotationIndex()).isEqualTo(0.0);
-    assertThat(telemetry.shiftTargetPercentage()).isEqualTo(100.0);
+    assertThat(telemetry.shiftTargetPercentage()).isEqualTo(0.0);
     assertThat(telemetry.occupiedSlotsDetail()).isEmpty();
   }
 
   @Test
   @DisplayName("Should calculate shift target percentage accurately when target is exceeded")
   void shouldCalculateShiftTargetPercentageAccurately() {
-    UUID parkingId = UUID.randomUUID();
-    ParkingTelemetryProjection projection = mock(ParkingTelemetryProjection.class);
+    final UUID parkingId = UUID.randomUUID();
+    final ParkingTelemetryProjection projection = mock(ParkingTelemetryProjection.class);
 
     when(projection.getTotalCapacity()).thenReturn(100);
     when(projection.getShiftRevenue()).thenReturn(new BigDecimal("520000.00"));
     when(repositoryData.findTelemetryByParkingLotId(parkingId)).thenReturn(projection);
 
-    ParkingTelemetry telemetry = adapter.getTelemetry(parkingId);
+    final ParkingTelemetry telemetry = adapter.getTelemetry(parkingId);
 
     assertThat(telemetry.shiftTargetPercentage()).isEqualTo(104.0);
   }

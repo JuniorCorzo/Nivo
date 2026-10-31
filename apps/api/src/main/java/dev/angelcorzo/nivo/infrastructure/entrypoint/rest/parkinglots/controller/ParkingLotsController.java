@@ -95,7 +95,7 @@ public class ParkingLotsController {
   @GetMapping("/{parkingId}/telemetry")
   @PreAuthorize("hasRole('OPERATOR')")
   public Response<ParkingTelemetryResponse> getParkingTelemetry(
-    @Parameter(description = "Parking lot ID", required = true) @PathVariable UUID parkingId) {
+    @Parameter(description = "Parking lot ID", required = true) @PathVariable final UUID parkingId) {
     final ParkingTelemetry telemetry = this.getParkingTelemetryUseCase.execute(parkingId);
     return Response.ok(this.parkingLotsMapper.toTelemetryResponse(telemetry),
       ParkingLotsMessages.PARKING_TELEMETRY_RETRIEVED.format());

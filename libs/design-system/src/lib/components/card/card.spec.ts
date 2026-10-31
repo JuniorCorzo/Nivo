@@ -26,9 +26,7 @@ import {
     <nv-card id="test-card">
       <nv-card-header id="test-header">
         <nv-card-title id="test-title">Card Title</nv-card-title>
-        <nv-card-description id="test-desc"
-          >Card Description</nv-card-description
-        >
+        <nv-card-description id="test-desc">Card Description</nv-card-description>
       </nv-card-header>
       <nv-card-content id="test-content">
         <p>Main card content goes here.</p>

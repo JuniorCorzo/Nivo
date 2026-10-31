@@ -152,8 +152,7 @@ class ParkingLotsControllerTest {
           .prefix("A")
           .type("CAR")
           .licensePlate("KLM 482")
-          .build()
-      ))
+          .build()))
       .build();
 
     ParkingTelemetryResponse response = ParkingTelemetryResponse.builder()
@@ -184,8 +183,7 @@ class ParkingLotsControllerTest {
           .prefix("A")
           .type("CAR")
           .licensePlate("KLM 482")
-          .build()
-      ))
+          .build()))
       .build();
 
     when(getParkingTelemetryUseCase.execute(parkingId)).thenReturn(telemetry);

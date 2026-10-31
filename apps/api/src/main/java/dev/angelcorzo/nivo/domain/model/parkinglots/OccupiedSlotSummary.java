@@ -4,9 +4,9 @@ import lombok.Builder;
 
 @Builder(toBuilder = true)
 public record OccupiedSlotSummary(
-    String slotNumber,
-    String zone,
-    String prefix,
-    String type,
-    String licensePlate
-) {}
+  String slotNumber,
+  String zone,
+  String prefix,
+  String type,
+  String licensePlate) {
+}
