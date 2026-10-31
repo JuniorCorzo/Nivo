@@ -182,21 +182,6 @@
             >Enter</kbd
           >
         </nv-button>
-
-        <!-- Escanear QR Button -->
-        <nv-button
-          type="button"
-          variant="outline"
-          (click)="openQrScanner()"
-          class="shrink-0"
-        >
-          <ng-icon name="lucideQrCode" class="text-primary text-base" />
-          <span>Escanear QR</span>
-          <kbd
-            class="border-border bg-muted text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
-            >Q</kbd
-          >
-        </nv-button>
       </form>
     </div>
   </div>
@@ -585,6 +570,22 @@
         >
           <ng-icon name="lucideLogOut" size="14" class="mr-1" />
           <span>Cobrar Salida Directa</span>
+        </nv-button>
+        <nv-button
+          type="button"
+          size="sm"
+          variant="outline"
+          (click)="openQrScanner()"
+          class="shrink-0 text-nowrap"
+          title="Escanear ticket QR para cobrar salida"
+          aria-label="Escanear ticket QR para cobrar salida"
+        >
+          <ng-icon name="lucideQrCode" class="text-primary mr-1 text-sm" />
+          <span>Escanear QR</span>
+          <kbd
+            class="border-border bg-muted text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+            >Q</kbd
+          >
         </nv-button>
       </div>
     </div>

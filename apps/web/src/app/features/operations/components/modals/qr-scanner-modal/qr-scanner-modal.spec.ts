@@ -53,6 +53,29 @@ describe("QrScannerModalComponent & parseScannedData", () => {
       });
     });
 
+    it("should parse ticket receipt URL with ticket UUID in path", () => {
+      const url = "https://app.nivo.dev/t/b918f773-6c8a-4d32-9b2a-115f01e18080";
+      expect(parseScannedData(url)).toEqual({
+        ticketId: "b918f773-6c8a-4d32-9b2a-115f01e18080",
+      });
+    });
+
+    it("should parse raw ticket UUID directly", () => {
+      const uuid = "b918f773-6c8a-4d32-9b2a-115f01e18080";
+      expect(parseScannedData(uuid)).toEqual({
+        ticketId: uuid,
+      });
+    });
+
+    it("should parse JSON with ticketId for unplated vehicle checkout", () => {
+      const json = JSON.stringify({
+        ticketId: "uuid-unplated-moto",
+      });
+      expect(parseScannedData(json)).toEqual({
+        ticketId: "uuid-unplated-moto",
+      });
+    });
+
     it("should return null for invalid or empty inputs", () => {
       expect(parseScannedData("")).toBeNull();
       expect(parseScannedData("   ")).toBeNull();

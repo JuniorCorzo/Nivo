@@ -26,7 +26,8 @@ import {
 import { BadgeComponent, ButtonComponent } from "@nivo-sass/design-system";
 
 export interface ScannedQrData {
-  plate: string;
+  ticketId?: string;
+  plate?: string;
   vehicleType?: VehicleType;
 }
 
@@ -41,6 +42,22 @@ interface NativeBarcodeDetector {
 type BarcodeDetectorConstructor = new (options?: {
   formats: string[];
 }) => NativeBarcodeDetector;
+
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const isTicketIdCandidate = (val: string): boolean => {
+  if (!val) {
+    return false;
+  }
+  if (UUID_REGEX.test(val)) {
+    return true;
+  }
+  if (val.startsWith("TKT-") || val.startsWith("T-")) {
+    return true;
+  }
+  return false;
+};
 
 const sanitizePlate = (value: string): string =>
   value.replaceAll(/[^a-zA-Z0-9]/gu, "").toUpperCase();
@@ -65,36 +82,36 @@ const parseJsonPayload = (trimmed: string): ScannedQrData | null => {
   try {
     /* SAFETY: JSON parsed structure narrowed via field access */
     const parsed = JSON.parse(trimmed) as {
+      ticketId?: string;
+      id?: string;
       plate?: string;
       licensePlate?: string;
       type?: string;
       vehicleType?: string;
     };
+    const ticketId = parsed.ticketId ?? parsed.id;
     const rawPlate = parsed.plate ?? parsed.licensePlate;
-    if (!rawPlate) {
-      return null;
-    }
-    const cleanPlate = sanitizePlate(rawPlate);
-    if (cleanPlate.length < 3 || cleanPlate.length > 8) {
-      return null;
-    }
+    const cleanPlate = rawPlate ? sanitizePlate(rawPlate) : undefined;
     const rawType = parsed.type ?? parsed.vehicleType ?? "";
     const vehicleType = resolveVehicleType(rawType);
-    return { plate: cleanPlate, vehicleType };
+
+    if (
+      ticketId ||
+      (cleanPlate && cleanPlate.length >= 3 && cleanPlate.length <= 8)
+    ) {
+      return {
+        ticketId: ticketId ? ticketId.trim() : undefined,
+        plate:
+          cleanPlate && cleanPlate.length >= 3 && cleanPlate.length <= 8
+            ? cleanPlate
+            : undefined,
+        vehicleType,
+      };
+    }
+    return null;
   } catch {
     return null;
   }
-};
-
-const extractPlateFromSegments = (pathname: string): string => {
-  const segments = pathname.split("/").filter(Boolean);
-  for (let i = segments.length - 1; i >= 0; i -= 1) {
-    const candidate = sanitizePlate(segments[i] ?? "");
-    if (candidate.length >= 5 && candidate.length <= 7) {
-      return candidate;
-    }
-  }
-  return "";
 };
 
 const parseUrlPayload = (trimmed: string): ScannedQrData | null => {
@@ -107,6 +124,10 @@ const parseUrlPayload = (trimmed: string): ScannedQrData | null => {
   }
   try {
     const url = new URL(trimmed, "https://nivo.app");
+    const ticketIdParam =
+      url.searchParams.get("ticketId") ??
+      url.searchParams.get("id") ??
+      url.searchParams.get("t");
     const plateParam =
       url.searchParams.get("plate") ??
       url.searchParams.get("licensePlate") ??
@@ -116,14 +137,33 @@ const parseUrlPayload = (trimmed: string): ScannedQrData | null => {
       url.searchParams.get("vehicleType") ??
       url.searchParams.get("v");
 
-    let cleanPlate = plateParam ? sanitizePlate(plateParam) : "";
-    if (!cleanPlate) {
-      cleanPlate = extractPlateFromSegments(url.pathname);
+    let ticketId = ticketIdParam ? ticketIdParam.trim() : undefined;
+    let cleanPlate = plateParam ? sanitizePlate(plateParam) : undefined;
+    const vehicleType = resolveVehicleType(typeParam ?? "");
+
+    // Si no viene en query param, extraer del path: /t/:id, /tickets/:id, etc.
+    if (!ticketId && !cleanPlate) {
+      const segments = url.pathname.split("/").filter(Boolean);
+      const lastSegment = segments[segments.length - 1] ?? "";
+
+      if (isTicketIdCandidate(lastSegment)) {
+        ticketId = lastSegment;
+      } else {
+        const candidatePlate = sanitizePlate(lastSegment);
+        if (candidatePlate.length >= 3 && candidatePlate.length <= 8) {
+          cleanPlate = candidatePlate;
+        } else if (
+          segments.includes("t") ||
+          segments.includes("tickets") ||
+          segments.includes("public-ticket")
+        ) {
+          ticketId = lastSegment;
+        }
+      }
     }
 
-    if (cleanPlate.length >= 3 && cleanPlate.length <= 8) {
-      const vehicleType = resolveVehicleType(typeParam ?? "");
-      return { plate: cleanPlate, vehicleType };
+    if (ticketId || cleanPlate) {
+      return { ticketId, plate: cleanPlate, vehicleType };
     }
     return null;
   } catch {
@@ -148,6 +188,10 @@ export const parseScannedData = (raw: string): ScannedQrData | null => {
   const urlResult = parseUrlPayload(trimmed);
   if (urlResult) {
     return urlResult;
+  }
+
+  if (isTicketIdCandidate(trimmed)) {
+    return { ticketId: trimmed };
   }
 
   const cleanPlate = sanitizePlate(trimmed);

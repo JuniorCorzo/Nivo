@@ -43,7 +43,10 @@ import { PlateMaskDirective } from "@shared/directives/plate-mask";
 
 import { CheckInModalComponent } from "../components/modals/check-in-modal/check-in-modal";
 import { CheckOutModalComponent } from "../components/modals/check-out-modal/check-out-modal";
-import { QrScannerModalComponent } from "../components/modals/qr-scanner-modal/qr-scanner-modal";
+import {
+  QrScannerModalComponent,
+  type ScannedQrData,
+} from "../components/modals/qr-scanner-modal/qr-scanner-modal";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -372,8 +375,45 @@ export class OperationsPageComponent {
     this.isQrScannerOpen.set(false);
   }
 
-  onQrScanned(data: { plate: string; vehicleType?: VehicleType }): void {
-    this.submitExpressCheckIn(data.plate, data.vehicleType);
+  onQrScanned(data: ScannedQrData): void {
+    this.closeQrScanner();
+
+    if (data.ticketId) {
+      const matchById = this.activeTickets().find(
+        (t) => t.id === data.ticketId
+      );
+      if (matchById) {
+        this.checkOutWithTicket(matchById);
+        return;
+      }
+    }
+
+    if (data.plate) {
+      const cleanScannedPlate = data.plate
+        .replaceAll(/[^a-zA-Z0-9]/gu, "")
+        .toUpperCase();
+      const matchByPlate = this.activeTickets().find((t) => {
+        const cleanTicketPlate = (t.licensePlate ?? "")
+          .replaceAll(/[^a-zA-Z0-9]/gu, "")
+          .toUpperCase();
+        return cleanTicketPlate === cleanScannedPlate;
+      });
+      if (matchByPlate) {
+        this.checkOutWithTicket(matchByPlate);
+        return;
+      }
+    }
+
+    const identifier = data.ticketId
+      ? `Ticket #${data.ticketId.slice(0, 8)}`
+      : data.plate
+        ? `Placa ${data.plate}`
+        : "Código escaneado";
+
+    this.toast.showToast({
+      message: `${identifier} no encontrado en taquilla o ya fue liquidado.`,
+      type: "error",
+    });
   }
 
   setExpressVehicleType(type: VehicleType): void {

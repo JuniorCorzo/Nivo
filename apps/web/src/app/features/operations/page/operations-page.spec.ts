@@ -561,12 +561,47 @@ describe("OperationsPageComponent", () => {
       expect(refreshSpy).toHaveBeenCalled();
     });
 
-    it("should handle onQrScanned and process express check-in", () => {
-      const submitSpy = vi
-        .spyOn(component, "submitExpressCheckIn")
+    it("should handle onQrScanned and open checkout modal when active ticket matches by plate", () => {
+      component.activeTickets.set(mockActiveTickets);
+      const checkoutSpy = vi
+        .spyOn(component, "checkOutWithTicket")
         .mockImplementation(() => {});
-      component.onQrScanned({ plate: "QR123", vehicleType: "CAR" });
-      expect(submitSpy).toHaveBeenCalledWith("QR123", "CAR");
+
+      component.onQrScanned({ plate: "ABC123" });
+
+      expect(checkoutSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ licensePlate: "ABC-123" })
+      );
+      expect(component.isQrScannerOpen()).toBe(false);
+    });
+
+    it("should handle onQrScanned and open checkout modal when active ticket matches by ticketId (unplated vehicle)", () => {
+      component.activeTickets.set(mockActiveTickets);
+      const checkoutSpy = vi
+        .spyOn(component, "checkOutWithTicket")
+        .mockImplementation(() => {});
+
+      component.onQrScanned({ ticketId: "t-1" });
+
+      expect(checkoutSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "t-1" })
+      );
+      expect(component.isQrScannerOpen()).toBe(false);
+    });
+
+    it("should show error toast and never create check-in when scanned ticket is not found in active tickets", () => {
+      component.onQrScanned({ ticketId: "nonexistent-ticket-id" });
+
+      expect(toastSpy.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining(
+            "no encontrado en taquilla o ya fue liquidado"
+          ),
+          type: "error",
+        })
+      );
+      expect(ticketServiceSpy.createTicket).not.toHaveBeenCalled();
+      expect(component.isCheckOutModalOpen()).toBe(false);
     });
 
     it("should show error toast if plate is empty on express check-in", () => {
