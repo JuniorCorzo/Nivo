@@ -201,6 +201,7 @@ describe("QrScannerModalComponent & parseScannedData", () => {
       fixture.componentRef.setInput("isOpen", true);
       fixture.detectChanges();
 
+      /* SAFETY: fixture.nativeElement is guaranteed to be an HTMLElement */
       const compiled = fixture.nativeElement as HTMLElement;
       const dialog = compiled.querySelector('[role="dialog"]');
       expect(dialog).toBeTruthy();

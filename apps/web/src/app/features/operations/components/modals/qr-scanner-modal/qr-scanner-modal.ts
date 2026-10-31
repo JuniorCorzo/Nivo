@@ -44,7 +44,7 @@ type BarcodeDetectorConstructor = new (options?: {
 }) => NativeBarcodeDetector;
 
 const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
 
 const isTicketIdCandidate = (val: string): boolean => {
   if (!val) {
@@ -100,11 +100,11 @@ const parseJsonPayload = (trimmed: string): ScannedQrData | null => {
       (cleanPlate && cleanPlate.length >= 3 && cleanPlate.length <= 8)
     ) {
       return {
-        ticketId: ticketId ? ticketId.trim() : undefined,
         plate:
           cleanPlate && cleanPlate.length >= 3 && cleanPlate.length <= 8
             ? cleanPlate
             : undefined,
+        ticketId: ticketId ? ticketId.trim() : undefined,
         vehicleType,
       };
     }
@@ -112,6 +112,55 @@ const parseJsonPayload = (trimmed: string): ScannedQrData | null => {
   } catch {
     return null;
   }
+};
+
+const extractQueryParams = (url: URL) => {
+  const ticketIdParam =
+    url.searchParams.get("ticketId") ??
+    url.searchParams.get("id") ??
+    url.searchParams.get("t");
+  const plateParam =
+    url.searchParams.get("plate") ??
+    url.searchParams.get("licensePlate") ??
+    url.searchParams.get("p");
+  const typeParam =
+    url.searchParams.get("type") ??
+    url.searchParams.get("vehicleType") ??
+    url.searchParams.get("v");
+
+  return {
+    cleanPlate: plateParam ? sanitizePlate(plateParam) : undefined,
+    ticketId: ticketIdParam ? ticketIdParam.trim() : undefined,
+    vehicleType: resolveVehicleType(typeParam ?? ""),
+  };
+};
+
+interface ExtractedPathData {
+  readonly cleanPlate?: string;
+  readonly ticketId?: string;
+}
+
+const extractPathData = (url: URL): ExtractedPathData => {
+  const segments = url.pathname.split("/").filter(Boolean);
+  const lastSegment = segments.at(-1) ?? "";
+  if (!lastSegment) {
+    return {};
+  }
+  if (isTicketIdCandidate(lastSegment)) {
+    return { ticketId: lastSegment };
+  }
+  const candidatePlate = sanitizePlate(lastSegment);
+  if (candidatePlate.length >= 3 && candidatePlate.length <= 8) {
+    return { cleanPlate: candidatePlate };
+  }
+  if (
+    segments.includes("t") ||
+    segments.includes("tickets") ||
+    segments.includes("public-ticket")
+  ) {
+    return { ticketId: lastSegment };
+  }
+  return {};
 };
 
 const parseUrlPayload = (trimmed: string): ScannedQrData | null => {
@@ -124,46 +173,23 @@ const parseUrlPayload = (trimmed: string): ScannedQrData | null => {
   }
   try {
     const url = new URL(trimmed, "https://nivo.app");
-    const ticketIdParam =
-      url.searchParams.get("ticketId") ??
-      url.searchParams.get("id") ??
-      url.searchParams.get("t");
-    const plateParam =
-      url.searchParams.get("plate") ??
-      url.searchParams.get("licensePlate") ??
-      url.searchParams.get("p");
-    const typeParam =
-      url.searchParams.get("type") ??
-      url.searchParams.get("vehicleType") ??
-      url.searchParams.get("v");
-
-    let ticketId = ticketIdParam ? ticketIdParam.trim() : undefined;
-    let cleanPlate = plateParam ? sanitizePlate(plateParam) : undefined;
-    const vehicleType = resolveVehicleType(typeParam ?? "");
+    const queryData = extractQueryParams(url);
+    let { cleanPlate, ticketId } = queryData;
 
     // Si no viene en query param, extraer del path: /t/:id, /tickets/:id, etc.
     if (!ticketId && !cleanPlate) {
-      const segments = url.pathname.split("/").filter(Boolean);
-      const lastSegment = segments[segments.length - 1] ?? "";
-
-      if (isTicketIdCandidate(lastSegment)) {
-        ticketId = lastSegment;
-      } else {
-        const candidatePlate = sanitizePlate(lastSegment);
-        if (candidatePlate.length >= 3 && candidatePlate.length <= 8) {
-          cleanPlate = candidatePlate;
-        } else if (
-          segments.includes("t") ||
-          segments.includes("tickets") ||
-          segments.includes("public-ticket")
-        ) {
-          ticketId = lastSegment;
-        }
-      }
+      const { cleanPlate: pathPlate, ticketId: pathTicketId } =
+        extractPathData(url);
+      ticketId = pathTicketId;
+      cleanPlate = pathPlate;
     }
 
     if (ticketId || cleanPlate) {
-      return { ticketId, plate: cleanPlate, vehicleType };
+      return {
+        plate: cleanPlate,
+        ticketId,
+        vehicleType: queryData.vehicleType,
+      };
     }
     return null;
   } catch {

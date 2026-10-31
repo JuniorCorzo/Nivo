@@ -43,10 +43,8 @@ import { PlateMaskDirective } from "@shared/directives/plate-mask";
 
 import { CheckInModalComponent } from "../components/modals/check-in-modal/check-in-modal";
 import { CheckOutModalComponent } from "../components/modals/check-out-modal/check-out-modal";
-import {
-  QrScannerModalComponent,
-  type ScannedQrData,
-} from "../components/modals/qr-scanner-modal/qr-scanner-modal";
+import { QrScannerModalComponent } from "../components/modals/qr-scanner-modal/qr-scanner-modal";
+import type { ScannedQrData } from "../components/modals/qr-scanner-modal/qr-scanner-modal";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -404,11 +402,12 @@ export class OperationsPageComponent {
       }
     }
 
-    const identifier = data.ticketId
-      ? `Ticket #${data.ticketId.slice(0, 8)}`
-      : data.plate
-        ? `Placa ${data.plate}`
-        : "Código escaneado";
+    let identifier = "Código escaneado";
+    if (data.ticketId) {
+      identifier = `Ticket #${data.ticketId.slice(0, 8)}`;
+    } else if (data.plate) {
+      identifier = `Placa ${data.plate}`;
+    }
 
     this.toast.showToast({
       message: `${identifier} no encontrado en taquilla o ya fue liquidado.`,
