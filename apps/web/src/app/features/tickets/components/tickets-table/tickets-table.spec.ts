@@ -137,4 +137,98 @@ describe("TicketsTableComponent", () => {
     expect(compiled.textContent).toContain("Parqueadero");
     expect(compiled.textContent).toContain("Parqueadero Central");
   });
+
+  it("should render direct Cobrar action button for OPEN tickets only", () => {
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const rows = compiled.querySelectorAll("tbody tr");
+    expect(rows.length).toBe(2);
+
+    // Row 0 is OPEN -> contains Cobrar button
+    const firstRowCobrar = rows[0].querySelector(
+      'nv-button[aria-label="Cobrar"]'
+    );
+    expect(firstRowCobrar).not.toBeNull();
+    expect(firstRowCobrar?.textContent).toContain("Cobrar");
+
+    // Row 1 is CLOSED -> does NOT contain Cobrar button
+    const secondRowCobrar = rows[1].querySelector(
+      'nv-button[aria-label="Cobrar"]'
+    );
+    expect(secondRowCobrar).toBeNull();
+  });
+
+  it("should emit selectTicket when clicking direct Cobrar button", () => {
+    let selected: TicketSummary | null = null;
+    component.selectTicket.subscribe((t) => {
+      selected = t;
+    });
+
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    /* SAFETY: Querying rendered button element from table DOM */
+    const cobrarBtn = compiled.querySelector(
+      'tbody tr:first-child nv-button[aria-label="Cobrar"]'
+    ) as HTMLElement | null;
+    expect(cobrarBtn).not.toBeNull();
+    const innerBtn = cobrarBtn?.querySelector("button");
+    innerBtn?.click();
+
+    expect(selected).toEqual(mockTickets[0]);
+  });
+
+  it("should render authentic automotive plate chip for regular and unplated tickets", () => {
+    const withUnplated: TicketSummary[] = [
+      ...mockTickets,
+      {
+        entryTime: "2026-09-05T07:00:00Z",
+        id: "t-3",
+        licensePlate: "SP-999",
+        parkingLotId: "lot-1",
+        parkingLotName: "Parqueadero Central",
+        slotNumber: "M-01",
+        slotType: "MOTORCYCLE",
+        status: "OPEN",
+      },
+    ];
+    ticketsSignal.set(withUnplated);
+    fixture.detectChanges();
+
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const rows = compiled.querySelectorAll("tbody tr");
+    expect(rows.length).toBe(3);
+
+    // Row 0 has Colombian yellow plate chip
+    const yellowChip = rows[0].querySelector(".bg-amber-400");
+    expect(yellowChip).not.toBeNull();
+    expect(yellowChip?.textContent).toContain("ABC123");
+
+    // Row 2 has unplated chip with camera icon
+    const unplatedChip = rows[2].querySelector(".bg-amber-500\\/15");
+    expect(unplatedChip).not.toBeNull();
+    expect(unplatedChip?.textContent).toContain("SP-999");
+    expect(
+      unplatedChip?.querySelector('ng-icon[name="lucideCamera"]')
+    ).not.toBeNull();
+  });
+
+  it("should render status badge with pulsing live dot for OPEN status", () => {
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const openRow = compiled.querySelector("tbody tr:first-child");
+    const pulseDot = openRow?.querySelector(".animate-pulse.bg-emerald-400");
+    expect(pulseDot).not.toBeNull();
+  });
+
+  it("should render totalToCharge with bold tabular figures", () => {
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const totalCells = compiled.querySelectorAll("app-ticket-total-cell");
+    expect(totalCells.length).toBeGreaterThan(1);
+    expect(totalCells[0].textContent).toContain("---");
+    expect(totalCells[1].textContent).toContain("$3,500");
+    const totalSpan = totalCells[1].querySelector(".tabular-nums.font-bold");
+    expect(totalSpan).not.toBeNull();
+  });
 });

@@ -8,7 +8,18 @@
 
   <!-- Stats Grid -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-    <nv-card>
+    <nv-card
+      role="button"
+      tabindex="0"
+      class="hover:border-primary/40 focus-visible:ring-primary cursor-pointer transition-all duration-200 hover:shadow-xs focus-visible:ring-2 focus-visible:outline-none"
+      [class.border-primary]="facade.filters().status === 'ALL'"
+      [class.ring-1]="facade.filters().status === 'ALL'"
+      [class.ring-primary]="facade.filters().status === 'ALL'"
+      [attr.aria-pressed]="facade.filters().status === 'ALL'"
+      (click)="facade.updateFilters({ status: 'ALL' })"
+      (keydown.enter)="facade.updateFilters({ status: 'ALL' })"
+      (keydown.space)="$event.preventDefault(); facade.updateFilters({ status: 'ALL' })"
+    >
       <nv-card-content class="flex items-center gap-4 p-5">
         <div
           class="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-xl"
@@ -19,35 +30,62 @@
           <nv-muted class="text-xs font-semibold tracking-wider uppercase"
             >{{ texts.stats.total }}</nv-muted
           >
-          <div class="font-mono text-2xl font-bold">
+          <div class="font-mono text-2xl font-bold tabular-nums">
             {{ facade.ticketStats().total }}
           </div>
         </div>
       </nv-card-content>
     </nv-card>
 
-    <nv-card>
+    <nv-card
+      role="button"
+      tabindex="0"
+      class="hover:border-primary/40 cursor-pointer transition-all duration-200 hover:shadow-xs focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+      [class.border-emerald-500]="facade.filters().status === 'OPEN'"
+      [class.ring-1]="facade.filters().status === 'OPEN'"
+      [class.ring-emerald-500]="facade.filters().status === 'OPEN'"
+      [attr.aria-pressed]="facade.filters().status === 'OPEN'"
+      (click)="facade.updateFilters({ status: 'OPEN' })"
+      (keydown.enter)="facade.updateFilters({ status: 'OPEN' })"
+      (keydown.space)="$event.preventDefault(); facade.updateFilters({ status: 'OPEN' })"
+    >
       <nv-card-content class="flex items-center gap-4 p-5">
         <div
-          class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+          class="bg-success/10 text-success flex h-12 w-12 items-center justify-center rounded-xl"
         >
           <ng-icon name="lucideClock" size="24" />
         </div>
         <div>
-          <nv-muted class="text-xs font-semibold tracking-wider uppercase"
-            >{{ texts.stats.open }}</nv-muted
-          >
-          <div class="font-mono text-2xl font-bold">
+          <div class="flex items-center gap-1.5">
+            <nv-muted class="text-xs font-semibold tracking-wider uppercase"
+              >{{ texts.stats.open }}</nv-muted
+            >
+            <span
+              class="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-500"
+            ></span>
+          </div>
+          <div class="font-mono text-2xl font-bold tabular-nums">
             {{ facade.ticketStats().open }}
           </div>
         </div>
       </nv-card-content>
     </nv-card>
 
-    <nv-card>
+    <nv-card
+      role="button"
+      tabindex="0"
+      class="hover:border-primary/40 focus-visible:ring-primary cursor-pointer transition-all duration-200 hover:shadow-xs focus-visible:ring-2 focus-visible:outline-none"
+      [class.border-primary]="facade.filters().status === 'CLOSED'"
+      [class.ring-1]="facade.filters().status === 'CLOSED'"
+      [class.ring-primary]="facade.filters().status === 'CLOSED'"
+      [attr.aria-pressed]="facade.filters().status === 'CLOSED'"
+      (click)="facade.updateFilters({ status: 'CLOSED' })"
+      (keydown.enter)="facade.updateFilters({ status: 'CLOSED' })"
+      (keydown.space)="$event.preventDefault(); facade.updateFilters({ status: 'CLOSED' })"
+    >
       <nv-card-content class="flex items-center gap-4 p-5">
         <div
-          class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-500/10 text-slate-600 dark:text-slate-400"
+          class="bg-muted text-muted-foreground flex h-12 w-12 items-center justify-center rounded-xl"
         >
           <ng-icon name="lucideCheckCircle2" size="24" />
         </div>
@@ -55,7 +93,7 @@
           <nv-muted class="text-xs font-semibold tracking-wider uppercase"
             >{{ texts.stats.closed }}</nv-muted
           >
-          <div class="font-mono text-2xl font-bold">
+          <div class="font-mono text-2xl font-bold tabular-nums">
             {{ facade.ticketStats().closed }}
           </div>
         </div>

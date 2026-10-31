@@ -13,18 +13,21 @@ import L from "leaflet";
 
 const DEFAULT_CENTER: L.LatLngExpression = [4.711, -74.0721];
 const DEFAULT_ZOOM = 13;
-const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-const TILE_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+const CARTO_DARK_TILES =
+  "https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png";
+const CARTO_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
-// Fix Leaflet default marker icon paths for bundlers
-/* SAFETY: Deleting internal Leaflet prototype method to allow custom marker icons */
-delete (L.Icon.Default.prototype as { _getIconUrl?: unknown })._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+const NIVO_PIN_ICON = L.divIcon({
+  className: "nivo-map-marker-container",
+  html: `<div class="relative flex items-center justify-center w-8 h-8 pointer-events-none select-none">
+    <span class="absolute inline-flex w-full h-full rounded-full opacity-60 animate-ping bg-emerald-500"></span>
+    <div class="relative flex items-center justify-center w-7 h-7 rounded-full bg-zinc-950 border-2 border-emerald-500 shadow-md text-emerald-400">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+    </div>
+  </div>`,
+  iconAnchor: [16, 16],
+  iconSize: [32, 32],
 });
 
 @Component({
@@ -78,9 +81,10 @@ export class ParkingMapComponent implements OnDestroy {
       zoomControl: true,
     });
 
-    L.tileLayer(TILE_URL, {
-      attribution: TILE_ATTRIBUTION,
-      maxZoom: 19,
+    L.tileLayer(CARTO_DARK_TILES, {
+      attribution: CARTO_ATTRIBUTION,
+      maxZoom: 20,
+      subdomains: ["a", "b", "c", "d"],
     }).addTo(this.map);
 
     // Show initial marker if position is provided
@@ -107,7 +111,7 @@ export class ParkingMapComponent implements OnDestroy {
     if (this.marker) {
       this.marker.setLatLng(latlng);
     } else if (this.map) {
-      this.marker = L.marker(latlng).addTo(this.map);
+      this.marker = L.marker(latlng, { icon: NIVO_PIN_ICON }).addTo(this.map);
     }
 
     // Pan map to marker position

@@ -107,6 +107,15 @@ describe("TicketsFacade", () => {
     expect(filtered.every((t) => t.licensePlate.includes("ABC"))).toBe(true);
   });
 
+  it("should filter tickets with hyphen-normalized plate search", () => {
+    facade.loadTickets("parking-123");
+    facade.updateFilters({ plate: "abc-123" });
+
+    const filtered = facade.filteredTickets();
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].id).toBe("t-1");
+  });
+
   it("should filter tickets by status and vehicle type", () => {
     facade.loadTickets("parking-123");
     facade.updateFilters({ status: "CLOSED", vehicleType: "CAR" });

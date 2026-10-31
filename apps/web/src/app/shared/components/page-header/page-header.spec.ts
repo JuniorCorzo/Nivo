@@ -185,7 +185,7 @@ describe("PageHeaderComponent", () => {
       expect(headerEl.classList.contains("@sm:items-center")).toBe(true);
       expect(headerEl.classList.contains("@sm:gap-x-4")).toBe(true);
       expect(headerEl.classList.contains("@sm:gap-y-2")).toBe(true);
-      expect(headerEl.classList.contains("@sm:p-6")).toBe(true);
+      expect(headerEl.classList.contains("@sm:py-3")).toBe(true);
     });
 
     it("should place icon on row 2 col 1 on mobile without row-span-2, and span 2 rows on desktop", () => {

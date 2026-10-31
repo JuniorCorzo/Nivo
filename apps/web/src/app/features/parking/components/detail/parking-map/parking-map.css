@@ -7,11 +7,49 @@
   width: 100%;
   min-height: 200px;
   height: 250px;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   border: 1px solid var(--border);
+  background-color: var(--background);
   z-index: 0;
 }
 
 .parking-map--readonly {
   cursor: default;
+}
+
+:host ::ng-deep .leaflet-control-zoom {
+  border: 1px solid var(--border) !important;
+  border-radius: 0.5rem !important;
+  overflow: hidden;
+}
+
+:host ::ng-deep .leaflet-control-zoom a {
+  background-color: var(--card) !important;
+  color: var(--foreground) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+:host ::ng-deep .leaflet-control-zoom a:hover {
+  background-color: var(--accent) !important;
+}
+
+:host ::ng-deep .leaflet-container {
+  background: var(--background) !important;
+  font-family: inherit !important;
+}
+
+:host ::ng-deep .leaflet-control-attribution {
+  background: rgba(24, 24, 27, 0.75) !important;
+  color: var(--muted-foreground) !important;
+  font-size: 10px !important;
+  backdrop-filter: blur(4px);
+}
+
+:host ::ng-deep .leaflet-control-attribution a {
+  color: var(--muted-foreground) !important;
+}
+
+:host ::ng-deep .nivo-map-marker-container {
+  background: transparent !important;
+  border: none !important;
 }
