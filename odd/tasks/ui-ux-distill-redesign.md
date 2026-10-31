@@ -27,4 +27,3 @@ Test Runner: vitest via @angular/build:unit-test (bun run --cwd apps/web test)
 - Destiling container padding from `@sm:p-6` to `@sm:py-3 @sm:px-0` and removing card encapsulation gives headers natural flow while saving ~60px vertical height without altering inner layout slots or container query breakpoints.
 - Leaflet default `divIcon` injects `.leaflet-div-icon` styling with white background and border; overriding `:host ::ng-deep .nivo-map-marker-container` with transparent background and zero border enables clean animated radar ping markers.
 - Encapsulating table cell styling into dedicated standalone presentational components (`TicketTotalCellComponent`) via `flexRenderComponent` allows clean tabular-nums and typography styling in TanStack table definitions without polluting templates with conditional cell logic.
-

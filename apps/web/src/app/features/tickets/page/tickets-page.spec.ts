@@ -105,12 +105,12 @@ describe("TicketsPageComponent", () => {
     ) as NodeListOf<HTMLElement>;
 
     cards[1].dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+      new KeyboardEvent("keydown", { bubbles: true, key: "Enter" })
     );
     expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "OPEN" });
 
     cards[2].dispatchEvent(
-      new KeyboardEvent("keydown", { key: " ", bubbles: true })
+      new KeyboardEvent("keydown", { bubbles: true, key: " " })
     );
     expect(updateFiltersSpy).toHaveBeenCalledWith({ status: "CLOSED" });
   });

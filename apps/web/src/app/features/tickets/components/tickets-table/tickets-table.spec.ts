@@ -166,6 +166,7 @@ describe("TicketsTableComponent", () => {
 
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
+    /* SAFETY: Querying rendered button element from table DOM */
     const cobrarBtn = compiled.querySelector(
       'tbody tr:first-child nv-button[aria-label="Cobrar"]'
     ) as HTMLElement | null;

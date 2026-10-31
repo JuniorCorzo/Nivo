@@ -62,10 +62,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
   `,
 })
 export class TicketRowActionsComponent {
-  readonly texts = {
-    ...APP_TEXTS.tickets.actions,
-    checkout: "Cobrar",
-  };
+  readonly texts = APP_TEXTS.tickets.actions;
 
   readonly ticket = input.required<TicketSummary>();
   readonly selectTicket = output<TicketSummary>();

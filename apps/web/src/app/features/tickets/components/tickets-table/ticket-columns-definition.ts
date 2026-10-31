@@ -18,21 +18,6 @@ import { TicketRowActionsComponent } from "./ticket-row-actions";
 import { TicketStatusBadgeComponent } from "./ticket-status-badge";
 import { TicketVehicleBadgeComponent } from "./ticket-vehicle-badge";
 
-@Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: "app-ticket-total-cell",
-  standalone: true,
-  template: `
-    <span class="text-foreground font-mono font-bold tabular-nums">
-      {{ formatted() }}
-    </span>
-  `,
-})
-export class TicketTotalCellComponent {
-  readonly amount = input<number | null | undefined>();
-  readonly formatted = computed(() => formatTicketCurrency(this.amount()));
-}
-
 export const formatTicketDate = (dateStr?: string): string => {
   if (!dateStr) {
     return APP_TEXTS.tickets.table.emptyFallback;
@@ -55,6 +40,21 @@ export const formatTicketCurrency = (amount?: number | null): string => {
   }
   return `$${new Intl.NumberFormat("en-US").format(amount)}`;
 };
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-ticket-total-cell",
+  standalone: true,
+  template: `
+    <span class="text-foreground font-mono font-bold tabular-nums">
+      {{ formatted() }}
+    </span>
+  `,
+})
+export class TicketTotalCellComponent {
+  readonly amount = input<number | null | undefined>();
+  readonly formatted = computed(() => formatTicketCurrency(this.amount()));
+}
 
 interface DateRangeFilter {
   from?: string;

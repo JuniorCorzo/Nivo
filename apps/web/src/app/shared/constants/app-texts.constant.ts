@@ -1070,6 +1070,7 @@ export const APP_TEXTS = {
     actions: {
       backToOperations: "Volver a Operaciones",
       backToParkingLots: "Volver a Parqueaderos",
+      checkout: "Cobrar",
       closeDetail: "Cerrar detalle",
       closeDrawer: "Cerrar",
       reprintReceipt: "Reimprimir Comprobante",
