@@ -5,6 +5,15 @@ import {
   input,
 } from "@angular/core";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import {
+  lucideClock,
+  lucideCoins,
+  lucideMapPin,
+  lucideNavigation,
+  lucideReceipt,
+  lucideTimer,
+} from "@ng-icons/lucide";
 import {
   BadgeComponent,
   CardComponent,
@@ -15,7 +24,6 @@ import {
   TypographySpan,
 } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
-import { formatCoordinates } from "@shared/utils/coordinates.utils";
 import { formatDuration } from "@shared/utils/duration.utils";
 import { formatIvaRate } from "@shared/utils/percentage.utils";
 import { formatPrice } from "@shared/utils/price.utils";
@@ -25,11 +33,22 @@ import { formatPrice } from "@shared/utils/price.utils";
   imports: [
     BadgeComponent,
     CardComponent,
+    NgIcon,
     TypographyH2,
     TypographyH3,
     TypographyMono,
     TypographyMuted,
     TypographySpan,
+  ],
+  providers: [
+    provideIcons({
+      lucideClock,
+      lucideCoins,
+      lucideMapPin,
+      lucideNavigation,
+      lucideReceipt,
+      lucideTimer,
+    }),
   ],
   selector: "app-parking-general-info",
   standalone: true,
@@ -59,11 +78,21 @@ export class ParkingGeneralInfo {
   });
 
   public readonly formattedCoords = computed<string>(() => {
-    const coordinates = this.parking()?.coordinates;
-    if (!coordinates) {
+    const coords = this.parking()?.coordinates;
+    if (
+      !coords ||
+      coords.latitude === null ||
+      coords.latitude === undefined ||
+      coords.longitude === null ||
+      coords.longitude === undefined
+    ) {
       return "";
     }
-    return formatCoordinates(coordinates);
+    const latDir = coords.latitude >= 0 ? "N" : "S";
+    const lngDir = coords.longitude >= 0 ? "E" : "W";
+    const lat = `${Math.abs(coords.latitude).toFixed(4)}° ${latDir}`;
+    const lng = `${Math.abs(coords.longitude).toFixed(4)}° ${lngDir}`;
+    return `${lat} · ${lng}`;
   });
 
   public readonly operatingHoursText = computed<string>(() => {

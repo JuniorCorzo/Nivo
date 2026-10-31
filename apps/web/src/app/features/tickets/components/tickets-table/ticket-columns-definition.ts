@@ -12,13 +12,14 @@ import {
   flexRenderComponent,
 } from "@tanstack/angular-table";
 
+import { TicketDurationCellComponent } from "./ticket-duration-cell";
 import { TicketParkingBadgeComponent } from "./ticket-parking-badge";
 import { TicketPlateCellComponent } from "./ticket-plate-cell";
 import { TicketRowActionsComponent } from "./ticket-row-actions";
 import { TicketStatusBadgeComponent } from "./ticket-status-badge";
 import { TicketVehicleBadgeComponent } from "./ticket-vehicle-badge";
 
-export const formatTicketDate = (dateStr?: string): string => {
+const formatTicketDate = (dateStr?: string): string => {
   if (!dateStr) {
     return APP_TEXTS.tickets.table.emptyFallback;
   }
@@ -34,7 +35,7 @@ export const formatTicketDate = (dateStr?: string): string => {
   return `${day}/${month}/${year} ${hours}:${minutes}`;
 };
 
-export const formatTicketCurrency = (amount?: number | null): string => {
+const formatTicketCurrency = (amount?: number | null): string => {
   if (amount === undefined || amount === null) {
     return APP_TEXTS.tickets.table.emptyFallback;
   }
@@ -51,7 +52,7 @@ export const formatTicketCurrency = (amount?: number | null): string => {
     </span>
   `,
 })
-export class TicketTotalCellComponent {
+class TicketTotalCellComponent {
   readonly amount = input<number | null | undefined>();
   readonly formatted = computed(() => formatTicketCurrency(this.amount()));
 }
@@ -124,7 +125,13 @@ export const createTicketColumns = (
       id: "slotType",
     }),
     columnHelper.accessor("entryTime", {
-      cell: (info) => formatTicketDate(info.getValue()),
+      cell: (info) =>
+        flexRenderComponent(TicketDurationCellComponent, {
+          inputs: {
+            entryTime: info.getValue(),
+            exitTime: info.row.original.exitTime,
+          },
+        }),
       enableSorting: true,
       filterFn: (row, columnId, filterValue: unknown) => {
         if (!isDateRangeFilter(filterValue)) {
@@ -161,10 +168,23 @@ export const createTicketColumns = (
           inputs: { status: info.getValue() },
         }),
       enableSorting: true,
-      filterFn: (row, columnId, filterValue: string) =>
-        !filterValue ||
-        filterValue === "ALL" ||
-        row.getValue(columnId) === filterValue,
+      filterFn: (row, columnId, filterValue: string) => {
+        if (!filterValue || filterValue === "ALL") {
+          return true;
+        }
+        if (filterValue === "MORA") {
+          const { entryTime } = row.original;
+          if (row.original.status !== "OPEN" || !entryTime) {
+            return false;
+          }
+          const entryDate = new Date(entryTime).getTime();
+          return (
+            !Number.isNaN(entryDate) &&
+            Date.now() - entryDate > 8 * 60 * 60 * 1000
+          );
+        }
+        return row.getValue(columnId) === filterValue;
+      },
       header: APP_TEXTS.tickets.table.columns.status,
       id: "status",
     }),

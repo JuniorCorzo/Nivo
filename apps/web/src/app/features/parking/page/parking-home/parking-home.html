@@ -8,9 +8,102 @@
     [showParkingSelector]="true"
     [subtitle]="activeParkingSubtitle()"
   >
-    <app-parking-action-button actions />
+    <div actions class="flex flex-wrap items-center gap-2">
+      <nv-button
+        variant="default"
+        size="md"
+        (click)="facade.onManageOperations()"
+        class="w-full whitespace-nowrap sm:w-auto"
+      >
+        <ng-icon name="lucideTicket" size="16" class="shrink-0" />
+        <span class="whitespace-nowrap">Ir a Taquilla Directa</span>
+      </nv-button>
+
+      <nv-button
+        variant="outline"
+        size="md"
+        (click)="facade.onManageRates()"
+        class="w-full whitespace-nowrap sm:w-auto"
+      >
+        <ng-icon name="lucideCoins" size="16" class="text-primary shrink-0" />
+        <span class="whitespace-nowrap">Configurar Tarifas</span>
+      </nv-button>
+
+      <nv-button
+        variant="outline"
+        size="md"
+        (click)="facade.onEdit()"
+        class="w-full whitespace-nowrap sm:w-auto"
+      >
+        <ng-icon name="lucideEdit" size="16" class="shrink-0" />
+        <span class="whitespace-nowrap">Editar Sede</span>
+      </nv-button>
+    </div>
   </app-page-header>
 
+  <!-- Segmented Control Tabs bar -->
+  <div
+    class="border-border bg-card/60 flex flex-col gap-3 rounded-2xl border p-2 sm:flex-row sm:items-center sm:justify-between"
+  >
+    <div class="flex flex-wrap items-center gap-1.5 p-1">
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'capacity'"
+        (click)="setTab('capacity')"
+        [class]="
+          activeTab() === 'capacity'
+            ? 'bg-primary text-primary-foreground shadow-xs'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+        "
+        class="inline-flex cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all sm:text-sm"
+      >
+        <ng-icon name="lucideLayers" size="16" class="shrink-0" />
+        <span>Capacidad & Zonas</span>
+        <span
+          class="rounded-full px-2 py-0.5 text-[11px] font-bold"
+          [class]="
+            activeTab() === 'capacity'
+              ? 'bg-primary-foreground/20 text-primary-foreground'
+              : 'bg-muted text-muted-foreground'
+          "
+        >
+          {{ facade.occupiedSlots() }}/{{ facade.totalSlots() }}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'technical'"
+        (click)="setTab('technical')"
+        [class]="
+          activeTab() === 'technical'
+            ? 'bg-primary text-primary-foreground shadow-xs'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+        "
+        class="inline-flex cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all sm:text-sm"
+      >
+        <ng-icon name="lucideBuilding2" size="16" class="shrink-0" />
+        <span>Sede, Mapa & Políticas</span>
+      </button>
+    </div>
+
+    <!-- Right summary -->
+    <div
+      class="text-muted-foreground flex flex-wrap items-center gap-2 px-3 py-1.5 text-xs font-medium"
+    >
+      <span>Ocupación: {{ p.occuppationRate || 0 }}%</span>
+      <span class="text-muted-foreground/40">·</span>
+      <span
+        >Aforo: {{ facade.occupiedSlots() }} / {{ facade.totalSlots() }}
+        Plazas</span
+      >
+    </div>
+  </div>
+
+  <!-- Tab 1: Capacidad & Zonas -->
+  @if (activeTab() === 'capacity') {
   <!-- Summary Metrics Grid Sub-component -->
   <app-parking-stats-grid
     [totalSlots]="facade.totalSlots()"
@@ -19,10 +112,33 @@
     [occupationRate]="p.occuppationRate || 0"
     [currency]="p.currency"
     [coordinates]="p.coordinates"
+    [slotDistribution]="p.slotDistribution"
+    [operatingHours]="p.operatingHours"
+    [gracePeriodMinutes]="p.gracePeriodMinutes"
+    [gracePeriodPrice]="p.gracePeriodPrice"
   />
 
-  <!-- Main General Info Sub-component -->
-  <app-parking-general-info [parking]="p" />
+  <!-- Operational Bridge Banner to Live Operations POS -->
+  <div
+    class="border-border bg-card/60 flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-xs shadow-2xs"
+  >
+    <div class="text-muted-foreground flex items-center gap-2.5">
+      <ng-icon name="lucideTicket" size="16" class="text-primary shrink-0" />
+      <span
+        >Para registro de entradas en tiempo real, cobro y facturación de
+        taquilla, ingresá a <strong>Operaciones en Vivo</strong>.</span
+      >
+    </div>
+    <nv-button
+      variant="default"
+      size="sm"
+      (click)="facade.onManageOperations()"
+      class="shrink-0 text-xs"
+    >
+      <ng-icon name="lucideTicket" size="14" class="mr-1 shrink-0" />
+      <span>Ir a Taquilla en Vivo</span>
+    </nv-button>
+  </div>
 
   <!-- Slot Distribution Sub-component -->
   @if (p.slotDistribution && p.slotDistribution.length > 0) {
@@ -32,22 +148,118 @@
     [availableSlots]="facade.availableSlots()"
     [totalSlots]="facade.totalSlots()"
   />
-  }
+  } }
 
-  <!-- Map Card -->
-  <nv-card class="flex flex-col gap-3 rounded-2xl p-4 sm:gap-4 sm:p-6">
-    <div class="flex items-center gap-2">
-      <ng-icon name="lucideMapPin" size="18" class="text-primary shrink-0" />
-      <nv-h3 class="text-sm font-bold sm:text-base">
-        {{ LABELS_DETAIL.map.title }}
-      </nv-h3>
+  <!-- Tab 2: Sede, Mapa & Políticas -->
+  @if (activeTab() === 'technical') {
+  <div class="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
+    <!-- Left Column: General Info -->
+    <div class="flex flex-col gap-5 lg:col-span-5">
+      <app-parking-general-info [parking]="p" />
     </div>
-    <div
-      class="border-border h-[200px] overflow-hidden rounded-xl border shadow-inner sm:h-[240px]"
-    >
-      <app-parking-map [initialPosition]="p.coordinates" [readonly]="true" />
+
+    <!-- Right Column: Hero Map Card -->
+    <div class="flex flex-col justify-between lg:col-span-7">
+      <nv-card
+        class="border-border bg-card flex h-full flex-col justify-between overflow-hidden rounded-2xl border p-0 shadow-xs"
+      >
+        <!-- Header topbar inside card -->
+        <div
+          class="border-border bg-muted/40 flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2.5 text-xs sm:px-6"
+        >
+          <div class="flex items-center gap-2">
+            <ng-icon
+              name="lucideMapPin"
+              size="16"
+              class="text-success shrink-0"
+            />
+            <span class="text-foreground font-bold">
+              Mapa Georeferenciado en Vivo
+            </span>
+            <span class="text-muted-foreground/60">·</span>
+            <span class="text-muted-foreground hidden sm:inline">
+              OpenStreetMap · Geolocalización en tiempo real
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span
+              class="text-muted-foreground font-mono text-[11px] tabular-nums"
+            >
+              {{ formatGps(p.coordinates) }}
+            </span>
+            <span class="relative flex h-2 w-2">
+              <span
+                class="bg-success absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
+              ></span>
+              <span
+                class="bg-success relative inline-flex h-2 w-2 rounded-full"
+              ></span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Leaflet map container -->
+        <div
+          class="border-border flex min-h-[380px] w-full flex-1 flex-col overflow-hidden border-b"
+        >
+          <app-parking-map
+            class="block h-full w-full flex-1"
+            [initialPosition]="p.coordinates"
+            [parkingName]="p.name"
+            [readonly]="true"
+          />
+        </div>
+
+        <!-- Operational Quick Dock Bar -->
+        <div
+          class="bg-card/60 flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6"
+        >
+          <div
+            class="text-muted-foreground flex items-center gap-2 text-xs font-semibold"
+          >
+            <ng-icon
+              name="lucideLayers"
+              size="15"
+              class="text-success shrink-0"
+            />
+            <span>Centro de Comandos Operativos de Sede</span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <nv-button
+              variant="outline"
+              size="sm"
+              (click)="facade.onManageSlots()"
+              class="text-xs"
+            >
+              <ng-icon name="lucideSearch" size="14" class="mr-1" />
+              <span>Auditar Bahías</span>
+            </nv-button>
+            <nv-button
+              variant="default"
+              size="sm"
+              (click)="facade.onManageOperations()"
+              class="text-xs"
+            >
+              <ng-icon name="lucideTicket" size="14" class="mr-1" />
+              <span>Taquilla Directa</span>
+            </nv-button>
+            <nv-button
+              variant="outline"
+              size="sm"
+              (click)="facade.onManageRates()"
+              class="text-xs"
+            >
+              <ng-icon name="lucideTag" size="14" class="mr-1" />
+              <span>Configurar Tarifas</span>
+            </nv-button>
+          </div>
+        </div>
+      </nv-card>
     </div>
-  </nv-card>
+  </div>
+  }
 </div>
 } @else {
 <!-- Empty State Sub-component -->

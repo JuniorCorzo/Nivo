@@ -1,5 +1,7 @@
 @if (parking(); as p) {
-<nv-card class="flex flex-col gap-5 rounded-2xl p-4 sm:gap-6 sm:p-6">
+<nv-card
+  class="border-border bg-card flex flex-col gap-5 rounded-2xl border p-5 shadow-xs sm:gap-6 sm:p-6"
+>
   <div
     class="border-border flex flex-col justify-between gap-2 border-b pb-4 sm:flex-row sm:items-center"
   >
@@ -15,16 +17,25 @@
     </div>
   </div>
 
-  <!-- Info Grid: 3 columns -->
-  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+  <!-- Info Grid: Responsive cards -->
+  <div
+    class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3"
+  >
     <div
-      class="bg-muted/50 border-border flex flex-col gap-1 rounded-xl border p-3 sm:p-3.5"
+      class="border-border bg-muted/30 hover:bg-muted/50 flex flex-col gap-1.5 rounded-xl border p-3.5 transition-colors"
     >
-      <nv-muted
-        class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
-      >
-        {{ LABELS_DETAIL.fields.address }}
-      </nv-muted>
+      <div class="flex items-center gap-1.5">
+        <ng-icon
+          name="lucideMapPin"
+          size="14"
+          class="text-muted-foreground shrink-0"
+        />
+        <nv-muted
+          class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
+        >
+          {{ LABELS_DETAIL.fields.address }}
+        </nv-muted>
+      </div>
       <nv-span
         class="text-foreground text-xs font-semibold wrap-break-word sm:text-sm"
       >
@@ -38,26 +49,42 @@
     </div>
 
     <div
-      class="bg-muted/50 border-border flex flex-col gap-1 rounded-xl border p-3 sm:p-3.5"
+      class="border-border bg-muted/30 hover:bg-muted/50 flex flex-col gap-1.5 rounded-xl border p-3.5 transition-colors"
     >
-      <nv-muted
-        class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
+      <div class="flex items-center gap-1.5">
+        <ng-icon
+          name="lucideNavigation"
+          size="14"
+          class="text-muted-foreground shrink-0"
+        />
+        <nv-muted
+          class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
+        >
+          {{ LABELS_DETAIL.fields.coordinates }}
+        </nv-muted>
+      </div>
+      <nv-mono
+        class="text-foreground block font-mono text-xs font-bold whitespace-nowrap"
       >
-        {{ LABELS_DETAIL.fields.coordinates }}
-      </nv-muted>
-      <nv-mono class="text-foreground block text-xs font-bold break-all">
         {{ formattedCoords() }}
       </nv-mono>
     </div>
 
     <div
-      class="bg-muted/50 border-border flex flex-col gap-1 rounded-xl border p-3 sm:p-3.5"
+      class="border-border bg-muted/30 hover:bg-muted/50 flex flex-col gap-1.5 rounded-xl border p-3.5 transition-colors"
     >
-      <nv-muted
-        class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
-      >
-        {{ LABELS_DETAIL.fields.operatingHours }}
-      </nv-muted>
+      <div class="flex items-center gap-1.5">
+        <ng-icon
+          name="lucideClock"
+          size="14"
+          class="text-muted-foreground shrink-0"
+        />
+        <nv-muted
+          class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
+        >
+          {{ LABELS_DETAIL.fields.operatingHours }}
+        </nv-muted>
+      </div>
       <nv-span class="text-foreground text-xs font-semibold sm:text-sm">
         {{ operatingHoursText() }}
       </nv-span>
@@ -75,41 +102,64 @@
       </nv-muted>
     </div>
 
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+    <div
+      class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3"
+    >
       <div
-        class="bg-muted/50 border-border flex flex-col gap-1 rounded-xl border p-3 sm:p-3.5"
+        class="border-border bg-muted/30 hover:bg-muted/50 flex flex-col gap-1.5 rounded-xl border p-3.5 transition-colors"
       >
-        <nv-muted
-          class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
-        >
-          {{ LABELS_DETAIL.fields.gracePeriodMinutes }}
-        </nv-muted>
+        <div class="flex items-center gap-1.5">
+          <ng-icon
+            name="lucideTimer"
+            size="14"
+            class="text-muted-foreground shrink-0"
+          />
+          <nv-muted
+            class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
+          >
+            {{ LABELS_DETAIL.fields.gracePeriodMinutes }}
+          </nv-muted>
+        </div>
         <nv-span class="text-foreground text-xs font-semibold sm:text-sm">
           {{ gracePeriodText() }}
         </nv-span>
       </div>
 
       <div
-        class="bg-muted/50 border-border flex flex-col gap-1 rounded-xl border p-3 sm:p-3.5"
+        class="border-border bg-muted/30 hover:bg-muted/50 flex flex-col gap-1.5 rounded-xl border p-3.5 transition-colors"
       >
-        <nv-muted
-          class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
-        >
-          {{ LABELS_DETAIL.fields.gracePeriodPrice }}
-        </nv-muted>
+        <div class="flex items-center gap-1.5">
+          <ng-icon
+            name="lucideCoins"
+            size="14"
+            class="text-muted-foreground shrink-0"
+          />
+          <nv-muted
+            class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
+          >
+            {{ LABELS_DETAIL.fields.gracePeriodPrice }}
+          </nv-muted>
+        </div>
         <nv-mono class="text-foreground block text-xs font-bold sm:text-sm">
           {{ gracePeriodPriceText() }}
         </nv-mono>
       </div>
 
       <div
-        class="bg-muted/50 border-border flex flex-col gap-1 rounded-xl border p-3 sm:p-3.5"
+        class="border-border bg-muted/30 hover:bg-muted/50 flex flex-col gap-1.5 rounded-xl border p-3.5 transition-colors"
       >
-        <nv-muted
-          class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
-        >
-          {{ LABELS_DETAIL.fields.ivaRate }}
-        </nv-muted>
+        <div class="flex items-center gap-1.5">
+          <ng-icon
+            name="lucideReceipt"
+            size="14"
+            class="text-muted-foreground shrink-0"
+          />
+          <nv-muted
+            class="block text-[11px] font-semibold tracking-wider uppercase sm:text-xs"
+          >
+            {{ LABELS_DETAIL.fields.ivaRate }}
+          </nv-muted>
+        </div>
         <nv-mono class="text-foreground block text-xs font-bold sm:text-sm">
           {{ ivaRateText() }}
         </nv-mono>

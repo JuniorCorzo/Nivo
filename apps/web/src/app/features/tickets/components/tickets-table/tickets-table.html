@@ -2,6 +2,8 @@
   [table]="table()"
   [isLoading]="isLoading()"
   [emptyMessage]="texts.emptyState.message"
+  [rowClickable]="true"
+  (rowClick)="selectTicket.emit($event)"
 >
   <div
     emptyState
