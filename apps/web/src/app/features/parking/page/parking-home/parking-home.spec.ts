@@ -62,6 +62,8 @@ describe("ParkingHome Component", () => {
       availableSlots: signal(18),
       isDeleteModalOpen: signal(false),
       occupiedSlots: signal(12),
+      occupiedSlotsDetail: signal([]),
+      occupationRate: signal(40),
       onCreateParking: vi.fn(),
       onDeleteCancel: vi.fn(),
       onDeleteClick: vi.fn(),
@@ -71,6 +73,7 @@ describe("ParkingHome Component", () => {
       onManageRates: vi.fn(),
       onManageSlots: vi.fn(),
       selectedParkingId: signal<string | null>("lot-1"),
+      telemetry: signal(null),
       totalSlots: signal(30),
     };
 
@@ -259,5 +262,16 @@ describe("ParkingHome Component", () => {
     const el: HTMLElement = fixture.nativeElement;
     expect(el.querySelector("app-parking-empty-state")).toBeTruthy();
     expect(el.querySelector("app-parking-stats-grid")).toBeNull();
+  });
+
+  it("should pass telemetry and occupiedSlotsDetail to child components", () => {
+    const statsGrid = fixture.nativeElement.querySelector(
+      "app-parking-stats-grid"
+    );
+    const slotDistribution = fixture.nativeElement.querySelector(
+      "app-parking-slot-distribution"
+    );
+    expect(statsGrid).toBeTruthy();
+    expect(slotDistribution).toBeTruthy();
   });
 });

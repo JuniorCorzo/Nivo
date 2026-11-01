@@ -80,7 +80,7 @@
         </span>
         <div class="flex items-center justify-center gap-2">
           <span
-            class="text-foreground font-mono text-2xl font-black tracking-widest sm:text-3xl"
+            class="text-foreground font-mono text-2xl font-black tracking-widest tabular-nums sm:text-3xl"
           >
             {{ ticket()?.plate | appPlateFormat: ticket()?.plateCountry }}
           </span>
@@ -102,6 +102,7 @@
         <img
           [src]="ticket()?.photoUrl"
           alt="Foto del vehículo"
+          loading="lazy"
           class="h-full w-full object-cover"
         />
         <div
@@ -121,7 +122,9 @@
           >
             {{ texts.slotLabel }}
           </span>
-          <span class="text-foreground font-mono text-xs font-bold sm:text-sm">
+          <span
+            class="text-foreground font-mono text-xs font-bold tabular-nums sm:text-sm"
+          >
             {{ ticket()?.slotNumber || "---" }}
           </span>
         </div>
@@ -148,7 +151,9 @@
             <ng-icon name="lucideClock" class="text-success text-sm" />
             <span>{{ texts.elapsedTimeLabel }}</span>
           </div>
-          <span class="text-foreground font-mono text-base font-bold">
+          <span
+            class="text-foreground font-mono text-base font-bold tabular-nums"
+          >
             {{ formattedElapsed() }}
           </span>
         </div>
@@ -159,7 +164,9 @@
             <ng-icon name="lucideCoins" class="text-warning text-sm" />
             <span>{{ texts.accumulatedCostLabel }}</span>
           </div>
-          <span class="text-foreground font-mono text-base font-black">
+          <span
+            class="text-foreground font-mono text-base font-black tabular-nums"
+          >
             ${{ estimatedCost() | number: "1.0-0" }} {{ texts.cop }}
           </span>
         </div>
