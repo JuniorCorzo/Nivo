@@ -10,6 +10,7 @@
     "generated:api": "ng-openapi-gen --config ng-openapi-gen.json",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:coverage": "ng test --coverage --coverage-reporters=lcov --watch=false",
     "test:e2e": "playwright test",
     "test:e2e:chromium": "playwright test --project=chromium",
     "check": "ultracite check",
