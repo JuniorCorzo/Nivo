@@ -1,6 +1,7 @@
 import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, provideRouter, Router } from "@angular/router";
+import type { TicketSummary } from "@core/models/ticket.model";
 import { ParkingService } from "@core/services/parking-service";
 import { TicketService } from "@core/services/ticket-service";
 import { of } from "rxjs";
@@ -26,6 +27,7 @@ describe("TicketsPageComponent", () => {
     await TestBed.configureTestingModule({
       imports: [TicketsPageComponent],
       providers: [
+        provideRouter([]),
         {
           provide: ActivatedRoute,
           useValue: {
@@ -154,5 +156,60 @@ describe("TicketsPageComponent", () => {
     // Click Todos pill (index 0)
     pills[0].click();
     expect(updateFiltersSpy).toHaveBeenCalledWith({ vehicleType: "ALL" });
+  });
+
+  it("should navigate to operations with checkoutTicketId when onCheckoutInTaquilla is called", () => {
+    const fixture = TestBed.createComponent(TicketsPageComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, "navigate").mockResolvedValue(true);
+    const closeDetailSpy = vi.spyOn(component.facade, "closeDetail");
+
+    const mockTicket: TicketSummary = {
+      entryTime: "2026-09-05T10:00:00Z",
+      id: "tk-999",
+      licensePlate: "ZZZ999",
+      parkingLotId: "p-456",
+      status: "OPEN",
+    };
+
+    component.onCheckoutInTaquilla(mockTicket);
+
+    expect(closeDetailSpy).toHaveBeenCalled();
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ["/app/parking-lots/p-456/operations"],
+      {
+        queryParams: { checkoutTicketId: "tk-999" },
+      }
+    );
+  });
+
+  it("should fallback to facade parkingId when ticket has no parkingLotId in onCheckoutInTaquilla", () => {
+    const fixture = TestBed.createComponent(TicketsPageComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, "navigate").mockResolvedValue(true);
+    const closeDetailSpy = vi.spyOn(component.facade, "closeDetail");
+
+    const mockTicket: TicketSummary = {
+      entryTime: "2026-09-05T10:00:00Z",
+      id: "tk-888",
+      licensePlate: "AAA000",
+      status: "OPEN",
+    };
+
+    component.onCheckoutInTaquilla(mockTicket);
+
+    expect(closeDetailSpy).toHaveBeenCalled();
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ["/app/parking-lots/p-123/operations"],
+      {
+        queryParams: { checkoutTicketId: "tk-888" },
+      }
+    );
   });
 });

@@ -70,6 +70,7 @@ import { RatePreviewComponent } from "./rate-preview";
           <nv-input
             label="Precio base por unidad ($)"
             type="number"
+            min="0"
             placeholder="0"
             [value]="'' + basePrice()"
             (input)="onBasePriceInput($event)"
@@ -78,6 +79,7 @@ import { RatePreviewComponent } from "./rate-preview";
           <nv-input
             label="Duración estimada (minutos)"
             type="number"
+            min="0"
             placeholder="0"
             [value]="'' + durationMinutes()"
             (input)="onDurationInput($event)"
@@ -129,12 +131,12 @@ export class RateCalculatorComponent {
   onBasePriceInput(event: Event): void {
     /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
-    this.basePrice.set(target.valueAsNumber || 0);
+    this.basePrice.set(Math.max(0, target.valueAsNumber || 0));
   }
 
   onDurationInput(event: Event): void {
     /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
-    this.durationMinutes.set(target.valueAsNumber || 0);
+    this.durationMinutes.set(Math.max(0, target.valueAsNumber || 0));
   }
 }

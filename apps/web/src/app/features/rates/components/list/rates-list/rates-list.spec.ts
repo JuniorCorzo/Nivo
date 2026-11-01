@@ -125,6 +125,34 @@ describe("RateListComponent", () => {
     expect(component.filteredRates().length).toBe(1);
   });
 
+  it("should handle rate with null or undefined description when searching", () => {
+    const rateWithNullDesc: RateModel = {
+      createdAt: "",
+      description: "temp",
+      id: "rate-null-desc",
+      minChargeTimeMinutes: 15,
+      name: "Tarifa Sin Descripcion",
+      parkingId: "parking-1",
+      pricePerUnit: 4000,
+      timeUnit: "HOURS",
+      updatedAt: "",
+      vehicleType: "CAR",
+    };
+    /* SAFETY: Simulate backend payload where optional description arrives as null at runtime */
+    Reflect.set(rateWithNullDesc, "description", null);
+
+    mockRatesByParking.set({
+      "parking-1": [rateWithNullDesc],
+    });
+
+    component.searchQuery.set("tarifa");
+    expect(() => component.filteredRates()).not.toThrow();
+    expect(component.filteredRates().length).toBe(1);
+
+    component.searchQuery.set("inexistente");
+    expect(component.filteredRates().length).toBe(0);
+  });
+
   it("should filter rates by vehicle type", () => {
     component.vehicleFilter.set("BIKE");
     expect(component.filteredRates().length).toBe(0);

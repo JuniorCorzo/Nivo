@@ -8,17 +8,14 @@ import {
 } from "@angular/router";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import type { RateModel } from "@core/models/rate.model";
+import type { TicketSummary } from "@core/models/ticket.model";
 import { ParkingService } from "@core/services/parking-service";
 import { RateService } from "@core/services/rate-service";
 import { SlotService } from "@core/services/slot-service";
 import { TicketService } from "@core/services/ticket-service";
-import {
-  ButtonComponent,
-  DividerComponent,
-  ToastService,
-} from "@nivo-sass/design-system";
+import { ButtonComponent, ToastService } from "@nivo-sass/design-system";
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
-import { of, throwError } from "rxjs";
+import { BehaviorSubject, of, Subject, throwError } from "rxjs";
 
 import { OperationsPageComponent } from "./operations-page";
 
@@ -163,6 +160,7 @@ describe("OperationsPageComponent", () => {
           provide: ActivatedRoute,
           useValue: {
             paramMap: of(convertToParamMap({ parkingId: "p-1" })),
+            queryParamMap: of(convertToParamMap({})),
           },
         },
         { provide: ParkingService, useValue: parkingServiceSpy },
@@ -190,6 +188,12 @@ describe("OperationsPageComponent", () => {
     expect(component.totalMotoSlotsCount()).toBe(2);
     expect(component.occupiedSlotsCount()).toBe(2);
     expect(component.occupationPercentage()).toBe(50);
+    expect(component.occupationBarPercentage()).toBe(50);
+  });
+
+  it("should clamp occupationBarPercentage to 100 when occupied slots exceed total slots", () => {
+    vi.spyOn(component, "occupationPercentage").mockReturnValue(125);
+    expect(component.occupationBarPercentage()).toBe(100);
   });
 
   it("should toggle check-in modal state", () => {
@@ -208,53 +212,32 @@ describe("OperationsPageComponent", () => {
     expect(component.isCheckOutModalOpen()).toBe(false);
   });
 
-  it("should render page header with quick action buttons that trigger modal methods", () => {
+  it("should render page header with tickets navigation link without redundant action buttons", () => {
     fixture.detectChanges();
     const pageHeader = fixture.debugElement.query(
       By.directive(PageHeaderComponent)
     );
     expect(pageHeader).toBeTruthy();
 
-    const buttons = fixture.debugElement.queryAll(
-      By.directive(ButtonComponent)
-    );
-    const checkInBtn = buttons.find((btn) =>
-      btn.nativeElement.textContent.includes("Registrar Ingreso")
-    );
-    const checkOutBtn = buttons.find((btn) =>
-      btn.nativeElement.textContent.includes("Procesar Salida")
-    );
-
-    expect(checkInBtn).toBeDefined();
-    expect(checkOutBtn).toBeDefined();
-
-    checkInBtn?.nativeElement.click();
-    expect(component.isCheckInModalOpen()).toBe(true);
-    component.closeCheckInModal();
-
-    checkOutBtn?.nativeElement.click();
-    expect(component.isCheckOutModalOpen()).toBe(true);
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in page header */
+    const pageHeaderEl = pageHeader.nativeElement as HTMLElement;
+    expect(pageHeaderEl.textContent).toContain("Ver Tickets");
+    expect(pageHeaderEl.textContent).not.toContain("Registrar Ingreso");
+    expect(pageHeaderEl.textContent).not.toContain("Procesar Salida");
   });
 
-  it("should render tickets navigation link and divider in quick action buttons", () => {
-    fixture.detectChanges();
-    const divider = fixture.debugElement.query(By.directive(DividerComponent));
-    expect(divider).toBeTruthy();
-
-    const ticketLink = fixture.debugElement.query(By.css("a[nv-button]"));
-    expect(ticketLink).toBeTruthy();
-    expect(ticketLink.nativeElement.textContent).toContain("Ver Tickets");
-  });
-
-  it("should render 4 operational booth cards in summary grid", () => {
+  it("should render Unified KPI Ribbon with global capacity, cars, motos, and active counts accurately", () => {
     fixture.detectChanges();
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain("Cupos Carros");
-    expect(compiled.textContent).toContain("Cupos Motos");
-    expect(compiled.textContent).toContain("Vehículos Dentro");
-    expect(compiled.textContent).toContain("Nivel Ocupación");
-    expect(compiled.textContent).not.toContain("Tarifas Activas");
+    const text = (fixture.nativeElement as HTMLElement).textContent?.replaceAll(
+      /\s+/gu,
+      " "
+    );
+    expect(text).toContain("Capacidad Global 50%");
+    expect(text).toContain("2 libres de 4");
+    expect(text).toContain("Carros 1 libres / 2");
+    expect(text).toContain("Motos 1 libres / 2");
+    expect(text).toContain("Activos 2 activos");
   });
 
   it("should filter slots by vehicle type and status", () => {
@@ -264,6 +247,43 @@ describe("OperationsPageComponent", () => {
     component.setStatusFilter("AVAILABLE");
     expect(component.filteredSlots().length).toBe(1);
     expect(component.filteredSlots()[0].id).toBe("s-1");
+  });
+
+  it("should reset slot filters when resetSlotFilters is called", () => {
+    component.setVehicleFilter("CAR");
+    component.setStatusFilter("AVAILABLE");
+    expect(component.filteredSlots().length).toBe(1);
+
+    component.resetSlotFilters();
+
+    expect(component.vehicleFilter()).toBe("ALL");
+    expect(component.statusFilter()).toBe("ALL");
+    expect(component.filteredSlots().length).toBe(4);
+  });
+
+  it("should render empty state with reset button when no slots match filters and reset filters on click", () => {
+    component.setVehicleFilter("TRUCK");
+    fixture.detectChanges();
+
+    const compiled: HTMLElement = fixture.nativeElement;
+    expect(compiled.textContent).toContain(
+      "No se encontraron bahías con los filtros seleccionados."
+    );
+    expect(compiled.textContent).toContain(
+      "Prueba cambiando el tipo de vehículo o el estado."
+    );
+
+    const resetBtn = [...compiled.querySelectorAll("button")].find((btn) =>
+      btn.textContent?.includes("Restablecer filtros")
+    );
+    expect(resetBtn).toBeDefined();
+
+    resetBtn?.click();
+    fixture.detectChanges();
+
+    expect(component.vehicleFilter()).toBe("ALL");
+    expect(component.statusFilter()).toBe("ALL");
+    expect(component.filteredSlots().length).toBe(4);
   });
 
   it("should fetch active ticket for occupied slot and open checkout modal on checkOutSpecificSlot", () => {
@@ -427,6 +447,25 @@ describe("OperationsPageComponent", () => {
       expect(component.searchTicketQuery()).toBe("ABC");
     });
 
+    it("should display clear button in table search when query is not empty and clear it on click", () => {
+      component.setSearchTicketQuery("XYZ");
+      fixture.detectChanges();
+
+      const clearBtn = fixture.nativeElement.querySelector(
+        'button[aria-label="Limpiar búsqueda"]'
+      );
+      expect(clearBtn).toBeDefined();
+
+      clearBtn?.click();
+      fixture.detectChanges();
+
+      expect(component.searchTicketQuery()).toBe("");
+      const clearBtnAfter = fixture.nativeElement.querySelector(
+        'button[aria-label="Limpiar búsqueda"]'
+      );
+      expect(clearBtnAfter).toBeNull();
+    });
+
     it("should open checkout modal with preselected ticket when checkOutWithTicket is called", () => {
       const [ticket] = mockActiveTickets;
       component.checkOutWithTicket(ticket);
@@ -474,9 +513,15 @@ describe("OperationsPageComponent", () => {
     });
 
     it("should trigger hotkeys I, O, and Q to open modals when target is not an input", () => {
-      const checkInSpy = vi.spyOn(component, "openCheckInModal");
-      const checkOutSpy = vi.spyOn(component, "openDirectCheckOutModal");
-      const qrSpy = vi.spyOn(component, "openQrScanner");
+      const checkInSpy = vi
+        .spyOn(component, "openCheckInModal")
+        .mockImplementation(() => {});
+      const checkOutSpy = vi
+        .spyOn(component, "openDirectCheckOutModal")
+        .mockImplementation(() => {});
+      const qrSpy = vi
+        .spyOn(component, "openQrScanner")
+        .mockImplementation(() => {});
 
       // Press I
       window.dispatchEvent(new KeyboardEvent("keydown", { key: "i" }));
@@ -512,13 +557,119 @@ describe("OperationsPageComponent", () => {
       input.remove();
     });
 
-    it("should render Dock Express Superior with aforo meter and express check-in bar", () => {
+    it("should not trigger I, O, or Q shortcuts when a modal is open (checkIn, checkOut, or qrScanner)", () => {
+      const checkInSpy = vi.spyOn(component, "openCheckInModal");
+      const checkOutSpy = vi.spyOn(component, "openDirectCheckOutModal");
+      const qrSpy = vi.spyOn(component, "openQrScanner");
+
+      // Case 1: check-in modal open
+      component.isCheckInModalOpen.set(true);
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "i" }));
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "o" }));
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "q" }));
+      expect(checkInSpy).not.toHaveBeenCalled();
+      expect(checkOutSpy).not.toHaveBeenCalled();
+      expect(qrSpy).not.toHaveBeenCalled();
+      component.isCheckInModalOpen.set(false);
+
+      // Case 2: check-out modal open
+      component.isCheckOutModalOpen.set(true);
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "i" }));
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "o" }));
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "q" }));
+      expect(checkInSpy).not.toHaveBeenCalled();
+      expect(checkOutSpy).not.toHaveBeenCalled();
+      expect(qrSpy).not.toHaveBeenCalled();
+      component.isCheckOutModalOpen.set(false);
+
+      // Case 3: qr scanner open
+      component.isQrScannerOpen.set(true);
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "i" }));
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "o" }));
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "q" }));
+      expect(checkInSpy).not.toHaveBeenCalled();
+      expect(checkOutSpy).not.toHaveBeenCalled();
+      expect(qrSpy).not.toHaveBeenCalled();
+    });
+
+    it("should render Omnibar Táctico de Taquilla with express check-in and express check-out controls", () => {
       fixture.detectChanges();
       const compiled: HTMLElement = fixture.nativeElement;
-      expect(compiled.textContent).toContain("Aforo General");
-      expect(compiled.textContent).toContain("libres de 4 totales");
+      expect(compiled.textContent).toContain("Ingreso Exprés");
       expect(compiled.textContent).toContain("+ Ingresar");
+      expect(compiled.textContent).toContain("Sin Placa");
+      expect(compiled.textContent).toContain("Cobro & Salida Exprés");
+      expect(compiled.textContent).toContain("Cobrar Salida");
       expect(compiled.textContent).toContain("Escanear QR");
+    });
+
+    it("should open check-in modal with checkInModalInitialUnplated true on clicking Sin Placa in Omnibar", () => {
+      const checkInSpy = vi.spyOn(component, "openCheckInModal");
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(
+        By.directive(ButtonComponent)
+      );
+      const sinPlacaBtn = buttons.find((btn) =>
+        btn.nativeElement.textContent.includes("Sin Placa")
+      );
+      expect(sinPlacaBtn).toBeDefined();
+
+      sinPlacaBtn?.nativeElement.click();
+      expect(checkInSpy).toHaveBeenCalledWith(true);
+      expect(component.isCheckInModalOpen()).toBe(true);
+      expect(component.checkInModalInitialUnplated()).toBe(true);
+    });
+
+    it("should trigger express check-out action when clicking Cobrar Salida button in Omnibar", () => {
+      const checkOutSpy = vi.spyOn(component, "submitExpressCheckOutByQuery");
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(
+        By.directive(ButtonComponent)
+      );
+      const cobrarSalidaBtn = buttons.find(
+        (btn) =>
+          btn.nativeElement.textContent.includes("Cobrar Salida") &&
+          !btn.nativeElement.textContent.includes("Directa")
+      );
+      expect(cobrarSalidaBtn).toBeDefined();
+
+      cobrarSalidaBtn?.nativeElement.click();
+      expect(checkOutSpy).toHaveBeenCalled();
+    });
+
+    it("should trigger express check-in on clicking + Ingresar in Omnibar", () => {
+      const submitSpy = vi.spyOn(component, "submitExpressCheckIn");
+      component.expressPlate.set("ABC123");
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(
+        By.directive(ButtonComponent)
+      );
+      const ingresarBtn = buttons.find((btn) =>
+        btn.nativeElement.textContent.includes("+ Ingresar")
+      );
+      expect(ingresarBtn).toBeDefined();
+
+      ingresarBtn?.nativeElement.click();
+      expect(submitSpy).toHaveBeenCalled();
+    });
+
+    it("should open QR scanner modal on clicking Escanear QR in Omnibar", () => {
+      const qrSpy = vi.spyOn(component, "openQrScanner");
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(
+        By.directive(ButtonComponent)
+      );
+      const qrBtn = buttons.find((btn) =>
+        btn.nativeElement.textContent.includes("Escanear QR")
+      );
+      expect(qrBtn).toBeDefined();
+
+      qrBtn?.nativeElement.click();
+      expect(qrSpy).toHaveBeenCalled();
     });
 
     it("should toggle QR scanner modal open and close", () => {
@@ -616,6 +767,27 @@ describe("OperationsPageComponent", () => {
           type: "error",
         })
       );
+      expect(ticketServiceSpy.createTicket).not.toHaveBeenCalled();
+    });
+
+    it("should reject express check-in if plate has less than 3 alphanumeric characters", () => {
+      component.expressPlate.set("AB");
+      component.submitExpressCheckIn();
+
+      expect(toastSpy.showToast).toHaveBeenCalledWith({
+        message: "Por favor ingresa una placa válida (mínimo 3 caracteres).",
+        type: "error",
+      });
+      expect(ticketServiceSpy.createTicket).not.toHaveBeenCalled();
+
+      toastSpy.showToast.mockClear();
+      component.expressPlate.set("-.-");
+      component.submitExpressCheckIn();
+
+      expect(toastSpy.showToast).toHaveBeenCalledWith({
+        message: "Por favor ingresa una placa válida (mínimo 3 caracteres).",
+        type: "error",
+      });
       expect(ticketServiceSpy.createTicket).not.toHaveBeenCalled();
     });
 
@@ -721,9 +893,9 @@ describe("OperationsPageComponent", () => {
       expect(cards.length).toBeGreaterThanOrEqual(4);
 
       // Verify available card footer
-      expect(fixture.nativeElement.textContent).toContain("+ Asignar bahía");
+      expect(fixture.nativeElement.textContent).toContain("Asignar bahía");
       // Verify occupied card footer
-      expect(fixture.nativeElement.textContent).toContain("⏱ Cobrar Salida");
+      expect(fixture.nativeElement.textContent).toContain("Cobrar Salida");
       // Verify plate is shown inside occupied card
       expect(fixture.nativeElement.textContent).toContain("ABC-123");
       // Verify Cobrar Salida Directa button exists
@@ -754,15 +926,17 @@ describe("OperationsPageComponent", () => {
         component.activeTickets.set(mockTickets);
       });
 
-      it("should show error toast if query is empty", () => {
+      it("should open direct checkout modal if query is empty", () => {
+        const directCheckOutSpy = vi.spyOn(
+          component,
+          "openDirectCheckOutModal"
+        );
         component.setSearchTicketQuery("");
         component.submitExpressCheckOutByQuery();
 
-        expect(toastSpy.showToast).toHaveBeenCalledWith({
-          message: "Ingresa una placa o bahía para cobrar salida.",
-          type: "error",
-        });
-        expect(component.isCheckOutModalOpen()).toBe(false);
+        expect(directCheckOutSpy).toHaveBeenCalled();
+        expect(component.isCheckOutModalOpen()).toBe(true);
+        expect(component.selectedCheckoutTicket()).toBeNull();
       });
 
       it("should open checkout modal directly when query has a single unique match", () => {
@@ -778,6 +952,23 @@ describe("OperationsPageComponent", () => {
         component.submitExpressCheckOutByQuery();
 
         expect(component.selectedCheckoutTicket()).toEqual(mockTickets[0]);
+        expect(component.isCheckOutModalOpen()).toBe(true);
+      });
+
+      it("should match ticket with hyphenated search query (e.g. 'EXP-123' matching 'EXP123') in express checkout", () => {
+        const expTicket = {
+          entryTime: "2026-10-16T11:00:00Z",
+          id: "t-exp",
+          licensePlate: "EXP123",
+          slotNumber: "105",
+          status: "OPEN" as const,
+        };
+        component.activeTickets.set([...mockTickets, expTicket]);
+
+        component.setSearchTicketQuery("EXP-123");
+        component.submitExpressCheckOutByQuery();
+
+        expect(component.selectedCheckoutTicket()).toEqual(expTicket);
         expect(component.isCheckOutModalOpen()).toBe(true);
       });
 
@@ -805,6 +996,152 @@ describe("OperationsPageComponent", () => {
           type: "error",
         });
         expect(component.isCheckOutModalOpen()).toBe(false);
+      });
+    });
+
+    describe("checkoutTicketId query parameter navigation bridge", () => {
+      it("should automatically trigger checkOutWithTicket when checkoutTicketId matches an active ticket loaded asynchronously", () => {
+        const targetTicket: TicketSummary = {
+          entryTime: "2026-10-16T10:00:00Z",
+          id: "ticket-target-99",
+          licensePlate: "BRG123",
+          slotNumber: "101",
+          status: "OPEN",
+        };
+
+        const ticketsSubject = new Subject<TicketSummary[]>();
+        ticketServiceSpy.listTicketsByParkingLot.mockReturnValue(
+          ticketsSubject.asObservable()
+        );
+
+        const queryParamSubject = new BehaviorSubject(
+          convertToParamMap({ checkoutTicketId: "ticket-target-99" })
+        );
+
+        TestBed.resetTestingModule();
+        TestBed.configureTestingModule({
+          imports: [OperationsPageComponent],
+          providers: [
+            provideRouter([]),
+            {
+              provide: ActivatedRoute,
+              useValue: {
+                paramMap: of(convertToParamMap({ parkingId: "p-1" })),
+                queryParamMap: queryParamSubject.asObservable(),
+              },
+            },
+            { provide: ParkingService, useValue: parkingServiceSpy },
+            { provide: SlotService, useValue: slotServiceSpy },
+            { provide: RateService, useValue: rateServiceSpy },
+            { provide: TicketService, useValue: ticketServiceSpy },
+            { provide: ToastService, useValue: toastSpy },
+          ],
+        });
+
+        const customFixture = TestBed.createComponent(OperationsPageComponent);
+        const customComp = customFixture.componentInstance;
+        customFixture.detectChanges();
+
+        const checkOutSpy = vi.spyOn(customComp, "checkOutWithTicket");
+
+        // Before async tickets emit, checkOutWithTicket should not be called
+        expect(checkOutSpy).not.toHaveBeenCalled();
+
+        // Emit active tickets asynchronously
+        ticketsSubject.next([targetTicket]);
+        customFixture.detectChanges();
+
+        expect(checkOutSpy).toHaveBeenCalledWith(targetTicket);
+        expect(customComp.selectedCheckoutTicket()).toEqual(targetTicket);
+        expect(customComp.isCheckOutModalOpen()).toBe(true);
+      });
+
+      it("should trigger checkOutWithTicket immediately if tickets are already loaded when queryParam arrives", () => {
+        const targetTicket: TicketSummary = {
+          entryTime: "2026-10-16T10:00:00Z",
+          id: "ticket-target-55",
+          licensePlate: "IMM555",
+          slotNumber: "102",
+          status: "OPEN",
+        };
+
+        ticketServiceSpy.listTicketsByParkingLot.mockReturnValue(
+          of([targetTicket])
+        );
+
+        const queryParamSubject = new BehaviorSubject(
+          convertToParamMap({ checkoutTicketId: "ticket-target-55" })
+        );
+
+        TestBed.resetTestingModule();
+        TestBed.configureTestingModule({
+          imports: [OperationsPageComponent],
+          providers: [
+            provideRouter([]),
+            {
+              provide: ActivatedRoute,
+              useValue: {
+                paramMap: of(convertToParamMap({ parkingId: "p-1" })),
+                queryParamMap: queryParamSubject.asObservable(),
+              },
+            },
+            { provide: ParkingService, useValue: parkingServiceSpy },
+            { provide: SlotService, useValue: slotServiceSpy },
+            { provide: RateService, useValue: rateServiceSpy },
+            { provide: TicketService, useValue: ticketServiceSpy },
+            { provide: ToastService, useValue: toastSpy },
+          ],
+        });
+
+        const customFixture = TestBed.createComponent(OperationsPageComponent);
+        const customComp = customFixture.componentInstance;
+        customFixture.detectChanges();
+
+        expect(customComp.selectedCheckoutTicket()).toEqual(targetTicket);
+        expect(customComp.isCheckOutModalOpen()).toBe(true);
+      });
+
+      it("should NOT trigger checkOutWithTicket if checkoutTicketId does not match any active ticket", () => {
+        const otherTicket: TicketSummary = {
+          entryTime: "2026-10-16T10:00:00Z",
+          id: "ticket-other-1",
+          licensePlate: "OTH111",
+          slotNumber: "103",
+          status: "OPEN",
+        };
+
+        ticketServiceSpy.listTicketsByParkingLot.mockReturnValue(
+          of([otherTicket])
+        );
+
+        TestBed.resetTestingModule();
+        TestBed.configureTestingModule({
+          imports: [OperationsPageComponent],
+          providers: [
+            provideRouter([]),
+            {
+              provide: ActivatedRoute,
+              useValue: {
+                paramMap: of(convertToParamMap({ parkingId: "p-1" })),
+                queryParamMap: of(
+                  convertToParamMap({ checkoutTicketId: "nonexistent-id" })
+                ),
+              },
+            },
+            { provide: ParkingService, useValue: parkingServiceSpy },
+            { provide: SlotService, useValue: slotServiceSpy },
+            { provide: RateService, useValue: rateServiceSpy },
+            { provide: TicketService, useValue: ticketServiceSpy },
+            { provide: ToastService, useValue: toastSpy },
+          ],
+        });
+
+        const customFixture = TestBed.createComponent(OperationsPageComponent);
+        const customComp = customFixture.componentInstance;
+        customFixture.detectChanges();
+
+        expect(customComp.selectedCheckoutTicket()).toBeNull();
+        expect(customComp.isCheckOutModalOpen()).toBe(false);
       });
     });
   });

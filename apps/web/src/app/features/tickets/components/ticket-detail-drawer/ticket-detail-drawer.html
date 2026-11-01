@@ -223,15 +223,28 @@
     <nv-button type="button" variant="outline" size="md" (click)="close.emit()">
       {{ actionTexts.closeDrawer }}
     </nv-button>
-    <nv-button
-      type="button"
-      variant="default"
-      size="md"
-      (click)="reprintReceipt.emit(ticket()!)"
-    >
-      <ng-icon name="lucidePrinter" size="16" />
-      {{ actionTexts.reprintReceipt }}
-    </nv-button>
+    <div class="flex items-center gap-2">
+      <nv-button
+        type="button"
+        [variant]="ticket()?.status === 'OPEN' ? 'outline' : 'default'"
+        size="md"
+        (click)="reprintReceipt.emit(ticket()!)"
+      >
+        <ng-icon name="lucidePrinter" size="16" />
+        {{ actionTexts.reprintReceipt }}
+      </nv-button>
+      @if (ticket()?.status === "OPEN") {
+      <nv-button
+        type="button"
+        variant="default"
+        size="md"
+        (click)="checkoutInTaquilla.emit(ticket()!)"
+      >
+        <ng-icon name="lucideLogOut" size="16" />
+        {{ actionTexts.checkoutInTaquilla }}
+      </nv-button>
+      }
+    </div>
   </div>
 </aside>
 }

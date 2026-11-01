@@ -5,6 +5,7 @@ import {
   inject,
   input,
 } from "@angular/core";
+import type { OccupiedSlotDetail } from "@core/models/parking-telemetry.model";
 import type { SlotDistribution } from "@core/type/slot-distribution.type";
 import { SLOT_TYPE_ICONS } from "@features/slots/shared/parking-slot-presentations";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -60,6 +61,7 @@ export class ParkingSlotDistribution {
   public readonly occupiedSlots = input.required<number>();
   public readonly availableSlots = input.required<number>();
   public readonly totalSlots = input.required<number>();
+  public readonly occupiedSlotsDetail = input<OccupiedSlotDetail[]>([]);
 
   public static slotLabel(slot: SlotDistribution): string {
     return [slot.zone, slot.type].filter(Boolean).join(" · ").toUpperCase();
@@ -73,34 +75,62 @@ export class ParkingSlotDistribution {
       return [];
     }
 
-    const samplePlates = [
-      "KLM 482",
-      "BDX 910",
-      "TKR 502",
-      "HPL 883",
-      "ZXV 119",
-      "MKQ 724",
-      "NWS 991",
-      "SP-091",
-      "FGB 332",
-      "WNZ 401",
-      "QRT 512",
-      "BKL 789",
-    ];
+    const maxSlots = 12;
+    const details = this.occupiedSlotsDetail() ?? [];
+
+    if (details.length > 0) {
+      const occupiedItems: VisualSlotItem[] = details
+        .slice(0, maxSlots)
+        .map((detail) => ({
+          isOccupied: true,
+          name:
+            detail.prefix && !detail.slotNumber.startsWith(detail.prefix)
+              ? `${detail.prefix}-${detail.slotNumber}`
+              : detail.slotNumber,
+          plate: detail.licensePlate || undefined,
+          type: detail.type,
+        }));
+
+      const remainingCount = maxSlots - occupiedItems.length;
+      if (remainingCount <= 0) {
+        return occupiedItems;
+      }
+
+      const occupiedNames = new Set(occupiedItems.map((s) => s.name));
+      const availableItems: VisualSlotItem[] = [];
+      let slotCounter = 1;
+      let groupIdx = 0;
+
+      while (availableItems.length < remainingCount) {
+        const group = dist[groupIdx % dist.length];
+        groupIdx++;
+        const prefix = group?.prefix || "P";
+        const slotNum = slotCounter < 10 ? `0${slotCounter}` : `${slotCounter}`;
+        const candidateName = `${prefix}-${slotNum}`;
+        slotCounter++;
+        if (!occupiedNames.has(candidateName)) {
+          availableItems.push({
+            isOccupied: false,
+            name: candidateName,
+            type: group?.type || "CAR",
+          });
+        }
+      }
+
+      return [...occupiedItems, ...availableItems];
+    }
 
     const total = this.totalSlots() || 1;
     const occupiedTarget = Math.min(
-      12,
+      maxSlots,
       Math.max(
         0,
-        Math.round(12 * (this.occupiedSlots() / total)) ||
+        Math.round(maxSlots * (this.occupiedSlots() / total)) ||
           (this.occupiedSlots() > 0 ? 8 : 0)
       )
     );
 
     const items: VisualSlotItem[] = [];
-    const maxSlots = 12;
-
     let remaining = maxSlots;
     for (let g = 0; g < dist.length; g += 1) {
       const group = dist[g];
@@ -124,13 +154,11 @@ export class ParkingSlotDistribution {
       }
     }
 
-    let plateIdx = 0;
     for (let i = 0; i < items.length; i += 1) {
       const shouldOccupy = i < occupiedTarget;
       if (shouldOccupy) {
         items[i].isOccupied = true;
-        items[i].plate = samplePlates[plateIdx % samplePlates.length];
-        plateIdx += 1;
+        items[i].plate = undefined;
       }
     }
 

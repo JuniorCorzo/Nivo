@@ -4,6 +4,7 @@ import {
   computed,
   input,
 } from "@angular/core";
+import type { ParkingTelemetryModel } from "@core/models/parking-telemetry.model";
 import type { Coordinates } from "@core/type/coordinates.type";
 import type { OperatingHours } from "@core/type/operating-hours.type";
 import type { SlotDistribution } from "@core/type/slot-distribution.type";
@@ -49,6 +50,7 @@ export class ParkingStatsGrid {
   public readonly operatingHours = input<OperatingHours>();
   public readonly gracePeriodMinutes = input<number>();
   public readonly gracePeriodPrice = input<number>();
+  public readonly telemetry = input<ParkingTelemetryModel | null>(null);
 
   public readonly clampedOccupationRate = computed<number>(() =>
     Math.min(Math.max(this.occupationRate(), 0), 100)
@@ -63,6 +65,10 @@ export class ParkingStatsGrid {
   });
 
   public readonly carTotal = computed<number>(() => {
+    const t = this.telemetry();
+    if (t?.carTotal != null) {
+      return t.carTotal;
+    }
     const dist = this.slotDistribution() ?? [];
     return dist
       .filter((s) => s.type === "CAR")
@@ -70,6 +76,10 @@ export class ParkingStatsGrid {
   });
 
   public readonly motoTotal = computed<number>(() => {
+    const t = this.telemetry();
+    if (t?.motoTotal != null) {
+      return t.motoTotal;
+    }
     const dist = this.slotDistribution() ?? [];
     return dist
       .filter((s) => s.type === "MOTORCYCLE")
@@ -77,6 +87,10 @@ export class ParkingStatsGrid {
   });
 
   public readonly carOccupied = computed<number>(() => {
+    const t = this.telemetry();
+    if (t?.carOccupied != null) {
+      return t.carOccupied;
+    }
     const total = this.totalSlots();
     if (total <= 0 || this.carTotal() <= 0) {
       return 0;
@@ -85,13 +99,21 @@ export class ParkingStatsGrid {
     return Math.min(this.carTotal(), Math.round(this.carTotal() * ratio));
   });
 
-  public readonly carRate = computed<number>(() =>
-    this.carTotal() > 0
+  public readonly carRate = computed<number>(() => {
+    const t = this.telemetry();
+    if (t?.carRate != null) {
+      return t.carRate;
+    }
+    return this.carTotal() > 0
       ? Math.round((this.carOccupied() / this.carTotal()) * 100)
-      : 0
-  );
+      : 0;
+  });
 
   public readonly motoOccupied = computed<number>(() => {
+    const t = this.telemetry();
+    if (t?.motoOccupied != null) {
+      return t.motoOccupied;
+    }
     const total = this.totalSlots();
     if (total <= 0 || this.motoTotal() <= 0) {
       return 0;
@@ -100,11 +122,15 @@ export class ParkingStatsGrid {
     return Math.min(this.motoTotal(), Math.round(this.motoTotal() * ratio));
   });
 
-  public readonly motoRate = computed<number>(() =>
-    this.motoTotal() > 0
+  public readonly motoRate = computed<number>(() => {
+    const t = this.telemetry();
+    if (t?.motoRate != null) {
+      return t.motoRate;
+    }
+    return this.motoTotal() > 0
       ? Math.round((this.motoOccupied() / this.motoTotal()) * 100)
-      : 0
-  );
+      : 0;
+  });
 
   public readonly totalZones = computed<number>(() => {
     const dist = this.slotDistribution() ?? [];
