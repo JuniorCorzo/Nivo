@@ -1,14 +1,19 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.mappers;
 
+import dev.angelcorzo.nivo.domain.model.parkinglots.OccupiedSlotSummary;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLotListItem;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLotPolicy;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLots;
+import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingTelemetry;
 import dev.angelcorzo.nivo.domain.model.parkinglots.dto.UpsertParkingLotsDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.config.MapperStructConfig;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.dto.request.UpsertParkingLotsRequest;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.dto.response.OccupiedSlotResponse;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.dto.response.ParkingLotListItemResponse;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.dto.response.ParkingLotsResponse;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.parkinglots.dto.response.ParkingTelemetryResponse;
 import java.math.BigDecimal;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -26,6 +31,12 @@ public interface ParkingLotsMapper {
   @Mapping(target = "gracePeriodPrice", expression = "java(model.policy() != null ? model.policy().gracePeriodPrice() : java.math.BigDecimal.ZERO)")
   @Mapping(target = "ivaRate", expression = "java(model.policy() != null ? model.policy().ivaRate() : new java.math.BigDecimal(\"0.19\"))")
   ParkingLotListItemResponse toListItemResponse(ParkingLotListItem model);
+
+  ParkingTelemetryResponse toTelemetryResponse(ParkingTelemetry model);
+
+  OccupiedSlotResponse toOccupiedSlotResponse(OccupiedSlotSummary model);
+
+  List<OccupiedSlotResponse> toOccupiedSlotResponseList(List<OccupiedSlotSummary> models);
 
   default ParkingLotPolicy toPolicy(UpsertParkingLotsRequest dto) {
     if (dto == null) {
