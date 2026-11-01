@@ -159,7 +159,7 @@ restart_api() {
 # --- Service: Frontend Web (Angular) ---
 
 start_web() {
-    echo -e "\n${BOLD}${BLUE}==> Starting Frontend Web (Angular via Bun)...${RESET}"
+    echo -e "\n${BOLD}${BLUE}==> Starting Frontend Web (Angular via PNPM)...${RESET}"
     local running_pid
     if running_pid=$(is_pid_running "$LOGS_DIR/web.pid"); then
         echo -e "    ${YELLOW}Web already running with PID ${running_pid}${RESET}"
@@ -169,7 +169,7 @@ start_web() {
         echo "$port_pid" > "$LOGS_DIR/web.pid"
         echo -e "    ${YELLOW}Web already running on port 4200 with PID ${port_pid}${RESET}"
     else
-        ( cd apps/web && exec bun run start ) > "$LOGS_DIR/web.log" 2>&1 &
+        ( cd apps/web && exec pnpm run start ) > "$LOGS_DIR/web.log" 2>&1 &
         local web_pid=$!
         echo "$web_pid" > "$LOGS_DIR/web.pid"
         echo -e "    ${GREEN}✔ Web launched with PID ${web_pid}${RESET} (Logs: ${CYAN}tail -f $LOGS_DIR/web.log${RESET})"
