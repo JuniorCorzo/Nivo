@@ -21,6 +21,7 @@ import {
   lucideSettings,
 } from "@ng-icons/lucide";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 import { UserMenu } from "../user-menu/user-menu";
 
@@ -74,6 +75,8 @@ export class SidebarFooter {
   readonly collapsed = input(false);
   readonly isOpen = signal(false);
 
+  protected readonly texts = APP_TEXTS.sidebar.sedeSwitcher;
+
   private readonly router = inject(Router);
   private readonly activeParkingService = inject(ActiveParkingService, {
     optional: true,
@@ -102,7 +105,9 @@ export class SidebarFooter {
 
   readonly capacityLabel = computed(() => {
     const lot = this.activeParkingLot();
-    return lot ? `${lot.totalCapacity ?? 0} Plazas` : "Sin sede";
+    return lot
+      ? this.texts.plazasCapacity(lot.totalCapacity ?? 0)
+      : this.texts.noSede;
   });
 
   formatAddress(lot: ParkingLotListItemModel): string {
@@ -118,7 +123,7 @@ export class SidebarFooter {
         return parts.join(", ");
       }
     }
-    return `${lot.totalCapacity ?? 0} Plazas`;
+    return this.texts.plazasCapacity(lot.totalCapacity ?? 0);
   }
 
   toggleOpen(): void {

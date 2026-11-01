@@ -894,6 +894,15 @@ export const APP_TEXTS = {
     logo: "Nivo",
     logout: "Cerrar sesión",
     nav: sidebarNav,
+    sedeSwitcher: {
+      availableSedes: "Sedes disponibles",
+      changeSede: "Cambiar sede",
+      emptyState: "No hay sedes registradas",
+      manageSedes: "Gestionar sedes",
+      noSede: "Sin sede",
+      plazasCapacity: (count: number) => `${count} Plazas`,
+      selectSede: "Seleccionar sede",
+    },
     theme: {
       label: "Tema",
     },
