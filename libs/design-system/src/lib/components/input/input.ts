@@ -74,7 +74,9 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
               type="button"
               class="absolute top-1/2 right-3 -translate-y-1/2 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
               [disabled]="isDisabled()"
-              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+              [attr.aria-label]="
+                showPassword() ? 'Hide password' : 'Show password'
+              "
               (click)="togglePasswordVisibility()"
             >
               <ng-icon
