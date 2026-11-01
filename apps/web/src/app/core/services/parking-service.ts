@@ -1,5 +1,6 @@
-import { HttpContext } from "@angular/common/http";
+import { HttpClient, HttpContext } from "@angular/common/http";
 import { inject, Injectable, signal } from "@angular/core";
+import { ApiConfiguration } from "@core/api/generated/api-configuration";
 import type {
   ResponseListParkingLotListItemResponse,
   ResponseParkingLotsResponse,
@@ -12,6 +13,7 @@ import {
   mapToParkingLotsModel,
   mapToUpsertParkingLotsRequest,
 } from "@core/mappers/parking.mapper";
+import type { ParkingTelemetryModel } from "@core/models/parking-telemetry.model";
 import type {
   ParkingLotListItemModel,
   ParkingLotsModel,
@@ -29,6 +31,8 @@ export class ParkingService {
   public parkingLots = this._parkingLots.asReadonly();
 
   private parkingLotsService = inject(ParkingLotsService);
+  private http = inject(HttpClient);
+  private config = inject(ApiConfiguration);
 
   private static httpContext() {
     const context = new HttpContext();
@@ -152,5 +156,20 @@ export class ParkingService {
     return this.getById(id).pipe(
       map((parking) => mapListItemToUpsertParkingLotsModel(parking))
     );
+  }
+
+  /**
+   * Get real-time operational telemetry for a parking facility
+   */
+  getTelemetry(parkingId: string): Observable<ParkingTelemetryModel> {
+    const rootUrl = this.config.rootUrl.replace(/\/+$/u, "");
+    return this.http
+      .get<{ data: ParkingTelemetryModel }>(
+        `${rootUrl}/parking-lots/${parkingId}/telemetry`,
+        {
+          context: ParkingService.httpContext(),
+        }
+      )
+      .pipe(map((res) => res.data));
   }
 }

@@ -1,11 +1,17 @@
-import { HttpErrorResponse } from "@angular/common/http";
+import { HttpErrorResponse, provideHttpClient } from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
+import { ApiConfiguration } from "@core/api/generated/api-configuration";
 import type {
   ParkingLotListItemResponse,
   ResponseListParkingLotListItemResponse,
   ResponseParkingLotsResponse,
 } from "@core/api/generated/models";
 import { ParkingLotsService } from "@core/api/generated/services/parking-lots.service";
+import type { ParkingTelemetryModel } from "@core/models/parking-telemetry.model";
 import type { UpsertParkingLotsModel } from "@core/models/parking.model";
 import { firstValueFrom, of, throwError } from "rxjs";
 import { vi } from "vitest";
@@ -57,6 +63,7 @@ interface MockParkingLotsService {
 describe("ParkingService", () => {
   let service: ParkingService;
   let parkingLotsServiceSpy: MockParkingLotsService;
+  let httpTesting: HttpTestingController;
 
   beforeEach(() => {
     parkingLotsServiceSpy = {
@@ -70,11 +77,19 @@ describe("ParkingService", () => {
     TestBed.configureTestingModule({
       providers: [
         ParkingService,
+        ApiConfiguration,
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: ParkingLotsService, useValue: parkingLotsServiceSpy },
       ],
     });
 
     service = TestBed.inject(ParkingService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpTesting.verify();
   });
 
   it("debe invocar getAll() en el constructor y actualizar la señal parkingLots", () => {
@@ -146,6 +161,9 @@ describe("ParkingService", () => {
     TestBed.configureTestingModule({
       providers: [
         ParkingService,
+        ApiConfiguration,
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: ParkingLotsService, useValue: failingSpy },
       ],
     });
@@ -228,5 +246,65 @@ describe("ParkingService", () => {
     expect(result.id).toBe("lot-new");
     // Verifies updateState was called via tap
     expect(parkingLotsServiceSpy.listParkingLots).toHaveBeenCalledTimes(2);
+  });
+
+  it("getTelemetry() debe realizar GET a /parking-lots/{id}/telemetry y retornar res.data", async () => {
+    const mockTelemetry: ParkingTelemetryModel = {
+      activeTickets: 20,
+      averageTicketRevenue: 7500,
+      avgStayMinutes: 42.5,
+      carOccupied: 12,
+      carRate: 40,
+      carTotal: 30,
+      completedTicketsToday: 25,
+      moraCount: 1,
+      motoOccupied: 8,
+      motoRate: 40,
+      motoTotal: 20,
+      occupancyRate: 40,
+      occupiedSlots: 20,
+      availableSlots: 30,
+      occupiedSlotsDetail: [
+        {
+          licensePlate: "ABC123",
+          prefix: "A",
+          slotNumber: "01",
+          type: "CAR",
+          zone: "Norte",
+        },
+      ],
+      parkingId: "lot-1",
+      rotationIndex: 0.9,
+      shiftRevenue: 150000,
+      shiftTargetPercentage: 75.5,
+      totalCapacity: 50,
+      totalTicketsToday: 45,
+    };
+
+    const telemetryPromise = firstValueFrom(service.getTelemetry("lot-1"));
+
+    const req = httpTesting.expectOne((r) =>
+      r.url.endsWith("/parking-lots/lot-1/telemetry")
+    );
+    expect(req.request.method).toBe("GET");
+    req.flush({ data: mockTelemetry });
+
+    const result = await telemetryPromise;
+    expect(result).toEqual(mockTelemetry);
+  });
+
+  it("getTelemetry() debe propagar errores HTTP", async () => {
+    const telemetryPromise = firstValueFrom(service.getTelemetry("lot-err"));
+
+    const req = httpTesting.expectOne((r) =>
+      r.url.endsWith("/parking-lots/lot-err/telemetry")
+    );
+    expect(req.request.method).toBe("GET");
+    req.flush(
+      { message: "Not found" },
+      { status: 404, statusText: "Not Found" }
+    );
+
+    await expect(telemetryPromise).rejects.toThrow();
   });
 });

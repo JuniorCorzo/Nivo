@@ -88,7 +88,7 @@ describe("NavbarComponent", () => {
 
     /* SAFETY: Querying toggle button by aria-label */
     const toggleBtn = fixture.nativeElement.querySelector(
-      'nv-button[aria-label="Toggle navigation menu"]'
+      `nv-button[aria-label="${APP_TEXTS.landing.navbar.toggleMenu}"]`
     ) as HTMLElement;
     toggleBtn?.click();
     fixture.detectChanges();

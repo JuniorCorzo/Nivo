@@ -65,15 +65,13 @@
           {{ texts.activeStatus }}
         </nv-badge>
         } @else {
-        <nv-badge variant="secondary">
-          {{ texts.closedStatus }}
-        </nv-badge>
+        <nv-badge variant="secondary"> {{ texts.closedStatus }} </nv-badge>
         }
       </div>
 
       <!-- Placa del Vehículo Display -->
       <div
-        class="bg-muted/40 border-border text-foreground font-mono relative mb-4 w-full rounded-xl border p-3.5 text-center"
+        class="bg-muted/40 border-border text-foreground relative mb-4 w-full rounded-xl border p-3.5 text-center font-mono"
       >
         <span
           class="text-muted-foreground mb-1 block font-sans text-[10px] font-semibold tracking-wider uppercase"
@@ -82,7 +80,7 @@
         </span>
         <div class="flex items-center justify-center gap-2">
           <span
-            class="text-foreground font-mono text-2xl font-black tracking-widest sm:text-3xl"
+            class="text-foreground font-mono text-2xl font-black tracking-widest tabular-nums sm:text-3xl"
           >
             {{ ticket()?.plate || texts.unplatedVehicle }}
           </span>
@@ -104,6 +102,7 @@
         <img
           [src]="ticket()?.photoUrl"
           alt="Foto del vehículo"
+          loading="lazy"
           class="h-full w-full object-cover"
         />
         <div
@@ -123,7 +122,9 @@
           >
             {{ texts.slotLabel }}
           </span>
-          <span class="text-foreground font-mono text-xs font-bold sm:text-sm">
+          <span
+            class="text-foreground font-mono text-xs font-bold tabular-nums sm:text-sm"
+          >
             {{ ticket()?.slotNumber || "---" }}
           </span>
         </div>
@@ -150,7 +151,9 @@
             <ng-icon name="lucideClock" class="text-success text-sm" />
             <span>{{ texts.elapsedTimeLabel }}</span>
           </div>
-          <span class="text-foreground font-mono text-base font-bold">
+          <span
+            class="text-foreground font-mono text-base font-bold tabular-nums"
+          >
             {{ formattedElapsed() }}
           </span>
         </div>
@@ -161,7 +164,9 @@
             <ng-icon name="lucideCoins" class="text-warning text-sm" />
             <span>{{ texts.accumulatedCostLabel }}</span>
           </div>
-          <span class="text-foreground font-mono text-base font-black">
+          <span
+            class="text-foreground font-mono text-base font-black tabular-nums"
+          >
             ${{ estimatedCost() | number: "1.0-0" }} {{ texts.cop }}
           </span>
         </div>
@@ -170,9 +175,7 @@
       <!-- QR Code Visual -->
       @if (qrDataUrl()) {
       <div class="mb-4 flex flex-col items-center justify-center">
-        <div
-          class="border-border rounded-2xl border bg-white p-2.5 shadow-md"
-        >
+        <div class="border-border rounded-2xl border bg-white p-2.5 shadow-md">
           <img
             [src]="qrDataUrl()"
             alt="Código QR Ticket"
@@ -190,20 +193,12 @@
       <!-- Acciones Móviles -->
       <div class="w-full space-y-2 pt-2">
         @if (whatsAppLink()) {
-        <nv-button
-          variant="outline"
-          class="w-full"
-          (click)="openWhatsApp()"
-        >
+        <nv-button variant="outline" class="w-full" (click)="openWhatsApp()">
           <ng-icon name="lucideShare2" class="text-success text-sm" />
           <span>{{ texts.shareWhatsApp }}</span>
         </nv-button>
         }
-        <nv-button
-          variant="outline"
-          class="w-full"
-          (click)="refresh()"
-        >
+        <nv-button variant="outline" class="w-full" (click)="refresh()">
           <ng-icon
             name="lucideRefreshCw"
             class="text-muted-foreground text-sm"

@@ -56,7 +56,7 @@
         class="md:hidden"
         (click)="toggleMobileMenu()"
         [attr.aria-expanded]="isMobileMenuOpen()"
-        aria-label="Toggle navigation menu"
+        [attr.aria-label]="texts.toggleMenu"
       >
         <ng-icon
           [name]="isMobileMenuOpen() ? 'lucideX' : 'lucideMenu'"
