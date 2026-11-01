@@ -72,7 +72,6 @@ CREATE TABLE IF NOT EXISTS parking_lots (
     id UUID PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     address address_t NOT NULL,
-    total_spots INTEGER NOT NULL,
     owner_id UUID REFERENCES users(id) ON DELETE CASCADE,
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     timezone VARCHAR(50) DEFAULT 'UTC-5',
@@ -269,7 +268,6 @@ DECLARE
     v_digital_payment_ratio DOUBLE PRECISION := 0.0;
     v_slot_capacity BIGINT := 0;
     v_slot_occupied BIGINT := 0;
-    v_total_spots_sum BIGINT := 0;
 BEGIN
     v_prev_date := v_target_date - v_comp_days;
     v_scope := CASE WHEN p_parking_id IS NOT NULL THEN 'SINGLE' ELSE 'GLOBAL' END;
@@ -293,7 +291,7 @@ BEGIN
         v_lot_currency := 'COP';
     END IF;
 
-    -- 2. Capacity & Current Occupancy from slots and parking_lots
+    -- 2. Capacity & Current Occupancy from slots
     SELECT
         COALESCE(COUNT(s.id) FILTER (WHERE s.status != 'MAINTENANCE'), 0),
         COALESCE(COUNT(s.id) FILTER (WHERE s.status IN ('OCCUPIED', 'RESERVED')), 0)
@@ -303,20 +301,8 @@ BEGIN
       AND (p_parking_id IS NULL OR s.parking_lot_id = p_parking_id)
       AND s.deleted_at IS NULL;
 
-    SELECT COALESCE(SUM(p.total_spots), 0)
-    INTO v_total_spots_sum
-    FROM parking_lots p
-    WHERE p.tenant_id = p_tenant_id
-      AND (p_parking_id IS NULL OR p.id = p_parking_id)
-      AND p.deleted_at IS NULL;
-
-    IF v_slot_capacity > 0 THEN
-        v_total_capacity := v_slot_capacity::INT;
-        v_occupied_slots := v_slot_occupied::INT;
-    ELSE
-        v_total_capacity := v_total_spots_sum::INT;
-        v_occupied_slots := 0;
-    END IF;
+    v_total_capacity := v_slot_capacity::INT;
+    v_occupied_slots := v_slot_occupied::INT;
 
     -- 3. Target date metrics from v_parking_daily_summary
     SELECT
