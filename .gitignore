@@ -74,4 +74,7 @@ parking_tickets.json
 solo_data.sql
 .superpowers/
 .agents/skills/security-audit/
+.stryker-tmp
+reports/
+apps/web/reports/
 
