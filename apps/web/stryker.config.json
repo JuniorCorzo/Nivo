@@ -18,5 +18,6 @@
   "htmlReporter": {
     "fileName": "reports/mutation/index.html"
   },
-  "coverageAnalysis": "perTest"
+  "coverageAnalysis": "perTest",
+  "ignoreStatic": true
 }
