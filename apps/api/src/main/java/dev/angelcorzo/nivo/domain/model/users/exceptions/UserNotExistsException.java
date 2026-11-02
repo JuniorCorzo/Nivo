@@ -1,6 +1,5 @@
 package dev.angelcorzo.nivo.domain.model.users.exceptions;
 
-import dev.angelcorzo.nivo.domain.model.commons.exceptions.ErrorMessagesModel;
 import java.util.UUID;
 
 /**
@@ -18,10 +17,10 @@ public class UserNotExistsException extends AppException {
   private static final String CODE = "USER_NOT_FOUND";
 
   public UserNotExistsException(UUID id) {
-    super(String.format("El usuario con ID %s no existe", id), STATUS, CODE);
+    super(UserErrorMessages.USER_NOT_EXIST_ID.format(id), STATUS, CODE);
   }
 
   public UserNotExistsException(String email) {
-    super(ErrorMessagesModel.USER_NOT_EXIST_EMAIL.format(email), STATUS, CODE);
+    super(UserErrorMessages.USER_NOT_EXIST_EMAIL.format(email), STATUS, CODE);
   }
 }

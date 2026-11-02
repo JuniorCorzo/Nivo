@@ -13,6 +13,8 @@ import type { ValidationError } from "@angular/forms/signals";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
 
+let nextInputId = 0;
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgIcon],
@@ -64,7 +66,7 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
             [type]="actualType()"
             [placeholder]="placeholder()"
             [disabled]="isDisabled()"
-            [value]="value()"
+            [value]="innerValue()"
             (input)="onInput($event)"
             (blur)="onBlur()"
             [class]="classes()"
@@ -113,9 +115,7 @@ import { lucideEye, lucideEyeClosed } from "@ng-icons/lucide";
   `,
 })
 export class InputComponent implements ControlValueAccessor {
-  readonly id = input<string>(
-    `nv-input-${Math.random().toString(36).slice(2)}`
-  );
+  readonly id = input<string>(`nv-input-${++nextInputId}`);
   readonly label = input<string>("");
   readonly required = input<boolean>(false);
   readonly type = input<string>("text");
@@ -146,17 +146,17 @@ export class InputComponent implements ControlValueAccessor {
     this.type() === "password" && this.showPassword() ? "text" : this.type()
   );
 
-  readonly value = signal("");
-  readonly initialValue = input<string>("", { alias: "value" });
+  readonly innerValue = signal("");
+  readonly value = input<string>("");
 
   private onModelChange?: (value: string) => void;
   private onModelTouched?: () => void;
 
   constructor() {
     effect(() => {
-      const val = this.initialValue();
+      const val = this.value();
       if (val) {
-        this.value.set(val);
+        this.innerValue.set(val);
       }
     });
   }
@@ -172,8 +172,8 @@ export class InputComponent implements ControlValueAccessor {
   onInput(event: Event): void {
     /* SAFETY: event.target is guaranteed to be an HTMLInputElement for this input element */
     const target = event.target as HTMLInputElement;
-    this.value.set(target.value);
-    this.onModelChange?.(this.value());
+    this.innerValue.set(target.value);
+    this.onModelChange?.(this.innerValue());
   }
 
   readonly classes = computed(() => {
@@ -189,7 +189,7 @@ export class InputComponent implements ControlValueAccessor {
   });
 
   writeValue(value: string): void {
-    this.value.set(value ?? "");
+    this.innerValue.set(value ?? "");
   }
 
   registerOnChange(fn: (value: string) => void): void {

@@ -35,7 +35,7 @@ export interface SlotMetadataBatchPayload {
 export class SlotMetadataBatchModalComponent implements OnDestroy {
   readonly selectedSlots = input<SlotSummary[]>([]);
 
-  readonly cancel = output();
+  readonly modalCancel = output();
   readonly submitMetadata = output<SlotMetadataBatchPayload>();
 
   readonly hasCharger = signal(false);
@@ -97,12 +97,12 @@ export class SlotMetadataBatchModalComponent implements OnDestroy {
 
   onCancel(event?: Event): void {
     event?.preventDefault();
-    this.cancel.emit();
+    this.modalCancel.emit();
   }
 
   protected onBackdropClick(event: MouseEvent): void {
     if (event.target === this.dialog()?.nativeElement) {
-      this.cancel.emit();
+      this.modalCancel.emit();
     }
   }
 

@@ -67,7 +67,7 @@ export class SlotGroupEditModalComponent {
   readonly initialPrefix = input<string>("");
   readonly parkingId = input.required<string>();
 
-  readonly cancel = output();
+  readonly modalCancel = output();
   readonly submitGroup = output<UpdateSlotGroupPayload>();
 
   readonly selectedGroupKey = signal<string>("");
@@ -118,7 +118,7 @@ export class SlotGroupEditModalComponent {
   @HostListener("document:keydown.escape", ["$event"])
   onKeydownEscape(event: Event): void {
     event.stopPropagation();
-    this.cancel.emit();
+    this.modalCancel.emit();
   }
 
   constructor() {
@@ -175,12 +175,12 @@ export class SlotGroupEditModalComponent {
 
   onCancel(event?: Event): void {
     event?.preventDefault();
-    this.cancel.emit();
+    this.modalCancel.emit();
   }
 
   protected onBackdropClick(event: MouseEvent): void {
     if (event.target === event.currentTarget) {
-      this.cancel.emit();
+      this.modalCancel.emit();
     }
   }
 

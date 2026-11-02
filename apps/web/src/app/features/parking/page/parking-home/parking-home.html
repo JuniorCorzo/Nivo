@@ -269,6 +269,6 @@
 } @if (facade.isDeleteModalOpen()) {
 <app-delete-parking-modal
   (confirm)="facade.onDeleteConfirm()"
-  (cancel)="facade.onDeleteCancel()"
+  (modalCancel)="facade.onDeleteCancel()"
 />
 }

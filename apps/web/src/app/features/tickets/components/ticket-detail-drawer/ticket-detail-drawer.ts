@@ -74,7 +74,7 @@ export class TicketDetailDrawerComponent {
   readonly liveRate = input<PriceDetailedModel | null>(null);
   readonly isLoadingRate = input<boolean>(false);
 
-  readonly close = output();
+  readonly drawerClose = output();
   readonly reprintReceipt = output<TicketSummary>();
   readonly checkoutInTaquilla = output<TicketSummary>();
 
@@ -82,7 +82,7 @@ export class TicketDetailDrawerComponent {
   onEscape(event: Event): void {
     if (this.isOpen()) {
       event.preventDefault();
-      this.close.emit();
+      this.drawerClose.emit();
     }
   }
 

@@ -1,11 +1,11 @@
 @if (!isZeroPayment()) {
 <div class="space-y-2">
   <div class="flex items-center justify-between">
-    <label
+    <span
       class="text-muted-foreground block text-xs font-semibold tracking-wider uppercase"
     >
       {{ texts.paymentMethod }}
-    </label>
+    </span>
     <span class="text-muted-foreground text-[11px]">
       {{ isPaymentModuleEnabled() ? texts.selectPaymentMethod :
       texts.methods.effectiveOnlyNotice }}

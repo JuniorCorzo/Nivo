@@ -31,7 +31,10 @@ export class DashboardSseService implements OnDestroy {
   private reconnectTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   buildStreamUrl(parkingId?: string): string {
-    const base = this.config.rootUrl.replace(/\/+$/u, "");
+    let base = this.config.rootUrl;
+    while (base.endsWith("/")) {
+      base = base.slice(0, -1);
+    }
     const query = parkingId
       ? `?parkingId=${encodeURIComponent(parkingId)}`
       : "";

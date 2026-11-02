@@ -25,7 +25,7 @@ export class RateDeleteModal implements OnDestroy {
   readonly isDeleting = input<boolean>(false);
 
   readonly confirm = output();
-  readonly cancel = output();
+  readonly modalCancel = output();
 
   protected readonly titleId = "delete-rate-title";
   protected readonly descriptionId = "delete-rate-description";
@@ -40,12 +40,12 @@ export class RateDeleteModal implements OnDestroy {
 
   protected onCancel(event: Event): void {
     event.preventDefault();
-    this.cancel.emit();
+    this.modalCancel.emit();
   }
 
   protected onBackdropClick(event: MouseEvent): void {
     if (event.target === this.dialog()?.nativeElement) {
-      this.cancel.emit();
+      this.modalCancel.emit();
     }
   }
 

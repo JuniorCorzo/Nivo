@@ -81,7 +81,7 @@ describe("TicketFiltersComponent", () => {
 
   it("should emit reset output on reset button click", () => {
     let resetEmitted = false;
-    component.reset.subscribe(() => {
+    component.resetFilters.subscribe(() => {
       resetEmitted = true;
     });
 

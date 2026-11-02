@@ -151,7 +151,7 @@
         [showParkingLotFilter]="facade.isTenantView()"
         [parkingLots]="facade.parkingLots()"
         (filtersChange)="facade.updateFilters($event)"
-        (reset)="facade.resetFilters()"
+        (resetFilters)="facade.resetFilters()"
       />
     </nv-card-content>
   </nv-card>
@@ -224,7 +224,7 @@
     [ticket]="facade.selectedTicket()"
     [liveRate]="facade.liveRatePreview()"
     [isLoadingRate]="facade.isCalculatingRate()"
-    (close)="facade.closeDetail()"
+    (drawerClose)="facade.closeDetail()"
     (reprintReceipt)="facade.openReceipt($event)"
     (checkoutInTaquilla)="onCheckoutInTaquilla($event)"
   />

@@ -2,7 +2,7 @@
 <!-- Backdrop -->
 <div
   class="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs duration-200"
-  (click)="close.emit()"
+  (click)="drawerClose.emit()"
   aria-hidden="true"
 ></div>
 
@@ -44,7 +44,7 @@
       variant="ghost"
       size="icon"
       class="h-8 w-8 rounded-lg"
-      (click)="close.emit()"
+      (click)="drawerClose.emit()"
       [attr.aria-label]="texts.close"
     >
       <ng-icon name="lucideX" size="18" />
@@ -220,7 +220,12 @@
   <div
     class="border-border bg-card flex items-center justify-between gap-3 border-t p-4"
   >
-    <nv-button type="button" variant="outline" size="md" (click)="close.emit()">
+    <nv-button
+      type="button"
+      variant="outline"
+      size="md"
+      (click)="drawerClose.emit()"
+    >
       {{ actionTexts.closeDrawer }}
     </nv-button>
     <div class="flex items-center gap-2">

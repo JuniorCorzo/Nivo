@@ -11,6 +11,8 @@ import {
 import type { ControlValueAccessor } from "@angular/forms";
 import { NG_VALUE_ACCESSOR } from "@angular/forms";
 
+let nextCheckboxId = 0;
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -84,13 +86,11 @@ export class CheckboxComponent implements ControlValueAccessor {
   readonly disabled = input<boolean>(false);
   readonly required = input<boolean>(false);
   readonly label = input<string>("");
-  readonly id = input<string>(
-    `nv-checkbox-${Math.random().toString(36).slice(2)}`
-  );
+  readonly id = input<string>(`nv-checkbox-${++nextCheckboxId}`);
   readonly name = input<string>("");
   readonly className = input<string>("", { alias: "class" });
 
-  readonly change = output<boolean>();
+  readonly checkedChange = output<boolean>();
 
   private readonly formDisabled = signal(false);
   readonly isDisabled = computed(() => this.disabled() || this.formDisabled());
@@ -128,7 +128,7 @@ export class CheckboxComponent implements ControlValueAccessor {
     }
     const next = !this.checked();
     this.checked.set(next);
-    this.change.emit(next);
+    this.checkedChange.emit(next);
     this.onModelChange?.(next);
     this.onModelTouched?.();
   }

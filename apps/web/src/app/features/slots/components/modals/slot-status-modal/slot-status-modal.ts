@@ -31,7 +31,7 @@ export class SlotStatusModal implements OnDestroy {
   readonly confirmChecked = input.required<boolean>();
 
   readonly confirm = output();
-  readonly cancel = output();
+  readonly modalCancel = output();
   readonly selectStatusNext = output<SlotStatus>();
   readonly confirmCheckedChange = output<boolean>();
 
@@ -48,7 +48,7 @@ export class SlotStatusModal implements OnDestroy {
 
   protected onCancel(event: Event): void {
     event.preventDefault();
-    this.cancel.emit();
+    this.modalCancel.emit();
   }
 
   protected onConfirmCheckedChange(event: Event): void {
@@ -59,7 +59,7 @@ export class SlotStatusModal implements OnDestroy {
 
   protected onBackdropClick(event: MouseEvent): void {
     if (event.target === this.dialog()?.nativeElement) {
-      this.cancel.emit();
+      this.modalCancel.emit();
     }
   }
 

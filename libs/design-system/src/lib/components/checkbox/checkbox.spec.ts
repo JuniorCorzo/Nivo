@@ -14,7 +14,7 @@ import { CheckboxComponent } from "./checkbox";
       id="default-cb"
       label="Accept terms"
       [(checked)]="isChecked"
-      (change)="onChange($event)"
+      (checkedChange)="onChange($event)"
     />
 
     <nv-checkbox
@@ -22,7 +22,7 @@ import { CheckboxComponent } from "./checkbox";
       label="Disabled checkbox"
       [disabled]="true"
       [(checked)]="isDisabledChecked"
-      (change)="onChange($event)"
+      (checkedChange)="onChange($event)"
     />
 
     <nv-checkbox

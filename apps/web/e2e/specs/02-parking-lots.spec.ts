@@ -54,6 +54,7 @@ test.describe("CUJ 02: Parking Lots Management", () => {
 
     await parkingLotsPage.goto();
     await parkingLotsPage.expectEmptyState();
+    await expect(page.locator("app-parking-empty-state, [data-testid='empty-state']").first()).toBeVisible();
   });
 
   test("should create a new parking lot via form and redirect to listing", async ({
@@ -103,6 +104,7 @@ test.describe("CUJ 02: Parking Lots Management", () => {
 
     await parkingLotsPage.submitForm();
     await parkingLotsPage.expectLoaded();
+    await expect(page).toHaveURL(/\/app\/parking-lots/u);
   });
 
   test("should render active parking lot details and allow deletion", async ({

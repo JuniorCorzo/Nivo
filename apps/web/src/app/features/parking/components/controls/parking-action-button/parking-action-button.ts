@@ -66,7 +66,7 @@ export class ParkingActionButton {
   copyParkingId(): void {
     const id = this.facade.activeParkingLot()?.id;
     if (id) {
-      navigator.clipboard?.writeText(id);
+      void navigator.clipboard?.writeText(id);
       this.toastService?.showToast({
         message: "ID del parqueadero copiado al portapapeles",
         type: "success",

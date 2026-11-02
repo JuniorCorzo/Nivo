@@ -3,9 +3,11 @@ import { expect, setupMockTenantApi, test } from "../fixtures/auth.fixture";
 test.describe("CUJ 01: Tenant Authentication & Session Management", () => {
   test("should display login form controls correctly", async ({
     loginPage,
+    page,
   }) => {
     await loginPage.goto();
     await loginPage.expectLoaded();
+    await expect(page.locator("input[type='email'], input#email, input[name='email']").first()).toBeVisible();
   });
 
   test("should show error alert on invalid credentials", async ({
@@ -27,6 +29,7 @@ test.describe("CUJ 01: Tenant Authentication & Session Management", () => {
     await loginPage.goto();
     await loginPage.login("wrong@company.com", "InvalidPassword123!");
     await loginPage.expectErrorMessage("Correo o contraseña incorrectos");
+    await expect(page.getByText("Correo o contraseña incorrectos")).toBeVisible();
   });
 
   test("should successfully login tenant and redirect to dashboard", async ({
@@ -53,6 +56,7 @@ test.describe("CUJ 01: Tenant Authentication & Session Management", () => {
     await page.waitForURL(/\/app/u);
     await dashboardPage.expectLoaded();
     await dashboardPage.expectUserEmail(tenantA.email);
+    await expect(page).toHaveURL(/\/app/u);
   });
 
   test("should logout tenant and redirect back to login", async ({

@@ -14,16 +14,16 @@ import { CheckboxComponent } from "@nivo-sass/design-system";
   template: `
     <nv-checkbox
       [checked]="checked()"
-      (change)="onToggle($event)"
+      (checkedChange)="onToggle($event)"
       aria-label="Seleccionar todas las plazas"
     />
   `,
 })
 export class SlotSelectHeaderComponent {
   readonly checked = input<boolean>(false);
-  readonly toggle = output<boolean>();
+  readonly toggleChange = output<boolean>();
 
   onToggle(val: boolean): void {
-    this.toggle.emit(val);
+    this.toggleChange.emit(val);
   }
 }

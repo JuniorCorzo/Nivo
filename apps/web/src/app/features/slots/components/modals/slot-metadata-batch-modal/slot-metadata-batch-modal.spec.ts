@@ -106,7 +106,7 @@ describe("SlotMetadataBatchModalComponent", () => {
   });
 
   it("should emit cancel when cancel button or close is clicked", () => {
-    const spy = vi.spyOn(component.cancel, "emit");
+    const spy = vi.spyOn(component.modalCancel, "emit");
     component.onCancel(new MouseEvent("click"));
     expect(spy).toHaveBeenCalled();
   });

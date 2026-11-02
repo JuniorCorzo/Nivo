@@ -129,13 +129,13 @@ describe("SlotGroupEditModalComponent", () => {
   });
 
   it("should emit cancel when cancel button is clicked", () => {
-    const spy = vi.spyOn(component.cancel, "emit");
+    const spy = vi.spyOn(component.modalCancel, "emit");
     component.onCancel(new MouseEvent("click"));
     expect(spy).toHaveBeenCalled();
   });
 
   it("should emit cancel on Escape keydown", () => {
-    const spy = vi.spyOn(component.cancel, "emit");
+    const spy = vi.spyOn(component.modalCancel, "emit");
     const escapeEvent = new KeyboardEvent("keydown", { key: "Escape" });
     const stopPropagationSpy = vi.spyOn(escapeEvent, "stopPropagation");
 
@@ -146,7 +146,7 @@ describe("SlotGroupEditModalComponent", () => {
   });
 
   it("should emit cancel when clicking backdrop (target === currentTarget)", () => {
-    const spy = vi.spyOn(component.cancel, "emit");
+    const spy = vi.spyOn(component.modalCancel, "emit");
     const backdropEl = fixture.nativeElement.querySelector('[role="dialog"]');
     backdropEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
@@ -154,7 +154,7 @@ describe("SlotGroupEditModalComponent", () => {
   });
 
   it("should not emit cancel when clicking inside dialog panel", () => {
-    const spy = vi.spyOn(component.cancel, "emit");
+    const spy = vi.spyOn(component.modalCancel, "emit");
     const panelEl = fixture.nativeElement.querySelector(
       '[role="dialog"] > div'
     );

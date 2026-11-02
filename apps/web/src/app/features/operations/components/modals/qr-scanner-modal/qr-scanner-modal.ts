@@ -271,7 +271,7 @@ export class QrScannerModalComponent implements OnDestroy {
     effect(() => {
       if (this.isOpen()) {
         this.resetState();
-        this.startCamera();
+        void this.startCamera();
         setTimeout(() => {
           this.manualInputRef?.nativeElement.focus();
         }, 100);

@@ -162,7 +162,10 @@ export class ParkingService {
    * Get real-time operational telemetry for a parking facility
    */
   getTelemetry(parkingId: string): Observable<ParkingTelemetryModel> {
-    const rootUrl = this.config.rootUrl.replace(/\/+$/u, "");
+    let rootUrl = this.config.rootUrl;
+    while (rootUrl.endsWith("/")) {
+      rootUrl = rootUrl.slice(0, -1);
+    }
     return this.http
       .get<{ data: ParkingTelemetryModel }>(
         `${rootUrl}/parking-lots/${parkingId}/telemetry`,

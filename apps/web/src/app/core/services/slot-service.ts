@@ -131,7 +131,10 @@ export class SlotService {
     isAccessible?: boolean;
     isActive?: boolean;
   }): Observable<Slot[]> {
-    const rootUrl = this.config.rootUrl.replace(/\/+$/u, "");
+    let rootUrl = this.config.rootUrl;
+    while (rootUrl.endsWith("/")) {
+      rootUrl = rootUrl.slice(0, -1);
+    }
     return this.http
       .patch<ResponseListSlotResponse>(`${rootUrl}/slots/metadata`, payload, {
         context: SlotService.httpContext(),
@@ -155,7 +158,10 @@ export class SlotService {
     newZone?: string;
     newPrefix?: string;
   }): Observable<Slot[]> {
-    const rootUrl = this.config.rootUrl.replace(/\/+$/u, "");
+    let rootUrl = this.config.rootUrl;
+    while (rootUrl.endsWith("/")) {
+      rootUrl = rootUrl.slice(0, -1);
+    }
     return this.http
       .patch<ResponseListSlotResponse>(`${rootUrl}/slots/groups`, payload, {
         context: SlotService.httpContext(),
