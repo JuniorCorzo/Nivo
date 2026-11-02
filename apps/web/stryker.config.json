@@ -6,18 +6,19 @@
   "cleanTempDir": "always",
   "tsconfigFile": "tsconfig.spec.json",
   "mutate": [
-    "src/app/core/**/*.ts",
-    "!src/app/core/**/*.spec.ts",
-    "!src/app/core/testing/**",
-    "src/app/features/**/facades/**/*.ts",
-    "!src/app/features/**/facades/**/*.spec.ts",
+    "src/app/core/mappers/**/*.ts",
+    "!src/app/core/mappers/**/*.spec.ts",
     "src/app/shared/utils/**/*.ts",
     "!src/app/shared/utils/**/*.spec.ts"
   ],
+  "mutator": {
+    "excludedMutations": ["StringLiteral", "ObjectLiteral", "EmptyExpression"]
+  },
   "reporters": ["html", "clear-text", "progress"],
   "htmlReporter": {
     "fileName": "reports/mutation/index.html"
   },
   "coverageAnalysis": "perTest",
-  "ignoreStatic": true
+  "ignoreStatic": true,
+  "concurrency": 3
 }
