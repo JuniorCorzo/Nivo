@@ -149,14 +149,16 @@ export class RateListComponent {
   createRate(): void {
     const pId = this.effectiveParkingId();
     if (pId) {
-      this.router.navigate([`/app/parking-lots/${pId}/rates/new`]);
+      void this.router.navigate([`/app/parking-lots/${pId}/rates/new`]);
     }
   }
 
   editRate(rateId: string): void {
     const pId = this.effectiveParkingId();
     if (pId) {
-      this.router.navigate([`/app/parking-lots/${pId}/rates/${rateId}/edit`]);
+      void this.router.navigate([
+        `/app/parking-lots/${pId}/rates/${rateId}/edit`,
+      ]);
     }
   }
 
