@@ -55,7 +55,7 @@ export class TicketFiltersComponent implements OnInit {
   readonly parkingLots = input<ParkingLotListItemModel[]>([]);
 
   readonly filtersChange = output<TicketFilterCriteria>();
-  readonly reset = output();
+  readonly resetFilters = output();
 
   readonly parkingLotOptions = computed<FilterSelectOption[]>(() => [
     { label: this.texts.parkingLot.all, value: "ALL" },
@@ -146,6 +146,6 @@ export class TicketFiltersComponent implements OnInit {
   }
 
   onReset(): void {
-    this.reset.emit();
+    this.resetFilters.emit();
   }
 }

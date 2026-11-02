@@ -187,7 +187,7 @@ export class MetricsService implements OnDestroy {
   }
 
   private static serializeLabels(labels: Record<string, string>): string {
-    const keys = Object.keys(labels).toSorted();
+    const keys = Object.keys(labels).toSorted((a, b) => a.localeCompare(b));
     if (keys.length === 0) {
       return "";
     }
@@ -329,7 +329,9 @@ export class MetricsService implements OnDestroy {
     }
 
     const lines: string[] = [];
-    const sortedMetricNames = [...grouped.keys()].toSorted();
+    const sortedMetricNames = [...grouped.keys()].toSorted((a, b) =>
+      a.localeCompare(b)
+    );
 
     for (const metricName of sortedMetricNames) {
       const seriesList = grouped.get(metricName) ?? [];

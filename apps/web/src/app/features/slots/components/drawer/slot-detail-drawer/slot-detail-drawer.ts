@@ -51,7 +51,7 @@ export class SlotDetailDrawer {
   readonly drawerTab = input.required<DrawerTab>();
   readonly slotTypeLabel = input.required<Record<string, string>>();
 
-  readonly close = output();
+  readonly drawerClose = output();
   readonly setTab = output<DrawerTab>();
 
   protected readonly getHistoryCopy = getHistoryCopy;

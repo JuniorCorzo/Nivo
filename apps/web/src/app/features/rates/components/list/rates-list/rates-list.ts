@@ -68,11 +68,11 @@ export class RateListComponent {
   private readonly parkingService = inject(ParkingService);
   private readonly toast = inject(ToastService);
 
-  readonly parkingIdInput = input<string | null>(null, { alias: "parkingId" });
+  readonly parkingId = input<string | null>(null);
   readonly routeParkingId = signal<string | null>(null);
 
   readonly effectiveParkingId = computed(
-    () => this.parkingIdInput() ?? this.routeParkingId()
+    () => this.parkingId() ?? this.routeParkingId()
   );
 
   readonly searchQuery = signal("");

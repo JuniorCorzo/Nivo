@@ -38,7 +38,7 @@ export class ThemeButton {
     });
 
     // eslint-disable-next-line promise/prefer-await-to-then
-    transition.finished.finally(() => {
+    void transition.finished.finally(() => {
       document.documentElement.classList.remove("theme-transition");
     });
   }

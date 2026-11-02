@@ -33,7 +33,7 @@
     (input)="facade.form.zone.set($any($event.target).value)"
   />
 
-  <label
+  <div
     class="text-muted-foreground flex flex-col gap-1.5 text-xs font-semibold tracking-wider uppercase"
   >
     <span>Tipo</span>
@@ -46,9 +46,9 @@
       [value]="facade.form.type()"
       (valueChange)="facade.form.type.set($any($event))"
     />
-  </label>
+  </div>
 
-  <label
+  <div
     class="text-muted-foreground flex flex-col gap-1.5 text-xs font-semibold tracking-wider uppercase"
   >
     <span>Estado</span>
@@ -60,7 +60,7 @@
       [value]="facade.form.status()"
       (valueChange)="facade.form.status.set($any($event))"
     />
-  </label>
+  </div>
 </div>
 
 <!-- Batch Generation Preview Card -->

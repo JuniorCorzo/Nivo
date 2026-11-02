@@ -16,7 +16,7 @@ export class DeleteParkingModal implements OnDestroy {
   protected readonly descriptionId = "delete-parking-description";
 
   readonly confirm = output();
-  readonly cancel = output();
+  readonly modalCancel = output();
 
   private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>("dialog");
 
@@ -28,12 +28,12 @@ export class DeleteParkingModal implements OnDestroy {
 
   protected onCancel(event: Event): void {
     event.preventDefault();
-    this.cancel.emit();
+    this.modalCancel.emit();
   }
 
   protected onBackdropClick(event: MouseEvent): void {
     if (event.target === this.dialog()?.nativeElement) {
-      this.cancel.emit();
+      this.modalCancel.emit();
     }
   }
 

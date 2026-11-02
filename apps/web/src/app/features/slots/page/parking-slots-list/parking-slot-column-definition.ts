@@ -41,7 +41,7 @@ export const parkingSlotColumnDefinition = (
             : false,
         },
         outputs: {
-          toggle: (checked: boolean) =>
+          toggleChange: (checked: boolean) =>
             options.onToggleSelected?.(info.row.original.id, checked),
         },
       }),
@@ -53,7 +53,7 @@ export const parkingSlotColumnDefinition = (
           checked: options.allSelected ? options.allSelected() : false,
         },
         outputs: {
-          toggle: (checked: boolean) => options.onToggleAll?.(checked),
+          toggleChange: (checked: boolean) => options.onToggleAll?.(checked),
         },
       }),
     id: "select",

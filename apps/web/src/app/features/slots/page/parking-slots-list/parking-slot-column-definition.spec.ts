@@ -67,7 +67,7 @@ describe("parkingSlotColumnDefinition", () => {
       expect(headerResult).toBeInstanceOf(FlexRenderComponent);
       if (headerResult instanceof FlexRenderComponent) {
         expect(headerResult.inputs?.["checked"]).toBe(true);
-        headerResult.outputs?.["toggle"]?.(false);
+        headerResult.outputs?.["toggleChange"]?.(false);
         expect(onToggleAllSpy).toHaveBeenCalledWith(false);
       }
     }
@@ -81,7 +81,7 @@ describe("parkingSlotColumnDefinition", () => {
       if (cellResult instanceof FlexRenderComponent) {
         expect(cellResult.inputs?.["checked"]).toBe(true);
         expect(isSelectedSpy).toHaveBeenCalledWith("slot-123");
-        cellResult.outputs?.["toggle"]?.(true);
+        cellResult.outputs?.["toggleChange"]?.(true);
         expect(onToggleSelectedSpy).toHaveBeenCalledWith("slot-123", true);
       }
     }

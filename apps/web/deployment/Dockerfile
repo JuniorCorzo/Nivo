@@ -27,6 +27,13 @@ FROM nginx:alpine AS runtime
 COPY apps/web/deployment/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /workspace/apps/web/dist/web/browser /usr/share/nginx/html
 
+RUN apk add --no-cache libcap && \
+    setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx && \
+    touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /var/run/nginx.pid /var/cache/nginx /etc/nginx/conf.d /usr/share/nginx/html
+
+USER nginx
+
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \

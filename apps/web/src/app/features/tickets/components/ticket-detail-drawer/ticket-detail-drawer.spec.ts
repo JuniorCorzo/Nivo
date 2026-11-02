@@ -55,7 +55,7 @@ describe("TicketDetailDrawerComponent", () => {
 
   it("should emit close output when escape key is pressed", () => {
     let closed = false;
-    component.close.subscribe(() => {
+    component.drawerClose.subscribe(() => {
       closed = true;
     });
 

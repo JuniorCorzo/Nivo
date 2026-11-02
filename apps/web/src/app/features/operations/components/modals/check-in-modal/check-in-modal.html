@@ -64,11 +64,11 @@
     <form class="mt-4 space-y-4" (submit)="onSubmit($event)">
       <!-- Vehicle Type Selector -->
       <div>
-        <label
+        <span
           class="text-muted-foreground mb-1.5 block text-xs font-semibold tracking-wider uppercase"
         >
           {{ texts.vehicleTypeLabel }}
-        </label>
+        </span>
         @if (facade.availableVehicleTypes().length === 0) {
         <div
           class="border-warning/20 bg-warning/10 text-warning flex items-center gap-2 rounded-lg border p-3 text-xs"
@@ -111,11 +111,11 @@
 
       <!-- Registration Modality Selector -->
       <div>
-        <label
+        <span
           class="text-muted-foreground mb-1.5 block text-xs font-semibold tracking-wider uppercase"
         >
           Modalidad
-        </label>
+        </span>
         <div
           role="group"
           aria-label="Modalidad de registro"
@@ -147,11 +147,11 @@
       <!-- License Plate Input or Photo Capture -->
       @if (facade.isUnplated()) {
       <div>
-        <label
+        <span
           class="text-muted-foreground mb-1.5 block text-xs font-semibold tracking-wider uppercase"
         >
           {{ texts.photoLabel }} <span class="text-destructive">*</span>
-        </label>
+        </span>
         <app-photo-capture
           [disabled]="facade.isSubmitting()"
           (photoCaptured)="onPhotoCaptured($event)"

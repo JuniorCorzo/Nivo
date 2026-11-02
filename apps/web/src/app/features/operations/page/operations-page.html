@@ -222,7 +222,11 @@
 
             <!-- Plate input with appPlateMask -->
             <div class="relative min-w-[130px] flex-1">
+              <label for="express-plate-input" class="sr-only"
+                >Placa de vehículo para ingreso express</label
+              >
               <input
+                id="express-plate-input"
                 type="text"
                 appPlateMask
                 [vehicleType]="expressVehicleType()"
@@ -302,7 +306,11 @@
               size="16"
               class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
             />
+            <label for="search-ticket-checkout" class="sr-only"
+              >Buscar placa o bahía para cobrar salida</label
+            >
             <input
+              id="search-ticket-checkout"
               type="text"
               aria-label="Buscar placa o bahía para cobrar salida"
               [value]="searchTicketQuery()"
@@ -633,7 +641,11 @@
             size="16"
             class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
           />
+          <label for="search-ticket-mobile" class="sr-only"
+            >Buscar placa o bahía</label
+          >
           <input
+            id="search-ticket-mobile"
             type="text"
             aria-label="Buscar placa o bahía"
             [value]="searchTicketQuery()"

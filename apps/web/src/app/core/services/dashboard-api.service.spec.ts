@@ -387,7 +387,10 @@ describe("DashboardApiService", () => {
     });
 
     it("should re-invoke backend service when clearCache is called", () => {
-      service.getSummary().subscribe();
+      let result1: unknown;
+      service.getSummary().subscribe((data) => {
+        result1 = data;
+      });
       const req1 = httpMock.expectOne((r) =>
         r.url.endsWith("/dashboard/summary")
       );
@@ -402,7 +405,10 @@ describe("DashboardApiService", () => {
 
       service.clearCache();
 
-      service.getSummary().subscribe();
+      let result2: unknown;
+      service.getSummary().subscribe((data) => {
+        result2 = data;
+      });
       const req2 = httpMock.expectOne((r) =>
         r.url.endsWith("/dashboard/summary")
       );
@@ -414,12 +420,18 @@ describe("DashboardApiService", () => {
         todayRevenue: 200_000,
         totalCapacity: 100,
       });
+
+      expect(result1).toBeDefined();
+      expect(result2).toBeDefined();
     });
 
     it("should force new network request when TTL expires", () => {
       vi.useFakeTimers();
       try {
-        service.getSummary().subscribe();
+        let result1: unknown;
+        service.getSummary().subscribe((data) => {
+          result1 = data;
+        });
         const req1 = httpMock.expectOne((r) =>
           r.url.endsWith("/dashboard/summary")
         );
@@ -434,7 +446,10 @@ describe("DashboardApiService", () => {
 
         vi.advanceTimersByTime(service.defaultTtlMs + 1000);
 
-        service.getSummary().subscribe();
+        let result2: unknown;
+        service.getSummary().subscribe((data) => {
+          result2 = data;
+        });
         const req2 = httpMock.expectOne((r) =>
           r.url.endsWith("/dashboard/summary")
         );
@@ -446,13 +461,19 @@ describe("DashboardApiService", () => {
           todayRevenue: 250_000,
           totalCapacity: 100,
         });
+
+        expect(result1).toBeDefined();
+        expect(result2).toBeDefined();
       } finally {
         vi.useRealTimers();
       }
     });
 
     it("should invalidate specific cache patterns", () => {
-      service.getSummary("pkg-1").subscribe();
+      let result1: unknown;
+      service.getSummary("pkg-1").subscribe((data) => {
+        result1 = data;
+      });
       const req1 = httpMock.expectOne((r) =>
         r.url.endsWith("/dashboard/summary")
       );
@@ -468,7 +489,10 @@ describe("DashboardApiService", () => {
 
       service.invalidate("summary:pkg-1");
 
-      service.getSummary("pkg-1").subscribe();
+      let result2: unknown;
+      service.getSummary("pkg-1").subscribe((data) => {
+        result2 = data;
+      });
       const req2 = httpMock.expectOne((r) =>
         r.url.endsWith("/dashboard/summary")
       );
@@ -481,6 +505,9 @@ describe("DashboardApiService", () => {
         todayRevenue: 100_000,
         totalCapacity: 20,
       });
+
+      expect(result1).toBeDefined();
+      expect(result2).toBeDefined();
     });
   });
 });

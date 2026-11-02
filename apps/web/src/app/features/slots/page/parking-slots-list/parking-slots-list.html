@@ -141,7 +141,7 @@
     [slot]="slot"
     [drawerTab]="facade.drawerTab()"
     [slotTypeLabel]="slotTypeLabel"
-    (close)="facade.closeDrawer()"
+    (drawerClose)="facade.closeDrawer()"
     (setTab)="facade.setDrawerTab($event)"
   />
   }
@@ -156,7 +156,7 @@
     [transitionOptions]="facade.statusTransitionOptions()"
     [requiresExtraConfirm]="facade.statusModalCopy().requiresExtraConfirm"
     [confirmChecked]="facade.statusConfirmChecked()"
-    (cancel)="facade.closeStatusModal()"
+    (modalCancel)="facade.closeStatusModal()"
     (selectStatusNext)="facade.selectStatusNext($event)"
     (confirmCheckedChange)="facade.statusConfirmChecked.set($event)"
     (confirm)="facade.confirmStatusChange()"
@@ -169,7 +169,7 @@
     [copy]="facade.deleteModalCopy()"
     [requiresConfirm]="facade.deleteRequiresConfirm()"
     [confirmChecked]="facade.deleteConfirmChecked()"
-    (cancel)="facade.closeDeleteModal()"
+    (modalCancel)="facade.closeDeleteModal()"
     (confirmCheckedChange)="facade.deleteConfirmChecked.set($event)"
     (confirm)="facade.confirmDelete()"
   />
@@ -179,7 +179,7 @@
   @if (facade.metadataModalOpen()) {
   <app-slot-metadata-batch-modal
     [selectedSlots]="facade.selectedSlots()"
-    (cancel)="facade.closeMetadataModal()"
+    (modalCancel)="facade.closeMetadataModal()"
     (submitMetadata)="facade.updateSlotsMetadata($event)"
   />
   }
@@ -191,7 +191,7 @@
     [groups]="facade.availableGroups()"
     [initialZone]="facade.groupTarget()?.zone ?? ''"
     [initialPrefix]="facade.groupTarget()?.prefix ?? ''"
-    (cancel)="facade.closeGroupModal()"
+    (modalCancel)="facade.closeGroupModal()"
     (submitGroup)="facade.updateSlotGroup($event)"
   />
   }

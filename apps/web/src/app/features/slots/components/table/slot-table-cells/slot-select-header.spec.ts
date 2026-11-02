@@ -29,7 +29,7 @@ describe("SlotSelectHeaderComponent", () => {
 
   it("should emit toggle output when toggled", () => {
     const spy = vi.fn();
-    component.toggle.subscribe(spy);
+    component.toggleChange.subscribe(spy);
 
     component.onToggle(true);
     expect(spy).toHaveBeenCalledWith(true);
