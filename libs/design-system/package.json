@@ -15,8 +15,8 @@
   "scripts": {
     "test": "ng test --watch=false",
     "generate:tokens": "node scripts/generate-tokens.mjs",
-    "build:css": "bunx @tailwindcss/cli -i src/lib/styles/components.css -o dist/libs/design-system/styles/components.css",
-    "build": "node scripts/generate-tokens.mjs && bunx ng-packagr --config=tsconfig.lib.json -p ng-package.json && bun run build:css && node scripts/patch-dist-exports.mjs",
+    "build:css": "pnpm dlx --allow-build=@parcel/watcher @tailwindcss/cli -i src/lib/styles/components.css -o dist/libs/design-system/styles/components.css",
+    "build": "node scripts/generate-tokens.mjs && ng-packagr --config=tsconfig.lib.json -p ng-package.json && pnpm run build:css && node scripts/patch-dist-exports.mjs",
     "check": "ultracite check",
     "fix": "ultracite fix",
     "release": "npm run build && npm run publish:dist",
@@ -42,7 +42,6 @@
     "@angular/compiler-cli": "21.2.6",
     "@angular/forms": "21.2.6",
     "@angular/platform-browser-dynamic": "21.2.6",
-    "@socketsecurity/bun-security-scanner": "1.1.2",
     "@storybook/angular": "10.3.4",
     "@tailwindcss/postcss": "^4.2.2",
     "eslint-plugin-github": "6.1.2",

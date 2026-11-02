@@ -1,0 +1,23 @@
+packages:
+  - 'apps/*'
+  - 'libs/*'
+overrides:
+  '@angular/animations': '21.2.6'
+  '@angular/aria': '21.2.6'
+  '@angular/build': '21.2.6'
+  '@angular/cdk': '21.2.6'
+  '@angular/cli': '21.2.6'
+  '@angular/common': '21.2.6'
+  '@angular/compiler': '21.2.6'
+  '@angular/compiler-cli': '21.2.6'
+  '@angular/core': '21.2.6'
+  '@angular/forms': '21.2.6'
+  '@angular/platform-browser': '21.2.6'
+  '@angular/platform-browser-dynamic': '21.2.6'
+  '@angular/router': '21.2.6'
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lefthook: true
+  lmdb: true
+  msgpackr-extract: true

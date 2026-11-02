@@ -4,10 +4,10 @@ pre-commit:
     secrets:
       run: gitleaks protect --staged
     formatting:
-      run: bun run format:all:check
+      run: pnpm run format:all:check
     typecheck-web:
-      run: cd apps/web && bunx tsc --noEmit
+      run: cd apps/web && pnpm exec tsc --noEmit
     dependency-audit:
-      run: bun run check:deps
+      run: pnpm run check:deps
     knip:
-      run: bun run check:knip
+      run: pnpm run check:knip

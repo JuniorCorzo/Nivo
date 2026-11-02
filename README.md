@@ -2,15 +2,32 @@
 
 Nivo is a multi-tenant SaaS platform engineered for complete parking lifecycle operations—from slot boundary and rate configuration to real-time QR check-in/out, automated fee calculation, occupancy dashboards, and public ticket tracking.
 
+## Prerequisites & Package Manager
+
+- **Node.js**: 22+
+- **PNPM**: 12+ (`mise use -g pnpm` or `npm install -g pnpm`)
+- **Java**: 25 (Temurin)
+- **Docker**: Docker Compose v2+
+
+### Why PNPM?
+- **Content-Addressable Store (Hardlinks)**: Packages are stored in a single global content-addressable store and hardlinked across workspaces and Git Worktrees. This enables instant zero-copy worktree environments without duplicating disk storage.
+- **Phantom Dependencies Prevention**: Enforces a strict, non-flat `node_modules` structure, preventing accidental access to undeclared indirect dependencies.
+- **Native Angular Compatibility**: Full ecosystem support for Angular CLI, Vite, Vitest, and ng-packagr.
+
+---
+
 ## Quick Path
 
 Run the entire development stack with a single command:
 
 ```bash
+# Install dependencies
+pnpm install
+
 # Start all services (Database, API, Web, Mockups)
 ./dev.sh
-# Or using Bun:
-bun run dev
+# Or using PNPM:
+pnpm run dev
 ```
 
 Inspect service health and port allocation:
@@ -23,16 +40,16 @@ Or run individual services:
 
 ```bash
 # 1. Start local PostGIS, Prometheus & Grafana
-bun run dev:db
+pnpm run dev:db
 
 # 2. Run Spring Boot API
-bun run dev:api
+pnpm run dev:api
 
 # 3. Run Angular Web UI
-bun run dev:web
+pnpm run dev:web
 
 # 4. Run Design System Storybook
-bun run dev:design-system
+pnpm run dev:design-system
 ```
 
 ---
@@ -95,7 +112,7 @@ Nivo/
 
 ## Key Workflows & Scripts
 
-All common workflows are orchestrated from the root using Bun:
+All common workflows are orchestrated from the root using PNPM:
 
 ```bash
 # Development Orchestration
@@ -106,18 +123,18 @@ All common workflows are orchestrated from the root using Bun:
 ./dev.sh logs <service>        # Follow service logs (api, web, db, mockups)
 
 # Testing
-bun run test:e2e               # Run Playwright E2E test suite
-bun run test:e2e:chromium      # Run Playwright with Chromium browser
+pnpm run test:e2e               # Run Playwright E2E test suite
+pnpm run test:e2e:chromium      # Run Playwright with Chromium browser
 
 # Code Formatting & Verification
-bun run format:all:check       # Check Java (Spotless) and TS/CSS (Oxfmt)
-bun run format:all:fix         # Fix formatting across the entire monorepo
-bun run format:api:fix         # Spotless apply on apps/api
-bun run format:fix             # Oxfmt write on apps/web & libs/design-system
+pnpm run format:all:check       # Check Java (Spotless) and TS/CSS (Oxfmt)
+pnpm run format:all:fix         # Fix formatting across the entire monorepo
+pnpm run format:api:fix         # Spotless apply on apps/api
+pnpm run format:fix             # Oxfmt write on apps/web & libs/design-system
 
 # Design System & Tokens
-bun run dev:tokens             # Rebuild OKLCH design tokens
-bun run dev:build              # Compile @nivo-sass/design-system library
+pnpm run dev:tokens             # Rebuild OKLCH design tokens
+pnpm run dev:build              # Compile @nivo-sass/design-system library
 ```
 
 ---

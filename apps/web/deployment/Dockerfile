@@ -1,25 +1,25 @@
 # ── Stage 1: Build ──────────────────────────────────────────────────────────
-FROM oven/bun:1.3.13-alpine AS builder
+FROM node:22-alpine AS builder
 
-RUN apk add --no-cache nodejs
+RUN corepack enable && corepack prepare pnpm@12.16.1 --activate
 
 WORKDIR /workspace
 
 # Copy dependency manifests
-COPY package.json bun.lock ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY libs/design-system/package.json ./libs/design-system/
 COPY apps/web/package.json ./apps/web/
 
 # Install workspace dependencies
-RUN bun install --frozen-lockfile --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY libs/design-system ./libs/design-system
 COPY apps/web ./apps/web
 
 # Build design system library and web application
-RUN bun run --cwd libs/design-system build && \
-    bun run --cwd apps/web build
+RUN pnpm --filter @nivo-sass/design-system build && \
+    pnpm --filter web build
 
 # ── Stage 2: Runtime ─────────────────────────────────────────────────────────
 FROM nginx:alpine AS runtime
