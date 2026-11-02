@@ -14,9 +14,20 @@ public class SwaggerConfiguration {
 
   @Bean
   public OpenAPI customOpenAPI() {
+    final String description = """
+      Multi-tenant Parking Management System API
+
+      ### Real-Time WebSocket / STOMP Endpoints
+      * **Endpoints**: `/ws`, `/payments`
+      * **Protocol**: STOMP over WebSocket
+      * **Subscription Topic**: `/topic/payments/{paymentId}` (real-time payment status updates)
+      * **Authentication**: Pass `Authorization: Bearer <JWT>` header during STOMP `CONNECT` frame.
+      * **Manual Testing**: See Bruno collection at `collections/nivo/Payments/Payment Status WebSocket.bru`.
+      """;
+
     final Info info = new Info().title("Nivo API")
       .version("1.0")
-      .description("Multi-tenant Parking Management System API")
+      .description(description)
       .contact(new Contact().name("Nivo Team"));
 
     final String script = """
