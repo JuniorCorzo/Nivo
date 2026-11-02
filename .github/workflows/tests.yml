@@ -60,7 +60,7 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Run Web Unit Tests
-        run: pnpm --filter web test -- --watch=false
+        run: pnpm --filter web test --watch=false
 
   test-design-system:
     name: Design System Tests
