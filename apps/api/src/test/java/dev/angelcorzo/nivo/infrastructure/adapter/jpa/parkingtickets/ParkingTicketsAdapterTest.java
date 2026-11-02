@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.ParkingTicketStatus;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets.mappers.ParkingTicketMapper;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.SlotsData;
 import java.math.BigDecimal;
@@ -15,19 +16,24 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.cache.CacheManager;
 
 @DisplayName("ParkingTicketsAdapter Unit Tests")
 class ParkingTicketsAdapterTest {
 
   private ParkingTicketsRepositoryData repository;
   private ParkingTicketMapper mapper;
+  private CacheManager cacheManager;
+  private TenantAwareKeyGenerator keyGenerator;
   private ParkingTicketsAdapter adapter;
 
   @BeforeEach
   void setUp() {
     repository = mock(ParkingTicketsRepositoryData.class);
     mapper = mock(ParkingTicketMapper.class);
-    adapter = new ParkingTicketsAdapter(repository, mapper);
+    cacheManager = mock(CacheManager.class);
+    keyGenerator = mock(TenantAwareKeyGenerator.class);
+    adapter = new ParkingTicketsAdapter(repository, mapper, cacheManager, keyGenerator);
   }
 
   @Test

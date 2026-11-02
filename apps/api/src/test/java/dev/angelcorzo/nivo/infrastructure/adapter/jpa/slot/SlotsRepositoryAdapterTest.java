@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotSummary;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.mappers.SlotSummaryDataMapper;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.mappers.SlotsMappers;
 import jakarta.persistence.Tuple;
@@ -13,6 +14,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.cache.CacheManager;
 
 @DisplayName("SlotsRepositoryAdapter Unit Tests")
 class SlotsRepositoryAdapterTest {
@@ -20,6 +22,8 @@ class SlotsRepositoryAdapterTest {
   private SlotsRepositoryData repository;
   private SlotsMappers mapper;
   private SlotSummaryDataMapper summaryMapper;
+  private CacheManager cacheManager;
+  private TenantAwareKeyGenerator keyGenerator;
   private SlotsRepositoryAdapter adapter;
 
   @BeforeEach
@@ -27,7 +31,9 @@ class SlotsRepositoryAdapterTest {
     repository = mock(SlotsRepositoryData.class);
     mapper = mock(SlotsMappers.class);
     summaryMapper = mock(SlotSummaryDataMapper.class);
-    adapter = new SlotsRepositoryAdapter(repository, mapper, summaryMapper);
+    cacheManager = mock(CacheManager.class);
+    keyGenerator = mock(TenantAwareKeyGenerator.class);
+    adapter = new SlotsRepositoryAdapter(repository, mapper, summaryMapper, cacheManager, keyGenerator);
   }
 
   @Test

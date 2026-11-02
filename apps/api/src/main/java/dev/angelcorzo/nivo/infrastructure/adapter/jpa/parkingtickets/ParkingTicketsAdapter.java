@@ -5,6 +5,8 @@ import dev.angelcorzo.nivo.domain.model.parkingtickets.ParkingTickets;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.enums.ParkingTicketStatus;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.ParkingTicketsRepository;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.constants.CacheNames;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.helper.AdapterOperations;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets.mappers.ParkingTicketMapper;
 import java.math.BigDecimal;
@@ -12,6 +14,9 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,16 +27,22 @@ public class ParkingTicketsAdapter
   implements
     ParkingTicketsRepository {
 
-  /**
-   * Constructor for AdapterOperations.
-   *
-   * @param repository
-   *          The JPA repository instance.
-   * @param mapper
-   *          The mapper for converting between domain and data entities.
-   */
-  protected ParkingTicketsAdapter(ParkingTicketsRepositoryData repository, ParkingTicketMapper mapper) {
+  private final CacheManager cacheManager;
+  private final TenantAwareKeyGenerator keyGenerator;
+
+  @org.springframework.beans.factory.annotation.Autowired
+  public ParkingTicketsAdapter(ParkingTicketsRepositoryData repository, ParkingTicketMapper mapper,
+    ObjectProvider<CacheManager> cacheManagerProvider, ObjectProvider<TenantAwareKeyGenerator> keyGeneratorProvider) {
     super(repository, mapper);
+    this.cacheManager = cacheManagerProvider != null ? cacheManagerProvider.getIfAvailable() : null;
+    this.keyGenerator = keyGeneratorProvider != null ? keyGeneratorProvider.getIfAvailable() : null;
+  }
+
+  public ParkingTicketsAdapter(ParkingTicketsRepositoryData repository, ParkingTicketMapper mapper,
+    CacheManager cacheManager, TenantAwareKeyGenerator keyGenerator) {
+    super(repository, mapper);
+    this.cacheManager = cacheManager;
+    this.keyGenerator = keyGenerator;
   }
 
   @Override
@@ -77,6 +88,14 @@ public class ParkingTicketsAdapter
 
     if (ticket.getSlot() != null) {
       ticket.getSlot().setStatus(SlotStatus.AVAILABLE);
+      if (ticket.getSlot().getParking() != null && ticket.getSlot().getParking().getId() != null
+        && this.cacheManager != null && this.keyGenerator != null) {
+        final UUID parkingLotId = ticket.getSlot().getParking().getId();
+        final Cache cache = this.cacheManager.getCache(CacheNames.SLOT_SUMMARY);
+        if (cache != null) {
+          cache.evict(this.keyGenerator.buildKey(parkingLotId));
+        }
+      }
     }
 
     return super.mapper.toEntity(super.repository.save(ticket));

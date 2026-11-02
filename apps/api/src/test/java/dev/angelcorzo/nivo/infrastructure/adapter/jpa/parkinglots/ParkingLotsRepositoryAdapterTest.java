@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLotListItem;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLots;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkinglots.mappers.ParkingLotSummaryDataMapper;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkinglots.mappers.ParkingLotsMapper;
 import jakarta.persistence.Tuple;
@@ -13,6 +14,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.cache.CacheManager;
 
 @DisplayName("ParkingLotsRepositoryAdapter Unit Tests")
 class ParkingLotsRepositoryAdapterTest {
@@ -20,6 +22,8 @@ class ParkingLotsRepositoryAdapterTest {
   private ParkingLotsRepositoryData repository;
   private ParkingLotSummaryDataMapper summaryMapper;
   private ParkingLotsMapper mapper;
+  private CacheManager cacheManager;
+  private TenantAwareKeyGenerator keyGenerator;
   private ParkingLotsRepositoryAdapter adapter;
 
   @BeforeEach
@@ -27,7 +31,9 @@ class ParkingLotsRepositoryAdapterTest {
     repository = mock(ParkingLotsRepositoryData.class);
     summaryMapper = mock(ParkingLotSummaryDataMapper.class);
     mapper = mock(ParkingLotsMapper.class);
-    adapter = new ParkingLotsRepositoryAdapter(repository, summaryMapper, mapper);
+    cacheManager = mock(CacheManager.class);
+    keyGenerator = mock(TenantAwareKeyGenerator.class);
+    adapter = new ParkingLotsRepositoryAdapter(repository, summaryMapper, mapper, cacheManager, keyGenerator);
   }
 
   @Test
