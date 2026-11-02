@@ -30,10 +30,10 @@ banner() {
 
 is_pid_running() {
     local pid_file="$1"
-    if [ -f "$pid_file" ]; then
+    if [[ -f "$pid_file" ]]; then
         local pid
         pid=$(cat "$pid_file" 2>/dev/null || true)
-        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+        if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
             echo "$pid"
             return 0
         fi
@@ -45,10 +45,10 @@ stop_process_by_pid_file() {
     local name="$1"
     local pid_file="$2"
 
-    if [ -f "$pid_file" ]; then
+    if [[ -f "$pid_file" ]]; then
         local pid
         pid=$(cat "$pid_file" 2>/dev/null || true)
-        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+        if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
             echo -n "  Stopping $name (PID: $pid)... "
             pkill -P "$pid" 2>/dev/null || true
             kill "$pid" 2>/dev/null || true
@@ -89,7 +89,7 @@ check_port() {
 
 start_db() {
     echo -e "\n${BOLD}${BLUE}==> Starting Docker infrastructure (Database, Prometheus, Grafana)...${RESET}"
-    if [ -f "$COMPOSE_FILE" ]; then
+    if [[ -f "$COMPOSE_FILE" ]]; then
         docker compose -f "$COMPOSE_FILE" up -d
         echo -e "    ${GREEN}✔ Docker stack active.${RESET}"
     else
@@ -100,7 +100,7 @@ start_db() {
 
 stop_db() {
     echo -e "\n${BOLD}${BLUE}==> Stopping Docker Compose infrastructure...${RESET}"
-    if [ -f "$COMPOSE_FILE" ]; then
+    if [[ -f "$COMPOSE_FILE" ]]; then
         docker compose -f "$COMPOSE_FILE" down
         echo -e "    ${GREEN}✔ Docker stack stopped.${RESET}"
     else
@@ -128,8 +128,8 @@ start_api() {
     else
         (
             set -a
-            [ -f .env ] && . .env
-            [ -f deployment/.env ] && . deployment/.env
+            [[ -f .env ]] && . .env
+            [[ -f deployment/.env ]] && . deployment/.env
             set +a
             cd apps/api && exec ./gradlew bootRun
         ) > "$LOGS_DIR/api.log" 2>&1 &
@@ -144,7 +144,7 @@ stop_api() {
     stop_process_by_pid_file "API Backend" "$LOGS_DIR/api.pid"
     local port_pids
     port_pids=$(lsof -ti:8080 2>/dev/null || true)
-    if [ -n "$port_pids" ]; then
+    if [[ -n "$port_pids" ]]; then
         echo -n "  Cleaning up process on port 8080... "
         kill -9 $port_pids 2>/dev/null || true
         echo -e "${GREEN}cleaned${RESET}."
@@ -181,7 +181,7 @@ stop_web() {
     stop_process_by_pid_file "Frontend Web" "$LOGS_DIR/web.pid"
     local port_pids
     port_pids=$(lsof -ti:4200 2>/dev/null || true)
-    if [ -n "$port_pids" ]; then
+    if [[ -n "$port_pids" ]]; then
         echo -n "  Cleaning up process on port 4200... "
         kill -9 $port_pids 2>/dev/null || true
         echo -e "${GREEN}cleaned${RESET}."
@@ -196,7 +196,7 @@ restart_web() {
 # --- Service: Mockups Suite (Python HTTP) ---
 
 start_mockups() {
-    if [ -d "mockups/dashboard" ]; then
+    if [[ -d "mockups/dashboard" ]]; then
         echo -e "\n${BOLD}${BLUE}==> Starting Mockups Suite (Python HTTP Server)...${RESET}"
         local running_pid
         if running_pid=$(is_pid_running "$LOGS_DIR/mockups.pid"); then
@@ -228,15 +228,15 @@ status_services() {
     local DB_CID PROM_CID GRAF_CID DB_REF PROM_REF GRAF_REF
     DB_CID=$(docker compose -f "$COMPOSE_FILE" ps -q database 2>/dev/null | cut -c1-12 || true)
     DB_REF="${RED}STOPPED${RESET}"
-    [ -n "$DB_CID" ] && DB_REF="${GREEN}Docker ($DB_CID)${RESET}"
+    [[ -n "$DB_CID" ]] && DB_REF="${GREEN}Docker ($DB_CID)${RESET}"
 
     PROM_CID=$(docker compose -f "$COMPOSE_FILE" ps -q prometheus 2>/dev/null | cut -c1-12 || true)
     PROM_REF="${RED}STOPPED${RESET}"
-    [ -n "$PROM_CID" ] && PROM_REF="${GREEN}Docker ($PROM_CID)${RESET}"
+    [[ -n "$PROM_CID" ]] && PROM_REF="${GREEN}Docker ($PROM_CID)${RESET}"
 
     GRAF_CID=$(docker compose -f "$COMPOSE_FILE" ps -q grafana 2>/dev/null | cut -c1-12 || true)
     GRAF_REF="${RED}STOPPED${RESET}"
-    [ -n "$GRAF_CID" ] && GRAF_REF="${GREEN}Docker ($GRAF_CID)${RESET}"
+    [[ -n "$GRAF_CID" ]] && GRAF_REF="${GREEN}Docker ($GRAF_CID)${RESET}"
 
     local API_STATUS WEB_STATUS MOCK_STATUS
     local api_pid web_pid mock_pid
@@ -246,7 +246,7 @@ status_services() {
     else
         local api_port_pid
         api_port_pid=$(lsof -ti:8080 2>/dev/null | head -n 1)
-        if [ -n "$api_port_pid" ]; then
+        if [[ -n "$api_port_pid" ]]; then
             API_STATUS="${GREEN}PID: $api_port_pid${RESET}"
             echo "$api_port_pid" > "$LOGS_DIR/api.pid"
         else
@@ -259,7 +259,7 @@ status_services() {
     else
         local web_port_pid
         web_port_pid=$(lsof -ti:4200 2>/dev/null | head -n 1)
-        if [ -n "$web_port_pid" ]; then
+        if [[ -n "$web_port_pid" ]]; then
             WEB_STATUS="${GREEN}PID: $web_port_pid${RESET}"
             echo "$web_port_pid" > "$LOGS_DIR/web.pid"
         else
@@ -284,7 +284,7 @@ status_services() {
     printf "$FORMAT" "Grafana" "$GRAF_REF" "3000" "http://localhost:3000/api/health" "docker compose -f $COMPOSE_FILE logs -f grafana"
     printf "$FORMAT" "API Backend" "$API_STATUS" "8080" "http://localhost:8080/api" "tail -f $LOGS_DIR/api.log"
     printf "$FORMAT" "Frontend Web" "$WEB_STATUS" "4200" "http://localhost:4200" "tail -f $LOGS_DIR/web.log"
-    if [ -d "mockups/dashboard" ]; then
+    if [[ -d "mockups/dashboard" ]]; then
         printf "$FORMAT" "Mockups Suite" "$MOCK_STATUS" "8085" "http://localhost:8085" "tail -f $LOGS_DIR/mockups.log"
     fi
     echo -e "${BOLD}$SEPARATOR${RESET}\n"
