@@ -93,8 +93,7 @@ export default defineConfig({
     globals: true,
     environment: "happy-dom",
     include: [
-      "src/app/core/**/*.spec.ts",
-      "src/app/features/**/facades/**/*.spec.ts",
+      "src/app/core/mappers/**/*.spec.ts",
       "src/app/shared/utils/**/*.spec.ts",
     ],
     exclude: ["**/node_modules/**", "**/dist/**", "**/.stryker-tmp/**"],
