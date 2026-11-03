@@ -6,6 +6,7 @@ plugins {
     id 'io.sentry.jvm.gradle' version '6.23.0'
     id 'com.diffplug.spotless' version '7.0.2'
     id 'com.github.spotbugs' version '6.1.7'
+    id 'info.solidsoft.pitest' version '1.19.0'
 }
 
 group = 'dev.angelcorzo.nivo'
@@ -228,4 +229,21 @@ spotbugsMain {
 
 spotbugsTest {
     enabled = false
+}
+
+pitest {
+    pitestVersion = '1.25.9'
+    junit5PluginVersion = '1.2.3'
+    addJUnitPlatformLauncher = false
+    targetClasses = [
+        'dev.angelcorzo.nivo.domain.usecase.*',
+        'dev.angelcorzo.nivo.domain.model.*'
+    ]
+    targetTests = [
+        'dev.angelcorzo.nivo.domain.usecase.*Test',
+        'dev.angelcorzo.nivo.domain.model.*Test'
+    ]
+    threads = 4
+    outputFormats = ['XML', 'HTML']
+    timestampedReports = false
 }

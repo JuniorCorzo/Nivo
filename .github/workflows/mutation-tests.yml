@@ -1,0 +1,43 @@
+name: Mutation Tests (PIT)
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "apps/api/src/main/java/dev/angelcorzo/nivo/domain/**"
+      - "apps/api/src/test/java/dev/angelcorzo/nivo/domain/**"
+      - "apps/api/build.gradle"
+      - ".github/workflows/mutation-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mutation-tests:
+    name: Domain Mutation Tests (PIT)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Java 25
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
+        with:
+          distribution: "temurin"
+          java-version: "25"
+          cache: "gradle"
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x apps/api/gradlew
+
+      - name: Run Domain Mutation Tests
+        run: ./apps/api/gradlew -p apps/api pitest --no-daemon
+
+      - name: Upload Mutation Test Reports
+        if: always()
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb99ba8141 # v4.6.1
+        with:
+          name: pit-reports
+          path: apps/api/build/reports/pitest
+          retention-days: 14
