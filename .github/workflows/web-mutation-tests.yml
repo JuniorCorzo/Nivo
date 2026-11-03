@@ -1,0 +1,45 @@
+name: Web Mutation Tests
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/src/app/core/**"
+      - "apps/web/src/app/features/**/facades/**"
+      - "apps/web/src/app/shared/utils/**"
+      - "apps/web/stryker.config.json"
+      - "apps/web/vitest.config.ts"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mutation-tests:
+    name: Mutation Tests (Web)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@7088e561eb65bb68695d245aa206f005ef30921d # v4.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Run Web Mutation Tests
+        run: pnpm --filter web test:mutation
+
+      - name: Upload Mutation Report
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb99ba811e # v4.6.1
+        if: always()
+        with:
+          name: web-mutation-report
+          path: apps/web/reports/mutation
+          retention-days: 14
