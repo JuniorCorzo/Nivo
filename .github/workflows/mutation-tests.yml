@@ -36,7 +36,7 @@ jobs:
 
       - name: Upload Mutation Test Reports
         if: always()
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb99ba811e # v4.6.1
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         with:
           name: pit-reports
           path: apps/api/build/reports/pitest
