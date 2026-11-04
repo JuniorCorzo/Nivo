@@ -8,40 +8,38 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
-@Repository
+/**
+ * Pure JPA repository adapter for {@link Rates}.
+ */
+@Repository("ratesRepositoryAdapter")
 public class RatesRepositoryAdapter extends AdapterOperations<Rates, RateData, UUID, RatesRepositoryData>
   implements
     RatesRepository {
 
-  /**
-   * Constructor for AdapterOperations.
-   *
-   * @param repository
-   *          The JPA repository instance.
-   * @param mapper
-   *          The mapper for converting between domain and data entities.
-   */
-  protected RatesRepositoryAdapter(RatesRepositoryData repository, RatesMapper mapper) {
+  public RatesRepositoryAdapter(final RatesRepositoryData repository, final RatesMapper mapper) {
     super(repository, mapper);
   }
 
   @Override
-  public List<Rates> findAllByParkingLotId(UUID parkingLotId) {
-    return super.repository.findAllActiveByParkingId(parkingLotId).stream().map(super::toEntity).toList();
+  public List<Rates> findAllByParkingLotId(final UUID parkingLotId) {
+    return super.repository.findAllActiveByParkingId(parkingLotId)
+      .stream()
+      .map(super::toEntity)
+      .toList();
   }
 
   @Override
-  public Rates getReferenceById(UUID uuid) {
+  public Rates getReferenceById(final UUID uuid) {
     return super.toEntity(super.repository.getReferenceById(uuid));
   }
 
   @Override
-  public Boolean existsById(UUID uuid) {
+  public Boolean existsById(final UUID uuid) {
     return super.repository.existsById(uuid);
   }
 
   @Override
-  public void deleteById(UUID uuid) {
+  public void deleteById(final UUID uuid) {
     super.repository.deleteById(uuid);
   }
 
