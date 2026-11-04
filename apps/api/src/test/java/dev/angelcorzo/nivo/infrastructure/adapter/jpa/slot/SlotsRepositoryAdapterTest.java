@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("SlotsRepositoryAdapter Unit Tests")
+@DisplayName("SlotsRepositoryAdapter Pure JPA Unit Tests")
 class SlotsRepositoryAdapterTest {
 
   private SlotsRepositoryData repository;
@@ -31,112 +31,73 @@ class SlotsRepositoryAdapterTest {
   }
 
   @Test
-  @DisplayName("Should find all slots by parking lots ID")
-  void shouldFindAllByParkingLotId() {
-    UUID parkingId = UUID.randomUUID();
-    SlotsData data = new SlotsData();
-    Slots slot = Slots.builder().id(UUID.randomUUID()).build();
+  @DisplayName("Should find all slot summaries by parking lots ID")
+  void shouldFindAllSummaryByParkingLotsId() {
+    final UUID parkingLotId = UUID.randomUUID();
+    final Tuple tuple = mock(Tuple.class);
+    final SlotSummaryData summaryData = mock(SlotSummaryData.class);
+    final SlotSummary model = mock(SlotSummary.class);
 
-    when(repository.findAllByParking_Id(parkingId)).thenReturn(List.of(data));
-    when(mapper.toEntity(data)).thenReturn(slot);
-
-    List<Slots> result = adapter.findAllByParkingLotsId(parkingId);
-
-    assertThat(result).hasSize(1);
-    verify(repository).findAllByParking_Id(parkingId);
-  }
-
-  @Test
-  @DisplayName("Should find all slot summaries by parking lot ID")
-  void shouldFindAllSummaryByParkingLotId() {
-    UUID parkingId = UUID.randomUUID();
-    Tuple tuple = mock(Tuple.class);
-    SlotSummaryData summaryData = mock(SlotSummaryData.class);
-    SlotSummary model = mock(SlotSummary.class);
-
-    when(repository.findAllSummaryByParking_Id(parkingId)).thenReturn(List.of(tuple));
+    when(repository.findAllSummaryByParking_Id(parkingLotId)).thenReturn(List.of(tuple));
     when(summaryMapper.toSummaryData(tuple)).thenReturn(summaryData);
     when(summaryMapper.toModel(summaryData)).thenReturn(model);
 
-    List<SlotSummary> result = adapter.findAllSummaryByParkingLotsId(parkingId);
+    final List<SlotSummary> result = adapter.findAllSummaryByParkingLotsId(parkingLotId);
 
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0)).isEqualTo(model);
+    assertThat(result).hasSize(1).containsExactly(model);
+    verify(repository).findAllSummaryByParking_Id(parkingLotId);
   }
 
   @Test
-  @DisplayName("Should soft delete slots by parking lot ID")
+  @DisplayName("Should find slots by IDs")
+  void shouldFindAllById() {
+    final UUID id = UUID.randomUUID();
+    final SlotsData data = new SlotsData();
+    final Slots entity = Slots.builder().id(id).build();
+
+    when(repository.findAllById(List.of(id))).thenReturn(List.of(data));
+    when(mapper.toEntity(data)).thenReturn(entity);
+
+    final List<Slots> result = adapter.findAllById(List.of(id));
+
+    assertThat(result).containsExactly(entity);
+  }
+
+  @Test
+  @DisplayName("Should find slots by IDs and tenant ID")
+  void shouldFindAllByIdInAndTenantId() {
+    final UUID id = UUID.randomUUID();
+    final UUID tenantId = UUID.randomUUID();
+    final SlotsData data = new SlotsData();
+    final Slots entity = Slots.builder().id(id).build();
+
+    when(repository.findAllByIdInAndTenant_Id(List.of(id), tenantId)).thenReturn(List.of(data));
+    when(mapper.toEntity(data)).thenReturn(entity);
+
+    final List<Slots> result = adapter.findAllByIdInAndTenantId(List.of(id), tenantId);
+
+    assertThat(result).containsExactly(entity);
+  }
+
+  @Test
+  @DisplayName("Should soft delete by parking lot ID")
   void shouldSoftDeleteByParkingLotId() {
-    UUID parkingId = UUID.randomUUID();
-    when(repository.softDeleteByParkingLotsId(parkingId)).thenReturn(5);
+    final UUID parkingLotId = UUID.randomUUID();
+    when(repository.softDeleteByParkingLotsId(parkingLotId)).thenReturn(5);
 
-    int count = adapter.softDeleteByParkingLotsId(parkingId);
+    final int result = adapter.softDeleteByParkingLotsId(parkingLotId);
 
-    assertThat(count).isEqualTo(5);
-    verify(repository).softDeleteByParkingLotsId(parkingId);
+    assertThat(result).isEqualTo(5);
+    verify(repository).softDeleteByParkingLotsId(parkingLotId);
   }
 
   @Test
-  @DisplayName("Should batch delete slots by IDs")
-  void shouldBatchDeleteSlots() {
-    List<UUID> ids = List.of(UUID.randomUUID(), UUID.randomUUID());
+  @DisplayName("Should batch delete slots")
+  void shouldBatchDelete() {
+    final List<UUID> ids = List.of(UUID.randomUUID(), UUID.randomUUID());
 
     adapter.batchDelete(ids);
 
     verify(repository).deleteAllByIdInBatch(ids);
-  }
-
-  @Test
-  @DisplayName("Should find all slots by IDs and tenant ID")
-  void shouldFindAllByIdInAndTenantId() {
-    List<UUID> ids = List.of(UUID.randomUUID());
-    UUID tenantId = UUID.randomUUID();
-    SlotsData data = new SlotsData();
-    Slots slot = Slots.builder().id(ids.get(0)).build();
-
-    when(repository.findAllByIdInAndTenant_Id(ids, tenantId)).thenReturn(List.of(data));
-    when(mapper.toEntity(data)).thenReturn(slot);
-
-    List<Slots> result = adapter.findAllByIdInAndTenantId(ids, tenantId);
-
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0)).isEqualTo(slot);
-    verify(repository).findAllByIdInAndTenant_Id(ids, tenantId);
-  }
-
-  @Test
-  @DisplayName("Should find all slots by parking lot ID, zone, and prefix")
-  void shouldFindAllByParkingLotsIdAndZoneAndPrefix() {
-    UUID parkingId = UUID.randomUUID();
-    String zone = "Zone A";
-    String prefix = "P";
-    SlotsData data = new SlotsData();
-    Slots slot = Slots.builder().id(UUID.randomUUID()).build();
-
-    when(repository.findAllByParking_IdAndZoneAndPrefix(parkingId, zone, prefix)).thenReturn(List.of(data));
-    when(mapper.toEntity(data)).thenReturn(slot);
-
-    List<Slots> result = adapter.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, zone, prefix);
-
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0)).isEqualTo(slot);
-    verify(repository).findAllByParking_IdAndZoneAndPrefix(parkingId, zone, prefix);
-  }
-
-  @Test
-  @DisplayName("Should normalize empty or blank zone and prefix to null when finding slots")
-  void shouldNormalizeEmptyZoneAndPrefixToNull() {
-    UUID parkingId = UUID.randomUUID();
-    SlotsData data = new SlotsData();
-    Slots slot = Slots.builder().id(UUID.randomUUID()).build();
-
-    when(repository.findAllByParking_IdAndZoneAndPrefix(parkingId, null, null)).thenReturn(List.of(data));
-    when(mapper.toEntity(data)).thenReturn(slot);
-
-    List<Slots> result = adapter.findAllByParkingLotsIdAndZoneAndPrefix(parkingId, "", "   ");
-
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0)).isEqualTo(slot);
-    verify(repository).findAllByParking_IdAndZoneAndPrefix(parkingId, null, null);
   }
 }

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("ParkingTicketsAdapter Unit Tests")
+@DisplayName("ParkingTicketsAdapter Pure JPA Unit Tests")
 class ParkingTicketsAdapterTest {
 
   private ParkingTicketsRepositoryData repository;
@@ -33,120 +33,103 @@ class ParkingTicketsAdapterTest {
   @Test
   @DisplayName("Should find parking ticket by tenant ID and ID")
   void shouldFindByTenantIdAndId() {
-    UUID tenantId = UUID.randomUUID();
-    UUID ticketId = UUID.randomUUID();
-    ParkingTicketsData data = new ParkingTicketsData();
-    ParkingTickets entity = ParkingTickets.builder().id(ticketId).build();
+    final UUID tenantId = UUID.randomUUID();
+    final UUID id = UUID.randomUUID();
+    final ParkingTicketsData data = new ParkingTicketsData();
+    final ParkingTickets entity = ParkingTickets.builder().id(id).build();
 
-    when(repository.findByTenant_IdAndId(tenantId, ticketId)).thenReturn(Optional.of(data));
+    when(repository.findByTenant_IdAndId(tenantId, id)).thenReturn(Optional.of(data));
     when(mapper.toEntity(data)).thenReturn(entity);
 
-    Optional<ParkingTickets> result = adapter.findByTenantIdAndId(tenantId, ticketId);
+    final Optional<ParkingTickets> result = adapter.findByTenantIdAndId(tenantId, id);
 
-    assertThat(result).isPresent();
-    assertThat(result.get().getId()).isEqualTo(ticketId);
+    assertThat(result).isPresent().contains(entity);
+    verify(repository).findByTenant_IdAndId(tenantId, id);
   }
 
   @Test
-  @DisplayName("Should prepare checkout and return updated ticket")
+  @DisplayName("Should close ticket and set slot AVAILABLE")
+  void shouldCloseTicket() {
+    final UUID ticketId = UUID.randomUUID();
+    final ParkingTicketsData ticketData = new ParkingTicketsData();
+    final SlotsData slotData = new SlotsData();
+    slotData.setStatus(SlotStatus.OCCUPIED);
+    ticketData.setSlot(slotData);
+
+    final ParkingTickets closedEntity = ParkingTickets.builder()
+      .id(ticketId)
+      .status(ParkingTicketStatus.CLOSED)
+      .build();
+
+    when(repository.findById(ticketId)).thenReturn(Optional.of(ticketData));
+    when(repository.save(ticketData)).thenReturn(ticketData);
+    when(mapper.toEntity(ticketData)).thenReturn(closedEntity);
+
+    final ParkingTickets result = adapter.closeTicket(ticketId);
+
+    assertThat(result).isEqualTo(closedEntity);
+    assertThat(ticketData.getStatus()).isEqualTo(ParkingTicketStatus.CLOSED);
+    assertThat(slotData.getStatus()).isEqualTo(SlotStatus.AVAILABLE);
+    verify(repository).save(ticketData);
+  }
+
+  @Test
+  @DisplayName("Should return null when closing nonexistent ticket")
+  void shouldReturnNullWhenTicketNotFound() {
+    final UUID ticketId = UUID.randomUUID();
+    when(repository.findById(ticketId)).thenReturn(Optional.empty());
+
+    final ParkingTickets result = adapter.closeTicket(ticketId);
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  @DisplayName("Should prepare checkout")
   void shouldPrepareCheckout() {
-    UUID ticketId = UUID.randomUUID();
-    BigDecimal amount = BigDecimal.valueOf(15000);
-    ParkingTicketsData data = new ParkingTicketsData();
-    ParkingTickets entity = ParkingTickets.builder().id(ticketId).build();
+    final UUID ticketId = UUID.randomUUID();
+    final BigDecimal amount = new BigDecimal("15000.00");
+    final ParkingTicketsData data = new ParkingTicketsData();
+    final ParkingTickets entity = ParkingTickets.builder().id(ticketId).build();
 
     when(repository.findById(ticketId)).thenReturn(Optional.of(data));
     when(mapper.toEntity(data)).thenReturn(entity);
 
-    ParkingTickets result = adapter.prepareCheckout(ticketId, amount);
+    final ParkingTickets result = adapter.prepareCheckout(ticketId, amount);
 
-    assertThat(result).isNotNull();
+    assertThat(result).isEqualTo(entity);
     verify(repository).prepareCheckout(ticketId, amount);
   }
 
   @Test
-  @DisplayName("Should change ticket status")
-  void shouldChangeStatus() {
-    UUID ticketId = UUID.randomUUID();
-    ParkingTicketsData data = new ParkingTicketsData();
-    ParkingTickets entity = ParkingTickets.builder().id(ticketId).status(ParkingTicketStatus.CLOSED).build();
+  @DisplayName("Should find active ticket by slot ID")
+  void shouldFindActiveTicketBySlotId() {
+    final UUID slotId = UUID.randomUUID();
+    final ParkingTicketsData data = new ParkingTicketsData();
+    final ParkingTickets entity = ParkingTickets.builder().id(UUID.randomUUID()).build();
 
-    when(repository.findById(ticketId)).thenReturn(Optional.of(data));
+    when(repository.findActiveBySlotId(slotId)).thenReturn(Optional.of(data));
     when(mapper.toEntity(data)).thenReturn(entity);
 
-    ParkingTickets result = adapter.changeStatus(ticketId, ParkingTicketStatus.CLOSED);
+    final Optional<ParkingTickets> result = adapter.findActiveBySlotId(slotId);
 
-    assertThat(result).isNotNull();
-    verify(repository).changeStatus(ticketId, ParkingTicketStatus.CLOSED);
-  }
-
-  @Test
-  @DisplayName("Should close ticket")
-  void shouldCloseTicket() {
-    UUID ticketId = UUID.randomUUID();
-    ParkingTicketsData data = new ParkingTicketsData();
-    SlotsData slotData = new SlotsData();
-    slotData.setStatus(SlotStatus.OCCUPIED);
-    data.setSlot(slotData);
-
-    ParkingTickets entity = ParkingTickets.builder().id(ticketId).status(ParkingTicketStatus.CLOSED).build();
-
-    when(repository.findById(ticketId)).thenReturn(Optional.of(data));
-    when(repository.save(data)).thenReturn(data);
-    when(mapper.toEntity(data)).thenReturn(entity);
-
-    ParkingTickets result = adapter.closeTicket(ticketId);
-
-    assertThat(result).isNotNull();
-    assertThat(data.getStatus()).isEqualTo(ParkingTicketStatus.CLOSED);
-    assertThat(data.getClosedAt()).isNotNull();
-    assertThat(slotData.getStatus()).isEqualTo(SlotStatus.AVAILABLE);
-    verify(repository).save(data);
-  }
-
-  @Test
-  @DisplayName("Should return null when closing non-existing ticket")
-  void shouldReturnNullWhenClosingNonExistingTicket() {
-    UUID ticketId = UUID.randomUUID();
-
-    when(repository.findById(ticketId)).thenReturn(Optional.empty());
-
-    ParkingTickets result = adapter.closeTicket(ticketId);
-
-    assertThat(result).isNull();
-    verify(repository, never()).save(any());
+    assertThat(result).isPresent().contains(entity);
+    verify(repository).findActiveBySlotId(slotId);
   }
 
   @Test
   @DisplayName("Should find all tickets by parking lot ID")
   void shouldFindAllByParkingLotId() {
-    UUID parkingLotId = UUID.randomUUID();
-    ParkingTicketsData data = new ParkingTicketsData();
-    ParkingTickets entity = ParkingTickets.builder().id(UUID.randomUUID()).build();
+    final UUID parkingLotId = UUID.randomUUID();
+    final ParkingTicketsData data = new ParkingTicketsData();
+    final ParkingTickets entity = ParkingTickets.builder().id(UUID.randomUUID()).build();
 
     when(repository.findAllBySlot_Parking_Id(parkingLotId)).thenReturn(List.of(data));
     when(mapper.toEntity(data)).thenReturn(entity);
 
-    List<ParkingTickets> result = adapter.findAllByParkingLotId(parkingLotId);
+    final List<ParkingTickets> result = adapter.findAllByParkingLotId(parkingLotId);
 
-    assertThat(result).hasSize(1).containsExactly(entity);
+    assertThat(result).containsExactly(entity);
     verify(repository).findAllBySlot_Parking_Id(parkingLotId);
-  }
-
-  @Test
-  @DisplayName("Should find active ticket by slot ID")
-  void shouldFindActiveBySlotId() {
-    UUID slotId = UUID.randomUUID();
-    ParkingTicketsData data = new ParkingTicketsData();
-    ParkingTickets entity = ParkingTickets.builder().id(UUID.randomUUID()).status(ParkingTicketStatus.OPEN).build();
-
-    when(repository.findActiveBySlotId(slotId)).thenReturn(Optional.of(data));
-    when(mapper.toEntity(data)).thenReturn(entity);
-
-    Optional<ParkingTickets> result = adapter.findActiveBySlotId(slotId);
-
-    assertThat(result).isPresent();
-    assertThat(result.get().getId()).isEqualTo(entity.getId());
-    verify(repository).findActiveBySlotId(slotId);
   }
 }

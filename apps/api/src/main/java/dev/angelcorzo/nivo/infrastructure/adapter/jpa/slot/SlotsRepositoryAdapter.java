@@ -11,50 +11,48 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
-@Repository
+/**
+ * Pure JPA repository adapter for {@link Slots}.
+ */
+@Repository("slotsRepositoryAdapter")
 public class SlotsRepositoryAdapter extends AdapterOperations<Slots, SlotsData, UUID, SlotsRepositoryData>
   implements
     SlotsRepository {
 
   private final SlotSummaryDataMapper slotSummaryDataMapper;
 
-  /**
-   * Constructor for AdapterOperations.
-   *
-   * @param repository
-   *          The JPA repository instance.
-   * @param mapper
-   *          The mapper for converting between domain and data entities.
-   */
-  protected SlotsRepositoryAdapter(SlotsRepositoryData repository, SlotsMappers mapper,
-    SlotSummaryDataMapper slotSummaryDataMapper) {
+  public SlotsRepositoryAdapter(
+    final SlotsRepositoryData repository,
+    final SlotsMappers mapper,
+    final SlotSummaryDataMapper slotSummaryDataMapper) {
     super(repository, mapper);
     this.slotSummaryDataMapper = slotSummaryDataMapper;
   }
 
   @Override
-  public List<Slots> findAllById(List<UUID> ids) {
+  public List<Slots> findAllById(final List<UUID> ids) {
     return super.repository.findAllById(ids).stream().map(super::toEntity).toList();
   }
 
   @Override
-  public List<Slots> findAllByIdInAndTenantId(List<UUID> ids, UUID tenantId) {
+  public List<Slots> findAllByIdInAndTenantId(final List<UUID> ids, final UUID tenantId) {
     return super.repository.findAllByIdInAndTenant_Id(ids, tenantId).stream().map(super::toEntity).toList();
   }
 
   @Override
-  public List<Slots> findAllByParkingLotsId(UUID parkingLotsId) {
+  public List<Slots> findAllByParkingLotsId(final UUID parkingLotsId) {
     return super.repository.findAllByParking_Id(parkingLotsId).stream().map(super::toEntity).toList();
   }
 
   @Override
-  public List<Slots> findAllByParkingLotsIdAndZoneAndPrefix(UUID parkingLotsId, String zone, String prefix) {
+  public List<Slots> findAllByParkingLotsIdAndZoneAndPrefix(final UUID parkingLotsId, final String zone,
+    final String prefix) {
     return super.repository.findAllByParking_IdAndZoneAndPrefix(parkingLotsId, StringUtils.normalize(zone),
       StringUtils.normalize(prefix)).stream().map(super::toEntity).toList();
   }
 
   @Override
-  public List<SlotSummary> findAllSummaryByParkingLotsId(UUID parkingLotsId) {
+  public List<SlotSummary> findAllSummaryByParkingLotsId(final UUID parkingLotsId) {
     return super.repository.findAllSummaryByParking_Id(parkingLotsId)
       .stream()
       .map(this.slotSummaryDataMapper::toSummaryData)
@@ -63,37 +61,37 @@ public class SlotsRepositoryAdapter extends AdapterOperations<Slots, SlotsData, 
   }
 
   @Override
-  public Slots getReferenceById(UUID id) {
+  public Slots getReferenceById(final UUID id) {
     return super.mapper.toEntity(super.repository.getReferenceById(id));
   }
 
   @Override
-  public Boolean existsById(UUID id) {
+  public Boolean existsById(final UUID id) {
     return super.repository.existsById(id);
   }
 
   @Override
-  public List<Slots> saveAll(List<Slots> slots) {
+  public List<Slots> saveAll(final List<Slots> slots) {
     return super.saveAllEntities(slots);
   }
 
   @Override
-  public List<Slots> saveAllEntities(List<Slots> slots) {
+  public List<Slots> saveAllEntities(final List<Slots> slots) {
     return super.saveAllEntities(slots);
   }
 
   @Override
-  public void deleteById(UUID id) {
+  public void deleteById(final UUID id) {
     super.repository.deleteById(id);
   }
 
   @Override
-  public int softDeleteByParkingLotsId(UUID parkingLotsId) {
+  public int softDeleteByParkingLotsId(final UUID parkingLotsId) {
     return super.repository.softDeleteByParkingLotsId(parkingLotsId);
   }
 
   @Override
-  public void batchDelete(List<UUID> ids) {
+  public void batchDelete(final List<UUID> ids) {
     super.repository.deleteAllByIdInBatch(ids);
   }
 }
