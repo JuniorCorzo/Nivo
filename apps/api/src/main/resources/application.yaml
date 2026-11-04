@@ -47,6 +47,20 @@ spring:
   threads:
     virtual:
       enabled: true
+  cache:
+    type: ${SPRING_CACHE_TYPE:redis}
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: ${REDIS_TIMEOUT:2000ms}
+      lettuce:
+        pool:
+          max-active: ${REDIS_POOL_MAX_ACTIVE:16}
+          max-idle: ${REDIS_POOL_MAX_IDLE:8}
+          min-idle: ${REDIS_POOL_MIN_IDLE:2}
+          max-wait: ${REDIS_POOL_MAX_WAIT:1000ms}
   task:
     execution:
       thread-name-prefix: virtual-async-
@@ -84,6 +98,15 @@ jwt:
   refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800}
 
 nivo:
+  cache:
+    default-ttl: ${CACHE_DEFAULT_TTL:10m}
+    ttls:
+      slot-summary: ${CACHE_TTL_SLOT_SUMMARY:2h}
+      rates: ${CACHE_TTL_RATES:24h}
+      parking-lots: ${CACHE_TTL_PARKING_LOTS:24h}
+      parking-lots-list: ${CACHE_TTL_PARKING_LOTS_LIST:24h}
+      special-policies: ${CACHE_TTL_SPECIAL_POLICIES:168h}
+      public-availability: ${CACHE_TTL_PUBLIC_AVAILABILITY:60s}
   notification:
     email:
       provider: "${NIVO_EMAIL_PROVIDER:BREVO}"

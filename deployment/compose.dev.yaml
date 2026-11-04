@@ -52,8 +52,26 @@ services:
     networks:
       - nivo_dev_net
 
+  redis:
+    container_name: nivo_dev_redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    volumes:
+      - nivo_dev_redis_data:/data
+    networks:
+      - nivo_dev_net
+
 volumes:
   nivo_dev_postgres_data:
+  nivo_dev_redis_data:
 
 networks:
   nivo_dev_net:
