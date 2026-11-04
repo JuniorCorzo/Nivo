@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("RatesRepositoryAdapter Unit Tests")
+@DisplayName("RatesRepositoryAdapter Pure JPA Unit Tests")
 class RatesRepositoryAdapterTest {
 
   private RatesRepositoryData repository;
@@ -28,38 +28,62 @@ class RatesRepositoryAdapterTest {
   @Test
   @DisplayName("Should find all rates by parking lot ID")
   void shouldFindAllByParkingLotId() {
-    UUID parkingId = UUID.randomUUID();
-    RateData data = new RateData();
-    Rates entity = Rates.builder().id(UUID.randomUUID()).build();
+    final UUID parkingId = UUID.randomUUID();
+    final RateData data = new RateData();
+    final Rates entity = Rates.builder().id(UUID.randomUUID()).build();
 
     when(repository.findAllActiveByParkingId(parkingId)).thenReturn(List.of(data));
     when(mapper.toEntity(data)).thenReturn(entity);
 
-    List<Rates> result = adapter.findAllByParkingLotId(parkingId);
+    final List<Rates> result = adapter.findAllByParkingLotId(parkingId);
 
-    assertThat(result).hasSize(1);
+    assertThat(result).hasSize(1).containsExactly(entity);
     verify(repository).findAllActiveByParkingId(parkingId);
   }
 
   @Test
-  @DisplayName("Should check if rate has active tickets")
-  void shouldCheckHasActiveTickets() {
-    UUID rateId = UUID.randomUUID();
-    when(repository.hasActiveTickets(rateId)).thenReturn(true);
+  @DisplayName("Should get reference by ID")
+  void shouldGetReferenceById() {
+    final UUID id = UUID.randomUUID();
+    final RateData data = new RateData();
+    final Rates entity = Rates.builder().id(id).build();
 
-    boolean result = adapter.hasActiveTickets(rateId);
+    when(repository.getReferenceById(id)).thenReturn(data);
+    when(mapper.toEntity(data)).thenReturn(entity);
 
-    assertThat(result).isTrue();
-    verify(repository).hasActiveTickets(rateId);
+    final Rates result = adapter.getReferenceById(id);
+
+    assertThat(result).isEqualTo(entity);
+    verify(repository).getReferenceById(id);
   }
 
   @Test
-  @DisplayName("Should delete rate by ID")
+  @DisplayName("Should check existence by ID")
+  void shouldCheckExistsById() {
+    final UUID id = UUID.randomUUID();
+    when(repository.existsById(id)).thenReturn(true);
+
+    assertThat(adapter.existsById(id)).isTrue();
+    verify(repository).existsById(id);
+  }
+
+  @Test
+  @DisplayName("Should delete by ID")
   void shouldDeleteById() {
-    UUID id = UUID.randomUUID();
+    final UUID id = UUID.randomUUID();
 
     adapter.deleteById(id);
 
     verify(repository).deleteById(id);
+  }
+
+  @Test
+  @DisplayName("Should check active tickets")
+  void shouldCheckActiveTickets() {
+    final UUID rateId = UUID.randomUUID();
+    when(repository.hasActiveTickets(rateId)).thenReturn(true);
+
+    assertThat(adapter.hasActiveTickets(rateId)).isTrue();
+    verify(repository).hasActiveTickets(rateId);
   }
 }
