@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import dev.angelcorzo.nivo.domain.model.users.exceptions.UserAuthenticationContextInvalidException;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.exceptions.MissingTenantCacheContextException;
 import dev.angelcorzo.nivo.infrastructure.security.context.AuthenticationContextHolder;
 import java.lang.reflect.Method;
 import java.util.UUID;
@@ -13,12 +15,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
 
-@DisplayName("TenantAwareKeyGenerator Unit Tests")
-class TenantAwareKeyGeneratorTest {
+@DisplayName("CacheKeyGenerator Unit Tests")
+class CacheKeyGeneratorTest {
 
   private ObjectProvider<AuthenticationContextHolder> authContextProvider;
   private AuthenticationContextHolder authContextHolder;
-  private TenantAwareKeyGenerator keyGenerator;
+  private CacheKeyGenerator keyGenerator;
 
   @SuppressWarnings("unchecked")
   @BeforeEach
@@ -26,7 +28,7 @@ class TenantAwareKeyGeneratorTest {
     authContextProvider = mock(ObjectProvider.class);
     authContextHolder = mock(AuthenticationContextHolder.class);
     when(authContextProvider.getIfAvailable()).thenReturn(authContextHolder);
-    keyGenerator = new TenantAwareKeyGenerator(authContextProvider);
+    keyGenerator = new CacheKeyGenerator(authContextProvider);
   }
 
   @Test
@@ -43,14 +45,14 @@ class TenantAwareKeyGeneratorTest {
   }
 
   @Test
-  @DisplayName("Should throw IllegalStateException and fail-fast when unauthenticated (preventing cache poisoning)")
+  @DisplayName("Should throw MissingTenantCacheContextException and fail-fast when unauthenticated")
   void shouldThrowExceptionWhenUnauthenticated() throws NoSuchMethodException {
-    when(authContextHolder.getCurrentTenantId()).thenThrow(new IllegalStateException("No auth"));
+    when(authContextHolder.getCurrentTenantId()).thenThrow(new UserAuthenticationContextInvalidException());
     final UUID entityId = UUID.randomUUID();
     final Method method = getClass().getDeclaredMethod("shouldThrowExceptionWhenUnauthenticated");
 
     assertThatThrownBy(() -> keyGenerator.generate(this, method, entityId))
-      .isInstanceOf(IllegalStateException.class)
+      .isInstanceOf(MissingTenantCacheContextException.class)
       .hasMessageContaining("Active security context does not contain an authenticated tenant ID");
   }
 
@@ -66,12 +68,12 @@ class TenantAwareKeyGeneratorTest {
   }
 
   @Test
-  @DisplayName("Should throw IllegalStateException when explicit tenantId is null")
+  @DisplayName("Should throw MissingTenantCacheContextException when explicit tenantId is null")
   void shouldThrowWhenTenantIdIsNull() {
     final UUID resourceId = UUID.randomUUID();
 
     assertThatThrownBy(() -> keyGenerator.buildKeyForTenant(null, resourceId))
-      .isInstanceOf(IllegalStateException.class)
+      .isInstanceOf(MissingTenantCacheContextException.class)
       .hasMessageContaining("Cannot generate tenant-scoped cache key without an authenticated tenantId");
   }
 
@@ -80,7 +82,7 @@ class TenantAwareKeyGeneratorTest {
   void shouldBuildPublicKey() {
     final UUID parkingId = UUID.randomUUID();
 
-    final String key = TenantAwareKeyGenerator.buildPublicKey("availability", parkingId);
+    final String key = CacheKeyGenerator.buildPublicKey("availability", parkingId);
 
     assertThat(key).isEqualTo("public:availability:" + parkingId);
   }
@@ -107,5 +109,13 @@ class TenantAwareKeyGeneratorTest {
     final Object key = keyGenerator.generate(this, method);
 
     assertThat(key).isEqualTo("tenant:" + tenantId);
+  }
+
+  @Test
+  @DisplayName("Should return null tenantId when provider has no holder")
+  void shouldReturnNullWhenProviderEmpty() {
+    when(authContextProvider.getIfAvailable()).thenReturn(null);
+
+    assertThat(keyGenerator.resolveTenantId()).isNull();
   }
 }

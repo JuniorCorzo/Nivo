@@ -3,7 +3,7 @@ package dev.angelcorzo.nivo.infrastructure.adapter.cache.repositories;
 import dev.angelcorzo.nivo.domain.model.rates.Rates;
 import dev.angelcorzo.nivo.domain.model.rates.gateways.RatesRepository;
 import dev.angelcorzo.nivo.infrastructure.adapter.cache.constants.CacheNames;
-import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.CacheKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.rates.RatesRepositoryAdapter;
 import java.util.List;
 import java.util.Optional;
@@ -25,10 +25,10 @@ public class CachedRatesRepositoryAdapter implements RatesRepository {
 
   private final RatesRepositoryAdapter delegate;
   private final CacheManager cacheManager;
-  private final TenantAwareKeyGenerator keyGenerator;
+  private final CacheKeyGenerator keyGenerator;
 
   @Override
-  @Cacheable(value = CacheNames.RATES_KEY, keyGenerator = "tenantAwareKeyGenerator")
+  @Cacheable(value = CacheNames.RATES_KEY, keyGenerator = "cacheKeyGenerator")
   public List<Rates> findAllByParkingLotId(final UUID parkingLotId) {
     return this.delegate.findAllByParkingLotId(parkingLotId);
   }

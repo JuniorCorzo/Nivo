@@ -3,7 +3,7 @@ package dev.angelcorzo.nivo.infrastructure.adapter.cache.repositories;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.SpecialPolicies;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.gateways.SpecialPoliciesRepository;
 import dev.angelcorzo.nivo.infrastructure.adapter.cache.constants.CacheNames;
-import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.CacheKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.specialpolicies.SpecialPoliciesAdapter;
 import java.util.List;
 import java.util.Optional;
@@ -25,10 +25,10 @@ public class CachedSpecialPoliciesRepositoryAdapter implements SpecialPoliciesRe
 
   private final SpecialPoliciesAdapter delegate;
   private final CacheManager cacheManager;
-  private final TenantAwareKeyGenerator keyGenerator;
+  private final CacheKeyGenerator keyGenerator;
 
   @Override
-  @Cacheable(value = CacheNames.SPECIAL_POLICIES_KEY, keyGenerator = "tenantAwareKeyGenerator")
+  @Cacheable(value = CacheNames.SPECIAL_POLICIES_KEY, keyGenerator = "cacheKeyGenerator")
   public List<SpecialPolicies> findAllByTenantId(final UUID tenantId) {
     return this.delegate.findAllByTenantId(tenantId);
   }
