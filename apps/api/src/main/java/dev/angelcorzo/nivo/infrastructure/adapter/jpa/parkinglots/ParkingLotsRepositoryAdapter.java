@@ -47,14 +47,6 @@ public class ParkingLotsRepositoryAdapter
   }
 
   @Override
-  public List<ParkingLots> findByOwnerId(final UUID ownerId) {
-    return super.repository.findAllByOwnerId(ownerId)
-      .stream()
-      .map(super::toEntity)
-      .toList();
-  }
-
-  @Override
   public ParkingLots getReferenceById(final UUID id) {
     return super.mapper.toEntity(super.repository.getReferenceById(id));
   }
