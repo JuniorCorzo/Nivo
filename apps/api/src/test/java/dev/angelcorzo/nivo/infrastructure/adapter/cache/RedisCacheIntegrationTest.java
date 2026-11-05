@@ -6,10 +6,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.redis.testcontainers.RedisContainer;
+import dev.angelcorzo.nivo.domain.model.users.exceptions.UserAuthenticationContextInvalidException;
 import dev.angelcorzo.nivo.infrastructure.adapter.cache.config.RedisCacheConfig;
 import dev.angelcorzo.nivo.infrastructure.adapter.cache.config.RedisCacheProperties;
 import dev.angelcorzo.nivo.infrastructure.adapter.cache.constants.CacheNames;
-import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.exceptions.MissingTenantCacheContextException;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.CacheKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.security.context.AuthenticationContextHolder;
 import java.time.Duration;
 import java.util.UUID;
@@ -62,13 +64,19 @@ class RedisCacheIntegrationTest {
       UUID.fromString("00000000-0000-0000-0000-000000000001"));
 
     @Bean
-    public TenantAwareKeyGenerator tenantAwareKeyGenerator() {
+    public CacheKeyGenerator cacheKeyGenerator() {
       @SuppressWarnings("unchecked")
       final ObjectProvider<AuthenticationContextHolder> provider = mock(ObjectProvider.class);
       final AuthenticationContextHolder holder = mock(AuthenticationContextHolder.class);
       when(provider.getIfAvailable()).thenReturn(holder);
-      when(holder.getCurrentTenantId()).thenAnswer(invocation -> ACTIVE_TENANT.get());
-      return new TenantAwareKeyGenerator(provider);
+      when(holder.getCurrentTenantId()).thenAnswer(invocation -> {
+        final UUID tenant = ACTIVE_TENANT.get();
+        if (tenant == null) {
+          throw new UserAuthenticationContextInvalidException();
+        }
+        return tenant;
+      });
+      return new CacheKeyGenerator(provider);
     }
   }
 
@@ -76,7 +84,7 @@ class RedisCacheIntegrationTest {
   private RedisCacheManager cacheManager;
 
   @Autowired
-  private TenantAwareKeyGenerator keyGenerator;
+  private CacheKeyGenerator keyGenerator;
 
   private static final UUID TENANT_ONE = UUID.fromString("00000000-0000-0000-0000-000000000001");
   private static final UUID TENANT_TWO = UUID.fromString("00000000-0000-0000-0000-000000000002");
@@ -157,13 +165,13 @@ class RedisCacheIntegrationTest {
   }
 
   @Test
-  @DisplayName("Should prevent cache poisoning by throwing IllegalStateException when tenant context is null")
+  @DisplayName("Should prevent cache poisoning by throwing MissingTenantCacheContextException when tenant context is null")
   void shouldPreventCachePoisoningWhenTenantNull() {
     TestConfig.ACTIVE_TENANT.set(null);
     final UUID parkingId = UUID.randomUUID();
 
     assertThatThrownBy(() -> keyGenerator.buildKey(parkingId))
-      .isInstanceOf(IllegalStateException.class)
+      .isInstanceOf(MissingTenantCacheContextException.class)
       .hasMessageContaining("Active security context does not contain an authenticated tenant ID");
   }
 
@@ -174,7 +182,7 @@ class RedisCacheIntegrationTest {
     assertThat(cache).isNotNull();
 
     final UUID parkingId = UUID.randomUUID();
-    final String publicKey = TenantAwareKeyGenerator.buildPublicKey("availability", parkingId);
+    final String publicKey = CacheKeyGenerator.buildPublicKey("availability", parkingId);
 
     assertThat(publicKey).startsWith("public:availability:");
     assertThat(publicKey).doesNotContain("tenant:");
