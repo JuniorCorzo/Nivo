@@ -1,22 +1,26 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.publicapi;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import dev.angelcorzo.nivo.domain.usecase.dashboard.GetPublicParkingAvailabilityUseCase;
 import dev.angelcorzo.nivo.domain.usecase.dashboard.dtos.PublicParkingAvailabilityDTO;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.publicapi.PublicAvailabilityCacheService;
+import dev.angelcorzo.nivo.infrastructure.adapter.metrics.BackendOperationsMetricsManager;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -33,7 +37,7 @@ class PublicAvailabilityControllerTest {
   private MockMvc mockMvc;
 
   @MockitoBean
-  private GetPublicParkingAvailabilityUseCase availabilityUseCase;
+  private PublicAvailabilityCacheService availabilityCacheService;
 
   @Test
   @DisplayName("Endpoint público no requiere cabecera Authorization y devuelve JSON sanitizado sin datos privados")
@@ -48,7 +52,7 @@ class PublicAvailabilityControllerTest {
       .timestamp(OffsetDateTime.now())
       .build();
 
-    when(availabilityUseCase.execute(parkingId)).thenReturn(Optional.of(dto));
+    when(availabilityCacheService.getAvailability(parkingId)).thenReturn(Optional.of(dto));
 
     mockMvc.perform(get("/public/parkings/" + parkingId + "/availability").with(request -> {
       request.setRemoteAddr("10.0.0.1");
@@ -71,7 +75,7 @@ class PublicAvailabilityControllerTest {
   @DisplayName("Parqueadero inexistente retorna HTTP 404")
   void shouldReturn404ForNonExistentParking() throws Exception {
     final UUID nonExistent = UUID.randomUUID();
-    when(availabilityUseCase.execute(nonExistent)).thenReturn(Optional.empty());
+    when(availabilityCacheService.getAvailability(nonExistent)).thenReturn(Optional.empty());
 
     mockMvc.perform(get("/public/parkings/" + nonExistent + "/availability").with(request -> {
       request.setRemoteAddr("10.0.0.2");
@@ -92,13 +96,11 @@ class PublicAvailabilityControllerTest {
       .timestamp(OffsetDateTime.now())
       .build();
 
-    when(availabilityUseCase.execute(parkingId)).thenReturn(Optional.of(dto));
+    when(availabilityCacheService.getAvailability(parkingId)).thenReturn(Optional.of(dto));
 
     final String clientIp = "192.168.100.50";
     boolean rateLimitHit = false;
 
-    // Consumir el bucket (60 req/min) de forma tolerante a tiempos de ejecución lentos en CI.
-    // Se itera hasta alcanzar 429 (ocurre normalmente entre la petición 61 y 65 si se rellenan tokens).
     for (int i = 1; i <= 70; i++) {
       final MvcResult result = mockMvc
         .perform(get("/public/parkings/" + parkingId + "/availability").with(request -> {
@@ -121,5 +123,32 @@ class PublicAvailabilityControllerTest {
     }
 
     assertThat(rateLimitHit).isTrue();
+  }
+
+  @Test
+  @DisplayName("Thin controller delegates directly to PublicAvailabilityCacheService")
+  void shouldDelegateDirectlyToCacheService() {
+    final PublicAvailabilityCacheService service = Mockito.mock(PublicAvailabilityCacheService.class);
+    final BackendOperationsMetricsManager metrics = Mockito.mock(BackendOperationsMetricsManager.class);
+    final PublicAvailabilityController controller = new PublicAvailabilityController(service, metrics);
+
+    final UUID parkingId = UUID.randomUUID();
+    final PublicParkingAvailabilityDTO dto = PublicParkingAvailabilityDTO.builder()
+      .parkingId(parkingId)
+      .parkingName("Test Lot")
+      .totalSlots(10)
+      .availableSlots(5)
+      .occupiedSlots(5)
+      .timestamp(OffsetDateTime.now())
+      .build();
+
+    when(service.getAvailability(parkingId)).thenReturn(Optional.of(dto));
+
+    final ResponseEntity<PublicParkingAvailabilityDTO> response = controller.getAvailability(parkingId);
+
+    assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+    assertThat(response.getBody()).isEqualTo(dto);
+    verify(metrics).recordPublicAvailabilityRequest(200);
+    verify(service).getAvailability(parkingId);
   }
 }

@@ -15,59 +15,51 @@ import java.util.UUID;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
+/**
+ * Pure JPA repository adapter for {@link ParkingTickets}.
+ */
+@Repository("parkingTicketsAdapter")
 public class ParkingTicketsAdapter
   extends
     AdapterOperations<ParkingTickets, ParkingTicketsData, UUID, ParkingTicketsRepositoryData>
   implements
     ParkingTicketsRepository {
 
-  /**
-   * Constructor for AdapterOperations.
-   *
-   * @param repository
-   *          The JPA repository instance.
-   * @param mapper
-   *          The mapper for converting between domain and data entities.
-   */
-  protected ParkingTicketsAdapter(ParkingTicketsRepositoryData repository, ParkingTicketMapper mapper) {
+  public ParkingTicketsAdapter(final ParkingTicketsRepositoryData repository, final ParkingTicketMapper mapper) {
     super(repository, mapper);
   }
 
   @Override
-  public Optional<ParkingTickets> findByTenantIdAndId(UUID tenantId, UUID id) {
-
+  public Optional<ParkingTickets> findByTenantIdAndId(final UUID tenantId, final UUID id) {
     return super.repository.findByTenant_IdAndId(tenantId, id).map(super::toEntity);
   }
 
   @Override
-  public boolean existsById(UUID id) {
+  public boolean existsById(final UUID id) {
     return super.repository.existsById(id);
   }
 
   @Override
-  public ParkingTickets getReferenceById(UUID id) {
+  public ParkingTickets getReferenceById(final UUID id) {
     return super.mapper.toEntity(super.repository.getReferenceById(id));
   }
 
   @Override
-  public ParkingTickets prepareCheckout(UUID ticketId, BigDecimal amountToCharge) {
+  public ParkingTickets prepareCheckout(final UUID ticketId, final BigDecimal amountToCharge) {
     super.repository.prepareCheckout(ticketId, amountToCharge);
-
     return super.findById(ticketId).orElseThrow(() -> new ParkingTicketNotFound(ticketId));
   }
 
   @Override
-  public ParkingTickets changeStatus(UUID ticketId, ParkingTicketStatus status) {
+  public ParkingTickets changeStatus(final UUID ticketId, final ParkingTicketStatus status) {
     super.repository.changeStatus(ticketId, status);
-
     return super.repository.findById(ticketId).map(super::toEntity).orElse(null);
   }
 
   @Transactional
   @Override
-  public ParkingTickets closeTicket(UUID ticketId) {
-    ParkingTicketsData ticket = super.repository.findById(ticketId).orElse(null);
+  public ParkingTickets closeTicket(final UUID ticketId) {
+    final ParkingTicketsData ticket = super.repository.findById(ticketId).orElse(null);
     if (ticket == null) {
       return null;
     }
@@ -83,12 +75,15 @@ public class ParkingTicketsAdapter
   }
 
   @Override
-  public List<ParkingTickets> findAllByParkingLotId(UUID parkingLotId) {
-    return super.repository.findAllBySlot_Parking_Id(parkingLotId).stream().map(super::toEntity).toList();
+  public List<ParkingTickets> findAllByParkingLotId(final UUID parkingLotId) {
+    return super.repository.findAllBySlot_Parking_Id(parkingLotId)
+      .stream()
+      .map(super::toEntity)
+      .toList();
   }
 
   @Override
-  public Optional<ParkingTickets> findActiveBySlotId(UUID slotId) {
+  public Optional<ParkingTickets> findActiveBySlotId(final UUID slotId) {
     return super.repository.findActiveBySlotId(slotId).map(super::toEntity);
   }
 }
