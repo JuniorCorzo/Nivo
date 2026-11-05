@@ -6,7 +6,7 @@ import static org.mockito.Mockito.*;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.SpecialPolicies;
 import dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference;
 import dev.angelcorzo.nivo.infrastructure.adapter.cache.constants.CacheNames;
-import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.CacheKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.specialpolicies.SpecialPoliciesAdapter;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +22,7 @@ class CachedSpecialPoliciesRepositoryAdapterTest {
 
   private SpecialPoliciesAdapter delegate;
   private CacheManager cacheManager;
-  private TenantAwareKeyGenerator keyGenerator;
+  private CacheKeyGenerator keyGenerator;
   private Cache cache;
   private CachedSpecialPoliciesRepositoryAdapter cachedAdapter;
 
@@ -30,7 +30,7 @@ class CachedSpecialPoliciesRepositoryAdapterTest {
   void setUp() {
     delegate = mock(SpecialPoliciesAdapter.class);
     cacheManager = mock(CacheManager.class);
-    keyGenerator = mock(TenantAwareKeyGenerator.class);
+    keyGenerator = mock(CacheKeyGenerator.class);
     cache = mock(Cache.class);
     cachedAdapter = new CachedSpecialPoliciesRepositoryAdapter(delegate, cacheManager, keyGenerator);
   }

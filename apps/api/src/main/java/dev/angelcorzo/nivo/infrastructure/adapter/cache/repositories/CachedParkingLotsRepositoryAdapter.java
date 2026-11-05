@@ -4,7 +4,7 @@ import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLotListItem;
 import dev.angelcorzo.nivo.domain.model.parkinglots.ParkingLots;
 import dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository;
 import dev.angelcorzo.nivo.infrastructure.adapter.cache.constants.CacheNames;
-import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.CacheKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkinglots.ParkingLotsRepositoryAdapter;
 import java.util.List;
 import java.util.Optional;
@@ -30,16 +30,16 @@ public class CachedParkingLotsRepositoryAdapter implements ParkingLotsRepository
 
   private final ParkingLotsRepositoryAdapter delegate;
   private final CacheManager cacheManager;
-  private final TenantAwareKeyGenerator keyGenerator;
+  private final CacheKeyGenerator keyGenerator;
 
   @Override
-  @Cacheable(value = CacheNames.PARKING_LOTS_KEY, keyGenerator = "tenantAwareKeyGenerator")
+  @Cacheable(value = CacheNames.PARKING_LOTS_KEY, keyGenerator = "cacheKeyGenerator")
   public Optional<ParkingLots> findById(final UUID id) {
     return this.delegate.findById(id);
   }
 
   @Override
-  @Cacheable(value = CacheNames.PARKING_LOTS_LIST_KEY, keyGenerator = "tenantAwareKeyGenerator")
+  @Cacheable(value = CacheNames.PARKING_LOTS_LIST_KEY, keyGenerator = "cacheKeyGenerator")
   public List<ParkingLotListItem> findByTenantId(final UUID tenantId) {
     return this.delegate.findByTenantId(tenantId);
   }
