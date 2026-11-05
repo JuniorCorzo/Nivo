@@ -45,11 +45,6 @@ public class CachedParkingLotsRepositoryAdapter implements ParkingLotsRepository
   }
 
   @Override
-  public List<ParkingLots> findByOwnerId(final UUID ownerId) {
-    return this.delegate.findByOwnerId(ownerId);
-  }
-
-  @Override
   public ParkingLots getReferenceById(final UUID id) {
     return this.delegate.getReferenceById(id);
   }

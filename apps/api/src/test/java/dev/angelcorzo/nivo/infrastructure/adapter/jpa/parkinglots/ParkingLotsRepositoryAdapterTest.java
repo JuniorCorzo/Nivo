@@ -50,22 +50,6 @@ class ParkingLotsRepositoryAdapterTest {
   }
 
   @Test
-  @DisplayName("Should find parking lots by owner ID")
-  void shouldFindByOwnerId() {
-    final UUID ownerId = UUID.randomUUID();
-    final ParkingLotsData data = new ParkingLotsData();
-    final ParkingLots entity = ParkingLots.builder().id(UUID.randomUUID()).build();
-
-    when(repository.findAllByOwnerId(ownerId)).thenReturn(List.of(data));
-    when(mapper.toEntity(data)).thenReturn(entity);
-
-    final List<ParkingLots> result = adapter.findByOwnerId(ownerId);
-
-    assertThat(result).hasSize(1).containsExactly(entity);
-    verify(repository).findAllByOwnerId(ownerId);
-  }
-
-  @Test
   @DisplayName("Should find parking lot by ID")
   void shouldFindById() {
     final UUID id = UUID.randomUUID();
