@@ -6,7 +6,7 @@ import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.ParkingTicketsRe
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.infrastructure.adapter.cache.constants.CacheNames;
-import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.CacheKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets.ParkingTicketsAdapter;
 import java.math.BigDecimal;
 import java.util.List;
@@ -29,7 +29,7 @@ public class CachedParkingTicketsAdapter implements ParkingTicketsRepository {
   private final ParkingTicketsAdapter delegate;
   private final SlotsRepository slotsRepository;
   private final CacheManager cacheManager;
-  private final TenantAwareKeyGenerator keyGenerator;
+  private final CacheKeyGenerator keyGenerator;
 
   @Override
   public ParkingTickets closeTicket(final UUID ticketId) {

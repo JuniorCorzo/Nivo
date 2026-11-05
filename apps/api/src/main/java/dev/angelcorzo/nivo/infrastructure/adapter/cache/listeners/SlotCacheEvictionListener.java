@@ -1,7 +1,7 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.cache.listeners;
 
 import dev.angelcorzo.nivo.infrastructure.adapter.cache.constants.CacheNames;
-import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.CacheKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.dashboard.sse.listeners.DashboardUpdateEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 public class SlotCacheEvictionListener {
 
   private final CacheManager cacheManager;
-  private final TenantAwareKeyGenerator keyGenerator;
+  private final CacheKeyGenerator keyGenerator;
 
   @EventListener
   public void onDashboardUpdate(final DashboardUpdateEvent event) {

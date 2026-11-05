@@ -3,7 +3,7 @@ package dev.angelcorzo.nivo.infrastructure.adapter.cache.listeners;
 import static org.mockito.Mockito.*;
 
 import dev.angelcorzo.nivo.infrastructure.adapter.cache.constants.CacheNames;
-import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.CacheKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.dashboard.sse.listeners.DashboardUpdateEvent;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,14 +16,14 @@ import org.springframework.cache.CacheManager;
 class SlotCacheEvictionListenerTest {
 
   private CacheManager cacheManager;
-  private TenantAwareKeyGenerator keyGenerator;
+  private CacheKeyGenerator keyGenerator;
   private Cache cache;
   private SlotCacheEvictionListener listener;
 
   @BeforeEach
   void setUp() {
     cacheManager = mock(CacheManager.class);
-    keyGenerator = mock(TenantAwareKeyGenerator.class);
+    keyGenerator = mock(CacheKeyGenerator.class);
     cache = mock(Cache.class);
     listener = new SlotCacheEvictionListener(cacheManager, keyGenerator);
   }

@@ -4,7 +4,7 @@ import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotSummary;
 import dev.angelcorzo.nivo.infrastructure.adapter.cache.constants.CacheNames;
-import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.CacheKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.SlotsRepositoryAdapter;
 import java.util.List;
 import java.util.Optional;
@@ -27,10 +27,10 @@ public class CachedSlotsRepositoryAdapter implements SlotsRepository {
 
   private final SlotsRepositoryAdapter delegate;
   private final CacheManager cacheManager;
-  private final TenantAwareKeyGenerator keyGenerator;
+  private final CacheKeyGenerator keyGenerator;
 
   @Override
-  @Cacheable(value = CacheNames.SLOT_SUMMARY_KEY, keyGenerator = "tenantAwareKeyGenerator")
+  @Cacheable(value = CacheNames.SLOT_SUMMARY_KEY, keyGenerator = "cacheKeyGenerator")
   public List<SlotSummary> findAllSummaryByParkingLotsId(final UUID parkingLotsId) {
     return this.delegate.findAllSummaryByParkingLotsId(parkingLotsId);
   }
@@ -73,7 +73,7 @@ public class CachedSlotsRepositoryAdapter implements SlotsRepository {
   }
 
   @Override
-  @CacheEvict(value = CacheNames.SLOT_SUMMARY_KEY, keyGenerator = "tenantAwareKeyGenerator")
+  @CacheEvict(value = CacheNames.SLOT_SUMMARY_KEY, keyGenerator = "cacheKeyGenerator")
   public int softDeleteByParkingLotsId(final UUID parkingLotsId) {
     return this.delegate.softDeleteByParkingLotsId(parkingLotsId);
   }

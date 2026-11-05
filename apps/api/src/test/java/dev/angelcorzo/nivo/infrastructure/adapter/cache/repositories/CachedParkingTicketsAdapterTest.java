@@ -9,7 +9,7 @@ import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotsReference;
 import dev.angelcorzo.nivo.infrastructure.adapter.cache.constants.CacheNames;
-import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.TenantAwareKeyGenerator;
+import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.CacheKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.parkingtickets.ParkingTicketsAdapter;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,7 +25,7 @@ class CachedParkingTicketsAdapterTest {
   private ParkingTicketsAdapter delegate;
   private SlotsRepository slotsRepository;
   private CacheManager cacheManager;
-  private TenantAwareKeyGenerator keyGenerator;
+  private CacheKeyGenerator keyGenerator;
   private Cache cache;
   private CachedParkingTicketsAdapter cachedAdapter;
 
@@ -34,7 +34,7 @@ class CachedParkingTicketsAdapterTest {
     delegate = mock(ParkingTicketsAdapter.class);
     slotsRepository = mock(SlotsRepository.class);
     cacheManager = mock(CacheManager.class);
-    keyGenerator = mock(TenantAwareKeyGenerator.class);
+    keyGenerator = mock(CacheKeyGenerator.class);
     cache = mock(Cache.class);
     cachedAdapter = new CachedParkingTicketsAdapter(delegate, slotsRepository, cacheManager, keyGenerator);
   }
