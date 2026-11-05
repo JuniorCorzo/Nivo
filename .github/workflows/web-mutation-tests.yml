@@ -37,7 +37,7 @@ jobs:
         run: pnpm --filter web test:mutation
 
       - name: Upload Mutation Report
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb99ba811e # v4.6.1
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         if: always()
         with:
           name: web-mutation-report

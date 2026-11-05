@@ -20,6 +20,11 @@ x-api-datasource-env: &api-datasource-env
   DB_USERNAME: ${DB_USERNAME:-${POSTGRES_USER:-postgres}}
   DB_PASSWORD: ${DB_PASSWORD:-${POSTGRES_PASSWORD}}
 
+x-api-redis-env: &api-redis-env
+  REDIS_HOST: ${REDIS_HOST:-redis}
+  REDIS_PORT: ${REDIS_PORT:-6379}
+  REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+
 x-api-security-env: &api-security-env
   JWT_ISSUE: ${JWT_ISSUE}
   AES_SECRET_KEY: ${AES_SECRET_KEY}
@@ -113,12 +118,15 @@ services:
     depends_on:
       database:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       <<:
         [
           *platform-env,
           *api-runtime-env,
           *api-datasource-env,
+          *api-redis-env,
           *api-security-env,
           *api-integrations-env,
         ]
@@ -156,6 +164,21 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sh:/docker-entrypoint-initdb.d/init.sh:z
+
+  redis:
+    <<: *common-service
+    container_name: nivo_redis
+    image: redis:7-alpine
+    networks:
+      - nivo_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    volumes:
+      - redis_data:/data
 
   prometheus:
     <<: *common-service
@@ -207,6 +230,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
   prometheus_data:
   grafana_data:
 

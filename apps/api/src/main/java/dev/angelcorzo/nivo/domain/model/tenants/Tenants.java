@@ -25,6 +25,7 @@ import lombok.*;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
 @EqualsAndHashCode(of = {"id"})
