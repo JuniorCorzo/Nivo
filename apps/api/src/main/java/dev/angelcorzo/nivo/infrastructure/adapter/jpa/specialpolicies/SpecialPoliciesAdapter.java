@@ -8,42 +8,37 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
-@Repository
+/**
+ * Pure JPA repository adapter for {@link SpecialPolicies}.
+ */
+@Repository("specialPoliciesAdapter")
 public class SpecialPoliciesAdapter
   extends
     AdapterOperations<SpecialPolicies, SpecialPoliciesData, UUID, SpecialPoliciesRepositoryData>
   implements
     SpecialPoliciesRepository {
 
-  /**
-   * Constructor for AdapterOperations.
-   *
-   * @param repository
-   *          The JPA repository instance.
-   * @param mapper
-   *          The mapper for converting between domain and data entities.
-   */
-  protected SpecialPoliciesAdapter(SpecialPoliciesRepositoryData repository, SpecialPoliciesMapper mapper) {
+  public SpecialPoliciesAdapter(final SpecialPoliciesRepositoryData repository, final SpecialPoliciesMapper mapper) {
     super(repository, mapper);
   }
 
   @Override
-  public List<SpecialPolicies> findAllByTenantId(UUID tenantId) {
+  public List<SpecialPolicies> findAllByTenantId(final UUID tenantId) {
     return super.repository.findAllByTenant_Id(tenantId).stream().map(super::toEntity).toList();
   }
 
   @Override
-  public Boolean existsById(UUID id) {
+  public Boolean existsById(final UUID id) {
     return super.repository.existsById(id);
   }
 
   @Override
-  public SpecialPolicies getReferenceById(UUID id) {
+  public SpecialPolicies getReferenceById(final UUID id) {
     return super.toEntity(super.repository.getReferenceById(id));
   }
 
   @Override
-  public void deleteById(UUID uuid) {
+  public void deleteById(final UUID uuid) {
     super.repository.deleteById(uuid);
   }
 }

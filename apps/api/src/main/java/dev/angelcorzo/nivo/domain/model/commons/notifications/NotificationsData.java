@@ -1,6 +1,7 @@
 package dev.angelcorzo.nivo.domain.model.commons.notifications;
 
-import java.util.Arrays;
+import java.lang.reflect.RecordComponent;
+import java.util.HashMap;
 import java.util.Map;
 
 public interface NotificationsData {
@@ -15,15 +16,21 @@ public interface NotificationsData {
   String companyAddress();
 
   default Map<String, String> toMap() {
-    Map<String, String> dataMap = new java.util.HashMap<>();
-    Arrays.stream(this.getClass().getRecordComponents()).forEach(component -> {
+    final Map<String, String> dataMap = new HashMap<>();
+    final RecordComponent[] components = this.getClass().getRecordComponents();
+    if (components == null) {
+      return dataMap;
+    }
+
+    for (final RecordComponent component : components) {
       try {
-        Object value = component.getAccessor().invoke(this);
+        final Object value = component.getAccessor().invoke(this);
         dataMap.put(component.getName(), value != null ? value.toString() : "null");
-      } catch (Exception e) {
-        e.printStackTrace();
+      } catch (final ReflectiveOperationException e) {
+        System.getLogger(NotificationsData.class.getName())
+          .log(System.Logger.Level.WARNING, "Failed to read notification record component: " + component.getName(), e);
       }
-    });
+    }
 
     return dataMap;
   }

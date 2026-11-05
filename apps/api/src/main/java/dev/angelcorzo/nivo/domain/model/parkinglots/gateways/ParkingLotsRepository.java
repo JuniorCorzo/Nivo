@@ -36,15 +36,6 @@ public interface ParkingLotsRepository {
    */
   List<ParkingLotListItem> findByTenantId(UUID tenantId);
 
-  /**
-   * Finds all parking lots owned by a specific user.
-   *
-   * @param ownerId
-   *          The unique identifier of the owner user.
-   * @return A list of {@link ParkingLots} owned by the user. Can be empty if none is found.
-   */
-  List<ParkingLots> findByOwnerId(UUID ownerId);
-
   ParkingLots getReferenceById(UUID id);
 
   Boolean existsById(UUID id);

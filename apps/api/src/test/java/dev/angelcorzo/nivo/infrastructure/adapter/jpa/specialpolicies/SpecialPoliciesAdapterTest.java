@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("SpecialPoliciesAdapter Unit Tests")
+@DisplayName("SpecialPoliciesAdapter Pure JPA Unit Tests")
 class SpecialPoliciesAdapterTest {
 
   private SpecialPoliciesRepositoryData repository;
@@ -28,23 +28,49 @@ class SpecialPoliciesAdapterTest {
   @Test
   @DisplayName("Should find all special policies by tenant ID")
   void shouldFindAllByTenantId() {
-    UUID tenantId = UUID.randomUUID();
-    SpecialPoliciesData data = new SpecialPoliciesData();
-    SpecialPolicies entity = SpecialPolicies.builder().id(UUID.randomUUID()).build();
+    final UUID tenantId = UUID.randomUUID();
+    final SpecialPoliciesData data = new SpecialPoliciesData();
+    final SpecialPolicies entity = SpecialPolicies.builder().id(UUID.randomUUID()).build();
 
     when(repository.findAllByTenant_Id(tenantId)).thenReturn(List.of(data));
     when(mapper.toEntity(data)).thenReturn(entity);
 
-    List<SpecialPolicies> result = adapter.findAllByTenantId(tenantId);
+    final List<SpecialPolicies> result = adapter.findAllByTenantId(tenantId);
 
-    assertThat(result).hasSize(1);
+    assertThat(result).hasSize(1).containsExactly(entity);
     verify(repository).findAllByTenant_Id(tenantId);
   }
 
   @Test
-  @DisplayName("Should delete special policy by ID")
+  @DisplayName("Should check existence by ID")
+  void shouldCheckExistsById() {
+    final UUID id = UUID.randomUUID();
+    when(repository.existsById(id)).thenReturn(true);
+
+    assertThat(adapter.existsById(id)).isTrue();
+    verify(repository).existsById(id);
+  }
+
+  @Test
+  @DisplayName("Should get reference by ID")
+  void shouldGetReferenceById() {
+    final UUID id = UUID.randomUUID();
+    final SpecialPoliciesData data = new SpecialPoliciesData();
+    final SpecialPolicies entity = SpecialPolicies.builder().id(id).build();
+
+    when(repository.getReferenceById(id)).thenReturn(data);
+    when(mapper.toEntity(data)).thenReturn(entity);
+
+    final SpecialPolicies result = adapter.getReferenceById(id);
+
+    assertThat(result).isEqualTo(entity);
+    verify(repository).getReferenceById(id);
+  }
+
+  @Test
+  @DisplayName("Should delete by ID")
   void shouldDeleteById() {
-    UUID id = UUID.randomUUID();
+    final UUID id = UUID.randomUUID();
 
     adapter.deleteById(id);
 
