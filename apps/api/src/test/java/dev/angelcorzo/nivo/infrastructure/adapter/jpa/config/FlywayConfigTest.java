@@ -63,4 +63,47 @@ class FlywayConfigTest {
 
     assertThat(effectiveLocations).containsExactly("classpath:db/migration");
   }
+
+  @Test
+  @DisplayName("Should initialize default resilience properties correctly")
+  void shouldInitializeDefaultResilienceProperties() {
+    final FlywayConfig flywayConfig = new FlywayConfig(environment, "classpath:db/migration");
+
+    assertThat(flywayConfig.isOutOfOrder()).isTrue();
+    assertThat(flywayConfig.isValidateOnMigrate()).isTrue();
+    assertThat(flywayConfig.isCleanDisabled()).isTrue();
+    assertThat(flywayConfig.isBaselineOnMigrate()).isFalse();
+    assertThat(flywayConfig.getConnectRetries()).isEqualTo(10);
+    assertThat(flywayConfig.getConnectRetriesInterval()).isEqualTo(5);
+    assertThat(flywayConfig.getLockRetryCount()).isEqualTo(50);
+    assertThat(flywayConfig.getSchemas()).isEqualTo("nivo,public");
+    assertThat(flywayConfig.getDefaultSchema()).isEqualTo("nivo");
+  }
+
+  @Test
+  @DisplayName("Should honor custom resilience properties provided via full constructor")
+  void shouldHonorCustomResilienceProperties() {
+    final FlywayConfig flywayConfig = new FlywayConfig(
+      environment,
+      "classpath:custom/migration",
+      false,
+      false,
+      false,
+      true,
+      20,
+      10,
+      100,
+      "tenant_a,public",
+      "tenant_a");
+
+    assertThat(flywayConfig.isOutOfOrder()).isFalse();
+    assertThat(flywayConfig.isValidateOnMigrate()).isFalse();
+    assertThat(flywayConfig.isCleanDisabled()).isFalse();
+    assertThat(flywayConfig.isBaselineOnMigrate()).isTrue();
+    assertThat(flywayConfig.getConnectRetries()).isEqualTo(20);
+    assertThat(flywayConfig.getConnectRetriesInterval()).isEqualTo(10);
+    assertThat(flywayConfig.getLockRetryCount()).isEqualTo(100);
+    assertThat(flywayConfig.getSchemas()).isEqualTo("tenant_a,public");
+    assertThat(flywayConfig.getDefaultSchema()).isEqualTo("tenant_a");
+  }
 }
