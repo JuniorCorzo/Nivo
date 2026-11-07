@@ -6,8 +6,6 @@
   "cleanTempDir": "always",
   "tsconfigFile": "tsconfig.spec.json",
   "mutate": [
-    "src/app/core/mappers/**/*.ts",
-    "!src/app/core/mappers/**/*.spec.ts",
     "src/app/shared/utils/**/*.ts",
     "!src/app/shared/utils/**/*.spec.ts"
   ],
