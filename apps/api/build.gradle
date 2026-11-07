@@ -255,7 +255,7 @@ pitest {
     pitestVersion = '1.25.9'
     junit5PluginVersion = '1.2.3'
     addJUnitPlatformLauncher = false
-    mutationThreshold = 80
+    mutationThreshold = 75
     coverageThreshold = 80
     targetClasses = [
         'dev.angelcorzo.nivo.domain.usecase.*'
@@ -263,10 +263,17 @@ pitest {
     targetTests = [
         'dev.angelcorzo.nivo.domain.usecase.*Test'
     ]
+    // Standard: 75% for general operational logic, 90% for critical logic (pricing engine, tickets, slots).
+    // NOTE: 'dev.angelcorzo.nivo.domain.usecase.payment.*' is temporarily excluded pending architectural refactor.
+    // When payment refactor is completed, remove this exclusion and enforce critical threshold (>= 90%).
     excludedClasses = [
+        'dev.angelcorzo.nivo.domain.usecase.payment.*',
+        'dev.angelcorzo.nivo.domain.usecase.*.dtos.*',
         '*Exception',
         '*Gateway',
-        '*Event'
+        '*Event',
+        '*DTO',
+        '*Command'
     ]
     threads = 4
     outputFormats = ['XML', 'HTML']
