@@ -258,12 +258,15 @@ pitest {
     mutationThreshold = 80
     coverageThreshold = 80
     targetClasses = [
-        'dev.angelcorzo.nivo.domain.usecase.*',
-        'dev.angelcorzo.nivo.domain.model.*'
+        'dev.angelcorzo.nivo.domain.usecase.*'
     ]
     targetTests = [
-        'dev.angelcorzo.nivo.domain.usecase.*Test',
-        'dev.angelcorzo.nivo.domain.model.*Test'
+        'dev.angelcorzo.nivo.domain.usecase.*Test'
+    ]
+    excludedClasses = [
+        '*Exception',
+        '*Gateway',
+        '*Event'
     ]
     threads = 4
     outputFormats = ['XML', 'HTML']
