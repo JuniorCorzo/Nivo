@@ -1,0 +1,156 @@
+<nv-modal
+  [isOpen]="isOpen()"
+  role="dialog"
+  titleId="special-policy-title"
+  descriptionId="special-policy-description"
+  (closed)="onCancel()"
+>
+  <!-- Header -->
+  <div
+    modal-header
+    class="border-border flex items-center justify-between border-b pb-3.5"
+  >
+    <div class="flex items-center gap-2.5">
+      <div
+        class="bg-primary/10 text-primary grid h-9 w-9 place-items-center rounded-lg border border-primary/20"
+      >
+        <ng-icon name="lucideSparkles" size="18" />
+      </div>
+      <div>
+        <nv-h3 id="special-policy-title" class="text-foreground text-base font-bold">
+          Configurar Política Especial de Cobro
+        </nv-h3>
+        <span id="special-policy-description" class="text-muted-foreground text-xs">
+          Reglas de recargo, tarifas especiales o convenios de liquidación
+        </span>
+      </div>
+    </div>
+    <button
+      type="button"
+      class="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-grid h-8 w-8 cursor-pointer place-items-center rounded-lg border transition-colors"
+      (click)="onCancel()"
+      aria-label="Cerrar modal"
+    >
+      <ng-icon name="lucideX" size="16" />
+    </button>
+  </div>
+
+  <!-- Form Body -->
+  <form
+    [formGroup]="form"
+    (ngSubmit)="onSubmit()"
+    class="mt-4 flex flex-col gap-4"
+  >
+    <!-- Preset Selection Chips -->
+    <div>
+      <span class="text-muted-foreground block text-[11px] font-bold uppercase tracking-wider mb-2">
+        Plantillas recomendadas
+      </span>
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        @for (preset of presets; track preset.id) {
+          <button
+            type="button"
+            (click)="applyPreset(preset)"
+            [class.border-primary]="selectedPresetId() === preset.id"
+            [class.bg-primary/5]="selectedPresetId() === preset.id"
+            class="border-border bg-card hover:bg-muted/40 flex flex-col items-start rounded-xl border p-2.5 text-left transition-all cursor-pointer"
+          >
+            <div class="flex w-full items-center justify-between gap-1">
+              <span class="text-foreground text-xs font-bold">{{ preset.title }}</span>
+              <span class="text-muted-foreground text-[10px] font-semibold rounded-md border border-border px-1.5 py-0.5">
+                {{ preset.badge }}
+              </span>
+            </div>
+            <span class="text-muted-foreground text-[11px] mt-0.5">{{ preset.description }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Policy Name -->
+    <nv-input
+      label="Nombre de la Política"
+      placeholder="Ej. Tarifa de Lavado Ecológico"
+      formControlName="name"
+      startIcon="lucideTag"
+      (focus)="onCustomPreset()"
+    />
+
+    <!-- Row: Modifies & Operation -->
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <nv-select
+        label="Efecto en la tarifa"
+        [items]="modifiesOptions"
+        [displayFn]="displayModifies"
+        [valueFn]="modifiesValue"
+        [value]="form.controls.modifies.value"
+        (valueChange)="onModifiesChange($event)"
+      />
+
+      <nv-select
+        label="Tipo de cálculo"
+        [items]="operationOptions"
+        [displayFn]="displayOperation"
+        [valueFn]="operationValue"
+        [value]="form.controls.operation.value"
+        (valueChange)="onOperationChange($event)"
+      />
+    </div>
+
+    <!-- Value to Modify -->
+    <nv-input
+      type="number"
+      label="Valor a Aplicar"
+      placeholder="18000"
+      formControlName="valueToModify"
+      startIcon="lucideReceipt"
+      (focus)="onCustomPreset()"
+    />
+
+    <!-- Live Preview Banner using semantic tokens -->
+    <div
+      class="border-border bg-secondary flex items-center justify-between rounded-xl border p-3.5 text-xs"
+    >
+      <div>
+        <span class="text-foreground block font-bold">Simulación de Impacto</span>
+        <span class="text-muted-foreground text-[11px]">
+          Efecto aplicado sobre la liquidación del ticket
+        </span>
+      </div>
+      <span
+        class="font-mono text-sm font-extrabold"
+        [class.text-success]="previewIsDiscount()"
+        [class.text-primary]="!previewIsDiscount()"
+      >
+        {{ previewText() }}
+      </span>
+    </div>
+
+    <!-- Actions -->
+    <div class="border-border mt-2 flex items-center justify-end gap-2 border-t pt-4">
+      <nv-button
+        type="button"
+        variant="secondary"
+        size="sm"
+        (click)="onCancel()"
+        [disabled]="isSubmitting()"
+      >
+        Cancelar
+      </nv-button>
+
+      <nv-button
+        type="submit"
+        variant="default"
+        size="sm"
+        [disabled]="isSubmitting() || form.invalid"
+      >
+        @if (isSubmitting()) {
+          <span>Guardando...</span>
+        } @else {
+          <ng-icon name="lucideCheck" size="14" class="mr-1" />
+          <span>Guardar Política</span>
+        }
+      </nv-button>
+    </div>
+  </form>
+</nv-modal>

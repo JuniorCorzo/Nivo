@@ -21,6 +21,7 @@ interface MockRatesService {
 }
 
 interface MockTenantsService {
+  createAtSpecialPolicies: ReturnType<typeof vi.fn>;
   showSpecialPoliciesByTenant: ReturnType<typeof vi.fn>;
 }
 
@@ -41,6 +42,7 @@ describe("RateService", () => {
       updateRate: vi.fn(),
     };
     tenantsServiceSpy = {
+      createAtSpecialPolicies: vi.fn(),
       showSpecialPoliciesByTenant: vi.fn(),
     };
 
@@ -91,6 +93,68 @@ describe("RateService", () => {
       expect(rates[0].name).toBe("Standard Car");
       expect(rates[0].pricePerUnit).toBe(4000);
       expect(rates[0].minChargeTimeMinutes).toBe(15);
+    });
+
+    it("should load special policies and update signal", async () => {
+      const mockResponse = {
+        data: [
+          {
+            active: true,
+            id: "sp-1",
+            modifies: "SURCHARGE" as const,
+            name: "Lavado",
+            operation: "SET" as const,
+            valueToModify: 18000,
+          },
+        ],
+        message: "Success",
+        status: "OK",
+        timestamp: "2024-01-01T00:00:00Z",
+      };
+
+      /* SAFETY: Mock response payload for unit test */
+      tenantsServiceSpy.showSpecialPoliciesByTenant.mockReturnValue(
+        of(mockResponse as never)
+      );
+
+      const policies = await firstValueFrom(service.loadSpecialPolicies());
+      expect(policies.length).toBe(1);
+      expect(policies[0].name).toBe("Lavado");
+      expect(service.specialPolicies().length).toBe(1);
+    });
+
+    it("should create special policy and append to reactive signal", async () => {
+      const mockResponse = {
+        data: {
+          active: true,
+          id: "sp-2",
+          modifies: "SURCHARGE" as const,
+          name: "Tarifa de Lavado",
+          operation: "SET" as const,
+          valueToModify: 18_000,
+        },
+        message: "Created",
+        status: "CREATED",
+        timestamp: "2024-01-01T00:00:00Z",
+      };
+
+      /* SAFETY: Mock response payload for unit test */
+      tenantsServiceSpy.createAtSpecialPolicies.mockReturnValue(
+        of(mockResponse as never)
+      );
+
+      const created = await firstValueFrom(
+        service.createSpecialPolicy({
+          modifies: "SURCHARGE",
+          name: "Tarifa de Lavado",
+          operation: "SET",
+          valueToModify: 18_000,
+        })
+      );
+
+      expect(created.id).toBe("sp-2");
+      expect(created.name).toBe("Tarifa de Lavado");
+      expect(service.specialPolicies().some((p) => p.id === "sp-2")).toBe(true);
     });
   });
 });
