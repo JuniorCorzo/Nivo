@@ -125,13 +125,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download backend test results
+      - name: Download all test and coverage artifacts
         uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
         with:
-          name: backend-test-results
+          path: .
+          merge-multiple: true
 
-      - name: Download web coverage
-        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
+      - name: Verify coverage artifacts structure
+        run: |
+          echo "=== Checking SonarCloud input files ==="
+          ls -ld apps/api/build/classes/java/main || true
+          ls -l apps/api/build/reports/jacoco.xml || true
+          ls -l apps/web/coverage/web/lcov.info || true
 
       - name: Run SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 # v7.0.0
