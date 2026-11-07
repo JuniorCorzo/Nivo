@@ -169,6 +169,22 @@ test {
     finalizedBy jacocoTestReport
 }
 
+tasks.register('validateMigrations', Test) {
+    group = 'verification'
+    description = 'Validates Flyway database migrations and idempotency against real PostgreSQL Testcontainers'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'migration-validation'
+    }
+    maxParallelForks = 1
+    jvmArgs = [
+        '-Xmx1g',
+        '-XX:+TieredCompilation',
+        '-XX:TieredStopAtLevel=1'
+    ]
+}
+
 jacoco {
     toolVersion = '0.8.13'
     reportsDirectory = layout.buildDirectory.dir("reports")
