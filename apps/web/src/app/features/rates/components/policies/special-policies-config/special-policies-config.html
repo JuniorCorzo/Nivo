@@ -1,0 +1,320 @@
+<div class="flex flex-col gap-6">
+  <!-- Card 1: ParkingLotPolicy Sede Parameters (Overstay / Mora / Grace / IVA) -->
+  <nv-card
+    class="border-border bg-card flex flex-col gap-5 rounded-2xl border p-5 shadow-xs sm:gap-6 sm:p-6"
+  >
+    <div
+      class="border-border flex flex-col justify-between gap-3 border-b pb-4 sm:flex-row sm:items-center"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="bg-warning/10 text-warning border-warning/20 flex h-10 w-10 items-center justify-center rounded-xl border"
+        >
+          <ng-icon name="lucideAlertTriangle" size="20" />
+        </div>
+        <div>
+          <nv-h3 class="text-foreground text-base font-bold">
+            Parámetros de Liquidación de Sede (ParkingLotPolicy)
+          </nv-h3>
+          <nv-muted class="text-muted-foreground text-xs">
+            Umbrales de estancia prolongada, penalizaciones por mora y tiempos de gracia
+          </nv-muted>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <nv-button
+          type="button"
+          variant="secondary"
+          size="sm"
+          (click)="toggleEditOverstay()"
+        >
+          <ng-icon name="lucideSliders" size="14" class="mr-1.5" />
+          <span>{{ isEditingOverstay() ? 'Cerrar ajustes' : 'Ajustar umbrales de sede' }}</span>
+        </nv-button>
+      </div>
+    </div>
+
+    <!-- Quick Overstay / Mora Tuning Form (when expanded) -->
+    @if (isEditingOverstay()) {
+      <div
+        class="border-border bg-muted/20 flex flex-col gap-4 rounded-xl border p-4 sm:p-5"
+      >
+        <div class="flex items-center justify-between">
+          <span class="text-foreground text-xs font-bold uppercase tracking-wider">
+            Configurar Umbrales de Sede
+          </span>
+          <span class="text-muted-foreground text-xs">
+            Impacta el contador de mora en taquilla y telemetría
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-foreground text-xs font-semibold" for="overstayThresholdSelect">
+              Umbral de Estancia Prolongada (Horas)
+            </label>
+            <select
+              id="overstayThresholdSelect"
+              class="border-input bg-card text-foreground h-9 rounded-lg border px-3 text-xs outline-none focus:border-primary"
+              [value]="overstayThresholdMinutes()"
+              (change)="onThresholdChange($event)"
+            >
+              <option [value]="360">6 horas (360 min)</option>
+              <option [value]="480">8 horas (480 min - Estándar)</option>
+              <option [value]="600">10 horas (600 min)</option>
+              <option [value]="720">12 horas (720 min)</option>
+              <option [value]="1440">24 horas (Día completo)</option>
+            </select>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-foreground text-xs font-semibold" for="overstaySurchargeInput">
+              Recargo por Exceso de Mora ($ COP)
+            </label>
+            <input
+              id="overstaySurchargeInput"
+              type="number"
+              class="border-input bg-card text-foreground h-9 rounded-lg border px-3 text-xs font-mono outline-none focus:border-primary"
+              [value]="overstaySurcharge()"
+              (input)="onSurchargeChange($event)"
+              placeholder="5000"
+            />
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Sede Metrics Ribbon -->
+    <div
+      class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
+    >
+      <!-- Metric 1: Overstay Threshold -->
+      <div
+        class="border-border bg-muted/30 hover:bg-muted/50 flex flex-col gap-1.5 rounded-xl border p-3.5 transition-colors relative"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <ng-icon
+              name="lucideClock"
+              size="14"
+              class="text-muted-foreground shrink-0"
+            />
+            <span class="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
+              Umbral Estancia
+            </span>
+          </div>
+          <span class="bg-warning/10 text-warning border-warning/20 rounded-md border px-1.5 py-0.5 text-[10px] font-bold">
+            Mora Sede
+          </span>
+        </div>
+        <nv-mono class="text-foreground block font-mono text-lg font-bold">
+          {{ formattedOverstayThreshold() }}
+        </nv-mono>
+        <span class="text-muted-foreground text-[11px]">
+          Tickets activos > {{ overstayThresholdHours() }}h en taquilla
+        </span>
+      </div>
+
+      <!-- Metric 2: Overstay Surcharge -->
+      <div
+        class="border-border bg-muted/30 hover:bg-muted/50 flex flex-col gap-1.5 rounded-xl border p-3.5 transition-colors relative"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <ng-icon
+              name="lucideCoins"
+              size="14"
+              class="text-muted-foreground shrink-0"
+            />
+            <span class="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
+              Recargo por Mora
+            </span>
+          </div>
+          <span class="bg-info/10 text-info border-info/20 rounded-md border px-1.5 py-0.5 text-[10px] font-bold">
+            Recargo
+          </span>
+        </div>
+        <nv-mono class="text-foreground block font-mono text-lg font-bold">
+          {{ formattedOverstaySurcharge() }}
+        </nv-mono>
+        <span class="text-muted-foreground text-[11px]">
+          Liquidado al exceder el umbral
+        </span>
+      </div>
+
+      <!-- Metric 3: Grace Period -->
+      <div
+        class="border-border bg-muted/30 hover:bg-muted/50 flex flex-col gap-1.5 rounded-xl border p-3.5 transition-colors relative"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <ng-icon
+              name="lucideTimer"
+              size="14"
+              class="text-muted-foreground shrink-0"
+            />
+            <span class="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
+              Tiempo de Gracia
+            </span>
+          </div>
+          <span class="bg-success/10 text-success border-success/20 rounded-md border px-1.5 py-0.5 text-[10px] font-bold">
+            {{ isGraceFree() ? 'Gratis' : 'Tarifado' }}
+          </span>
+        </div>
+        <nv-mono class="text-foreground block font-mono text-lg font-bold">
+          {{ gracePeriodMinutes() }} min
+        </nv-mono>
+        <span class="text-muted-foreground text-[11px]">
+          Tarifa: {{ formattedGracePrice() }}
+        </span>
+      </div>
+
+      <!-- Metric 4: IVA -->
+      <div
+        class="border-border bg-muted/30 hover:bg-muted/50 flex flex-col gap-1.5 rounded-xl border p-3.5 transition-colors relative"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <ng-icon
+              name="lucideReceipt"
+              size="14"
+              class="text-muted-foreground shrink-0"
+            />
+            <span class="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
+              Tasa IVA
+            </span>
+          </div>
+          <span class="bg-info/10 text-info border-info/20 rounded-md border px-1.5 py-0.5 text-[10px] font-bold">
+            Fiscal
+          </span>
+        </div>
+        <nv-mono class="text-foreground block font-mono text-lg font-bold">
+          {{ formattedIva() }}
+        </nv-mono>
+        <span class="text-muted-foreground text-[11px]">
+          Régimen tributario sede
+        </span>
+      </div>
+    </div>
+  </nv-card>
+
+  <!-- Card 2: Tenant Special Policies Catalog -->
+  <nv-card
+    class="border-border bg-card flex flex-col gap-5 rounded-2xl border p-5 shadow-xs sm:gap-6 sm:p-6"
+  >
+    <div
+      class="border-border flex flex-col justify-between gap-3 border-b pb-4 sm:flex-row sm:items-center"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="bg-primary/10 text-primary border-primary/20 flex h-10 w-10 items-center justify-center rounded-xl border"
+        >
+          <ng-icon name="lucideSparkles" size="20" />
+        </div>
+        <div>
+          <nv-h3 class="text-foreground text-base font-bold">
+            Catálogo de Políticas Especiales de Cobro
+          </nv-h3>
+          <nv-muted class="text-muted-foreground text-xs">
+            Reglas de recargo adicional, convenios comerciales y tarifas especiales vinculables
+          </nv-muted>
+        </div>
+      </div>
+
+      <nv-button
+        type="button"
+        variant="default"
+        size="sm"
+        (click)="openModal()"
+        data-testid="create-special-policy-btn"
+      >
+        <ng-icon name="lucidePlus" size="14" class="mr-1.5" />
+        <span>Nueva política especial</span>
+      </nv-button>
+    </div>
+
+    <!-- Policies Grid -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      @for (policy of policies(); track policy.id) {
+        <div
+          class="border-border bg-card hover:border-primary/40 flex flex-col justify-between rounded-2xl border p-5 transition-all shadow-2xs"
+          data-testid="special-policy-card"
+        >
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <span class="text-foreground text-sm font-bold wrap-break-word">
+                {{ policy.name }}
+              </span>
+              <span
+                class="inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold shrink-0"
+                [class.bg-success/10]="policy.active"
+                [class.text-success]="policy.active"
+                [class.border-success/20]="policy.active"
+                [class.bg-destructive/10]="!policy.active"
+                [class.text-destructive]="!policy.active"
+                [class.border-destructive/20]="!policy.active"
+              >
+                {{ policy.active ? "Activa" : "Inactiva" }}
+              </span>
+            </div>
+
+            <div class="mt-1">
+              <span class="text-muted-foreground text-xs">
+                Tipo: {{ formatPolicyType(policy.modifies) }}
+              </span>
+            </div>
+          </div>
+
+          <div
+            class="border-border mt-4 flex items-center justify-between border-t pt-3 text-xs"
+          >
+            <span class="text-muted-foreground">Efecto en cobro:</span>
+            <span
+              class="font-mono font-extrabold text-sm"
+              [class.text-success]="policy.modifies === 'DISCOUNT'"
+              [class.text-foreground]="policy.modifies !== 'DISCOUNT'"
+            >
+              {{ formatPolicyEffect(policy) }}
+            </span>
+          </div>
+        </div>
+      } @empty {
+        <div
+          class="border-border text-muted-foreground col-span-full flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed p-10 text-center text-xs"
+        >
+          <div
+            class="bg-muted text-muted-foreground grid h-12 w-12 place-items-center rounded-2xl"
+          >
+            <ng-icon name="lucideSparkles" size="24" />
+          </div>
+          <div>
+            <span class="text-foreground block text-sm font-bold">
+              No hay políticas especiales configuradas
+            </span>
+            <span class="text-muted-foreground block text-xs mt-0.5">
+              Creá tarifas de lavado, convenios o recargos para vincular a tus tarifas de parqueo
+            </span>
+          </div>
+          <nv-button
+            type="button"
+            variant="secondary"
+            size="sm"
+            (click)="openModal()"
+            class="mt-1"
+          >
+            <ng-icon name="lucidePlus" size="14" class="mr-1.5" />
+            <span>Crear primera política</span>
+          </nv-button>
+        </div>
+      }
+    </div>
+  </nv-card>
+
+  <!-- Special Policy Modal Component -->
+  <app-special-policy-modal
+    [isOpen]="isModalOpen()"
+    (closed)="closeModal()"
+    (policyCreated)="onPolicyCreated()"
+  />
+</div>

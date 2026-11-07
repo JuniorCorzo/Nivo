@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Políticas Especiales y Umbrales de Cobro - Dashboard & Modal</title>
+  <style>
+    :root {
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.141 0.005 285.823);
+      --card: oklch(1 0 0);
+      --card-foreground: oklch(0.141 0.005 285.823);
+      --primary: oklch(0.21 0.006 285.885);
+      --primary-foreground: oklch(0.985 0 0);
+      --secondary: oklch(0.967 0.001 286.375);
+      --secondary-foreground: oklch(0.21 0.006 285.885);
+      --muted: oklch(0.967 0.001 286.375);
+      --muted-foreground: oklch(0.552 0.016 285.938);
+      --accent: oklch(0.967 0.001 286.375);
+      --border: oklch(0.92 0.004 286.32);
+      --input: oklch(0.92 0.004 286.32);
+      --success: oklch(0.627 0.194 149.214);
+      --warning: oklch(0.769 0.188 70.08);
+      --info: oklch(0.588 0.216 252.89);
+      --destructive: oklch(0.577 0.245 27.325);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { width: 1440px; min-height: 900px; background: #fafafa; color: var(--foreground); padding: 32px 48px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+    /* Page Header */
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+    .header-info { display: flex; align-items: center; gap: 16px; }
+    .icon-box { width: 44px; height: 44px; border-radius: 12px; background: oklch(0.21 0.006 285.885 / 0.08); border: 1px solid oklch(0.21 0.006 285.885 / 0.15); display: flex; align-items: center; justify-content: center; }
+    .page-title { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+    .page-subtitle { font-size: 13px; color: var(--muted-foreground); margin-top: 2px; }
+
+    /* Tabs */
+    .tab-bar { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 28px; }
+    .tab-btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--muted-foreground); transition: all 0.15s; }
+    .tab-btn.active { background: var(--primary); color: var(--primary-foreground); }
+
+    /* Section Headers */
+    .section-title-wrap { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .section-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .section-desc { font-size: 12px; color: var(--muted-foreground); margin-top: 2px; }
+
+    /* Card styling */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); margin-bottom: 28px; }
+
+    /* ParkingLotPolicy Overview Grid */
+    .policy-overview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 16px; }
+    .metric-card { background: #fdfdfd; border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; }
+    .metric-label { font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; color: var(--muted-foreground); margin-bottom: 6px; }
+    .metric-value { font-size: 20px; font-weight: 800; }
+    .metric-sub { font-size: 11px; color: var(--muted-foreground); margin-top: 4px; }
+    .metric-badge { position: absolute; top: 14px; right: 14px; }
+
+    /* Badges */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .badge-success { background: oklch(0.627 0.194 149.214 / 0.12); color: var(--success); border: 1px solid oklch(0.627 0.194 149.214 / 0.25); }
+    .badge-warning { background: oklch(0.769 0.188 70.08 / 0.12); color: oklch(0.55 0.188 70); border: 1px solid oklch(0.769 0.188 70.08 / 0.25); }
+    .badge-info { background: oklch(0.588 0.216 252.89 / 0.12); color: var(--info); border: 1px solid oklch(0.588 0.216 252.89 / 0.25); }
+
+    /* Special Policies List */
+    .policies-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .policy-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; min-height: 140px; transition: border 0.15s; }
+    .policy-card:hover { border-color: oklch(0.21 0.006 285.885 / 0.35); }
+    .policy-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .policy-name { font-size: 14px; font-weight: 700; }
+    .policy-target { font-size: 12px; color: var(--muted-foreground); margin-top: 2px; }
+    .policy-footer { border-top: 1px solid var(--border); padding-top: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+    .btn-primary { background: var(--primary); color: var(--primary-foreground); }
+    .btn-secondary { background: var(--secondary); color: var(--secondary-foreground); border: 1px solid var(--border); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--foreground); }
+
+    /* Interactive Overlay Modal */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 50; }
+    .modal-box { width: 560px; background: var(--card); border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.18); overflow: hidden; animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes popIn { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 16px; font-weight: 800; }
+    .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+    .modal-footer { padding: 16px 24px; background: #fbfbfb; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+
+    /* Preset Chips */
+    .preset-label { font-size: 12px; font-weight: 700; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .preset-chips { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .preset-chip { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; cursor: pointer; background: #fafafa; transition: all 0.15s; }
+    .preset-chip:hover { border-color: var(--primary); background: #fff; }
+    .preset-chip.active { border-color: var(--primary); background: oklch(0.21 0.006 285.885 / 0.05); }
+    .chip-title { font-size: 12px; font-weight: 700; }
+    .chip-desc { font-size: 11px; color: var(--muted-foreground); margin-top: 2px; }
+
+    /* Form Fields */
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 12px; font-weight: 600; color: var(--foreground); }
+    .form-input { height: 38px; border: 1px solid var(--input); border-radius: 8px; padding: 0 12px; font-size: 13px; background: #fff; outline: none; }
+    .form-input:focus { border-color: var(--primary); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Live Preview Banner conforming to Nivo semantic tokens */
+    .preview-box { background: var(--secondary); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+    .preview-val { font-size: 15px; font-weight: 800; color: var(--primary); }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-info">
+      <div class="icon-box">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="m7 6 4 4"/></svg>
+      </div>
+      <div>
+        <div class="page-title">Tarifas y Políticas Especiales de Cobro</div>
+        <div class="page-subtitle">Sede Centro Comercial Andino &bull; Bogotá D.C.</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="toggleModal(true)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nueva política especial
+    </button>
+  </div>
+
+  <!-- Segmented Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn">Tarifas activas (4)</button>
+    <button class="tab-btn">Calculadora & simulador</button>
+    <button class="tab-btn active">Políticas especiales y mora</button>
+  </div>
+
+  <!-- Card 1: ParkingLotPolicy Umbrales de Sede -->
+  <div class="card">
+    <div class="section-title-wrap">
+      <div>
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Parámetros Operativos de Sede (ParkingLotPolicy)
+        </div>
+        <div class="section-desc">Umbrales de estancia prolongada, penalizaciones por mora y tiempos de gracia aplicables en taquilla</div>
+      </div>
+      <button class="btn btn-secondary" onclick="alert('Permite editar directamente los umbrales de mora de la sede.')">
+        Editar Umbrales de Sede
+      </button>
+    </div>
+
+    <div class="policy-overview-grid">
+      <div class="metric-card">
+        <div class="metric-label">Umbral Estancia Prolongada</div>
+        <div class="metric-value mono">08h 00m</div>
+        <div class="metric-sub">Tickets activos > 480 min</div>
+        <span class="badge badge-warning metric-badge">Mora Sede</span>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">Recargo por Exceso de Mora</div>
+        <div class="metric-value mono">$5.000 COP</div>
+        <div class="metric-sub">Cobro adicional al liquidar</div>
+        <span class="badge badge-info metric-badge">Surcharge</span>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">Tiempo de Gracia</div>
+        <div class="metric-value mono">15 min</div>
+        <div class="metric-sub">Tarifa gracia: $0 (Gratis)</div>
+        <span class="badge badge-success metric-badge">Activo</span>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">Tasa IVA Aplicable</div>
+        <div class="metric-value mono">19.0%</div>
+        <div class="metric-sub">Régimen tributario vigente</div>
+        <span class="badge badge-info metric-badge">IVA</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 2: Políticas Especiales de Cobro (Tenant) -->
+  <div class="card">
+    <div class="section-title-wrap">
+      <div>
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Catálogo de Políticas Especiales Vinculables
+        </div>
+        <div class="section-desc">Reglas de recargo, convenios y descuentos vinculables a esquemas de tarifas de taquilla</div>
+      </div>
+    </div>
+
+    <div class="policies-grid">
+      <!-- Policy Card 1 -->
+      <div class="policy-card">
+        <div>
+          <div class="policy-header">
+            <div>
+              <div class="policy-name">Recargo Nocturno / Madrugada</div>
+              <div class="policy-target">Tipo: Recargo adicional</div>
+            </div>
+            <span class="badge badge-success">Activa</span>
+          </div>
+        </div>
+        <div class="policy-footer">
+          <span style="color: var(--muted-foreground);">Cálculo:</span>
+          <span class="mono" style="font-weight: 800; color: oklch(0.55 0.188 70);">+25% tarifa base</span>
+        </div>
+      </div>
+
+      <!-- Policy Card 2 -->
+      <div class="policy-card">
+        <div>
+          <div class="policy-header">
+            <div>
+              <div class="policy-name">Convenio Gimnasio BodyTech</div>
+              <div class="policy-target">Tipo: Descuento comercial</div>
+            </div>
+            <span class="badge badge-success">Activa</span>
+          </div>
+        </div>
+        <div class="policy-footer">
+          <span style="color: var(--muted-foreground);">Cálculo:</span>
+          <span class="mono" style="font-weight: 800; color: var(--success);">-50% descuento</span>
+        </div>
+      </div>
+
+      <!-- Policy Card 3 -->
+      <div class="policy-card">
+        <div>
+          <div class="policy-header">
+            <div>
+              <div class="policy-name">Penalización Llave / Ticket Perdido</div>
+              <div class="policy-target">Tipo: Tarifa fija por evento</div>
+            </div>
+            <span class="badge badge-success">Activa</span>
+          </div>
+        </div>
+        <div class="policy-footer">
+          <span style="color: var(--muted-foreground);">Cálculo:</span>
+          <span class="mono" style="font-weight: 800; color: var(--foreground);">$15.000 fijado</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Modal Component Mockup -->
+  <div class="modal-backdrop" id="policyModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Configurar Política Especial de Cobro</div>
+          <div style="font-size: 12px; color: var(--muted-foreground); margin-top: 2px;">Define reglas de recargo por mora, convenio o descuentos</div>
+        </div>
+        <button style="background: none; border: none; cursor: pointer; color: var(--muted-foreground);" onclick="toggleModal(false)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Preset Selector -->
+        <div>
+          <div class="preset-label">Plantillas rápidas recomendadas</div>
+          <div class="preset-chips">
+            <div class="preset-chip active" id="chipLavado" onclick="selectPreset('lavado')">
+              <div class="chip-title" style="display: flex; align-items: center; gap: 6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+                <span>Tarifa de Lavado</span>
+              </div>
+              <div class="chip-desc">Servicio de lavado / embellecimiento</div>
+            </div>
+            <div class="preset-chip" id="chipConvenio" onclick="selectPreset('convenio')">
+              <div class="chip-title" style="display: flex; align-items: center; gap: 6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 0 0 1.4 0l4.3-4.3a1 1 0 0 0 0-1.4l-2.6-2.6a1 1 0 0 0-1.4 0L13 12.4"/><path d="m14.7 9.3 2.6-2.6a1 1 0 0 0 0-1.4L16 4a1 1 0 0 0-1.4 0L10.3 8.3"/><path d="m9.3 14.7-2.6 2.6a1 1 0 0 1-1.4 0L4 16a1 1 0 0 1 0-1.4l4.3-4.3a1 1 0 0 1 1.4 0L11 11.6"/><path d="m8.3 10.3-2-2a1 1 0 0 1 0-1.4L7.6 5.6a1 1 0 0 1 1.4 0l2 2"/></svg>
+                <span>Convenio Comercial</span>
+              </div>
+              <div class="chip-desc">Descuento % para aliados o clientes frecuentes</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form fields -->
+        <div class="form-group">
+          <label class="form-label">Nombre de la Política</label>
+          <input type="text" class="form-input" id="policyName" value="Tarifa de Lavado Ecológico">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Efecto en la tarifa</label>
+            <select class="form-input" id="policyModifies">
+              <option value="SURCHARGE" selected>Recargo adicional a la tarifa</option>
+              <option value="DISCOUNT">Descuento sobre la liquidación</option>
+              <option value="PRICE">Tarifa plana / Precio fijado</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tipo de cálculo</label>
+            <select class="form-input" id="policyOp">
+              <option value="SET" selected>Monto fijo en dinero ($)</option>
+              <option value="PERCENTAGE">Porcentaje de cálculo (%)</option>
+              <option value="SUBTRACT">Deducción directa en valor (-$)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Valor a Aplicar</label>
+          <input type="number" class="form-input mono" id="policyVal" value="18000">
+        </div>
+
+        <!-- Live Preview -->
+        <div class="preview-box">
+          <div>
+            <div style="font-weight: 700; color: var(--foreground);">Simulación de Impacto</div>
+            <div style="color: var(--muted-foreground); font-size: 11px;">Efecto aplicado sobre la liquidación del ticket</div>
+          </div>
+          <div class="preview-val mono">+$18.000 COP</div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="toggleModal(false)">Cancelar</button>
+        <button class="btn btn-primary" onclick="savePolicy()">Guardar Política</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleModal(show) {
+      document.getElementById('policyModal').style.display = show ? 'flex' : 'none';
+    }
+    function selectPreset(type) {
+      const name = document.getElementById('policyName');
+      const mod = document.getElementById('policyModifies');
+      const op = document.getElementById('policyOp');
+      const val = document.getElementById('policyVal');
+      const chipLavado = document.getElementById('chipLavado');
+      const chipConvenio = document.getElementById('chipConvenio');
+      const previewVal = document.querySelector('.preview-val');
+
+      if (type === 'lavado') {
+        chipLavado.classList.add('active');
+        chipConvenio.classList.remove('active');
+        name.value = 'Tarifa de Lavado Ecológico';
+        mod.value = 'SURCHARGE';
+        op.value = 'SET';
+        val.value = '18000';
+        previewVal.innerText = '+$18.000 COP';
+        previewVal.style.color = 'var(--primary)';
+      } else {
+        chipLavado.classList.remove('active');
+        chipConvenio.classList.add('active');
+        name.value = 'Descuento Convenio Comercial';
+        mod.value = 'DISCOUNT';
+        op.value = 'PERCENTAGE';
+        val.value = '15';
+        previewVal.innerText = '-15% Descuento';
+        previewVal.style.color = 'var(--success)';
+      }
+    }
+    function savePolicy() {
+      alert('Política guardada exitosamente.');
+      toggleModal(false);
+    }
+  </script>
+</body>
+</html>

@@ -1,6 +1,10 @@
 import { HttpContext } from "@angular/common/http";
 import { inject, Injectable, signal } from "@angular/core";
-import type { RatesDto, SpecialPoliciesDto } from "@core/api/generated/models";
+import type {
+  CreateSpecialPolicies,
+  RatesDto,
+  SpecialPoliciesDto,
+} from "@core/api/generated/models";
 import {
   ParkingLotsService,
   RatesService,
@@ -13,6 +17,7 @@ import {
   mapToSpecialPolicyModel,
   mapToUpdateRateDto,
 } from "@core/mappers/rate.mapper";
+import type { CreateSpecialPolicyModel } from "@core/models/parking-policy.model";
 import type {
   CreateRateModel,
   RateCalculationSimulation,
@@ -138,6 +143,36 @@ export class RateService {
             .filter((p): p is SpecialPolicyModel => !!p);
         }),
         tap((policies) => this.specialPoliciesState.set(policies))
+      );
+  }
+
+  createSpecialPolicy(
+    model: CreateSpecialPolicyModel
+  ): Observable<SpecialPolicyModel> {
+    const body: CreateSpecialPolicies = {
+      modifies: model.modifies,
+      name: model.name,
+      operation: model.operation,
+      valueToModify: model.valueToModify,
+    };
+
+    return this.tenantsService
+      .createAtSpecialPolicies({ body }, RateService.httpContext())
+      .pipe(
+        map((response) => {
+          const data = response.data as SpecialPoliciesDto;
+          const policy = mapToSpecialPolicyModel(data);
+          if (!policy) {
+            throw new Error("Error mapping created special policy");
+          }
+          return policy;
+        }),
+        tap((createdPolicy) => {
+          this.specialPoliciesState.update((policies) => [
+            ...policies,
+            createdPolicy,
+          ]);
+        })
       );
   }
 

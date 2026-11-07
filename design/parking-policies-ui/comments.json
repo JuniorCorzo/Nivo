@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "comments": [
+    {
+      "id": "hitarvno",
+      "file": "01-policies-dashboard-and-modal.html",
+      "selector": "#policyModal > div > div:nth-of-type(2) > div:nth-of-type(1)",
+      "excerpt": "PLANTILLAS RÁPIDAS RECOMENDADAS ⚠️ Recargo Estancia / Mora Recargo por exceso de estancia (>8h) 🤝 Convenio Comercial Descuento % para aliados",
+      "comment": "Remplaza la de recargo por estancia y cambia por tarifa de lavado, tambien para iconos se usa lucide",
+      "createdAt": "2026-11-07T21:27:07.155Z",
+      "status": "resolved",
+      "sentAt": "2026-11-07T21:27:07.286Z",
+      "resolvedAt": "2026-11-07T21:28:03.920Z"
+    },
+    {
+      "id": "v9bxl0bt",
+      "file": "01-policies-dashboard-and-modal.html",
+      "selector": "#policyModifies",
+      "excerpt": "SURCHARGE (Recargo) DISCOUNT (Descuento) PRICE (Tarifa Fija)",
+      "comment": "Claramente debe mostrar texto claro",
+      "createdAt": "2026-11-07T21:27:33.082Z",
+      "status": "resolved",
+      "sentAt": "2026-11-07T21:27:33.139Z",
+      "resolvedAt": "2026-11-07T21:28:45.520Z"
+    },
+    {
+      "id": "tsr59ghs",
+      "file": "01-policies-dashboard-and-modal.html",
+      "selector": "#policyModal > div > div:nth-of-type(2) > div:nth-of-type(5)",
+      "excerpt": "Simulación de Impacto Efecto aplicado sobre la liquidación del ticket +$5.000 COP",
+      "comment": "Debe seguir la paleta de colores del proyecto",
+      "createdAt": "2026-11-07T21:27:54.341Z",
+      "status": "resolved",
+      "sentAt": "2026-11-07T21:27:54.344Z",
+      "resolvedAt": "2026-11-07T21:29:31.391Z"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "title": "Interfaz de Configuración de Políticas Especiales de Cobro y Umbrales de Mora",
+  "brief": "Interfaz reactiva para parametrización y gestión de políticas especiales de cobro (umbrales de estancia prolongada / mora por sede, recargos y condiciones especiales vinculadas a ParkingLotPolicy)",
+  "artboards": [
+    {
+      "file": "01-policies-dashboard-and-modal.html",
+      "title": "Dashboard Unificado de Políticas y Modal de Alta",
+      "tradeoff": "Vista integral en pestaña de Tarifas con gestión directa de ParkingLotPolicy de sede y modal reactivo con presets.",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "02-stepped-configuration-flow.html",
+      "title": "Flujo de Parametrización y Motor de Cascada",
+      "tradeoff": "Simulación interactiva paso a paso con Pricing Waterfall que ilustra el impacto operativo de los umbrales de mora.",
+      "width": 1440,
+      "height": 900
+    }
+  ]
+}

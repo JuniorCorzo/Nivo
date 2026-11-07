@@ -45,7 +45,7 @@
   } @if (activeTab() === "calculator") {
   <app-rate-calculator />
   } @if (activeTab() === "policies") {
-  <app-special-policies-config />
+  <app-special-policies-config [parkingId]="parkingId()" [parking]="parking()" />
   }
 </div>
 }

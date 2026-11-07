@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flujo Integral de Configuración y Cascada de Cobro (Waterfall)</title>
+  <style>
+    :root {
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.141 0.005 285.823);
+      --card: oklch(1 0 0);
+      --primary: oklch(0.21 0.006 285.885);
+      --primary-foreground: oklch(0.985 0 0);
+      --secondary: oklch(0.967 0.001 286.375);
+      --muted: oklch(0.967 0.001 286.375);
+      --muted-foreground: oklch(0.552 0.016 285.938);
+      --border: oklch(0.92 0.004 286.32);
+      --success: oklch(0.627 0.194 149.214);
+      --warning: oklch(0.769 0.188 70.08);
+      --info: oklch(0.588 0.216 252.89);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { width: 1440px; min-height: 900px; background: #fafafa; color: var(--foreground); padding: 36px 48px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+    .header { margin-bottom: 32px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+    .title { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+    .subtitle { font-size: 13px; color: var(--muted-foreground); margin-top: 4px; }
+
+    /* Journey Pipeline Steps */
+    .journey-container { display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px; background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 18px 28px; }
+    .step-item { display: flex; align-items: center; gap: 12px; }
+    .step-number { width: 32px; height: 32px; border-radius: 50%; background: var(--secondary); color: var(--foreground); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; }
+    .step-item.active .step-number { background: var(--primary); color: var(--primary-foreground); }
+    .step-title { font-size: 13px; font-weight: 700; }
+    .step-sub { font-size: 11px; color: var(--muted-foreground); }
+    .step-divider { flex: 1; height: 2px; background: var(--border); margin: 0 16px; max-width: 80px; }
+
+    /* Main 2-column layout */
+    .flow-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 28px; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+    .card-title { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+    .card-subtitle { font-size: 12px; color: var(--muted-foreground); margin-bottom: 20px; }
+
+    /* Interactive controls */
+    .control-row { margin-bottom: 20px; }
+    .control-label { font-size: 12px; font-weight: 700; margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .slider { width: 100%; height: 6px; border-radius: 3px; background: var(--muted); outline: none; -webkit-appearance: none; }
+    .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary); cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+    /* Waterfall Visual Pipeline */
+    .waterfall-box { background: #fdfdfd; border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+    .stage-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px dashed var(--border); }
+    .stage-item:last-child { border-bottom: none; }
+    .stage-badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; min-width: 90px; text-align: center; }
+    .badge-stage1 { background: oklch(0.627 0.194 149.214 / 0.15); color: var(--success); }
+    .badge-stage2 { background: oklch(0.588 0.216 252.89 / 0.15); color: var(--info); }
+    .badge-stage3 { background: oklch(0.769 0.188 70.08 / 0.15); color: oklch(0.55 0.188 70); }
+
+    .stage-content { flex: 1; }
+    .stage-name { font-size: 13px; font-weight: 700; }
+    .stage-desc { font-size: 11px; color: var(--muted-foreground); margin-top: 2px; }
+    .stage-math { font-weight: 800; font-size: 14px; }
+
+    /* Summary Calculation Footer */
+    .total-calc-box { margin-top: 20px; background: oklch(0.21 0.006 285.885 / 0.05); border-radius: 12px; padding: 16px; border: 1px solid oklch(0.21 0.006 285.885 / 0.12); }
+    .calc-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+    .calc-total { display: flex; justify-content: space-between; font-size: 17px; font-weight: 800; border-top: 1px solid oklch(0.21 0.006 285.885 / 0.2); padding-top: 10px; margin-top: 10px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 38px; padding: 0 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+    .btn-primary { background: var(--primary); color: var(--primary-foreground); width: 100%; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">Flujo de Parametrización y Motor de Cascada de Precios</div>
+    <div class="subtitle">Arquitectura de liquidación de tickets: Periodo de gracia &rarr; Tarifa base &rarr; Recargo de mora por umbral &rarr; IVA</div>
+  </div>
+
+  <!-- Journey Pipeline -->
+  <div class="journey-container">
+    <div class="step-item active">
+      <div class="step-number">1</div>
+      <div><div class="step-title">Umbral de Sede</div><div class="step-sub">Overstay (Mora)</div></div>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step-item active">
+      <div class="step-number">2</div>
+      <div><div class="step-title">Condición Especial</div><div class="step-sub">Recargo o Descuento</div></div>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step-item active">
+      <div class="step-number">3</div>
+      <div><div class="step-title">Simulación en Cascada</div><div class="step-sub">Pricing Waterfall</div></div>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step-item">
+      <div class="step-number">4</div>
+      <div><div class="step-title">Activación Taquilla</div><div class="step-sub">Operación en vivo</div></div>
+    </div>
+  </div>
+
+  <div class="flow-grid">
+    <!-- Left column: Configuration Controls -->
+    <div class="card">
+      <div class="card-title">Parametrización Reactiva por Sede</div>
+      <div class="card-subtitle">Ajustá los umbrales operativos y visualizá en tiempo real el cálculo final</div>
+
+      <div class="control-row">
+        <div class="control-label">
+          <span>Umbral de Estancia Prolongada (Mora)</span>
+          <span class="mono" id="thresholdValue" style="color: oklch(0.55 0.188 70); font-weight: 800;">8 horas (480 min)</span>
+        </div>
+        <input type="range" min="2" max="24" step="1" value="8" class="slider" id="thresholdSlider" oninput="updateCalculations()">
+      </div>
+
+      <div class="control-row">
+        <div class="control-label">
+          <span>Recargo por exceso de mora (Surcharge)</span>
+          <span class="mono" id="surchargeValue" style="font-weight: 800;">$5.000 COP</span>
+        </div>
+        <input type="range" min="0" max="20000" step="1000" value="5000" class="slider" id="surchargeSlider" oninput="updateCalculations()">
+      </div>
+
+      <div class="control-row">
+        <div class="control-label">
+          <span>Tiempo de Gracia Gratuito</span>
+          <span class="mono">15 minutos</span>
+        </div>
+        <input type="range" min="0" max="30" step="5" value="15" class="slider">
+      </div>
+
+      <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-top: 24px;">
+        <div style="font-size: 12px; font-weight: 700; margin-bottom: 4px;">Integración directa con Taquilla & Telemetría</div>
+        <div style="font-size: 11px; color: var(--muted-foreground); line-height: 1.4;">
+          El umbral definido impacta automáticamente el contador de <code>moraCount</code> en el Dashboard de Taquilla y activa la bandera visual de alerta en tickets abiertos.
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="alert('Políticas y umbrales aplicados correctamente a la sede.')">
+        Guardar Configuración en Sede
+      </button>
+    </div>
+
+    <!-- Right column: Pricing Waterfall Simulation -->
+    <div class="card">
+      <div class="card-title">Simulación en Cascada (Ticket de Ejemplo: 10 Horas)</div>
+      <div class="card-subtitle">Comportamiento del motor ante un vehículo que supera el umbral configurado</div>
+
+      <div class="waterfall-box">
+        <!-- Stage 1 -->
+        <div class="stage-item">
+          <div class="stage-badge badge-stage1">1. Gracia</div>
+          <div class="stage-content">
+            <div class="stage-name">Ventana de gracia (15 min)</div>
+            <div class="stage-desc">Superada &rarr; Tarifa ordinaria</div>
+          </div>
+          <div class="stage-math mono">$0</div>
+        </div>
+
+        <!-- Stage 2 -->
+        <div class="stage-item">
+          <div class="stage-badge badge-stage2">2. Base</div>
+          <div class="stage-content">
+            <div class="stage-name">10 Horas &times; $3.000 COP/h</div>
+            <div class="stage-desc">Tarifa estándar de vehículo</div>
+          </div>
+          <div class="stage-math mono">$30.000</div>
+        </div>
+
+        <!-- Stage 3: Overstay Special Policy -->
+        <div class="stage-item">
+          <div class="stage-badge badge-stage3">3. Mora Sede</div>
+          <div class="stage-content">
+            <div class="stage-name" id="waterfallMoraTitle">Recargo Mora (>8 horas)</div>
+            <div class="stage-desc">Política especial de estancia prolongada</div>
+          </div>
+          <div class="stage-math mono" id="waterfallMoraVal" style="color: oklch(0.55 0.188 70);">+$5.000</div>
+        </div>
+      </div>
+
+      <!-- Calculation Breakdown -->
+      <div class="total-calc-box">
+        <div class="calc-row">
+          <span style="color: var(--muted-foreground);">Subtotal base:</span>
+          <span class="mono">$30.000</span>
+        </div>
+        <div class="calc-row">
+          <span style="color: var(--muted-foreground);">Recargo especial por mora:</span>
+          <span class="mono" id="calcMoraVal">+$5.000</span>
+        </div>
+        <div class="calc-row">
+          <span style="color: var(--muted-foreground);">IVA aplicable (19%):</span>
+          <span class="mono" id="calcIvaVal">$6.650</span>
+        </div>
+        <div class="calc-total">
+          <span>Total Liquidación:</span>
+          <span class="mono" id="calcTotalVal">$41.650 COP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function updateCalculations() {
+      const hours = document.getElementById('thresholdSlider').value;
+      const surcharge = parseInt(document.getElementById('surchargeSlider').value, 10);
+      
+      document.getElementById('thresholdValue').innerText = `${hours} horas (${hours * 60} min)`;
+      document.getElementById('surchargeValue').innerText = `$${surcharge.toLocaleString('es-CO')} COP`;
+      
+      document.getElementById('waterfallMoraTitle').innerText = `Recargo Mora (>${hours} horas)`;
+      document.getElementById('waterfallMoraVal').innerText = `+$${surcharge.toLocaleString('es-CO')}`;
+      document.getElementById('calcMoraVal').innerText = `+$${surcharge.toLocaleString('es-CO')}`;
+
+      const subtotal = 30000 + surcharge;
+      const iva = Math.round(subtotal * 0.19);
+      const total = subtotal + iva;
+
+      document.getElementById('calcIvaVal').innerText = `$${iva.toLocaleString('es-CO')}`;
+      document.getElementById('calcTotalVal').innerText = `$${total.toLocaleString('es-CO')} COP`;
+    }
+  </script>
+</body>
+</html>
