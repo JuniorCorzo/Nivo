@@ -125,11 +125,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download all test and coverage artifacts
+      - name: Download backend test results
         uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
         with:
-          path: .
-          merge-multiple: true
+          name: backend-test-results
+          path: apps/api/build
+
+      - name: Download web coverage
+        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
+        with:
+          name: web-coverage
+          path: apps/web/coverage/web
 
       - name: Verify coverage artifacts structure
         run: |
