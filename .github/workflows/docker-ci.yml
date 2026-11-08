@@ -6,6 +6,14 @@ on:
     tags: ["v*.*.*"]
   pull_request:
     branches: ["main"]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".gitignore"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -14,21 +22,31 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  api:
-    name: Build & Deploy API
+  docker:
+    name: Build & Deploy (${{ matrix.name }})
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: api
+            name: API
+            dockerfile: ./apps/api/deployment/Dockerfile
+          - app: web
+            name: Web
+            dockerfile: ./apps/web/deployment/Dockerfile
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Extract Docker metadata (API)
-        id: meta-api
+      - name: Extract Docker metadata
+        id: meta
         uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}-api
+          images: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.app }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -46,16 +64,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Compile and push API image
+      - name: Compile and push image
         uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # v6.15.0
         with:
           context: .
-          file: ./apps/api/deployment/Dockerfile
+          file: ${{ matrix.dockerfile }}
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           pull: true
-          tags: ${{ steps.meta-api.outputs.tags }}
-          labels: ${{ steps.meta-api.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -81,100 +99,25 @@ jobs:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
           tags: tag:ci
 
-      - name: Trigger Dokploy API Deployment
+      - name: Trigger Dokploy Deployment
         if: github.event_name != 'pull_request'
         env:
           DOKPLOY_API_WEBHOOK: ${{ secrets.DOKPLOY_API_WEBHOOK || secrets.DOKPLOY_API_WEBHOOK_URL }}
-        run: |
-          if [[ -n "$DOKPLOY_API_WEBHOOK" ]]; then
-            echo "Triggering Dokploy API deployment webhook for branch $GITHUB_REF_NAME..."
-            curl -f -sS -X POST "$DOKPLOY_API_WEBHOOK" \
-              -H "Content-Type: application/json" \
-              -H "X-GitHub-Event: push" \
-              -d "{\"ref\": \"refs/heads/$GITHUB_REF_NAME\"}"
-            echo "Dokploy API deployment webhook triggered successfully."
-          else
-            echo "DOKPLOY_API_WEBHOOK secret is not configured. Skipping automatic deploy trigger."
-          fi
-
-  web:
-    name: Build & Deploy Web
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Extract Docker metadata (WEB)
-        id: meta-web
-        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
-        with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}-web
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
-
-      - name: Authenticate with GHCR
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Compile and push WEB image
-        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # v6.15.0
-        with:
-          context: .
-          file: ./apps/web/deployment/Dockerfile
-          platforms: linux/amd64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta-web.outputs.tags }}
-          labels: ${{ steps.meta-web.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Check Tailscale Configuration
-        id: check-tailscale-web
-        if: github.event_name != 'pull_request'
-        env:
-          TS_CLIENT_ID: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
-          TS_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
-        run: |
-          if [[ -n "$TS_CLIENT_ID" || -n "$TS_AUTHKEY" ]]; then
-            echo "configured=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "configured=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Connect to Tailscale
-        if: steps.check-tailscale-web.outputs.configured == 'true'
-        uses: tailscale/github-action@064b10558093f38325e838ddea35486bdc6b1d5c # v4.0.0
-        with:
-          oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
-          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
-          tags: tag:ci
-
-      - name: Trigger Dokploy Web Deployment
-        if: github.event_name != 'pull_request'
-        env:
           DOKPLOY_WEB_WEBHOOK: ${{ secrets.DOKPLOY_WEB_WEBHOOK || secrets.DOKPLOY_WEB_WEBHOOK_URL }}
         run: |
-          if [[ -n "$DOKPLOY_WEB_WEBHOOK" ]]; then
-            echo "Triggering Dokploy Web deployment webhook for branch $GITHUB_REF_NAME..."
-            curl -f -sS -X POST "$DOKPLOY_WEB_WEBHOOK" \
+          if [[ "${{ matrix.app }}" == "api" ]]; then
+            WEBHOOK="$DOKPLOY_API_WEBHOOK"
+          else
+            WEBHOOK="$DOKPLOY_WEB_WEBHOOK"
+          fi
+
+          if [[ -n "$WEBHOOK" ]]; then
+            echo "Triggering Dokploy ${{ matrix.name }} deployment webhook for branch $GITHUB_REF_NAME..."
+            curl -f -sS -X POST "$WEBHOOK" \
               -H "Content-Type: application/json" \
               -H "X-GitHub-Event: push" \
               -d "{\"ref\": \"refs/heads/$GITHUB_REF_NAME\"}"
-            echo "Dokploy Web deployment webhook triggered successfully."
+            echo "Dokploy ${{ matrix.name }} deployment webhook triggered successfully."
           else
-            echo "DOKPLOY_WEB_WEBHOOK secret is not configured. Skipping automatic deploy trigger."
+            echo "Dokploy ${{ matrix.name }} webhook secret is not configured. Skipping automatic deploy trigger."
           fi

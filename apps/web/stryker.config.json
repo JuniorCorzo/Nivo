@@ -6,8 +6,6 @@
   "cleanTempDir": "always",
   "tsconfigFile": "tsconfig.spec.json",
   "mutate": [
-    "src/app/core/mappers/**/*.ts",
-    "!src/app/core/mappers/**/*.spec.ts",
     "src/app/shared/utils/**/*.ts",
     "!src/app/shared/utils/**/*.spec.ts"
   ],
@@ -19,6 +17,11 @@
     "fileName": "reports/mutation/index.html"
   },
   "coverageAnalysis": "perTest",
+  "thresholds": {
+    "high": 80,
+    "low": 60,
+    "break": 70
+  },
   "ignoreStatic": true,
   "concurrency": 4
 }

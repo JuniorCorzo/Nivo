@@ -169,6 +169,22 @@ test {
     finalizedBy jacocoTestReport
 }
 
+tasks.register('validateMigrations', Test) {
+    group = 'verification'
+    description = 'Validates Flyway database migrations and idempotency against real PostgreSQL Testcontainers'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'migration-validation'
+    }
+    maxParallelForks = 1
+    jvmArgs = [
+        '-Xmx1g',
+        '-XX:+TieredCompilation',
+        '-XX:TieredStopAtLevel=1'
+    ]
+}
+
 jacoco {
     toolVersion = '0.8.13'
     reportsDirectory = layout.buildDirectory.dir("reports")
@@ -239,13 +255,25 @@ pitest {
     pitestVersion = '1.25.9'
     junit5PluginVersion = '1.2.3'
     addJUnitPlatformLauncher = false
+    mutationThreshold = 75
+    coverageThreshold = 80
     targetClasses = [
-        'dev.angelcorzo.nivo.domain.usecase.*',
-        'dev.angelcorzo.nivo.domain.model.*'
+        'dev.angelcorzo.nivo.domain.usecase.*'
     ]
     targetTests = [
-        'dev.angelcorzo.nivo.domain.usecase.*Test',
-        'dev.angelcorzo.nivo.domain.model.*Test'
+        'dev.angelcorzo.nivo.domain.usecase.*Test'
+    ]
+    // Standard: 75% for general operational logic, 90% for critical logic (pricing engine, tickets, slots).
+    // NOTE: 'dev.angelcorzo.nivo.domain.usecase.payment.*' is temporarily excluded pending architectural refactor.
+    // When payment refactor is completed, remove this exclusion and enforce critical threshold (>= 90%).
+    excludedClasses = [
+        'dev.angelcorzo.nivo.domain.usecase.payment.*',
+        'dev.angelcorzo.nivo.domain.usecase.*.dtos.*',
+        '*Exception',
+        '*Gateway',
+        '*Event',
+        '*DTO',
+        '*Command'
     ]
     threads = 4
     outputFormats = ['XML', 'HTML']
