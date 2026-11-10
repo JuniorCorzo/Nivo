@@ -1,2 +1,8 @@
 payment:
   enabled: ${PAYMENT_ENABLED:false}
+
+management:
+  server:
+    port: ${MANAGEMENT_PORT:8081}
+    address: ${MANAGEMENT_ADDRESS:0.0.0.0}
+
