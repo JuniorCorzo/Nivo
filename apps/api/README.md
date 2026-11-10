@@ -31,7 +31,7 @@ bun run dev:api
 
 - **Interactive API Documentation (Scalar)**: [http://localhost:8080/api/scalar](http://localhost:8080/api/scalar)
 - **OpenAPI 3 JSON Specification**: [http://localhost:8080/api/v3/api-docs](http://localhost:8080/api/v3/api-docs)
-- **Actuator Health & Metrics**: [http://localhost:8081/actuator/health](http://localhost:8081/actuator/health) (Management port `8081`)
+- **Actuator Health & Metrics**: [http://localhost:8080/api/actuator/health](http://localhost:8080/api/actuator/health) (Dev port `8080` on `/api/actuator`; Prod management port `8081` on `/actuator`)
 
 ---
 
@@ -96,7 +96,7 @@ Key environment variables configurable in `.env` or system environment:
 | Variable | Default (Dev) | Description |
 |---|---|---|
 | `API_PORT` | `8080` | HTTP port for REST and Scalar endpoints |
-| `MANAGEMENT_PORT` | `8081` | Actuator and Prometheus metrics port |
+| `MANAGEMENT_PORT` | `8081` (Prod) | Actuator and Prometheus metrics port (production) |
 | `DB_HOST` | `localhost` | PostgreSQL host |
 | `DB_PORT` | `5432` | PostgreSQL port |
 | `DB_NAME` | `nivo_db` | Database name |
