@@ -12,15 +12,21 @@
   >
     <div class="flex items-center gap-2.5">
       <div
-        class="bg-primary/10 text-primary grid h-9 w-9 place-items-center rounded-lg border border-primary/20"
+        class="bg-primary/10 text-primary border-primary/20 grid h-9 w-9 place-items-center rounded-lg border"
       >
         <ng-icon name="lucideSparkles" size="18" />
       </div>
       <div>
-        <nv-h3 id="special-policy-title" class="text-foreground text-base font-bold">
+        <nv-h3
+          id="special-policy-title"
+          class="text-foreground text-base font-bold"
+        >
           Configurar Política Especial de Cobro
         </nv-h3>
-        <span id="special-policy-description" class="text-muted-foreground text-xs">
+        <span
+          id="special-policy-description"
+          class="text-muted-foreground text-xs"
+        >
           Reglas de recargo, tarifas especiales o convenios de liquidación
         </span>
       </div>
@@ -43,26 +49,34 @@
   >
     <!-- Preset Selection Chips -->
     <div>
-      <span class="text-muted-foreground block text-[11px] font-bold uppercase tracking-wider mb-2">
+      <span
+        class="text-muted-foreground mb-2 block text-[11px] font-bold tracking-wider uppercase"
+      >
         Plantillas recomendadas
       </span>
       <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
         @for (preset of presets; track preset.id) {
-          <button
-            type="button"
-            (click)="applyPreset(preset)"
-            [class.border-primary]="selectedPresetId() === preset.id"
-            [class.bg-primary/5]="selectedPresetId() === preset.id"
-            class="border-border bg-card hover:bg-muted/40 flex flex-col items-start rounded-xl border p-2.5 text-left transition-all cursor-pointer"
+        <button
+          type="button"
+          (click)="applyPreset(preset)"
+          [class.border-primary]="selectedPresetId() === preset.id"
+          [class.bg-primary/5]="selectedPresetId() === preset.id"
+          class="border-border bg-card hover:bg-muted/40 flex cursor-pointer flex-col items-start rounded-xl border p-2.5 text-left transition-all"
+        >
+          <div class="flex w-full items-center justify-between gap-1">
+            <span class="text-foreground text-xs font-bold"
+              >{{ preset.title }}</span
+            >
+            <span
+              class="text-muted-foreground border-border rounded-md border px-1.5 py-0.5 text-[10px] font-semibold"
+            >
+              {{ preset.badge }}
+            </span>
+          </div>
+          <span class="text-muted-foreground mt-0.5 text-[11px]"
+            >{{ preset.description }}</span
           >
-            <div class="flex w-full items-center justify-between gap-1">
-              <span class="text-foreground text-xs font-bold">{{ preset.title }}</span>
-              <span class="text-muted-foreground text-[10px] font-semibold rounded-md border border-border px-1.5 py-0.5">
-                {{ preset.badge }}
-              </span>
-            </div>
-            <span class="text-muted-foreground text-[11px] mt-0.5">{{ preset.description }}</span>
-          </button>
+        </button>
         }
       </div>
     </div>
@@ -112,7 +126,9 @@
       class="border-border bg-secondary flex items-center justify-between rounded-xl border p-3.5 text-xs"
     >
       <div>
-        <span class="text-foreground block font-bold">Simulación de Impacto</span>
+        <span class="text-foreground block font-bold"
+          >Simulación de Impacto</span
+        >
         <span class="text-muted-foreground text-[11px]">
           Efecto aplicado sobre la liquidación del ticket
         </span>
@@ -127,7 +143,9 @@
     </div>
 
     <!-- Actions -->
-    <div class="border-border mt-2 flex items-center justify-end gap-2 border-t pt-4">
+    <div
+      class="border-border mt-2 flex items-center justify-end gap-2 border-t pt-4"
+    >
       <nv-button
         type="button"
         variant="secondary"
@@ -145,10 +163,10 @@
         [disabled]="isSubmitting() || form.invalid"
       >
         @if (isSubmitting()) {
-          <span>Guardando...</span>
+        <span>Guardando...</span>
         } @else {
-          <ng-icon name="lucideCheck" size="14" class="mr-1" />
-          <span>Guardar Política</span>
+        <ng-icon name="lucideCheck" size="14" class="mr-1" />
+        <span>Guardar Política</span>
         }
       </nv-button>
     </div>
