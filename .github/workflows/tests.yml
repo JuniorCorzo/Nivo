@@ -2,13 +2,22 @@ name: Tests
 
 on:
   push:
-    branches: ["main", "feat/**", "fix/**"]
+    branches: ["main"]
   pull_request:
     branches: ["main"]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".gitignore"
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   test-backend:
@@ -37,8 +46,21 @@ jobs:
       - name: Pre-pull PostgreSQL Testcontainers image
         run: docker pull postgis/postgis:16-3.4
 
+      - name: Validate Database Migrations (Pre-Flight)
+        run: ./apps/api/gradlew -p apps/api validateMigrations --no-daemon
+
       - name: Run Backend Tests
         run: ./apps/api/gradlew -p apps/api test --no-daemon
+
+      - name: Upload JaCoCo Report and Compiled Classes
+        if: always()
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: backend-test-results
+          path: |
+            apps/api/build/reports/jacoco.xml
+            apps/api/build/classes/java/main
+          retention-days: 1
 
   test-frontend:
     name: Frontend Tests (Web)
@@ -59,8 +81,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Run Web Unit Tests
-        run: pnpm --filter web test --watch=false
+      - name: Run Web Unit Tests with Coverage
+        run: pnpm --filter web test:coverage
+
+      - name: Upload Web Coverage
+        if: always()
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: web-coverage
+          path: apps/web/coverage/web/lcov.info
+          retention-days: 1
 
   test-design-system:
     name: Design System Tests
@@ -83,3 +113,39 @@ jobs:
 
       - name: Run Design System Tests
         run: pnpm --filter @nivo-sass/design-system test
+
+  sonarcloud:
+    name: SonarCloud Analysis
+    needs: [test-backend, test-frontend, test-design-system]
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Download backend test results
+        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
+        with:
+          name: backend-test-results
+          path: apps/api/build
+
+      - name: Download web coverage
+        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
+        with:
+          name: web-coverage
+          path: apps/web/coverage/web
+
+      - name: Verify coverage artifacts structure
+        run: |
+          echo "=== Checking SonarCloud input files ==="
+          ls -ld apps/api/build/classes/java/main || true
+          ls -l apps/api/build/reports/jacoco.xml || true
+          ls -l apps/web/coverage/web/lcov.info || true
+
+      - name: Run SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 # v7.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

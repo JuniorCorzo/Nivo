@@ -7,7 +7,6 @@ import {
 import type { ApplicationConfig } from "@angular/core";
 import {
   inject,
-  isDevMode,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
@@ -35,7 +34,7 @@ import { errorInterceptor } from "./core/http/interceptors/error-interceptor";
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideApiConfiguration(isDevMode() ? "http://localhost:8080/api" : "/api"),
+    provideApiConfiguration("/api"),
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(

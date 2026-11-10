@@ -2,13 +2,19 @@ name: Web Mutation Tests
 
 on:
   pull_request:
+    branches: ["main"]
     paths:
       - "apps/web/src/app/core/**"
       - "apps/web/src/app/features/**/facades/**"
       - "apps/web/src/app/shared/utils/**"
       - "apps/web/stryker.config.json"
       - "apps/web/vitest.config.ts"
+      - ".github/workflows/web-mutation-tests.yml"
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
