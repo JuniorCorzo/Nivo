@@ -1,0 +1,206 @@
+<!-- Omnibar Táctico de Taquilla (Dual Action Bar: Ingreso Exprés + Salida Exprés) -->
+<div
+  class="border-border bg-card text-card-foreground rounded-2xl border p-4 shadow-xs sm:p-5"
+>
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-6">
+    <!-- Left section: Ingreso Exprés (Flujo Libre) -->
+    <div class="flex flex-1 flex-col gap-2.5">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="bg-success inline-block h-2 w-2 rounded-full"></span>
+          <span
+            class="text-foreground font-mono text-xs font-bold tracking-wider uppercase"
+          >
+            {{ texts.expressCheckInTitle }}
+          </span>
+          <span class="text-muted-foreground text-xs font-medium">
+            · {{ texts.expressCheckInSubtitle }}
+          </span>
+        </div>
+        <span
+          class="text-muted-foreground hidden font-mono text-xs sm:inline-block"
+        >
+          {{ texts.expressCheckInHotkey }}
+        </span>
+      </div>
+
+      <form
+        (submit)="$event.preventDefault(); onSubmitCheckIn()"
+        class="flex flex-col gap-2.5"
+      >
+        <!-- Row 1: Vehicle type toggle + Plate input -->
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <!-- Vehicle Type Selector (only shown when multi-type) -->
+          @if (hasMultipleVehicleTypes()) {
+          <div
+            class="bg-muted/60 border-border inline-flex w-full shrink-0 rounded-lg border p-1 text-xs sm:w-auto"
+          >
+            <button
+              type="button"
+              (click)="onVehicleTypeSelect('CAR')"
+              [class.bg-card]="expressVehicleType() === 'CAR'"
+              [class.text-foreground]="expressVehicleType() === 'CAR'"
+              [class.shadow-xs]="expressVehicleType() === 'CAR'"
+              [class.text-muted-foreground]="expressVehicleType() !== 'CAR'"
+              class="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium transition-all sm:flex-initial"
+            >
+              <ng-icon name="lucideCar" class="text-sm" />
+              <span>{{ texts.car }}</span>
+              <span class="text-muted-foreground text-[10px] tabular-nums"
+                >({{ availableCarSlotsCount() }})</span
+              >
+            </button>
+            <button
+              type="button"
+              (click)="onVehicleTypeSelect('MOTORCYCLE')"
+              [class.bg-card]="expressVehicleType() === 'MOTORCYCLE'"
+              [class.text-foreground]="expressVehicleType() === 'MOTORCYCLE'"
+              [class.shadow-xs]="expressVehicleType() === 'MOTORCYCLE'"
+              [class.text-muted-foreground]="expressVehicleType() !== 'MOTORCYCLE'"
+              class="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium transition-all sm:flex-initial"
+            >
+              <ng-icon name="lucideBike" class="text-sm" />
+              <span>{{ texts.moto }}</span>
+              <span class="text-muted-foreground text-[10px] tabular-nums"
+                >({{ availableMotoSlotsCount() }})</span
+              >
+            </button>
+          </div>
+          }
+
+          <!-- Plate input with appPlateMask -->
+          <div class="relative w-full flex-1">
+            <label for="express-plate-input" class="sr-only"
+              >{{ texts.plateSrLabel }}</label
+            >
+            <input
+              id="express-plate-input"
+              type="text"
+              appPlateMask
+              [vehicleType]="expressVehicleType()"
+              [placeholder]="texts.platePlaceholder"
+              [ngModel]="expressPlate()"
+              (ngModelChange)="onPlateInput($event)"
+              name="expressPlate"
+              maxlength="8"
+              class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 text-center font-mono text-sm font-bold tracking-wider uppercase transition-colors focus:ring-2 focus:outline-hidden"
+            />
+          </div>
+        </div>
+
+        <!-- Row 2: Action buttons flex row -->
+        <div class="flex items-center gap-2">
+          <nv-button
+            type="button"
+            (click)="onSubmitCheckIn()"
+            [disabled]="isSubmittingExpressCheckIn() || !expressPlate().trim()"
+            class="flex-1 sm:flex-initial"
+          >
+            <ng-icon name="lucideLogIn" class="text-base" />
+            <span>{{ texts.submitEnter }}</span>
+            <kbd
+              class="border-primary-foreground/30 bg-primary-foreground/20 text-primary-foreground ml-1 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+              >{{ texts.enterKey }}</kbd
+            >
+          </nv-button>
+
+          <nv-button
+            type="button"
+            variant="outline"
+            (click)="onUnplatedClick()"
+            class="shrink-0"
+            [title]="texts.unplatedTitle"
+          >
+            <ng-icon name="lucideCamera" class="text-base" />
+            <span>{{ texts.unplatedBtn }}</span>
+          </nv-button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Divider: vertical divider on lg screens, horizontal on mobile -->
+    <nv-divider
+      orientation="vertical"
+      class="hidden h-auto self-stretch lg:block"
+    />
+    <nv-divider class="lg:hidden" />
+
+    <!-- Right section: Cobro & Salida Exprés (Por Placa, Bahía o QR) -->
+    <div class="flex flex-1 flex-col gap-2.5">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="bg-info inline-block h-2 w-2 rounded-full"></span>
+          <span
+            class="text-foreground font-mono text-xs font-bold tracking-wider uppercase"
+          >
+            {{ texts.expressCheckOutTitle }}
+          </span>
+          <span class="text-muted-foreground text-xs font-medium">
+            · {{ texts.expressCheckOutSubtitle }}
+          </span>
+        </div>
+        <span
+          class="text-muted-foreground hidden font-mono text-xs sm:inline-block"
+        >
+          {{ texts.expressCheckOutHotkeys }}
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-2.5">
+        <!-- Row 1: Search query input with lucideSearch icon taking full width -->
+        <div class="relative w-full min-w-[160px] flex-1">
+          <ng-icon
+            name="lucideSearch"
+            size="16"
+            class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+          />
+          <label for="search-ticket-checkout" class="sr-only"
+            >{{ texts.searchQuerySrLabel }}</label
+          >
+          <input
+            id="search-ticket-checkout"
+            type="text"
+            [attr.aria-label]="texts.searchQuerySrLabel"
+            [value]="searchTicketQuery()"
+            (input)="onSearchInput($event)"
+            (keydown.enter)="onSubmitCheckOut()"
+            [placeholder]="texts.searchQueryPlaceholder"
+            class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-lg border py-2 pr-3 pl-9 font-mono text-sm uppercase transition-colors focus:ring-2 focus:outline-hidden"
+          />
+        </div>
+
+        <!-- Row 2: Action buttons flex row -->
+        <div class="flex items-center gap-2">
+          <nv-button
+            type="button"
+            variant="secondary"
+            (click)="onSubmitCheckOut()"
+            class="flex-1 sm:flex-initial"
+          >
+            <ng-icon name="lucideLogOut" class="text-base" />
+            <span>{{ texts.collectExit }}</span>
+            <kbd
+              class="border-border bg-background text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+              >{{ texts.hotkeyO }}</kbd
+            >
+          </nv-button>
+
+          <nv-button
+            type="button"
+            variant="outline"
+            (click)="onScanQrClick()"
+            class="shrink-0"
+            [title]="texts.scanQrTitle"
+          >
+            <ng-icon name="lucideQrCode" class="text-primary text-base" />
+            <span>{{ texts.scanQrBtn }}</span>
+            <kbd
+              class="border-border bg-muted text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+              >{{ texts.hotkeyQ }}</kbd
+            >
+          </nv-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

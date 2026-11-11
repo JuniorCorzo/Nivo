@@ -240,6 +240,34 @@ describe("OperationsPageComponent", () => {
     expect(text).toContain("Activos 2 activos");
   });
 
+  it("should hide vehicle type KPI card in ribbon when there are no slots of that type", () => {
+    slotServiceSpy.summaries = () => ({
+      "p-1": [
+        {
+          id: "s-1",
+          parkingName: "Central",
+          prefix: "A",
+          slotNumber: "01",
+          status: "AVAILABLE",
+          type: "CAR",
+          zone: "Z1",
+        },
+      ],
+    });
+
+    fixture.detectChanges();
+
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const ribbonText = (
+      fixture.nativeElement.querySelector(
+        ".divide-border\\/60"
+      ) as HTMLElement | null
+    )?.textContent?.replaceAll(/\s+/gu, " ");
+
+    expect(ribbonText).toContain("Carros 1 libres / 1");
+    expect(ribbonText).not.toContain("Motos");
+  });
+
   it("should filter slots by vehicle type and status", () => {
     component.setVehicleFilter("CAR");
     expect(component.filteredSlots().length).toBe(2);
@@ -596,7 +624,7 @@ describe("OperationsPageComponent", () => {
       fixture.detectChanges();
       const compiled: HTMLElement = fixture.nativeElement;
       expect(compiled.textContent).toContain("Ingreso Exprés");
-      expect(compiled.textContent).toContain("+ Ingresar");
+      expect(compiled.textContent).toContain("Ingresar");
       expect(compiled.textContent).toContain("Sin Placa");
       expect(compiled.textContent).toContain("Cobro & Salida Exprés");
       expect(compiled.textContent).toContain("Cobrar Salida");
@@ -639,7 +667,7 @@ describe("OperationsPageComponent", () => {
       expect(checkOutSpy).toHaveBeenCalled();
     });
 
-    it("should trigger express check-in on clicking + Ingresar in Omnibar", () => {
+    it("should trigger express check-in on clicking Ingresar in Omnibar", () => {
       const submitSpy = vi.spyOn(component, "submitExpressCheckIn");
       component.expressPlate.set("ABC123");
       fixture.detectChanges();
@@ -648,7 +676,7 @@ describe("OperationsPageComponent", () => {
         By.directive(ButtonComponent)
       );
       const ingresarBtn = buttons.find((btn) =>
-        btn.nativeElement.textContent.includes("+ Ingresar")
+        btn.nativeElement.textContent.includes("Ingresar")
       );
       expect(ingresarBtn).toBeDefined();
 
@@ -680,36 +708,14 @@ describe("OperationsPageComponent", () => {
       expect(component.isQrScannerOpen()).toBe(false);
     });
 
-    it("should submit express check-in successfully for car", () => {
-      const mockCreatedTicket = {
-        entryTime: "2026-10-27T10:00:00",
-        id: "t-new",
-        licensePlate: "EXP123",
-        parkingLotId: "p-1",
-        rateId: "r-1",
-        slotId: "s-1",
-        slotNumber: "101",
-        status: "OPEN" as const,
-      };
-      ticketServiceSpy.createTicket.mockReturnValue(of(mockCreatedTicket));
-      const refreshSpy = vi.spyOn(component, "refreshActiveTickets");
-
+    it("should open check-in modal with entered plate and assigned slot on submitExpressCheckIn", () => {
       component.expressPlate.set("EXP-123");
       component.setExpressVehicleType("CAR");
       component.submitExpressCheckIn();
 
-      expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith({
-        plate: "EXP123",
-        rateId: "r-1",
-        slotId: "s-1",
-      });
-      expect(toastSpy.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "success",
-        })
-      );
-      expect(component.expressPlate()).toBe("");
-      expect(refreshSpy).toHaveBeenCalled();
+      expect(component.isCheckInModalOpen()).toBe(true);
+      expect(component.checkInModalInitialPlate()).toBe("EXP123");
+      expect(component.selectedCheckInSlot()?.type).toBe("CAR");
     });
 
     it("should handle onQrScanned and open checkout modal when active ticket matches by plate", () => {
