@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opción 1: Integración en Página de Operaciones (Desktop & Mobile)</title>
+  <style>
+    :root {
+      --background: #f8fafc;
+      --foreground: #0f172a;
+      --card: #ffffff;
+      --card-foreground: #0f172a;
+      --primary: #0f172a;
+      --primary-foreground: #ffffff;
+      --muted: #f1f5f9;
+      --muted-foreground: #64748b;
+      --border: #e2e8f0;
+      --input: #cbd5e1;
+      --ring: #0f172a;
+      --success: #16a34a;
+      --warning: #eab308;
+      --info: #0284c7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #0f172a; color: var(--foreground); padding: 24px; min-height: 100vh; }
+    
+    .top-meta { color: #94a3b8; font-size: 13px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .top-meta h1 { font-size: 18px; color: #fff; font-weight: 700; }
+    .top-tabs { display: flex; gap: 8px; }
+    .tab-pill { background: #1e293b; color: #94a3b8; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 600; text-decoration: none; }
+    .tab-pill.active { background: #38bdf8; color: #0f172a; }
+
+    .main-canvas { display: flex; gap: 32px; align-items: flex-start; justify-content: center; }
+
+    /* BROWSER WINDOW SIMULATION (Desktop Operations Page) */
+    .browser-frame {
+      width: 1020px;
+      height: 780px;
+      background: var(--background);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .browser-bar {
+      height: 36px;
+      background: #e2e8f0;
+      border-bottom: 1px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 8px;
+    }
+    .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+    .browser-url {
+      flex: 1; max-width: 420px; height: 22px; background: #ffffff; border-radius: 6px;
+      margin: 0 auto; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: #64748b; font-family: monospace;
+    }
+
+    /* OPERATIONS PAGE LAYOUT IN BACKGROUND */
+    .ops-layout {
+      flex: 1;
+      display: flex;
+      height: calc(100% - 36px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Mini Sidebar */
+    .ops-sidebar {
+      width: 200px;
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex-shrink: 0;
+    }
+    .brand-logo { font-size: 16px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600;
+      padding: 8px 10px; border-radius: 8px; color: #94a3b8;
+    }
+    .nav-item.active { background: #1e293b; color: #38bdf8; }
+
+    /* Ops Content Area */
+    .ops-content {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: hidden;
+      filter: blur(1px); /* Slight background blur */
+      opacity: 0.6;
+    }
+    .ops-header { display: flex; justify-content: space-between; align-items: center; }
+    .ops-title { font-size: 18px; font-weight: 800; color: #0f172a; }
+    .ops-subtitle { font-size: 12px; color: #64748b; }
+
+    .kpi-row {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    }
+    .kpi-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .kpi-val { font-size: 18px; font-weight: 800; }
+    .kpi-label { font-size: 11px; color: var(--muted-foreground); }
+
+    .actions-bar {
+      display: flex; gap: 10px;
+    }
+    .act-btn {
+      height: 38px; padding: 0 16px; border-radius: 10px; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; gap: 6px; border: none; cursor: pointer;
+    }
+    .act-primary { background: #0f172a; color: #fff; }
+    .act-outline { background: #fff; border: 1px solid var(--border); color: #0f172a; }
+
+    .slots-grid-mock {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
+    }
+    .slot-box {
+      height: 60px; background: #fff; border: 1px dashed var(--border); border-radius: 8px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px;
+    }
+    .slot-box.occ { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+    .slot-box.free { background: #dcfce7; border-color: #86efac; color: #166534; }
+
+    /* REAL MODAL OVERLAY IN SITU */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal-dialog {
+      width: 490px;
+      background: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: popIn 0.2s ease-out;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.96); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .m-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .m-title-wrap { display: flex; align-items: center; gap: 10px; }
+    .m-icon {
+      width: 36px; height: 36px; border-radius: 10px; background: #f1f5f9;
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .m-title { font-size: 15px; font-weight: 700; color: #0f172a; }
+    .m-sub { font-size: 11px; color: #64748b; }
+    .m-close {
+      width: 28px; height: 28px; border-radius: 8px; border: none; background: #f1f5f9;
+      cursor: pointer; font-size: 13px; color: #64748b;
+    }
+
+    .m-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+    
+    /* Autoselected Sede badge */
+    .sede-tag {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 8px 12px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .sede-tag strong { color: #0f172a; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+
+    .field-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 4px; display: block; }
+    
+    .plate-row { position: relative; }
+    .plate-ctrl {
+      width: 100%; height: 46px; border: 2px solid var(--border); border-radius: 10px;
+      font-size: 19px; font-weight: 800; font-family: monospace; letter-spacing: 2px; text-transform: uppercase;
+      padding: 0 14px; outline: none; background: #fff;
+    }
+    .plate-ctrl:focus { border-color: #0f172a; }
+    .plate-badge { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 700; background: #f1f5f9; padding: 4px 8px; border-radius: 6px; }
+
+    .dropdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .select-ctrl {
+      width: 100%; height: 38px; border: 1px solid var(--input); border-radius: 8px;
+      padding: 0 10px; font-size: 12px; background: #fff; outline: none;
+    }
+
+    /* DESTACADO: ENVÍO DE TICKET DIGITAL */
+    .delivery-card {
+      border: 1.5px solid #cbd5e1;
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .delivery-head { display: flex; justify-content: space-between; align-items: center; }
+    .delivery-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+    
+    .channel-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .chan-btn {
+      border: 1px solid var(--border); background: #ffffff;
+      border-radius: 8px; padding: 8px 4px; font-size: 11px; font-weight: 600;
+      color: #64748b; cursor: pointer; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+    }
+    .chan-btn.active {
+      background: #0f172a; color: #ffffff; border-color: #0f172a;
+    }
+
+    .tel-input {
+      width: 100%; height: 38px; border: 1px solid var(--input); border-radius: 8px;
+      padding: 0 12px; font-size: 13px; background: #ffffff; outline: none;
+    }
+
+    .m-footer {
+      padding: 14px 20px; border-top: 1px solid var(--border);
+      display: flex; justify-content: flex-end; gap: 8px; background: #fff;
+    }
+    .btn-cancel { height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--border); background: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-submit { height: 40px; padding: 0 20px; border-radius: 8px; border: none; background: #0f172a; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+
+    /* MOBILE FRAME SIDE-BY-SIDE */
+    .mobile-side {
+      width: 360px;
+      height: 740px;
+      background: #000;
+      border-radius: 36px;
+      padding: 10px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+    }
+    .mobile-screen {
+      flex: 1;
+      background: #0f172a;
+      border-radius: 28px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .mobile-notch { width: 110px; height: 16px; background: #000; margin: 0 auto; border-radius: 0 0 10px 10px; }
+    .mobile-bg-blurred {
+      flex: 1; padding: 12px; opacity: 0.25; filter: blur(2px);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .mobile-sheet {
+      margin-top: auto;
+      background: #fff;
+      border-radius: 20px 20px 0 0;
+      padding: 14px;
+      box-shadow: 0 -8px 20px rgba(0,0,0,0.2);
+    }
+    .handle { width: 32px; height: 4px; background: #cbd5e1; border-radius: 2px; margin: 0 auto 10px; }
+  </style>
+</head>
+<body>
+
+  <div class="top-meta">
+    <div>
+      <h1>Página de Operaciones con Modal de Entrada Integrado</h1>
+      <p>Simulación realista en contexto: barra lateral, KPIs en vivo, grid de cupos y modal de registro en primer plano.</p>
+    </div>
+    <div class="top-tabs">
+      <span class="tab-pill active">Desktop In-Situ</span>
+      <span class="tab-pill">Mobile Bottom Sheet</span>
+    </div>
+  </div>
+
+  <div class="main-canvas">
+
+    <!-- DESKTOP OPERATIONS PAGE INTEGRATION -->
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dot dot-red"></div>
+        <div class="browser-dot dot-yellow"></div>
+        <div class="browser-dot dot-green"></div>
+        <div class="browser-url">app.nivo.com/operations/parking-central</div>
+      </div>
+
+      <div class="ops-layout">
+        <!-- Sidebar -->
+        <div class="ops-sidebar">
+          <div class="brand-logo">🅿️ Nivo Parking</div>
+          <div style="display:flex; flex-direction:column; gap:4px; margin-top:12px;">
+            <div class="nav-item">📊 Dashboard</div>
+            <div class="nav-item active">⚡ Operaciones</div>
+            <div class="nav-item">🎟️ Tickets</div>
+            <div class="nav-item">🚗 Cupos / Bahías</div>
+            <div class="nav-item">⚙️ Configuración</div>
+          </div>
+        </div>
+
+        <!-- Operations Content (Background) -->
+        <div class="ops-content">
+          <div class="ops-header">
+            <div>
+              <div class="ops-title">Operaciones de Parqueo</div>
+              <div class="ops-subtitle">Sede Centro • Control Vehicular en Tiempo Real</div>
+            </div>
+            <div class="actions-bar">
+              <button class="act-btn act-outline">🎟️ Ver Tickets</button>
+            </div>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="kpi-row">
+            <div class="kpi-card">
+              <span class="kpi-label">Capacidad Global</span>
+              <span class="kpi-val" style="color:#0284c7;">78%</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Carros Libres</span>
+              <span class="kpi-val" style="color:#16a34a;">14 cupos</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Motos Libres</span>
+              <span class="kpi-val" style="color:#16a34a;">8 cupos</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Vehículos Activos</span>
+              <span class="kpi-val">42</span>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="actions-bar" style="margin-top: 4px;">
+            <button class="act-btn act-primary">➕ Registrar Entrada</button>
+            <button class="act-btn act-outline">📤 Registrar Salida</button>
+            <button class="act-btn act-outline">📷 Escanear QR</button>
+          </div>
+
+          <!-- Mock Slots Grid -->
+          <div class="slots-grid-mock">
+            <div class="slot-box occ">A-01 (OCC)</div>
+            <div class="slot-box free">A-02 (LIBRE)</div>
+            <div class="slot-box free">A-03 (LIBRE)</div>
+            <div class="slot-box occ">A-04 (OCC)</div>
+            <div class="slot-box free">A-05 (LIBRE)</div>
+            <div class="slot-box free">A-06 (LIBRE)</div>
+          </div>
+        </div>
+
+        <!-- MODAL OVERLAY IN SITU -->
+        <div class="modal-overlay">
+          <div class="modal-dialog">
+            
+            <!-- Modal Header -->
+            <div class="m-header">
+              <div class="m-title-wrap">
+                <div class="m-icon">📥</div>
+                <div>
+                  <div class="m-title">Registrar Ingreso de Vehículo</div>
+                  <div class="m-sub">Asignar cupo y emitir ticket de parqueo</div>
+                </div>
+              </div>
+              <button class="m-close">✕</button>
+            </div>
+
+            <!-- Modal Form Body -->
+            <div class="m-body">
+              
+              <!-- Selector oculto porque sede solo tiene 1 tipo (Autoseleccionado) -->
+              <div class="sede-tag">
+                <span>Categoría de Sede:</span>
+                <strong>🚗 Automóvil (Autoseleccionado)</strong>
+              </div>
+
+              <!-- Placa -->
+              <div>
+                <label class="field-lbl">Placa del Vehículo *</label>
+                <div class="plate-row">
+                  <input type="text" class="plate-ctrl" value="ABC-123" placeholder="ABC-123">
+                  <span class="plate-badge">🇨🇴 CO</span>
+                </div>
+              </div>
+
+              <!-- Cupo y Tarifa -->
+              <div class="dropdown-grid">
+                <div>
+                  <label class="field-lbl">Bahía Asignada *</label>
+                  <select class="select-ctrl">
+                    <option>Bahía A-02 (Libre)</option>
+                    <option>Bahía A-03 (Libre)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="field-lbl">Tarifa Aplicable *</label>
+                  <select class="select-ctrl">
+                    <option>Tarifa Plena ($4.500/hora)</option>
+                    <option>Fracción ($2.000/15min)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- SECCIÓN DESTACADA: ENVÍO DE TICKET DIGITAL -->
+              <div class="delivery-card">
+                <div class="delivery-head">
+                  <span class="delivery-title">📱 Envío de Ticket Digital</span>
+                  <span style="font-size:10px; color:#64748b; font-weight:600;">Opcional pero visible</span>
+                </div>
+
+                <div class="channel-buttons">
+                  <button class="chan-btn">
+                    <span style="font-size:14px;">🖨️</span>
+                    <span>Solo Impreso</span>
+                  </button>
+                  <button class="chan-btn active">
+                    <span style="font-size:14px;">💬</span>
+                    <span>WhatsApp / SMS</span>
+                  </button>
+                  <button class="chan-btn">
+                    <span style="font-size:14px;">✉️</span>
+                    <span>Correo</span>
+                  </button>
+                </div>
+
+                <!-- Input dinámico según canal -->
+                <div>
+                  <input type="tel" class="tel-input" value="310 456 7890" placeholder="Número celular del conductor">
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="m-footer">
+              <button class="btn-cancel">Cancelar</button>
+              <button class="btn-submit">
+                <span>↵</span>
+                <span>Emitir Ticket</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MOBILE VIEW ADAPTATION (BOTTOM SHEET) -->
+    <div class="mobile-side">
+      <div class="mobile-screen">
+        <div class="mobile-notch"></div>
+
+        <!-- Blurred Background App -->
+        <div class="mobile-bg-blurred">
+          <div style="color:#fff; font-size:14px; font-weight:700;">Operaciones Móvil</div>
+          <div style="background:#1e293b; height:50px; border-radius:10px;"></div>
+          <div style="background:#1e293b; height:120px; border-radius:10px;"></div>
+        </div>
+
+        <!-- Mobile Bottom Sheet In Situ -->
+        <div class="mobile-sheet">
+          <div class="handle"></div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div>
+              <div style="font-size:14px; font-weight:800; color:#0f172a;">Ingreso de Vehículo</div>
+              <div style="font-size:10px; color:#64748b;">🚗 Auto autoseleccionado</div>
+            </div>
+            <button class="m-close" style="width:24px; height:24px; font-size:11px;">✕</button>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div>
+              <label class="field-lbl">Placa *</label>
+              <input type="text" class="plate-ctrl" style="height:42px; font-size:17px;" value="ABC-123">
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+              <div>
+                <label class="field-lbl">Bahía</label>
+                <select class="select-ctrl" style="height:34px; font-size:11px;"><option>A-02</option></select>
+              </div>
+              <div>
+                <label class="field-lbl">Tarifa</label>
+                <select class="select-ctrl" style="height:34px; font-size:11px;"><option>$4.5k/h</option></select>
+              </div>
+            </div>
+
+            <!-- Delivery en Mobile -->
+            <div class="delivery-card" style="padding:10px; gap:8px;">
+              <span class="delivery-title" style="font-size:11px;">📱 Envío Ticket Digital</span>
+              <div class="channel-buttons">
+                <button class="chan-btn" style="padding:5px 2px; font-size:10px;">🖨️ Impreso</button>
+                <button class="chan-btn active" style="padding:5px 2px; font-size:10px;">💬 WhatsApp</button>
+                <button class="chan-btn" style="padding:5px 2px; font-size:10px;">✉️ Correo</button>
+              </div>
+              <input type="tel" class="tel-input" style="height:34px; font-size:12px;" value="310 456 7890">
+            </div>
+
+            <button class="btn-submit" style="width:100%; height:44px; justify-content:center; margin-top:2px;">
+              Emitir Ticket
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

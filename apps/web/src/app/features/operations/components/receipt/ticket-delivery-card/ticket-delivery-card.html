@@ -1,0 +1,209 @@
+<nv-card class="border-border/80 bg-muted/20">
+  <nv-card-content class="space-y-3 p-3.5 sm:p-4">
+    <!-- Card Header -->
+    <div class="flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <div
+          class="bg-primary/10 text-primary flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
+        >
+          <ng-icon
+            [name]="mode() === 'receipt' ? 'lucideShare2' : 'lucideSend'"
+            size="14"
+            class="shrink-0"
+          />
+        </div>
+        <div>
+          <span
+            class="text-foreground block text-xs font-bold tracking-wider uppercase"
+          >
+            {{ mode() === 'receipt' ? texts.resendSectionTitle : 'Envío de
+            Ticket Digital' }}
+          </span>
+          @if (mode() === 'checkin') {
+          <nv-muted class="text-[10px] leading-tight">
+            Canal de entrega para el cliente
+          </nv-muted>
+          }
+        </div>
+      </div>
+      @if (mode() === 'checkin') {
+      <nv-badge variant="secondary" size="sm"> Opcional </nv-badge>
+      }
+    </div>
+
+    <!-- Delivery Channel Tabs (Vehicle selector style with nv-button) -->
+    <div
+      role="group"
+      aria-label="Canal de entrega digital"
+      class="border-border bg-muted/40 grid grid-cols-2 gap-1 rounded-xl border p-1"
+    >
+      <button
+        nv-button
+        [variant]="activeChannel() === 'WHATSAPP' ? 'default' : 'ghost'"
+        size="sm"
+        type="button"
+        (click)="setChannel('WHATSAPP')"
+        class="gap-1.5 font-semibold transition-all duration-150 active:scale-[0.98]"
+      >
+        <ng-icon
+          name="simpleWhatsapp"
+          size="16"
+          class="shrink-0 scale-90 overflow-visible text-emerald-500 [&>svg]:overflow-visible"
+        />
+        <span>{{ texts.tabWhatsApp }}</span>
+      </button>
+      <button
+        nv-button
+        [variant]="activeChannel() === 'EMAIL' ? 'default' : 'ghost'"
+        size="sm"
+        type="button"
+        (click)="setChannel('EMAIL')"
+        class="gap-1.5 font-semibold transition-all duration-150 active:scale-[0.98]"
+      >
+        <ng-icon name="lucideMail" size="14" class="text-primary shrink-0" />
+        <span>{{ texts.tabEmail }}</span>
+      </button>
+    </div>
+
+    <!-- Channel Form Fields -->
+    @if (activeChannel() === 'WHATSAPP') {
+    <div
+      class="space-y-1 transition-opacity duration-150 motion-reduce:transition-none"
+    >
+      <label
+        for="delivery-phone-input"
+        class="text-muted-foreground block text-[10px] font-semibold tracking-wider uppercase"
+      >
+        {{ texts.phoneLabel }}
+      </label>
+      <div class="relative flex items-center">
+        <ng-icon
+          name="lucidePhone"
+          size="14"
+          class="text-muted-foreground pointer-events-none absolute left-2.5 shrink-0"
+        />
+        <input
+          id="delivery-phone-input"
+          type="tel"
+          [value]="phoneInput()"
+          (input)="onPhoneInput($event)"
+          [placeholder]="texts.phonePlaceholder"
+          autocomplete="tel"
+          class="peer border-input bg-background text-foreground placeholder:text-muted-foreground/60 focus:border-ring focus-visible:ring-ring h-9 w-full rounded-lg border py-1.5 pr-2.5 pl-8 text-xs transition-colors focus:outline-hidden focus-visible:ring-1"
+        />
+      </div>
+    </div>
+
+    <!-- Direct Send Button (Only for receipt/resend mode) -->
+    @if (mode() === 'receipt' && whatsAppLink()) {
+    <a
+      nv-button
+      variant="default"
+      size="md"
+      [href]="whatsAppLink()"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="w-full gap-2 bg-emerald-600 whitespace-nowrap text-white shadow-xs transition-all hover:bg-emerald-500 active:scale-[0.98]"
+    >
+      <ng-icon
+        name="simpleWhatsapp"
+        size="16"
+        class="shrink-0 scale-90 overflow-visible [&>svg]:overflow-visible"
+      />
+      <span>{{ texts.shareWhatsApp }}</span>
+    </a>
+    } } @else {
+    <div
+      class="space-y-1 transition-opacity duration-150 motion-reduce:transition-none"
+    >
+      <label
+        for="delivery-email-input"
+        class="text-muted-foreground block text-[10px] font-semibold tracking-wider uppercase"
+      >
+        {{ texts.emailLabel }}
+      </label>
+      <div class="relative flex items-center">
+        <ng-icon
+          name="lucideMail"
+          size="14"
+          class="text-muted-foreground pointer-events-none absolute left-2.5 shrink-0"
+        />
+        <input
+          id="delivery-email-input"
+          type="email"
+          [value]="emailInput()"
+          (input)="onEmailInput($event)"
+          [placeholder]="texts.emailPlaceholder"
+          autocomplete="email"
+          class="peer border-input bg-background text-foreground placeholder:text-muted-foreground/60 focus:border-ring focus-visible:ring-ring h-9 w-full rounded-lg border py-1.5 pr-2.5 pl-8 text-xs transition-colors focus:outline-hidden focus-visible:ring-1"
+        />
+      </div>
+    </div>
+
+    <!-- Direct Send Button (Only for receipt/resend mode) -->
+    @if (mode() === 'receipt' && emailLink()) {
+    <a
+      nv-button
+      variant="default"
+      size="md"
+      [href]="emailLink()"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="w-full gap-2 whitespace-nowrap shadow-xs transition-all active:scale-[0.98]"
+    >
+      <ng-icon name="lucideMail" size="14" class="shrink-0" />
+      <span>{{ texts.sendEmail }}</span>
+    </a>
+    } }
+
+    <!-- Utility Actions (Only in receipt mode) -->
+    @if (mode() === 'receipt') {
+    <div class="flex items-center gap-2 pt-0.5">
+      <button
+        nv-button
+        variant="outline"
+        size="sm"
+        type="button"
+        (click)="copyPublicUrl()"
+        class="flex-1 gap-2 whitespace-nowrap transition-all active:scale-[0.98]"
+        [attr.aria-label]="texts.copyLink"
+      >
+        @if (isCopied()) {
+        <ng-icon
+          name="lucideCheck"
+          size="14"
+          class="shrink-0 text-emerald-400"
+        />
+        <span class="font-bold text-emerald-400">{{ texts.copiedLink }}</span>
+        } @else {
+        <ng-icon
+          name="lucideCopy"
+          size="14"
+          class="text-muted-foreground shrink-0"
+        />
+        <span>{{ texts.copyLink }}</span>
+        }
+      </button>
+
+      @if (canShare()) {
+      <button
+        nv-button
+        variant="outline"
+        size="sm"
+        type="button"
+        (click)="shareNative()"
+        class="shrink-0 gap-1.5 transition-all active:scale-[0.98]"
+        [attr.aria-label]="texts.shareNative"
+      >
+        <ng-icon
+          name="lucideShare2"
+          size="14"
+          class="text-muted-foreground shrink-0"
+        />
+        <span>{{ texts.shareNative }}</span>
+      </button>
+      }
+    </div>
+    }
+  </nv-card-content>
+</nv-card>

@@ -121,4 +121,28 @@ describe("TicketReceiptComponent", () => {
     expect(imgEl).toBeTruthy();
     expect(imgEl?.src).toContain("data:image/jpeg;base64,mockphotodata");
   });
+
+  it("should render ticket-delivery-card component when isOpen is true", () => {
+    const mockTicket: TicketSummary = {
+      entryTime: "2026-08-27T10:00:00Z",
+      id: "ticket-resend-test",
+      licensePlate: "RES123",
+      phoneNumber: "3101112233",
+      status: "OPEN",
+    };
+
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.componentRef.setInput("ticket", mockTicket);
+    fixture.detectChanges();
+
+    const deliveryCard = fixture.nativeElement.querySelector(
+      "app-ticket-delivery-card"
+    );
+    expect(deliveryCard).toBeTruthy();
+
+    const phoneInputEl: HTMLInputElement | null =
+      fixture.nativeElement.querySelector("#delivery-phone-input");
+    expect(phoneInputEl).toBeTruthy();
+    expect(phoneInputEl?.value).toBe("3101112233");
+  });
 });

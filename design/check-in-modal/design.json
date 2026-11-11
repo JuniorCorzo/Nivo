@@ -1,0 +1,41 @@
+{
+  "title": "Ajustes Modal Registrar Entrada - Envío de Ticket y Selector Condicional",
+  "brief": "Captura clara de datos de envío de ticket digital (SMS/WhatsApp o Email) sin saltarse el paso, ocultamiento condicional de selector de vehículo para sedes con un solo tipo y optimización mobile ergonomica.",
+  "artboards": [
+    {
+      "file": "01-segmented-delivery.html",
+      "title": "Entrega Segmentada en Card (Desktop & Mobile In-Situ)",
+      "tradeoff": "Sección destacada con pills de selección clara; balance óptimo entre visibilidad del envío y velocidad operativa.",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "02-progressive-stepper.html",
+      "title": "Flujo Progresivo en 2 Pasos (Desktop & Mobile)",
+      "tradeoff": "Cero posibilidad de ignorar la entrega digital; agrega un clic extra para avanzar al paso 2.",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "03-compact-quick-actions.html",
+      "title": "Entrada Rápida con Smart Toggle (Desktop & Mobile)",
+      "tradeoff": "Máxima velocidad para casetas de alto tráfico; menor espacio explicativo para clientes no técnicos.",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "04-mobile-omnibar-sheet.html",
+      "title": "Opción A: Omnibar Reestructurado + Bottom Sheet Express (Mobile)",
+      "tradeoff": "Placa 100% full-width sin aplastar; al pulsar Ingresar abre Bottom Sheet para confirmar canal en 1 toque.",
+      "width": 1000,
+      "height": 900
+    },
+    {
+      "file": "05-mobile-omnibar-inline.html",
+      "title": "Opción B: Omnibar con Micro-Selector Inline Expandible (Mobile)",
+      "tradeoff": "Cero modales: selección de canal e ingreso dentro de la misma tarjeta omnibar. Máxima velocidad de emisión.",
+      "width": 1000,
+      "height": 900
+    }
+  ]
+}

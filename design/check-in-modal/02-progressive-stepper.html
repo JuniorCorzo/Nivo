@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opción 2: Flujo Progresivo en 2 Pasos (Desktop & Mobile)</title>
+  <style>
+    :root {
+      --background: #f8fafc;
+      --foreground: #0f172a;
+      --card: #ffffff;
+      --card-foreground: #0f172a;
+      --primary: #0f172a;
+      --primary-foreground: #ffffff;
+      --muted: #f1f5f9;
+      --muted-foreground: #64748b;
+      --border: #e2e8f0;
+      --input: #cbd5e1;
+      --ring: #0f172a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--background); color: var(--foreground); padding: 32px; display: flex; flex-direction: column; gap: 32px; }
+    .header-banner { border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+    .header-banner h1 { font-size: 22px; font-weight: 700; }
+    .header-banner p { color: var(--muted-foreground); font-size: 13px; margin-top: 4px; }
+
+    .canvas-container { display: flex; gap: 40px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+    .view-card { display: flex; flex-direction: column; gap: 12px; }
+    .view-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); display: flex; align-items: center; gap: 6px; }
+    .tag { background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 999px; font-size: 11px; }
+
+    .modal-desktop {
+      width: 480px; background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden;
+    }
+
+    .mobile-frame {
+      width: 375px; height: 740px; background: #000; border-radius: 40px; padding: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    }
+    .mobile-screen {
+      width: 100%; height: 100%; background: var(--background); border-radius: 30px; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .mobile-notch { width: 120px; height: 18px; background: #000; margin: 0 auto; border-radius: 0 0 12px 12px; }
+    .bottom-sheet {
+      margin-top: auto; background: var(--card); border-radius: 24px 24px 0 0;
+      border-top: 1px solid var(--border); padding: 16px;
+    }
+    .drag-handle { width: 36px; height: 4px; background: var(--input); border-radius: 2px; margin: 0 auto 12px; }
+
+    /* Stepper Header */
+    .stepper { display: flex; border-bottom: 1px solid var(--border); background: var(--muted); }
+    .step-item {
+      flex: 1; padding: 12px 16px; font-size: 12px; font-weight: 600; text-align: center;
+      display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--muted-foreground);
+    }
+    .step-item.active { background: var(--card); color: var(--foreground); border-bottom: 2px solid var(--primary); }
+    .step-circle { width: 18px; height: 18px; border-radius: 50%; background: var(--input); color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+    .step-item.active .step-circle { background: var(--primary); }
+
+    .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .field-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted-foreground); margin-bottom: 4px; display: block; }
+    .input-box { width: 100%; height: 42px; border: 1px solid var(--input); border-radius: 10px; padding: 0 12px; font-size: 13px; outline: none; }
+    .input-box:focus { border-color: var(--ring); }
+
+    .radio-card {
+      border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex;
+      align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s;
+    }
+    .radio-card.selected { border-color: var(--primary); background: #f8fafc; box-shadow: 0 0 0 1px var(--primary); }
+    .radio-icon { font-size: 20px; }
+
+    .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .btn { height: 42px; border-radius: 10px; font-size: 13px; font-weight: 600; padding: 0 18px; cursor: pointer; border: none; }
+    .btn-outline { background: none; border: 1px solid var(--border); color: var(--foreground); }
+    .btn-primary { background: var(--primary); color: var(--primary-foreground); }
+  </style>
+</head>
+<body>
+
+  <div class="header-banner">
+    <h1>Opción 2: Flujo Progresivo (Progressive Stepper)</h1>
+    <p>Divide el registro en dos pasos deliberados: 1. Asignación de Bahía y Placa, 2. Entrega y Datos de Contacto. Imposible que el operador salte el envío sin decidirlo.</p>
+  </div>
+
+  <div class="canvas-container">
+    
+    <!-- DESKTOP VIEW -->
+    <div class="view-card">
+      <div class="view-label">Desktop View <span class="tag">Paso 2: Entrega Digital</span></div>
+      <div class="modal-desktop">
+        
+        <!-- Stepper Navigation -->
+        <div class="stepper">
+          <div class="step-item">
+            <span class="step-circle">✓</span>
+            <span>1. Placa y Cupo</span>
+          </div>
+          <div class="step-item active">
+            <span class="step-circle">2</span>
+            <span>2. Envío de Ticket</span>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div style="background: #f1f5f9; border-radius: 10px; padding: 10px 14px; font-size: 12px; display: flex; justify-content: space-between;">
+            <span>Vehículo: <strong>ABC-123</strong> (Auto)</span>
+            <span>Cupo: <strong>A-01</strong></span>
+          </div>
+
+          <div>
+            <span class="field-label">Selecciona cómo entregar el ticket:</span>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div class="radio-card selected">
+                <span class="radio-icon">💬</span>
+                <div style="flex: 1;">
+                  <div style="font-size: 13px; font-weight: 700;">WhatsApp / Mensaje de Texto</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground);">Envío instantáneo con link al ticket dinámico</div>
+                </div>
+                <input type="radio" checked>
+              </div>
+
+              <div style="margin-left: 20px; border-left: 2px solid var(--border); padding-left: 14px;">
+                <label class="field-label">Teléfono Móvil del Conductor</label>
+                <input type="tel" class="input-box" placeholder="Ej: 300 123 4567" value="300 987 6543">
+              </div>
+
+              <div class="radio-card">
+                <span class="radio-icon">✉️</span>
+                <div style="flex: 1;">
+                  <div style="font-size: 13px; font-weight: 700;">Correo Electrónico</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground);">Comprobante digital con código QR</div>
+                </div>
+                <input type="radio">
+              </div>
+
+              <div class="radio-card">
+                <span class="radio-icon">🖨️</span>
+                <div style="flex: 1;">
+                  <div style="font-size: 13px; font-weight: 700;">Solo Imprimir / Pantalla</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground);">Sin capturar datos personales</div>
+                </div>
+                <input type="radio">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-outline">← Volver a Cupo</button>
+          <button class="btn btn-primary">Emitir y Enviar Ticket</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE VIEW -->
+    <div class="view-card">
+      <div class="view-label">Mobile View <span class="tag">Paso a Paso Táctil (375px)</span></div>
+      <div class="mobile-frame">
+        <div class="mobile-screen">
+          <div class="mobile-notch"></div>
+          
+          <div class="bottom-sheet">
+            <div class="drag-handle"></div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:11px; font-weight:700; color:var(--muted-foreground);">PASO 2 DE 2</span>
+              <span style="font-size:11px; font-weight:600;">Placa: ABC-123</span>
+            </div>
+
+            <div style="font-size:16px; font-weight:800; margin-bottom:12px;">¿Cómo entregamos el ticket?</div>
+
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div class="radio-card selected" style="padding:10px;">
+                <span style="font-size:18px;">💬</span>
+                <div style="flex:1;">
+                  <div style="font-size:12px; font-weight:700;">WhatsApp / SMS</div>
+                  <input type="tel" class="input-box" style="height:36px; margin-top:6px; font-size:12px;" value="300 987 6543">
+                </div>
+              </div>
+
+              <div class="radio-card" style="padding:10px;">
+                <span style="font-size:18px;">✉️</span>
+                <div style="font-size:12px; font-weight:600;">Correo Electrónico</div>
+              </div>
+
+              <div class="radio-card" style="padding:10px;">
+                <span style="font-size:18px;">🖨️</span>
+                <div style="font-size:12px; font-weight:600;">Solo Impreso</div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:14px;">
+              <button class="btn btn-outline" style="flex:1; height:44px;">Atrás</button>
+              <button class="btn btn-primary" style="flex:2; height:44px;">Emitir</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

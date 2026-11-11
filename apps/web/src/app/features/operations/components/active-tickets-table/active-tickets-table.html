@@ -1,0 +1,165 @@
+<!-- Live Operations Table: Vehículos Activos en Taquilla -->
+<div
+  class="bg-card text-card-foreground border-border overflow-hidden rounded-2xl border shadow-xs"
+>
+  <!-- Section Header & Search -->
+  <div
+    class="border-border flex flex-col justify-between gap-3 border-b p-3.5 sm:flex-row sm:items-center sm:p-5"
+  >
+    <div class="flex items-center gap-2">
+      <h2 class="text-foreground text-sm font-bold sm:text-base">
+        {{ texts.title }}
+      </h2>
+      <nv-badge variant="secondary" class="font-mono text-xs tabular-nums">
+        {{ filteredActiveTickets().length }}
+      </nv-badge>
+    </div>
+
+    <!-- Search input & Salida Express action -->
+    <div class="flex w-full items-center gap-2 sm:w-auto">
+      <div class="relative w-full sm:w-64">
+        <ng-icon
+          name="lucideSearch"
+          size="16"
+          class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+        />
+        <label for="search-ticket-mobile" class="sr-only"
+          >{{ texts.searchSrLabel }}</label
+        >
+        <input
+          id="search-ticket-mobile"
+          type="text"
+          [attr.aria-label]="texts.searchSrLabel"
+          [value]="searchTicketQuery()"
+          (input)="onSearchInput($event)"
+          (keydown.enter)="onSubmitCheckOut()"
+          [placeholder]="texts.searchPlaceholder"
+          class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-lg border py-1.5 pr-8 pl-9 text-xs focus:outline-hidden"
+        />
+        @if (searchTicketQuery()) {
+        <button
+          type="button"
+          (click)="onClearSearch()"
+          [attr.aria-label]="texts.clearSearch"
+          class="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer rounded-sm p-0.5 transition-colors"
+        >
+          <ng-icon name="lucideX" size="14" />
+        </button>
+        }
+      </div>
+      <nv-button
+        type="button"
+        size="sm"
+        variant="secondary"
+        (click)="onSubmitCheckOut()"
+        class="shrink-0 text-nowrap"
+      >
+        <ng-icon name="lucideLogOut" size="14" class="mr-1" />
+        <span>{{ texts.directCollectAction }}</span>
+      </nv-button>
+      <nv-button
+        type="button"
+        size="sm"
+        variant="outline"
+        (click)="onScanQr()"
+        class="shrink-0 text-nowrap"
+        [title]="texts.scanQrTitle"
+        [attr.aria-label]="texts.scanQrTitle"
+      >
+        <ng-icon name="lucideQrCode" class="text-primary mr-1 text-sm" />
+        <span>{{ texts.scanQrAction }}</span>
+        <kbd
+          class="border-border bg-muted text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
+          >{{ texts.hotkeyQ }}</kbd
+        >
+      </nv-button>
+    </div>
+  </div>
+
+  <!-- Active Tickets Table -->
+  <div class="overflow-x-auto">
+    @if (filteredActiveTickets().length === 0) {
+    <div
+      class="text-muted-foreground flex flex-col items-center justify-center py-12 text-center text-xs"
+    >
+      <ng-icon
+        name="lucideTicket"
+        size="32"
+        class="text-muted-foreground/60 mb-2"
+      />
+      <p class="font-medium">{{ texts.emptyTitle }}</p>
+      <span class="text-muted-foreground/80 text-[11px]">
+        {{ texts.emptySubtitle }}
+      </span>
+    </div>
+    } @else {
+    <table class="w-full text-left text-xs">
+      <thead
+        class="border-border bg-muted/50 text-muted-foreground border-b text-[11px] font-semibold tracking-wider uppercase"
+      >
+        <tr>
+          <th class="px-4 py-3 sm:px-6">{{ texts.thPlate }}</th>
+          <th class="px-4 py-3 sm:px-6">{{ texts.thSlot }}</th>
+          <th class="px-4 py-3 sm:px-6">{{ texts.thEntryTime }}</th>
+          <th class="px-4 py-3 text-right sm:px-6">{{ texts.thAction }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-border divide-y">
+        @for (ticket of filteredActiveTickets(); track ticket.id) {
+        <tr class="hover:bg-accent/40 transition-colors">
+          <td class="px-4 py-3 sm:px-6">
+            <div class="flex items-center gap-2">
+              <span
+                class="text-foreground font-mono text-sm font-bold tracking-wider tabular-nums"
+              >
+                {{ ticket.licensePlate }}
+              </span>
+              <nv-badge
+                [variant]="
+                  ticket.plateCountry === 'VE'
+                    ? 'info'
+                    : ticket.plateCountry === 'UNPLATED'
+                      ? 'warning'
+                      : 'outline'
+                "
+                class="px-1.5 py-0.5 font-mono text-[10px] font-bold"
+              >
+                {{ ticket.plateCountry === "UNPLATED" ? "SP" :
+                ticket.plateCountry || "CO" }}
+              </nv-badge>
+            </div>
+          </td>
+          <td class="px-4 py-3 sm:px-6">
+            <div class="text-foreground font-medium tabular-nums">
+              {{ ticket.slotNumber ? "Bahía " + ticket.slotNumber : "—" }}
+            </div>
+            @if (ticket.slotType) {
+            <span class="text-muted-foreground text-[10px] uppercase">
+              {{ ticket.slotType }}
+            </span>
+            }
+          </td>
+          <td class="px-4 py-3 sm:px-6">
+            <div class="text-foreground font-mono text-xs tabular-nums">
+              {{ ticket.entryTime | date: "dd/MM/yyyy HH:mm" }}
+            </div>
+          </td>
+          <td class="px-4 py-3 text-right sm:px-6">
+            <nv-button
+              size="sm"
+              variant="default"
+              type="button"
+              (click)="onTicketCheckOut(ticket)"
+              class="cursor-pointer"
+            >
+              <ng-icon name="lucideLogOut" size="14" class="mr-1" />
+              <span>{{ texts.collectButton }}</span>
+            </nv-button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+  </div>
+</div>

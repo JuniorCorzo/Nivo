@@ -34,22 +34,20 @@ import {
   lucideTicket,
   lucideX,
 } from "@ng-icons/lucide";
-import {
-  BadgeComponent,
-  ButtonComponent,
-  DividerComponent,
-  ToastService,
-} from "@nivo-sass/design-system";
+import { ToastService } from "@nivo-sass/design-system";
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
-import { PlateMaskDirective } from "@shared/directives/plate-mask";
 import { of } from "rxjs";
 
+import { OperationsActiveTicketsTableComponent } from "../components/active-tickets-table/active-tickets-table";
+import { OperationsKpiRibbonComponent } from "../components/kpi-ribbon/kpi-ribbon";
 import { CheckInModalComponent } from "../components/modals/check-in-modal/check-in-modal";
 import { CheckOutModalComponent } from "../components/modals/check-out-modal/check-out-modal";
 import { QrScannerModalComponent } from "../components/modals/qr-scanner-modal/qr-scanner-modal";
 import type { ScannedQrData } from "../components/modals/qr-scanner-modal/qr-scanner-modal";
+import { OperationsOmnibarComponent } from "../components/omnibar/operations-omnibar";
+import { OperationsSlotsGridComponent } from "../components/slots-grid/operations-slots-grid";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,14 +56,14 @@ import type { ScannedQrData } from "../components/modals/qr-scanner-modal/qr-sca
     FormsModule,
     RouterLink,
     NgIcon,
-    BadgeComponent,
-    ButtonComponent,
-    DividerComponent,
     PageHeaderComponent,
-    PlateMaskDirective,
     CheckInModalComponent,
     CheckOutModalComponent,
     QrScannerModalComponent,
+    OperationsActiveTicketsTableComponent,
+    OperationsKpiRibbonComponent,
+    OperationsOmnibarComponent,
+    OperationsSlotsGridComponent,
   ],
   providers: [
     provideIcons({
@@ -91,6 +89,7 @@ import type { ScannedQrData } from "../components/modals/qr-scanner-modal/qr-sca
   templateUrl: "./operations-page.html",
 })
 export class OperationsPageComponent {
+  readonly texts = APP_TEXTS.operations;
   readonly APP_ROUTES = APP_ROUTES;
   readonly ticketTexts = APP_TEXTS.tickets.actions;
 
@@ -106,6 +105,7 @@ export class OperationsPageComponent {
   readonly isCheckInModalOpen = signal<boolean>(false);
   readonly selectedCheckInSlot = signal<SlotSummary | null>(null);
   readonly checkInModalInitialUnplated = signal<boolean>(false);
+  readonly checkInModalInitialPlate = signal<string>("");
   readonly isCheckOutModalOpen = signal<boolean>(false);
   readonly selectedCheckoutTicket = signal<TicketSummary | null>(null);
 
@@ -179,6 +179,27 @@ export class OperationsPageComponent {
   );
 
   readonly ratesCount = computed(() => this.rates().length);
+
+  readonly hasMultipleVehicleTypes = computed<boolean>(() => {
+    const slots = this.slots();
+    const rates = this.rates();
+    const types = new Set<string>();
+    for (const slot of slots) {
+      if (
+        slot.type === "CAR" ||
+        slot.type === "MOTORCYCLE" ||
+        slot.type === "BIKE"
+      ) {
+        types.add(slot.type);
+      }
+    }
+    for (const rate of rates) {
+      if (rate.vehicleType) {
+        types.add(rate.vehicleType);
+      }
+    }
+    return types.size > 1;
+  });
 
   readonly occupationPercentage = computed(() => {
     const total = this.totalSlotsCount();
@@ -326,9 +347,10 @@ export class OperationsPageComponent {
     );
   }
 
-  openCheckInModal(unplated = false): void {
-    this.selectedCheckInSlot.set(null);
+  openCheckInModal(unplated = false, plate?: string, slot?: SlotSummary): void {
+    this.selectedCheckInSlot.set(slot ?? null);
     this.checkInModalInitialUnplated.set(unplated);
+    this.checkInModalInitialPlate.set(plate ?? this.expressPlate());
     this.isCheckInModalOpen.set(true);
   }
 
@@ -336,12 +358,14 @@ export class OperationsPageComponent {
     this.isCheckInModalOpen.set(false);
     this.selectedCheckInSlot.set(null);
     this.checkInModalInitialUnplated.set(false);
+    this.checkInModalInitialPlate.set("");
     this.refreshActiveTickets();
   }
 
   checkInSpecificSlot(slot: SlotSummary): void {
     this.selectedCheckInSlot.set(slot);
     this.checkInModalInitialUnplated.set(false);
+    this.checkInModalInitialPlate.set(this.expressPlate());
     this.isCheckInModalOpen.set(true);
   }
 
@@ -493,9 +517,6 @@ export class OperationsPageComponent {
     plateOverride?: string,
     typeOverride?: VehicleType
   ): void {
-    if (this.isSubmittingExpressCheckIn()) {
-      return;
-    }
     const rawPlate = plateOverride ?? this.expressPlate();
     const cleanPlate = (rawPlate ?? "")
       .replaceAll(/[^a-zA-Z0-9]/gu, "")
@@ -522,42 +543,7 @@ export class OperationsPageComponent {
       return;
     }
 
-    const activeRate = this.rates().find((r) => r.vehicleType === targetType);
-
-    if (!activeRate) {
-      this.toast.showToast({
-        message: "No se encontró una tarifa activa para este vehículo.",
-        type: "error",
-      });
-      return;
-    }
-
-    this.isSubmittingExpressCheckIn.set(true);
-    this.ticketService
-      .createTicket({
-        plate: cleanPlate,
-        rateId: activeRate.id,
-        slotId: availableSlot.id,
-      })
-      .subscribe({
-        error: (err) => {
-          this.isSubmittingExpressCheckIn.set(false);
-          const msg =
-            err?.error?.message || "Error al registrar ingreso express.";
-          this.toast.showToast({ message: msg, type: "error" });
-        },
-        next: (ticket) => {
-          this.isSubmittingExpressCheckIn.set(false);
-          this.expressPlate.set("");
-          const slotNum =
-            availableSlot.slotNumber || ticket.slotNumber || "asignada";
-          this.toast.showToast({
-            message: `¡Ingreso registrado! Placa ${ticket.licensePlate || cleanPlate} en bahía #${slotNum}.`,
-            type: "success",
-          });
-          this.refreshActiveTickets();
-        },
-      });
+    this.openCheckInModal(false, cleanPlate, availableSlot);
   }
 
   @HostListener("window:keydown", ["$event"])
