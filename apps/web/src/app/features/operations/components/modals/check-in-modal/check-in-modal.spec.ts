@@ -114,77 +114,45 @@ describe("CheckInModalComponent", () => {
     expect(component.facade.photoUrl()).toBeNull();
   });
 
-  it("should apply plate mask directive formatting on plate input", () => {
+  it("should render license plate display for validation when initialPlate is provided", () => {
+    fixture.componentRef.setInput("initialPlate", "ABC123");
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
-    const input: HTMLInputElement | null =
-      fixture.nativeElement.querySelector("#plate-input");
-    expect(input).not.toBeNull();
-    if (!input) {
-      return;
-    }
-    input.value = "abc123";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    fixture.detectChanges();
 
-    expect(input.value).toBe("ABC-123");
-    expect(component.facade.plate()).toBe("ABC-123");
-  });
-
-  it("should auto-detect Venezuelan plate and update facade plate and country", () => {
-    fixture.componentRef.setInput("isOpen", true);
-    fixture.detectChanges();
-    const input: HTMLInputElement | null =
-      fixture.nativeElement.querySelector("#plate-input");
-    expect(input).not.toBeNull();
-    if (!input) {
-      return;
-    }
-    input.value = "ab123cd";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    fixture.detectChanges();
-
-    expect(input.value).toBe("AB-123-CD");
-    expect(component.facade.plate()).toBe("AB-123-CD");
-    expect(component.facade.plateCountry()).toBe("VE");
-  });
-
-  it("should auto-detect Colombian plate and update facade plate and country", () => {
-    fixture.componentRef.setInput("isOpen", true);
-    fixture.detectChanges();
-    const input: HTMLInputElement | null =
-      fixture.nativeElement.querySelector("#plate-input");
-    expect(input).not.toBeNull();
-    if (!input) {
-      return;
-    }
-    input.value = "abc123";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    fixture.detectChanges();
-
-    expect(input.value).toBe("ABC-123");
+    const plateDisplay = fixture.nativeElement.querySelector("#plate-display");
+    expect(plateDisplay).not.toBeNull();
+    expect(plateDisplay.textContent).toContain("ABC-123");
     expect(component.facade.plate()).toBe("ABC-123");
     expect(component.facade.plateCountry()).toBe("CO");
   });
 
-  it("should toggle modality between plated and unplated", () => {
+  it("should auto-detect Venezuelan plate and update facade plate and country on initialPlate", () => {
+    fixture.componentRef.setInput("initialPlate", "ab123cd");
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
 
-    component.facade.setIsUnplated(true);
+    const plateDisplay = fixture.nativeElement.querySelector("#plate-display");
+    expect(plateDisplay).not.toBeNull();
+    expect(plateDisplay.textContent).toContain("AB-123-CD");
+    expect(component.facade.plate()).toBe("AB-123-CD");
+    expect(component.facade.plateCountry()).toBe("VE");
+  });
+
+  it("should not render vehicle type selector, modality buttons, or editable plate input for a clean flow", () => {
+    fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
 
-    expect(component.facade.isUnplated()).toBe(true);
-    const photoCapture =
-      fixture.nativeElement.querySelector("app-photo-capture");
-    expect(photoCapture).not.toBeNull();
-
-    component.facade.setIsUnplated(false);
-    fixture.detectChanges();
-
-    expect(component.facade.isUnplated()).toBe(false);
+    const vehicleSelector = fixture.nativeElement.querySelector(
+      '[aria-label="Seleccionar tipo de vehículo"]'
+    );
+    const modalityGroup = fixture.nativeElement.querySelector(
+      '[aria-label="Modalidad de registro"]'
+    );
     const plateInput = fixture.nativeElement.querySelector("#plate-input");
-    expect(plateInput).not.toBeNull();
+
+    expect(vehicleSelector).toBeNull();
+    expect(modalityGroup).toBeNull();
+    expect(plateInput).toBeNull();
   });
 
   it("should update country on onCountryChange", () => {
@@ -228,5 +196,37 @@ describe("CheckInModalComponent", () => {
 
     expect(setIsUnplatedSpy).toHaveBeenCalledWith(true);
     expect(component.facade.isUnplated()).toBe(true);
+  });
+
+  it("should render ticket-delivery-card component in the delivery section", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const deliveryCard = fixture.nativeElement.querySelector(
+      "app-ticket-delivery-card"
+    );
+    expect(deliveryCard).not.toBeNull();
+
+    const phoneInput = fixture.nativeElement.querySelector(
+      "#delivery-phone-input"
+    );
+    expect(phoneInput).not.toBeNull();
+  });
+
+  it("should prefill plate in facade when initialPlate input is provided", () => {
+    fixture.componentRef.setInput("initialPlate", "XYZ789");
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    expect(component.facade.plate()).toBe("XYZ-789");
+  });
+
+  it("should update email in facade on email input event", () => {
+    const input = document.createElement("input");
+    input.value = "conductor@nivo.com";
+    const event = new Event("input");
+    Object.defineProperty(event, "target", { value: input });
+    component.onEmailInput(event);
+    expect(component.facade.email()).toBe("conductor@nivo.com");
   });
 });

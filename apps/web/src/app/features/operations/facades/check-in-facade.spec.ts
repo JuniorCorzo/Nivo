@@ -224,6 +224,109 @@ describe("CheckInFacade", () => {
     expect(facade.availableVehicleTypes()).toEqual(["CAR"]);
   });
 
+  it("should compute configuredVehicleTypes as single type and auto-select it when only one type configured", () => {
+    slotServiceSpy.summaries = () => ({
+      "parking-1": [
+        {
+          id: "slot-car-1",
+          parkingName: "Central",
+          prefix: "A",
+          slotNumber: "A1",
+          status: "AVAILABLE",
+          type: "CAR",
+          zone: "ZA",
+        },
+      ],
+    });
+    rateServiceSpy.ratesByParking = () => ({
+      "parking-1": [
+        {
+          createdAt: "",
+          description: "Tarifa Carro",
+          id: "rate-car-1",
+          minChargeTimeMinutes: 0,
+          name: "Tarifa Carro",
+          parkingId: "parking-1",
+          pricePerUnit: 3000,
+          timeUnit: "HOURS",
+          updatedAt: "",
+          vehicleType: "CAR",
+        },
+      ],
+    });
+
+    facade.init("parking-1");
+    expect(facade.configuredVehicleTypes()).toEqual(["CAR"]);
+    expect(facade.hasMultipleVehicleTypes()).toBe(false);
+    expect(facade.vehicleType()).toBe("CAR");
+  });
+
+  it("should compute hasMultipleVehicleTypes as true when multiple types configured", () => {
+    slotServiceSpy.summaries = () => ({
+      "parking-1": [
+        {
+          id: "slot-car-1",
+          parkingName: "Central",
+          prefix: "A",
+          slotNumber: "A1",
+          status: "AVAILABLE",
+          type: "CAR",
+          zone: "ZA",
+        },
+        {
+          id: "slot-moto-1",
+          parkingName: "Central",
+          prefix: "M",
+          slotNumber: "M1",
+          status: "AVAILABLE",
+          type: "MOTORCYCLE",
+          zone: "ZM",
+        },
+      ],
+    });
+
+    facade.init("parking-1");
+    expect(facade.configuredVehicleTypes()).toEqual(["CAR", "MOTORCYCLE"]);
+    expect(facade.hasMultipleVehicleTypes()).toBe(true);
+  });
+
+  it("should handle optional delivery inputs and submit them in ticket payload", () => {
+    facade.init("parking-1");
+    facade.setVehicleType("CAR");
+    facade.setPlate("ABC123");
+
+    // Valid without phone or email (optional)
+    expect(facade.isValid()).toBe(true);
+
+    // Invalid email format fails validation
+    facade.setEmail("invalid-email");
+    expect(facade.isValid()).toBe(false);
+
+    // Valid email passes
+    facade.setEmail("usuario@correo.com");
+    expect(facade.isValid()).toBe(true);
+
+    // Phone passes
+    facade.setPhoneNumber("3001234567");
+    expect(facade.isValid()).toBe(true);
+
+    ticketServiceSpy.createTicket.mockReturnValue(
+      of({
+        id: "t-1",
+        licensePlate: "ABC123",
+        status: "OPEN",
+      } as TicketSummary)
+    );
+
+    facade.submitCheckIn();
+    expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: "usuario@correo.com",
+        phoneNumber: "3001234567",
+      })
+    );
+  });
+
   it("should require photoUrl for isValid and auto-select MOTORCYCLE when country is UNPLATED", () => {
     slotServiceSpy.summaries = () => ({
       "parking-1": [
