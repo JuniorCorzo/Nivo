@@ -208,7 +208,6 @@ export const createTicketColumns = (
         flexRenderComponent(TicketRowActionsComponent, {
           inputs: { ticket: info.row.original },
           outputs: {
-            reprintReceipt: (ticket) => options.onReprintReceipt?.(ticket),
             selectTicket: (ticket) => options.onSelectTicket?.(ticket),
           },
         }),

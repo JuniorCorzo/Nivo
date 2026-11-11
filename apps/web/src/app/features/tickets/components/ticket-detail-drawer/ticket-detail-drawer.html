@@ -214,6 +214,13 @@
       </nv-card>
     </div>
     }
+    <!-- Reenvío / Entrega Digital -->
+    <app-ticket-delivery-card
+      mode="receipt"
+      [ticket]="ticket()"
+      [publicUrl]="publicUrl()"
+      [initialPhone]="ticket()?.phoneNumber || ''"
+    />
   </div>
 
   <!-- Footer Actions -->
@@ -225,6 +232,7 @@
       variant="outline"
       size="md"
       (click)="drawerClose.emit()"
+      class="shrink-0"
     >
       {{ actionTexts.closeDrawer }}
     </nv-button>
@@ -233,10 +241,12 @@
         type="button"
         [variant]="ticket()?.status === 'OPEN' ? 'outline' : 'default'"
         size="md"
-        (click)="reprintReceipt.emit(ticket()!)"
+        (click)="onPrint()"
+        [title]="actionTexts.reprintReceipt"
+        class="shrink-0"
       >
-        <ng-icon name="lucidePrinter" size="16" />
-        {{ actionTexts.reprintReceipt }}
+        <ng-icon name="lucidePrinter" size="16" class="shrink-0" />
+        <span class="whitespace-nowrap">Imprimir</span>
       </nv-button>
       @if (ticket()?.status === "OPEN") {
       <nv-button
@@ -244,9 +254,12 @@
         variant="default"
         size="md"
         (click)="checkoutInTaquilla.emit(ticket()!)"
+        class="shrink-0"
       >
-        <ng-icon name="lucideLogOut" size="16" />
-        {{ actionTexts.checkoutInTaquilla }}
+        <ng-icon name="lucideLogOut" size="16" class="shrink-0" />
+        <span class="whitespace-nowrap"
+          >{{ actionTexts.checkoutInTaquilla }}</span
+        >
       </nv-button>
       }
     </div>

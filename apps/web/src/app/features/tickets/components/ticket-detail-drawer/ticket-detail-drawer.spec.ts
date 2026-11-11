@@ -183,4 +183,15 @@ describe("TicketDetailDrawerComponent", () => {
     );
     expect(checkoutBtn).toBeUndefined();
   });
+
+  it("should render embedded ticket-delivery-card in drawer body", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.componentRef.setInput("ticket", mockOpenTicket);
+    fixture.detectChanges();
+
+    const deliveryCard = fixture.nativeElement.querySelector(
+      "app-ticket-delivery-card"
+    );
+    expect(deliveryCard).not.toBeNull();
+  });
 });

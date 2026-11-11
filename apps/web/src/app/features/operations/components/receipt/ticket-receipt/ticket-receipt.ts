@@ -15,23 +15,31 @@ import {
   lucideCheckCircle2,
   lucidePrinter,
   lucideQrCode,
-  lucideShare2,
   lucideX,
 } from "@ng-icons/lucide";
+import { ButtonComponent } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { PlateFormatPipe } from "@shared/pipes/plate-format.pipe";
 import QRCode from "qrcode";
 
+import { TicketDeliveryCardComponent } from "../ticket-delivery-card/ticket-delivery-card";
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DecimalPipe, NgIcon, PlateFormatPipe],
+  imports: [
+    ButtonComponent,
+    CommonModule,
+    DecimalPipe,
+    NgIcon,
+    PlateFormatPipe,
+    TicketDeliveryCardComponent,
+  ],
   providers: [
     provideIcons({
       lucideCamera,
       lucideCheckCircle2,
       lucidePrinter,
       lucideQrCode,
-      lucideShare2,
       lucideX,
     }),
   ],
@@ -71,7 +79,7 @@ export class TicketReceiptComponent {
     const url = this.publicUrl();
     const plate = t.licensePlate || this.texts.unplatedVehicle;
     const msg = encodeURIComponent(this.texts.whatsAppMessage(plate, url));
-    const rawPhone = t.phoneNumber ? t.phoneNumber.replaceAll(/\D/gu, "") : "";
+    const rawPhone = (t.phoneNumber ?? "").replaceAll(/\D/gu, "");
     let phone = "";
     if (rawPhone) {
       phone = rawPhone.startsWith("57") ? rawPhone : `57${rawPhone}`;
