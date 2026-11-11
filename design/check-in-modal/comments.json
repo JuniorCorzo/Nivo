@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "comments": [
+    {
+      "id": "uhjwudqw",
+      "file": "01-segmented-delivery.html",
+      "selector": "body > div:nth-of-type(2)",
+      "excerpt": "DESKTOP VIEW MODAL 500PX Registrar Ingreso de Vehículo Sede Centro • Cupos automáticos ✕ Tipo de Vehículo Sede: 🚗 Automóvil (Autoseleccionado) PLACA DEL VEHÍCULO * 🇨🇴 CO BAHÍA / CUPO * TARIFA * 📱 ENVÍO DE TICKET DIGITAL Elige canal 🖨️ Solo Impreso 💬 WhatsApp / SMS ✉️ Correo Electrónico Cancela",
+      "comment": "Quiero ver como se integra con la pagina de operaciones",
+      "createdAt": "2026-11-07T02:12:59.440Z",
+      "status": "resolved",
+      "sentAt": "2026-11-07T02:12:59.458Z",
+      "resolvedAt": "2026-11-07T02:14:01.344Z"
+    }
+  ]
+}

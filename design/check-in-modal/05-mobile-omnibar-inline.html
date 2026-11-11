@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opción B: Omnibar con Micro-Selector Inline Expandible</title>
+  <style>
+    :root {
+      --background: #0b0f19;
+      --card: #111827;
+      --card-border: #1f2937;
+      --foreground: #f9fafb;
+      --muted: #9ca3af;
+      --primary: #3b82f6;
+      --success: #10b981;
+      --border: #374151;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--background); color: var(--foreground); padding: 24px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+
+    .header-bar { max-width: 800px; width: 100%; margin-bottom: 24px; text-align: center; }
+    .header-bar h1 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+    .header-bar p { font-size: 13px; color: var(--muted); }
+
+    .scenario-toggle {
+      background: #1f2937; border: 1px solid var(--border); border-radius: 999px; padding: 4px;
+      display: inline-flex; gap: 4px; margin-top: 14px;
+    }
+    .toggle-btn {
+      background: none; border: none; padding: 6px 14px; border-radius: 999px; font-size: 12px;
+      font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.2s;
+    }
+    .toggle-btn.active { background: var(--primary); color: #fff; }
+
+    /* Phone Shell */
+    .phone-wrapper {
+      width: 380px; height: 750px; background: #000; border-radius: 44px; padding: 12px;
+      box-shadow: 0 25px 60px -15px rgba(0,0,0,0.7), 0 0 0 1px #374151; position: relative;
+    }
+    .phone-screen {
+      width: 100%; height: 100%; background: #0f172a; border-radius: 34px; overflow: hidden;
+      display: flex; flex-direction: column; position: relative;
+    }
+    .phone-notch { width: 120px; height: 18px; background: #000; margin: 0 auto; border-radius: 0 0 12px 12px; }
+
+    .app-bar { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; }
+    .app-title { font-size: 13px; font-weight: 700; color: #fff; }
+
+    .app-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; flex: 1; overflow-y: auto; }
+
+    /* Omnibar Card */
+    .omnibar-card {
+      background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; padding: 14px;
+      display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+    }
+    .omni-head { display: flex; align-items: center; justify-content: space-between; }
+    .omni-badge { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: #fff; }
+    .dot-green { width: 7px; height: 7px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
+
+    .vehicle-type-strip {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #0f172a; padding: 4px; border-radius: 10px; border: 1px solid #1e293b;
+    }
+    .v-pill {
+      background: none; border: none; padding: 7px 4px; border-radius: 8px; font-size: 11px; font-weight: 600;
+      color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .v-pill.active { background: #1e293b; color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+
+    .single-type-info {
+      background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 6px 10px;
+      font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .plate-full-input {
+      width: 100%; height: 46px; background: #0f172a; border: 2px solid #374151; border-radius: 12px;
+      color: #fff; font-family: monospace; font-size: 18px; font-weight: 800; text-align: center;
+      letter-spacing: 2px; text-transform: uppercase; outline: none; transition: border-color 0.2s;
+    }
+    .plate-full-input:focus { border-color: var(--primary); }
+
+    /* INLINE EXPANDABLE DELIVERY SECTION */
+    .inline-delivery {
+      background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 10px;
+      display: flex; flex-direction: column; gap: 8px; transition: all 0.3s ease;
+    }
+    .inline-title-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: #94a3b8; }
+    
+    .inline-pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+    .i-pill {
+      background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 6px 2px;
+      font-size: 10px; font-weight: 700; color: #94a3b8; text-align: center; cursor: pointer;
+    }
+    .i-pill.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    .inline-input {
+      width: 100%; height: 36px; background: #1e293b; border: 1px solid #334155; border-radius: 8px;
+      padding: 0 10px; color: #fff; font-size: 12px; outline: none;
+    }
+
+    .omni-actions { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+    .btn-submit {
+      height: 44px; background: var(--success); color: #fff; border: none; border-radius: 10px;
+      font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-submit:disabled { background: #374151; color: #9ca3af; cursor: not-allowed; }
+    .btn-unplated {
+      height: 44px; background: #1f2937; color: #d1d5db; border: 1px solid #374151; border-radius: 10px;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+    }
+
+    .toast-success {
+      position: absolute; top: 30px; left: 16px; right: 16px; background: #065f46; color: #fff;
+      border: 1px solid #10b981; border-radius: 12px; padding: 12px; font-size: 12px; font-weight: 700;
+      display: none; align-items: center; gap: 8px; z-index: 200; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .toast-success.show { display: flex; animation: slideDown 0.2s ease-out; }
+    @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="header-bar">
+    <h1>Opción B: Omnibar con Micro-Selector Inline Expandible</h1>
+    <p>Todo en la misma tarjeta sin abrir modal ni bottom sheet. Ideal para velocidad extrema con un solo toque final.</p>
+
+    <div class="scenario-toggle">
+      <button class="toggle-btn active" id="btn-single-type" onclick="setScenario('single')">🏢 Sede 1 Tipo (Solo Carro)</button>
+      <button class="toggle-btn" id="btn-multi-type" onclick="setScenario('multi')">🚗🏍️ Sede Múltiple (Carro + Moto)</button>
+    </div>
+  </div>
+
+  <div class="phone-wrapper">
+    <div class="phone-screen">
+      <div class="phone-notch"></div>
+
+      <div class="app-bar">
+        <span class="app-title">🅿️ Taquilla Móvil • Operaciones</span>
+        <span style="font-size: 11px; color: var(--muted);">En vivo</span>
+      </div>
+
+      <div class="app-body">
+        
+        <!-- OMNIBAR CARD -->
+        <div class="omnibar-card">
+          <div class="omni-head">
+            <div class="omni-badge">
+              <span class="dot-green"></span>
+              <span>INGRESO RÁPIDO</span>
+            </div>
+            <span style="font-size:10px; color:var(--muted);">Bahía A-02 libre</span>
+          </div>
+
+          <!-- Selector de vehículo condicional -->
+          <div id="vehicle-type-container"></div>
+
+          <!-- Input de Placa Full Width -->
+          <input type="text" id="plate-input" class="plate-full-input" placeholder="PLACA (ABC123)" maxlength="7" oninput="handlePlateInput(this.value)">
+
+          <!-- MICRO-SELECTOR DE ENTREGA INLINE -->
+          <div class="inline-delivery">
+            <div class="inline-title-row">
+              <span>📱 Envío de Ticket</span>
+              <span style="font-size:10px; color:#60a5fa;" id="active-chan-label">WhatsApp Activo</span>
+            </div>
+
+            <div class="inline-pills">
+              <div class="i-pill" id="ip-print" onclick="selectChannel('print')">🖨️ Impreso</div>
+              <div class="i-pill active" id="ip-whatsapp" onclick="selectChannel('whatsapp')">💬 WhatsApp</div>
+              <div class="i-pill" id="ip-email" onclick="selectChannel('email')">✉️ Correo</div>
+            </div>
+
+            <div id="inline-input-box">
+              <input type="tel" id="channel-input" class="inline-input" placeholder="Celular (ej: 300 123 4567)" value="300 123 4567">
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="omni-actions">
+            <button id="submit-btn" class="btn-submit" disabled onclick="emitInline()">
+              <span>⚡ Emitir Ticket</span>
+            </button>
+            <button class="btn-unplated" onclick="alert('Modo sin placa')">
+              <span>📷 Sin Placa</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Toast -->
+      <div class="toast-success" id="toast">
+        <span>✅</span>
+        <span id="toast-text">¡Ticket emitido al instante!</span>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let currentScenario = 'single';
+    let selectedVehicle = 'CAR';
+    let selectedChannel = 'whatsapp';
+
+    function setScenario(scen) {
+      currentScenario = scen;
+      document.getElementById('btn-single-type').classList.toggle('active', scen === 'single');
+      document.getElementById('btn-multi-type').classList.toggle('active', scen === 'multi');
+      renderVehicleStrip();
+    }
+
+    function renderVehicleStrip() {
+      const container = document.getElementById('vehicle-type-container');
+      if (currentScenario === 'single') {
+        container.innerHTML = `
+          <div class="single-type-info">
+            <span>Sede con 1 solo tipo:</span>
+            <strong style="color:#fff;">🚗 Automóvil (Autoseleccionado)</strong>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="vehicle-type-strip">
+            <button type="button" class="v-pill ${selectedVehicle === 'CAR' ? 'active' : ''}" onclick="selectVehicle('CAR')">
+              🚗 Carro (14)
+            </button>
+            <button type="button" class="v-pill ${selectedVehicle === 'MOTORCYCLE' ? 'active' : ''}" onclick="selectVehicle('MOTORCYCLE')">
+              🏍️ Moto (8)
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    function selectVehicle(type) {
+      selectedVehicle = type;
+      renderVehicleStrip();
+    }
+
+    function handlePlateInput(val) {
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = val.trim().length < 5;
+    }
+
+    function selectChannel(chan) {
+      selectedChannel = chan;
+      document.getElementById('ip-print').classList.toggle('active', chan === 'print');
+      document.getElementById('ip-whatsapp').classList.toggle('active', chan === 'whatsapp');
+      document.getElementById('ip-email').classList.toggle('active', chan === 'email');
+
+      const label = document.getElementById('active-chan-label');
+      const box = document.getElementById('inline-input-box');
+      if (chan === 'print') {
+        label.innerText = 'Sin envío digital';
+        box.innerHTML = `<div style="font-size:10px; color:#64748b; text-align:center; padding:4px;">Solo ticket impreso en taquilla.</div>`;
+      } else if (chan === 'whatsapp') {
+        label.innerText = 'WhatsApp Activo';
+        box.innerHTML = `<input type="tel" class="inline-input" placeholder="Celular (ej: 300 123 4567)" value="300 123 4567">`;
+      } else {
+        label.innerText = 'Correo Activo';
+        box.innerHTML = `<input type="email" class="inline-input" placeholder="Correo electrónico" value="cliente@gmail.com">`;
+      }
+    }
+
+    function emitInline() {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-text');
+      const plate = document.getElementById('plate-input').value.toUpperCase();
+      text.innerText = `¡Ticket para ${plate} emitido vía ${selectedChannel.toUpperCase()}!`;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+        document.getElementById('plate-input').value = '';
+        document.getElementById('submit-btn').disabled = true;
+      }, 2500);
+    }
+
+    renderVehicleStrip();
+  </script>
+</body>
+</html>
