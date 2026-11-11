@@ -1,9 +1,7 @@
 import { CommonModule } from "@angular/common";
-import type { ElementRef } from "@angular/core";
 import {
   Component,
   ChangeDetectionStrategy,
-  ViewChild,
   effect,
   inject,
   input,
@@ -16,22 +14,17 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideAlertCircle,
   lucideAlertTriangle,
-  lucideBike,
-  lucideCamera,
-  lucideCar,
-  lucideCheckCircle2,
   lucideLoader2,
   lucideLogIn,
   lucideParkingSquare,
-  lucidePhone,
   lucideX,
 } from "@ng-icons/lucide";
 import { ButtonComponent } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
-import { PlateMaskDirective } from "@shared/directives/plate-mask";
+import { detectPlateCountry, formatPlate } from "@shared/utils/plate.utils";
 
 import { CheckInFacade } from "../../../facades/check-in.facade";
-import { PhotoCaptureComponent } from "../../photo-capture/photo-capture.component";
+import { TicketDeliveryCardComponent } from "../../receipt/ticket-delivery-card/ticket-delivery-card";
 import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-receipt";
 
 @Component({
@@ -40,8 +33,7 @@ import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-rece
     ButtonComponent,
     CommonModule,
     NgIcon,
-    PhotoCaptureComponent,
-    PlateMaskDirective,
+    TicketDeliveryCardComponent,
     TicketReceiptComponent,
   ],
   providers: [
@@ -49,14 +41,9 @@ import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-rece
     provideIcons({
       lucideAlertCircle,
       lucideAlertTriangle,
-      lucideBike,
-      lucideCamera,
-      lucideCar,
-      lucideCheckCircle2,
       lucideLoader2,
       lucideLogIn,
       lucideParkingSquare,
-      lucidePhone,
       lucideX,
     }),
   ],
@@ -73,10 +60,9 @@ export class CheckInModalComponent {
   readonly parkingId = input<string | null>(null);
   readonly preselectedSlot = input<SlotSummary | null>(null);
   readonly initialUnplated = input<boolean>(false);
+  readonly initialPlate = input<string>("");
 
   readonly closed = output();
-
-  @ViewChild("plateInput") plateInputRef?: ElementRef<HTMLInputElement>;
 
   constructor() {
     effect(() => {
@@ -92,6 +78,12 @@ export class CheckInModalComponent {
         if (this.initialUnplated()) {
           this.facade.setIsUnplated(true);
         }
+        const initPlate = this.initialPlate();
+        if (initPlate) {
+          const detected = detectPlateCountry(initPlate);
+          const formatted = formatPlate(initPlate, { country: detected });
+          this.facade.setPlate(formatted, detected === "VE" ? "VE" : "CO");
+        }
         const preselected = this.preselectedSlot();
         if (preselected) {
           const vType: VehicleType =
@@ -101,9 +93,6 @@ export class CheckInModalComponent {
           this.facade.setVehicleType(vType);
           this.facade.setSlotId(preselected.id);
         }
-        setTimeout(() => {
-          this.plateInputRef?.nativeElement.focus();
-        }, 50);
       }
     });
   }
@@ -119,13 +108,26 @@ export class CheckInModalComponent {
   onPlateInput(event: Event): void {
     /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
-    this.facade.setPlate(target.value);
+    const detected = detectPlateCountry(target.value);
+    this.facade.setPlate(target.value, detected === "VE" ? "VE" : "CO");
   }
 
   onPhoneInput(event: Event): void {
     /* SAFETY: Target is HTMLInputElement */
     const target = event.target as HTMLInputElement;
     this.facade.setPhoneNumber(target.value);
+  }
+
+  onPhoneChange(phone: string): void {
+    this.facade.setPhoneNumber(phone);
+  }
+
+  onEmailChange(email: string): void {
+    this.facade.setEmail(email);
+  }
+
+  onDeliveryChannelChange(channel: string): void {
+    this.facade.setDeliveryMethod(channel === "EMAIL" ? "EMAIL" : "WHATSAPP");
   }
 
   onPhotoCaptured(photoUrl: string): void {
