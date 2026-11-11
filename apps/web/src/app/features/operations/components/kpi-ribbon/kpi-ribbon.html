@@ -1,0 +1,158 @@
+<!-- Unified KPI Ribbon: Capacidad Global, Carros, Motos, Vehículos Activos -->
+<div
+  class="border-border bg-card text-card-foreground rounded-2xl border p-4 shadow-xs sm:p-5"
+>
+  <div
+    class="divide-border/60 grid grid-cols-2 gap-4 lg:auto-cols-fr lg:grid-flow-col lg:divide-x"
+  >
+    <!-- Capacidad Global -->
+    <div class="flex flex-col justify-between gap-2 lg:pr-4">
+      <div class="flex min-w-0 items-center gap-2">
+        <div
+          class="bg-primary/10 text-primary border-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
+        >
+          <ng-icon name="lucideGauge" size="18" class="shrink-0" />
+        </div>
+        <span class="text-foreground text-xs font-bold sm:text-sm">
+          {{ texts.globalCapacity }}
+        </span>
+        <span class="sr-only">{{ occupationPercentage() }}%</span>
+      </div>
+      <div>
+        <div class="flex items-center justify-between gap-1">
+          <p class="text-muted-foreground text-xs">
+            <strong class="text-foreground font-semibold tabular-nums"
+              >{{ availableSlotsCount() }}</strong
+            >
+            {{ texts.freeOf }}
+            <span class="tabular-nums">{{ totalSlotsCount() }}</span>
+          </p>
+          <nv-badge
+            aria-hidden="true"
+            [variant]="occupationPercentage() >= 90 ? 'destructive' : occupationPercentage() >= 75 ? 'warning' : 'outline'"
+            class="shrink-0 px-1.5 py-0.5 font-mono text-[10px] tabular-nums"
+          >
+            {{ occupationPercentage() }}%
+          </nv-badge>
+        </div>
+        <div class="bg-muted mt-2 h-1.5 w-full overflow-hidden rounded-full">
+          <div
+            class="h-full rounded-full transition-all duration-500"
+            [class.bg-success]="occupationPercentage() < 75"
+            [class.bg-warning]="occupationPercentage() >= 75 && occupationPercentage() < 90"
+            [class.bg-destructive]="occupationPercentage() >= 90"
+            [style.width.%]="occupationBarPercentage()"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cupos Carros (solo si existen cupos configurados para CAR) -->
+    @if (totalCarSlotsCount() > 0) {
+    <div class="flex flex-col justify-between gap-2 lg:px-4">
+      <div class="flex min-w-0 items-center gap-2">
+        <div
+          class="bg-success/10 text-success border-success/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
+        >
+          <ng-icon name="lucideCar" size="18" class="shrink-0" />
+        </div>
+        <span
+          class="text-muted-foreground truncate text-xs font-semibold tracking-wider uppercase"
+        >
+          {{ texts.cars }}
+        </span>
+      </div>
+      <div>
+        <div class="flex items-baseline gap-1.5">
+          <span
+            class="text-foreground font-mono text-lg font-bold tabular-nums sm:text-xl"
+          >
+            {{ availableCarSlotsCount() }}
+          </span>
+          <span class="text-muted-foreground font-mono text-xs">
+            {{ texts.freeSlash }}
+            <span class="tabular-nums">{{ totalCarSlotsCount() }}</span>
+          </span>
+        </div>
+        <div class="bg-muted mt-2 h-1.5 w-full overflow-hidden rounded-full">
+          <div
+            class="bg-success/80 h-full rounded-full transition-all duration-500"
+            [style.width.%]="totalCarSlotsCount() > 0 ? ((totalCarSlotsCount() - availableCarSlotsCount()) / totalCarSlotsCount()) * 100 : 0"
+          ></div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Cupos Motos (solo si existen cupos configurados para MOTORCYCLE) -->
+    @if (totalMotoSlotsCount() > 0) {
+    <div class="flex flex-col justify-between gap-2 lg:px-4">
+      <div class="flex min-w-0 items-center gap-2">
+        <div
+          class="bg-primary/10 text-primary border-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
+        >
+          <ng-icon name="lucideBike" size="18" class="shrink-0" />
+        </div>
+        <span
+          class="text-muted-foreground truncate text-xs font-semibold tracking-wider uppercase"
+        >
+          {{ texts.motos }}
+        </span>
+      </div>
+      <div>
+        <div class="flex items-baseline gap-1.5">
+          <span
+            class="text-foreground font-mono text-lg font-bold tabular-nums sm:text-xl"
+          >
+            {{ availableMotoSlotsCount() }}
+          </span>
+          <span class="text-muted-foreground font-mono text-xs">
+            {{ texts.freeSlash }}
+            <span class="tabular-nums">{{ totalMotoSlotsCount() }}</span>
+          </span>
+        </div>
+        <div class="bg-muted mt-2 h-1.5 w-full overflow-hidden rounded-full">
+          <div
+            class="bg-primary/80 h-full rounded-full transition-all duration-500"
+            [style.width.%]="totalMotoSlotsCount() > 0 ? ((totalMotoSlotsCount() - availableMotoSlotsCount()) / totalMotoSlotsCount()) * 100 : 0"
+          ></div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Vehículos Dentro / Activos -->
+    <div class="flex flex-col justify-between gap-2 lg:pl-4">
+      <div class="flex min-w-0 items-center gap-2">
+        <div
+          class="bg-info/10 text-info border-info/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
+        >
+          <ng-icon name="lucideCar" size="18" class="shrink-0" />
+        </div>
+        <span
+          class="text-muted-foreground truncate text-xs font-semibold tracking-wider uppercase"
+        >
+          {{ texts.activeVehicles }}
+        </span>
+      </div>
+      <div>
+        <div class="flex items-baseline gap-1.5">
+          <span
+            class="text-foreground font-mono text-lg font-bold tabular-nums sm:text-xl"
+          >
+            {{ occupiedSlotsCount() }}
+          </span>
+          <span class="text-muted-foreground font-mono text-xs">
+            {{ texts.activeLabel }}
+          </span>
+        </div>
+        <div class="bg-muted mt-2 h-1.5 w-full overflow-hidden rounded-full">
+          <div
+            class="bg-info/80 h-full rounded-full transition-all duration-500"
+            [style.width.%]="totalSlotsCount() > 0 ? (occupiedSlotsCount() / totalSlotsCount()) * 100 : 0"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

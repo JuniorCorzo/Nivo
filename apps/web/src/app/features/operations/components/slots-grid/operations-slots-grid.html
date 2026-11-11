@@ -1,0 +1,254 @@
+<!-- Active Operations / Live Slots & Search Section -->
+<div
+  class="bg-card text-card-foreground border-border overflow-hidden rounded-2xl border shadow-xs"
+>
+  <!-- Section Header & Filters -->
+  <div
+    class="border-border flex flex-col justify-between gap-3 border-b p-3.5 sm:flex-row sm:items-center sm:p-5"
+  >
+    <div class="flex items-center gap-2">
+      <h2 class="text-foreground text-sm font-bold sm:text-base">
+        {{ texts.title }}
+      </h2>
+      <span class="text-muted-foreground font-mono text-xs tabular-nums"
+        >({{ filteredSlots().length }})</span
+      >
+    </div>
+
+    <!-- Search & Filters -->
+    <div
+      class="flex w-full items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:pb-0"
+    >
+      <!-- Filter by Type -->
+      <div
+        role="group"
+        [attr.aria-label]="texts.filterByTypeGroup"
+        class="border-border bg-muted flex shrink-0 rounded-lg border p-0.5 text-xs"
+      >
+        <button
+          type="button"
+          (click)="onVehicleFilterSelect('ALL')"
+          [class.bg-card]="vehicleFilter() === 'ALL'"
+          [class.text-foreground]="vehicleFilter() === 'ALL'"
+          [class.shadow-xs]="vehicleFilter() === 'ALL'"
+          class="text-muted-foreground cursor-pointer rounded-md px-2.5 py-1 font-medium transition-all"
+        >
+          {{ texts.filterAll }}
+        </button>
+        <button
+          type="button"
+          (click)="onVehicleFilterSelect('CAR')"
+          [class.bg-card]="vehicleFilter() === 'CAR'"
+          [class.text-foreground]="vehicleFilter() === 'CAR'"
+          [class.shadow-xs]="vehicleFilter() === 'CAR'"
+          class="text-muted-foreground cursor-pointer rounded-md px-2.5 py-1 font-medium transition-all"
+        >
+          {{ texts.filterCars }}
+        </button>
+        <button
+          type="button"
+          (click)="onVehicleFilterSelect('MOTORCYCLE')"
+          [class.bg-card]="vehicleFilter() === 'MOTORCYCLE'"
+          [class.text-foreground]="vehicleFilter() === 'MOTORCYCLE'"
+          [class.shadow-xs]="vehicleFilter() === 'MOTORCYCLE'"
+          class="text-muted-foreground cursor-pointer rounded-md px-2.5 py-1 font-medium transition-all"
+        >
+          {{ texts.filterMotos }}
+        </button>
+      </div>
+
+      <!-- Filter by Status -->
+      <div
+        role="group"
+        [attr.aria-label]="texts.filterByStatusGroup"
+        class="border-border bg-muted flex shrink-0 rounded-lg border p-0.5 text-xs"
+      >
+        <button
+          type="button"
+          (click)="onStatusFilterSelect('ALL')"
+          [class.bg-card]="statusFilter() === 'ALL'"
+          [class.text-foreground]="statusFilter() === 'ALL'"
+          [class.shadow-xs]="statusFilter() === 'ALL'"
+          class="text-muted-foreground cursor-pointer rounded-md px-2.5 py-1 font-medium transition-all"
+        >
+          {{ texts.filterAll }}
+        </button>
+        <button
+          type="button"
+          (click)="onStatusFilterSelect('AVAILABLE')"
+          [class.bg-card]="statusFilter() === 'AVAILABLE'"
+          [class.text-success]="statusFilter() === 'AVAILABLE'"
+          [class.shadow-xs]="statusFilter() === 'AVAILABLE'"
+          class="text-muted-foreground cursor-pointer rounded-md px-2.5 py-1 font-medium transition-all"
+        >
+          {{ texts.filterAvailable }}
+        </button>
+        <button
+          type="button"
+          (click)="onStatusFilterSelect('OCCUPIED')"
+          [class.bg-card]="statusFilter() === 'OCCUPIED'"
+          [class.text-info]="statusFilter() === 'OCCUPIED'"
+          [class.shadow-xs]="statusFilter() === 'OCCUPIED'"
+          class="text-muted-foreground cursor-pointer rounded-md px-2.5 py-1 font-medium transition-all"
+        >
+          {{ texts.filterOccupied }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slots Grid Visualizer -->
+  <div class="p-3.5 sm:p-5">
+    @if (filteredSlots().length === 0) {
+    <div
+      class="text-muted-foreground flex flex-col items-center justify-center py-12 text-center text-xs"
+    >
+      <ng-icon
+        name="lucideParkingSquare"
+        size="32"
+        class="text-muted-foreground/60 mb-2"
+      />
+      <p class="text-foreground font-medium">{{ texts.emptyTitle }}</p>
+      <span class="text-muted-foreground/80 mt-1 text-[11px]">
+        {{ texts.emptySubtitle }}
+      </span>
+      <nv-button
+        type="button"
+        size="sm"
+        variant="outline"
+        (click)="onResetFilters()"
+        class="mt-4"
+      >
+        <span>{{ texts.resetFilters }}</span>
+      </nv-button>
+    </div>
+    } @else {
+    <div
+      class="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-6"
+    >
+      @for (slot of filteredSlots(); track slot.id) {
+      <div
+        [attr.role]="
+          slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED'
+            ? 'button'
+            : null
+        "
+        [attr.tabindex]="
+          slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED' ? 0 : null
+        "
+        [attr.aria-label]="
+          slot.status === 'AVAILABLE'
+            ? 'Bahía ' + (slot.prefix ? slot.prefix + '-' : '') + slot.slotNumber + ' disponible para ' + slot.type + '. Clic para asignar ingreso.'
+            : slot.status === 'OCCUPIED'
+              ? 'Bahía ' + (slot.prefix ? slot.prefix + '-' : '') + slot.slotNumber + ' ocupada. Clic para cobrar salida.'
+              : 'Bahía ' + (slot.prefix ? slot.prefix + '-' : '') + slot.slotNumber + ' ' + slot.status
+        "
+        (click)="onSlotClick(slot)"
+        (keydown.enter)="onSlotClick(slot)"
+        (keydown.space)="onSlotClick(slot); $event.preventDefault()"
+        class="group focus-visible:ring-primary relative flex flex-col justify-between rounded-xl border p-3 shadow-xs transition-all duration-150 select-none hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:outline-hidden active:translate-y-0 active:scale-[0.98]"
+        [class.border-success/30]="slot.status === 'AVAILABLE'"
+        [class.bg-success/10]="slot.status === 'AVAILABLE'"
+        [class.hover:border-success]="slot.status === 'AVAILABLE'"
+        [class.hover:bg-success/15]="slot.status === 'AVAILABLE'"
+        [class.border-info/30]="slot.status === 'OCCUPIED'"
+        [class.bg-info/10]="slot.status === 'OCCUPIED'"
+        [class.hover:border-info]="slot.status === 'OCCUPIED'"
+        [class.hover:bg-info/15]="slot.status === 'OCCUPIED'"
+        [class.cursor-pointer]="slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED'"
+        [class.border-border]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+        [class.bg-muted/40]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+        [class.cursor-not-allowed]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+        [class.opacity-60]="slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'"
+      >
+        <!-- Top: Zone & Dot Indicator -->
+        <div class="flex items-center justify-between">
+          <span
+            class="text-muted-foreground text-[10px] font-bold tracking-wider uppercase"
+          >
+            {{ slot.zone ? slot.zone : "P" }}
+          </span>
+          <span
+            class="inline-block h-2.5 w-2.5 rounded-full"
+            [class.bg-success]="slot.status === 'AVAILABLE'"
+            [class.ring-2]="slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED'"
+            [class.ring-success/20]="slot.status === 'AVAILABLE'"
+            [class.bg-info]="slot.status === 'OCCUPIED'"
+            [class.ring-info/20]="slot.status === 'OCCUPIED'"
+            [class.bg-muted-foreground]="
+              slot.status !== 'AVAILABLE' && slot.status !== 'OCCUPIED'
+            "
+          ></span>
+        </div>
+
+        <!-- Middle: Slot Number & Details -->
+        <div class="my-2.5">
+          <div
+            class="text-foreground truncate font-mono text-base font-bold tabular-nums sm:text-lg"
+          >
+            {{ slot.prefix ? slot.prefix + "-" : "" }}{{ slot.slotNumber }}
+          </div>
+          @if (slot.status === 'AVAILABLE') {
+          <div
+            class="text-muted-foreground mt-0.5 flex items-center gap-1 text-[11px] font-medium uppercase"
+          >
+            <ng-icon
+              [name]="slot.type === 'CAR' ? 'lucideCar' : 'lucideBike'"
+              class="text-xs"
+            />
+            <span>{{ slot.type }}</span>
+          </div>
+          } @else if (slot.status === 'OCCUPIED') { @if
+          (getActiveTicketForSlot(slot); as ticket) {
+          <div class="mt-1 flex items-center gap-1.5">
+            <span
+              class="border-info/30 bg-info/20 text-info block max-w-[120px] truncate rounded border px-1.5 py-0.5 font-mono text-xs font-bold tracking-wider tabular-nums"
+            >
+              {{ ticket.licensePlate }}
+            </span>
+          </div>
+          } @else {
+          <div class="mt-1">
+            <span
+              class="border-info/30 bg-info/20 text-info rounded border px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase"
+            >
+              {{ texts.occupiedStatus }}
+            </span>
+          </div>
+          } } @else {
+          <span class="text-muted-foreground text-[10px] font-medium uppercase">
+            {{ slot.type }}
+          </span>
+          }
+        </div>
+
+        <!-- Action Footer Badge -->
+        <div>
+          @if (slot.status === 'AVAILABLE') {
+          <div
+            class="border-success/30 bg-success/20 text-success group-hover:bg-success group-hover:text-primary-foreground flex items-center justify-center gap-1 rounded-lg border py-1.5 text-center text-[11px] font-bold transition-colors"
+          >
+            <ng-icon name="lucidePlus" class="text-xs" />
+            <span>{{ texts.assignSlot }}</span>
+          </div>
+          } @else if (slot.status === 'OCCUPIED') {
+          <div
+            class="border-info/30 bg-info/20 text-info group-hover:bg-info group-hover:text-primary-foreground flex items-center justify-center gap-1 rounded-lg border py-1.5 text-center text-[11px] font-bold transition-colors"
+          >
+            <ng-icon name="lucideLogOut" class="text-xs" />
+            <span>{{ texts.collectExit }}</span>
+          </div>
+          } @else {
+          <div
+            class="border-border bg-muted/60 text-muted-foreground rounded-lg border py-1.5 text-center text-[11px] font-semibold uppercase"
+          >
+            <span>{{ slot.status }}</span>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>
