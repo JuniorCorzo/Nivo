@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -14,8 +16,10 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 
 /**
@@ -35,9 +39,32 @@ import org.springframework.core.io.Resource;
  */
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class JwtConfiguration {
 
   private final RSAProperties rsaProperties;
+  private final Environment environment;
+
+  private KeyPair ephemeralKeyPair;
+
+  private synchronized KeyPair getOrCreateEphemeralKeyPair() {
+    if (this.ephemeralKeyPair == null) {
+      if (this.environment.matchesProfiles("prod", "production")) {
+        throw new IllegalStateException(
+          "RSA key resources do not exist. Ephemeral key generation is strictly forbidden in production.");
+      }
+      try {
+        log.warn(
+          "⚠️ RSA key files not found. Generating ephemeral 2048-bit RSA key pair for local development/worktree.");
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(2048);
+        this.ephemeralKeyPair = keyGen.generateKeyPair();
+      } catch (NoSuchAlgorithmException e) {
+        throw new IllegalStateException("RSA algorithm not available", e);
+      }
+    }
+    return this.ephemeralKeyPair;
+  }
 
   /**
    * Creates an {@link RSAPrivateKey} bean from the configured PEM file.
@@ -56,7 +83,12 @@ public class JwtConfiguration {
    */
   @Bean
   public RSAPrivateKey privateKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-    String privateKeyContent = this.loadKeyContent(rsaProperties.getPrivateKey())
+    Resource resource = this.rsaProperties.getPrivateKey();
+    if (resource == null || !resource.exists()) {
+      return (RSAPrivateKey) this.getOrCreateEphemeralKeyPair().getPrivate();
+    }
+
+    String privateKeyContent = this.loadKeyContent(resource)
       .replace("-----BEGIN PRIVATE KEY-----", "")
       .replace("-----END PRIVATE KEY-----", "")
       .replaceAll("\\s", "");
@@ -85,7 +117,12 @@ public class JwtConfiguration {
    */
   @Bean
   public RSAPublicKey publicKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-    String publicKeyContent = this.loadKeyContent(rsaProperties.getPublicKey())
+    Resource resource = this.rsaProperties.getPublicKey();
+    if (resource == null || !resource.exists()) {
+      return (RSAPublicKey) this.getOrCreateEphemeralKeyPair().getPublic();
+    }
+
+    String publicKeyContent = this.loadKeyContent(resource)
       .replace("-----BEGIN PUBLIC KEY-----", "")
       .replace("-----END PUBLIC KEY-----", "")
       .replaceAll("\\s", "");

@@ -1,1 +1,1 @@
-/home/juniorcorzo/Development/NeoParking/docs/user-story.md
+../../../docs/user-story.md
