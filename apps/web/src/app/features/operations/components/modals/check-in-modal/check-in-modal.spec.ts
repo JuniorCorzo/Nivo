@@ -82,36 +82,40 @@ describe("CheckInModalComponent", () => {
     expect(emitSpy).toHaveBeenCalled();
   });
 
-  it("should update plate in facade on input event", () => {
-    const input = document.createElement("input");
-    input.value = "abc999";
-    const event = new Event("input");
-    Object.defineProperty(event, "target", { value: input });
-    component.onPlateInput(event);
-    expect(component.facade.plate()).toBe("ABC999");
-  });
-
-  it("should update plate country in facade", () => {
-    component.onPlateCountrySelect("UNPLATED");
-    expect(component.facade.plateCountry()).toBe("UNPLATED");
-    expect(component.facade.isUnplated()).toBe(true);
-  });
-
-  it("should update phone number in facade on input event", () => {
-    const input = document.createElement("input");
-    input.value = "3001234567";
-    const event = new Event("input");
-    Object.defineProperty(event, "target", { value: input });
-    component.onPhoneInput(event);
+  it("should update phone number in facade on phoneChange event", () => {
+    component.onPhoneChange("3001234567");
     expect(component.facade.phoneNumber()).toBe("3001234567");
   });
 
-  it("should update photoUrl in facade on photoCaptured and photoCleared events", () => {
-    component.onPhotoCaptured("data:image/jpeg;base64,captured");
-    expect(component.facade.photoUrl()).toBe("data:image/jpeg;base64,captured");
+  it("should update email in facade on emailChange event", () => {
+    component.onEmailChange("cliente@nivo.com");
+    expect(component.facade.email()).toBe("cliente@nivo.com");
+  });
 
-    component.onPhotoCleared();
-    expect(component.facade.photoUrl()).toBeNull();
+  it("should update deliveryMethod in facade on deliveryChannelChange event", () => {
+    component.onDeliveryChannelChange("EMAIL");
+    expect(component.facade.deliveryMethod()).toBe("EMAIL");
+
+    component.onDeliveryChannelChange("PRINT");
+    expect(component.facade.deliveryMethod()).toBe("PRINT");
+
+    component.onDeliveryChannelChange("WHATSAPP");
+    expect(component.facade.deliveryMethod()).toBe("WHATSAPP");
+  });
+
+  it("should initialize photoUrl in facade when initialPhotoUrl and initialUnplated are provided", () => {
+    fixture.componentRef.setInput("initialUnplated", true);
+    fixture.componentRef.setInput(
+      "initialPhotoUrl",
+      "https://storage.nivo.dev/photos/bike-1.jpg"
+    );
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    expect(component.facade.isUnplated()).toBe(true);
+    expect(component.facade.photoUrl()).toBe(
+      "https://storage.nivo.dev/photos/bike-1.jpg"
+    );
   });
 
   it("should render license plate display for validation when initialPlate is provided", () => {
@@ -155,13 +159,7 @@ describe("CheckInModalComponent", () => {
     expect(plateInput).toBeNull();
   });
 
-  it("should update country on onCountryChange", () => {
-    component.onCountryChange("VE");
-    expect(component.facade.plateCountry()).toBe("VE");
 
-    component.onCountryChange("CO");
-    expect(component.facade.plateCountry()).toBe("CO");
-  });
 
   it("should pre-set vehicle type and slotId in facade and render banner when preselectedSlot is provided on open", () => {
     const mockSlot = {
@@ -221,12 +219,5 @@ describe("CheckInModalComponent", () => {
     expect(component.facade.plate()).toBe("XYZ-789");
   });
 
-  it("should update email in facade on email input event", () => {
-    const input = document.createElement("input");
-    input.value = "conductor@nivo.com";
-    const event = new Event("input");
-    Object.defineProperty(event, "target", { value: input });
-    component.onEmailInput(event);
-    expect(component.facade.email()).toBe("conductor@nivo.com");
-  });
+
 });

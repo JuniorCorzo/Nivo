@@ -5,6 +5,7 @@ import {
   inject,
   signal,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import type { RateModel, VehicleType } from "@core/models/rate.model";
 import type { SlotSummary } from "@core/models/slot.model";
 import type {
@@ -143,6 +144,17 @@ export class CheckInFacade {
       return false;
     }
 
+    if (
+      this.deliveryMethod() === "EMAIL" &&
+      (!this.email().trim() || !this.email().includes("@"))
+    ) {
+      return false;
+    }
+
+    if (this.deliveryMethod() === "WHATSAPP" && !this.phoneNumber().trim()) {
+      return false;
+    }
+
     if (this.isUnplated()) {
       return Boolean(this.photoUrl());
     }
@@ -163,6 +175,7 @@ export class CheckInFacade {
   loadData(parkingId: string): void {
     this.slotService
       .getAllSlotSummariesByParkingId(parkingId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((slots) => {
         const configured = this.configuredVehicleTypes();
         if (configured.length === 1) {
@@ -179,7 +192,10 @@ export class CheckInFacade {
           this.setVehicleType(this.vehicleType());
         }
       });
-    this.rateService.getRatesByParkingId(parkingId).subscribe((rates) => {
+    this.rateService
+      .getRatesByParkingId(parkingId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((rates) => {
       if (!this.selectedRateId()) {
         const type = this.vehicleType();
         const matchingRates = (rates ?? []).filter(
@@ -292,8 +308,14 @@ export class CheckInFacade {
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
 
-    const emailToSend = this.email().trim() || undefined;
-    const phoneToSend = this.phoneNumber().trim() || undefined;
+    const emailToSend =
+      this.deliveryMethod() === "EMAIL"
+        ? this.email().trim() || undefined
+        : undefined;
+    const phoneToSend =
+      this.deliveryMethod() === "WHATSAPP"
+        ? this.phoneNumber().trim() || undefined
+        : undefined;
 
     const payload: CreateTicketPayload = {
       email: emailToSend,
@@ -305,7 +327,10 @@ export class CheckInFacade {
       slotId,
     };
 
-    this.ticketService.createTicket(payload).subscribe({
+    this.ticketService
+      .createTicket(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       error: (err) => {
         this.isSubmitting.set(false);
         const errorMsg =
@@ -325,7 +350,10 @@ export class CheckInFacade {
         });
 
         // Refresh slots state
-        this.slotService.getAllSlotSummariesByParkingId(pId).subscribe();
+        this.slotService
+          .getAllSlotSummariesByParkingId(pId)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
 
         // Reset plate, email, photo, phone, country for next rapid check-in
         this.plate.set("");
