@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DisabledPaymentAdapter implements PaymentProviderGateway {
 
-  private static final String DISABLED_MESSAGE = "Online payment provider is disabled in this environment";
+  private static final String DISABLED_MESSAGE = "Payment module is disabled in this environment";
 
   @Override
   public Result<Transactions, PaymentError> getTransactionDetails(String checkoutSessionId) {
