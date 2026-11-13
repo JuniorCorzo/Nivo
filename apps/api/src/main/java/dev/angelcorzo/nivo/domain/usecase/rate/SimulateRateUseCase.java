@@ -9,6 +9,7 @@ import dev.angelcorzo.nivo.domain.usecase.rate.engine.PricingEngine;
 import dev.angelcorzo.nivo.domain.usecase.rate.engine.StayInterval;
 import java.time.Clock;
 import java.time.OffsetDateTime;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -18,6 +19,7 @@ public class SimulateRateUseCase {
   private final Clock clock;
 
   public PriceDetailed execute(final SimulateRateCommand command) {
+    Objects.requireNonNull(command, "SimulateRateCommand cannot be null");
     final RateReference rate = command.toRateReference();
     final ParkingLotPolicy policy = command.toParkingLotPolicy();
 

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Optional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -33,7 +34,9 @@ public class PublicSimulatorController {
   })
   public ResponseEntity<SimulateRateResponse> calculate(
     @Valid @RequestBody final SimulateRateRequest request) {
-    final SimulateRateCommand command = request != null ? request.toCommand() : null;
+    final SimulateRateCommand command = Optional.ofNullable(request)
+      .map(SimulateRateRequest::toCommand)
+      .orElseThrow(() -> new IllegalArgumentException("Request body cannot be null"));
     final PriceDetailed priceDetailed = this.simulateRateUseCase.execute(command);
     return ResponseEntity.ok(SimulateRateResponse.from(priceDetailed));
   }
