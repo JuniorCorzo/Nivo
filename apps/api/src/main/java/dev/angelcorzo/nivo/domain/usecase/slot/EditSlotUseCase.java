@@ -10,21 +10,12 @@ import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class EditSlotUseCase {
   private final SlotsRepository slotsRepository;
   private final AuthenticationContextGateway authenticationContext;
-
-  @Autowired
-  public EditSlotUseCase(SlotsRepository slotsRepository, AuthenticationContextGateway authenticationContext) {
-    this.slotsRepository = slotsRepository;
-    this.authenticationContext = authenticationContext;
-  }
-
-  public EditSlotUseCase(SlotsRepository slotsRepository) {
-    this(slotsRepository, null);
-  }
 
   public Slots execute(UpdateSlotCommand command) {
     final UUID currentTenantId = this.authenticationContext != null

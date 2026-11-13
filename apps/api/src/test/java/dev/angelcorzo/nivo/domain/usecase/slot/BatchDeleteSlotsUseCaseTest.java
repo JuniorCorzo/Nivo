@@ -13,12 +13,15 @@ import org.junit.jupiter.api.Test;
 class BatchDeleteSlotsUseCaseTest {
 
   private SlotsRepository slotsRepository;
+  private dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway authenticationContext;
   private BatchDeleteSlotsUseCase useCase;
 
   @BeforeEach
   void setUp() {
     slotsRepository = mock(SlotsRepository.class);
-    useCase = new BatchDeleteSlotsUseCase(slotsRepository);
+    authenticationContext = mock(
+      dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway.class);
+    useCase = new BatchDeleteSlotsUseCase(slotsRepository, authenticationContext);
   }
 
   @Test

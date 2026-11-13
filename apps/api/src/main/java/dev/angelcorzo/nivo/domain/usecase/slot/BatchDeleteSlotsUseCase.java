@@ -4,21 +4,12 @@ import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationCon
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class BatchDeleteSlotsUseCase {
   private final SlotsRepository slotRepository;
   private final AuthenticationContextGateway authenticationContext;
-
-  @Autowired
-  public BatchDeleteSlotsUseCase(SlotsRepository slotRepository, AuthenticationContextGateway authenticationContext) {
-    this.slotRepository = slotRepository;
-    this.authenticationContext = authenticationContext;
-  }
-
-  public BatchDeleteSlotsUseCase(SlotsRepository slotRepository) {
-    this(slotRepository, null);
-  }
 
   public void execute(List<UUID> slotIds) {
     final UUID currentTenantId = this.authenticationContext != null

@@ -22,12 +22,15 @@ import org.junit.jupiter.api.Test;
 class UpdateRateUseCaseTest {
 
   private RatesRepository ratesRepository;
+  private dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway authenticationContext;
   private UpdateRateUseCase useCase;
 
   @BeforeEach
   void setUp() {
     ratesRepository = mock(RatesRepository.class);
-    useCase = new UpdateRateUseCase(ratesRepository);
+    authenticationContext = mock(
+      dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway.class);
+    useCase = new UpdateRateUseCase(ratesRepository, authenticationContext);
   }
 
   @Test

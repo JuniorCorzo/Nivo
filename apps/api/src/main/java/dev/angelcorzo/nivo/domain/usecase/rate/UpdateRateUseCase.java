@@ -10,21 +10,12 @@ import dev.angelcorzo.nivo.domain.model.rates.valueobject.MinChargeDuration;
 import dev.angelcorzo.nivo.domain.model.rates.valueobject.RatePrice;
 import java.math.BigDecimal;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class UpdateRateUseCase {
   private final RatesRepository ratesRepository;
   private final AuthenticationContextGateway authenticationContext;
-
-  @Autowired
-  public UpdateRateUseCase(RatesRepository ratesRepository, AuthenticationContextGateway authenticationContext) {
-    this.ratesRepository = ratesRepository;
-    this.authenticationContext = authenticationContext;
-  }
-
-  public UpdateRateUseCase(RatesRepository ratesRepository) {
-    this(ratesRepository, null);
-  }
 
   public Rates execute(UpdateRate updateRate) {
     final UUID currentTenantId = this.authenticationContext != null
