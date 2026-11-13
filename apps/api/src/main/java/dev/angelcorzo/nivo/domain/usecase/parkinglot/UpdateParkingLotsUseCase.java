@@ -7,6 +7,7 @@ import dev.angelcorzo.nivo.domain.model.parkinglots.dto.UpsertParkingLotsDTO;
 import dev.angelcorzo.nivo.domain.model.parkinglots.exceptions.ParkingNotExistsException;
 import dev.angelcorzo.nivo.domain.model.parkinglots.gateways.ParkingLotsRepository;
 import dev.angelcorzo.nivo.domain.usecase.slot.BatchUpsertSlotsUseCase;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -19,7 +20,7 @@ public class UpdateParkingLotsUseCase {
     final ParkingLots existing = this.parkingLotsRepository.findById(command.id())
       .orElseThrow(() -> new ParkingNotExistsException(command.id()));
 
-    final java.util.UUID currentTenantId = this.authenticationContext != null
+    final UUID currentTenantId = this.authenticationContext != null
       ? this.authenticationContext.getCurrentTenantId()
       : null;
     if (existing.getTenant() != null && currentTenantId != null && !currentTenantId.equals(existing.getTenant().id())) {

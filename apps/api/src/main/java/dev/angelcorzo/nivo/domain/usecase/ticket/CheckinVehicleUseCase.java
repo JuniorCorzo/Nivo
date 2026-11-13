@@ -8,7 +8,6 @@ import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.ParkingTicketsRe
 import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.UnplatedTicketSequenceGateway;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.Plate;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot;
-import java.util.Optional;
 import dev.angelcorzo.nivo.domain.model.rates.Rates;
 import dev.angelcorzo.nivo.domain.model.rates.exceptions.RateNotFoundException;
 import dev.angelcorzo.nivo.domain.model.rates.gateways.RatesRepository;
@@ -103,14 +102,10 @@ public class CheckinVehicleUseCase {
     if (!this.tenantsRepository.existsById(ticket.tenantId())) {
       throw new TenantNotExistsException(ticket.tenantId());
     }
-    final Optional<Rates> rateOpt = this.ratesRepository.findById(ticket.rateId());
-    if (rateOpt.isPresent()) {
-      final Rates rate = rateOpt.get();
-      if (rate.getDeletedAt() != null
-        || (rate.getTenant() != null && !ticket.tenantId().equals(rate.getTenant().id()))) {
-        throw new RateNotFoundException(ticket.rateId());
-      }
-    } else if (!this.ratesRepository.existsById(ticket.rateId())) {
+    final Rates rate = this.ratesRepository.findById(ticket.rateId())
+      .orElseThrow(() -> new RateNotFoundException(ticket.rateId()));
+    if (rate.getDeletedAt() != null
+      || (rate.getTenant() != null && !ticket.tenantId().equals(rate.getTenant().id()))) {
       throw new RateNotFoundException(ticket.rateId());
     }
   }

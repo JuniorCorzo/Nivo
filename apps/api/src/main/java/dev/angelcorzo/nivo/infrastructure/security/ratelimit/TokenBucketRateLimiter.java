@@ -1,8 +1,7 @@
 package dev.angelcorzo.nivo.infrastructure.security.ratelimit;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,7 +12,7 @@ public class TokenBucketRateLimiter {
   private final long capacity;
   private final long refillTokensPerMinute;
   private final int maxBuckets;
-  private final Map<String, Bucket> buckets;
+  private final Cache<String, Bucket> buckets;
 
   @org.springframework.beans.factory.annotation.Autowired
   public TokenBucketRateLimiter() {
@@ -28,13 +27,9 @@ public class TokenBucketRateLimiter {
     this.capacity = capacity;
     this.refillTokensPerMinute = refillTokensPerMinute;
     this.maxBuckets = maxBuckets;
-    this.buckets = Collections.synchronizedMap(
-      new LinkedHashMap<>(128, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(final Map.Entry<String, Bucket> eldest) {
-          return size() > TokenBucketRateLimiter.this.maxBuckets;
-        }
-      });
+    this.buckets = Caffeine.newBuilder()
+      .maximumSize(maxBuckets)
+      .build();
   }
 
   public boolean tryConsume(final String key) {
@@ -50,9 +45,7 @@ public class TokenBucketRateLimiter {
   }
 
   private Bucket getOrCreateBucket(final String key) {
-    synchronized (buckets) {
-      return buckets.computeIfAbsent(key, k -> new Bucket(capacity, refillTokensPerMinute));
-    }
+    return this.buckets.get(key, k -> new Bucket(capacity, refillTokensPerMinute));
   }
 
   private static class Bucket {

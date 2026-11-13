@@ -92,13 +92,13 @@ class SlotsRepositoryAdapterTest {
   }
 
   @Test
-  @DisplayName("Should batch delete slots")
+  @DisplayName("Should batch delete slots using soft delete")
   void shouldBatchDelete() {
     final List<UUID> ids = List.of(UUID.randomUUID(), UUID.randomUUID());
 
     adapter.batchDelete(ids);
 
-    verify(repository).deleteAllByIdInBatch(ids);
+    verify(repository).softDeleteByIds(ids);
   }
 
   @Test
@@ -113,12 +113,24 @@ class SlotsRepositoryAdapterTest {
   }
 
   @Test
-  @DisplayName("Should fallback to deleteAllByIdInBatch when tenantId is null")
+  @DisplayName("Should fallback to softDeleteByIds when tenantId is null")
   void shouldBatchDeleteFallbackWhenTenantIdIsNull() {
     final List<UUID> ids = List.of(UUID.randomUUID());
 
     adapter.batchDelete(ids, null);
 
-    verify(repository).deleteAllByIdInBatch(ids);
+    verify(repository).softDeleteByIds(ids);
+  }
+
+  @Test
+  @DisplayName("Should not call repository when batchDelete is called with empty or null list")
+  void shouldNotCallRepositoryWhenBatchDeleteListIsEmptyOrNull() {
+    adapter.batchDelete(List.of());
+    adapter.batchDelete(null);
+    adapter.batchDelete(List.of(), UUID.randomUUID());
+    adapter.batchDelete(null, UUID.randomUUID());
+
+    verify(repository, never()).softDeleteByIds(any());
+    verify(repository, never()).softDeleteByIdsAndTenantId(any(), any());
   }
 }

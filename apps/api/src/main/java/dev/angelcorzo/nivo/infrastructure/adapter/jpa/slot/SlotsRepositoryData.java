@@ -45,4 +45,9 @@ public interface SlotsRepositoryData extends JpaRepository<SlotsData, UUID> {
   @Transactional
   @Query(value = "UPDATE slots SET deleted_at = CURRENT_TIMESTAMP WHERE id IN (:ids) AND tenant_id = :tenantId AND deleted_at IS NULL", nativeQuery = true)
   int softDeleteByIdsAndTenantId(@Param("ids") List<UUID> ids, @Param("tenantId") UUID tenantId);
+
+  @Modifying
+  @Transactional
+  @Query(value = "UPDATE slots SET deleted_at = CURRENT_TIMESTAMP WHERE id IN (:ids) AND deleted_at IS NULL", nativeQuery = true)
+  int softDeleteByIds(@Param("ids") List<UUID> ids);
 }

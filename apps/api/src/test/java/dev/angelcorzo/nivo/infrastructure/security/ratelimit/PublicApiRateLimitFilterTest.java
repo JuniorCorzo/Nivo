@@ -40,10 +40,10 @@ class PublicApiRateLimitFilterTest {
   }
 
   @Test
-  @DisplayName("Should allow public request with valid X-Forwarded-For IP")
-  void shouldAllowPublicRequestWithValidForwardedIp() throws Exception {
+  @DisplayName("Should allow public request with valid CF-Connecting-IP")
+  void shouldAllowPublicRequestWithValidCfConnectingIp() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/public/simulator/calculate");
-    request.addHeader("X-Forwarded-For", "203.0.113.195, 70.41.3.18");
+    request.addHeader("CF-Connecting-IP", "203.0.113.195");
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     when(rateLimiter.tryConsume("203.0.113.195")).thenReturn(true);
@@ -57,10 +57,10 @@ class PublicApiRateLimitFilterTest {
   }
 
   @Test
-  @DisplayName("Should fallback to remote address when X-Forwarded-For is malformed or invalid")
-  void shouldFallbackToRemoteAddrWhenForwardedHeaderInvalid() throws Exception {
+  @DisplayName("Should fallback to remote address when CF-Connecting-IP is malformed or invalid")
+  void shouldFallbackToRemoteAddrWhenCfConnectingIpInvalid() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/public/parkings/availability");
-    request.addHeader("X-Forwarded-For", "invalid!ip<script>");
+    request.addHeader("CF-Connecting-IP", "invalid!ip<script>");
     request.setRemoteAddr("192.168.1.50");
     MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -75,7 +75,24 @@ class PublicApiRateLimitFilterTest {
   }
 
   @Test
-  @DisplayName("Should use unknown when both X-Forwarded-For and remote address are missing")
+  @DisplayName("Should ignore spoofed X-Forwarded-For header and fallback to remoteAddr")
+  void shouldIgnoreSpoofedXForwardedForAndUseRemoteAddr() throws Exception {
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/public/simulator/calculate");
+    request.addHeader("X-Forwarded-For", "198.51.100.99, 10.0.0.1");
+    request.setRemoteAddr("203.0.113.50");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+
+    when(rateLimiter.tryConsume("203.0.113.50")).thenReturn(true);
+    when(rateLimiter.getRemainingTokens("203.0.113.50")).thenReturn(59L);
+
+    filter.doFilterInternal(request, response, filterChain);
+
+    verify(rateLimiter).tryConsume("203.0.113.50");
+    verify(filterChain).doFilter(request, response);
+  }
+
+  @Test
+  @DisplayName("Should use unknown when both CF-Connecting-IP and remote address are missing")
   void shouldUseUnknownWhenNoIpAvailable() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v1/public/ping");
     request.setRemoteAddr("");

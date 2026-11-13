@@ -78,7 +78,7 @@ class CheckinVehicleUseCaseTest {
 
       when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
       when(tenantsRepository.existsById(tenantId)).thenReturn(true);
-      when(ratesRepository.existsById(rateId)).thenReturn(true);
+      when(ratesRepository.findById(rateId)).thenReturn(Optional.of(mockRate));
 
       when(slotsRepository.save(any(Slots.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
@@ -132,7 +132,7 @@ class CheckinVehicleUseCaseTest {
 
       when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
       when(tenantsRepository.existsById(tenantId)).thenReturn(true);
-      when(ratesRepository.existsById(rateId)).thenReturn(true);
+      when(ratesRepository.findById(rateId)).thenReturn(Optional.of(mockRate));
       when(slotsRepository.save(any(Slots.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
       when(tenantsRepository.getReferenceById(tenantId)).thenReturn(mockTenant);
@@ -172,10 +172,11 @@ class CheckinVehicleUseCaseTest {
         .build();
 
       final Slots mockSlot = Slots.builder().id(slotId).slotNumber("M-01").status(SlotStatus.AVAILABLE).build();
+      final Rates mockRate = Rates.builder().id(rateId).name("Moto Tariff").build();
 
       when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
       when(tenantsRepository.existsById(tenantId)).thenReturn(true);
-      when(ratesRepository.existsById(rateId)).thenReturn(true);
+      when(ratesRepository.findById(rateId)).thenReturn(Optional.of(mockRate));
 
       // Act & Assert
       assertThatThrownBy(() -> useCase.execute(command))
@@ -207,7 +208,7 @@ class CheckinVehicleUseCaseTest {
 
       when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
       when(tenantsRepository.existsById(tenantId)).thenReturn(true);
-      when(ratesRepository.existsById(rateId)).thenReturn(true);
+      when(ratesRepository.findById(rateId)).thenReturn(Optional.of(mockRate));
       when(slotsRepository.save(any(Slots.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
       when(tenantsRepository.getReferenceById(tenantId)).thenReturn(mockTenant);
@@ -318,6 +319,25 @@ class CheckinVehicleUseCaseTest {
       when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
       when(tenantsRepository.existsById(tenantId)).thenReturn(true);
       when(ratesRepository.findById(rateId)).thenReturn(Optional.of(deletedRate));
+
+      assertThatThrownBy(() -> useCase.execute(command))
+        .isInstanceOf(dev.angelcorzo.nivo.domain.model.rates.exceptions.RateNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("Should throw RateNotFoundException when rate does not exist")
+    void shouldThrowRateNotFoundExceptionWhenRateDoesNotExist() {
+      final UUID slotId = UUID.randomUUID();
+      final UUID tenantId = UUID.randomUUID();
+      final UUID rateId = UUID.randomUUID();
+      final CheckinVehicleUseCase.CreatedParkingTicket command = new CheckinVehicleUseCase.CreatedParkingTicket(
+        slotId, tenantId, "driver@example.com", rateId, "ABC123");
+
+      final Slots mockSlot = Slots.builder().id(slotId).status(SlotStatus.AVAILABLE).isActive(true).build();
+
+      when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
+      when(tenantsRepository.existsById(tenantId)).thenReturn(true);
+      when(ratesRepository.findById(rateId)).thenReturn(Optional.empty());
 
       assertThatThrownBy(() -> useCase.execute(command))
         .isInstanceOf(dev.angelcorzo.nivo.domain.model.rates.exceptions.RateNotFoundException.class);

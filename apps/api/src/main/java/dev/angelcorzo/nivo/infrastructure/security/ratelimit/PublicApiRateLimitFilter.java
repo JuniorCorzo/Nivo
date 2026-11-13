@@ -66,11 +66,11 @@ public class PublicApiRateLimitFilter extends OncePerRequestFilter {
   private static final java.util.regex.Pattern IP_PATTERN = java.util.regex.Pattern.compile("^[0-9a-fA-F:.]+$");
 
   private String resolveClientIp(final HttpServletRequest request) {
-    final String xForwarded = request.getHeader("X-Forwarded-For");
-    if (xForwarded != null && !xForwarded.isBlank()) {
-      final String firstIp = xForwarded.split(",")[0].trim();
-      if (firstIp.length() <= 45 && IP_PATTERN.matcher(firstIp).matches()) {
-        return firstIp;
+    final String cfConnectingIp = request.getHeader("CF-Connecting-IP");
+    if (cfConnectingIp != null && !cfConnectingIp.isBlank()) {
+      final String trimmed = cfConnectingIp.trim();
+      if (trimmed.length() <= 45 && IP_PATTERN.matcher(trimmed).matches()) {
+        return trimmed;
       }
     }
     final String remoteAddr = request.getRemoteAddr();
