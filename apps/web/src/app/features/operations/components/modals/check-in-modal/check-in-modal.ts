@@ -1,13 +1,12 @@
 import { CommonModule } from "@angular/common";
-import type { ElementRef } from "@angular/core";
 import {
   Component,
   ChangeDetectionStrategy,
-  ViewChild,
   effect,
   inject,
   input,
   output,
+  untracked,
 } from "@angular/core";
 import type { VehicleType } from "@core/models/rate.model";
 import type { SlotSummary } from "@core/models/slot.model";
@@ -16,22 +15,17 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideAlertCircle,
   lucideAlertTriangle,
-  lucideBike,
-  lucideCamera,
-  lucideCar,
-  lucideCheckCircle2,
   lucideLoader2,
   lucideLogIn,
   lucideParkingSquare,
-  lucidePhone,
   lucideX,
 } from "@ng-icons/lucide";
 import { ButtonComponent } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
-import { PlateMaskDirective } from "@shared/directives/plate-mask";
+import { detectPlateCountry, formatPlate } from "@shared/utils/plate.utils";
 
 import { CheckInFacade } from "../../../facades/check-in.facade";
-import { PhotoCaptureComponent } from "../../photo-capture/photo-capture.component";
+import { TicketDeliveryCardComponent } from "../../receipt/ticket-delivery-card/ticket-delivery-card";
 import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-receipt";
 
 @Component({
@@ -40,8 +34,7 @@ import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-rece
     ButtonComponent,
     CommonModule,
     NgIcon,
-    PhotoCaptureComponent,
-    PlateMaskDirective,
+    TicketDeliveryCardComponent,
     TicketReceiptComponent,
   ],
   providers: [
@@ -49,14 +42,9 @@ import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-rece
     provideIcons({
       lucideAlertCircle,
       lucideAlertTriangle,
-      lucideBike,
-      lucideCamera,
-      lucideCar,
-      lucideCheckCircle2,
       lucideLoader2,
       lucideLogIn,
       lucideParkingSquare,
-      lucidePhone,
       lucideX,
     }),
   ],
@@ -73,73 +61,62 @@ export class CheckInModalComponent {
   readonly parkingId = input<string | null>(null);
   readonly preselectedSlot = input<SlotSummary | null>(null);
   readonly initialUnplated = input<boolean>(false);
+  readonly initialPlate = input<string>("");
+  readonly initialPhotoUrl = input<string | null>(null);
 
   readonly closed = output();
-
-  @ViewChild("plateInput") plateInputRef?: ElementRef<HTMLInputElement>;
 
   constructor() {
     effect(() => {
       const pId = this.parkingId();
       if (pId) {
-        this.facade.init(pId);
+        untracked(() => {
+          this.facade.init(pId);
+        });
       }
     });
 
     effect(() => {
       if (this.isOpen()) {
-        this.facade.reset();
-        if (this.initialUnplated()) {
-          this.facade.setIsUnplated(true);
-        }
-        const preselected = this.preselectedSlot();
-        if (preselected) {
-          const vType: VehicleType =
-            preselected.type === "MOTORCYCLE" || preselected.type === "BIKE"
-              ? preselected.type
-              : "CAR";
-          this.facade.setVehicleType(vType);
-          this.facade.setSlotId(preselected.id);
-        }
-        setTimeout(() => {
-          this.plateInputRef?.nativeElement.focus();
-        }, 50);
+        untracked(() => {
+          this.facade.reset();
+          if (this.initialUnplated()) {
+            this.facade.setIsUnplated(true);
+          }
+          if (this.initialPhotoUrl()) {
+            this.facade.setPhotoUrl(this.initialPhotoUrl());
+          }
+          const initPlate = this.initialPlate();
+          if (initPlate) {
+            const detected = detectPlateCountry(initPlate);
+            const formatted = formatPlate(initPlate, { country: detected });
+            this.facade.setPlate(formatted, detected === "VE" ? "VE" : "CO");
+          }
+          const preselected = this.preselectedSlot();
+          if (preselected) {
+            const vType: VehicleType =
+              preselected.type === "MOTORCYCLE" || preselected.type === "BIKE"
+                ? preselected.type
+                : "CAR";
+            this.facade.setVehicleType(vType);
+            this.facade.setSlotId(preselected.id);
+          }
+        });
       }
     });
   }
 
-  onPlateCountrySelect(country: PlateCountry): void {
-    this.facade.setPlateCountry(country);
+  onPhoneChange(phone: string): void {
+    this.facade.setPhoneNumber(phone);
   }
 
-  onCountryChange(country: PlateCountry): void {
-    this.facade.setPlateCountry(country);
+  onEmailChange(email: string): void {
+    this.facade.setEmail(email);
   }
 
-  onPlateInput(event: Event): void {
-    /* SAFETY: Target is HTMLInputElement */
-    const target = event.target as HTMLInputElement;
-    this.facade.setPlate(target.value);
-  }
-
-  onPhoneInput(event: Event): void {
-    /* SAFETY: Target is HTMLInputElement */
-    const target = event.target as HTMLInputElement;
-    this.facade.setPhoneNumber(target.value);
-  }
-
-  onPhotoCaptured(photoUrl: string): void {
-    this.facade.setPhotoUrl(photoUrl);
-  }
-
-  onPhotoCleared(): void {
-    this.facade.setPhotoUrl(null);
-  }
-
-  onEnterKey(event: Event): void {
-    event.preventDefault();
-    if (this.facade.isValid()) {
-      this.facade.submitCheckIn();
+  onDeliveryChannelChange(channel: "PRINT" | "WHATSAPP" | "EMAIL" | string): void {
+    if (channel === "EMAIL" || channel === "WHATSAPP" || channel === "PRINT") {
+      this.facade.setDeliveryMethod(channel);
     }
   }
 
@@ -153,12 +130,6 @@ export class CheckInModalComponent {
     /* SAFETY: Target is HTMLSelectElement */
     const target = event.target as HTMLSelectElement;
     this.facade.setRateId(target.value || null);
-  }
-
-  onEmailInput(event: Event): void {
-    /* SAFETY: Target is HTMLInputElement */
-    const target = event.target as HTMLInputElement;
-    this.facade.setEmail(target.value);
   }
 
   onSubmit(event: Event): void {

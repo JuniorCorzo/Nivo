@@ -182,6 +182,7 @@ describe("CheckInFacade", () => {
     facade.init("parking-1");
     facade.setVehicleType("CAR");
     facade.setPlate("ABC123");
+    facade.setDeliveryMethod("EMAIL");
     facade.setEmail("test@email.com");
 
     facade.submitCheckIn();
@@ -222,6 +223,110 @@ describe("CheckInFacade", () => {
   it("should only include vehicle types that have available slots in availableVehicleTypes", () => {
     facade.init("parking-1");
     expect(facade.availableVehicleTypes()).toEqual(["CAR"]);
+  });
+
+  it("should compute configuredVehicleTypes as single type and auto-select it when only one type configured", () => {
+    slotServiceSpy.summaries = () => ({
+      "parking-1": [
+        {
+          id: "slot-car-1",
+          parkingName: "Central",
+          prefix: "A",
+          slotNumber: "A1",
+          status: "AVAILABLE",
+          type: "CAR",
+          zone: "ZA",
+        },
+      ],
+    });
+    rateServiceSpy.ratesByParking = () => ({
+      "parking-1": [
+        {
+          createdAt: "",
+          description: "Tarifa Carro",
+          id: "rate-car-1",
+          minChargeTimeMinutes: 0,
+          name: "Tarifa Carro",
+          parkingId: "parking-1",
+          pricePerUnit: 3000,
+          timeUnit: "HOURS",
+          updatedAt: "",
+          vehicleType: "CAR",
+        },
+      ],
+    });
+
+    facade.init("parking-1");
+    expect(facade.configuredVehicleTypes()).toEqual(["CAR"]);
+    expect(facade.hasMultipleVehicleTypes()).toBe(false);
+    expect(facade.vehicleType()).toBe("CAR");
+  });
+
+  it("should compute hasMultipleVehicleTypes as true when multiple types configured", () => {
+    slotServiceSpy.summaries = () => ({
+      "parking-1": [
+        {
+          id: "slot-car-1",
+          parkingName: "Central",
+          prefix: "A",
+          slotNumber: "A1",
+          status: "AVAILABLE",
+          type: "CAR",
+          zone: "ZA",
+        },
+        {
+          id: "slot-moto-1",
+          parkingName: "Central",
+          prefix: "M",
+          slotNumber: "M1",
+          status: "AVAILABLE",
+          type: "MOTORCYCLE",
+          zone: "ZM",
+        },
+      ],
+    });
+
+    facade.init("parking-1");
+    expect(facade.configuredVehicleTypes()).toEqual(["CAR", "MOTORCYCLE"]);
+    expect(facade.hasMultipleVehicleTypes()).toBe(true);
+  });
+
+  it("should handle optional delivery inputs and submit them in ticket payload", () => {
+    facade.init("parking-1");
+    facade.setVehicleType("CAR");
+    facade.setPlate("ABC123");
+
+    // Valid without phone or email (optional)
+    expect(facade.isValid()).toBe(true);
+
+    // Invalid email format fails validation
+    facade.setEmail("invalid-email");
+    expect(facade.isValid()).toBe(false);
+
+    // Valid email passes
+    facade.setEmail("usuario@correo.com");
+    expect(facade.isValid()).toBe(true);
+
+    // Phone passes
+    facade.setDeliveryMethod("WHATSAPP");
+    facade.setPhoneNumber("3001234567");
+    expect(facade.isValid()).toBe(true);
+
+    ticketServiceSpy.createTicket.mockReturnValue(
+      of({
+        id: "t-1",
+        licensePlate: "ABC123",
+        status: "OPEN",
+      } as TicketSummary)
+    );
+
+    facade.submitCheckIn();
+    expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: undefined,
+        phoneNumber: "3001234567",
+      })
+    );
   });
 
   it("should require photoUrl for isValid and auto-select MOTORCYCLE when country is UNPLATED", () => {
@@ -305,6 +410,7 @@ describe("CheckInFacade", () => {
     facade.setVehicleType("CAR");
     facade.setPlateCountry("UNPLATED");
     facade.setPhotoUrl("data:image/jpeg;base64,samplephoto");
+    facade.setDeliveryMethod("WHATSAPP");
     facade.setPhoneNumber("3001234567");
 
     facade.submitCheckIn();
@@ -446,6 +552,70 @@ describe("CheckInFacade", () => {
 
       expect(facade.plateCountry()).toBe("CO");
       expect(facade.plate()).toBe("ABC-123");
+    });
+  });
+
+  describe("Digital Delivery and Channel Validation", () => {
+    it("should require phone when deliveryMethod is WHATSAPP", () => {
+      facade.init("parking-1");
+      facade.setVehicleType("CAR");
+      facade.setPlate("ABC-123");
+      facade.setDeliveryMethod("WHATSAPP");
+
+      expect(facade.isValid()).toBe(false);
+
+      facade.setPhoneNumber("3001234567");
+      expect(facade.isValid()).toBe(true);
+    });
+
+    it("should require valid email with @ when deliveryMethod is EMAIL", () => {
+      facade.init("parking-1");
+      facade.setVehicleType("CAR");
+      facade.setPlate("ABC-123");
+      facade.setDeliveryMethod("EMAIL");
+
+      expect(facade.isValid()).toBe(false);
+
+      facade.setEmail("invalid-email");
+      expect(facade.isValid()).toBe(false);
+
+      facade.setEmail("user@example.com");
+      expect(facade.isValid()).toBe(true);
+    });
+
+    it("should send only relevant contact info in payload based on selected channel", () => {
+      const mockTicket: TicketSummary = {
+        entryTime: "2026-08-27T10:00:00Z",
+        id: "ticket-digital-1",
+        licensePlate: "ABC123",
+        status: "OPEN",
+      };
+      ticketServiceSpy.createTicket.mockReturnValue(of(mockTicket));
+
+      facade.init("parking-1");
+      facade.setVehicleType("CAR");
+      facade.setPlate("ABC-123");
+      facade.setPhoneNumber("3001234567");
+      facade.setEmail("user@example.com");
+      facade.setDeliveryMethod("WHATSAPP");
+
+      facade.submitCheckIn();
+
+      expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: undefined,
+          phoneNumber: "3001234567",
+        })
+      );
+    });
+
+    it("should clear contact inputs when switching to PRINT method", () => {
+      facade.setPhoneNumber("3001234567");
+      facade.setEmail("user@example.com");
+
+      facade.setDeliveryMethod("PRINT");
+      expect(facade.phoneNumber()).toBe("");
+      expect(facade.email()).toBe("");
     });
   });
 });

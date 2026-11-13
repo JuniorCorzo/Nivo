@@ -5,6 +5,7 @@ import {
   inject,
   signal,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import type { RateModel, VehicleType } from "@core/models/rate.model";
 import type { SlotSummary } from "@core/models/slot.model";
 import type {
@@ -40,6 +41,7 @@ export class CheckInFacade {
   readonly plateCountry = signal<PlateCountry>("CO");
   readonly photoUrl = signal<string | null>(null);
   readonly phoneNumber = signal<string>("");
+  readonly deliveryMethod = signal<"PRINT" | "WHATSAPP" | "EMAIL">("PRINT");
   readonly isUnplated = computed<boolean>(
     () => this.plateCountry() === "UNPLATED"
   );
@@ -100,6 +102,32 @@ export class CheckInFacade {
     return this.allRates().filter((rate) => rate.vehicleType === type);
   });
 
+  readonly configuredVehicleTypes = computed<VehicleType[]>(() => {
+    const slots = this.allSlots();
+    const rates = this.allRates();
+    const types = new Set<string>();
+    for (const slot of slots) {
+      if (
+        slot.type === "CAR" ||
+        slot.type === "MOTORCYCLE" ||
+        slot.type === "BIKE"
+      ) {
+        types.add(slot.type);
+      }
+    }
+    for (const rate of rates) {
+      if (rate.vehicleType) {
+        types.add(rate.vehicleType);
+      }
+    }
+    const order: VehicleType[] = ["CAR", "MOTORCYCLE", "BIKE"];
+    return order.filter((type) => types.has(type));
+  });
+
+  readonly hasMultipleVehicleTypes = computed<boolean>(
+    () => this.configuredVehicleTypes().length > 1
+  );
+
   readonly hasAvailableSlots = computed<boolean>(
     () => this.availableSlots().length > 0
   );
@@ -109,6 +137,21 @@ export class CheckInFacade {
       return false;
     }
     if (this.selectedSlotId() === null || this.selectedRateId() === null) {
+      return false;
+    }
+
+    if (this.email().trim() && !this.email().includes("@")) {
+      return false;
+    }
+
+    if (
+      this.deliveryMethod() === "EMAIL" &&
+      (!this.email().trim() || !this.email().includes("@"))
+    ) {
+      return false;
+    }
+
+    if (this.deliveryMethod() === "WHATSAPP" && !this.phoneNumber().trim()) {
       return false;
     }
 
@@ -132,7 +175,13 @@ export class CheckInFacade {
   loadData(parkingId: string): void {
     this.slotService
       .getAllSlotSummariesByParkingId(parkingId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((slots) => {
+        const configured = this.configuredVehicleTypes();
+        if (configured.length === 1) {
+          this.setVehicleType(configured[0]);
+          return;
+        }
         const allKnownTypes: VehicleType[] = ["CAR", "MOTORCYCLE", "BIKE"];
         const available = allKnownTypes.filter((t) =>
           slots.some((s) => s.status === "AVAILABLE" && s.type === t)
@@ -143,7 +192,10 @@ export class CheckInFacade {
           this.setVehicleType(this.vehicleType());
         }
       });
-    this.rateService.getRatesByParkingId(parkingId).subscribe((rates) => {
+    this.rateService
+      .getRatesByParkingId(parkingId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((rates) => {
       if (!this.selectedRateId()) {
         const type = this.vehicleType();
         const matchingRates = (rates ?? []).filter(
@@ -181,6 +233,14 @@ export class CheckInFacade {
 
   setEmail(email: string): void {
     this.email.set(email.trim());
+  }
+
+  setDeliveryMethod(method: "PRINT" | "WHATSAPP" | "EMAIL"): void {
+    this.deliveryMethod.set(method);
+    if (method === "PRINT") {
+      this.phoneNumber.set("");
+      this.email.set("");
+    }
   }
 
   setPlateCountry(country: PlateCountry): void {
@@ -248,9 +308,18 @@ export class CheckInFacade {
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
 
+    const emailToSend =
+      this.deliveryMethod() === "EMAIL"
+        ? this.email().trim() || undefined
+        : undefined;
+    const phoneToSend =
+      this.deliveryMethod() === "WHATSAPP"
+        ? this.phoneNumber().trim() || undefined
+        : undefined;
+
     const payload: CreateTicketPayload = {
-      email: this.email().trim() || undefined,
-      phoneNumber: this.phoneNumber().trim() || undefined,
+      email: emailToSend,
+      phoneNumber: phoneToSend,
       photoUrl: this.photoUrl() || undefined,
       plate,
       plateCountry: this.plateCountry(),
@@ -258,7 +327,10 @@ export class CheckInFacade {
       slotId,
     };
 
-    this.ticketService.createTicket(payload).subscribe({
+    this.ticketService
+      .createTicket(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       error: (err) => {
         this.isSubmitting.set(false);
         const errorMsg =
@@ -278,7 +350,10 @@ export class CheckInFacade {
         });
 
         // Refresh slots state
-        this.slotService.getAllSlotSummariesByParkingId(pId).subscribe();
+        this.slotService
+          .getAllSlotSummariesByParkingId(pId)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
 
         // Reset plate, email, photo, phone, country for next rapid check-in
         this.plate.set("");
@@ -286,6 +361,7 @@ export class CheckInFacade {
         this.photoUrl.set(null);
         this.phoneNumber.set("");
         this.plateCountry.set("CO");
+        this.deliveryMethod.set("PRINT");
       },
     });
   }
@@ -303,6 +379,14 @@ export class CheckInFacade {
     this.errorMessage.set(null);
     this.selectedSlotId.set(null);
     this.selectedRateId.set(null);
+    this.deliveryMethod.set("PRINT");
+
+    const configured = this.configuredVehicleTypes();
+    if (configured.length === 1) {
+      this.setVehicleType(configured[0]);
+      return;
+    }
+
     const available = this.availableVehicleTypes();
     if (available.length > 0) {
       const current = this.vehicleType();
