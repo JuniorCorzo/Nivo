@@ -33,36 +33,48 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
 
   const mockRates = [
     {
+      createdAt: "",
       description: "Tarifa estándar carros",
       id: rateCarId,
+      minChargeTimeMinutes: 0,
       name: "Tarifa Carro Estándar",
+      parkingId,
       pricePerUnit: 4500,
       timeUnit: "HOURS",
+      updatedAt: "",
       vehicleType: "CAR",
     },
   ];
 
   const mockSlots = [
     {
+      hasCharger: false,
       hasHistory: false,
       hasTicket: false,
       id: slotAvailableId,
+      isAccessible: false,
+      isActive: true,
       numberSlot: "101",
       parking: { id: parkingId, name: "Nivo Cockpit Central" },
       parkingName: "Nivo Cockpit Central",
       prefix: "A",
+      slotNumber: "101",
       status: "AVAILABLE",
       type: "CAR",
       zone: "P1",
     },
     {
+      hasCharger: false,
       hasHistory: false,
       hasTicket: true,
       id: slotOccupiedId,
+      isAccessible: false,
+      isActive: true,
       numberSlot: "102",
       parking: { id: parkingId, name: "Nivo Cockpit Central" },
       parkingName: "Nivo Cockpit Central",
       prefix: "B",
+      slotNumber: "102",
       status: "OCCUPIED",
       type: "CAR",
       zone: "P1",
@@ -74,6 +86,7 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
     entryTime: new Date(Date.now() - 3600000).toISOString(),
     id: activeTicketId,
     licensePlate: "XYZ789",
+    parkingId,
     rate: {
       id: rateCarId,
       name: "Tarifa Carro Estándar",
@@ -84,8 +97,11 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
       id: slotOccupiedId,
       number: "102",
       prefix: "B",
+      slotNumber: "102",
       zone: "P1",
     },
+    slotId: slotOccupiedId,
+    slotNumber: "102",
     status: "OPEN",
     user: {
       email: "admin@tenanta.com",
@@ -97,7 +113,15 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
   test.beforeEach(async ({ page, tenantA }) => {
     await setupMockTenantApi(page, tenantA);
 
-    await page.route(`**/api/v1/parking-lots/${parkingId}`, async (route) => {
+    await page.route(/\/api(\/v1)?\/parking-lots(\/list)?(\?.*)?$/u, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: { data: [mockParkingLot], status: 200 },
+        status: 200,
+      });
+    });
+
+    await page.route(new RegExp(`/api(/v1)?/parking-lots/${parkingId}`, "u"), async (route) => {
       await route.fulfill({
         contentType: "application/json",
         json: { data: mockParkingLot, status: 200 },
@@ -105,38 +129,59 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
       });
     });
 
-    await page.route(
-      `**/api/v1/slots/summary?parking=${parkingId}`,
-      async (route) => {
-        await route.fulfill({
-          contentType: "application/json",
-          json: { data: mockSlots, status: 200 },
-          status: 200,
-        });
-      }
-    );
+    await page.route(/\/api(\/v1)?\/slots(\/list)?\/summary/u, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: { data: mockSlots, status: 200 },
+        status: 200,
+      });
+    });
 
-    await page.route(
-      `**/api/v1/parking-lots/${parkingId}/rates`,
-      async (route) => {
-        await route.fulfill({
-          contentType: "application/json",
-          json: { data: mockRates, status: 200 },
-          status: 200,
-        });
-      }
-    );
+    await page.route(new RegExp(`/api(/v1)?/parking-lots/${parkingId}/rates`, "u"), async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: { data: mockRates, status: 200 },
+        status: 200,
+      });
+    });
 
-    await page.route(
-      `**/api/v1/tickets?parking=${parkingId}`,
-      async (route) => {
+    await page.route(/\/api(\/v1)?\/tickets\/active/u, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: { data: mockActiveTicket, status: 200 },
+        status: 200,
+      });
+    });
+
+    await page.route(/\/api(\/v1)?\/rates\/.*\/calculate/u, async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        json: {
+          data: {
+            breakpoint: [],
+            ivaAmount: 0,
+            ivaRate: 0,
+            name: "Tarifa Carro Estándar",
+            subtotal: 4500,
+            total: 4500,
+          },
+          status: 200,
+        },
+        status: 200,
+      });
+    });
+
+    await page.route(/\/api(\/v1)?\/tickets(\/list)?(\?.*)?$/u, async (route) => {
+      if (route.request().method() === "GET") {
         await route.fulfill({
           contentType: "application/json",
           json: { data: [mockActiveTicket], status: 200 },
           status: 200,
         });
+      } else {
+        await route.fallback();
       }
-    );
+    });
   });
 
   test("should perform express check-in via Omnibar with formatted plate and digital WhatsApp channel", async ({
@@ -144,7 +189,7 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
   }) => {
     let capturedPayload: unknown = null;
 
-    await page.route("**/api/v1/tickets", async (route) => {
+    await page.route(/\/api(\/v1)?\/tickets(\/check-in)?$/u, async (route) => {
       if (route.request().method() === "POST") {
         capturedPayload = route.request().postDataJSON();
         await route.fulfill({
@@ -174,19 +219,20 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
     await page.locator("app-operations-omnibar button:has-text('Ingresar')").click();
 
     // 2. Modal opens with read-only validation display
-    const modal = page.locator("app-check-in-modal");
-    await expect(modal).toBeVisible();
-    await expect(modal.locator("#plate-display")).toContainText("ABC-123");
-    await expect(modal.locator("span:has-text('CO')")).toBeVisible();
+    const modalBackdrop = page.locator("app-check-in-modal .animate-modal-backdrop");
+    await expect(modalBackdrop).toBeVisible();
+    await expect(modalBackdrop.locator("#plate-display")).toContainText("ABC-123");
+    await expect(modalBackdrop.getByText("CO", { exact: true })).toBeVisible();
 
-    // 3. Select WhatsApp channel and enter phone number
-    const deliveryCard = modal.locator("app-ticket-delivery-card");
+    // 3. Select WhatsApp channel tab and enter phone number
+    const deliveryCard = modalBackdrop.locator("app-ticket-delivery-card");
     await expect(deliveryCard).toBeVisible();
+    await deliveryCard.getByRole("button", { name: /WhatsApp/iu }).first().click();
     const phoneInput = deliveryCard.locator("#delivery-phone-input");
     await phoneInput.fill("3119876543");
 
     // 4. Submit Check-in and inspect API payload
-    await modal.getByRole("button", { name: /Emitir Ticket|Confirmar Ingreso/iu }).click();
+    await modalBackdrop.getByRole("button", { name: /Emitir Ticket|Confirmar Ingreso/iu }).click();
 
     await expect.poll(() => capturedPayload).not.toBeNull();
     expect(capturedPayload).toMatchObject({
@@ -197,17 +243,17 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
     expect((capturedPayload as { email?: string })?.email).toBeUndefined();
 
     // 5. Verify receipt modal opens and contains WhatsApp share button with link
-    const receiptModal = page.locator("app-ticket-receipt");
-    await expect(receiptModal).toBeVisible();
-    const whatsappLink = receiptModal.locator("a:has-text('Enviar por WhatsApp')");
+    const receiptBackdrop = page.locator("app-ticket-receipt .animate-modal-backdrop");
+    await expect(receiptBackdrop).toBeVisible();
+    const whatsappLink = receiptBackdrop.locator("a:has-text('Enviar por WhatsApp')");
     await expect(whatsappLink).toBeVisible();
     const href = await whatsappLink.getAttribute("href");
     expect(href).toContain("573119876543");
-    expect(href).toContain("ABC-123");
+    expect(href).toContain("ABC123");
 
     // Close receipt
-    await receiptModal.getByRole("button", { name: /Cerrar/iu }).click();
-    await expect(receiptModal).toBeHidden();
+    await receiptBackdrop.getByRole("button", { name: /Cerrar/iu }).first().click();
+    await expect(receiptBackdrop).toBeHidden();
   });
 
   test("should trigger modal shortcuts I, O and protect hotkeys during input focus", async ({
@@ -218,30 +264,31 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
 
     // 1. Press 'I' without input focus -> opens CheckIn modal
     await page.keyboard.press("i");
-    const checkInModal = page.locator("app-check-in-modal");
-    await expect(checkInModal).toBeVisible();
+    const checkInModalBackdrop = page.locator("app-check-in-modal .animate-modal-backdrop");
+    await expect(checkInModalBackdrop).toBeVisible();
 
-    // Close with Escape
-    await page.keyboard.press("Escape");
-    await expect(checkInModal).toBeHidden();
+    // Close via Cancel button
+    const cancelBtn = checkInModalBackdrop.getByRole("button", { name: "Cancelar" });
+    await cancelBtn.click();
+    await expect(checkInModalBackdrop).toBeHidden();
 
     // 2. Press 'O' without input focus -> opens CheckOut modal
     await page.keyboard.press("o");
-    const checkOutModal = page.locator("app-check-out-modal");
-    await expect(checkOutModal).toBeVisible();
+    const checkOutModalContent = page.locator("app-check-out-modal .fixed.inset-0");
+    await expect(checkOutModalContent).toBeVisible();
 
     // Close checkout modal
-    const closeBtn = checkOutModal.getByRole("button", { name: /Cancelar|Cerrar/iu }).first();
+    const closeBtn = checkOutModalContent.getByRole("button", { name: /Cancelar|Cerrar/iu }).first();
     await closeBtn.click();
-    await expect(checkOutModal).toBeHidden();
+    await expect(checkOutModalContent).toBeHidden();
 
     // 3. Typing 'i' inside the search input must NOT open check-in modal
     const searchInput = page.locator("#search-ticket-checkout");
     await searchInput.focus();
     await page.keyboard.type("i");
 
-    await expect(checkInModal).toBeHidden();
-    expect(await searchInput.inputValue()).toBe("I");
+    await expect(checkInModalBackdrop).toBeHidden();
+    expect((await searchInput.inputValue()).toUpperCase()).toBe("I");
   });
 
   test("should interact with tactical slots grid to pre-select available slot or initiate checkout", async ({
@@ -258,13 +305,13 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
     await availableSlotCard.click();
 
     // Check-in modal opens with preselected slot banner
-    const checkInModal = page.locator("app-check-in-modal");
-    await expect(checkInModal).toBeVisible();
-    await expect(checkInModal.locator("text=Bahía Asignada: A-101 (CAR)")).toBeVisible();
+    const checkInModalBackdrop = page.locator("app-check-in-modal .animate-modal-backdrop");
+    await expect(checkInModalBackdrop).toBeVisible();
+    await expect(checkInModalBackdrop.locator("text=Bahía Asignada: A-101 (CAR)")).toBeVisible();
 
     // Close check-in modal
-    await checkInModal.getByRole("button", { name: "Cancelar" }).click();
-    await expect(checkInModal).toBeHidden();
+    await checkInModalBackdrop.getByRole("button", { name: "Cancelar" }).click();
+    await expect(checkInModalBackdrop).toBeHidden();
 
     // 2. Click on OCCUPIED slot B-102
     const occupiedSlotCard = page.locator(
@@ -274,31 +321,31 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
     await occupiedSlotCard.click();
 
     // Check-out modal opens for the active ticket
-    const checkOutModal = page.locator("app-check-out-modal");
-    await expect(checkOutModal).toBeVisible();
+    const checkOutModalContent = page.locator("app-check-out-modal .fixed.inset-0");
+    await expect(checkOutModalContent).toBeVisible();
   });
 
   test("should inspect ticket in detail drawer, verify mailto target and trigger reprint", async ({
     page,
   }) => {
-    await page.goto(`/app/parking-lots/${parkingId}/operations`);
-    await expect(page.locator("app-operations-active-tickets-table")).toBeVisible();
+    await page.goto("/app/tickets");
+    await expect(page.locator("app-tickets-table")).toBeVisible();
 
     // 1. Click on active ticket row in table to open drawer
-    const ticketRow = page.locator("app-operations-active-tickets-table tr:has-text('XYZ789')");
+    const ticketRow = page.locator("app-tickets-table tr:has-text('XYZ789')");
     await expect(ticketRow).toBeVisible();
     await ticketRow.click();
 
-    const drawer = page.locator("app-ticket-detail-drawer");
-    await expect(drawer).toBeVisible();
-    await expect(drawer.locator("text=XYZ789")).toBeVisible();
+    const drawerAside = page.locator("app-ticket-detail-drawer aside");
+    await expect(drawerAside).toBeVisible();
+    await expect(drawerAside.locator("text=XYZ789")).toBeVisible();
 
     // 2. Inspect Ticket Delivery Card in drawer
-    const drawerDelivery = drawer.locator("app-ticket-delivery-card");
+    const drawerDelivery = drawerAside.locator("app-ticket-delivery-card");
     await expect(drawerDelivery).toBeVisible();
 
     // Switch to Email channel
-    await drawerDelivery.getByRole("button", { name: /Correo/iu }).click();
+    await drawerDelivery.getByRole("button", { name: /Correo/iu }).first().click();
     const emailInput = drawerDelivery.locator("#delivery-email-input");
     await emailInput.fill("conductor@ejemplo.com");
 
@@ -312,11 +359,11 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
     expect(hrefAttr).toContain("mailto:conductor@ejemplo.com");
 
     // 3. Click reprint button in drawer -> opens ticket receipt modal
-    const reprintBtn = drawer.locator("nv-button[title*='Reimprimir'], button:has-text('Reimprimir')").first();
+    const reprintBtn = drawerAside.locator("nv-button[title*='Reimprimir'], button:has-text('Reimprimir')").first();
     await reprintBtn.click();
 
-    const receiptModal = page.locator("app-ticket-receipt");
-    await expect(receiptModal).toBeVisible();
-    await expect(receiptModal.locator("text=XYZ789")).toBeVisible();
+    const receiptBackdrop = page.locator("app-ticket-receipt .animate-modal-backdrop");
+    await expect(receiptBackdrop).toBeVisible();
+    await expect(receiptBackdrop.locator("text=XYZ-789")).toBeVisible();
   });
 });

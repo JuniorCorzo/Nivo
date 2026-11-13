@@ -53,7 +53,18 @@ export const setupMockTenantApi = async (
   page: Page,
   tenant: TenantCredentials
 ): Promise<void> => {
-  await page.route("**/api/v1/auth/login", async (route) => {
+  await page.route(/\/api(\/v1)?\/public\/config/u, async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      json: {
+        accountCreationEnabled: false,
+        paymentEnabled: true,
+      },
+      status: 200,
+    });
+  });
+
+  await page.route(/\/api(\/v1)?\/auth\/login/u, async (route) => {
     /* SAFETY: postDataJSON parses request body into an object with email and password */
     const postData = route.request().postDataJSON() as {
       email?: string;
@@ -87,7 +98,7 @@ export const setupMockTenantApi = async (
     );
   });
 
-  await page.route("**/api/v1/auth/refresh", async (route) => {
+  await page.route(/\/api(\/v1)?\/auth\/refresh/u, async (route) => {
     await route.fulfill({
       contentType: "application/json",
       json: {
@@ -100,7 +111,7 @@ export const setupMockTenantApi = async (
     });
   });
 
-  await page.route("**/api/v1/users/me", async (route) => {
+  await page.route(/\/api(\/v1)?\/users\/me/u, async (route) => {
     await route.fulfill({
       contentType: "application/json",
       json: {
@@ -111,7 +122,7 @@ export const setupMockTenantApi = async (
     });
   });
 
-  await page.route("**/api/v1/auth/logout", async (route) => {
+  await page.route(/\/api(\/v1)?\/auth\/logout/u, async (route) => {
     await route.fulfill({
       contentType: "application/json",
       json: {
