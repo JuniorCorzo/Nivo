@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   input,
   output,
 } from "@angular/core";
@@ -49,11 +50,24 @@ export class OperationsSlotsGridComponent {
   readonly resetFilters = output();
   readonly slotClick = output<SlotSummary>();
 
+  readonly activeTicketsMap = computed(() => {
+    const map = new Map<string, TicketSummary>();
+    for (const ticket of this.activeTickets()) {
+      if (ticket.slotId) {
+        map.set(ticket.slotId, ticket);
+      }
+      if (ticket.slotNumber) {
+        map.set(`num-${ticket.slotNumber}`, ticket);
+      }
+    }
+    return map;
+  });
+
   getActiveTicketForSlot(slot: SlotSummary): TicketSummary | undefined {
-    return this.activeTickets().find(
-      (t) =>
-        (t.slotId && t.slotId === slot.id) ||
-        (t.slotNumber && t.slotNumber === slot.slotNumber)
+    const map = this.activeTicketsMap();
+    return (
+      map.get(slot.id) ??
+      (slot.slotNumber ? map.get(`num-${slot.slotNumber}`) : undefined)
     );
   }
 
