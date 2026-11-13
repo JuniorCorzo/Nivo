@@ -49,39 +49,20 @@ describe("TicketReceiptComponent", () => {
     expect(component.publicUrl()).toContain("/t/ticket-12345");
   });
 
-  it("should compute whatsapp link with Colombian country code 57 and encoded message", () => {
-    const mockTicket: TicketSummary = {
-      entryTime: "2026-08-27T10:00:00Z",
-      id: "ticket-12345",
-      licensePlate: "SP-1001",
-      phoneNumber: "3158492014",
-      plateCountry: "UNPLATED",
-      status: "OPEN",
-    };
-
-    fixture.componentRef.setInput("ticket", mockTicket);
-    fixture.detectChanges();
-
-    const link = component.whatsAppLink();
-    expect(link).toContain("https://wa.me/573158492014?text=");
-    expect(link).toContain(encodeURIComponent("SP-1001"));
-  });
-
-  it("should compute generic whatsapp share link when phone number is missing", () => {
-    const mockTicket: TicketSummary = {
+  it("should render ticket-delivery-card inside receipt", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.componentRef.setInput("ticket", {
       entryTime: "2026-08-27T10:00:00Z",
       id: "ticket-12345",
       licensePlate: "ABC123",
-      plateCountry: "CO",
       status: "OPEN",
-    };
-
-    fixture.componentRef.setInput("ticket", mockTicket);
+    });
     fixture.detectChanges();
 
-    const link = component.whatsAppLink();
-    expect(link).toContain("https://wa.me/?text=");
-    expect(link).toContain(encodeURIComponent("ABC123"));
+    const deliveryCard = fixture.nativeElement.querySelector(
+      "app-ticket-delivery-card"
+    );
+    expect(deliveryCard).not.toBeNull();
   });
 
   it("should generate qrDataUrl when ticket is present", async () => {
@@ -120,5 +101,29 @@ describe("TicketReceiptComponent", () => {
     );
     expect(imgEl).toBeTruthy();
     expect(imgEl?.src).toContain("data:image/jpeg;base64,mockphotodata");
+  });
+
+  it("should render ticket-delivery-card component when isOpen is true", () => {
+    const mockTicket: TicketSummary = {
+      entryTime: "2026-08-27T10:00:00Z",
+      id: "ticket-resend-test",
+      licensePlate: "RES123",
+      phoneNumber: "3101112233",
+      status: "OPEN",
+    };
+
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.componentRef.setInput("ticket", mockTicket);
+    fixture.detectChanges();
+
+    const deliveryCard = fixture.nativeElement.querySelector(
+      "app-ticket-delivery-card"
+    );
+    expect(deliveryCard).toBeTruthy();
+
+    const phoneInputEl: HTMLInputElement | null =
+      fixture.nativeElement.querySelector("#delivery-phone-input");
+    expect(phoneInputEl).toBeTruthy();
+    expect(phoneInputEl?.value).toBe("3101112233");
   });
 });

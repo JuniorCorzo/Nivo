@@ -6,7 +6,7 @@ import {
 } from "@angular/core";
 import type { TicketSummary } from "@core/models/ticket.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideEye, lucidePrinter } from "@ng-icons/lucide";
+import { lucideEye } from "@ng-icons/lucide";
 import { ButtonComponent } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
@@ -16,13 +16,12 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
   providers: [
     provideIcons({
       lucideEye,
-      lucidePrinter,
     }),
   ],
   selector: "app-ticket-row-actions",
   standalone: true,
   template: `
-    <div class="flex items-center justify-end gap-1.5">
+    <div class="flex items-center justify-end">
       <nv-button
         type="button"
         variant="ghost"
@@ -34,17 +33,6 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
       >
         <ng-icon name="lucideEye" size="14" />
       </nv-button>
-      <nv-button
-        type="button"
-        variant="ghost"
-        size="icon"
-        class="h-7 w-7"
-        [title]="texts.reprintReceipt"
-        [attr.aria-label]="texts.reprintReceipt"
-        (click)="reprintReceipt.emit(ticket())"
-      >
-        <ng-icon name="lucidePrinter" size="14" />
-      </nv-button>
     </div>
   `,
 })
@@ -53,5 +41,4 @@ export class TicketRowActionsComponent {
 
   readonly ticket = input.required<TicketSummary>();
   readonly selectTicket = output<TicketSummary>();
-  readonly reprintReceipt = output<TicketSummary>();
 }
