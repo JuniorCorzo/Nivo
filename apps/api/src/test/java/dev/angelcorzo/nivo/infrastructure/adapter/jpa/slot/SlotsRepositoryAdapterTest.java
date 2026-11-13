@@ -100,4 +100,25 @@ class SlotsRepositoryAdapterTest {
 
     verify(repository).deleteAllByIdInBatch(ids);
   }
+
+  @Test
+  @DisplayName("Should batch delete slots with tenantId using soft delete")
+  void shouldBatchDeleteWithTenantId() {
+    final List<UUID> ids = List.of(UUID.randomUUID(), UUID.randomUUID());
+    final UUID tenantId = UUID.randomUUID();
+
+    adapter.batchDelete(ids, tenantId);
+
+    verify(repository).softDeleteByIdsAndTenantId(ids, tenantId);
+  }
+
+  @Test
+  @DisplayName("Should fallback to deleteAllByIdInBatch when tenantId is null")
+  void shouldBatchDeleteFallbackWhenTenantIdIsNull() {
+    final List<UUID> ids = List.of(UUID.randomUUID());
+
+    adapter.batchDelete(ids, null);
+
+    verify(repository).deleteAllByIdInBatch(ids);
+  }
 }

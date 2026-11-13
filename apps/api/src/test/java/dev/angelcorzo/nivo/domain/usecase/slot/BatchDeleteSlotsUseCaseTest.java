@@ -44,4 +44,13 @@ class BatchDeleteSlotsUseCaseTest {
 
     verify(slotsRepository).batchDelete(slotIds, tenantId);
   }
+
+  @Test
+  @DisplayName("Should safely ignore null or empty slot ID lists")
+  void shouldSafelyIgnoreNullOrEmptyLists() {
+    useCase.execute(null);
+    useCase.execute(List.of());
+
+    verifyNoInteractions(slotsRepository);
+  }
 }

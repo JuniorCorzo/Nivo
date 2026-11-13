@@ -298,5 +298,55 @@ class CheckinVehicleUseCaseTest {
       assertThatThrownBy(() -> useCase.execute(command))
         .isInstanceOf(dev.angelcorzo.nivo.domain.model.slots.excetions.SlotNotFoundException.class);
     }
+
+    @Test
+    @DisplayName("Should throw RateNotFoundException when rate is soft-deleted")
+    void shouldThrowRateNotFoundExceptionWhenRateIsSoftDeleted() {
+      final UUID slotId = UUID.randomUUID();
+      final UUID tenantId = UUID.randomUUID();
+      final UUID rateId = UUID.randomUUID();
+      final CheckinVehicleUseCase.CreatedParkingTicket command = new CheckinVehicleUseCase.CreatedParkingTicket(
+        slotId, tenantId, "driver@example.com", rateId, "ABC123");
+
+      final Slots mockSlot = Slots.builder().id(slotId).status(SlotStatus.AVAILABLE).isActive(true).build();
+      final dev.angelcorzo.nivo.domain.model.rates.Rates deletedRate = dev.angelcorzo.nivo.domain.model.rates.Rates
+        .builder()
+        .id(rateId)
+        .deletedAt(java.time.OffsetDateTime.now())
+        .build();
+
+      when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
+      when(tenantsRepository.existsById(tenantId)).thenReturn(true);
+      when(ratesRepository.findById(rateId)).thenReturn(Optional.of(deletedRate));
+
+      assertThatThrownBy(() -> useCase.execute(command))
+        .isInstanceOf(dev.angelcorzo.nivo.domain.model.rates.exceptions.RateNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("Should throw RateNotFoundException when rate belongs to different tenant")
+    void shouldThrowRateNotFoundExceptionWhenRateBelongsToDifferentTenant() {
+      final UUID slotId = UUID.randomUUID();
+      final UUID tenantA = UUID.randomUUID();
+      final UUID tenantB = UUID.randomUUID();
+      final UUID rateId = UUID.randomUUID();
+      final CheckinVehicleUseCase.CreatedParkingTicket command = new CheckinVehicleUseCase.CreatedParkingTicket(
+        slotId, tenantA, "driver@example.com", rateId, "ABC123");
+
+      final Slots mockSlot = Slots.builder().id(slotId).status(SlotStatus.AVAILABLE).isActive(true).build();
+      final dev.angelcorzo.nivo.domain.model.rates.Rates rateOtherTenant = dev.angelcorzo.nivo.domain.model.rates.Rates
+        .builder()
+        .id(rateId)
+        .tenant(dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference.of(
+          dev.angelcorzo.nivo.domain.model.tenants.Tenants.builder().id(tenantB).build()))
+        .build();
+
+      when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
+      when(tenantsRepository.existsById(tenantA)).thenReturn(true);
+      when(ratesRepository.findById(rateId)).thenReturn(Optional.of(rateOtherTenant));
+
+      assertThatThrownBy(() -> useCase.execute(command))
+        .isInstanceOf(dev.angelcorzo.nivo.domain.model.rates.exceptions.RateNotFoundException.class);
+    }
   }
 }

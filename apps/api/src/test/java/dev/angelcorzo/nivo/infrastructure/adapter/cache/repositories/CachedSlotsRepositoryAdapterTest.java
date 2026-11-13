@@ -285,4 +285,35 @@ class CachedSlotsRepositoryAdapterTest {
     verify(delegate).batchDelete(List.of());
     verifyNoInteractions(cacheManager);
   }
+
+  @Test
+  @DisplayName("Should delegate batchDelete with tenantId and evict cache")
+  void shouldDelegateBatchDeleteWithTenantId() {
+    final UUID parkingLotId = UUID.randomUUID();
+    final UUID slotId = UUID.randomUUID();
+    final UUID tenantId = UUID.randomUUID();
+    final Slots slot = Slots.builder()
+      .id(slotId)
+      .parking(ParkingLotsReference.builder().id(parkingLotId).build())
+      .build();
+
+    when(delegate.findById(slotId)).thenReturn(Optional.of(slot));
+    when(cacheManager.getCache(CacheNames.SLOT_SUMMARY.getCacheName())).thenReturn(cache);
+    when(keyGenerator.buildKey(parkingLotId)).thenReturn("slot-summary:" + parkingLotId);
+
+    cachedAdapter.batchDelete(List.of(slotId), tenantId);
+
+    verify(delegate).batchDelete(List.of(slotId), tenantId);
+    verify(cache).evict("slot-summary:" + parkingLotId);
+  }
+
+  @Test
+  @DisplayName("Should delegate batchDelete with tenantId on empty list")
+  void shouldDelegateBatchDeleteWithTenantIdEmptyList() {
+    final UUID tenantId = UUID.randomUUID();
+    cachedAdapter.batchDelete(List.of(), tenantId);
+
+    verify(delegate).batchDelete(List.of(), tenantId);
+    verifyNoMoreInteractions(cacheManager);
+  }
 }
