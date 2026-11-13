@@ -114,9 +114,46 @@ jobs:
       - name: Run Design System Tests
         run: pnpm --filter @nivo-sass/design-system test
 
+  test-e2e:
+    name: Frontend E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@7088e561eb65bb68695d245aa206f005ef30921d # v4.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run Playwright E2E Tests
+        run: pnpm --filter web test:e2e:chromium
+        env:
+          E2E_BASE_URL: "http://127.0.0.1:4200"
+
+      - name: Upload Playwright Artifacts on Failure
+        if: failure()
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: playwright-artifacts
+          path: |
+            apps/web/test-results/
+            apps/web/playwright-report/
+          retention-days: 7
+
   sonarcloud:
     name: SonarCloud Analysis
-    needs: [test-backend, test-frontend, test-design-system]
+    needs: [test-backend, test-frontend, test-design-system, test-e2e]
     runs-on: ubuntu-latest
     if: success()
     steps:
