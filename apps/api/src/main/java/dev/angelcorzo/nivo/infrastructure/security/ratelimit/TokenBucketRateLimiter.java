@@ -15,6 +15,7 @@ public class TokenBucketRateLimiter {
   private final int maxBuckets;
   private final Map<String, Bucket> buckets;
 
+  @org.springframework.beans.factory.annotation.Autowired
   public TokenBucketRateLimiter() {
     this(60, 60, DEFAULT_MAX_BUCKETS);
   }
