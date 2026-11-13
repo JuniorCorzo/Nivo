@@ -20,7 +20,6 @@ import {
   lucideLayers,
   lucideLogOut,
   lucidePrinter,
-  lucideShare2,
   lucideShieldCheck,
   lucideX,
 } from "@ng-icons/lucide";
@@ -61,7 +60,6 @@ import { TicketDeliveryCardComponent } from "../../../operations/components/rece
       lucideLayers,
       lucideLogOut,
       lucidePrinter,
-      lucideShare2,
       lucideShieldCheck,
       lucideX,
     }),
@@ -92,10 +90,6 @@ export class TicketDetailDrawerComponent {
       globalThis.window?.location?.origin ?? "https://app.nivo.dev";
     return `${origin}/t/${t.id}`;
   });
-
-  onPrint(): void {
-    window.print();
-  }
 
   @HostListener("document:keydown.escape", ["$event"])
   onEscape(event: Event): void {

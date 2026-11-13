@@ -241,12 +241,12 @@
         type="button"
         [variant]="ticket()?.status === 'OPEN' ? 'outline' : 'default'"
         size="md"
-        (click)="onPrint()"
+        (click)="reprintReceipt.emit(ticket()!)"
         [title]="actionTexts.reprintReceipt"
         class="shrink-0"
       >
         <ng-icon name="lucidePrinter" size="16" class="shrink-0" />
-        <span class="whitespace-nowrap">Imprimir</span>
+        <span class="whitespace-nowrap">{{ actionTexts.reprintReceipt }}</span>
       </nv-button>
       @if (ticket()?.status === "OPEN") {
       <nv-button
