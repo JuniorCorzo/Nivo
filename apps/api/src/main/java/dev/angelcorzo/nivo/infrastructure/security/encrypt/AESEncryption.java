@@ -21,6 +21,7 @@ public class AESEncryption implements EncryptionGateway {
   private static final String ALGORITHM = "AES/GCM/NoPadding";
   private static final int IV_LENGTH = 12;
   private static final int TAG_LENGTH = 128;
+  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
   private final SecretKey secretKey;
   private final ObjectMapper objectMapper;
@@ -37,7 +38,7 @@ public class AESEncryption implements EncryptionGateway {
       final Cipher cipher = Cipher.getInstance(ALGORITHM);
 
       final byte[] iv = new byte[IV_LENGTH];
-      new SecureRandom().nextBytes(iv);
+      SECURE_RANDOM.nextBytes(iv);
       final GCMParameterSpec parameterSpec = new GCMParameterSpec(TAG_LENGTH, iv);
 
       cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec);

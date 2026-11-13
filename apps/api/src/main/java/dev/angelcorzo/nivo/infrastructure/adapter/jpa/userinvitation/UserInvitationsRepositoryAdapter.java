@@ -32,9 +32,12 @@ public class UserInvitationsRepositoryAdapter
 
   @Override
   public UserInvitations save(UserInvitations entity) {
-    UserInvitations userInvitationCreated = super.save(entity);
+    final UserInvitations userInvitationCreated = super.save(entity);
 
-    return this.findById(userInvitationCreated.getId()).orElseThrow();
+    return Optional.ofNullable(userInvitationCreated)
+      .map(UserInvitations::getId)
+      .flatMap(this::findById)
+      .orElse(userInvitationCreated);
   }
 
   @Override

@@ -126,6 +126,7 @@ public class SlotsController {
   @ApiResponses({@ApiResponse(responseCode = "200", description = "Slots deleted successfully"),
     @ApiResponse(responseCode = "400", description = "Invalid IDs list")})
   @PostMapping("/delete-batch")
+  @PreAuthorize("hasRole('MANAGER')")
   Response<?> batchDelete(@RequestBody List<UUID> ids) {
     this.batchDeleteSlotsUseCase.execute(ids);
     return Response.ok(null, "Slots deleted successfully");

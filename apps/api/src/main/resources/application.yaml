@@ -1,5 +1,6 @@
 server:
   port: ${API_PORT:8080}
+  forward-headers-strategy: framework
   servlet:
     context-path: /api
 
@@ -123,15 +124,7 @@ nivo:
         read-timeout: ${BREVO_READ_TIMEOUT_MS:10000}
 
 payment:
-  enabled: ${PAYMENT_ENABLED:true}
-  provider:
-    provider-name: "${PAYMENT_PROVIDER_NAME:epayco}"
-    url: "${PAYMENT_PROVIDER_URL:https://apify.epayco.co}"
-    public-key: "${PAYMENT_PUBLIC_KEY:dev_pub_key}"
-    private-key: "${PAYMENT_PRIVATE_KEY:dev_priv_key}"
-    expiration-time: ${PAYMENT_EXPIRATION_TIME:25}
-    confirmation-url: "${PAYMENT_CONFIRMATION_URL:http://localhost:8080/api/payments/confirm}"
-    confirmation-method: "${PAYMENT_CONFIRMATION_METHOD:POST}"
+  enabled: ${PAYMENT_ENABLED:false}
 
 app:
   currency: "${APP_CURRENCY:COP}"

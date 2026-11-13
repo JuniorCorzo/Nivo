@@ -51,7 +51,10 @@ class RefreshSessionUseCaseTest {
       UUID userId = UUID.randomUUID();
       UUID tenantId = UUID.randomUUID();
 
-      Map<String, String> claims = Map.of("sub", userId.toString(), "tenantId", tenantId.toString());
+      Map<String, String> claims = Map.of(
+        "sub", userId.toString(),
+        "tenantId", tenantId.toString(),
+        "purpose", "refresh-token");
 
       Users mockUser = Users.builder()
         .id(userId)
@@ -108,7 +111,10 @@ class RefreshSessionUseCaseTest {
       String validTokenWithNonExistentUser = "valid-token-non-existent-user";
       UUID userId = UUID.randomUUID();
       UUID tenantId = UUID.randomUUID();
-      Map<String, String> claims = Map.of("sub", userId.toString(), "tenantId", tenantId.toString());
+      Map<String, String> claims = Map.of(
+        "sub", userId.toString(),
+        "tenantId", tenantId.toString(),
+        "purpose", "refresh-token");
 
       doNothing().when(authenticationGateway).validateToken(validTokenWithNonExistentUser);
       when(authenticationGateway.extractTokenClaims(validTokenWithNonExistentUser)).thenReturn(claims);
@@ -120,6 +126,23 @@ class RefreshSessionUseCaseTest {
 
       verify(authenticationGateway, never()).generateAccessToken(any());
       verify(authenticationGateway, never()).generateRefreshToken(any());
+    }
+
+    @Test
+    @DisplayName("Should throw TokenInvalidException when presented token is an access token")
+    void shouldThrowExceptionWhenTokenIsAccessToken() {
+      String accessToken = "valid-access-token";
+      Map<String, String> claims = Map.of(
+        "sub", UUID.randomUUID().toString(),
+        "tenantId", UUID.randomUUID().toString(),
+        "purpose", "access-token");
+
+      doNothing().when(authenticationGateway).validateToken(accessToken);
+      when(authenticationGateway.extractTokenClaims(accessToken)).thenReturn(claims);
+
+      assertThatThrownBy(() -> refreshSessionUseCase.refreshAccessToken(accessToken))
+        .isInstanceOf(TokenInvalidException.class)
+        .hasMessageContaining("refresh token");
     }
   }
 }

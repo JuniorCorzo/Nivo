@@ -267,7 +267,7 @@ class CachedSlotsRepositoryAdapterTest {
       .parking(ParkingLotsReference.builder().id(parkingId).build())
       .build();
 
-    when(delegate.findById(slotId)).thenReturn(Optional.of(existing));
+    when(delegate.findAllById(List.of(slotId))).thenReturn(List.of(existing));
     when(cacheManager.getCache(CacheNames.SLOT_SUMMARY.getCacheName())).thenReturn(cache);
     when(keyGenerator.buildKey(parkingId)).thenReturn("tenant:T1:" + parkingId);
 
@@ -284,5 +284,67 @@ class CachedSlotsRepositoryAdapterTest {
 
     verify(delegate).batchDelete(List.of());
     verifyNoInteractions(cacheManager);
+  }
+
+  @Test
+  @DisplayName("Should delegate batchDelete with tenantId and evict cache")
+  void shouldDelegateBatchDeleteWithTenantId() {
+    final UUID parkingLotId = UUID.randomUUID();
+    final UUID slotId = UUID.randomUUID();
+    final UUID tenantId = UUID.randomUUID();
+    final Slots slot = Slots.builder()
+      .id(slotId)
+      .parking(ParkingLotsReference.builder().id(parkingLotId).build())
+      .build();
+
+    when(delegate.findAllById(List.of(slotId))).thenReturn(List.of(slot));
+    when(cacheManager.getCache(CacheNames.SLOT_SUMMARY.getCacheName())).thenReturn(cache);
+    when(keyGenerator.buildKey(parkingLotId)).thenReturn("slot-summary:" + parkingLotId);
+
+    cachedAdapter.batchDelete(List.of(slotId), tenantId);
+
+    verify(delegate).batchDelete(List.of(slotId), tenantId);
+    verify(cache).evict("slot-summary:" + parkingLotId);
+  }
+
+  @Test
+  @DisplayName("Should batch delete across multiple parking lots and evict all summaries")
+  void shouldBatchDeleteAcrossMultipleParkingLotsAndEvictAll() {
+    final UUID parkingLotId1 = UUID.randomUUID();
+    final UUID parkingLotId2 = UUID.randomUUID();
+    final UUID slotId1 = UUID.randomUUID();
+    final UUID slotId2 = UUID.randomUUID();
+    final UUID tenantId = UUID.randomUUID();
+
+    final Slots slot1 = Slots.builder()
+      .id(slotId1)
+      .parking(ParkingLotsReference.builder().id(parkingLotId1).build())
+      .build();
+    final Slots slot2 = Slots.builder()
+      .id(slotId2)
+      .parking(ParkingLotsReference.builder().id(parkingLotId2).build())
+      .build();
+
+    final List<UUID> ids = List.of(slotId1, slotId2);
+    when(delegate.findAllById(ids)).thenReturn(List.of(slot1, slot2));
+    when(cacheManager.getCache(CacheNames.SLOT_SUMMARY.getCacheName())).thenReturn(cache);
+    when(keyGenerator.buildKey(parkingLotId1)).thenReturn("slot-summary:" + parkingLotId1);
+    when(keyGenerator.buildKey(parkingLotId2)).thenReturn("slot-summary:" + parkingLotId2);
+
+    cachedAdapter.batchDelete(ids, tenantId);
+
+    verify(delegate).batchDelete(ids, tenantId);
+    verify(cache).evict("slot-summary:" + parkingLotId1);
+    verify(cache).evict("slot-summary:" + parkingLotId2);
+  }
+
+  @Test
+  @DisplayName("Should delegate batchDelete with tenantId on empty list")
+  void shouldDelegateBatchDeleteWithTenantIdEmptyList() {
+    final UUID tenantId = UUID.randomUUID();
+    cachedAdapter.batchDelete(List.of(), tenantId);
+
+    verify(delegate).batchDelete(List.of(), tenantId);
+    verifyNoMoreInteractions(cacheManager);
   }
 }

@@ -34,7 +34,7 @@ public class AuthenticationController {
   private final AuthenticationMapper authenticationMapper;
 
   public AuthenticationController(@Value("${jwt.refresh-token-expiration}") int refreshTokenExpiration,
-    @Value("${security.cookie.secure:false}") boolean cookieSecure,
+    @Value("${security.cookie.secure:true}") boolean cookieSecure,
     LoginUseCase loginUseCase, RefreshSessionUseCase refreshSessionUseCase,
     AuthenticationMapper authenticationMapper) {
     this.refreshTokenExpiration = refreshTokenExpiration;

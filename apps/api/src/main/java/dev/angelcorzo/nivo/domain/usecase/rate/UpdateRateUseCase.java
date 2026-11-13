@@ -1,5 +1,6 @@
 package dev.angelcorzo.nivo.domain.usecase.rate;
 
+import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.model.rates.Rates;
 import dev.angelcorzo.nivo.domain.model.rates.enums.TimeUnitsRate;
 import dev.angelcorzo.nivo.domain.model.rates.enums.VehicleType;
@@ -14,11 +15,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UpdateRateUseCase {
   private final RatesRepository ratesRepository;
+  private final AuthenticationContextGateway authenticationContext;
 
   public Rates execute(UpdateRate updateRate) {
-    final Rates rate = this.ratesRepository.findById(updateRate.id())
-      .orElseThrow(() -> new RateNotFoundException(updateRate.id()))
-      .toBuilder()
+    final UUID currentTenantId = this.authenticationContext != null
+      ? this.authenticationContext.getCurrentTenantId()
+      : null;
+    return this.execute(updateRate, currentTenantId);
+  }
+
+  public Rates execute(UpdateRate updateRate, UUID tenantId) {
+    final Rates existingRate = this.ratesRepository.findById(updateRate.id())
+      .orElseThrow(() -> new RateNotFoundException(updateRate.id()));
+
+    if (tenantId != null && existingRate.getTenant() != null && !tenantId.equals(existingRate.getTenant().id())) {
+      throw new RateNotFoundException(updateRate.id());
+    }
+
+    final Rates rate = existingRate.toBuilder()
       .name(updateRate.name())
       .description(updateRate.description())
       .pricePerUnit(updateRate.pricePerUnit())

@@ -1,5 +1,6 @@
 package dev.angelcorzo.nivo.domain.usecase.slot;
 
+import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway;
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotStatus;
 import dev.angelcorzo.nivo.domain.model.slots.enums.SlotType;
@@ -14,10 +15,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EditSlotUseCase {
   private final SlotsRepository slotsRepository;
+  private final AuthenticationContextGateway authenticationContext;
 
   public Slots execute(UpdateSlotCommand command) {
+    final UUID currentTenantId = this.authenticationContext != null
+      ? this.authenticationContext.getCurrentTenantId()
+      : null;
+    return this.execute(command, currentTenantId);
+  }
+
+  public Slots execute(UpdateSlotCommand command, UUID tenantId) {
     final Slots existing = this.slotsRepository.findById(command.id())
       .orElseThrow(() -> new SlotNotFoundException(command.id()));
+
+    if (tenantId != null && existing.getTenant() != null && !tenantId.equals(existing.getTenant().id())) {
+      throw new SlotNotFoundException(command.id());
+    }
 
     if (existing.getStatus() == SlotStatus.OCCUPIED) {
       throw new SlotCannotBeModifiedException(

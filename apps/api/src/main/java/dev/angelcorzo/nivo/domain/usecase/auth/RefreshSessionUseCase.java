@@ -1,6 +1,7 @@
 package dev.angelcorzo.nivo.domain.usecase.auth;
 
 import dev.angelcorzo.nivo.domain.model.authentication.AuthResponse;
+import dev.angelcorzo.nivo.domain.model.authentication.exceptions.TokenInvalidException;
 import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationGateway;
 import dev.angelcorzo.nivo.domain.model.users.Users;
 import dev.angelcorzo.nivo.domain.model.users.exceptions.UserNotExistsInTenantException;
@@ -42,6 +43,9 @@ public class RefreshSessionUseCase {
     this.validate(refreshToken);
 
     final Map<String, String> claims = this.authenticationGateway.extractTokenClaims(refreshToken);
+    if (!"refresh-token".equals(claims.get("purpose"))) {
+      throw new TokenInvalidException("Token is not a valid refresh token");
+    }
     final UUID userId = UUID.fromString(claims.get("sub"));
     final UUID tenantId = UUID.fromString(claims.get("tenantId"));
 
