@@ -110,5 +110,39 @@ class CheckOutVehicleUseCaseTest {
 
       assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(ProcessPaymentException.class);
     }
+
+    @Test
+    @DisplayName("Should throw ProcessPaymentException when ticket status is LOST")
+    void shouldThrowWhenTicketStatusIsLost() {
+      UUID ticketId = UUID.randomUUID();
+      UUID tenantId = UUID.randomUUID();
+      CheckOut command = new NoSendCheckOut(ticketId, tenantId, PaymentsMethods.EFFECTIVE);
+
+      ParkingTickets ticket = ParkingTickets.builder().id(ticketId).status(ParkingTicketStatus.LOST).build();
+
+      when(parkingTicketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
+
+      assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(ProcessPaymentException.class);
+    }
+
+    @Test
+    @DisplayName("Should throw ProcessPaymentException when ticket belongs to different tenant")
+    void shouldThrowWhenTicketBelongsToDifferentTenant() {
+      UUID ticketId = UUID.randomUUID();
+      UUID tenantA = UUID.randomUUID();
+      UUID tenantB = UUID.randomUUID();
+      CheckOut command = new NoSendCheckOut(ticketId, tenantA, PaymentsMethods.EFFECTIVE);
+
+      ParkingTickets ticket = ParkingTickets.builder()
+        .id(ticketId)
+        .status(ParkingTicketStatus.OPEN)
+        .tenant(dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference.of(
+          dev.angelcorzo.nivo.domain.model.tenants.Tenants.builder().id(tenantB).build()))
+        .build();
+
+      when(parkingTicketsRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
+
+      assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(ProcessPaymentException.class);
+    }
   }
 }

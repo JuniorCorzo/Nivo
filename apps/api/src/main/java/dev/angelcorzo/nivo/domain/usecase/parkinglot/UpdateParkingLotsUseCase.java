@@ -16,10 +16,26 @@ public class UpdateParkingLotsUseCase {
   private final AuthenticationContextGateway authenticationContext;
 
   public ParkingLots update(final UpsertParkingLotsDTO command) {
-    if (!this.parkingLotsRepository.existsById(command.id()))
-      throw new ParkingNotExistsException(command.id());
+    final ParkingLots existing = this.parkingLotsRepository.findById(command.id())
+      .orElseThrow(() -> new ParkingNotExistsException(command.id()));
 
-    ParkingLots parking = this.buildParkingLot(command);
+    final java.util.UUID currentTenantId = this.authenticationContext != null
+      ? this.authenticationContext.getCurrentTenantId()
+      : null;
+    if (existing.getTenant() != null && currentTenantId != null && !currentTenantId.equals(existing.getTenant().id())) {
+      throw new ParkingNotExistsException(command.id());
+    }
+
+    ParkingLots parking = existing.toBuilder()
+      .address(command.address())
+      .coordinates(command.coordinates())
+      .currency(command.currency())
+      .name(command.name())
+      .timezone(command.timezone())
+      .operatingHours(command.operatingHours())
+      .policy(command.policy() != null ? command.policy() : ParkingLotPolicy.defaults())
+      .build();
+
     parking = this.parkingLotsRepository.save(parking);
 
     if (command.slots() != null && !command.slots().isEmpty()) {

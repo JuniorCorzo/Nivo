@@ -8,6 +8,8 @@ import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.ParkingTicketsRe
 import dev.angelcorzo.nivo.domain.model.parkingtickets.gateways.UnplatedTicketSequenceGateway;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.Plate;
 import dev.angelcorzo.nivo.domain.model.parkingtickets.valueobjects.SlotSnapshot;
+import java.util.Optional;
+import dev.angelcorzo.nivo.domain.model.rates.Rates;
 import dev.angelcorzo.nivo.domain.model.rates.exceptions.RateNotFoundException;
 import dev.angelcorzo.nivo.domain.model.rates.gateways.RatesRepository;
 import dev.angelcorzo.nivo.domain.model.rates.valueobject.RateReference;
@@ -43,7 +45,11 @@ public class CheckinVehicleUseCase {
     final Slots slot = this.slotsRepository.findById(command.slotId())
       .orElseThrow(() -> new SlotNotFoundException(command.slotId()));
 
-    if (slot.getStatus() != SlotStatus.AVAILABLE) {
+    if (slot.getTenant() != null && !command.tenantId().equals(slot.getTenant().id())) {
+      throw new SlotNotFoundException(command.slotId());
+    }
+
+    if (slot.getStatus() != SlotStatus.AVAILABLE || !slot.isActive()) {
       throw new SlotCannotBeModifiedException(
         "Slot cannot be used for check-in because it is not available: " + slot.getId(),
         java.util.List.of(slot.getId()));
@@ -68,7 +74,7 @@ public class CheckinVehicleUseCase {
     slot.setStatus(SlotStatus.OCCUPIED);
     final Slots savedSlot = this.slotsRepository.save(slot);
 
-    final Users user = this.getUser(command.email());
+    final Users user = this.getUser(command.email(), command.tenantId());
 
     final ParkingTickets parkingTicket = ParkingTickets.builder()
       .slot(SlotsReference.of(savedSlot))
@@ -97,17 +103,26 @@ public class CheckinVehicleUseCase {
     if (!this.tenantsRepository.existsById(ticket.tenantId())) {
       throw new TenantNotExistsException(ticket.tenantId());
     }
-    if (!this.ratesRepository.existsById(ticket.rateId())) {
+    final Optional<Rates> rateOpt = this.ratesRepository.findById(ticket.rateId());
+    if (rateOpt.isPresent()) {
+      final Rates rate = rateOpt.get();
+      if (rate.getDeletedAt() != null
+        || (rate.getTenant() != null && !ticket.tenantId().equals(rate.getTenant().id()))) {
+        throw new RateNotFoundException(ticket.rateId());
+      }
+    } else if (!this.ratesRepository.existsById(ticket.rateId())) {
       throw new RateNotFoundException(ticket.rateId());
     }
   }
 
-  private Users getUser(final String email) {
-    if (email == null) {
+  private Users getUser(final String email, final UUID tenantId) {
+    if (email == null || email.isBlank()) {
       return null;
     }
 
-    return this.usersRepository.findByEmail(email).orElse(null);
+    return this.usersRepository.findByEmail(email)
+      .filter(u -> u.getTenant() == null || tenantId.equals(u.getTenant().id()))
+      .orElse(null);
   }
 
   @Builder(toBuilder = true)
