@@ -6,6 +6,7 @@ import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.commons.config.MapperS
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.security.dto.AuthenticationResponseDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.security.dto.UserCredentialsDTO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(config = MapperStructConfig.class)
 public interface AuthenticationMapper {
@@ -15,5 +16,6 @@ public interface AuthenticationMapper {
 
   AuthResponse toModel(AuthenticationResponseDTO dto);
 
+  @Mapping(target = "refreshToken", ignore = true)
   AuthenticationResponseDTO toDTO(AuthResponse model);
 }

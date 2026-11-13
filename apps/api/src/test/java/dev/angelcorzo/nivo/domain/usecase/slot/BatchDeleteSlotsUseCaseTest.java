@@ -30,4 +30,15 @@ class BatchDeleteSlotsUseCaseTest {
 
     verify(slotsRepository).batchDelete(slotIds);
   }
+
+  @Test
+  @DisplayName("Should batch delete slots with tenantId")
+  void shouldBatchDeleteSlotsWithTenantId() {
+    List<UUID> slotIds = List.of(UUID.randomUUID(), UUID.randomUUID());
+    UUID tenantId = UUID.randomUUID();
+
+    useCase.execute(slotIds, tenantId);
+
+    verify(slotsRepository).batchDelete(slotIds, tenantId);
+  }
 }

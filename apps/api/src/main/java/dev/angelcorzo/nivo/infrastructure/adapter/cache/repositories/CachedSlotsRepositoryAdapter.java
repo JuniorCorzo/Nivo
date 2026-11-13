@@ -90,6 +90,17 @@ public class CachedSlotsRepositoryAdapter implements SlotsRepository {
   }
 
   @Override
+  public void batchDelete(final List<UUID> ids, final UUID tenantId) {
+    if (ids != null && !ids.isEmpty()) {
+      final Optional<Slots> existing = this.delegate.findById(ids.getFirst());
+      if (existing.isPresent() && existing.get().getParking() != null) {
+        evictSlotSummary(existing.get().getParking().id());
+      }
+    }
+    this.delegate.batchDelete(ids, tenantId);
+  }
+
+  @Override
   public List<Slots> findAllById(final List<UUID> ids) {
     return this.delegate.findAllById(ids);
   }

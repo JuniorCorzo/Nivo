@@ -10,15 +10,13 @@ import dev.angelcorzo.nivo.domain.model.transactions.Transactions;
 import java.math.BigDecimal;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "payment.enabled", havingValue = "false")
 @Slf4j
 public class DisabledPaymentAdapter implements PaymentProviderGateway {
 
-  private static final String DISABLED_MESSAGE = "Payment module is disabled in this environment";
+  private static final String DISABLED_MESSAGE = "Online payment provider is disabled in this environment";
 
   @Override
   public Result<Transactions, PaymentError> getTransactionDetails(String checkoutSessionId) {
