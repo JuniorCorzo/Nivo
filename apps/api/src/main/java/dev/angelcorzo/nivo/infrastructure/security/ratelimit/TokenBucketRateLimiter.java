@@ -1,38 +1,57 @@
 package dev.angelcorzo.nivo.infrastructure.security.ratelimit;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TokenBucketRateLimiter {
 
+  private static final int DEFAULT_MAX_BUCKETS = 10_000;
+
   private final long capacity;
   private final long refillTokensPerMinute;
-  private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
+  private final int maxBuckets;
+  private final Map<String, Bucket> buckets;
 
   public TokenBucketRateLimiter() {
-    this(60, 60);
+    this(60, 60, DEFAULT_MAX_BUCKETS);
   }
 
   public TokenBucketRateLimiter(final long capacity, final long refillTokensPerMinute) {
+    this(capacity, refillTokensPerMinute, DEFAULT_MAX_BUCKETS);
+  }
+
+  public TokenBucketRateLimiter(final long capacity, final long refillTokensPerMinute, final int maxBuckets) {
     this.capacity = capacity;
     this.refillTokensPerMinute = refillTokensPerMinute;
+    this.maxBuckets = maxBuckets;
+    this.buckets = Collections.synchronizedMap(
+      new LinkedHashMap<>(128, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(final Map.Entry<String, Bucket> eldest) {
+          return size() > TokenBucketRateLimiter.this.maxBuckets;
+        }
+      });
   }
 
   public boolean tryConsume(final String key) {
-    final Bucket bucket = buckets.computeIfAbsent(key, k -> new Bucket(capacity, refillTokensPerMinute));
-    return bucket.tryConsume();
+    return getOrCreateBucket(key).tryConsume();
   }
 
   public long getRemainingTokens(final String key) {
-    final Bucket bucket = buckets.computeIfAbsent(key, k -> new Bucket(capacity, refillTokensPerMinute));
-    return bucket.getAvailableTokens();
+    return getOrCreateBucket(key).getAvailableTokens();
   }
 
   public long getSecondsUntilRefill(final String key) {
-    final Bucket bucket = buckets.computeIfAbsent(key, k -> new Bucket(capacity, refillTokensPerMinute));
-    return bucket.getSecondsUntilRefill();
+    return getOrCreateBucket(key).getSecondsUntilRefill();
+  }
+
+  private Bucket getOrCreateBucket(final String key) {
+    synchronized (buckets) {
+      return buckets.computeIfAbsent(key, k -> new Bucket(capacity, refillTokensPerMinute));
+    }
   }
 
   private static class Bucket {

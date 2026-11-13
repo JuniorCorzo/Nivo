@@ -80,11 +80,25 @@ class UpdateRateUseCaseTest {
   }
 
   @Test
-  @DisplayName("Should throw InvalidDomainException when minChargeTimeMinutes is negative")
-  void shouldThrowWhenMinChargeMinutesIsNegative() {
-    assertThatThrownBy(() -> new UpdateRateUseCase.UpdateRate(UUID.randomUUID(), "Name", "Desc",
-      BigDecimal.valueOf(5000), TimeUnitsRate.HOURS, -10, VehicleType.CAR))
-      .isInstanceOf(InvalidDomainException.class)
-      .hasMessageContaining("Minimum charge minutes cannot be negative");
+  @DisplayName("Should throw RateNotFoundException when rate belongs to different tenant")
+  void shouldThrowWhenRateBelongsToDifferentTenant() {
+    UUID rateId = UUID.randomUUID();
+    UUID tenantA = UUID.randomUUID();
+    UUID tenantB = UUID.randomUUID();
+    UpdateRateUseCase.UpdateRate command = new UpdateRateUseCase.UpdateRate(rateId, "New Name", "New Desc",
+      BigDecimal.valueOf(6000), TimeUnitsRate.HOURS, 30, VehicleType.CAR);
+
+    Rates existing = Rates.builder()
+      .id(rateId)
+      .name("Old Name")
+      .pricePerUnit(BigDecimal.valueOf(5000))
+      .tenant(dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference.of(
+        dev.angelcorzo.nivo.domain.model.tenants.Tenants.builder().id(tenantB).build()))
+      .build();
+
+    when(ratesRepository.findById(rateId)).thenReturn(Optional.of(existing));
+
+    assertThatThrownBy(() -> useCase.execute(command, tenantA))
+      .isInstanceOf(RateNotFoundException.class);
   }
 }

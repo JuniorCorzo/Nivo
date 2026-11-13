@@ -63,11 +63,17 @@ public class PublicApiRateLimitFilter extends OncePerRequestFilter {
     return uri.contains("/public/parkings/") || uri.startsWith("/public/") || uri.contains("/api/v1/public/");
   }
 
+  private static final java.util.regex.Pattern IP_PATTERN = java.util.regex.Pattern.compile("^[0-9a-fA-F:.]+$");
+
   private String resolveClientIp(final HttpServletRequest request) {
     final String xForwarded = request.getHeader("X-Forwarded-For");
     if (xForwarded != null && !xForwarded.isBlank()) {
-      return xForwarded.split(",")[0].trim();
+      final String firstIp = xForwarded.split(",")[0].trim();
+      if (firstIp.length() <= 45 && IP_PATTERN.matcher(firstIp).matches()) {
+        return firstIp;
+      }
     }
-    return request.getRemoteAddr();
+    final String remoteAddr = request.getRemoteAddr();
+    return remoteAddr != null && !remoteAddr.isBlank() ? remoteAddr : "unknown";
   }
 }
