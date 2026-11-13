@@ -16,18 +16,18 @@
           <span
             class="text-foreground block text-xs font-bold tracking-wider uppercase"
           >
-            {{ mode() === 'receipt' ? texts.resendSectionTitle : 'Envío de
-            Ticket Digital' }}
+            {{ mode() === 'receipt' ? texts.resendSectionTitle :
+            texts.checkinSectionTitle }}
           </span>
           @if (mode() === 'checkin') {
           <nv-muted class="text-[10px] leading-tight">
-            Canal de entrega para el cliente
+            {{ texts.deliveryHint }}
           </nv-muted>
           }
         </div>
       </div>
       @if (mode() === 'checkin') {
-      <nv-badge variant="secondary" size="sm"> Opcional </nv-badge>
+      <nv-badge variant="secondary" size="sm"> {{ texts.optionalBadge }} </nv-badge>
       }
     </div>
 
@@ -147,8 +147,6 @@
       variant="default"
       size="md"
       [href]="emailLink()"
-      target="_blank"
-      rel="noopener noreferrer"
       class="w-full gap-2 whitespace-nowrap shadow-xs transition-all active:scale-[0.98]"
     >
       <ng-icon name="lucideMail" size="14" class="shrink-0" />

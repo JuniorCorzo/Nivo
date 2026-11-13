@@ -2,7 +2,9 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
+  inject,
   input,
   linkedSignal,
   output,
@@ -70,6 +72,9 @@ export class TicketDeliveryCardComponent {
   readonly phoneChange = output<string>();
   readonly emailChange = output<string>();
   readonly channelChange = output<DeliveryChannel>();
+
+  private readonly destroyRef = inject(DestroyRef);
+  private copyTimeoutId?: ReturnType<typeof setTimeout>;
 
   readonly activeChannel = linkedSignal<DeliveryChannel>(() =>
     this.initialChannel()
@@ -147,7 +152,9 @@ export class TicketDeliveryCardComponent {
       if (globalThis.navigator?.clipboard) {
         await globalThis.navigator.clipboard.writeText(url);
         this.isCopied.set(true);
-        setTimeout(() => this.isCopied.set(false), 2000);
+        clearTimeout(this.copyTimeoutId);
+        this.copyTimeoutId = setTimeout(() => this.isCopied.set(false), 2000);
+        this.destroyRef.onDestroy(() => clearTimeout(this.copyTimeoutId));
       }
     } catch {
       // Ignore clipboard write failures gracefully
