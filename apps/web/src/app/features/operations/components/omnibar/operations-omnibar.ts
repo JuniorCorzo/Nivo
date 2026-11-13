@@ -87,6 +87,12 @@ export class OperationsOmnibarComponent {
     this.openUnplatedCheckIn.emit();
   }
 
+  onSearchEnter(): void {
+    if (this.searchTicketQuery().trim().length >= 2) {
+      this.submitExpressCheckOut.emit();
+    }
+  }
+
   onSubmitCheckOut(): void {
     this.submitExpressCheckOut.emit();
   }
