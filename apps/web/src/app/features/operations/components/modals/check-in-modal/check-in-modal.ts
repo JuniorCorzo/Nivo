@@ -6,6 +6,7 @@ import {
   inject,
   input,
   output,
+  untracked,
 } from "@angular/core";
 import type { VehicleType } from "@core/models/rate.model";
 import type { SlotSummary } from "@core/models/slot.model";
@@ -61,6 +62,7 @@ export class CheckInModalComponent {
   readonly preselectedSlot = input<SlotSummary | null>(null);
   readonly initialUnplated = input<boolean>(false);
   readonly initialPlate = input<string>("");
+  readonly initialPhotoUrl = input<string | null>(null);
 
   readonly closed = output();
 
@@ -68,54 +70,40 @@ export class CheckInModalComponent {
     effect(() => {
       const pId = this.parkingId();
       if (pId) {
-        this.facade.init(pId);
+        untracked(() => {
+          this.facade.init(pId);
+        });
       }
     });
 
     effect(() => {
       if (this.isOpen()) {
-        this.facade.reset();
-        if (this.initialUnplated()) {
-          this.facade.setIsUnplated(true);
-        }
-        const initPlate = this.initialPlate();
-        if (initPlate) {
-          const detected = detectPlateCountry(initPlate);
-          const formatted = formatPlate(initPlate, { country: detected });
-          this.facade.setPlate(formatted, detected === "VE" ? "VE" : "CO");
-        }
-        const preselected = this.preselectedSlot();
-        if (preselected) {
-          const vType: VehicleType =
-            preselected.type === "MOTORCYCLE" || preselected.type === "BIKE"
-              ? preselected.type
-              : "CAR";
-          this.facade.setVehicleType(vType);
-          this.facade.setSlotId(preselected.id);
-        }
+        untracked(() => {
+          this.facade.reset();
+          if (this.initialUnplated()) {
+            this.facade.setIsUnplated(true);
+          }
+          if (this.initialPhotoUrl()) {
+            this.facade.setPhotoUrl(this.initialPhotoUrl());
+          }
+          const initPlate = this.initialPlate();
+          if (initPlate) {
+            const detected = detectPlateCountry(initPlate);
+            const formatted = formatPlate(initPlate, { country: detected });
+            this.facade.setPlate(formatted, detected === "VE" ? "VE" : "CO");
+          }
+          const preselected = this.preselectedSlot();
+          if (preselected) {
+            const vType: VehicleType =
+              preselected.type === "MOTORCYCLE" || preselected.type === "BIKE"
+                ? preselected.type
+                : "CAR";
+            this.facade.setVehicleType(vType);
+            this.facade.setSlotId(preselected.id);
+          }
+        });
       }
     });
-  }
-
-  onPlateCountrySelect(country: PlateCountry): void {
-    this.facade.setPlateCountry(country);
-  }
-
-  onCountryChange(country: PlateCountry): void {
-    this.facade.setPlateCountry(country);
-  }
-
-  onPlateInput(event: Event): void {
-    /* SAFETY: Target is HTMLInputElement */
-    const target = event.target as HTMLInputElement;
-    const detected = detectPlateCountry(target.value);
-    this.facade.setPlate(target.value, detected === "VE" ? "VE" : "CO");
-  }
-
-  onPhoneInput(event: Event): void {
-    /* SAFETY: Target is HTMLInputElement */
-    const target = event.target as HTMLInputElement;
-    this.facade.setPhoneNumber(target.value);
   }
 
   onPhoneChange(phone: string): void {
@@ -126,22 +114,9 @@ export class CheckInModalComponent {
     this.facade.setEmail(email);
   }
 
-  onDeliveryChannelChange(channel: string): void {
-    this.facade.setDeliveryMethod(channel === "EMAIL" ? "EMAIL" : "WHATSAPP");
-  }
-
-  onPhotoCaptured(photoUrl: string): void {
-    this.facade.setPhotoUrl(photoUrl);
-  }
-
-  onPhotoCleared(): void {
-    this.facade.setPhotoUrl(null);
-  }
-
-  onEnterKey(event: Event): void {
-    event.preventDefault();
-    if (this.facade.isValid()) {
-      this.facade.submitCheckIn();
+  onDeliveryChannelChange(channel: "PRINT" | "WHATSAPP" | "EMAIL" | string): void {
+    if (channel === "EMAIL" || channel === "WHATSAPP" || channel === "PRINT") {
+      this.facade.setDeliveryMethod(channel);
     }
   }
 
@@ -155,12 +130,6 @@ export class CheckInModalComponent {
     /* SAFETY: Target is HTMLSelectElement */
     const target = event.target as HTMLSelectElement;
     this.facade.setRateId(target.value || null);
-  }
-
-  onEmailInput(event: Event): void {
-    /* SAFETY: Target is HTMLInputElement */
-    const target = event.target as HTMLInputElement;
-    this.facade.setEmail(target.value);
   }
 
   onSubmit(event: Event): void {

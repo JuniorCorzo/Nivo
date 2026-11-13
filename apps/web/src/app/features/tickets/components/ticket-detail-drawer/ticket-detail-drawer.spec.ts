@@ -65,13 +65,23 @@ describe("TicketDetailDrawerComponent", () => {
     expect(closed).toBe(true);
   });
 
-  it("should emit reprintReceipt output with current ticket", () => {
+  it("should emit reprintReceipt output when reprint button is clicked", () => {
     let emittedTicket: TicketSummary | null = null;
     component.reprintReceipt.subscribe((t) => {
       emittedTicket = t;
     });
 
-    component.reprintReceipt.emit(mockOpenTicket);
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll("nv-button")
+    ) as HTMLElement[];
+    const printBtn = buttons.find((b: HTMLElement) =>
+      b.getAttribute("title")?.includes(component.actionTexts.reprintReceipt)
+    );
+    expect(printBtn).toBeDefined();
+
+    const innerBtn = printBtn?.querySelector("button");
+    innerBtn?.click();
+
     expect(emittedTicket).toEqual(mockOpenTicket);
   });
 

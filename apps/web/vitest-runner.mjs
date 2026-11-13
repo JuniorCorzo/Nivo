@@ -11,9 +11,10 @@ if (files.length > 0) {
   ngArgs.push(`--include=${pattern}`);
 }
 
-const result = spawnSync("ng", [...ngArgs, ...flags], {
+const isWindows = process.platform === "win32";
+const result = spawnSync(isWindows ? "ng.cmd" : "ng", [...ngArgs, ...flags], {
   stdio: "inherit",
-  shell: true,
+  shell: isWindows,
 });
 
 process.exit(result.status ?? 0);
