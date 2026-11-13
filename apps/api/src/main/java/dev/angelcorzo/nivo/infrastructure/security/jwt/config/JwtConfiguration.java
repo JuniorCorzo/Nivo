@@ -15,8 +15,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -38,20 +38,35 @@ import org.springframework.core.io.Resource;
  * @see RSAPublicKey
  */
 @Configuration
-@RequiredArgsConstructor
-@Slf4j
 public class JwtConfiguration {
+
+  private static final Logger log = LoggerFactory.getLogger(JwtConfiguration.class);
 
   private final RSAProperties rsaProperties;
   private final Environment environment;
 
   private KeyPair ephemeralKeyPair;
 
+  public JwtConfiguration(RSAProperties rsaProperties, Environment environment) {
+    this.rsaProperties = rsaProperties;
+    this.environment = environment;
+  }
+
+  private void validateKeyConfiguration() {
+    boolean privateExists = this.rsaProperties.getPrivateKey() != null && this.rsaProperties.getPrivateKey().exists();
+    boolean publicExists = this.rsaProperties.getPublicKey() != null && this.rsaProperties.getPublicKey().exists();
+
+    if (privateExists != publicExists) {
+      throw new IllegalStateException(
+        "Inconsistent RSA configuration: both private and public keys must be provided together.");
+    }
+  }
+
   private synchronized KeyPair getOrCreateEphemeralKeyPair() {
     if (this.ephemeralKeyPair == null) {
-      if (this.environment.matchesProfiles("prod", "production")) {
+      if (!this.environment.matchesProfiles("dev", "local", "test")) {
         throw new IllegalStateException(
-          "RSA key resources do not exist. Ephemeral key generation is strictly forbidden in production.");
+          "RSA key resources do not exist. Ephemeral keys are only permitted in local/dev profiles.");
       }
       try {
         log.warn(
@@ -83,6 +98,7 @@ public class JwtConfiguration {
    */
   @Bean
   public RSAPrivateKey privateKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    this.validateKeyConfiguration();
     Resource resource = this.rsaProperties.getPrivateKey();
     if (resource == null || !resource.exists()) {
       return (RSAPrivateKey) this.getOrCreateEphemeralKeyPair().getPrivate();
@@ -117,6 +133,7 @@ public class JwtConfiguration {
    */
   @Bean
   public RSAPublicKey publicKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    this.validateKeyConfiguration();
     Resource resource = this.rsaProperties.getPublicKey();
     if (resource == null || !resource.exists()) {
       return (RSAPublicKey) this.getOrCreateEphemeralKeyPair().getPublic();
