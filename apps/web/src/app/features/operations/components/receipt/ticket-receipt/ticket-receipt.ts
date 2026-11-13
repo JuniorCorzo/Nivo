@@ -71,26 +71,6 @@ export class TicketReceiptComponent {
     return `${origin}/t/${t.id}`;
   });
 
-  readonly whatsAppLink = computed<string>(() => {
-    const t = this.ticket();
-    if (!t) {
-      return "";
-    }
-    const url = this.publicUrl();
-    const plate = t.licensePlate || this.texts.unplatedVehicle;
-    const msg = encodeURIComponent(this.texts.whatsAppMessage(plate, url));
-    const rawPhone = (t.phoneNumber ?? "").replaceAll(/\D/gu, "");
-    let phone = "";
-    if (rawPhone) {
-      phone = rawPhone.startsWith("57") ? rawPhone : `57${rawPhone}`;
-    }
-
-    if (phone) {
-      return `https://wa.me/${phone}?text=${msg}`;
-    }
-    return `https://wa.me/?text=${msg}`;
-  });
-
   constructor() {
     effect(async () => {
       const url = this.publicUrl();
