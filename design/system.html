@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nivo Design System Board</title>
+  <style>
+    :root {
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.141 0.005 285.823);
+      --card: oklch(1 0 0);
+      --card-foreground: oklch(0.141 0.005 285.823);
+      --primary: oklch(0.21 0.006 285.885);
+      --primary-foreground: oklch(0.985 0 0);
+      --secondary: oklch(0.967 0.001 286.375);
+      --secondary-foreground: oklch(0.21 0.006 285.885);
+      --muted: oklch(0.967 0.001 286.375);
+      --muted-foreground: oklch(0.552 0.016 285.938);
+      --border: oklch(0.92 0.004 286.32);
+      --input: oklch(0.92 0.004 286.32);
+      --ring: oklch(0.21 0.006 285.885);
+      --success: oklch(0.627 0.194 149.214);
+      --warning: oklch(0.769 0.188 70.08);
+      --error: oklch(0.577 0.245 27.325);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 1440px;
+      margin: 0 auto;
+      padding: 40px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--background);
+      color: var(--foreground);
+    }
+    h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    p.sub { color: var(--muted-foreground); font-size: 14px; margin-bottom: 32px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
+    .swatch {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .swatch-color { height: 48px; border-radius: 8px; border: 1px solid var(--border); }
+    .name { font-weight: 600; font-size: 13px; }
+    .val { font-size: 11px; color: var(--muted-foreground); font-family: monospace; }
+  </style>
+</head>
+<body>
+  <h1>Nivo System Tokens</h1>
+  <p class="sub">Tokens extraídos directamente de libs/design-system/src/lib/styles/tokens.css</p>
+
+  <div class="grid">
+    <div class="swatch">
+      <div class="swatch-color" style="background: var(--primary);"></div>
+      <span class="name">Primary</span>
+      <span class="val">--primary</span>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background: var(--muted);"></div>
+      <span class="name">Muted Surface</span>
+      <span class="val">--muted</span>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background: var(--success);"></div>
+      <span class="name">Success</span>
+      <span class="val">--semantic-success</span>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background: var(--warning);"></div>
+      <span class="name">Warning</span>
+      <span class="val">--semantic-warning</span>
+    </div>
+  </div>
+</body>
+</html>
