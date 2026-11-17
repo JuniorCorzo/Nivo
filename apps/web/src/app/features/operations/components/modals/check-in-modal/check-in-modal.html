@@ -96,6 +96,23 @@
         }
       </div>
 
+      <!-- Photo capture for unplated vehicles -->
+      @if (facade.isUnplated()) {
+      <div class="space-y-1.5">
+        <label
+          class="text-muted-foreground block text-[10px] font-semibold tracking-wider uppercase"
+        >
+          Fotografía de Vehículo <span class="text-destructive">*</span>
+        </label>
+        <app-photo-capture
+          [initialPhoto]="facade.photoUrl()"
+          [autoStart]="true"
+          (photoCaptured)="onPhotoCaptured($event)"
+          (photoCleared)="onPhotoCleared()"
+        />
+      </div>
+      }
+
       <!-- Capacity Warning if full -->
       @if (!facade.hasAvailableSlots()) {
       <div

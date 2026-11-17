@@ -256,4 +256,24 @@ describe("CheckInModalComponent", () => {
       "https://storage.nivo.dev/photos/unplated-bike.jpg"
     );
   });
+
+  it("should render app-photo-capture component when initialUnplated is true", () => {
+    fixture.componentRef.setInput("initialUnplated", true);
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const photoCapture =
+      fixture.nativeElement.querySelector("app-photo-capture");
+    expect(photoCapture).not.toBeNull();
+  });
+
+  it("should update photoUrl in facade when onPhotoCaptured is called and clear on onPhotoCleared", () => {
+    component.onPhotoCaptured("data:image/jpeg;base64,samplephoto");
+    expect(component.facade.photoUrl()).toBe(
+      "data:image/jpeg;base64,samplephoto"
+    );
+
+    component.onPhotoCleared();
+    expect(component.facade.photoUrl()).toBeNull();
+  });
 });

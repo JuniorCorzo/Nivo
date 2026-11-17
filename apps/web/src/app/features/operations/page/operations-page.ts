@@ -501,9 +501,9 @@ export class OperationsPageComponent {
       .replaceAll(/[^a-zA-Z0-9]/gu, "")
       .toUpperCase();
 
-    if (cleanPlate.length < 3) {
+    if (cleanPlate.length < 3 || cleanPlate.length > 7) {
       this.toast.showToast({
-        message: "Por favor ingresa una placa válida (mínimo 3 caracteres).",
+        message: "Por favor ingresa una placa válida.",
         type: "error",
       });
       return;

@@ -62,10 +62,18 @@ describe("plate.utils", () => {
       expect(detectPlateCountry("abc-12d")).toBe("CO");
     });
 
-    it("should default to CO if ambiguous or fewer than 3 characters", () => {
+    it("should detect CO for progressive valid prefixes of 1 or 2 characters", () => {
       expect(detectPlateCountry("AB")).toBe("CO");
       expect(detectPlateCountry("A")).toBe("CO");
-      expect(detectPlateCountry("ABCD1234")).toBe("CO");
+    });
+
+    it("should throw Error when plate format is invalid or has excessive characters", () => {
+      expect(() => detectPlateCountry("ABCD1234")).toThrowError(
+        'Placa inválida: formato no reconocido para "ABCD1234"'
+      );
+      expect(() => detectPlateCountry("ABC1234")).toThrowError(
+        'Placa inválida: formato no reconocido para "ABC1234"'
+      );
     });
   });
 

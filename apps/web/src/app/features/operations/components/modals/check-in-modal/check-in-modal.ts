@@ -24,6 +24,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { detectPlateCountry, formatPlate } from "@shared/utils/plate.utils";
 
 import { CheckInFacade } from "../../../facades/check-in.facade";
+import { PhotoCaptureComponent } from "../../photo-capture/photo-capture.component";
 import { TicketDeliveryCardComponent } from "../../receipt/ticket-delivery-card/ticket-delivery-card";
 import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-receipt";
 
@@ -33,6 +34,7 @@ import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-rece
     ButtonComponent,
     CommonModule,
     NgIcon,
+    PhotoCaptureComponent,
     TicketDeliveryCardComponent,
     TicketReceiptComponent,
   ],
@@ -137,6 +139,14 @@ export class CheckInModalComponent {
     if (channel === "EMAIL" || channel === "WHATSAPP" || channel === "PRINT") {
       this.facade.setDeliveryMethod(channel);
     }
+  }
+
+  onPhotoCaptured(photoUrl: string): void {
+    this.facade.setPhotoUrl(photoUrl);
+  }
+
+  onPhotoCleared(): void {
+    this.facade.setPhotoUrl(null);
   }
 
   onSlotChange(event: Event): void {

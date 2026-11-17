@@ -22,6 +22,12 @@ interface DelimiterBackspaceResult {
   readonly updatedRaw: string;
 }
 
+interface RawPlateState {
+  readonly effectiveCountry: PlateCountry;
+  readonly raw: string;
+  readonly rawCharsBeforeCursor: number;
+}
+
 @Directive({
   selector: "input[appPlateMask]",
   standalone: true,
@@ -73,7 +79,11 @@ export class PlateMaskDirective {
       value[selectionStart - 1] === "-"
     ) {
       this.isDeletingDelimiter = true;
+      return;
     }
+
+    // Brake typing when maximum raw plate length is reached
+    this.handleKeydownBraking(event, inputEl);
   }
 
   @HostListener("input", ["$event"])
@@ -98,17 +108,35 @@ export class PlateMaskDirective {
     if (!inputEl || this.country() === "UNPLATED") {
       return;
     }
+
+    const state = this.prepareRawPlate(inputEl);
+    const formatted = PlateMaskDirective.formatPlate(
+      state.raw,
+      state.effectiveCountry,
+      this.vehicleType()
+    );
+    const rawPlate = formatted.replaceAll(/[^A-Za-z0-9]/gu, "");
+
+    this.updateDomValue(
+      inputEl,
+      formatted,
+      rawPlate,
+      state.effectiveCountry,
+      triggerEvent
+    );
+    this.updateCaretPosition(inputEl, formatted, state.rawCharsBeforeCursor);
+    this.emitCountryChange(state.effectiveCountry, triggerEvent);
+  }
+
+  private prepareRawPlate(inputEl: HTMLInputElement): RawPlateState {
     const originalValue = inputEl.value;
     const caretPos = inputEl.selectionStart ?? originalValue.length;
-
-    // 1. Calculate how many raw alphanumeric characters precede the cursor
     const textBeforeCursor = originalValue.slice(0, caretPos);
     let rawCharsBeforeCursor = textBeforeCursor.replaceAll(
       /[^A-Za-z0-9]/gu,
       ""
     ).length;
 
-    // 2. Extract sanitized alphanumeric content and determine effective country
     let raw = normalizeRawPlate(originalValue);
     const effectiveCountry = this.resolveEffectiveCountry(raw);
     const maxRawLength = effectiveCountry === "VE" ? 7 : 6;
@@ -122,32 +150,74 @@ export class PlateMaskDirective {
     rawCharsBeforeCursor = backspaceResult.updatedCaretCount;
     this.lastRawValue = raw;
 
-    // 3. Format according to country and vehicle type
-    const formatted = PlateMaskDirective.formatPlate(
-      raw,
-      effectiveCountry,
-      this.vehicleType()
-    );
-    const rawPlate = formatted.replaceAll(/[^A-Za-z0-9]/gu, "");
+    return { effectiveCountry, raw, rawCharsBeforeCursor };
+  }
 
-    // 4. Update DOM value if changed
+  private handleKeydownBraking(
+    event: KeyboardEvent,
+    inputEl: HTMLInputElement
+  ): void {
+    if (
+      event.key.length !== 1 ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.altKey
+    ) {
+      return;
+    }
+    const { selectionStart, selectionEnd, value } = inputEl;
+    const hasSelection =
+      selectionStart !== null &&
+      selectionEnd !== null &&
+      selectionStart !== selectionEnd;
+    if (hasSelection) {
+      return;
+    }
+
+    const raw = normalizeRawPlate(value);
+    const effectiveCountry = this.resolveEffectiveCountry(raw);
+    const maxRawLength = effectiveCountry === "VE" ? 7 : 6;
+
+    if (raw.length >= maxRawLength && /[A-Za-z0-9]/u.test(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  private updateDomValue(
+    inputEl: HTMLInputElement,
+    formatted: string,
+    rawPlate: string,
+    effectiveCountry: PlateCountry,
+    triggerEvent?: Event
+  ): void {
+    inputEl.maxLength = effectiveCountry === "VE" ? 9 : 7;
+
     if (inputEl.value !== formatted) {
       inputEl.value = formatted;
       this.rawPlateChange.emit(rawPlate);
 
-      // Trigger synthetic input event only if not currently handling an input event
       if (!triggerEvent) {
         inputEl.dispatchEvent(new Event("input", { bubbles: true }));
       }
     }
+  }
 
-    // 5. Calculate new caret position matching rawCharsBeforeCursor
+  private updateCaretPosition(
+    inputEl: HTMLInputElement,
+    formatted: string,
+    rawCharsBeforeCursor: number
+  ): void {
     const newCaretPos = PlateMaskDirective.calculateCaretPosition(
       formatted,
       rawCharsBeforeCursor
     );
     inputEl.setSelectionRange(newCaretPos, newCaretPos);
+  }
 
+  private emitCountryChange(
+    effectiveCountry: PlateCountry,
+    triggerEvent?: Event
+  ): void {
     if (Boolean(triggerEvent) || this.lastEmittedCountry !== effectiveCountry) {
       this.lastEmittedCountry = effectiveCountry;
       this.countryChange.emit(effectiveCountry);
@@ -163,8 +233,12 @@ export class PlateMaskDirective {
     ) {
       return currentCountry;
     }
-    const detected = detectPlateCountry(raw);
-    return detected === "VE" ? "VE" : "CO";
+    try {
+      const detected = detectPlateCountry(raw);
+      return detected === "VE" ? "VE" : "CO";
+    } catch {
+      return raw.length >= 3 && /\d/u.test(raw[2]) ? "VE" : "CO";
+    }
   }
 
   private handleDelimiterBackspace(

@@ -104,6 +104,21 @@ describe("PlateMaskDirective", () => {
       setInputValue("ABC123XYZ");
       expect(inputEl.value).toBe("ABC-123");
     });
+
+    it("should prevent typing additional characters when maximum length is reached (braking mechanism)", () => {
+      setInputValue("ABC123");
+      expect(inputEl.value).toBe("ABC-123");
+
+      const event = new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        key: "4",
+      });
+      const preventSpy = vi.spyOn(event, "preventDefault");
+      inputEl.dispatchEvent(event);
+
+      expect(preventSpy).toHaveBeenCalled();
+    });
   });
 
   describe("Colombian Motorcycle (CO + MOTORCYCLE: AAA-00A)", () => {
