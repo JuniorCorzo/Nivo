@@ -159,8 +159,6 @@ describe("CheckInModalComponent", () => {
     expect(plateInput).toBeNull();
   });
 
-
-
   it("should pre-set vehicle type and slotId in facade and render banner when preselectedSlot is provided on open", () => {
     const mockSlot = {
       id: "slot-custom-1",
@@ -218,6 +216,4 @@ describe("CheckInModalComponent", () => {
 
     expect(component.facade.plate()).toBe("XYZ-789");
   });
-
-
 });

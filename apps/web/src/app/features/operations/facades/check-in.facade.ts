@@ -196,16 +196,16 @@ export class CheckInFacade {
       .getRatesByParkingId(parkingId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((rates) => {
-      if (!this.selectedRateId()) {
-        const type = this.vehicleType();
-        const matchingRates = (rates ?? []).filter(
-          (r) => r.vehicleType === type
-        );
-        if (matchingRates.length > 0) {
-          this.selectedRateId.set(matchingRates[0].id);
+        if (!this.selectedRateId()) {
+          const type = this.vehicleType();
+          const matchingRates = (rates ?? []).filter(
+            (r) => r.vehicleType === type
+          );
+          if (matchingRates.length > 0) {
+            this.selectedRateId.set(matchingRates[0].id);
+          }
         }
-      }
-    });
+      });
   }
 
   setPlate(plate: string, detectedCountry?: PlateCountry): void {
@@ -331,39 +331,39 @@ export class CheckInFacade {
       .createTicket(payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      error: (err) => {
-        this.isSubmitting.set(false);
-        const errorMsg =
-          err?.error?.message ||
-          err?.message ||
-          "Error al registrar el ingreso. Verifique la placa y disponibilidad de cupo.";
-        this.errorMessage.set(errorMsg);
-        this.toast.showToast({ message: errorMsg, type: "error" });
-      },
-      next: (ticket) => {
-        this.isSubmitting.set(false);
-        this.lastIssuedTicket.set(ticket);
-        this.isReceiptOpen.set(true);
-        this.toast.showToast({
-          message: "Ingreso registrado con éxito",
-          type: "success",
-        });
+        error: (err) => {
+          this.isSubmitting.set(false);
+          const errorMsg =
+            err?.error?.message ||
+            err?.message ||
+            "Error al registrar el ingreso. Verifique la placa y disponibilidad de cupo.";
+          this.errorMessage.set(errorMsg);
+          this.toast.showToast({ message: errorMsg, type: "error" });
+        },
+        next: (ticket) => {
+          this.isSubmitting.set(false);
+          this.lastIssuedTicket.set(ticket);
+          this.isReceiptOpen.set(true);
+          this.toast.showToast({
+            message: "Ingreso registrado con éxito",
+            type: "success",
+          });
 
-        // Refresh slots state
-        this.slotService
-          .getAllSlotSummariesByParkingId(pId)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe();
+          // Refresh slots state
+          this.slotService
+            .getAllSlotSummariesByParkingId(pId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
 
-        // Reset plate, email, photo, phone, country for next rapid check-in
-        this.plate.set("");
-        this.email.set("");
-        this.photoUrl.set(null);
-        this.phoneNumber.set("");
-        this.plateCountry.set("CO");
-        this.deliveryMethod.set("PRINT");
-      },
-    });
+          // Reset plate, email, photo, phone, country for next rapid check-in
+          this.plate.set("");
+          this.email.set("");
+          this.photoUrl.set(null);
+          this.phoneNumber.set("");
+          this.plateCountry.set("CO");
+          this.deliveryMethod.set("PRINT");
+        },
+      });
   }
 
   closeReceipt(): void {

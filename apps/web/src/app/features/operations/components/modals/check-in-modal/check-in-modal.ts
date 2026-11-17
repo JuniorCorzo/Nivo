@@ -10,7 +10,6 @@ import {
 } from "@angular/core";
 import type { VehicleType } from "@core/models/rate.model";
 import type { SlotSummary } from "@core/models/slot.model";
-import type { PlateCountry } from "@core/models/ticket.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideAlertCircle,
@@ -114,7 +113,9 @@ export class CheckInModalComponent {
     this.facade.setEmail(email);
   }
 
-  onDeliveryChannelChange(channel: "PRINT" | "WHATSAPP" | "EMAIL" | string): void {
+  onDeliveryChannelChange(
+    channel: "PRINT" | "WHATSAPP" | "EMAIL" | string
+  ): void {
     if (channel === "EMAIL" || channel === "WHATSAPP" || channel === "PRINT") {
       this.facade.setDeliveryMethod(channel);
     }
