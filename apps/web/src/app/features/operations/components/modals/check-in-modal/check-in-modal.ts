@@ -90,6 +90,14 @@ export class CheckInModalComponent {
             const detected = detectPlateCountry(initPlate);
             const formatted = formatPlate(initPlate, { country: detected });
             this.facade.setPlate(formatted, detected === "VE" ? "VE" : "CO");
+            if (!this.preselectedSlot()) {
+              const raw = initPlate
+                .replaceAll(/[^A-Za-z0-9]/gu, "")
+                .toUpperCase();
+              if (/^[A-Z]{3}\d{2}[A-Z]$/u.test(raw)) {
+                this.facade.setVehicleType("MOTORCYCLE");
+              }
+            }
           }
           const preselected = this.preselectedSlot();
           if (preselected) {
@@ -107,10 +115,20 @@ export class CheckInModalComponent {
 
   onPhoneChange(phone: string): void {
     this.facade.setPhoneNumber(phone);
+    if (phone.trim()) {
+      this.facade.setDeliveryMethod("WHATSAPP");
+    } else if (!this.facade.email().trim()) {
+      this.facade.setDeliveryMethod("PRINT");
+    }
   }
 
   onEmailChange(email: string): void {
     this.facade.setEmail(email);
+    if (email.trim()) {
+      this.facade.setDeliveryMethod("EMAIL");
+    } else if (!this.facade.phoneNumber().trim()) {
+      this.facade.setDeliveryMethod("PRINT");
+    }
   }
 
   onDeliveryChannelChange(

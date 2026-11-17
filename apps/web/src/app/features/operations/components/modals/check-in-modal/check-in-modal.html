@@ -87,6 +87,12 @@
             >{{ facade.plateCountry() }}</span
           >
         </span>
+        } @if (facade.isUnplated() && facade.photoUrl(); as photo) {
+        <img
+          [src]="photo"
+          alt="Vehículo sin placa"
+          class="border-border/80 h-10 w-10 rounded-md border object-cover"
+        />
         }
       </div>
 

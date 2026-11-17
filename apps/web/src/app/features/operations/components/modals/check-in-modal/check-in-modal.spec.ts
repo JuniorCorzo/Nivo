@@ -82,14 +82,24 @@ describe("CheckInModalComponent", () => {
     expect(emitSpy).toHaveBeenCalled();
   });
 
-  it("should update phone number in facade on phoneChange event", () => {
+  it("should update phone number and switch deliveryMethod to WHATSAPP on phoneChange, reverting to PRINT when cleared", () => {
     component.onPhoneChange("3001234567");
     expect(component.facade.phoneNumber()).toBe("3001234567");
+    expect(component.facade.deliveryMethod()).toBe("WHATSAPP");
+
+    component.onPhoneChange("");
+    expect(component.facade.phoneNumber()).toBe("");
+    expect(component.facade.deliveryMethod()).toBe("PRINT");
   });
 
-  it("should update email in facade on emailChange event", () => {
+  it("should update email and switch deliveryMethod to EMAIL on emailChange, reverting to PRINT when cleared", () => {
     component.onEmailChange("cliente@nivo.com");
     expect(component.facade.email()).toBe("cliente@nivo.com");
+    expect(component.facade.deliveryMethod()).toBe("EMAIL");
+
+    component.onEmailChange("");
+    expect(component.facade.email()).toBe("");
+    expect(component.facade.deliveryMethod()).toBe("PRINT");
   });
 
   it("should update deliveryMethod in facade on deliveryChannelChange event", () => {
@@ -215,5 +225,35 @@ describe("CheckInModalComponent", () => {
     fixture.detectChanges();
 
     expect(component.facade.plate()).toBe("XYZ-789");
+  });
+
+  it("should infer vehicleType MOTORCYCLE when initialPlate matches motorcycle format and preselectedSlot is null", () => {
+    const setVehicleTypeSpy = vi.spyOn(component.facade, "setVehicleType");
+
+    fixture.componentRef.setInput("initialPlate", "ABC12D");
+    fixture.componentRef.setInput("preselectedSlot", null);
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    expect(setVehicleTypeSpy).toHaveBeenCalledWith("MOTORCYCLE");
+    expect(component.facade.vehicleType()).toBe("MOTORCYCLE");
+  });
+
+  it("should render photo thumbnail when initialUnplated is true and initialPhotoUrl is provided", () => {
+    fixture.componentRef.setInput("initialUnplated", true);
+    fixture.componentRef.setInput(
+      "initialPhotoUrl",
+      "https://storage.nivo.dev/photos/unplated-bike.jpg"
+    );
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const img = fixture.nativeElement.querySelector(
+      'img[alt="Vehículo sin placa"]'
+    );
+    expect(img).not.toBeNull();
+    expect(img?.getAttribute("src")).toBe(
+      "https://storage.nivo.dev/photos/unplated-bike.jpg"
+    );
   });
 });

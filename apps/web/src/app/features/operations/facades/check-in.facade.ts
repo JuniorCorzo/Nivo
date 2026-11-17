@@ -146,12 +146,9 @@ export class CheckInFacade {
 
     if (
       this.deliveryMethod() === "EMAIL" &&
-      (!this.email().trim() || !this.email().includes("@"))
+      this.email().trim() &&
+      !this.email().includes("@")
     ) {
-      return false;
-    }
-
-    if (this.deliveryMethod() === "WHATSAPP" && !this.phoneNumber().trim()) {
       return false;
     }
 

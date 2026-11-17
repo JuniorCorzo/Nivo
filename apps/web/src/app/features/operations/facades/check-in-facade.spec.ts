@@ -556,25 +556,26 @@ describe("CheckInFacade", () => {
   });
 
   describe("Digital Delivery and Channel Validation", () => {
-    it("should require phone when deliveryMethod is WHATSAPP", () => {
+    it("should not block isValid when deliveryMethod is WHATSAPP with empty phone (optional delivery)", () => {
       facade.init("parking-1");
       facade.setVehicleType("CAR");
       facade.setPlate("ABC-123");
       facade.setDeliveryMethod("WHATSAPP");
 
-      expect(facade.isValid()).toBe(false);
+      expect(facade.isValid()).toBe(true);
 
       facade.setPhoneNumber("3001234567");
       expect(facade.isValid()).toBe(true);
     });
 
-    it("should require valid email with @ when deliveryMethod is EMAIL", () => {
+    it("should allow empty email but reject invalid format when deliveryMethod is EMAIL", () => {
       facade.init("parking-1");
       facade.setVehicleType("CAR");
       facade.setPlate("ABC-123");
       facade.setDeliveryMethod("EMAIL");
 
-      expect(facade.isValid()).toBe(false);
+      // Empty email is valid (optional delivery)
+      expect(facade.isValid()).toBe(true);
 
       facade.setEmail("invalid-email");
       expect(facade.isValid()).toBe(false);
