@@ -138,7 +138,7 @@ export class PublicTicketPageComponent {
         this.isLoading.set(false);
         this.hasError.set(false);
         this.ticket.set(ticket);
-        this.generateQRCode(ticket.plate || ticket.id);
+        void this.generateQRCode(ticket.plate || ticket.id);
         this.startTimer(ticket.entryTime, ticket.exitTime);
       },
     });
