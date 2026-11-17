@@ -7,14 +7,17 @@ const flags = rawArgs.filter((arg) => arg.startsWith("-"));
 
 const ngArgs = ["test", "--watch=false"];
 if (files.length > 0) {
-  const pattern = files.length === 1 ? `**/${files[0]}` : `{${files.map((f) => `**/${f}`).join(",")}}`;
+  const pattern =
+    files.length === 1
+      ? `**/${files[0]}`
+      : `{${files.map((f) => `**/${f}`).join(",")}}`;
   ngArgs.push(`--include=${pattern}`);
 }
 
 const isWindows = process.platform === "win32";
 const result = spawnSync(isWindows ? "ng.cmd" : "ng", [...ngArgs, ...flags], {
-  stdio: "inherit",
   shell: isWindows,
+  stdio: "inherit",
 });
 
 process.exit(result.status ?? 0);

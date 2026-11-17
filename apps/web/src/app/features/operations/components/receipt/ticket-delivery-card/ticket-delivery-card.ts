@@ -76,6 +76,10 @@ export class TicketDeliveryCardComponent {
   private readonly destroyRef = inject(DestroyRef);
   private copyTimeoutId?: ReturnType<typeof setTimeout>;
 
+  constructor() {
+    this.destroyRef.onDestroy(() => clearTimeout(this.copyTimeoutId));
+  }
+
   readonly activeChannel = linkedSignal<DeliveryChannel>(() =>
     this.initialChannel()
   );
@@ -98,7 +102,10 @@ export class TicketDeliveryCardComponent {
     const rawPhone = this.phoneInput().replaceAll(/\D/gu, "");
     let phone = "";
     if (rawPhone) {
-      phone = rawPhone.startsWith("57") ? rawPhone : `57${rawPhone}`;
+      phone =
+        rawPhone.length === 10 && rawPhone.startsWith("3")
+          ? `57${rawPhone}`
+          : rawPhone;
     }
 
     if (phone) {
@@ -111,8 +118,8 @@ export class TicketDeliveryCardComponent {
     const t = this.ticket();
     const url = this.publicUrl();
     const plate = t?.licensePlate || this.texts.unplatedVehicle;
-    const subject = encodeURIComponent(`Comprobante de Parqueo - ${plate}`);
-    const body = encodeURIComponent(this.texts.whatsAppMessage(plate, url));
+    const subject = encodeURIComponent(this.texts.emailSubject(plate));
+    const body = encodeURIComponent(this.texts.emailBody(plate, url));
     const to = this.emailInput().trim();
     if (to) {
       return `mailto:${to}?subject=${subject}&body=${body}`;
@@ -154,10 +161,9 @@ export class TicketDeliveryCardComponent {
         this.isCopied.set(true);
         clearTimeout(this.copyTimeoutId);
         this.copyTimeoutId = setTimeout(() => this.isCopied.set(false), 2000);
-        this.destroyRef.onDestroy(() => clearTimeout(this.copyTimeoutId));
       }
-    } catch {
-      // Ignore clipboard write failures gracefully
+    } catch (error) {
+      console.warn("Failed to copy ticket URL to clipboard:", error);
     }
   }
 

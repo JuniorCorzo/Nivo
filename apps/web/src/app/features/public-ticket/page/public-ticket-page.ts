@@ -99,7 +99,7 @@ export class PublicTicketPageComponent {
       return "";
     }
     const origin =
-      typeof window !== "undefined" && window.location.origin
+      globalThis.window !== undefined && window.location.origin
         ? window.location.origin
         : "https://app.nivo.dev";
     const shareUrl = `${origin}/t/${t.id}`;
@@ -153,26 +153,23 @@ export class PublicTicketPageComponent {
 
   openWhatsApp(): void {
     const link = this.whatsAppLink();
-    if (link && typeof window !== "undefined") {
+    if (link && globalThis.window !== undefined) {
       window.open(link, "_blank", "noopener,noreferrer");
     }
   }
 
-  private generateQRCode(text: string): void {
-    QRCode.toString(text, {
-      errorCorrectionLevel: "M",
-      margin: 1,
-      type: "svg",
-      width: 144,
-    })
-      .then((svg) => {
-        this.qrDataUrl.set(
-          `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
-        );
-      })
-      .catch(() => {
-        this.qrDataUrl.set("");
+  private async generateQRCode(text: string): Promise<void> {
+    try {
+      const svg = await QRCode.toString(text, {
+        errorCorrectionLevel: "M",
+        margin: 1,
+        type: "svg",
+        width: 144,
       });
+      this.qrDataUrl.set(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
+    } catch {
+      this.qrDataUrl.set("");
+    }
   }
 
   private startTimer(entryTimeStr: string, exitTimeStr?: string): void {
@@ -213,7 +210,7 @@ export class PublicTicketPageComponent {
   static calculateEstimatedFee(
     seconds: number,
     unitPrice: number,
-    timeUnit: string = "HOURS"
+    timeUnit = "HOURS"
   ): number {
     if (timeUnit === "MINUTES") {
       const minutesBilled = Math.max(1, Math.ceil(seconds / 60));

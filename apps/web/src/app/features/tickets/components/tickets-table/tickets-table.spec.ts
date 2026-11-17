@@ -170,7 +170,7 @@ describe("TicketsTableComponent", () => {
     const rows = compiled.querySelectorAll("tbody tr");
     expect(rows.length).toBe(2);
 
-    for (const row of Array.from(rows)) {
+    for (const row of [...rows]) {
       const viewDetailBtn = row.querySelector(
         'nv-button[aria-label="Ver detalle"]'
       );

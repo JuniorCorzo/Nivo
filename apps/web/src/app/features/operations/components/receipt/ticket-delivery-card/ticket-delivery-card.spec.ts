@@ -54,6 +54,26 @@ describe("TicketDeliveryCardComponent", () => {
     expect(component.whatsAppLink()).toContain("WAP123");
   });
 
+  it("should not prepend prefix 57 to international phone numbers", () => {
+    const mockTicket: TicketSummary = {
+      entryTime: "2026-08-27T10:00:00Z",
+      id: "ticket-ve-test",
+      licensePlate: "VEP123",
+      phoneNumber: "584121234567",
+      status: "OPEN",
+    };
+
+    fixture.componentRef.setInput("ticket", mockTicket);
+    fixture.componentRef.setInput(
+      "publicUrl",
+      "https://app.nivo.dev/t/ticket-ve-test"
+    );
+    fixture.detectChanges();
+
+    expect(component.whatsAppLink()).toContain("584121234567");
+    expect(component.whatsAppLink()).not.toContain("57584121234567");
+  });
+
   it("should compute email link with mailto scheme and encoded subject", () => {
     const mockTicket: TicketSummary = {
       entryTime: "2026-08-27T10:00:00Z",
@@ -123,7 +143,8 @@ describe("TicketDeliveryCardComponent", () => {
     fixture.componentRef.setInput("mode", "checkin");
     fixture.detectChanges();
 
-    const badge: HTMLElement | null = fixture.nativeElement.querySelector("nv-badge");
+    const badge: HTMLElement | null =
+      fixture.nativeElement.querySelector("nv-badge");
     expect(badge).toBeTruthy();
     expect(badge?.textContent).toContain(component.texts.optionalBadge);
 
@@ -133,11 +154,17 @@ describe("TicketDeliveryCardComponent", () => {
 
     // Switch to receipt mode
     fixture.componentRef.setInput("mode", "receipt");
-    fixture.componentRef.setInput("publicUrl", "https://app.nivo.dev/t/test-mode");
+    fixture.componentRef.setInput(
+      "publicUrl",
+      "https://app.nivo.dev/t/test-mode"
+    );
     fixture.detectChanges();
 
     const updatedBadge = fixture.nativeElement.querySelector("nv-badge");
     expect(updatedBadge).toBeNull();
+    const updatedCopyBtn =
+      fixture.nativeElement.querySelector("#copy-link-btn");
+    expect(updatedCopyBtn).not.toBeNull();
   });
 
   it("should copy public URL to clipboard in receipt mode and reset on destroy", async () => {
@@ -160,5 +187,31 @@ describe("TicketDeliveryCardComponent", () => {
 
     // Trigger destroy to ensure onDestroy hook cleans up without error
     fixture.destroy();
+  });
+
+  it("should handle clipboard rejection gracefully with console warning", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: vi.fn().mockRejectedValue(new Error("Permission denied")),
+      },
+    });
+
+    fixture.componentRef.setInput("mode", "receipt");
+    fixture.componentRef.setInput(
+      "publicUrl",
+      "https://app.nivo.dev/t/test-fail"
+    );
+    fixture.detectChanges();
+
+    await component.copyPublicUrl();
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      "Failed to copy ticket URL to clipboard:",
+      expect.any(Error)
+    );
+    expect(component.isCopied()).toBe(false);
+    warnSpy.mockRestore();
   });
 });

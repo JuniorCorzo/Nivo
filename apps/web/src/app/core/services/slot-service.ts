@@ -131,7 +131,7 @@ export class SlotService {
     isAccessible?: boolean;
     isActive?: boolean;
   }): Observable<Slot[]> {
-    let rootUrl = this.config.rootUrl;
+    let { rootUrl } = this.config;
     while (rootUrl.endsWith("/")) {
       rootUrl = rootUrl.slice(0, -1);
     }
@@ -158,7 +158,7 @@ export class SlotService {
     newZone?: string;
     newPrefix?: string;
   }): Observable<Slot[]> {
-    let rootUrl = this.config.rootUrl;
+    let { rootUrl } = this.config;
     while (rootUrl.endsWith("/")) {
       rootUrl = rootUrl.slice(0, -1);
     }

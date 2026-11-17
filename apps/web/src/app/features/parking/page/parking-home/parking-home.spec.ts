@@ -61,9 +61,9 @@ describe("ParkingHome Component", () => {
       activeParkingLot: mockActiveParkingLotSignal,
       availableSlots: signal(18),
       isDeleteModalOpen: signal(false),
+      occupationRate: signal(40),
       occupiedSlots: signal(12),
       occupiedSlotsDetail: signal([]),
-      occupationRate: signal(40),
       onCreateParking: vi.fn(),
       onDeleteCancel: vi.fn(),
       onDeleteClick: vi.fn(),
@@ -167,9 +167,9 @@ describe("ParkingHome Component", () => {
   });
 
   it("should trigger facade.onManageOperations from the live operations banner in capacity tab", () => {
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll("nv-button")
-    ) as HTMLElement[];
+    const buttons = [
+      ...fixture.nativeElement.querySelectorAll("nv-button"),
+    ] as HTMLElement[];
     const bannerButton = buttons.find((btn) =>
       btn.textContent?.includes("Ir a Taquilla en Vivo")
     );
@@ -248,7 +248,7 @@ describe("ParkingHome Component", () => {
     expect(
       component.formatGps({ latitude: -12.0464, longitude: 77.0428 })
     ).toBe("12.0464° S · 77.0428° E");
-    expect(component.formatGps(undefined)).toBe("0.0000° N · 0.0000° W");
+    expect(component.formatGps()).toBe("0.0000° N · 0.0000° W");
   });
 
   it("should compute activeParkingSubtitle with only address when active lot is present", () => {

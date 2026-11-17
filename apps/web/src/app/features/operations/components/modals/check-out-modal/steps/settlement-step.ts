@@ -18,10 +18,8 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { PlateFormatPipe } from "@shared/pipes/plate-format.pipe";
 
 import { CheckOutFacade } from "../../../../facades/check-out.facade";
-import {
-  StayTimelineComponent,
-  type StayDurationResult,
-} from "../components/stay-timeline/stay-timeline";
+import { StayTimelineComponent } from "../components/stay-timeline/stay-timeline";
+import type { StayDurationResult } from "../components/stay-timeline/stay-timeline";
 import { TariffBreakdownComponent } from "../components/tariff-breakdown/tariff-breakdown";
 
 export type { StayDurationResult };
@@ -78,12 +76,7 @@ export class SettlementStepComponent {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
 
-    let formatted = "";
-    if (hours > 0) {
-      formatted = `${hours}h ${minutes}m`;
-    } else {
-      formatted = `${minutes}m`;
-    }
+    const formatted = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 
     return {
       formatted,

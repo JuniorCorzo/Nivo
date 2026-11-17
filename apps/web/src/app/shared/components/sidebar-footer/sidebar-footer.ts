@@ -56,6 +56,9 @@ export const SEDE_SWITCHER_OVERLAY_POSITIONS: ConnectedPosition[] = [
   },
 ];
 
+const isStringAddress = (addr: unknown): addr is string =>
+  typeof addr === "string";
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, OverlayModule, NgIcon, UserMenu],
@@ -114,10 +117,10 @@ export class SidebarFooter {
     if (!lot) {
       return "";
     }
-    if (typeof (lot.address as unknown) === "string") {
-      return lot.address as unknown as string;
+    if (isStringAddress(lot.address)) {
+      return lot.address;
     }
-    if (lot.address && typeof lot.address === "object") {
+    if (lot.address) {
       const parts = [lot.address.street, lot.address.city].filter(Boolean);
       if (parts.length > 0) {
         return parts.join(", ");
@@ -138,10 +141,12 @@ export class SidebarFooter {
     this.activeParkingService?.setActiveParking(lot);
     this.close();
 
-    const currentUrl = this.router.url.split("?", 1)[0];
-    const match = currentUrl.match(/^\/app\/parking-lots\/([^/]+)(\/.*)?$/);
-    if (match && match[1] !== "create") {
-      const subPath = match[2] ?? "";
+    const [currentUrl] = this.router.url.split("?", 1);
+    const match = currentUrl?.match(
+      /^\/app\/parking-lots\/(?<lotId>[^/]+)(?<subPath>\/.*)?$/u
+    );
+    if (match?.groups?.["lotId"] && match.groups["lotId"] !== "create") {
+      const subPath = match.groups["subPath"] ?? "";
       void this.router.navigateByUrl(`/app/parking-lots/${lot.id}${subPath}`);
     }
   }

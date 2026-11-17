@@ -39,10 +39,10 @@ import {
 import { PageHeaderBreadcrumbsComponent } from "./components/page-header-breadcrumbs";
 import { PageHeaderHistoryComponent } from "./components/page-header-history";
 import { PageHeaderMobileBarComponent } from "./components/page-header-mobile-bar";
-import {
-  type PageHeaderBadgeVariant,
-  type PageHeaderBreadcrumbItem,
-  resolveBreadcrumbIcon,
+import { resolveBreadcrumbIcon } from "./page-header.types";
+import type {
+  PageHeaderBadgeVariant,
+  PageHeaderBreadcrumbItem,
 } from "./page-header.types";
 
 export type {

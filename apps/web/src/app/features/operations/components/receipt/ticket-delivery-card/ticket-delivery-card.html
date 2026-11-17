@@ -27,7 +27,9 @@
         </div>
       </div>
       @if (mode() === 'checkin') {
-      <nv-badge variant="secondary" size="sm"> {{ texts.optionalBadge }} </nv-badge>
+      <nv-badge variant="secondary" size="sm">
+        {{ texts.optionalBadge }}
+      </nv-badge>
       }
     </div>
 
@@ -158,6 +160,7 @@
     @if (mode() === 'receipt') {
     <div class="flex items-center gap-2 pt-0.5">
       <button
+        id="copy-link-btn"
         nv-button
         variant="outline"
         size="sm"

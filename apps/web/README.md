@@ -71,7 +71,7 @@ src/app/
 ## Available Commands
 
 | Command | Purpose |
-|---|---|
+| --- | --- |
 | `bun run start` | Start Angular development server at `http://localhost:4200` |
 | `bun run build` | Compile production build into `dist/web` |
 | `bun run watch` | Build with watch mode in development configuration |

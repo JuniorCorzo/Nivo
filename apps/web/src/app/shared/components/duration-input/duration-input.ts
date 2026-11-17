@@ -17,6 +17,8 @@ import {
   DurationConverter,
 } from "../../utils/duration.utils";
 
+const isStringError = (err: unknown): err is string => typeof err === "string";
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [InputComponent, SelectComponent],
@@ -78,7 +80,8 @@ export class DurationInputComponent implements ControlValueAccessor {
     ValidationError.WithFieldTree[] | undefined
   >(() => {
     const err = this.error();
-    if (typeof err === "string") {
+    if (isStringError(err)) {
+      // SAFETY: Wrapping message string into ValidationError.WithFieldTree shape
       return [{ message: err } as ValidationError.WithFieldTree];
     }
     return err;
@@ -110,6 +113,7 @@ export class DurationInputComponent implements ControlValueAccessor {
   }
 
   onAmountInput(event: Event): void {
+    // SAFETY: Event target is an input element in input event listener
     const target = event.target as HTMLInputElement | null;
     const val = target?.value ? Number(target.value) : 0;
     this.onAmountChange(val);

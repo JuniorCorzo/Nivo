@@ -20,11 +20,7 @@ import {
   lucideTicket,
   lucideTrash2,
 } from "@ng-icons/lucide";
-import {
-  ButtonComponent,
-  CardComponent,
-  TypographyH3,
-} from "@nivo-sass/design-system";
+import { ButtonComponent, CardComponent } from "@nivo-sass/design-system";
 import { DeleteParkingModal } from "@shared/components/delete-parking-modal/delete-parking-modal";
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
@@ -90,7 +86,13 @@ export class ParkingHome {
   }
 
   public formatGps(coords?: Coordinates): string {
-    if (!coords || coords.latitude == null || coords.longitude == null) {
+    if (
+      !coords ||
+      coords.latitude === null ||
+      coords.latitude === undefined ||
+      coords.longitude === null ||
+      coords.longitude === undefined
+    ) {
       return "0.0000° N · 0.0000° W";
     }
     const latDir = coords.latitude >= 0 ? "N" : "S";

@@ -251,7 +251,9 @@ test.describe("CUJ 03: Vehicle Operations Check-In & Check-Out", () => {
 
     await checkInPage.submitCheckIn();
     await checkInPage.expectReceiptOpen();
-    await expect(page.locator("app-receipt-preview, [data-testid='receipt']").first()).toBeVisible();
+    await expect(
+      page.locator("app-receipt-preview, [data-testid='receipt']").first()
+    ).toBeVisible();
     await checkInPage.closeReceipt();
   });
 
@@ -366,7 +368,9 @@ test.describe("CUJ 03: Vehicle Operations Check-In & Check-Out", () => {
     await checkInPage.selectSlotForCheckout("101");
     await checkInPage.confirmCheckOut();
     await checkInPage.expectReceiptOpen();
-    await expect(page.locator("app-receipt-preview, [data-testid='receipt']").first()).toBeVisible();
+    await expect(
+      page.locator("app-receipt-preview, [data-testid='receipt']").first()
+    ).toBeVisible();
     await checkInPage.closeReceipt();
   });
 });

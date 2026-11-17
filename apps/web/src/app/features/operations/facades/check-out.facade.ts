@@ -109,7 +109,7 @@ export class CheckOutFacade {
     if (!email) {
       return false;
     }
-    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/u.test(email);
   });
 
   readonly canCheckOut = computed<boolean>(
