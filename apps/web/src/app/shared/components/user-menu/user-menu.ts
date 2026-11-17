@@ -78,10 +78,18 @@ export class UserMenu {
 
   readonly roleLabel = computed(() => {
     const role = this.user()?.role;
-    if (role === "SUPERADMIN") return "Superadmin";
-    if (role === "OWNER") return "Propietario";
-    if (role === "MANAGER") return "Gerente";
-    if (role === "OPERATOR") return "Operador";
+    if (role === "SUPERADMIN") {
+      return "Superadmin";
+    }
+    if (role === "OWNER") {
+      return "Propietario";
+    }
+    if (role === "MANAGER") {
+      return "Gerente";
+    }
+    if (role === "OPERATOR") {
+      return "Operador";
+    }
     return this.user()?.email ?? "";
   });
 

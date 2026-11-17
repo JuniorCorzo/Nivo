@@ -7,7 +7,11 @@ test.describe("CUJ 01: Tenant Authentication & Session Management", () => {
   }) => {
     await loginPage.goto();
     await loginPage.expectLoaded();
-    await expect(page.locator("input[type='email'], input#email, input[name='email']").first()).toBeVisible();
+    await expect(
+      page
+        .locator("input[type='email'], input#email, input[name='email']")
+        .first()
+    ).toBeVisible();
   });
 
   test("should show error alert on invalid credentials", async ({
@@ -29,7 +33,9 @@ test.describe("CUJ 01: Tenant Authentication & Session Management", () => {
     await loginPage.goto();
     await loginPage.login("wrong@company.com", "InvalidPassword123!");
     await loginPage.expectErrorMessage("Correo o contraseña incorrectos");
-    await expect(page.getByText("Correo o contraseña incorrectos")).toBeVisible();
+    await expect(
+      page.getByText("Correo o contraseña incorrectos")
+    ).toBeVisible();
   });
 
   test("should successfully login tenant and redirect to dashboard", async ({

@@ -34,7 +34,7 @@ export class ReceiptDeliverySelectorComponent {
 
   readonly sendViaSelected = output<TicketSendVia>();
   readonly emailChanged = output<string>();
-  readonly emailBlurred = output<void>();
+  readonly emailBlurred = output();
 
   readonly texts = APP_TEXTS.operations.checkoutModal.payment;
 

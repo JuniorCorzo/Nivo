@@ -19,22 +19,6 @@ import { TicketRowActionsComponent } from "./ticket-row-actions";
 import { TicketStatusBadgeComponent } from "./ticket-status-badge";
 import { TicketVehicleBadgeComponent } from "./ticket-vehicle-badge";
 
-const formatTicketDate = (dateStr?: string): string => {
-  if (!dateStr) {
-    return APP_TEXTS.tickets.table.emptyFallback;
-  }
-  const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) {
-    return dateStr;
-  }
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-  const hours = String(d.getHours()).padStart(2, "0");
-  const minutes = String(d.getMinutes()).padStart(2, "0");
-  return `${day}/${month}/${year} ${hours}:${minutes}`;
-};
-
 const formatTicketCurrency = (amount?: number | null): string => {
   if (amount === undefined || amount === null) {
     return APP_TEXTS.tickets.table.emptyFallback;

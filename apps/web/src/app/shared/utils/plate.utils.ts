@@ -172,7 +172,7 @@ export const formatPlate = (
     }
   }
 
-  if (typeof isUnplated === "boolean") {
+  if (isUnplated !== undefined) {
     explicitUnplated = isUnplated;
   }
 

@@ -226,6 +226,9 @@ importers:
       '@ng-icons/lucide':
         specifier: ^33.2.0
         version: 33.4.0
+      '@ng-icons/simple-icons':
+        specifier: ^33.4.0
+        version: 33.4.0
       '@ngneat/overview':
         specifier: 7.0.0
         version: 7.0.0(@angular/core@21.2.6(@angular/compiler@21.2.6)(rxjs@7.8.2))
@@ -2802,6 +2805,9 @@ packages:
 
   '@ng-icons/lucide@33.4.0':
     resolution: {integrity: sha512-fOztOy5T+Y07fru7nWq27PC96B35Y2DeJY357ZeKBr5R1yUJhxqQXPRcxOf+wrTJes8I20sKBqfWhHH1eiL9JQ==}
+
+  '@ng-icons/simple-icons@33.4.0':
+    resolution: {integrity: sha512-vqtsjDxADRtljCwCnKz2fWv93O/RlU1kk9LwoJ2R/BrCJCVoTKQcE80lUQkZMlaT0tzdees6S7BvYzZ+5rhKng==}
 
   '@ngneat/overview@7.0.0':
     resolution: {integrity: sha512-nWSyoWHYGTyE6miNQ1AV2Or9yB+JcEwfQlCPhigq39HUd/Y40J28dAslIN2FCpAONBu2hm4XpYMb+Ya1DUgR2g==}
@@ -11038,6 +11044,10 @@ snapshots:
       tslib: 2.9.1
 
   '@ng-icons/lucide@33.4.0':
+    dependencies:
+      tslib: 2.9.1
+
+  '@ng-icons/simple-icons@33.4.0':
     dependencies:
       tslib: 2.9.1
 

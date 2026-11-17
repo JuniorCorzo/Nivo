@@ -154,7 +154,7 @@ describe("TicketDetailDrawerComponent", () => {
 
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    const buttons = Array.from(compiled.querySelectorAll("nv-button"));
+    const buttons = [...compiled.querySelectorAll("nv-button")];
     const checkoutBtn = buttons.find((b) =>
       b.textContent?.includes("Cerrar en Taquilla")
     );
@@ -177,7 +177,7 @@ describe("TicketDetailDrawerComponent", () => {
 
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    const buttons = Array.from(compiled.querySelectorAll("nv-button"));
+    const buttons = [...compiled.querySelectorAll("nv-button")];
     const checkoutBtn = buttons.find((b) =>
       b.textContent?.includes("Cerrar en Taquilla")
     );

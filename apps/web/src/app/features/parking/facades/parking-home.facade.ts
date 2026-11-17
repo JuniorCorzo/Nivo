@@ -28,7 +28,7 @@ export class ParkingHomeFacade {
 
   readonly totalSlots = computed(() => {
     const telemetry = this.telemetry();
-    if (telemetry != null) {
+    if (telemetry !== null && telemetry !== undefined) {
       return telemetry.totalCapacity;
     }
     const p = this.activeParkingLot();
@@ -40,7 +40,7 @@ export class ParkingHomeFacade {
 
   readonly occupiedSlots = computed(() => {
     const telemetry = this.telemetry();
-    if (telemetry != null) {
+    if (telemetry !== null && telemetry !== undefined) {
       return telemetry.occupiedSlots;
     }
     return Math.round(
@@ -51,7 +51,7 @@ export class ParkingHomeFacade {
 
   readonly availableSlots = computed(() => {
     const telemetry = this.telemetry();
-    if (telemetry != null) {
+    if (telemetry !== null && telemetry !== undefined) {
       return telemetry.availableSlots;
     }
     return Math.max(0, this.totalSlots() - this.occupiedSlots());
@@ -59,7 +59,7 @@ export class ParkingHomeFacade {
 
   readonly occupationRate = computed(() => {
     const telemetry = this.telemetry();
-    if (telemetry != null) {
+    if (telemetry !== null && telemetry !== undefined) {
       return telemetry.occupancyRate;
     }
     return this.activeParkingLot()?.occuppationRate || 0;
@@ -82,8 +82,8 @@ export class ParkingHomeFacade {
 
   loadTelemetry(parkingId: string): void {
     this.parkingService.getTelemetry(parkingId).subscribe({
-      next: (data) => this.telemetry.set(data),
       error: () => this.telemetry.set(null),
+      next: (data) => this.telemetry.set(data),
     });
   }
 
