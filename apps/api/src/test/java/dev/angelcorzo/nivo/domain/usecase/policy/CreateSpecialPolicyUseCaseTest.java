@@ -53,6 +53,7 @@ class CreateSpecialPolicyUseCaseTest {
     assertThat(result).isNotNull();
     assertThat(result.getName()).isEqualTo("Weekend Discount");
     assertThat(result.getValueToModify()).isEqualTo(BigDecimal.valueOf(15));
+    assertThat(result.isActive()).isTrue();
     verify(specialPoliciesRepository).save(any(SpecialPolicies.class));
   }
 }
