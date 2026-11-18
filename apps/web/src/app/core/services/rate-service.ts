@@ -24,7 +24,7 @@ import type {
   SpecialPolicyModel,
   UpdateRateModel,
 } from "@core/models/rate.model";
-import type { Observable } from "rxjs";
+import { Observable, of } from "rxjs";
 import { map, tap } from "rxjs/operators";
 
 @Injectable({
@@ -47,7 +47,14 @@ export class RateService {
     return context;
   }
 
-  getRatesByParkingId(parkingId: string): Observable<RateModel[]> {
+  getRatesByParkingId(
+    parkingId: string,
+    force = false
+  ): Observable<RateModel[]> {
+    const existing = this.ratesState()[parkingId];
+    if (!force && existing !== undefined) {
+      return of(existing);
+    }
     return this.parkingLotsService
       .showRatesByParkingId({ parkingId }, RateService.httpContext())
       .pipe(
@@ -130,7 +137,11 @@ export class RateService {
       );
   }
 
-  loadSpecialPolicies(): Observable<SpecialPolicyModel[]> {
+  loadSpecialPolicies(force = false): Observable<SpecialPolicyModel[]> {
+    const existing = this.specialPoliciesState();
+    if (!force && existing.length > 0) {
+      return of(existing);
+    }
     return this.tenantsService
       .showSpecialPoliciesByTenant(undefined, RateService.httpContext())
       .pipe(

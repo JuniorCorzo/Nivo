@@ -131,7 +131,7 @@ export class SpecialPoliciesConfigComponent implements OnInit {
   }
 
   onPolicyCreated(): void {
-    this.rateService.loadSpecialPolicies().subscribe();
+    this.rateService.loadSpecialPolicies(true).subscribe();
   }
 
   toggleEditOverstay(): void {

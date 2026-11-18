@@ -109,6 +109,23 @@ describe("SpecialPolicyModalComponent", () => {
     expect(closedSpy).toHaveBeenCalled();
   });
 
+  it("should enforce max 100 validation when operation is PERCENTAGE", () => {
+    component.onOperationChange("PERCENTAGE");
+    component.form.controls.valueToModify.setValue(120);
+
+    expect(component.form.controls.valueToModify.invalid).toBe(true);
+    expect(component.form.controls.valueToModify.errors?.["max"]).toBeDefined();
+    expect(component.valueLabel()).toBe("Porcentaje a Aplicar (%)");
+
+    component.form.controls.valueToModify.setValue(25);
+    expect(component.form.controls.valueToModify.valid).toBe(true);
+
+    component.onOperationChange("SET");
+    component.form.controls.valueToModify.setValue(50000);
+    expect(component.form.controls.valueToModify.valid).toBe(true);
+    expect(component.valueLabel()).toBe("Monto a Aplicar ($ COP)");
+  });
+
   it("should show error toast on creation failure", () => {
     mockRateService.createSpecialPolicy.mockReturnValue(
       throwError(() => new Error("Network error"))

@@ -140,6 +140,22 @@ export class SpecialPolicyModalComponent {
   readonly displayOperation = displayOperationOption;
   readonly operationValue = operationOptionValue;
 
+  readonly valueLabel = computed(() =>
+    this.formValues().operation === "PERCENTAGE"
+      ? "Porcentaje a Aplicar (%)"
+      : "Monto a Aplicar ($ COP)"
+  );
+
+  readonly valuePlaceholder = computed(() =>
+    this.formValues().operation === "PERCENTAGE" ? "Ej. 15" : "Ej. 18000"
+  );
+
+  readonly valueStartIcon = computed(() =>
+    this.formValues().operation === "PERCENTAGE"
+      ? "lucidePercent"
+      : "lucideReceipt"
+  );
+
   private readonly formValues = toSignal(this.form.valueChanges, {
     initialValue: this.form.getRawValue(),
   });
@@ -176,12 +192,28 @@ export class SpecialPolicyModalComponent {
   onOperationChange(newOp: unknown): void {
     if (newOp === "SET" || newOp === "PERCENTAGE" || newOp === "SUBTRACT") {
       this.form.controls.operation.setValue(newOp);
+      this.updateValueValidators(newOp);
       this.onCustomPreset();
     }
   }
 
+  private updateValueValidators(op: RatePolicyOperation): void {
+    const control = this.form.controls.valueToModify;
+    if (op === "PERCENTAGE") {
+      control.setValidators([
+        Validators.required,
+        Validators.min(1),
+        Validators.max(100),
+      ]);
+    } else {
+      control.setValidators([Validators.required, Validators.min(1)]);
+    }
+    control.updateValueAndValidity();
+  }
+
   applyPreset(preset: SpecialPolicyPreset): void {
     this.selectedPresetId.set(preset.id);
+    this.updateValueValidators(preset.operation);
     this.form.patchValue({
       modifies: preset.modifies,
       name: preset.title,
