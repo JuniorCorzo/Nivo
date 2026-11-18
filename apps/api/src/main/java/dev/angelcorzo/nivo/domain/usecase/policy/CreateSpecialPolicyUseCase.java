@@ -23,6 +23,7 @@ public class CreateSpecialPolicyUseCase {
       .modifies(specialPolicies.modifies())
       .operation(specialPolicies.operation())
       .valueToModify(specialPolicies.valueToModify())
+      .active(true)
       .build();
 
     return this.specialPoliciesRepository.save(policies);
