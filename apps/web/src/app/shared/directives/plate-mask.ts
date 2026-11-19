@@ -9,12 +9,14 @@ import {
 } from "@angular/core";
 import type { VehicleType } from "@core/models/rate.model";
 import type { PlateCountry } from "@core/models/ticket.model";
+import type {
+  PlateCountryMode,
+  PlateStateSpec,
+} from "@shared/utils/plate.utils";
 import {
-  detectPlateCountry,
-  formatColombian,
-  formatPlate,
-  formatVenezuelan,
+  PLATE_STATE_MACHINE,
   normalizeRawPlate,
+  resolvePlatedCountry,
 } from "@shared/utils/plate.utils";
 
 interface DelimiterBackspaceResult {
@@ -23,7 +25,7 @@ interface DelimiterBackspaceResult {
 }
 
 interface RawPlateState {
-  readonly effectiveCountry: PlateCountry;
+  readonly spec: PlateStateSpec;
   readonly raw: string;
   readonly rawCharsBeforeCursor: number;
 }
@@ -37,7 +39,7 @@ export class PlateMaskDirective {
     inject<ElementRef<HTMLInputElement>>(ElementRef);
 
   /** Target registration country: 'CO' | 'VE' | 'UNPLATED' | 'AUTO' */
-  readonly country = input<PlateCountry | "AUTO">("AUTO");
+  readonly country = input<PlateCountryMode>("AUTO");
 
   /** Vehicle type for specialized sub-masks (e.g. Colombian motorcycles): 'CAR' | 'MOTORCYCLE' | 'BIKE' */
   readonly vehicleType = input<VehicleType>("CAR");
@@ -110,37 +112,23 @@ export class PlateMaskDirective {
     }
 
     const state = this.prepareRawPlate(inputEl);
-    const formatted = PlateMaskDirective.formatPlate(
-      state.raw,
-      state.effectiveCountry,
-      this.vehicleType()
-    );
-    const rawPlate = formatted.replaceAll(/[^A-Za-z0-9]/gu, "");
+    const formatted = state.spec.format(state.raw);
+    const rawPlate = normalizeRawPlate(formatted);
 
-    this.updateDomValue(
-      inputEl,
-      formatted,
-      rawPlate,
-      state.effectiveCountry,
-      triggerEvent
-    );
+    this.updateDomValue(inputEl, formatted, rawPlate, state.spec, triggerEvent);
     this.updateCaretPosition(inputEl, formatted, state.rawCharsBeforeCursor);
-    this.emitCountryChange(state.effectiveCountry, triggerEvent);
+    this.emitCountryChange(state.spec.country, triggerEvent);
   }
 
   private prepareRawPlate(inputEl: HTMLInputElement): RawPlateState {
     const originalValue = inputEl.value;
     const caretPos = inputEl.selectionStart ?? originalValue.length;
     const textBeforeCursor = originalValue.slice(0, caretPos);
-    let rawCharsBeforeCursor = textBeforeCursor.replaceAll(
-      /[^A-Za-z0-9]/gu,
-      ""
-    ).length;
+    let rawCharsBeforeCursor = normalizeRawPlate(textBeforeCursor).length;
 
     let raw = normalizeRawPlate(originalValue);
-    const effectiveCountry = this.resolveEffectiveCountry(raw);
-    const maxRawLength = effectiveCountry === "VE" ? 7 : 6;
-    raw = raw.slice(0, maxRawLength);
+    const spec = this.resolvePlateState(raw);
+    raw = raw.slice(0, spec.maxRawLength);
 
     const backspaceResult = this.handleDelimiterBackspace(
       raw,
@@ -149,8 +137,9 @@ export class PlateMaskDirective {
     raw = backspaceResult.updatedRaw;
     rawCharsBeforeCursor = backspaceResult.updatedCaretCount;
     this.lastRawValue = raw;
+    const finalSpec = this.resolvePlateState(raw);
 
-    return { effectiveCountry, raw, rawCharsBeforeCursor };
+    return { raw, rawCharsBeforeCursor, spec: finalSpec };
   }
 
   private handleKeydownBraking(
@@ -175,8 +164,7 @@ export class PlateMaskDirective {
     }
 
     const raw = normalizeRawPlate(value);
-    const effectiveCountry = this.resolveEffectiveCountry(raw);
-    const maxRawLength = effectiveCountry === "VE" ? 7 : 6;
+    const { maxRawLength } = this.resolvePlateState(raw);
 
     if (raw.length >= maxRawLength && /[A-Za-z0-9]/u.test(event.key)) {
       event.preventDefault();
@@ -187,10 +175,10 @@ export class PlateMaskDirective {
     inputEl: HTMLInputElement,
     formatted: string,
     rawPlate: string,
-    effectiveCountry: PlateCountry,
+    spec: PlateStateSpec,
     triggerEvent?: Event
   ): void {
-    inputEl.maxLength = effectiveCountry === "VE" ? 9 : 7;
+    inputEl.maxLength = spec.maxFormattedLength;
 
     if (inputEl.value !== formatted) {
       inputEl.value = formatted;
@@ -224,21 +212,11 @@ export class PlateMaskDirective {
     }
   }
 
-  private resolveEffectiveCountry(raw: string): PlateCountry {
-    const currentCountry = this.country();
-    if (
-      currentCountry === "CO" ||
-      currentCountry === "VE" ||
-      currentCountry === "UNPLATED"
-    ) {
-      return currentCountry;
-    }
-    try {
-      const detected = detectPlateCountry(raw);
-      return detected === "VE" ? "VE" : "CO";
-    } catch {
-      return raw.length >= 3 && /\d/u.test(raw[2]) ? "VE" : "CO";
-    }
+  private resolvePlateState(raw: string): PlateStateSpec {
+    const mode = this.country();
+    const country =
+      mode === "UNPLATED" ? "UNPLATED" : resolvePlatedCountry(raw, mode);
+    return PLATE_STATE_MACHINE[country];
   }
 
   private handleDelimiterBackspace(
@@ -276,24 +254,5 @@ export class PlateMaskDirective {
       }
     }
     return formatted.length;
-  }
-
-  private static formatPlate(
-    raw: string,
-    country: PlateCountry,
-    _vehicleType: VehicleType
-  ): string {
-    return formatPlate(raw, country);
-  }
-
-  private static formatColombian(
-    raw: string,
-    _vehicleType?: VehicleType
-  ): string {
-    return formatColombian(raw);
-  }
-
-  private static formatVenezuelan(raw: string): string {
-    return formatVenezuelan(raw);
   }
 }

@@ -700,6 +700,7 @@ describe("OperationsPageComponent", () => {
 
       expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith({
         plate: "EXP123",
+        plateCountry: "CO",
         rateId: "r-1",
         slotId: "s-1",
       });
@@ -775,7 +776,7 @@ describe("OperationsPageComponent", () => {
       component.submitExpressCheckIn();
 
       expect(toastSpy.showToast).toHaveBeenCalledWith({
-        message: "Por favor ingresa una placa válida (mínimo 3 caracteres).",
+        message: "Por favor ingresa una placa válida.",
         type: "error",
       });
       expect(ticketServiceSpy.createTicket).not.toHaveBeenCalled();
@@ -785,7 +786,7 @@ describe("OperationsPageComponent", () => {
       component.submitExpressCheckIn();
 
       expect(toastSpy.showToast).toHaveBeenCalledWith({
-        message: "Por favor ingresa una placa válida (mínimo 3 caracteres).",
+        message: "Por favor ingresa una placa válida.",
         type: "error",
       });
       expect(ticketServiceSpy.createTicket).not.toHaveBeenCalled();

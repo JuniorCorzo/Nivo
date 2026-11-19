@@ -618,5 +618,31 @@ describe("CheckInFacade", () => {
       expect(facade.phoneNumber()).toBe("");
       expect(facade.email()).toBe("");
     });
+
+    it("should not block isValid when deliveryMethod is WHATSAPP even if email is invalid", () => {
+      facade.init("parking-1");
+      facade.setVehicleType("CAR");
+      facade.setPlate("ABC-123");
+      facade.setEmail("invalid-email");
+      facade.setDeliveryMethod("WHATSAPP");
+
+      expect(facade.isEmailValid()).toBe(true);
+      expect(facade.isValid()).toBe(true);
+    });
+
+    it("should reject malformed emails such as '@' and 'user@' when deliveryMethod is EMAIL or PRINT", () => {
+      facade.init("parking-1");
+      facade.setVehicleType("CAR");
+      facade.setPlate("ABC-123");
+
+      for (const method of ["EMAIL", "PRINT"] as const) {
+        facade.setDeliveryMethod(method);
+        for (const malformed of ["@", "user@"]) {
+          facade.setEmail(malformed);
+          expect(facade.isEmailValid()).toBe(false);
+          expect(facade.isValid()).toBe(false);
+        }
+      }
+    });
   });
 });

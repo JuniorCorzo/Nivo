@@ -4,9 +4,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   ViewChild,
+  effect,
   input,
   output,
   signal,
+  untracked,
 } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
@@ -197,24 +199,32 @@ export class PhotoCaptureComponent implements OnInit, OnDestroy {
   @ViewChild("videoElement") videoRef?: ElementRef<HTMLVideoElement>;
 
   private mediaStream: MediaStream | null = null;
+  private isDestroyed = false;
   private readonly MAX_WIDTH = 640;
   private readonly MAX_HEIGHT = 360;
   private readonly QUALITY = 0.7;
 
   constructor() {
-    const init = this.initialPhoto();
-    if (init) {
-      this.setPhoto(init);
-    }
+    effect(() => {
+      const init = this.initialPhoto();
+      if (init && !this.photoDataUrl()) {
+        untracked(() => {
+          this.photoDataUrl.set(init);
+          this.photoSizeKb.set(PhotoCaptureComponent.calculateSizeKb(init));
+        });
+      }
+    });
   }
 
   ngOnInit(): void {
+    this.isDestroyed = false;
     if (this.autoStart() && !this.photoDataUrl()) {
       void this.startCamera();
     }
   }
 
   ngOnDestroy(): void {
+    this.isDestroyed = true;
     this.stopCamera();
   }
 
@@ -235,6 +245,12 @@ export class PhotoCaptureComponent implements OnInit, OnDestroy {
           width: { ideal: this.MAX_WIDTH },
         },
       });
+      if (this.isDestroyed) {
+        for (const track of stream.getTracks()) {
+          track.stop();
+        }
+        return;
+      }
       this.mediaStream = stream;
       this.isCameraActive.set(true);
 

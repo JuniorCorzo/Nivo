@@ -21,7 +21,11 @@ import {
 } from "@ng-icons/lucide";
 import { ButtonComponent } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
-import { detectPlateCountry, formatPlate } from "@shared/utils/plate.utils";
+import {
+  formatPlate,
+  isColombianMotoPlate,
+  resolvePlatedCountry,
+} from "@shared/utils/plate.utils";
 
 import { CheckInFacade } from "../../../facades/check-in.facade";
 import { PhotoCaptureComponent } from "../../photo-capture/photo-capture.component";
@@ -51,7 +55,6 @@ import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-rece
   ],
   selector: "app-check-in-modal",
   standalone: true,
-  styleUrl: "./check-in-modal.css",
   templateUrl: "./check-in-modal.html",
 })
 export class CheckInModalComponent {
@@ -79,58 +82,82 @@ export class CheckInModalComponent {
 
     effect(() => {
       if (this.isOpen()) {
-        untracked(() => {
-          this.facade.reset();
-          if (this.initialUnplated()) {
-            this.facade.setIsUnplated(true);
-          }
-          if (this.initialPhotoUrl()) {
-            this.facade.setPhotoUrl(this.initialPhotoUrl());
-          }
-          const initPlate = this.initialPlate();
-          if (initPlate) {
-            const detected = detectPlateCountry(initPlate);
-            const formatted = formatPlate(initPlate, { country: detected });
-            this.facade.setPlate(formatted, detected === "VE" ? "VE" : "CO");
-            if (!this.preselectedSlot()) {
-              const raw = initPlate
-                .replaceAll(/[^A-Za-z0-9]/gu, "")
-                .toUpperCase();
-              if (/^[A-Z]{3}\d{2}[A-Z]$/u.test(raw)) {
-                this.facade.setVehicleType("MOTORCYCLE");
-              }
-            }
-          }
-          const preselected = this.preselectedSlot();
-          if (preselected) {
-            const vType: VehicleType =
-              preselected.type === "MOTORCYCLE" || preselected.type === "BIKE"
-                ? preselected.type
-                : "CAR";
-            this.facade.setVehicleType(vType);
-            this.facade.setSlotId(preselected.id);
-          }
-        });
+        untracked(() => this.initializeModalState());
       }
     });
   }
 
+  /**
+   * Updates phone number and automatically switches delivery channel to WHATSAPP.
+   * If the input is emptied, falls back to EMAIL when an email is configured, or PRINT otherwise.
+   */
   onPhoneChange(phone: string): void {
     this.facade.setPhoneNumber(phone);
-    if (phone.trim()) {
-      this.facade.setDeliveryMethod("WHATSAPP");
-    } else if (!this.facade.email().trim()) {
-      this.facade.setDeliveryMethod("PRINT");
+    this.syncDeliveryChannel("WHATSAPP", phone, "EMAIL", this.facade.email());
+  }
+
+  /**
+   * Updates email address and automatically switches delivery channel to EMAIL.
+   * If the input is emptied, falls back to WHATSAPP when a phone number is configured, or PRINT otherwise.
+   */
+  onEmailChange(email: string): void {
+    this.facade.setEmail(email);
+    this.syncDeliveryChannel(
+      "EMAIL",
+      email,
+      "WHATSAPP",
+      this.facade.phoneNumber()
+    );
+  }
+
+  private syncDeliveryChannel(
+    channel: "WHATSAPP" | "EMAIL",
+    activeValue: string,
+    fallbackChannel: "WHATSAPP" | "EMAIL",
+    fallbackValue: string
+  ): void {
+    if (activeValue.trim()) {
+      this.facade.setDeliveryMethod(channel);
+      return;
+    }
+    this.facade.setDeliveryMethod(
+      fallbackValue.trim() ? fallbackChannel : "PRINT"
+    );
+  }
+
+  private initializeModalState(): void {
+    this.facade.reset();
+    if (this.initialUnplated()) {
+      this.facade.setIsUnplated(true);
+    }
+    if (this.initialPhotoUrl()) {
+      this.facade.setPhotoUrl(this.initialPhotoUrl());
+    }
+    const initPlate = this.initialPlate();
+    if (initPlate) {
+      this.applyInitialPlate(initPlate);
+    }
+    const preselected = this.preselectedSlot();
+    if (preselected) {
+      this.applyPreselectedSlot(preselected);
     }
   }
 
-  onEmailChange(email: string): void {
-    this.facade.setEmail(email);
-    if (email.trim()) {
-      this.facade.setDeliveryMethod("EMAIL");
-    } else if (!this.facade.phoneNumber().trim()) {
-      this.facade.setDeliveryMethod("PRINT");
+  private applyInitialPlate(initPlate: string): void {
+    const country = resolvePlatedCountry(initPlate);
+    this.facade.setPlate(formatPlate(initPlate, country), country);
+    if (!this.preselectedSlot() && isColombianMotoPlate(initPlate)) {
+      this.facade.setVehicleType("MOTORCYCLE");
     }
+  }
+
+  private applyPreselectedSlot(preselected: SlotSummary): void {
+    const vType: VehicleType =
+      preselected.type === "MOTORCYCLE" || preselected.type === "BIKE"
+        ? preselected.type
+        : "CAR";
+    this.facade.setVehicleType(vType);
+    this.facade.setSlotId(preselected.id);
   }
 
   onDeliveryChannelChange(

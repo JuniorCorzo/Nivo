@@ -39,13 +39,13 @@
       <div class="flex items-center gap-2">
         <ng-icon name="lucideParkingSquare" class="text-base" />
         <span
-          >Bahía Asignada: {{ slot.prefix ? slot.prefix + '-' : '' }}{{
-          slot.slotNumber }} ({{ slot.type }})</span
+          >{{ texts.assignedSlotPrefix }} {{ slot.prefix ? slot.prefix + '-' :
+          '' }}{{ slot.slotNumber }} ({{ slot.type }})</span
         >
       </div>
       <span
         class="bg-success/20 rounded px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase"
-        >Preseleccionada</span
+        >{{ texts.preselectedBadge }}</span
       >
     </div>
     }
@@ -102,7 +102,8 @@
         <label
           class="text-muted-foreground block text-[10px] font-semibold tracking-wider uppercase"
         >
-          Fotografía de Vehículo <span class="text-destructive">*</span>
+          {{ texts.vehiclePhotoRequiredLabel }}
+          <span class="text-destructive">*</span>
         </label>
         <app-photo-capture
           [initialPhoto]="facade.photoUrl()"
@@ -221,7 +222,7 @@
 <app-ticket-receipt
   [isOpen]="facade.isReceiptOpen()"
   [ticket]="facade.lastIssuedTicket()"
-  title="Ticket de Ingreso"
-  subtitle="Vehículo registrado correctamente"
+  [title]="texts.receiptTitle"
+  [subtitle]="texts.receiptSubtitle"
   (closed)="facade.closeReceipt()"
 />

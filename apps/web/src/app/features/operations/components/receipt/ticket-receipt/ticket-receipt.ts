@@ -74,7 +74,10 @@ export class TicketReceiptComponent {
     const rawPhone = t.phoneNumber ? t.phoneNumber.replaceAll(/\D/gu, "") : "";
     let phone = "";
     if (rawPhone) {
-      phone = rawPhone.startsWith("57") ? rawPhone : `57${rawPhone}`;
+      phone =
+        rawPhone.length === 10 && rawPhone.startsWith("3")
+          ? `57${rawPhone}`
+          : rawPhone;
     }
 
     if (phone) {
@@ -84,26 +87,38 @@ export class TicketReceiptComponent {
   });
 
   constructor() {
-    effect(async () => {
+    effect((onCleanup) => {
       const url = this.publicUrl();
       if (!url) {
         this.qrDataUrl.set("");
         return;
       }
+      let cancelled = false;
+      onCleanup(() => {
+        cancelled = true;
+      });
 
-      try {
-        const svg = await QRCode.toString(url, {
-          errorCorrectionLevel: "M",
-          margin: 1,
-          type: "svg",
-          width: 160,
-        });
-        this.qrDataUrl.set(
-          `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
-        );
-      } catch {
-        this.qrDataUrl.set("");
-      }
+      const generateQr = async (): Promise<void> => {
+        try {
+          const svg = await QRCode.toString(url, {
+            errorCorrectionLevel: "M",
+            margin: 1,
+            type: "svg",
+            width: 160,
+          });
+          if (!cancelled) {
+            this.qrDataUrl.set(
+              `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+            );
+          }
+        } catch {
+          if (!cancelled) {
+            this.qrDataUrl.set("");
+          }
+        }
+      };
+
+      void generateQr();
     });
   }
 

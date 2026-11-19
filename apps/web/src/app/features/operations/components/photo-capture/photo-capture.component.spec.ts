@@ -203,4 +203,47 @@ describe("PhotoCaptureComponent", () => {
     expect(component.isCameraActive()).toBe(false);
     expect(component.errorMessage()).toBe(APP_TEXTS.photoCapture.cameraError);
   });
+
+  it("7. should update photoDataUrl and photoSizeKb when initialPhoto input is set", () => {
+    const expectedSizeKb = PhotoCaptureComponent.calculateSizeKb(mockBase64);
+
+    fixture.componentRef.setInput("initialPhoto", mockBase64);
+    fixture.detectChanges();
+
+    expect(component.photoDataUrl()).toBe(mockBase64);
+    expect(component.photoSizeKb()).toBe(expectedSizeKb);
+  });
+
+  it("8. should stop active media stream tracks when ngOnDestroy is called", async () => {
+    await component.startCamera();
+    expect(component.isCameraActive()).toBe(true);
+
+    component.ngOnDestroy();
+
+    expect(mockTracks[0]?.stop).toHaveBeenCalledTimes(1);
+    expect(component.isCameraActive()).toBe(false);
+  });
+
+  it("9. should stop media stream tracks if destroyed while getUserMedia is resolving", async () => {
+    let resolveStream!: (stream: MockStream) => void;
+    const pendingPromise = new Promise<MockStream>((resolve) => {
+      resolveStream = resolve;
+    });
+
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: {
+        getUserMedia: vi.fn().mockReturnValue(pendingPromise),
+      },
+      writable: true,
+    });
+
+    const startPromise = component.startCamera();
+    component.ngOnDestroy();
+    resolveStream(mockStream);
+    await startPromise;
+
+    expect(mockTracks[0]?.stop).toHaveBeenCalledTimes(1);
+    expect(component.isCameraActive()).toBe(false);
+  });
 });

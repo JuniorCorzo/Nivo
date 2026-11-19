@@ -163,6 +163,7 @@ describe("TicketDeliveryCardComponent", () => {
   });
 
   it("should copy public URL to clipboard in receipt mode and reset on destroy", async () => {
+    const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
     const writeTextSpy = vi.fn().mockResolvedValue(null);
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
@@ -182,6 +183,8 @@ describe("TicketDeliveryCardComponent", () => {
 
     // Trigger destroy to ensure onDestroy hook cleans up without error
     fixture.destroy();
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+    clearTimeoutSpy.mockRestore();
   });
 
   it("should handle clipboard rejection gracefully with console warning", async () => {

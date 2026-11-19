@@ -102,6 +102,26 @@ describe("CheckInModalComponent", () => {
     expect(component.facade.deliveryMethod()).toBe("PRINT");
   });
 
+  it("should switch deliveryMethod to EMAIL when phone is cleared while email is populated", () => {
+    component.onEmailChange("cliente@nivo.com");
+    component.onPhoneChange("3001234567");
+    expect(component.facade.deliveryMethod()).toBe("WHATSAPP");
+
+    component.onPhoneChange("");
+    expect(component.facade.phoneNumber()).toBe("");
+    expect(component.facade.deliveryMethod()).toBe("EMAIL");
+  });
+
+  it("should switch deliveryMethod to WHATSAPP when email is cleared while phone is populated", () => {
+    component.onPhoneChange("3001234567");
+    component.onEmailChange("cliente@nivo.com");
+    expect(component.facade.deliveryMethod()).toBe("EMAIL");
+
+    component.onEmailChange("");
+    expect(component.facade.email()).toBe("");
+    expect(component.facade.deliveryMethod()).toBe("WHATSAPP");
+  });
+
   it("should update deliveryMethod in facade on deliveryChannelChange event", () => {
     component.onDeliveryChannelChange("EMAIL");
     expect(component.facade.deliveryMethod()).toBe("EMAIL");
