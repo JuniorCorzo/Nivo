@@ -69,13 +69,21 @@
 
     <!-- Active Channel Input -->
     <div class="space-y-1">
+      @if (activeChannel() === 'WHATSAPP') {
       <label
-        [for]="activeChannel() === 'WHATSAPP' ? 'delivery-phone-input' : 'delivery-email-input'"
+        for="delivery-phone-input"
         class="text-muted-foreground block text-[10px] font-semibold tracking-wider uppercase"
       >
-        {{ activeChannel() === 'WHATSAPP' ? texts.phoneLabel : texts.emailLabel
-        }}
+        {{ texts.phoneLabel }}
       </label>
+      } @else {
+      <label
+        for="delivery-email-input"
+        class="text-muted-foreground block text-[10px] font-semibold tracking-wider uppercase"
+      >
+        {{ texts.emailLabel }}
+      </label>
+      }
       <div class="relative flex items-center">
         <ng-icon
           [name]="activeChannel() === 'WHATSAPP' ? 'lucidePhone' : 'lucideMail'"

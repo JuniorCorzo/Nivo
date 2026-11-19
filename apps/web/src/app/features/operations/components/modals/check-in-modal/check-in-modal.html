@@ -99,12 +99,12 @@
       <!-- Photo capture for unplated vehicles -->
       @if (facade.isUnplated()) {
       <div class="space-y-1.5">
-        <label
+        <span
           class="text-muted-foreground block text-[10px] font-semibold tracking-wider uppercase"
         >
           {{ texts.vehiclePhotoRequiredLabel }}
           <span class="text-destructive">*</span>
-        </label>
+        </span>
         <app-photo-capture
           [initialPhoto]="facade.photoUrl()"
           [autoStart]="true"

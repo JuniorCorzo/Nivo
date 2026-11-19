@@ -81,7 +81,7 @@ export const findFirstRateId = (
  */
 export const isValidEmailFormat = (email: string): boolean => {
   const trimmed = email.trim();
-  return !trimmed || /^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(trimmed);
+  return !trimmed || /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/u.test(trimmed);
 };
 
 /**
