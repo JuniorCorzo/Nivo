@@ -47,13 +47,3 @@ export interface UpdateRateModel {
   minChargeTimeMinutes?: number;
   specialPolicyId?: string;
 }
-
-export interface RateCalculationSimulation {
-  basePrice: number;
-  timeUnit: TimeUnit;
-  durationInMinutes: number;
-  unitsCalculated: number;
-  subtotal: number;
-  discountOrSurcharge: number;
-  total: number;
-}

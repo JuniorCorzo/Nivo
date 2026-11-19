@@ -13,12 +13,7 @@ import {
   mapFormToCreateRateModel,
   mapFormToUpdateRateModel,
 } from "@core/mappers/rate.mapper";
-import type {
-  RateModel,
-  SpecialPolicyModel,
-  TimeUnit,
-  VehicleType,
-} from "@core/models/rate.model";
+import type { RateModel, TimeUnit, VehicleType } from "@core/models/rate.model";
 import { ParkingService } from "@core/services/parking-service";
 import { RateService } from "@core/services/rate-service";
 import { ToastService } from "@nivo-sass/design-system";
@@ -49,8 +44,6 @@ export class RateFormFacade {
     vehicleType: signal<VehicleType>("CAR"),
   };
 
-  readonly previewDurationMinutes = signal(120);
-
   readonly parking = computed(() => {
     const id = this.parkingId();
     if (!id) {
@@ -73,25 +66,6 @@ export class RateFormFacade {
   });
 
   readonly specialPolicies = this.rateService.specialPolicies;
-
-  readonly selectedSpecialPolicy = computed<SpecialPolicyModel | undefined>(
-    () => {
-      const spId = this.form.specialPolicyId();
-      if (!spId) {
-        return;
-      }
-      return this.specialPolicies().find((p) => p.id === spId);
-    }
-  );
-
-  readonly simulation = computed(() =>
-    RateService.simulateCalculation({
-      basePrice: this.form.pricePerUnit() || 0,
-      durationInMinutes: this.previewDurationMinutes() || 0,
-      specialPolicy: this.selectedSpecialPolicy(),
-      timeUnit: this.form.timeUnit(),
-    })
-  );
 
   readonly isValid = computed(
     () =>

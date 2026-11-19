@@ -5,7 +5,6 @@ import {
   RatesService,
   TenantsService,
 } from "@core/api/generated/services";
-import type { SpecialPolicyModel } from "@core/models/rate.model";
 import { firstValueFrom, of } from "rxjs";
 
 import { RateService } from "./rate-service";
@@ -59,77 +58,6 @@ describe("RateService", () => {
 
   it("should be created", () => {
     expect(service).toBeTruthy();
-  });
-
-  describe("simulateCalculation", () => {
-    it("should compute hourly rate calculation accurately", () => {
-      // 3 hours (ceil)
-      const res = RateService.simulateCalculation({
-        basePrice: 5000,
-        durationInMinutes: 125,
-        timeUnit: "HOURS",
-      });
-
-      expect(res.unitsCalculated).toBe(3);
-      expect(res.subtotal).toBe(15_000);
-      expect(res.total).toBe(15_000);
-    });
-
-    it("should apply percentage surcharge special policy", () => {
-      const policy: SpecialPolicyModel = {
-        active: true,
-        modifies: "SURCHARGE",
-        name: "Peak Hours Surcharge",
-        operation: "PERCENTAGE",
-        valueToModify: 20,
-      };
-
-      const res = RateService.simulateCalculation({
-        basePrice: 5000,
-        durationInMinutes: 60,
-        specialPolicy: policy,
-        timeUnit: "HOURS",
-      });
-
-      expect(res.unitsCalculated).toBe(1);
-      expect(res.subtotal).toBe(5000);
-      expect(res.discountOrSurcharge).toBe(1000);
-      expect(res.total).toBe(6000);
-    });
-
-    it("should apply discount policy", () => {
-      const policy: SpecialPolicyModel = {
-        active: true,
-        modifies: "DISCOUNT",
-        name: "Zone Discount",
-        operation: "PERCENTAGE",
-        valueToModify: 10,
-      };
-
-      const res = RateService.simulateCalculation({
-        basePrice: 10_000,
-        durationInMinutes: 1440,
-        specialPolicy: policy,
-        timeUnit: "DAYS",
-      });
-
-      expect(res.unitsCalculated).toBe(1);
-      expect(res.subtotal).toBe(10_000);
-      expect(res.discountOrSurcharge).toBe(-1000);
-      expect(res.total).toBe(9000);
-    });
-
-    it("should calculate minute-based pricing correctly", () => {
-      const res = RateService.simulateCalculation({
-        basePrice: 100,
-        durationInMinutes: 45,
-        timeUnit: "MINUTES",
-      });
-
-      expect(res.unitsCalculated).toBe(45);
-      expect(res.subtotal).toBe(4500);
-      expect(res.total).toBe(4500);
-    });
   });
 
   describe("CRUD Operations", () => {
