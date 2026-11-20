@@ -72,6 +72,7 @@ export class TicketDeliveryCardComponent {
   readonly phoneChange = output<string>();
   readonly emailChange = output<string>();
   readonly channelChange = output<DeliveryChannel>();
+  readonly sendEmail = output<string>();
 
   private readonly destroyRef = inject(DestroyRef);
   private copyTimeoutId?: ReturnType<typeof setTimeout>;
@@ -114,19 +115,6 @@ export class TicketDeliveryCardComponent {
     return `https://wa.me/?text=${msg}`;
   });
 
-  readonly emailLink = computed<string>(() => {
-    const t = this.ticket();
-    const url = this.publicUrl();
-    const plate = t?.licensePlate || this.texts.unplatedVehicle;
-    const subject = encodeURIComponent(this.texts.emailSubject(plate));
-    const body = encodeURIComponent(this.texts.emailBody(plate, url));
-    const to = this.emailInput().trim();
-    if (to) {
-      return `mailto:${to}?subject=${subject}&body=${body}`;
-    }
-    return `mailto:?subject=${subject}&body=${body}`;
-  });
-
   setChannel(channel: DeliveryChannel): void {
     this.activeChannel.set(channel);
     this.channelChange.emit(channel);
@@ -147,6 +135,13 @@ export class TicketDeliveryCardComponent {
       const val = inputElement.value;
       this.emailInput.set(val);
       this.emailChange.emit(val);
+    }
+  }
+
+  onSendEmail(): void {
+    const email = this.emailInput().trim();
+    if (email) {
+      this.sendEmail.emit(email);
     }
   }
 

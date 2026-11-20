@@ -179,6 +179,7 @@ export const OPERATIONS_TEXTS = {
 } as const;
 
 export const CHECK_IN_TEXTS = {
+  assignedSlotPrefix: "Bahía Asignada:",
   cancel: "Cancelar",
   capacityWarning:
     "No hay cupos disponibles para esta categoría en este momento.",
@@ -206,16 +207,23 @@ export const CHECK_IN_TEXTS = {
   plateLabel: "Placa / Matrícula",
   platePlaceholderCo: "Ej: ABC-123",
   platePlaceholderVe: "Ej: AB-123-CD",
+  preselectedBadge: "Preseleccionada",
   rateLabel: "Tarifa",
   rateNoRates: "Sin tarifas configuradas",
+  receiptSubtitle: "Vehículo registrado correctamente",
+  receiptTitle: "Ticket de Ingreso",
   slotLabel: "Cupo / Espacio",
   slotNoSlots: "Sin cupos disponibles",
   submitButton: "Emitir Ticket",
+  submitErrorFallback:
+    "Error al registrar el ingreso. Verifique la placa y disponibilidad de cupo.",
+  submitSuccessToast: "Ingreso registrado con éxito",
   subtitle: "Asignar cupo y emitir ticket de parqueo",
   title: "Registrar Ingreso de Vehículo",
   vehicleAutomobile: "Automóvil",
   vehicleBicycle: "Bicicleta",
   vehicleMotorcycle: "Motocicleta",
+  vehiclePhotoRequiredLabel: "Fotografía de Vehículo",
   vehicleTypeLabel: "Tipo de Vehículo",
 } as const;
 

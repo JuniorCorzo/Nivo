@@ -82,117 +82,294 @@ describe("CheckInModalComponent", () => {
     expect(emitSpy).toHaveBeenCalled();
   });
 
-  it("should update plate in facade on input event", () => {
-    const input = document.createElement("input");
-    input.value = "abc999";
-    const event = new Event("input");
-    Object.defineProperty(event, "target", { value: input });
-    component.onPlateInput(event);
-    expect(component.facade.plate()).toBe("ABC999");
-  });
-
-  it("should update plate country in facade", () => {
-    component.onPlateCountrySelect("UNPLATED");
-    expect(component.facade.plateCountry()).toBe("UNPLATED");
-    expect(component.facade.isUnplated()).toBe(true);
-  });
-
-  it("should update phone number in facade on input event", () => {
-    const input = document.createElement("input");
-    input.value = "3001234567";
-    const event = new Event("input");
-    Object.defineProperty(event, "target", { value: input });
-    component.onPhoneInput(event);
+  it("should update phone number and switch deliveryMethod to WHATSAPP on phoneChange, reverting to PRINT when cleared", () => {
+    component.onPhoneChange("3001234567");
     expect(component.facade.phoneNumber()).toBe("3001234567");
+    expect(component.facade.deliveryMethod()).toBe("WHATSAPP");
+
+    component.onPhoneChange("");
+    expect(component.facade.phoneNumber()).toBe("");
+    expect(component.facade.deliveryMethod()).toBe("PRINT");
   });
 
-  it("should update photoUrl in facade on photoCaptured and photoCleared events", () => {
-    component.onPhotoCaptured("data:image/jpeg;base64,captured");
-    expect(component.facade.photoUrl()).toBe("data:image/jpeg;base64,captured");
+  it("should update email and switch deliveryMethod to EMAIL on emailChange, reverting to PRINT when cleared", () => {
+    component.onEmailChange("cliente@nivo.com");
+    expect(component.facade.email()).toBe("cliente@nivo.com");
+    expect(component.facade.deliveryMethod()).toBe("EMAIL");
 
-    component.onPhotoCleared();
-    expect(component.facade.photoUrl()).toBeNull();
+    component.onEmailChange("");
+    expect(component.facade.email()).toBe("");
+    expect(component.facade.deliveryMethod()).toBe("PRINT");
   });
 
-  it("should apply plate mask directive formatting on plate input", () => {
+  it("should switch deliveryMethod to EMAIL when phone is cleared while email is populated", () => {
+    component.onEmailChange("cliente@nivo.com");
+    component.onPhoneChange("3001234567");
+    expect(component.facade.deliveryMethod()).toBe("WHATSAPP");
+
+    component.onPhoneChange("");
+    expect(component.facade.phoneNumber()).toBe("");
+    expect(component.facade.deliveryMethod()).toBe("EMAIL");
+  });
+
+  it("should switch deliveryMethod to WHATSAPP when email is cleared while phone is populated", () => {
+    component.onPhoneChange("3001234567");
+    component.onEmailChange("cliente@nivo.com");
+    expect(component.facade.deliveryMethod()).toBe("EMAIL");
+
+    component.onEmailChange("");
+    expect(component.facade.email()).toBe("");
+    expect(component.facade.deliveryMethod()).toBe("WHATSAPP");
+  });
+
+  it("should update deliveryMethod in facade on deliveryChannelChange event", () => {
+    component.onDeliveryChannelChange("EMAIL");
+    expect(component.facade.deliveryMethod()).toBe("EMAIL");
+
+    component.onDeliveryChannelChange("PRINT");
+    expect(component.facade.deliveryMethod()).toBe("PRINT");
+
+    component.onDeliveryChannelChange("WHATSAPP");
+    expect(component.facade.deliveryMethod()).toBe("WHATSAPP");
+  });
+
+  it("should initialize photoUrl in facade when initialPhotoUrl and initialUnplated are provided", () => {
+    fixture.componentRef.setInput("initialUnplated", true);
+    fixture.componentRef.setInput(
+      "initialPhotoUrl",
+      "https://storage.nivo.dev/photos/bike-1.jpg"
+    );
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
-    const input: HTMLInputElement | null =
-      fixture.nativeElement.querySelector("#plate-input");
-    expect(input).not.toBeNull();
-    if (!input) {
-      return;
-    }
-    input.value = "abc123";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
+
+    expect(component.facade.isUnplated()).toBe(true);
+    expect(component.facade.photoUrl()).toBe(
+      "https://storage.nivo.dev/photos/bike-1.jpg"
+    );
+  });
+
+  it("should render editable plate input prefilled with formatted plate and country badge when initialPlate is provided", () => {
+    fixture.componentRef.setInput("initialPlate", "ABC123");
+    fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
 
-    expect(input.value).toBe("ABC-123");
+    const plateInput = fixture.nativeElement.querySelector(
+      "#plate-input"
+    ) as HTMLInputElement | null;
+    const countryBadge = fixture.nativeElement.querySelector(
+      "#plate-country-badge"
+    );
+    expect(plateInput).not.toBeNull();
+    expect(plateInput?.value).toBe("ABC-123");
+    expect(countryBadge?.textContent).toContain("CO");
     expect(component.facade.plate()).toBe("ABC-123");
+    expect(component.facade.plateCountry()).toBe("CO");
   });
 
-  it("should auto-detect Venezuelan plate and update facade plate and country", () => {
+  it("should auto-detect Venezuelan plate and update facade plate and country on initialPlate", () => {
+    fixture.componentRef.setInput("initialPlate", "ab123cd");
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
-    const input: HTMLInputElement | null =
-      fixture.nativeElement.querySelector("#plate-input");
-    expect(input).not.toBeNull();
-    if (!input) {
-      return;
-    }
-    input.value = "ab123cd";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    fixture.detectChanges();
 
-    expect(input.value).toBe("AB-123-CD");
+    const plateInput = fixture.nativeElement.querySelector(
+      "#plate-input"
+    ) as HTMLInputElement | null;
+    const countryBadge = fixture.nativeElement.querySelector(
+      "#plate-country-badge"
+    );
+    expect(plateInput).not.toBeNull();
+    expect(plateInput?.value).toBe("AB-123-CD");
+    expect(countryBadge?.textContent).toContain("VE");
     expect(component.facade.plate()).toBe("AB-123-CD");
     expect(component.facade.plateCountry()).toBe("VE");
   });
 
-  it("should auto-detect Colombian plate and update facade plate and country", () => {
-    fixture.componentRef.setInput("isOpen", true);
-    fixture.detectChanges();
-    const input: HTMLInputElement | null =
-      fixture.nativeElement.querySelector("#plate-input");
-    expect(input).not.toBeNull();
-    if (!input) {
-      return;
-    }
-    input.value = "abc123";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    fixture.detectChanges();
-
-    expect(input.value).toBe("ABC-123");
-    expect(component.facade.plate()).toBe("ABC-123");
-    expect(component.facade.plateCountry()).toBe("CO");
-  });
-
-  it("should toggle modality between plated and unplated", () => {
+  it("should render editable plate input when not unplated and omit vehicle type selector and modality buttons", () => {
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
 
-    component.facade.setIsUnplated(true);
-    fixture.detectChanges();
-
-    expect(component.facade.isUnplated()).toBe(true);
-    const photoCapture =
-      fixture.nativeElement.querySelector("app-photo-capture");
-    expect(photoCapture).not.toBeNull();
-
-    component.facade.setIsUnplated(false);
-    fixture.detectChanges();
-
-    expect(component.facade.isUnplated()).toBe(false);
+    const vehicleSelector = fixture.nativeElement.querySelector(
+      '[aria-label="Seleccionar tipo de vehículo"]'
+    );
+    const modalityGroup = fixture.nativeElement.querySelector(
+      '[aria-label="Modalidad de registro"]'
+    );
     const plateInput = fixture.nativeElement.querySelector("#plate-input");
+
+    expect(vehicleSelector).toBeNull();
+    expect(modalityGroup).toBeNull();
     expect(plateInput).not.toBeNull();
   });
 
-  it("should update country on onCountryChange", () => {
-    component.onCountryChange("VE");
-    expect(component.facade.plateCountry()).toBe("VE");
+  it("should allow entering a plate when opened without initialPlate and initialUnplated=false, enabling and validating submission", () => {
+    const mockSlot = {
+      id: "slot-car-1",
+      parkingName: "Central",
+      prefix: "A",
+      slotNumber: "1",
+      status: "AVAILABLE" as const,
+      type: "CAR" as const,
+      zone: "Z1",
+    };
+    const mockRate = {
+      id: "rate-car-1",
+      name: "Carro Hora",
+      parkingId: "p-1",
+      pricePerUnit: 5000,
+      timeUnit: "HOUR" as const,
+      vehicleType: "CAR" as const,
+    };
+    slotServiceSpy.summaries = () => ({ "p-1": [mockSlot] });
+    rateServiceSpy.ratesByParking = () => ({ "p-1": [mockRate] });
+    ticketServiceSpy.createTicket.mockReturnValue(
+      of({
+        id: "ticket-1",
+        licensePlate: "XYZ789",
+        plateCountry: "CO",
+        slotId: "slot-car-1",
+        status: "OPEN",
+      })
+    );
 
-    component.onCountryChange("CO");
+    fixture.componentRef.setInput("parkingId", "p-1");
+    fixture.componentRef.setInput("initialUnplated", false);
+    fixture.componentRef.setInput("initialPlate", "");
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    component.facade.setSlotId("slot-car-1");
+    component.facade.setRateId("rate-car-1");
+    fixture.detectChanges();
+
+    expect(component.facade.isValid()).toBe(false);
+
+    const plateInput = fixture.nativeElement.querySelector(
+      "#plate-input"
+    ) as HTMLInputElement;
+    expect(plateInput).not.toBeNull();
+
+    plateInput.value = "xyz789";
+    plateInput.dispatchEvent(new Event("input", { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(component.facade.plate()).toBe("XYZ-789");
     expect(component.facade.plateCountry()).toBe("CO");
+    expect(component.facade.isValid()).toBe(true);
+
+    component.onSubmit(new Event("submit"));
+    expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith(
+      expect.objectContaining({
+        plate: "XYZ-789",
+        plateCountry: "CO",
+        rateId: "rate-car-1",
+        slotId: "slot-car-1",
+      })
+    );
+  });
+
+  it("should switch vehicleType, slotId, and rateId back to CAR when editing a motorcycle plate into a Colombian car plate", () => {
+    const carSlot = {
+      id: "slot-car-1",
+      parkingName: "Central",
+      prefix: "C",
+      slotNumber: "1",
+      status: "AVAILABLE" as const,
+      type: "CAR" as const,
+      zone: "Z1",
+    };
+    const motoSlot = {
+      id: "slot-moto-1",
+      parkingName: "Central",
+      prefix: "M",
+      slotNumber: "1",
+      status: "AVAILABLE" as const,
+      type: "MOTORCYCLE" as const,
+      zone: "Z1",
+    };
+    const carRate = {
+      id: "rate-car-1",
+      name: "Carro Hora",
+      parkingId: "p-1",
+      pricePerUnit: 5000,
+      timeUnit: "HOUR" as const,
+      vehicleType: "CAR" as const,
+    };
+    const motoRate = {
+      id: "rate-moto-1",
+      name: "Moto Hora",
+      parkingId: "p-1",
+      pricePerUnit: 3000,
+      timeUnit: "HOUR" as const,
+      vehicleType: "MOTORCYCLE" as const,
+    };
+    slotServiceSpy.summaries = () => ({ "p-1": [carSlot, motoSlot] });
+    rateServiceSpy.ratesByParking = () => ({ "p-1": [carRate, motoRate] });
+
+    fixture.componentRef.setInput("parkingId", "p-1");
+    fixture.componentRef.setInput("initialPlate", "ABC12D");
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    expect(component.facade.vehicleType()).toBe("MOTORCYCLE");
+    expect(component.facade.selectedSlotId()).toBe("slot-moto-1");
+    expect(component.facade.selectedRateId()).toBe("rate-moto-1");
+
+    const plateInput = fixture.nativeElement.querySelector(
+      "#plate-input"
+    ) as HTMLInputElement;
+    plateInput.value = "ABC123";
+    plateInput.dispatchEvent(new Event("input", { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(component.facade.plate()).toBe("ABC-123");
+    expect(component.facade.vehicleType()).toBe("CAR");
+    expect(component.facade.selectedSlotId()).toBe("slot-car-1");
+    expect(component.facade.selectedRateId()).toBe("rate-car-1");
+  });
+
+  it("should keep isUnplated true, ignore stale initialPlate, and keep photo capture/validation active when initialUnplated is true", () => {
+    const mockSlot = {
+      id: "slot-moto-1",
+      parkingName: "Central",
+      prefix: "M",
+      slotNumber: "1",
+      status: "AVAILABLE" as const,
+      type: "MOTORCYCLE" as const,
+      zone: "Z1",
+    };
+    const mockRate = {
+      id: "rate-moto-1",
+      name: "Moto Hora",
+      parkingId: "p-1",
+      pricePerUnit: 3000,
+      timeUnit: "HOUR" as const,
+      vehicleType: "MOTORCYCLE" as const,
+    };
+    slotServiceSpy.summaries = () => ({ "p-1": [mockSlot] });
+    rateServiceSpy.ratesByParking = () => ({ "p-1": [mockRate] });
+
+    fixture.componentRef.setInput("parkingId", "p-1");
+    fixture.componentRef.setInput("initialUnplated", true);
+    fixture.componentRef.setInput("initialPlate", "ABC123");
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    component.facade.setSlotId("slot-moto-1");
+    component.facade.setRateId("rate-moto-1");
+    fixture.detectChanges();
+
+    expect(component.facade.isUnplated()).toBe(true);
+    expect(component.facade.plate()).toBe("");
+    expect(component.facade.plateCountry()).toBe("UNPLATED");
+    expect(fixture.nativeElement.querySelector("#plate-input")).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector("app-photo-capture")
+    ).not.toBeNull();
+    expect(component.facade.isValid()).toBe(false);
+
+    component.onPhotoCaptured("data:image/jpeg;base64,validphoto");
+    fixture.detectChanges();
+    expect(component.facade.isValid()).toBe(true);
   });
 
   it("should pre-set vehicle type and slotId in facade and render banner when preselectedSlot is provided on open", () => {
@@ -228,5 +405,78 @@ describe("CheckInModalComponent", () => {
 
     expect(setIsUnplatedSpy).toHaveBeenCalledWith(true);
     expect(component.facade.isUnplated()).toBe(true);
+  });
+
+  it("should render ticket-delivery-card component in the delivery section", () => {
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const deliveryCard = fixture.nativeElement.querySelector(
+      "app-ticket-delivery-card"
+    );
+    expect(deliveryCard).not.toBeNull();
+
+    const phoneInput = fixture.nativeElement.querySelector(
+      "#delivery-phone-input"
+    );
+    expect(phoneInput).not.toBeNull();
+  });
+
+  it("should prefill plate in facade when initialPlate input is provided", () => {
+    fixture.componentRef.setInput("initialPlate", "XYZ789");
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    expect(component.facade.plate()).toBe("XYZ-789");
+  });
+
+  it("should infer vehicleType MOTORCYCLE when initialPlate matches motorcycle format and preselectedSlot is null", () => {
+    const setVehicleTypeSpy = vi.spyOn(component.facade, "setVehicleType");
+
+    fixture.componentRef.setInput("initialPlate", "ABC12D");
+    fixture.componentRef.setInput("preselectedSlot", null);
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    expect(setVehicleTypeSpy).toHaveBeenCalledWith("MOTORCYCLE");
+    expect(component.facade.vehicleType()).toBe("MOTORCYCLE");
+  });
+
+  it("should render photo thumbnail when initialUnplated is true and initialPhotoUrl is provided", () => {
+    fixture.componentRef.setInput("initialUnplated", true);
+    fixture.componentRef.setInput(
+      "initialPhotoUrl",
+      "https://storage.nivo.dev/photos/unplated-bike.jpg"
+    );
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const img = fixture.nativeElement.querySelector(
+      'img[alt="Vehículo sin placa"]'
+    );
+    expect(img).not.toBeNull();
+    expect(img?.getAttribute("src")).toBe(
+      "https://storage.nivo.dev/photos/unplated-bike.jpg"
+    );
+  });
+
+  it("should render app-photo-capture component when initialUnplated is true", () => {
+    fixture.componentRef.setInput("initialUnplated", true);
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    const photoCapture =
+      fixture.nativeElement.querySelector("app-photo-capture");
+    expect(photoCapture).not.toBeNull();
+  });
+
+  it("should update photoUrl in facade when onPhotoCaptured is called and clear on onPhotoCleared", () => {
+    component.onPhotoCaptured("data:image/jpeg;base64,samplephoto");
+    expect(component.facade.photoUrl()).toBe(
+      "data:image/jpeg;base64,samplephoto"
+    );
+
+    component.onPhotoCleared();
+    expect(component.facade.photoUrl()).toBeNull();
   });
 });

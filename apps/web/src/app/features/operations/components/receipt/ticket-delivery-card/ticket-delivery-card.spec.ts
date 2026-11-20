@@ -74,24 +74,19 @@ describe("TicketDeliveryCardComponent", () => {
     expect(component.whatsAppLink()).not.toContain("57584121234567");
   });
 
-  it("should compute email link with mailto scheme and encoded subject", () => {
-    const mockTicket: TicketSummary = {
-      entryTime: "2026-08-27T10:00:00Z",
-      id: "ticket-email-test",
-      licensePlate: "EML123",
-      status: "OPEN",
-    };
+  it("should emit sendEmail output when onSendEmail is called with email in receipt mode", () => {
+    let sentEmail = "";
+    component.sendEmail.subscribe((email) => {
+      sentEmail = email;
+    });
 
-    fixture.componentRef.setInput("ticket", mockTicket);
-    fixture.componentRef.setInput(
-      "publicUrl",
-      "https://app.nivo.dev/t/ticket-email-test"
-    );
+    fixture.componentRef.setInput("mode", "receipt");
     fixture.componentRef.setInput("initialEmail", "customer@example.com");
+    component.setChannel("EMAIL");
     fixture.detectChanges();
 
-    expect(component.emailLink()).toContain("mailto:customer@example.com");
-    expect(component.emailLink()).toContain("EML123");
+    component.onSendEmail();
+    expect(sentEmail).toBe("customer@example.com");
   });
 
   it("should emit phoneChange when typing in phone input", () => {
@@ -168,6 +163,7 @@ describe("TicketDeliveryCardComponent", () => {
   });
 
   it("should copy public URL to clipboard in receipt mode and reset on destroy", async () => {
+    const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
     const writeTextSpy = vi.fn().mockResolvedValue(null);
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
@@ -187,6 +183,8 @@ describe("TicketDeliveryCardComponent", () => {
 
     // Trigger destroy to ensure onDestroy hook cleans up without error
     fixture.destroy();
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+    clearTimeoutSpy.mockRestore();
   });
 
   it("should handle clipboard rejection gracefully with console warning", async () => {

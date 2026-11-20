@@ -14,7 +14,6 @@ import type {
   CheckOutPayload,
   CreateTicketPayload,
   PaymentRecord,
-  PlateCountry,
   PriceDetailedModel,
   PriceLineModel,
   TicketSummary,
@@ -44,11 +43,7 @@ export const mapToTicketSummary = (dto: ParkingTicketsDto): TicketSummary => ({
 
 export const mapToCreateTicketDto = (
   payload: CreateTicketPayload
-): CreateTicket & {
-  plateCountry?: PlateCountry;
-  photoUrl?: string;
-  phoneNumber?: string;
-} => ({
+): CreateTicket => ({
   email: payload.email?.trim() || undefined,
   phoneNumber: payload.phoneNumber?.trim() || undefined,
   photoUrl: payload.photoUrl || undefined,

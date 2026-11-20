@@ -248,6 +248,30 @@ describe("ParkingService", () => {
     expect(parkingLotsServiceSpy.listParkingLots).toHaveBeenCalledTimes(2);
   });
 
+  it("deleteSlotGroup() debe llamar a deleteSlotGroup y refrescar el estado", async () => {
+    parkingLotsServiceSpy.deleteSlotGroup.mockReturnValue(of({}));
+
+    await firstValueFrom(
+      service.deleteSlotGroup("lot-1", {
+        count: 10,
+        prefix: "A",
+        type: "CAR",
+        zone: "Norte",
+      })
+    );
+
+    expect(parkingLotsServiceSpy.deleteSlotGroup).toHaveBeenCalledWith(
+      {
+        parkingId: "lot-1",
+        prefix: "A",
+        slotType: "CAR",
+        zone: "Norte",
+      },
+      expect.anything()
+    );
+    expect(parkingLotsServiceSpy.listParkingLots).toHaveBeenCalledTimes(2);
+  });
+
   it("getTelemetry() debe realizar GET a /parking-lots/{id}/telemetry y retornar res.data", async () => {
     const mockTelemetry: ParkingTelemetryModel = {
       activeTickets: 20,

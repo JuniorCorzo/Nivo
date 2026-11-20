@@ -56,11 +56,17 @@ export interface BatchCreateSlotModel {
   slots: CreatedSlotGroup[];
 }
 
-export interface BatchSlotModel {
-  prefix: string;
-  from: number;
-  to: number;
-  zone: string;
-  type: SlotType;
-  status: SlotStatus;
+export interface UpdateSlotMetadataPayload {
+  slotIds: string[];
+  hasCharger?: boolean;
+  isAccessible?: boolean;
+  isActive?: boolean;
+}
+
+export interface UpdateSlotGroupPayload {
+  parkingId: string;
+  currentZone: string;
+  currentPrefix: string;
+  newZone?: string;
+  newPrefix?: string;
 }

@@ -67,6 +67,25 @@ describe("TicketReceiptComponent", () => {
     expect(link).toContain(encodeURIComponent("SP-1001"));
   });
 
+  it("should not prefix Venezuelan phone number with 57 in whatsAppLink", () => {
+    const mockTicket: TicketSummary = {
+      entryTime: "2026-08-27T10:00:00Z",
+      id: "ticket-ve-1",
+      licensePlate: "AB123CD",
+      phoneNumber: "584121234567",
+      plateCountry: "VE",
+      status: "OPEN",
+    };
+
+    fixture.componentRef.setInput("ticket", mockTicket);
+    fixture.detectChanges();
+
+    const link = component.whatsAppLink();
+    expect(link).toContain("https://wa.me/584121234567?text=");
+    expect(link).not.toContain("https://wa.me/57584121234567");
+    expect(link).toContain(encodeURIComponent("AB123CD"));
+  });
+
   it("should compute generic whatsapp share link when phone number is missing", () => {
     const mockTicket: TicketSummary = {
       entryTime: "2026-08-27T10:00:00Z",
