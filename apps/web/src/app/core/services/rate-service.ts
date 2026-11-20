@@ -3,6 +3,7 @@ import { inject, Injectable, signal } from "@angular/core";
 import type { RatesDto, SpecialPoliciesDto } from "@core/api/generated/models";
 import {
   ParkingLotsService,
+  PublicSimulatorService,
   RatesService,
   TenantsService,
 } from "@core/api/generated/services";
@@ -10,12 +11,16 @@ import { AUTHORIZED } from "@core/http/context/auth.token";
 import {
   mapToCreateRateDto,
   mapToRateModel,
+  mapToSimulateRateRequest,
+  mapToSimulateRateResult,
   mapToSpecialPolicyModel,
   mapToUpdateRateDto,
 } from "@core/mappers/rate.mapper";
 import type {
   CreateRateModel,
   RateModel,
+  SimulateRateParams,
+  SimulateRateResult,
   SpecialPolicyModel,
   UpdateRateModel,
 } from "@core/models/rate.model";
@@ -27,6 +32,7 @@ import { map, tap } from "rxjs/operators";
 })
 export class RateService {
   private parkingLotsService = inject(ParkingLotsService);
+  private publicSimulatorService = inject(PublicSimulatorService);
   private ratesService = inject(RatesService);
   private tenantsService = inject(TenantsService);
 
@@ -138,5 +144,12 @@ export class RateService {
         }),
         tap((policies) => this.specialPoliciesState.set(policies))
       );
+  }
+
+  simulateRate(params: SimulateRateParams): Observable<SimulateRateResult> {
+    const body = mapToSimulateRateRequest(params);
+    return this.publicSimulatorService
+      .calculate({ body })
+      .pipe(map((response) => mapToSimulateRateResult(response)));
   }
 }
