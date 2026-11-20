@@ -1,7 +1,11 @@
 import { TestBed } from "@angular/core/testing";
-import type { ResponseIterableRatesDto } from "@core/api/generated/models";
+import type {
+  ResponseIterableRatesDto,
+  SimulateRateResponse,
+} from "@core/api/generated/models";
 import {
   ParkingLotsService,
+  PublicSimulatorService,
   RatesService,
   TenantsService,
 } from "@core/api/generated/services";
@@ -24,9 +28,14 @@ interface MockTenantsService {
   showSpecialPoliciesByTenant: ReturnType<typeof vi.fn>;
 }
 
+interface MockPublicSimulatorService {
+  calculate: ReturnType<typeof vi.fn>;
+}
+
 describe("RateService", () => {
   let service: RateService;
   let parkingLotsServiceSpy: MockParkingLotsService;
+  let publicSimulatorServiceSpy: MockPublicSimulatorService;
   let ratesServiceSpy: MockRatesService;
   let tenantsServiceSpy: MockTenantsService;
 
@@ -34,6 +43,9 @@ describe("RateService", () => {
     parkingLotsServiceSpy = {
       createRateForParking: vi.fn(),
       showRatesByParkingId: vi.fn(),
+    };
+    publicSimulatorServiceSpy = {
+      calculate: vi.fn(),
     };
     ratesServiceSpy = {
       calculatePrice: vi.fn(),
@@ -48,6 +60,10 @@ describe("RateService", () => {
       providers: [
         RateService,
         { provide: ParkingLotsService, useValue: parkingLotsServiceSpy },
+        {
+          provide: PublicSimulatorService,
+          useValue: publicSimulatorServiceSpy,
+        },
         { provide: RatesService, useValue: ratesServiceSpy },
         { provide: TenantsService, useValue: tenantsServiceSpy },
       ],
@@ -91,6 +107,60 @@ describe("RateService", () => {
       expect(rates[0].name).toBe("Standard Car");
       expect(rates[0].pricePerUnit).toBe(4000);
       expect(rates[0].minChargeTimeMinutes).toBe(15);
+    });
+  });
+
+  describe("Public Rate Simulation", () => {
+    it("should delegate rate calculation to PublicSimulatorService and map response", async () => {
+      const mockResponse: SimulateRateResponse = {
+        breakpoints: [
+          {
+            amount: 8000,
+            concept: "Tarifa CAR (2 Horas * 4000 COP/Horas)",
+          },
+        ],
+        ivaAmount: 1520,
+        ivaRate: 0.19,
+        name: "Simulador Nivo",
+        subtotal: 8000,
+        total: 9520,
+      };
+
+      publicSimulatorServiceSpy.calculate.mockReturnValue(of(mockResponse));
+
+      const result = await firstValueFrom(
+        service.simulateRate({
+          gracePeriodMinutes: 15,
+          minutesStayed: 90,
+          pricePerUnit: 4000,
+          timeUnit: "HOURS",
+          vehicleType: "CAR",
+        })
+      );
+
+      expect(publicSimulatorServiceSpy.calculate).toHaveBeenCalledWith({
+        body: {
+          gracePeriodMinutes: 15,
+          ivaRate: undefined,
+          minutesStayed: 90,
+          pricePerUnit: 4000,
+          timeUnit: "HOURS",
+          vehicleType: "CAR",
+        },
+      });
+      expect(result).toEqual({
+        breakpoints: [
+          {
+            amount: 8000,
+            concept: "Tarifa CAR (2 Horas * 4000 COP/Horas)",
+          },
+        ],
+        ivaAmount: 1520,
+        ivaRate: 0.19,
+        name: "Simulador Nivo",
+        subtotal: 8000,
+        total: 9520,
+      });
     });
   });
 });

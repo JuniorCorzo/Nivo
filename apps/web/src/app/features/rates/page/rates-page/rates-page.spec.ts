@@ -68,6 +68,16 @@ describe("RatesPageComponent", () => {
     getRatesByParkingId: vi.fn().mockReturnValue(of([])),
     loadSpecialPolicies: vi.fn().mockReturnValue(of([])),
     ratesByParking: mockRatesByParking,
+    simulateRate: vi.fn().mockReturnValue(
+      of({
+        breakpoints: [],
+        ivaAmount: 1520,
+        ivaRate: 0.19,
+        name: "Simulador Nivo",
+        subtotal: 8000,
+        total: 9520,
+      })
+    ),
     specialPolicies: mockSpecialPolicies,
   };
 
@@ -128,18 +138,31 @@ describe("RatesPageComponent", () => {
     ]);
   });
 
-  it("should switch tabs between rates and policies", () => {
+  it("should switch tabs between rates, calculator and policies", () => {
     expect(component.activeTab()).toBe("rates");
     expect(fixture.nativeElement.querySelector("app-rates-list")).toBeTruthy();
     expect(
+      fixture.nativeElement.querySelector("app-rate-calculator")
+    ).toBeFalsy();
+    expect(
       fixture.nativeElement.querySelector("app-special-policies-config")
     ).toBeFalsy();
+
+    component.activeTab.set("calculator");
+    fixture.detectChanges();
+    expect(
+      fixture.nativeElement.querySelector("app-rate-calculator")
+    ).toBeTruthy();
+    expect(fixture.nativeElement.querySelector("app-rates-list")).toBeFalsy();
 
     component.activeTab.set("policies");
     fixture.detectChanges();
     expect(
       fixture.nativeElement.querySelector("app-special-policies-config")
     ).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelector("app-rate-calculator")
+    ).toBeFalsy();
     expect(fixture.nativeElement.querySelector("app-rates-list")).toBeFalsy();
   });
 });

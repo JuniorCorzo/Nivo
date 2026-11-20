@@ -47,3 +47,26 @@ export interface UpdateRateModel {
   minChargeTimeMinutes?: number;
   specialPolicyId?: string;
 }
+
+export interface SimulateRateParams {
+  vehicleType: VehicleType;
+  minutesStayed: number;
+  pricePerUnit?: number;
+  timeUnit?: TimeUnit;
+  gracePeriodMinutes?: number;
+  ivaRate?: number;
+}
+
+export interface SimulateRatePriceLine {
+  concept: string;
+  amount: number;
+}
+
+export interface SimulateRateResult {
+  name: string;
+  subtotal: number;
+  ivaRate: number;
+  ivaAmount: number;
+  total: number;
+  breakpoints: SimulateRatePriceLine[];
+}

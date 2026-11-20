@@ -1,6 +1,8 @@
 import type {
   CreateRate,
   RatesDto,
+  SimulateRateRequest,
+  SimulateRateResponse,
   SpecialPoliciesDto,
   SpecialPoliciesInfo,
   UpdateRate,
@@ -8,6 +10,8 @@ import type {
 import type {
   CreateRateModel,
   RateModel,
+  SimulateRateParams,
+  SimulateRateResult,
   SpecialPolicyModel,
   UpdateRateModel,
 } from "@core/models/rate.model";
@@ -106,4 +110,29 @@ export const mapFormToUpdateRateModel = (
   pricePerUnit: form.pricePerUnit,
   timeUnit: form.timeUnit,
   vehicleType: form.vehicleType,
+});
+
+export const mapToSimulateRateRequest = (
+  params: SimulateRateParams
+): SimulateRateRequest => ({
+  gracePeriodMinutes: params.gracePeriodMinutes,
+  ivaRate: params.ivaRate,
+  minutesStayed: params.minutesStayed,
+  pricePerUnit: params.pricePerUnit,
+  timeUnit: params.timeUnit,
+  vehicleType: params.vehicleType,
+});
+
+export const mapToSimulateRateResult = (
+  dto: SimulateRateResponse
+): SimulateRateResult => ({
+  breakpoints: (dto.breakpoints ?? []).map((line) => ({
+    amount: line.amount ?? 0,
+    concept: line.concept ?? "",
+  })),
+  ivaAmount: dto.ivaAmount ?? 0,
+  ivaRate: dto.ivaRate ?? 0,
+  name: dto.name ?? "",
+  subtotal: dto.subtotal ?? 0,
+  total: dto.total ?? 0,
 });
