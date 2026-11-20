@@ -787,7 +787,7 @@
   [isOpen]="isCheckInModalOpen()"
   [parkingId]="parkingId()"
   [preselectedSlot]="selectedCheckInSlot()"
-  [initialPlate]="expressPlate()"
+  [initialPlate]="checkInModalInitialUnplated() ? '' : expressPlate()"
   [initialUnplated]="checkInModalInitialUnplated()"
   (closed)="closeCheckInModal()"
 />

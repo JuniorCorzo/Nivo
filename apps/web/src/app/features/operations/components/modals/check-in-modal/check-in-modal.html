@@ -62,7 +62,8 @@
 
     <!-- Form Body -->
     <form class="mt-4 space-y-4" (submit)="onSubmit($event)">
-      <!-- License Plate Display (Validation) -->
+      <!-- License Plate Input / Unplated Display -->
+      @if (facade.isUnplated()) {
       <div
         class="border-border/80 bg-muted/40 flex items-center justify-between rounded-xl border p-3.5 sm:px-4"
       >
@@ -76,18 +77,10 @@
             id="plate-display"
             class="text-foreground font-mono text-base font-black tracking-widest uppercase sm:text-lg"
           >
-            {{ facade.plate() || texts.countryUnplated }}
+            {{ texts.countryUnplated }}
           </span>
         </div>
-        @if (facade.plate()) {
-        <span
-          class="border-border/60 bg-muted/90 text-foreground flex items-center gap-1 rounded-md border px-2 py-1 font-mono text-xs font-bold tracking-wider shadow-xs"
-        >
-          <span class="text-primary font-bold"
-            >{{ facade.plateCountry() }}</span
-          >
-        </span>
-        } @if (facade.isUnplated() && facade.photoUrl(); as photo) {
+        @if (facade.photoUrl(); as photo) {
         <img
           [src]="photo"
           alt="Vehículo sin placa"
@@ -95,6 +88,29 @@
         />
         }
       </div>
+      } @else {
+      <div class="relative">
+        <nv-input
+          [id]="'plate-input'"
+          [label]="texts.plateLabel"
+          [required]="true"
+          [placeholder]="facade.plateCountry() === 'VE' ? texts.platePlaceholderVe : texts.platePlaceholderCo"
+          [formField]="facade.checkInForm.plate"
+          [error]="facade.checkInForm.plate().touched() ? facade.checkInForm.plate().errors() : undefined"
+          (input)="onPlateInput($event)"
+        />
+        @if (facade.plate()) {
+        <span
+          id="plate-country-badge"
+          class="border-border/60 bg-muted/90 text-foreground pointer-events-none absolute right-3 bottom-2 flex items-center gap-1 rounded-md border px-2 py-1 font-mono text-xs font-bold tracking-wider shadow-xs"
+        >
+          <span class="text-primary font-bold"
+            >{{ facade.plateCountry() }}</span
+          >
+        </span>
+        }
+      </div>
+      }
 
       <!-- Photo capture for unplated vehicles -->
       @if (facade.isUnplated()) {

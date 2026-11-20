@@ -148,14 +148,20 @@ describe("CheckInModalComponent", () => {
     );
   });
 
-  it("should render license plate display for validation when initialPlate is provided", () => {
+  it("should render editable plate input prefilled with formatted plate and country badge when initialPlate is provided", () => {
     fixture.componentRef.setInput("initialPlate", "ABC123");
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
 
-    const plateDisplay = fixture.nativeElement.querySelector("#plate-display");
-    expect(plateDisplay).not.toBeNull();
-    expect(plateDisplay.textContent).toContain("ABC-123");
+    const plateInput = fixture.nativeElement.querySelector(
+      "#plate-input"
+    ) as HTMLInputElement | null;
+    const countryBadge = fixture.nativeElement.querySelector(
+      "#plate-country-badge"
+    );
+    expect(plateInput).not.toBeNull();
+    expect(plateInput?.value).toBe("ABC-123");
+    expect(countryBadge?.textContent).toContain("CO");
     expect(component.facade.plate()).toBe("ABC-123");
     expect(component.facade.plateCountry()).toBe("CO");
   });
@@ -165,14 +171,20 @@ describe("CheckInModalComponent", () => {
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
 
-    const plateDisplay = fixture.nativeElement.querySelector("#plate-display");
-    expect(plateDisplay).not.toBeNull();
-    expect(plateDisplay.textContent).toContain("AB-123-CD");
+    const plateInput = fixture.nativeElement.querySelector(
+      "#plate-input"
+    ) as HTMLInputElement | null;
+    const countryBadge = fixture.nativeElement.querySelector(
+      "#plate-country-badge"
+    );
+    expect(plateInput).not.toBeNull();
+    expect(plateInput?.value).toBe("AB-123-CD");
+    expect(countryBadge?.textContent).toContain("VE");
     expect(component.facade.plate()).toBe("AB-123-CD");
     expect(component.facade.plateCountry()).toBe("VE");
   });
 
-  it("should not render vehicle type selector, modality buttons, or editable plate input for a clean flow", () => {
+  it("should render editable plate input when not unplated and omit vehicle type selector and modality buttons", () => {
     fixture.componentRef.setInput("isOpen", true);
     fixture.detectChanges();
 
@@ -186,7 +198,118 @@ describe("CheckInModalComponent", () => {
 
     expect(vehicleSelector).toBeNull();
     expect(modalityGroup).toBeNull();
-    expect(plateInput).toBeNull();
+    expect(plateInput).not.toBeNull();
+  });
+
+  it("should allow entering a plate when opened without initialPlate and initialUnplated=false, enabling and validating submission", () => {
+    const mockSlot = {
+      id: "slot-car-1",
+      parkingName: "Central",
+      prefix: "A",
+      slotNumber: "1",
+      status: "AVAILABLE" as const,
+      type: "CAR" as const,
+      zone: "Z1",
+    };
+    const mockRate = {
+      id: "rate-car-1",
+      name: "Carro Hora",
+      parkingId: "p-1",
+      pricePerUnit: 5000,
+      timeUnit: "HOUR" as const,
+      vehicleType: "CAR" as const,
+    };
+    slotServiceSpy.summaries = () => ({ "p-1": [mockSlot] });
+    rateServiceSpy.ratesByParking = () => ({ "p-1": [mockRate] });
+    ticketServiceSpy.createTicket.mockReturnValue(
+      of({
+        id: "ticket-1",
+        licensePlate: "XYZ789",
+        plateCountry: "CO",
+        slotId: "slot-car-1",
+        status: "OPEN",
+      })
+    );
+
+    fixture.componentRef.setInput("parkingId", "p-1");
+    fixture.componentRef.setInput("initialUnplated", false);
+    fixture.componentRef.setInput("initialPlate", "");
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    component.facade.setSlotId("slot-car-1");
+    component.facade.setRateId("rate-car-1");
+    fixture.detectChanges();
+
+    expect(component.facade.isValid()).toBe(false);
+
+    const plateInput = fixture.nativeElement.querySelector(
+      "#plate-input"
+    ) as HTMLInputElement;
+    expect(plateInput).not.toBeNull();
+
+    plateInput.value = "xyz789";
+    plateInput.dispatchEvent(new Event("input", { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(component.facade.plate()).toBe("XYZ-789");
+    expect(component.facade.plateCountry()).toBe("CO");
+    expect(component.facade.isValid()).toBe(true);
+
+    component.onSubmit(new Event("submit"));
+    expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith(
+      expect.objectContaining({
+        plate: "XYZ-789",
+        plateCountry: "CO",
+        rateId: "rate-car-1",
+        slotId: "slot-car-1",
+      })
+    );
+  });
+
+  it("should keep isUnplated true, ignore stale initialPlate, and keep photo capture/validation active when initialUnplated is true", () => {
+    const mockSlot = {
+      id: "slot-moto-1",
+      parkingName: "Central",
+      prefix: "M",
+      slotNumber: "1",
+      status: "AVAILABLE" as const,
+      type: "MOTORCYCLE" as const,
+      zone: "Z1",
+    };
+    const mockRate = {
+      id: "rate-moto-1",
+      name: "Moto Hora",
+      parkingId: "p-1",
+      pricePerUnit: 3000,
+      timeUnit: "HOUR" as const,
+      vehicleType: "MOTORCYCLE" as const,
+    };
+    slotServiceSpy.summaries = () => ({ "p-1": [mockSlot] });
+    rateServiceSpy.ratesByParking = () => ({ "p-1": [mockRate] });
+
+    fixture.componentRef.setInput("parkingId", "p-1");
+    fixture.componentRef.setInput("initialUnplated", true);
+    fixture.componentRef.setInput("initialPlate", "ABC123");
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    component.facade.setSlotId("slot-moto-1");
+    component.facade.setRateId("rate-moto-1");
+    fixture.detectChanges();
+
+    expect(component.facade.isUnplated()).toBe(true);
+    expect(component.facade.plate()).toBe("");
+    expect(component.facade.plateCountry()).toBe("UNPLATED");
+    expect(fixture.nativeElement.querySelector("#plate-input")).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector("app-photo-capture")
+    ).not.toBeNull();
+    expect(component.facade.isValid()).toBe(false);
+
+    component.onPhotoCaptured("data:image/jpeg;base64,validphoto");
+    fixture.detectChanges();
+    expect(component.facade.isValid()).toBe(true);
   });
 
   it("should pre-set vehicle type and slotId in facade and render banner when preselectedSlot is provided on open", () => {

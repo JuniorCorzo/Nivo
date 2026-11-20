@@ -20,7 +20,7 @@ import {
   lucideParkingSquare,
   lucideX,
 } from "@ng-icons/lucide";
-import { ButtonComponent } from "@nivo-sass/design-system";
+import { ButtonComponent, InputComponent } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import {
   formatPlate,
@@ -39,6 +39,7 @@ import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-rece
     ButtonComponent,
     CommonModule,
     FormField,
+    InputComponent,
     NgIcon,
     PhotoCaptureComponent,
     TicketDeliveryCardComponent,
@@ -129,14 +130,15 @@ export class CheckInModalComponent {
 
   private initializeModalState(): void {
     this.facade.reset();
-    if (this.initialUnplated()) {
+    const isUnplated = this.initialUnplated();
+    if (isUnplated) {
       this.facade.setIsUnplated(true);
     }
     if (this.initialPhotoUrl()) {
       this.facade.setPhotoUrl(this.initialPhotoUrl());
     }
     const initPlate = this.initialPlate();
-    if (initPlate) {
+    if (!isUnplated && initPlate) {
       this.applyInitialPlate(initPlate);
     }
     const preselected = this.preselectedSlot();
@@ -167,6 +169,22 @@ export class CheckInModalComponent {
   ): void {
     if (channel === "EMAIL" || channel === "WHATSAPP" || channel === "PRINT") {
       this.facade.setDeliveryMethod(channel);
+    }
+  }
+
+  onPlateInput(event: Event): void {
+    /* SAFETY: event.target is HTMLInputElement from the plate input element */
+    const inputEl = event.target as HTMLInputElement;
+    const value = inputEl?.value ?? "";
+    const country = resolvePlatedCountry(value);
+    const formatted = formatPlate(value, country);
+    this.facade.setPlate(formatted, country);
+    if (
+      !this.preselectedSlot() &&
+      this.facade.vehicleType() !== "MOTORCYCLE" &&
+      isColombianMotoPlate(value)
+    ) {
+      this.facade.setVehicleType("MOTORCYCLE");
     }
   }
 
