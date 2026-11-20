@@ -8,6 +8,7 @@ import {
   output,
   untracked,
 } from "@angular/core";
+import { FormField } from "@angular/forms/signals";
 import type { VehicleType } from "@core/models/rate.model";
 import type { SlotSummary } from "@core/models/slot.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -37,6 +38,7 @@ import { TicketReceiptComponent } from "../../receipt/ticket-receipt/ticket-rece
   imports: [
     ButtonComponent,
     CommonModule,
+    FormField,
     NgIcon,
     PhotoCaptureComponent,
     TicketDeliveryCardComponent,
@@ -174,18 +176,6 @@ export class CheckInModalComponent {
 
   onPhotoCleared(): void {
     this.facade.setPhotoUrl(null);
-  }
-
-  onSlotChange(event: Event): void {
-    /* SAFETY: Target is HTMLSelectElement */
-    const target = event.target as HTMLSelectElement;
-    this.facade.setSlotId(target.value || null);
-  }
-
-  onRateChange(event: Event): void {
-    /* SAFETY: Target is HTMLSelectElement */
-    const target = event.target as HTMLSelectElement;
-    this.facade.setRateId(target.value || null);
   }
 
   onSubmit(event: Event): void {

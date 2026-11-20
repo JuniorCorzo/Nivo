@@ -136,8 +136,7 @@
           </label>
           <select
             id="slot-select"
-            [value]="facade.selectedSlotId() || ''"
-            (change)="onSlotChange($event)"
+            [formField]="facade.checkInForm.slotId"
             class="border-input bg-background text-foreground focus:border-ring focus-visible:ring-ring h-9 w-full cursor-pointer rounded-lg border px-3 py-2 text-xs font-medium focus:outline-hidden focus-visible:ring-2 focus-visible:outline-none"
           >
             @if (facade.availableSlots().length === 0) {
@@ -161,8 +160,7 @@
           </label>
           <select
             id="rate-select"
-            [value]="facade.selectedRateId() || ''"
-            (change)="onRateChange($event)"
+            [formField]="facade.checkInForm.rateId"
             class="border-input bg-background text-foreground focus:border-ring focus-visible:ring-ring h-9 w-full cursor-pointer rounded-lg border px-3 py-2 text-xs font-medium focus:outline-hidden focus-visible:ring-2 focus-visible:outline-none"
           >
             @if (facade.availableRates().length === 0) {

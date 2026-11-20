@@ -11,6 +11,30 @@ export const KNOWN_VEHICLE_TYPES: readonly VehicleType[] = [
   "BIKE",
 ];
 
+export interface CheckInFormModel {
+  deliveryMethod: "PRINT" | "WHATSAPP" | "EMAIL";
+  email: string;
+  phoneNumber: string;
+  photoUrl: string;
+  plate: string;
+  plateCountry: PlateCountry;
+  rateId: string;
+  slotId: string;
+  vehicleType: VehicleType;
+}
+
+export const INITIAL_CHECK_IN_FORM_MODEL: CheckInFormModel = {
+  deliveryMethod: "PRINT",
+  email: "",
+  phoneNumber: "",
+  photoUrl: "",
+  plate: "",
+  plateCountry: "CO",
+  rateId: "",
+  slotId: "",
+  vehicleType: "CAR",
+};
+
 /**
  * Returns known vehicle types that currently have at least one available slot.
  */

@@ -6,6 +6,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { form, required, validate } from "@angular/forms/signals";
 import type { RateModel, VehicleType } from "@core/models/rate.model";
 import type { SlotSummary } from "@core/models/slot.model";
 import type { PlateCountry, TicketSummary } from "@core/models/ticket.model";
@@ -21,6 +22,7 @@ import {
 } from "@shared/utils/plate.utils";
 
 import {
+  INITIAL_CHECK_IN_FORM_MODEL,
   buildCheckInPayload,
   findFirstAvailableSlotId,
   findFirstRateId,
@@ -29,6 +31,7 @@ import {
   isValidEmailFormat,
   resolveDefaultVehicleType,
 } from "./check-in.helpers";
+import type { CheckInFormModel } from "./check-in.helpers";
 
 @Injectable()
 export class CheckInFacade {
@@ -40,15 +43,50 @@ export class CheckInFacade {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly parkingId = signal<string | null>(null);
-  readonly plate = signal<string>("");
-  readonly email = signal<string>("");
-  readonly vehicleType = signal<VehicleType>("CAR");
-  readonly selectedSlotId = signal<string | null>(null);
-  readonly selectedRateId = signal<string | null>(null);
-  readonly plateCountry = signal<PlateCountry>("CO");
-  readonly photoUrl = signal<string | null>(null);
-  readonly phoneNumber = signal<string>("");
-  readonly deliveryMethod = signal<"PRINT" | "WHATSAPP" | "EMAIL">("PRINT");
+  readonly formModel = signal<CheckInFormModel>({
+    ...INITIAL_CHECK_IN_FORM_MODEL,
+  });
+
+  readonly checkInForm = form(this.formModel, (schemaPath) => {
+    required(schemaPath.slotId);
+    required(schemaPath.rateId);
+    required(schemaPath.photoUrl, {
+      when: ({ valueOf }) => valueOf(schemaPath.plateCountry) === "UNPLATED",
+    });
+    validate(schemaPath.plate, ({ value, valueOf }) => {
+      const country = valueOf(schemaPath.plateCountry);
+      if (country === "UNPLATED") {
+        return null;
+      }
+      return PLATE_STATE_MACHINE[country].validate(normalizeRawPlate(value()))
+        ? null
+        : { kind: "plate", message: "Invalid plate format" };
+    });
+    validate(schemaPath.email, ({ value, valueOf }) => {
+      if (valueOf(schemaPath.deliveryMethod) === "WHATSAPP") {
+        return null;
+      }
+      return isValidEmailFormat(value())
+        ? null
+        : { kind: "email", message: "Invalid email format" };
+    });
+  });
+
+  readonly plate = computed(() => this.formModel().plate);
+  readonly email = computed(() => this.formModel().email);
+  readonly vehicleType = computed(() => this.formModel().vehicleType);
+  readonly selectedSlotId = computed<string | null>(
+    () => this.formModel().slotId || null
+  );
+  readonly selectedRateId = computed<string | null>(
+    () => this.formModel().rateId || null
+  );
+  readonly plateCountry = computed(() => this.formModel().plateCountry);
+  readonly photoUrl = computed<string | null>(
+    () => this.formModel().photoUrl || null
+  );
+  readonly phoneNumber = computed(() => this.formModel().phoneNumber);
+  readonly deliveryMethod = computed(() => this.formModel().deliveryMethod);
   readonly isUnplated = computed<boolean>(
     () => this.plateCountry() === "UNPLATED"
   );
@@ -106,28 +144,22 @@ export class CheckInFacade {
     () => this.availableSlots().length > 0
   );
 
-  readonly isEmailValid = computed<boolean>(
-    () =>
-      this.deliveryMethod() === "WHATSAPP" || isValidEmailFormat(this.email())
+  readonly isEmailValid = computed<boolean>(() =>
+    this.checkInForm.email().valid()
   );
 
   readonly isPlateValid = computed<boolean>(() =>
-    PLATE_STATE_MACHINE[this.plateCountry()].validate(
-      normalizeRawPlate(this.plate()),
-      Boolean(this.photoUrl())
-    )
+    this.formModel().plateCountry === "UNPLATED"
+      ? this.checkInForm.photoUrl().valid()
+      : this.checkInForm.plate().valid()
   );
 
   readonly hasSelectedResources = computed<boolean>(
-    () => this.selectedSlotId() !== null && this.selectedRateId() !== null
+    () => this.checkInForm.slotId().valid() && this.checkInForm.rateId().valid()
   );
 
   readonly isValid = computed<boolean>(
-    () =>
-      !this.isSubmitting() &&
-      this.hasSelectedResources() &&
-      this.isEmailValid() &&
-      this.isPlateValid()
+    () => !this.isSubmitting() && this.checkInForm().valid()
   );
 
   init(parkingId: string): void {
@@ -174,23 +206,30 @@ export class CheckInFacade {
           if (!rateId) {
             return;
           }
-          this.selectedRateId.set(rateId);
+          this.setRateId(rateId);
         },
       });
   }
 
   setPlate(plate: string, detectedCountry?: PlateCountry): void {
-    if (detectedCountry && detectedCountry !== "UNPLATED") {
-      this.plateCountry.set(detectedCountry);
-    }
-    const { maxFormattedLength } = PLATE_STATE_MACHINE[this.plateCountry()];
-    this.plate.set(plate.toUpperCase().trim().slice(0, maxFormattedLength));
+    this.formModel.update((current) => {
+      const country =
+        detectedCountry && detectedCountry !== "UNPLATED"
+          ? detectedCountry
+          : current.plateCountry;
+      const { maxFormattedLength } = PLATE_STATE_MACHINE[country];
+      return {
+        ...current,
+        plate: plate.toUpperCase().trim().slice(0, maxFormattedLength),
+        plateCountry: country,
+      };
+    });
     this.errorMessage.set(null);
   }
 
   setIsUnplated(unplated: boolean): void {
     if (unplated) {
-      this.plate.set("");
+      this.formModel.update((current) => ({ ...current, plate: "" }));
       this.setPlateCountry("UNPLATED");
       return;
     }
@@ -202,19 +241,28 @@ export class CheckInFacade {
   }
 
   setEmail(email: string): void {
-    this.email.set(email.trim());
+    this.formModel.update((current) => ({ ...current, email: email.trim() }));
   }
 
   setDeliveryMethod(method: "PRINT" | "WHATSAPP" | "EMAIL"): void {
-    this.deliveryMethod.set(method);
-    if (method === "PRINT") {
-      this.phoneNumber.set("");
-      this.email.set("");
-    }
+    this.formModel.update((current) => {
+      if (method === "PRINT") {
+        return {
+          ...current,
+          deliveryMethod: method,
+          email: "",
+          phoneNumber: "",
+        };
+      }
+      return {
+        ...current,
+        deliveryMethod: method,
+      };
+    });
   }
 
   setPlateCountry(country: PlateCountry): void {
-    this.plateCountry.set(country);
+    this.formModel.update((current) => ({ ...current, plateCountry: country }));
     this.errorMessage.set(null);
     if (
       country === "UNPLATED" &&
@@ -225,26 +273,40 @@ export class CheckInFacade {
   }
 
   setPhotoUrl(url: string | null): void {
-    this.photoUrl.set(url);
+    this.formModel.update((current) => ({ ...current, photoUrl: url ?? "" }));
     this.errorMessage.set(null);
   }
 
   setPhoneNumber(phone: string): void {
-    this.phoneNumber.set(phone.trim());
+    this.formModel.update((current) => ({
+      ...current,
+      phoneNumber: phone.trim(),
+    }));
   }
 
   setVehicleType(type: VehicleType): void {
-    this.vehicleType.set(type);
-    this.selectedSlotId.set(findFirstAvailableSlotId(this.allSlots(), type));
-    this.selectedRateId.set(findFirstRateId(this.allRates(), type));
+    const slotId = findFirstAvailableSlotId(this.allSlots(), type) ?? "";
+    const rateId = findFirstRateId(this.allRates(), type) ?? "";
+    this.formModel.update((current) => ({
+      ...current,
+      rateId,
+      slotId,
+      vehicleType: type,
+    }));
   }
 
   setSlotId(slotId: string | null): void {
-    this.selectedSlotId.set(slotId);
+    this.formModel.update((current) => ({
+      ...current,
+      slotId: slotId ?? "",
+    }));
   }
 
   setRateId(rateId: string | null): void {
-    this.selectedRateId.set(rateId);
+    this.formModel.update((current) => ({
+      ...current,
+      rateId: rateId ?? "",
+    }));
   }
 
   submitCheckIn(): void {
@@ -291,10 +353,8 @@ export class CheckInFacade {
   }
 
   reset(): void {
-    this.resetFormInputs();
+    this.formModel.set({ ...INITIAL_CHECK_IN_FORM_MODEL });
     this.errorMessage.set(null);
-    this.selectedSlotId.set(null);
-    this.selectedRateId.set(null);
 
     const resolved = resolveDefaultVehicleType(
       this.configuredVehicleTypes(),
@@ -307,12 +367,12 @@ export class CheckInFacade {
   }
 
   private resetFormInputs(): void {
-    this.plate.set("");
-    this.email.set("");
-    this.photoUrl.set(null);
-    this.phoneNumber.set("");
-    this.plateCountry.set("CO");
-    this.deliveryMethod.set("PRINT");
+    this.formModel.update((current) => ({
+      ...INITIAL_CHECK_IN_FORM_MODEL,
+      rateId: current.rateId,
+      slotId: current.slotId,
+      vehicleType: current.vehicleType,
+    }));
   }
 
   private handleCheckInSuccess(ticket: TicketSummary, parkingId: string): void {
