@@ -267,6 +267,66 @@ describe("CheckInModalComponent", () => {
     );
   });
 
+  it("should switch vehicleType, slotId, and rateId back to CAR when editing a motorcycle plate into a Colombian car plate", () => {
+    const carSlot = {
+      id: "slot-car-1",
+      parkingName: "Central",
+      prefix: "C",
+      slotNumber: "1",
+      status: "AVAILABLE" as const,
+      type: "CAR" as const,
+      zone: "Z1",
+    };
+    const motoSlot = {
+      id: "slot-moto-1",
+      parkingName: "Central",
+      prefix: "M",
+      slotNumber: "1",
+      status: "AVAILABLE" as const,
+      type: "MOTORCYCLE" as const,
+      zone: "Z1",
+    };
+    const carRate = {
+      id: "rate-car-1",
+      name: "Carro Hora",
+      parkingId: "p-1",
+      pricePerUnit: 5000,
+      timeUnit: "HOUR" as const,
+      vehicleType: "CAR" as const,
+    };
+    const motoRate = {
+      id: "rate-moto-1",
+      name: "Moto Hora",
+      parkingId: "p-1",
+      pricePerUnit: 3000,
+      timeUnit: "HOUR" as const,
+      vehicleType: "MOTORCYCLE" as const,
+    };
+    slotServiceSpy.summaries = () => ({ "p-1": [carSlot, motoSlot] });
+    rateServiceSpy.ratesByParking = () => ({ "p-1": [carRate, motoRate] });
+
+    fixture.componentRef.setInput("parkingId", "p-1");
+    fixture.componentRef.setInput("initialPlate", "ABC12D");
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.detectChanges();
+
+    expect(component.facade.vehicleType()).toBe("MOTORCYCLE");
+    expect(component.facade.selectedSlotId()).toBe("slot-moto-1");
+    expect(component.facade.selectedRateId()).toBe("rate-moto-1");
+
+    const plateInput = fixture.nativeElement.querySelector(
+      "#plate-input"
+    ) as HTMLInputElement;
+    plateInput.value = "ABC123";
+    plateInput.dispatchEvent(new Event("input", { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(component.facade.plate()).toBe("ABC-123");
+    expect(component.facade.vehicleType()).toBe("CAR");
+    expect(component.facade.selectedSlotId()).toBe("slot-car-1");
+    expect(component.facade.selectedRateId()).toBe("rate-car-1");
+  });
+
   it("should keep isUnplated true, ignore stale initialPlate, and keep photo capture/validation active when initialUnplated is true", () => {
     const mockSlot = {
       id: "slot-moto-1",

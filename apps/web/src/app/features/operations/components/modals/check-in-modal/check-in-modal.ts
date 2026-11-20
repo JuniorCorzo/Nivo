@@ -23,8 +23,10 @@ import {
 import { ButtonComponent, InputComponent } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import {
+  PLATE_STATE_MACHINE,
   formatPlate,
   isColombianMotoPlate,
+  normalizeRawPlate,
   resolvePlatedCountry,
 } from "@shared/utils/plate.utils";
 
@@ -179,13 +181,29 @@ export class CheckInModalComponent {
     const country = resolvePlatedCountry(value);
     const formatted = formatPlate(value, country);
     this.facade.setPlate(formatted, country);
-    if (
-      !this.preselectedSlot() &&
-      this.facade.vehicleType() !== "MOTORCYCLE" &&
-      isColombianMotoPlate(value)
-    ) {
-      this.facade.setVehicleType("MOTORCYCLE");
+    if (!this.preselectedSlot()) {
+      const normalized = normalizeRawPlate(value);
+      const targetType = this.resolveVehicleTypeFromPlate(normalized, country);
+      if (targetType && this.facade.vehicleType() !== targetType) {
+        this.facade.setVehicleType(targetType);
+      }
     }
+  }
+
+  private resolveVehicleTypeFromPlate(
+    normalizedPlate: string,
+    country: "CO" | "VE"
+  ): VehicleType | null {
+    if (isColombianMotoPlate(normalizedPlate)) {
+      return "MOTORCYCLE";
+    }
+    if (
+      (country === "CO" && PLATE_STATE_MACHINE.CO.validate(normalizedPlate)) ||
+      (country === "VE" && PLATE_STATE_MACHINE.VE.validate(normalizedPlate))
+    ) {
+      return "CAR";
+    }
+    return null;
   }
 
   onPhotoCaptured(photoUrl: string): void {
