@@ -1,12 +1,6 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.notifications.utils;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public final class EmailAddressParser {
-
-  private static final Pattern RFC_822_PATTERN = Pattern
-    .compile("^\\s*(?:\"?([^\"<>]*)\"?\\s*)?<\\s*([^<>@\\s]+@[^<>@\\s]+)\\s*>\\s*$");
 
   private EmailAddressParser() {
     throw new UnsupportedOperationException("Utility class");
@@ -29,18 +23,20 @@ public final class EmailAddressParser {
     }
 
     final String trimmed = input.trim();
-    final Matcher matcher = RFC_822_PATTERN.matcher(trimmed);
-
-    if (matcher.matches()) {
-      String name = matcher.group(1);
-      if (name != null) {
-        name = name.trim();
-        if (name.isEmpty()) {
-          name = null;
+    if (trimmed.endsWith(">")) {
+      final int openAngle = trimmed.indexOf('<');
+      if (openAngle >= 0) {
+        final String emailPart = trimmed.substring(openAngle + 1, trimmed.length() - 1).trim();
+        if (emailPart.contains("@") && !emailPart.contains(" ") && !emailPart.contains("<")
+          && !emailPart.contains(">")) {
+          String namePart = trimmed.substring(0, openAngle).trim();
+          if (namePart.startsWith("\"") && namePart.endsWith("\"") && namePart.length() >= 2) {
+            namePart = namePart.substring(1, namePart.length() - 1).trim();
+          }
+          final String name = namePart.isEmpty() ? null : namePart;
+          return new ParsedEmailAddress(name, emailPart);
         }
       }
-      final String email = matcher.group(2).trim();
-      return new ParsedEmailAddress(name, email);
     }
 
     return new ParsedEmailAddress(null, trimmed);

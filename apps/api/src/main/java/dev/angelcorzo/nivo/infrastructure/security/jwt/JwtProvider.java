@@ -65,11 +65,11 @@ public class JwtProvider implements AuthenticationGateway {
       .type("JWT")
       .keyId(rsaProperties.getKeyId())
       .and()
+      .claims(claims)
       .issuer(jwtProperties.getIssue())
       .expiration(Date.from(expiredTime))
       .notBefore(Date.from(Instant.now()))
       .issuedAt(new Date())
-      .claims(claims)
       .signWith(privateKey, Jwts.SIG.RS256)
       .compact();
   }
@@ -89,11 +89,11 @@ public class JwtProvider implements AuthenticationGateway {
       .header()
       .keyId(rsaProperties.getKeyId())
       .and()
+      .claims(claims)
       .issuer(jwtProperties.getIssue())
       .issuedAt(new Date())
       .expiration(expiredTime)
       .notBefore(new Date())
-      .claims(claims)
       .encryptWith(publicKey, Jwts.KEY.RSA_OAEP_256, Jwts.ENC.A256GCM)
       .compact();
   }
@@ -152,7 +152,7 @@ public class JwtProvider implements AuthenticationGateway {
       final Map<String, String> claims = this.extractTokenClaims(accessToken);
 
       if (claims.isEmpty() || claims.get("sub") == null || claims.get("tenantId") == null
-        || (claims.get("purpose").equals("access-token") && claims.get("role") == null))
+        || ("access-token".equals(claims.get("purpose")) && claims.get("role") == null))
         throw new TokenInvalidException(TokenErrorMessages.INVALID_TOKEN.toString());
 
     } catch (ExpiredJwtException e) {

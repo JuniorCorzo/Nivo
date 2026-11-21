@@ -80,7 +80,7 @@ class CreateTicketUseCaseTest {
 
     when(slotsRepository.findById(slotId)).thenReturn(Optional.of(mockSlot));
     when(tenantsRepository.existsById(tenantId)).thenReturn(true);
-    when(ratesRepository.existsById(rateId)).thenReturn(true);
+    when(ratesRepository.findById(rateId)).thenReturn(Optional.of(mockRate));
 
     when(slotsRepository.save(any(Slots.class)))
       .thenAnswer(invocation -> invocation.getArgument(0));

@@ -76,4 +76,29 @@ class UpdateParkingLotsUseCaseTest {
 
     assertThatThrownBy(() -> useCase.update(command)).isInstanceOf(ParkingNotExistsException.class);
   }
+
+  @Test
+  @DisplayName("Should throw ParkingNotExistsException when parking lot belongs to different tenant")
+  void shouldThrowWhenParkingLotBelongsToDifferentTenant() {
+    UUID parkingId = UUID.randomUUID();
+    UUID tenantA = UUID.randomUUID();
+    UUID tenantB = UUID.randomUUID();
+    Address address = Address.builder().street("New Address 456").city("Bogotá").build();
+    Coordinates coordinates = Coordinates.builder().latitude(4.60).longitude(-74.08).build();
+    OperatingHours hours = OperatingHours.builder().openTime(OffsetTime.now()).closeTime(OffsetTime.now()).build();
+    UpsertParkingLotsDTO command = new UpsertParkingLotsDTO(parkingId, "Updated Lot", address, coordinates,
+      "America/Bogota", "COP", hours, Collections.emptyList());
+
+    ParkingLots existing = ParkingLots.builder()
+      .id(parkingId)
+      .name("Old Lot")
+      .tenant(dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference.of(
+        dev.angelcorzo.nivo.domain.model.tenants.Tenants.builder().id(tenantB).build()))
+      .build();
+
+    when(parkingLotsRepository.findById(parkingId)).thenReturn(Optional.of(existing));
+    when(authenticationContext.getCurrentTenantId()).thenReturn(tenantA);
+
+    assertThatThrownBy(() -> useCase.update(command)).isInstanceOf(ParkingNotExistsException.class);
+  }
 }

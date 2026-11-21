@@ -1,5 +1,6 @@
 package dev.angelcorzo.nivo.infrastructure.adapter.cache.repositories;
 
+import dev.angelcorzo.nivo.domain.model.parkinglots.valueobject.ParkingLotsReference;
 import dev.angelcorzo.nivo.domain.model.slots.Slots;
 import dev.angelcorzo.nivo.domain.model.slots.gateways.SlotsRepository;
 import dev.angelcorzo.nivo.domain.model.slots.valueobject.SlotSummary;
@@ -7,6 +8,7 @@ import dev.angelcorzo.nivo.infrastructure.adapter.cache.constants.CacheNames;
 import dev.angelcorzo.nivo.infrastructure.adapter.cache.key.CacheKeyGenerator;
 import dev.angelcorzo.nivo.infrastructure.adapter.jpa.slot.SlotsRepositoryAdapter;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -52,14 +54,14 @@ public class CachedSlotsRepositoryAdapter implements SlotsRepository {
   @Override
   public List<Slots> saveAll(final List<Slots> slots) {
     final List<Slots> saved = this.delegate.saveAll(slots);
-    evictFirstSlot(slots);
+    evictSlotSummariesForSlots(slots);
     return saved;
   }
 
   @Override
   public List<Slots> saveAllEntities(final List<Slots> slots) {
     final List<Slots> saved = this.delegate.saveAllEntities(slots);
-    evictFirstSlot(slots);
+    evictSlotSummariesForSlots(slots);
     return saved;
   }
 
@@ -80,13 +82,14 @@ public class CachedSlotsRepositoryAdapter implements SlotsRepository {
 
   @Override
   public void batchDelete(final List<UUID> ids) {
-    if (ids != null && !ids.isEmpty()) {
-      final Optional<Slots> existing = this.delegate.findById(ids.getFirst());
-      if (existing.isPresent() && existing.get().getParking() != null) {
-        evictSlotSummary(existing.get().getParking().id());
-      }
-    }
+    evictSlotSummariesForIds(ids);
     this.delegate.batchDelete(ids);
+  }
+
+  @Override
+  public void batchDelete(final List<UUID> ids, final UUID tenantId) {
+    evictSlotSummariesForIds(ids);
+    this.delegate.batchDelete(ids, tenantId);
   }
 
   @Override
@@ -120,11 +123,31 @@ public class CachedSlotsRepositoryAdapter implements SlotsRepository {
     return this.delegate.existsById(id);
   }
 
-  private void evictFirstSlot(final List<Slots> slots) {
-    if (slots == null || slots.isEmpty() || slots.getFirst().getParking() == null) {
+  private void evictSlotSummariesForSlots(final List<Slots> slots) {
+    if (slots == null || slots.isEmpty()) {
       return;
     }
-    evictSlotSummary(slots.getFirst().getParking().id());
+    slots.stream()
+      .map(Slots::getParking)
+      .filter(Objects::nonNull)
+      .map(ParkingLotsReference::id)
+      .filter(Objects::nonNull)
+      .distinct()
+      .forEach(this::evictSlotSummary);
+  }
+
+  private void evictSlotSummariesForIds(final List<UUID> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return;
+    }
+    this.delegate.findAllById(ids)
+      .stream()
+      .map(Slots::getParking)
+      .filter(Objects::nonNull)
+      .map(ParkingLotsReference::id)
+      .filter(Objects::nonNull)
+      .distinct()
+      .forEach(this::evictSlotSummary);
   }
 
   private void evictSlotSummary(final UUID parkingLotId) {

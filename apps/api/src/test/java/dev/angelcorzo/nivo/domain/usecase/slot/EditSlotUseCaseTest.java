@@ -20,12 +20,15 @@ import org.junit.jupiter.api.Test;
 class EditSlotUseCaseTest {
 
   private SlotsRepository slotsRepository;
+  private dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway authenticationContext;
   private EditSlotUseCase useCase;
 
   @BeforeEach
   void setUp() {
     slotsRepository = mock(SlotsRepository.class);
-    useCase = new EditSlotUseCase(slotsRepository);
+    authenticationContext = mock(
+      dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway.class);
+    useCase = new EditSlotUseCase(slotsRepository, authenticationContext);
   }
 
   @Test
@@ -192,6 +195,31 @@ class EditSlotUseCaseTest {
     when(slotsRepository.findById(slotId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(SlotNotFoundException.class);
+
+    verify(slotsRepository, never()).save(any());
+  }
+
+  @Test
+  @DisplayName("Should throw SlotNotFoundException when slot belongs to a different tenant")
+  void shouldThrowWhenSlotBelongsToDifferentTenant() {
+    UUID slotId = UUID.randomUUID();
+    UUID tenantA = UUID.randomUUID();
+    UUID tenantB = UUID.randomUUID();
+    EditSlotUseCase.UpdateSlotCommand command = new EditSlotUseCase.UpdateSlotCommand(slotId, "S-202",
+      SlotType.MOTORCYCLE, SlotStatus.MAINTENANCE);
+
+    Slots existing = Slots.builder()
+      .id(slotId)
+      .slotNumber("S-101")
+      .type(SlotType.CAR)
+      .status(SlotStatus.AVAILABLE)
+      .tenant(dev.angelcorzo.nivo.domain.model.tenants.valueobject.TenantReference.of(
+        dev.angelcorzo.nivo.domain.model.tenants.Tenants.builder().id(tenantB).build()))
+      .build();
+
+    when(slotsRepository.findById(slotId)).thenReturn(Optional.of(existing));
+
+    assertThatThrownBy(() -> useCase.execute(command, tenantA)).isInstanceOf(SlotNotFoundException.class);
 
     verify(slotsRepository, never()).save(any());
   }
