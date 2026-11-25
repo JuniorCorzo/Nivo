@@ -18,6 +18,7 @@ import { CheckOutModalComponent } from "../components/modals/check-out-modal/che
 import { QrScannerModalComponent } from "../components/modals/qr-scanner-modal/qr-scanner-modal";
 import { OperationsOmnibarComponent } from "../components/omnibar/operations-omnibar";
 import { OperationsSlotsGridComponent } from "../components/slots-grid/operations-slots-grid";
+import { OperationsModalsStore } from "../facades/operations-modals.store";
 import { OperationsFacade } from "../facades/operations.facade";
 
 @Component({
@@ -34,7 +35,11 @@ import { OperationsFacade } from "../facades/operations.facade";
     OperationsOmnibarComponent,
     OperationsSlotsGridComponent,
   ],
-  providers: [OperationsFacade, provideIcons({ lucideTicket })],
+  providers: [
+    OperationsModalsStore,
+    OperationsFacade,
+    provideIcons({ lucideTicket }),
+  ],
   selector: "app-operations-page",
   standalone: true,
   styleUrl: "./operations-page.css",

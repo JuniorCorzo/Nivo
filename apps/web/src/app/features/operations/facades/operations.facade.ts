@@ -25,11 +25,12 @@ import { SlotService } from "@core/services/slot-service";
 import { TicketService } from "@core/services/ticket-service";
 import { ToastService } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
-import { normalizeRawPlate } from "@shared/utils/plate.utils";
 import type { Observable } from "rxjs";
 import { EMPTY, catchError, ignoreElements, merge, of, switchMap } from "rxjs";
 
 import type { ScannedQrData } from "../components/modals/qr-scanner-modal/qr-scanner-modal";
+import * as cockpitHelpers from "./operations-cockpit.helpers";
+import { OperationsModalsStore } from "./operations-modals.store";
 
 @Injectable()
 export class OperationsFacade {
@@ -40,139 +41,79 @@ export class OperationsFacade {
   private readonly ticketService = inject(TicketService);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly modals = inject(OperationsModalsStore);
 
   readonly parkingId = signal<string | null>(null);
-  readonly isCheckInModalOpen = signal<boolean>(false);
-  readonly selectedCheckInSlot = signal<SlotSummary | null>(null);
-  readonly checkInModalInitialUnplated = signal<boolean>(false);
-  readonly checkInModalInitialPlate = signal<string>("");
-  readonly isCheckOutModalOpen = signal<boolean>(false);
-  readonly selectedCheckoutTicket = signal<TicketSummary | null>(null);
+  readonly isCheckInModalOpen = this.modals.isCheckInModalOpen;
+  readonly selectedCheckInSlot = this.modals.selectedCheckInSlot;
+  readonly checkInModalInitialUnplated =
+    this.modals.checkInModalInitialUnplated;
+  readonly checkInModalInitialPlate = this.modals.checkInModalInitialPlate;
+  readonly isCheckOutModalOpen = this.modals.isCheckOutModalOpen;
+  readonly selectedCheckoutTicket = this.modals.selectedCheckoutTicket;
+  readonly isQrScannerOpen = this.modals.isQrScannerOpen;
   readonly expressPlate = signal<string>("");
-  readonly isQrScannerOpen = signal<boolean>(false);
   readonly activeTickets = signal<TicketSummary[]>([]);
   readonly searchTicketQuery = signal<string>("");
   readonly vehicleFilter = signal<string>("ALL");
   readonly statusFilter = signal<string>("ALL");
-
   private pendingCheckoutTicketId: string | null = null;
 
   readonly parking = computed(() => {
     const id = this.parkingId();
-    if (!id) {
-      return null;
-    }
-    return (
-      (this.parkingService.parkingLots() ?? []).find((lot) => lot.id === id) ??
-      null
-    );
+    return id
+      ? ((this.parkingService.parkingLots() ?? []).find(
+          (lot) => lot.id === id
+        ) ?? null)
+      : null;
   });
-
   readonly slots = computed<SlotSummary[]>(() => {
     const id = this.parkingId();
     return id ? (this.slotService.summaries()[id] ?? []) : [];
   });
-
   readonly rates = computed(() => {
     const id = this.parkingId();
     return id ? (this.rateService.ratesByParking()[id] ?? []) : [];
   });
-
-  readonly totalSlotsCount = computed(() => this.slots().length);
-
+  readonly kpiMetrics = computed<OperationsKpiMetrics>(() =>
+    cockpitHelpers.buildOperationsKpiMetrics(this.slots())
+  );
+  readonly totalSlotsCount = computed(() => this.kpiMetrics().totalSlotsCount);
   readonly availableSlotsCount = computed(
-    () => this.slots().filter((s) => s.status === "AVAILABLE").length
+    () => this.kpiMetrics().availableSlotsCount
   );
-
   readonly availableCarSlotsCount = computed(
-    () =>
-      this.slots().filter((s) => s.status === "AVAILABLE" && s.type === "CAR")
-        .length
+    () => this.kpiMetrics().availableCarSlotsCount
   );
-
   readonly totalCarSlotsCount = computed(
-    () => this.slots().filter((s) => s.type === "CAR").length
+    () => this.kpiMetrics().totalCarSlotsCount
   );
-
   readonly availableMotoSlotsCount = computed(
-    () =>
-      this.slots().filter(
-        (s) => s.status === "AVAILABLE" && s.type === "MOTORCYCLE"
-      ).length
+    () => this.kpiMetrics().availableMotoSlotsCount
   );
-
   readonly totalMotoSlotsCount = computed(
-    () => this.slots().filter((s) => s.type === "MOTORCYCLE").length
+    () => this.kpiMetrics().totalMotoSlotsCount
   );
-
   readonly occupiedSlotsCount = computed(
-    () => this.slots().filter((s) => s.status === "OCCUPIED").length
+    () => this.kpiMetrics().occupiedSlotsCount
   );
-
-  readonly configuredVehicleTypes = computed<VehicleType[]>(() => {
-    const types = new Set<VehicleType>();
-    for (const slot of this.slots()) {
-      if (
-        slot.type === "CAR" ||
-        slot.type === "MOTORCYCLE" ||
-        slot.type === "BIKE"
-      ) {
-        types.add(slot.type);
-      }
-    }
-    for (const rate of this.rates()) {
-      if (
-        rate.vehicleType === "CAR" ||
-        rate.vehicleType === "MOTORCYCLE" ||
-        rate.vehicleType === "BIKE"
-      ) {
-        types.add(rate.vehicleType);
-      }
-    }
-    return [...types];
-  });
-
-  readonly hasMultipleVehicleTypes = computed<boolean>(
-    () => this.configuredVehicleTypes().length > 1
+  readonly occupationPercentage = computed(
+    () => this.kpiMetrics().occupationPercentage
   );
-
-  readonly expressVehicleType = linkedSignal<VehicleType[], VehicleType>({
-    computation: (types, previous) => {
-      if (types.length === 1) {
-        return types[0];
-      }
-      if (previous && (types.length === 0 || types.includes(previous.value))) {
-        return previous.value;
-      }
-      return types[0] ?? "CAR";
-    },
-    source: this.configuredVehicleTypes,
-  });
-
-  readonly occupationPercentage = computed(() => {
-    const total = this.totalSlotsCount();
-    if (total === 0) {
-      return 0;
-    }
-    return Math.round((this.occupiedSlotsCount() / total) * 100);
-  });
-
   readonly occupationBarPercentage = computed(() =>
     Math.min(this.occupationPercentage(), 100)
   );
-
-  readonly kpiMetrics = computed<OperationsKpiMetrics>(() => ({
-    availableCarSlotsCount: this.availableCarSlotsCount(),
-    availableMotoSlotsCount: this.availableMotoSlotsCount(),
-    availableSlotsCount: this.availableSlotsCount(),
-    occupationBarPercentage: this.occupationBarPercentage(),
-    occupationPercentage: this.occupationPercentage(),
-    occupiedSlotsCount: this.occupiedSlotsCount(),
-    totalCarSlotsCount: this.totalCarSlotsCount(),
-    totalMotoSlotsCount: this.totalMotoSlotsCount(),
-    totalSlotsCount: this.totalSlotsCount(),
-  }));
-
+  readonly configuredVehicleTypes = computed<VehicleType[]>(() =>
+    cockpitHelpers.extractConfiguredVehicleTypes(this.slots(), this.rates())
+  );
+  readonly hasMultipleVehicleTypes = computed<boolean>(
+    () => this.configuredVehicleTypes().length > 1
+  );
+  readonly expressVehicleType = linkedSignal<VehicleType[], VehicleType>({
+    computation: (types, previous) =>
+      cockpitHelpers.resolveExpressVehicleType(types, previous?.value),
+    source: this.configuredVehicleTypes,
+  });
   readonly omnibarState = computed<OperationsOmnibarState>(() => ({
     availableCarSlotsCount: this.availableCarSlotsCount(),
     availableMotoSlotsCount: this.availableMotoSlotsCount(),
@@ -182,38 +123,23 @@ export class OperationsFacade {
     isSubmittingExpressCheckIn: false,
     searchTicketQuery: this.searchTicketQuery(),
   }));
-
   readonly slotsGridFilters = computed<OperationsSlotsGridFilters>(() => ({
     statusFilter: this.statusFilter(),
     vehicleFilter: this.vehicleFilter(),
   }));
-
-  readonly filteredSlots = computed(() => {
-    let list = this.slots();
-    const vFilter = this.vehicleFilter();
-    const sFilter = this.statusFilter();
-
-    if (vFilter !== "ALL") {
-      list = list.filter((s) => s.type === vFilter);
-    }
-    if (sFilter !== "ALL") {
-      list = list.filter((s) => s.status === sFilter);
-    }
-    return list;
-  });
-
-  readonly filteredActiveTickets = computed(() => {
-    const tickets = this.activeTickets();
-    const query = this.searchTicketQuery().trim().toLowerCase();
-    if (!query) {
-      return tickets;
-    }
-    return tickets.filter((t) => {
-      const plate = (t.licensePlate ?? "").toLowerCase();
-      const slot = (t.slotNumber ?? "").toLowerCase();
-      return plate.includes(query) || slot.includes(query);
-    });
-  });
+  readonly filteredSlots = computed(() =>
+    cockpitHelpers.filterOperationsSlots(
+      this.slots(),
+      this.vehicleFilter(),
+      this.statusFilter()
+    )
+  );
+  readonly filteredActiveTickets = computed(() =>
+    cockpitHelpers.filterActiveTicketsByQuery(
+      this.activeTickets(),
+      this.searchTicketQuery()
+    )
+  );
 
   bindRoute(
     paramMap$: Observable<ParamMap>,
@@ -244,22 +170,15 @@ export class OperationsFacade {
         }),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe((tickets) => {
-        const openTickets = (tickets ?? []).filter((t) => t.status === "OPEN");
-        this.activeTickets.set(openTickets);
-        this.tryProcessPendingCheckout(openTickets);
-      });
+      .subscribe((tickets) => this.applyOpenTickets(tickets));
 
     (queryParamMap$ ?? of(convertToParamMap({})))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((queryParams) => {
-        const checkoutTicketId = queryParams.get("checkoutTicketId");
-        if (checkoutTicketId) {
-          this.pendingCheckoutTicketId = checkoutTicketId;
+        this.pendingCheckoutTicketId = queryParams.get("checkoutTicketId");
+        if (this.pendingCheckoutTicketId) {
           this.tryProcessPendingCheckout(this.activeTickets());
-          return;
         }
-        this.pendingCheckoutTicketId = null;
       });
   }
 
@@ -277,58 +196,83 @@ export class OperationsFacade {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         error: () => this.activeTickets.set([]),
-        next: (tickets) => {
-          const openTickets = (tickets ?? []).filter(
-            (t) => t.status === "OPEN"
-          );
-          this.activeTickets.set(openTickets);
-          this.tryProcessPendingCheckout(openTickets);
-        },
+        next: (tickets) => this.applyOpenTickets(tickets),
       });
   }
 
-  setVehicleFilter(val: string): void {
-    this.vehicleFilter.set(val);
+  setVehicleFilter(vehicleFilter: string): void {
+    this.vehicleFilter.set(vehicleFilter);
   }
-
-  setStatusFilter(val: string): void {
-    this.statusFilter.set(val);
+  setStatusFilter(statusFilter: string): void {
+    this.statusFilter.set(statusFilter);
   }
-
   resetSlotFilters(): void {
     this.vehicleFilter.set("ALL");
     this.statusFilter.set("ALL");
   }
-
   setSearchTicketQuery(query: string): void {
     this.searchTicketQuery.set(query);
+  }
+  setExpressVehicleType(vehicleType: VehicleType): void {
+    this.expressVehicleType.set(vehicleType);
+  }
+  openCheckInModal(unplated = false, plate?: string, slot?: SlotSummary): void {
+    this.modals.openCheckIn(
+      unplated,
+      plate ?? this.expressPlate(),
+      slot ?? null
+    );
+  }
+  closeCheckInModal(): void {
+    this.modals.closeCheckIn();
+    this.expressPlate.set("");
+    this.refreshActiveTickets();
+  }
+  checkInSpecificSlot(slot: SlotSummary): void {
+    this.modals.openCheckIn(false, this.expressPlate(), slot);
+  }
+  openDirectCheckOutModal(): void {
+    this.modals.openDirectCheckOut();
+  }
+  checkOutWithTicket(ticket: TicketSummary): void {
+    this.modals.openCheckOutWithTicket(ticket);
+  }
+  closeCheckOutModal(): void {
+    this.modals.closeCheckOut();
+    this.refreshActiveTickets();
+  }
+  openQrScanner(): void {
+    this.modals.openQrScanner();
+  }
+  closeQrScanner(): void {
+    this.modals.closeQrScanner();
   }
 
   handleOmnibarAction(action: OperationsOmnibarAction): void {
     switch (action.type) {
       case "selectVehicleType": {
         this.setExpressVehicleType(action.vehicleType);
-        return;
+        break;
       }
       case "updatePlate": {
         this.expressPlate.set(action.plate);
-        return;
+        break;
       }
       case "submitCheckIn": {
         this.submitExpressCheckIn();
-        return;
+        break;
       }
       case "openUnplatedCheckIn": {
         this.openCheckInModal(true);
-        return;
+        break;
       }
       case "updateSearchQuery": {
         this.setSearchTicketQuery(action.query);
-        return;
+        break;
       }
       case "submitCheckOut": {
         this.submitExpressCheckOutByQuery();
-        return;
+        break;
       }
       case "openQrScanner": {
         this.openQrScanner();
@@ -362,97 +306,38 @@ export class OperationsFacade {
     }
   }
 
-  openCheckInModal(unplated = false, plate?: string, slot?: SlotSummary): void {
-    this.selectedCheckInSlot.set(slot ?? null);
-    this.checkInModalInitialUnplated.set(unplated);
-    this.checkInModalInitialPlate.set(
-      unplated ? "" : (plate ?? this.expressPlate())
-    );
-    this.isCheckInModalOpen.set(true);
-  }
-
-  closeCheckInModal(): void {
-    this.isCheckInModalOpen.set(false);
-    this.selectedCheckInSlot.set(null);
-    this.checkInModalInitialUnplated.set(false);
-    this.checkInModalInitialPlate.set("");
-    this.expressPlate.set("");
-    this.refreshActiveTickets();
-  }
-
-  checkInSpecificSlot(slot: SlotSummary): void {
-    this.selectedCheckInSlot.set(slot);
-    this.checkInModalInitialUnplated.set(false);
-    this.checkInModalInitialPlate.set(this.expressPlate());
-    this.isCheckInModalOpen.set(true);
-  }
-
   submitExpressCheckOutByQuery(queryOverride?: string): void {
-    const rawQuery = queryOverride ?? this.searchTicketQuery();
-    const query = rawQuery.trim().toLowerCase();
-    if (!query) {
-      this.openDirectCheckOutModal();
-      return;
+    const matchResult = cockpitHelpers.findCheckoutTicketMatch(
+      this.activeTickets(),
+      queryOverride ?? this.searchTicketQuery()
+    );
+    switch (matchResult.status) {
+      case "empty": {
+        this.openDirectCheckOutModal();
+        break;
+      }
+      case "matched": {
+        this.checkOutWithTicket(matchResult.ticket);
+        break;
+      }
+      case "multiple": {
+        this.toast.showToast({
+          message: this.texts.toasts.multipleVehiclesMatch,
+          type: "warning",
+        });
+        break;
+      }
+      case "none": {
+        this.toast.showToast({
+          message: this.texts.toasts.noMatchingVehicle,
+          type: "error",
+        });
+        break;
+      }
+      default: {
+        break;
+      }
     }
-
-    const normQuery = query.replaceAll(/[^a-z0-9]/giu, "").toLowerCase();
-    const matches = this.activeTickets().filter((t) => {
-      const plate = (t.licensePlate ?? "").toLowerCase();
-      const slot = (t.slotNumber ?? "").toLowerCase();
-      const normPlate = plate.replaceAll(/[^a-z0-9]/giu, "");
-      const normSlot = slot.replaceAll(/[^a-z0-9]/giu, "");
-      return (
-        plate.includes(query) ||
-        slot.includes(query) ||
-        (normQuery.length >= 2 &&
-          (normPlate.includes(normQuery) || normSlot.includes(normQuery)))
-      );
-    });
-
-    if (matches.length === 1) {
-      this.checkOutWithTicket(matches[0]);
-      return;
-    }
-
-    const exact = matches.find((t) => {
-      const plate = (t.licensePlate ?? "").toLowerCase();
-      const slot = (t.slotNumber ?? "").toLowerCase();
-      const normPlate = plate.replaceAll(/[^a-z0-9]/giu, "");
-      const normSlot = slot.replaceAll(/[^a-z0-9]/giu, "");
-      return (
-        plate === query ||
-        slot === query ||
-        (normQuery.length >= 3 &&
-          (normPlate === normQuery || normSlot === normQuery))
-      );
-    });
-    if (exact) {
-      this.checkOutWithTicket(exact);
-      return;
-    }
-
-    if (matches.length > 1) {
-      this.toast.showToast({
-        message: this.texts.toasts.multipleVehiclesMatch,
-        type: "warning",
-      });
-      return;
-    }
-
-    this.toast.showToast({
-      message: this.texts.toasts.noMatchingVehicle,
-      type: "error",
-    });
-  }
-
-  openDirectCheckOutModal(): void {
-    this.selectedCheckoutTicket.set(null);
-    this.isCheckOutModalOpen.set(true);
-  }
-
-  checkOutWithTicket(ticket: TicketSummary): void {
-    this.selectedCheckoutTicket.set(ticket);
-    this.isCheckOutModalOpen.set(true);
   }
 
   checkOutSpecificSlot(slot: SlotSummary): void {
@@ -460,113 +345,74 @@ export class OperationsFacade {
       .getActiveTicketBySlot(slot.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        error: (err) => {
-          const msg =
-            err?.error?.message || this.texts.toasts.noActiveTicketForSlot;
-          this.toast.showToast({ message: msg, type: "error" });
-        },
-        next: (ticket) => {
-          this.selectedCheckoutTicket.set(ticket);
-          this.isCheckOutModalOpen.set(true);
-        },
+        error: (err) =>
+          this.toast.showToast({
+            message:
+              err?.error?.message || this.texts.toasts.noActiveTicketForSlot,
+            type: "error",
+          }),
+        next: (ticket) => this.checkOutWithTicket(ticket),
       });
-  }
-
-  closeCheckOutModal(): void {
-    this.isCheckOutModalOpen.set(false);
-    this.selectedCheckoutTicket.set(null);
-    this.refreshActiveTickets();
-  }
-
-  openQrScanner(): void {
-    this.isQrScannerOpen.set(true);
-  }
-
-  closeQrScanner(): void {
-    this.isQrScannerOpen.set(false);
   }
 
   onQrScanned(data: ScannedQrData): void {
     this.closeQrScanner();
-
-    if (data.ticketId) {
-      const matchById = this.activeTickets().find(
-        (t) => t.id === data.ticketId
-      );
-      if (matchById) {
-        this.checkOutWithTicket(matchById);
-        return;
-      }
+    const matchedTicket = cockpitHelpers.findTicketByScannedQr(
+      this.activeTickets(),
+      data
+    );
+    if (matchedTicket) {
+      this.checkOutWithTicket(matchedTicket);
+      return;
     }
-
-    if (data.plate) {
-      const cleanScannedPlate = data.plate
-        .replaceAll(/[^a-zA-Z0-9]/gu, "")
-        .toUpperCase();
-      const matchByPlate = this.activeTickets().find((t) => {
-        const cleanTicketPlate = (t.licensePlate ?? "")
-          .replaceAll(/[^a-zA-Z0-9]/gu, "")
-          .toUpperCase();
-        return cleanTicketPlate === cleanScannedPlate;
-      });
-      if (matchByPlate) {
-        this.checkOutWithTicket(matchByPlate);
-        return;
-      }
-    }
-
-    let identifier: string = this.texts.toasts.qrScannedFallback;
-    if (data.ticketId) {
-      identifier = this.texts.toasts.qrTicketPrefix(data.ticketId.slice(0, 8));
-    } else if (data.plate) {
-      identifier = this.texts.toasts.qrPlatePrefix(data.plate);
-    }
-
+    const identifier = cockpitHelpers.buildQrNotFoundIdentifier(
+      data,
+      this.texts.toasts
+    );
     this.toast.showToast({
       message: this.texts.toasts.qrNotFound(identifier),
       type: "error",
     });
   }
 
-  setExpressVehicleType(type: VehicleType): void {
-    this.expressVehicleType.set(type);
-  }
-
   submitExpressCheckIn(
     plateOverride?: string,
     typeOverride?: VehicleType
   ): void {
-    const rawPlate = plateOverride ?? this.expressPlate();
-    const cleanPlate = normalizeRawPlate(rawPlate);
-
-    if (cleanPlate.length < 3 || cleanPlate.length > 7) {
+    const result = cockpitHelpers.validateExpressCheckIn(
+      this.slots(),
+      plateOverride ?? this.expressPlate(),
+      typeOverride ?? this.expressVehicleType()
+    );
+    if (result.status === "invalidPlate") {
       this.toast.showToast({
         message: this.texts.toasts.invalidPlate,
         type: "error",
       });
       return;
     }
-
-    const targetType = typeOverride ?? this.expressVehicleType();
-    const availableSlot = this.slots().find(
-      (s) => s.status === "AVAILABLE" && s.type === targetType
-    );
-
-    if (!availableSlot) {
+    if (result.status === "noSlot") {
       const vehicleLabels = this.texts.toasts.vehicleLabels satisfies Record<
         VehicleType,
         string
       >;
       this.toast.showToast({
         message: this.texts.toasts.noAvailableSlotsForVehicle(
-          vehicleLabels[targetType]
+          vehicleLabels[result.vehicleType]
         ),
         type: "error",
       });
       return;
     }
+    this.openCheckInModal(false, result.cleanPlate, result.slot);
+  }
 
-    this.openCheckInModal(false, cleanPlate, availableSlot);
+  private applyOpenTickets(tickets: TicketSummary[] | null | undefined): void {
+    const openTickets = (tickets ?? []).filter(
+      (ticket) => ticket.status === "OPEN"
+    );
+    this.activeTickets.set(openTickets);
+    this.tryProcessPendingCheckout(openTickets);
   }
 
   private tryProcessPendingCheckout(
@@ -575,10 +421,13 @@ export class OperationsFacade {
     if (!this.pendingCheckoutTicketId) {
       return;
     }
-    const match = tickets.find((t) => t.id === this.pendingCheckoutTicketId);
-    if (match) {
-      this.pendingCheckoutTicketId = null;
-      this.checkOutWithTicket(match);
+    const match = tickets.find(
+      (ticket) => ticket.id === this.pendingCheckoutTicketId
+    );
+    if (!match) {
+      return;
     }
+    this.pendingCheckoutTicketId = null;
+    this.checkOutWithTicket(match);
   }
 }
