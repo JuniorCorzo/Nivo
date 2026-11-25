@@ -111,24 +111,6 @@ describe("TicketsTableComponent", () => {
     expect(selected).toEqual(mockTickets[0]);
   });
 
-  it("should emit reprintReceipt when clicking reprint button", () => {
-    let selected: TicketSummary | null = null;
-    component.reprintReceipt.subscribe((t) => {
-      selected = t;
-    });
-
-    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
-    const compiled = fixture.nativeElement as HTMLElement;
-    const reprintBtn = compiled.querySelector(
-      'tbody tr:first-child nv-button[aria-label="Reimprimir Comprobante"]'
-    ) as HTMLElement | null;
-    expect(reprintBtn).not.toBeNull();
-    const innerBtn = reprintBtn?.querySelector("button");
-    innerBtn?.click();
-
-    expect(selected).toEqual(mockTickets[0]);
-  });
-
   it("should emit resetFilters when clicking reset filters button", () => {
     ticketsSignal.set([]);
     fixture.detectChanges();
@@ -164,7 +146,7 @@ describe("TicketsTableComponent", () => {
     expect(compiled.textContent).not.toContain("Cobrar");
   });
 
-  it("should render Ver detalle and Reimprimir Comprobante action buttons on ticket rows", () => {
+  it("should render Ver detalle single action button on ticket rows", () => {
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
     const rows = compiled.querySelectorAll("tbody tr");
@@ -174,11 +156,11 @@ describe("TicketsTableComponent", () => {
       const viewDetailBtn = row.querySelector(
         'nv-button[aria-label="Ver detalle"]'
       );
-      const reprintBtn = row.querySelector(
-        'nv-button[aria-label="Reimprimir Comprobante"]'
-      );
       expect(viewDetailBtn).not.toBeNull();
-      expect(reprintBtn).not.toBeNull();
+      const actionButtons = row.querySelectorAll(
+        "app-ticket-row-actions nv-button"
+      );
+      expect(actionButtons.length).toBe(1);
     }
   });
 

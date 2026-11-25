@@ -84,6 +84,7 @@ export class TicketDeliveryCardComponent {
   readonly activeChannel = linkedSignal<DeliveryChannel>(() =>
     this.initialChannel()
   );
+
   readonly phoneInput = linkedSignal<string>(
     () => this.ticket()?.phoneNumber ?? this.initialPhone()
   );

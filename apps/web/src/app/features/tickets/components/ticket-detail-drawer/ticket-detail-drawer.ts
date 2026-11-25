@@ -34,6 +34,8 @@ import {
 } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
+import { TicketDeliveryCardComponent } from "../../../operations/components/receipt/ticket-delivery-card/ticket-delivery-card";
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -44,6 +46,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
     ButtonComponent,
     CardComponent,
     CardContentComponent,
+    TicketDeliveryCardComponent,
     TypographyH3,
     TypographyH4,
     TypographyMuted,
@@ -77,6 +80,16 @@ export class TicketDetailDrawerComponent {
   readonly drawerClose = output();
   readonly reprintReceipt = output<TicketSummary>();
   readonly checkoutInTaquilla = output<TicketSummary>();
+
+  readonly publicUrl = computed<string>(() => {
+    const t = this.ticket();
+    if (!t?.id) {
+      return "";
+    }
+    const origin =
+      globalThis.window?.location?.origin ?? "https://app.nivo.dev";
+    return `${origin}/t/${t.id}`;
+  });
 
   @HostListener("document:keydown.escape", ["$event"])
   onEscape(event: Event): void {
