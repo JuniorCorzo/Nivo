@@ -1,4 +1,4 @@
-@let m = metrics();
+@let currentMetrics = metrics();
 <div
   data-testid="operations-kpi-ribbon"
   class="border-border bg-card text-card-foreground rounded-2xl border p-4 shadow-xs sm:p-5"
@@ -17,29 +17,31 @@
         <span class="text-foreground text-xs font-bold sm:text-sm">
           {{ texts.globalCapacity }}
         </span>
-        <span class="sr-only"> {{ m.occupationPercentage }}%</span>
+        <span class="sr-only"> {{ currentMetrics.occupationPercentage }}%</span>
       </div>
       <div>
         <div class="flex items-center justify-between gap-1">
           <p class="text-muted-foreground text-xs">
             <strong class="text-foreground font-semibold tabular-nums"
-              >{{ m.availableSlotsCount }}</strong
+              >{{ currentMetrics.availableSlotsCount }}</strong
             >
             {{ texts.freeOf }}
-            <span class="tabular-nums">{{ m.totalSlotsCount }}</span>
+            <span class="tabular-nums"
+              >{{ currentMetrics.totalSlotsCount }}</span
+            >
           </p>
           <nv-badge
             aria-hidden="true"
             [variant]="badgeVariant()"
             class="shrink-0 px-1.5 py-0.5 font-mono text-[10px] tabular-nums"
           >
-            {{ m.occupationPercentage }}%
+            {{ currentMetrics.occupationPercentage }}%
           </nv-badge>
         </div>
         <div class="bg-muted mt-2 h-1.5 w-full overflow-hidden rounded-full">
           <div
             [class]="occupationBarClass()"
-            [style.width.%]="m.occupationBarPercentage"
+            [style.width.%]="currentMetrics.occupationBarPercentage"
           ></div>
         </div>
       </div>
@@ -103,7 +105,7 @@
           <span
             class="text-foreground font-mono text-lg font-bold tabular-nums sm:text-xl"
           >
-            {{ m.occupiedSlotsCount }}
+            {{ currentMetrics.occupiedSlotsCount }}
           </span>
           <span class="text-muted-foreground font-mono text-xs">
             {{ texts.activeLabel }}

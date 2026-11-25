@@ -11,6 +11,7 @@ import { TicketService } from "@core/services/ticket-service";
 import { ToastService } from "@nivo-sass/design-system";
 import { BehaviorSubject, of, throwError } from "rxjs";
 
+import { OperationsDataStore } from "./operations-data.store";
 import { OperationsModalsStore } from "./operations-modals.store";
 import { OperationsFacade } from "./operations.facade";
 
@@ -182,6 +183,7 @@ describe("OperationsFacade", () => {
 
     TestBed.configureTestingModule({
       providers: [
+        OperationsDataStore,
         OperationsModalsStore,
         OperationsFacade,
         { provide: ParkingService, useValue: parkingServiceSpy },

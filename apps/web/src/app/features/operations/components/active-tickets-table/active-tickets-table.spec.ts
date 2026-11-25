@@ -135,4 +135,17 @@ describe("OperationsActiveTicketsTableComponent", () => {
     );
     expect(el.querySelectorAll("tbody button").length).toBe(0);
   });
+
+  it("should render entryTime formatted as dd/MM/yyyy HH:mm", () => {
+    fixture.componentRef.setInput("filteredActiveTickets", [
+      createTicket({
+        entryTime: "2026-10-16T14:35:00",
+        id: "t-date",
+      }),
+    ]);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain("16/10/2026 14:35");
+  });
 });

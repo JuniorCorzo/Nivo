@@ -74,6 +74,7 @@ export class OperationsActiveTicketsTableComponent {
     columns: this.columns,
     data: this.filteredActiveTickets(),
     getCoreRowModel: getCoreRowModel(),
+    getRowId: (row) => row.id,
   }));
 
   onSearchChange(value: string): void {

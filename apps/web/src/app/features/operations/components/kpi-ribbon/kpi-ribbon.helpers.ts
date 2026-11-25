@@ -4,16 +4,6 @@ import type {
 } from "@core/models/operations-cockpit.model";
 import type { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
-export const calculateOccupiedPercentage = (
-  totalSlots: number,
-  availableSlots: number
-): number => {
-  if (totalSlots <= 0) {
-    return 0;
-  }
-  return ((totalSlots - availableSlots) / totalSlots) * 100;
-};
-
 export const calculateOccupancyRate = (
   occupiedSlots: number,
   totalSlots: number
@@ -23,6 +13,11 @@ export const calculateOccupancyRate = (
   }
   return (occupiedSlots / totalSlots) * 100;
 };
+
+export const calculateOccupiedPercentage = (
+  totalSlots: number,
+  availableSlots: number
+): number => calculateOccupancyRate(totalSlots - availableSlots, totalSlots);
 
 export const buildOperationsKpiVehicleCards = (
   metrics: OperationsKpiMetrics,
