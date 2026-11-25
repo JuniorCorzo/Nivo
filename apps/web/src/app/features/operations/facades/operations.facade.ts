@@ -306,26 +306,37 @@ export class OperationsFacade {
 
   handleOmnibarAction(action: OperationsOmnibarAction): void {
     switch (action.type) {
-      case "selectVehicleType":
+      case "selectVehicleType": {
         this.setExpressVehicleType(action.vehicleType);
         return;
-      case "updatePlate":
+      }
+      case "updatePlate": {
         this.expressPlate.set(action.plate);
         return;
-      case "submitCheckIn":
+      }
+      case "submitCheckIn": {
         this.submitExpressCheckIn();
         return;
-      case "openUnplatedCheckIn":
+      }
+      case "openUnplatedCheckIn": {
         this.openCheckInModal(true);
         return;
-      case "updateSearchQuery":
+      }
+      case "updateSearchQuery": {
         this.setSearchTicketQuery(action.query);
         return;
-      case "submitCheckOut":
+      }
+      case "submitCheckOut": {
         this.submitExpressCheckOutByQuery();
         return;
-      case "openQrScanner":
+      }
+      case "openQrScanner": {
         this.openQrScanner();
+        break;
+      }
+      default: {
+        break;
+      }
     }
   }
 

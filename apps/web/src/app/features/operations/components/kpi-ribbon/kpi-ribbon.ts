@@ -83,8 +83,12 @@ export class OperationsKpiRibbonComponent {
 
   readonly occupationBarClass = computed(() => {
     const pct = this.metrics().occupationPercentage;
-    const tone =
-      pct >= 90 ? "bg-destructive" : pct >= 75 ? "bg-warning" : "bg-success";
+    let tone = "bg-success";
+    if (pct >= 90) {
+      tone = "bg-destructive";
+    } else if (pct >= 75) {
+      tone = "bg-warning";
+    }
     return `h-full rounded-full transition-all duration-500 ${tone}`;
   });
 }

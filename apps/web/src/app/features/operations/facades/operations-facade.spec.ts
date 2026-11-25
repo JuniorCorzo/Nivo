@@ -233,19 +233,19 @@ describe("OperationsFacade", () => {
 
   it("should deduplicate configuredVehicleTypes and default expressVehicleType for single-type MOTORCYCLE and BIKE lots", () => {
     slotsByParking = {
-      "p-moto": [createSlot({ id: "m-1", type: "MOTORCYCLE" })],
       "p-bike": [createSlot({ id: "b-1", type: "BIKE" })],
+      "p-moto": [createSlot({ id: "m-1", type: "MOTORCYCLE" })],
     };
     ratesByParking = {
+      "p-bike": [
+        createRate({ id: "r-b", parkingId: "p-bike", vehicleType: "BIKE" }),
+      ],
       "p-moto": [
         createRate({
           id: "r-m",
           parkingId: "p-moto",
           vehicleType: "MOTORCYCLE",
         }),
-      ],
-      "p-bike": [
-        createRate({ id: "r-b", parkingId: "p-bike", vehicleType: "BIKE" }),
       ],
     };
 
