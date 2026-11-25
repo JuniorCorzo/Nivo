@@ -5,6 +5,7 @@ import {
   input,
   output,
 } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import type { TicketSummary } from "@core/models/ticket.model";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
@@ -14,12 +15,23 @@ import {
   lucideTicket,
   lucideX,
 } from "@ng-icons/lucide";
-import { BadgeComponent, ButtonComponent } from "@nivo-sass/design-system";
+import {
+  BadgeComponent,
+  ButtonComponent,
+  InputComponent,
+} from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeComponent, ButtonComponent, DatePipe, NgIcon],
+  imports: [
+    BadgeComponent,
+    ButtonComponent,
+    DatePipe,
+    FormsModule,
+    InputComponent,
+    NgIcon,
+  ],
   providers: [
     provideIcons({
       lucideLogOut,
@@ -44,10 +56,30 @@ export class OperationsActiveTicketsTableComponent {
   readonly openQrScanner = output();
   readonly checkOutWithTicket = output<TicketSummary>();
 
-  onSearchInput(event: Event): void {
-    /* SAFETY: Target is guaranteed HTMLInputElement */
-    const target = event.target as HTMLInputElement;
-    this.searchTicketQueryChange.emit(target.value);
+  readonly kbdClass =
+    "border-border bg-muted text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block";
+
+  getCountryBadgeVariant(
+    ticket: TicketSummary
+  ): "info" | "outline" | "warning" {
+    if (ticket.plateCountry === "VE") {
+      return "info";
+    }
+    if (ticket.plateCountry === "UNPLATED") {
+      return "warning";
+    }
+    return "outline";
+  }
+
+  getCountryBadgeLabel(ticket: TicketSummary): string {
+    if (ticket.plateCountry === "UNPLATED") {
+      return this.texts.unplatedShortBadge;
+    }
+    return ticket.plateCountry || this.texts.defaultCountryBadge;
+  }
+
+  onSearchChange(value: string): void {
+    this.searchTicketQueryChange.emit(value);
   }
 
   onClearSearch(): void {

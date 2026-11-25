@@ -165,6 +165,7 @@ export const OPERATIONS_TEXTS = {
     assignSlot: "Asignar bahía",
     availableStatus: "LIBRE",
     collectExit: "Cobrar Salida",
+    defaultZone: "P",
     emptySubtitle: "Prueba cambiando el tipo de vehículo o el estado.",
     emptyTitle: "No se encontraron bahías con los filtros seleccionados.",
     filterAll: "Todos",

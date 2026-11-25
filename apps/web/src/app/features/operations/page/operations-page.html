@@ -9,15 +9,15 @@
       subtitle
       class="text-muted-foreground flex items-center gap-1.5 text-xs"
     >
-      @if (parking(); as currentParking) {
-      <span class="text-foreground font-semibold">
-        {{ currentParking.name }}
-      </span>
+      @if (facade.parking(); as currentParking) {
+      <span class="text-foreground font-semibold"
+        >{{ currentParking.name }}</span
+      >
       <span>·</span>
       }
       <span>{{ texts.header.subtitle }}</span>
     </div>
-    @if (parkingId(); as pId) {
+    @if (facade.parkingId(); as pId) {
     <div actions class="flex items-center gap-2">
       <a
         [routerLink]="APP_ROUTES.app.parkingLotTickets(pId)"
@@ -31,84 +31,51 @@
     }
   </app-page-header>
 
-  <!-- Unified KPI Ribbon: Capacidad Global, Carros, Motos, Vehículos Activos -->
-  <app-operations-kpi-ribbon
-    [totalSlotsCount]="totalSlotsCount()"
-    [availableSlotsCount]="availableSlotsCount()"
-    [occupationPercentage]="occupationPercentage()"
-    [occupationBarPercentage]="occupationBarPercentage()"
-    [totalCarSlotsCount]="totalCarSlotsCount()"
-    [availableCarSlotsCount]="availableCarSlotsCount()"
-    [totalMotoSlotsCount]="totalMotoSlotsCount()"
-    [availableMotoSlotsCount]="availableMotoSlotsCount()"
-    [occupiedSlotsCount]="occupiedSlotsCount()"
-  />
+  <app-operations-kpi-ribbon [metrics]="facade.kpiMetrics()" />
 
-  <!-- Omnibar Táctico de Taquilla (Dual Action Bar: Ingreso Exprés + Salida Exprés) -->
   <app-operations-omnibar
-    [hasMultipleVehicleTypes]="hasMultipleVehicleTypes()"
-    [expressVehicleType]="expressVehicleType()"
-    [expressPlate]="expressPlate()"
-    [availableCarSlotsCount]="availableCarSlotsCount()"
-    [availableMotoSlotsCount]="availableMotoSlotsCount()"
-    [searchTicketQuery]="searchTicketQuery()"
-    (expressVehicleTypeChange)="setExpressVehicleType($event)"
-    (expressPlateChange)="expressPlate.set($event)"
-    (submitExpressCheckIn)="submitExpressCheckIn()"
-    (openUnplatedCheckIn)="openCheckInModal(true)"
-    (searchTicketQueryChange)="searchTicketQuery.set($event)"
-    (submitExpressCheckOut)="submitExpressCheckOutByQuery()"
-    (openQrScanner)="openQrScanner()"
+    [state]="facade.omnibarState()"
+    (action)="facade.handleOmnibarAction($event)"
   />
 
-  <!-- Active Operations / Live Slots & Search Section -->
   <app-operations-slots-grid
-    [filteredSlots]="filteredSlots()"
-    [vehicleFilter]="vehicleFilter()"
-    [statusFilter]="statusFilter()"
-    [activeTickets]="activeTickets()"
-    (vehicleFilterChange)="setVehicleFilter($event)"
-    (statusFilterChange)="setStatusFilter($event)"
-    (resetFilters)="resetSlotFilters()"
-    (slotClick)="onSlotClick($event)"
+    [filteredSlots]="facade.filteredSlots()"
+    [filters]="facade.slotsGridFilters()"
+    [activeTickets]="facade.activeTickets()"
+    (filterAction)="facade.handleSlotsFilterAction($event)"
+    (slotClick)="facade.onSlotClick($event)"
   />
 
-  <!-- Live Operations Table: Vehículos Activos en Taquilla -->
   <app-operations-active-tickets-table
-    [filteredActiveTickets]="filteredActiveTickets()"
-    [searchTicketQuery]="searchTicketQuery()"
-    (searchTicketQueryChange)="searchTicketQuery.set($event)"
-    (submitExpressCheckOut)="submitExpressCheckOutByQuery()"
-    (openQrScanner)="openQrScanner()"
-    (checkOutWithTicket)="checkOutWithTicket($event)"
+    [filteredActiveTickets]="facade.filteredActiveTickets()"
+    [searchTicketQuery]="facade.searchTicketQuery()"
+    (searchTicketQueryChange)="facade.setSearchTicketQuery($event)"
+    (submitExpressCheckOut)="facade.submitExpressCheckOutByQuery()"
+    (openQrScanner)="facade.openQrScanner()"
+    (checkOutWithTicket)="facade.checkOutWithTicket($event)"
   />
 </div>
 
-<!-- Check-in Modal Component -->
 <app-check-in-modal
-  [isOpen]="isCheckInModalOpen()"
-  [parkingId]="parkingId()"
-  [preselectedSlot]="selectedCheckInSlot()"
-  [initialUnplated]="checkInModalInitialUnplated()"
-  [initialPlate]="checkInModalInitialPlate()"
-  (closed)="closeCheckInModal()"
+  [isOpen]="facade.isCheckInModalOpen()"
+  [parkingId]="facade.parkingId()"
+  [preselectedSlot]="facade.selectedCheckInSlot()"
+  [initialUnplated]="facade.checkInModalInitialUnplated()"
+  [initialPlate]="facade.checkInModalInitialPlate()"
+  (closed)="facade.closeCheckInModal()"
 />
 
-<!-- Check-out Modal Component -->
-@defer (when isCheckOutModalOpen()) {
+@defer (when facade.isCheckOutModalOpen()) {
 <app-check-out-modal
-  [isOpen]="isCheckOutModalOpen()"
-  [parkingId]="parkingId()"
-  [ticket]="selectedCheckoutTicket()"
-  (closed)="closeCheckOutModal()"
+  [isOpen]="facade.isCheckOutModalOpen()"
+  [parkingId]="facade.parkingId()"
+  [ticket]="facade.selectedCheckoutTicket()"
+  (closed)="facade.closeCheckOutModal()"
 />
-}
-
-<!-- QR Scanner Modal Component -->
-@defer (when isQrScannerOpen()) {
+} @defer (when facade.isQrScannerOpen()) {
 <app-qr-scanner-modal
-  [isOpen]="isQrScannerOpen()"
-  (closed)="closeQrScanner()"
-  (scanned)="onQrScanned($event)"
+  [isOpen]="facade.isQrScannerOpen()"
+  (closed)="facade.closeQrScanner()"
+  (scanned)="facade.onQrScanned($event)"
 />
 }

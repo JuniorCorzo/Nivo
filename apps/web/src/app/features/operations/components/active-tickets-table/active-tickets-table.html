@@ -1,8 +1,6 @@
-<!-- Live Operations Table: Vehículos Activos en Taquilla -->
 <div
   class="bg-card text-card-foreground border-border overflow-hidden rounded-2xl border shadow-xs"
 >
-  <!-- Section Header & Search -->
   <div
     class="border-border flex flex-col justify-between gap-3 border-b p-3.5 sm:flex-row sm:items-center sm:p-5"
   >
@@ -10,41 +8,37 @@
       <h2 class="text-foreground text-sm font-bold sm:text-base">
         {{ texts.title }}
       </h2>
-      <nv-badge variant="secondary" class="font-mono text-xs tabular-nums">
-        {{ filteredActiveTickets().length }}
-      </nv-badge>
+      <nv-badge variant="secondary" class="font-mono text-xs tabular-nums"
+        >{{ filteredActiveTickets().length }}</nv-badge
+      >
     </div>
 
-    <!-- Search input & Salida Express action -->
     <div class="flex w-full items-center gap-2 sm:w-auto">
       <div class="relative w-full sm:w-64">
-        <ng-icon
-          name="lucideSearch"
-          size="16"
-          class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
-        />
         <label for="search-ticket-mobile" class="sr-only"
           >{{ texts.searchSrLabel }}</label
         >
-        <input
-          id="search-ticket-mobile"
-          type="text"
-          [attr.aria-label]="texts.searchSrLabel"
-          [value]="searchTicketQuery()"
-          (input)="onSearchInput($event)"
-          (keydown.enter)="onSubmitCheckOut()"
+        <nv-input
+          [id]="'search-ticket-mobile'"
+          name="searchTicketMobile"
+          startIcon="lucideSearch"
           [placeholder]="texts.searchPlaceholder"
-          class="border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-ring w-full rounded-lg border py-1.5 pr-8 pl-9 text-xs focus:outline-hidden"
+          [ngModel]="searchTicketQuery()"
+          (ngModelChange)="onSearchChange($event)"
+          (keydown.enter)="onSubmitCheckOut()"
         />
         @if (searchTicketQuery()) {
-        <button
+        <nv-button
           type="button"
+          size="icon"
+          variant="ghost"
           (click)="onClearSearch()"
           [attr.aria-label]="texts.clearSearch"
-          class="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer rounded-sm p-0.5 transition-colors"
+          class="text-muted-foreground hover:text-foreground absolute top-1/2 right-1.5 h-7 w-7 -translate-y-1/2"
         >
+          <span class="sr-only">{{ texts.clearSearch }}</span>
           <ng-icon name="lucideX" size="14" />
-        </button>
+        </nv-button>
         }
       </div>
       <nv-button
@@ -68,15 +62,11 @@
       >
         <ng-icon name="lucideQrCode" class="text-primary mr-1 text-sm" />
         <span>{{ texts.scanQrAction }}</span>
-        <kbd
-          class="border-border bg-muted text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block"
-          >{{ texts.hotkeyQ }}</kbd
-        >
+        <kbd [class]="kbdClass">{{ texts.hotkeyQ }}</kbd>
       </nv-button>
     </div>
   </div>
 
-  <!-- Active Tickets Table -->
   <div class="overflow-x-auto">
     @if (filteredActiveTickets().length === 0) {
     <div
@@ -88,9 +78,9 @@
         class="text-muted-foreground/60 mb-2"
       />
       <p class="font-medium">{{ texts.emptyTitle }}</p>
-      <span class="text-muted-foreground/80 text-[11px]">
-        {{ texts.emptySubtitle }}
-      </span>
+      <span class="text-muted-foreground/80 text-[11px]"
+        >{{ texts.emptySubtitle }}</span
+      >
     </div>
     } @else {
     <table class="w-full text-left text-xs">
@@ -111,21 +101,13 @@
             <div class="flex items-center gap-2">
               <span
                 class="text-foreground font-mono text-sm font-bold tracking-wider tabular-nums"
+                >{{ ticket.licensePlate }}</span
               >
-                {{ ticket.licensePlate }}
-              </span>
               <nv-badge
-                [variant]="
-                  ticket.plateCountry === 'VE'
-                    ? 'info'
-                    : ticket.plateCountry === 'UNPLATED'
-                      ? 'warning'
-                      : 'outline'
-                "
+                [variant]="getCountryBadgeVariant(ticket)"
                 class="px-1.5 py-0.5 font-mono text-[10px] font-bold"
               >
-                {{ ticket.plateCountry === "UNPLATED" ? texts.unplatedShortBadge
-                : ticket.plateCountry || texts.defaultCountryBadge }}
+                {{ getCountryBadgeLabel(ticket) }}
               </nv-badge>
             </div>
           </td>
@@ -135,9 +117,9 @@
               : texts.emptySlotPlaceholder }}
             </div>
             @if (ticket.slotType) {
-            <span class="text-muted-foreground text-[10px] uppercase">
-              {{ ticket.slotType }}
-            </span>
+            <span class="text-muted-foreground text-[10px] uppercase"
+              >{{ ticket.slotType }}</span
+            >
             }
           </td>
           <td class="px-4 py-3 sm:px-6">
@@ -151,7 +133,6 @@
               variant="default"
               type="button"
               (click)="onTicketCheckOut(ticket)"
-              class="cursor-pointer"
             >
               <ng-icon name="lucideLogOut" size="14" class="mr-1" />
               <span>{{ texts.collectButton }}</span>
