@@ -81,7 +81,6 @@ describe("TicketDeliveryCardComponent", () => {
     });
 
     fixture.componentRef.setInput("mode", "receipt");
-    fixture.componentRef.setInput("allowEmailResend", true);
     fixture.componentRef.setInput("initialEmail", "customer@example.com");
     component.setChannel("EMAIL");
     fixture.detectChanges();
@@ -119,7 +118,6 @@ describe("TicketDeliveryCardComponent", () => {
     });
 
     fixture.componentRef.setInput("mode", "receipt");
-    fixture.componentRef.setInput("allowEmailResend", true);
     component.setChannel("EMAIL");
     fixture.detectChanges();
 
@@ -215,7 +213,7 @@ describe("TicketDeliveryCardComponent", () => {
     warnSpy.mockRestore();
   });
 
-  it("should hide email channel selector and sendEmail button in receipt mode by default", () => {
+  it("should render email channel selector and email input in receipt mode when initialChannel is EMAIL", () => {
     fixture.componentRef.setInput("mode", "receipt");
     fixture.componentRef.setInput("initialChannel", "EMAIL");
     fixture.componentRef.setInput("publicUrl", "https://app.nivo.dev/t/test-2");
@@ -228,11 +226,13 @@ describe("TicketDeliveryCardComponent", () => {
     fixture.detectChanges();
 
     const compiled: HTMLElement = fixture.nativeElement;
-    expect(compiled.querySelector('[role="group"]')).toBeNull();
-    expect(compiled.textContent).not.toContain(component.texts.tabEmail);
-    expect(compiled.textContent).not.toContain(component.texts.sendEmail);
-    expect(compiled.querySelector("#delivery-email-input")).toBeNull();
-    expect(compiled.querySelector("#delivery-phone-input")).not.toBeNull();
+    const channelGroup = compiled.querySelector('[role="group"]');
+    expect(channelGroup).not.toBeNull();
+    expect(channelGroup?.textContent).toContain(component.texts.tabWhatsApp);
+    expect(channelGroup?.textContent).toContain(component.texts.tabEmail);
+    expect(compiled.textContent).toContain(component.texts.sendEmail);
+    expect(compiled.querySelector("#delivery-email-input")).not.toBeNull();
+    expect(compiled.querySelector("#delivery-phone-input")).toBeNull();
     expect(compiled.querySelector("#copy-link-btn")).not.toBeNull();
   });
 
@@ -247,14 +247,13 @@ describe("TicketDeliveryCardComponent", () => {
     expect(channelGroup?.textContent).toContain(component.texts.tabEmail);
   });
 
-  it("should render email channel and emit sendEmail in receipt mode when allowEmailResend is true", () => {
+  it("should render email channel and emit sendEmail directly in receipt mode", () => {
     let sentEmail = "";
     component.sendEmail.subscribe((email) => {
       sentEmail = email;
     });
 
     fixture.componentRef.setInput("mode", "receipt");
-    fixture.componentRef.setInput("allowEmailResend", true);
     fixture.componentRef.setInput("initialEmail", "driver@example.com");
     fixture.componentRef.setInput("publicUrl", "https://app.nivo.dev/t/test-3");
     fixture.detectChanges();

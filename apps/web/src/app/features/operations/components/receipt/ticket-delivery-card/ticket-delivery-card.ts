@@ -63,7 +63,6 @@ export class TicketDeliveryCardComponent {
   readonly texts = APP_TEXTS.ticketReceipt;
 
   readonly mode = input<DeliveryCardMode>("receipt");
-  readonly allowEmailResend = input<boolean>(false);
   readonly ticket = input<TicketSummary | null>(null);
   readonly publicUrl = input<string>("");
   readonly initialPhone = input<string>("");
@@ -85,12 +84,7 @@ export class TicketDeliveryCardComponent {
   readonly activeChannel = linkedSignal<DeliveryChannel>(() =>
     this.initialChannel()
   );
-  readonly showEmailChannel = computed<boolean>(
-    () => this.mode() === "checkin" || this.allowEmailResend()
-  );
-  readonly effectiveChannel = computed<DeliveryChannel>(() =>
-    this.showEmailChannel() ? this.activeChannel() : "WHATSAPP"
-  );
+
   readonly phoneInput = linkedSignal<string>(
     () => this.ticket()?.phoneNumber ?? this.initialPhone()
   );
