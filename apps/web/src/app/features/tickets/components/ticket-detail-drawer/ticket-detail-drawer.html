@@ -225,7 +225,7 @@
 
   <!-- Footer Actions -->
   <div
-    class="border-border bg-card flex items-center justify-between gap-3 border-t p-4"
+    class="border-border bg-card flex flex-wrap items-center justify-between gap-2 border-t p-4"
   >
     <nv-button
       type="button"
@@ -236,7 +236,7 @@
     >
       {{ actionTexts.closeDrawer }}
     </nv-button>
-    <div class="flex items-center gap-2">
+    <div class="flex flex-wrap items-center gap-2">
       <nv-button
         type="button"
         [variant]="ticket()?.status === 'OPEN' ? 'outline' : 'default'"

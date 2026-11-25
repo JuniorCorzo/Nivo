@@ -126,4 +126,36 @@ describe("TicketReceiptComponent", () => {
     expect(phoneInputEl).toBeTruthy();
     expect(phoneInputEl?.value).toBe("3101112233");
   });
+
+  it("should render non-nested Print and Close buttons inside .no-print actions and handle clicks", () => {
+    const printSpy = vi.spyOn(window, "print").mockImplementation(() => {});
+    const closeSpy = vi.spyOn(component.closed, "emit");
+
+    fixture.componentRef.setInput("isOpen", true);
+    fixture.componentRef.setInput("ticket", {
+      entryTime: "2026-08-27T10:00:00Z",
+      id: "ticket-actions-test",
+      licensePlate: "ACT123",
+      status: "OPEN",
+    });
+    fixture.detectChanges();
+
+    const compiled: HTMLElement = fixture.nativeElement;
+    const actionsContainer = compiled.querySelector("div.no-print");
+    expect(actionsContainer).not.toBeNull();
+
+    const nestedButtons = actionsContainer?.querySelectorAll("button button");
+    expect(nestedButtons?.length).toBe(0);
+
+    const buttons = actionsContainer?.querySelectorAll("button") ?? [];
+    expect(buttons.length).toBe(2);
+
+    buttons[0].click();
+    expect(printSpy).toHaveBeenCalledTimes(1);
+
+    buttons[1].click();
+    expect(closeSpy).toHaveBeenCalledTimes(1);
+
+    printSpy.mockRestore();
+  });
 });

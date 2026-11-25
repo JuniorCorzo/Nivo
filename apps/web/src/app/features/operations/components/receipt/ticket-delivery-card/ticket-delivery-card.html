@@ -34,6 +34,7 @@
     </div>
 
     <!-- Delivery Channel Selector -->
+    @if (showEmailChannel()) {
     <div
       role="group"
       aria-label="Canal de entrega digital"
@@ -41,7 +42,7 @@
     >
       <button
         nv-button
-        [variant]="activeChannel() === 'WHATSAPP' ? 'default' : 'ghost'"
+        [variant]="effectiveChannel() === 'WHATSAPP' ? 'default' : 'ghost'"
         size="sm"
         type="button"
         (click)="setChannel('WHATSAPP')"
@@ -56,7 +57,7 @@
       </button>
       <button
         nv-button
-        [variant]="activeChannel() === 'EMAIL' ? 'default' : 'ghost'"
+        [variant]="effectiveChannel() === 'EMAIL' ? 'default' : 'ghost'"
         size="sm"
         type="button"
         (click)="setChannel('EMAIL')"
@@ -66,10 +67,11 @@
         <span>{{ texts.tabEmail }}</span>
       </button>
     </div>
+    }
 
     <!-- Active Channel Input -->
     <div class="space-y-1">
-      @if (activeChannel() === 'WHATSAPP') {
+      @if (effectiveChannel() === 'WHATSAPP') {
       <label
         for="delivery-phone-input"
         class="text-muted-foreground block text-[10px] font-semibold tracking-wider uppercase"
@@ -86,11 +88,11 @@
       }
       <div class="relative flex items-center">
         <ng-icon
-          [name]="activeChannel() === 'WHATSAPP' ? 'lucidePhone' : 'lucideMail'"
+          [name]="effectiveChannel() === 'WHATSAPP' ? 'lucidePhone' : 'lucideMail'"
           size="14"
           class="text-muted-foreground pointer-events-none absolute left-2.5 shrink-0"
         />
-        @if (activeChannel() === 'WHATSAPP') {
+        @if (effectiveChannel() === 'WHATSAPP') {
         <input
           id="delivery-phone-input"
           type="tel"
@@ -115,7 +117,7 @@
     </div>
 
     <!-- Receipt Direct Actions -->
-    @if (mode() === 'receipt') { @if (activeChannel() === 'WHATSAPP' &&
+    @if (mode() === 'receipt') { @if (effectiveChannel() === 'WHATSAPP' &&
     whatsAppLink()) {
     <a
       nv-button
@@ -133,7 +135,7 @@
       />
       <span>{{ texts.shareWhatsApp }}</span>
     </a>
-    } @else if (activeChannel() === 'EMAIL') {
+    } @else if (effectiveChannel() === 'EMAIL') {
     <button
       nv-button
       variant="default"
