@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from "@angular/common";
+import { DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -19,7 +19,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeComponent, ButtonComponent, CommonModule, DatePipe, NgIcon],
+  imports: [BadgeComponent, ButtonComponent, DatePipe, NgIcon],
   providers: [
     provideIcons({
       lucideLogOut,

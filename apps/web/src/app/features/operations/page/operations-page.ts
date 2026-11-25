@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   Component,
   ChangeDetectionStrategy,
@@ -6,10 +5,10 @@ import {
   HostListener,
   computed,
   inject,
+  linkedSignal,
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, convertToParamMap, RouterLink } from "@angular/router";
 import type { VehicleType } from "@core/models/rate.model";
 import type { SlotSummary } from "@core/models/slot.model";
@@ -19,28 +18,13 @@ import { RateService } from "@core/services/rate-service";
 import { SlotService } from "@core/services/slot-service";
 import { TicketService } from "@core/services/ticket-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import {
-  lucideBike,
-  lucideCamera,
-  lucideCar,
-  lucideClock,
-  lucideCoins,
-  lucideGauge,
-  lucideLogIn,
-  lucideLogOut,
-  lucideParkingSquare,
-  lucidePlus,
-  lucideQrCode,
-  lucideSearch,
-  lucideTicket,
-  lucideX,
-} from "@ng-icons/lucide";
+import { lucideTicket } from "@ng-icons/lucide";
 import { ToastService } from "@nivo-sass/design-system";
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { normalizeRawPlate } from "@shared/utils/plate.utils";
-import { of } from "rxjs";
+import { EMPTY, catchError, ignoreElements, merge, of, switchMap } from "rxjs";
 
 import { OperationsActiveTicketsTableComponent } from "../components/active-tickets-table/active-tickets-table";
 import { OperationsKpiRibbonComponent } from "../components/kpi-ribbon/kpi-ribbon";
@@ -54,8 +38,6 @@ import { OperationsSlotsGridComponent } from "../components/slots-grid/operation
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
-    FormsModule,
     RouterLink,
     NgIcon,
     PageHeaderComponent,
@@ -69,20 +51,7 @@ import { OperationsSlotsGridComponent } from "../components/slots-grid/operation
   ],
   providers: [
     provideIcons({
-      lucideBike,
-      lucideCamera,
-      lucideCar,
-      lucideClock,
-      lucideCoins,
-      lucideGauge,
-      lucideLogIn,
-      lucideLogOut,
-      lucideParkingSquare,
-      lucidePlus,
-      lucideQrCode,
-      lucideSearch,
       lucideTicket,
-      lucideX,
     }),
   ],
   selector: "app-operations-page",
@@ -93,7 +62,6 @@ import { OperationsSlotsGridComponent } from "../components/slots-grid/operation
 export class OperationsPageComponent {
   readonly texts = APP_TEXTS.operations;
   readonly APP_ROUTES = APP_ROUTES;
-  readonly ticketTexts = APP_TEXTS.tickets.actions;
 
   private readonly route = inject(ActivatedRoute);
   private readonly parkingService = inject(ParkingService);
@@ -113,8 +81,6 @@ export class OperationsPageComponent {
   readonly selectedCheckoutTicket = signal<TicketSummary | null>(null);
 
   readonly expressPlate = signal<string>("");
-  readonly expressVehicleType = signal<VehicleType>("CAR");
-  readonly isSubmittingExpressCheckIn = signal<boolean>(false);
   readonly isQrScannerOpen = signal<boolean>(false);
 
   readonly activeTickets = signal<TicketSummary[]>([]);
@@ -181,13 +147,9 @@ export class OperationsPageComponent {
     () => this.slots().filter((s) => s.status === "OCCUPIED").length
   );
 
-  readonly ratesCount = computed(() => this.rates().length);
-
-  readonly hasMultipleVehicleTypes = computed<boolean>(() => {
-    const slots = this.slots();
-    const rates = this.rates();
-    const types = new Set<string>();
-    for (const slot of slots) {
+  readonly configuredVehicleTypes = computed<VehicleType[]>(() => {
+    const types = new Set<VehicleType>();
+    for (const slot of this.slots()) {
       if (
         slot.type === "CAR" ||
         slot.type === "MOTORCYCLE" ||
@@ -196,12 +158,33 @@ export class OperationsPageComponent {
         types.add(slot.type);
       }
     }
-    for (const rate of rates) {
-      if (rate.vehicleType) {
+    for (const rate of this.rates()) {
+      if (
+        rate.vehicleType === "CAR" ||
+        rate.vehicleType === "MOTORCYCLE" ||
+        rate.vehicleType === "BIKE"
+      ) {
         types.add(rate.vehicleType);
       }
     }
-    return types.size > 1;
+    return [...types];
+  });
+
+  readonly hasMultipleVehicleTypes = computed<boolean>(
+    () => this.configuredVehicleTypes().length > 1
+  );
+
+  readonly expressVehicleType = linkedSignal<VehicleType[], VehicleType>({
+    computation: (types, previous) => {
+      if (types.length === 1) {
+        return types[0];
+      }
+      if (previous && (types.length === 0 || types.includes(previous.value))) {
+        return previous.value;
+      }
+      return types[0] ?? "CAR";
+    },
+    source: this.configuredVehicleTypes,
   });
 
   readonly occupationPercentage = computed(() => {
@@ -248,26 +231,36 @@ export class OperationsPageComponent {
   private pendingCheckoutTicketId: string | null = null;
 
   constructor() {
-    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const id = params.get("parkingId");
-      this.parkingId.set(id);
-      if (id) {
-        this.slotService.getAllSlotSummariesByParkingId(id).subscribe();
-        this.rateService.getRatesByParkingId(id).subscribe();
-        this.ticketService.listTicketsByParkingLot(id).subscribe({
-          error: () => this.activeTickets.set([]),
-          next: (tickets) => {
-            const openTickets = (tickets ?? []).filter(
-              (t) => t.status === "OPEN"
-            );
-            this.activeTickets.set(openTickets);
-            this.tryProcessPendingCheckout(openTickets);
-          },
-        });
-      } else {
-        this.activeTickets.set([]);
-      }
-    });
+    this.route.paramMap
+      .pipe(
+        switchMap((params) => {
+          const id = params.get("parkingId");
+          this.parkingId.set(id);
+          if (!id) {
+            this.activeTickets.set([]);
+            return EMPTY;
+          }
+          return merge(
+            this.slotService.getAllSlotSummariesByParkingId(id).pipe(
+              catchError(() => EMPTY),
+              ignoreElements()
+            ),
+            this.rateService.getRatesByParkingId(id).pipe(
+              catchError(() => EMPTY),
+              ignoreElements()
+            ),
+            this.ticketService
+              .listTicketsByParkingLot(id)
+              .pipe(catchError(() => of([])))
+          );
+        }),
+        takeUntilDestroyed()
+      )
+      .subscribe((tickets) => {
+        const openTickets = (tickets ?? []).filter((t) => t.status === "OPEN");
+        this.activeTickets.set(openTickets);
+        this.tryProcessPendingCheckout(openTickets);
+      });
 
     (this.route.queryParamMap ?? of(convertToParamMap({})))
       .pipe(takeUntilDestroyed())
@@ -336,12 +329,6 @@ export class OperationsPageComponent {
     this.searchTicketQuery.set(query);
   }
 
-  onSearchQueryChange(event: Event): void {
-    /* SAFETY: event.target is HTMLInputElement from input element */
-    const input = event.target as HTMLInputElement;
-    this.searchTicketQuery.set(input?.value ?? "");
-  }
-
   onSlotClick(slot: SlotSummary): void {
     if (slot.status === "AVAILABLE") {
       this.checkInSpecificSlot(slot);
@@ -350,18 +337,12 @@ export class OperationsPageComponent {
     }
   }
 
-  getActiveTicketForSlot(slot: SlotSummary): TicketSummary | undefined {
-    return this.activeTickets().find(
-      (t) =>
-        (t.slotId && t.slotId === slot.id) ||
-        (t.slotNumber && t.slotNumber === slot.slotNumber)
-    );
-  }
-
   openCheckInModal(unplated = false, plate?: string, slot?: SlotSummary): void {
     this.selectedCheckInSlot.set(slot ?? null);
     this.checkInModalInitialUnplated.set(unplated);
-    this.checkInModalInitialPlate.set(plate ?? this.expressPlate());
+    this.checkInModalInitialPlate.set(
+      unplated ? "" : (plate ?? this.expressPlate())
+    );
     this.isCheckInModalOpen.set(true);
   }
 
@@ -370,6 +351,7 @@ export class OperationsPageComponent {
     this.selectedCheckInSlot.set(null);
     this.checkInModalInitialUnplated.set(false);
     this.checkInModalInitialPlate.set("");
+    this.expressPlate.set("");
     this.refreshActiveTickets();
   }
 
@@ -427,14 +409,14 @@ export class OperationsPageComponent {
 
     if (matches.length > 1) {
       this.toast.showToast({
-        message: "Múltiples vehículos coinciden. Selecciona uno de la lista.",
+        message: this.texts.toasts.multipleVehiclesMatch,
         type: "warning",
       });
       return;
     }
 
     this.toast.showToast({
-      message: "No se encontró ningún vehículo activo con ese criterio.",
+      message: this.texts.toasts.noMatchingVehicle,
       type: "error",
     });
   }
@@ -456,8 +438,7 @@ export class OperationsPageComponent {
       .subscribe({
         error: (err) => {
           const msg =
-            err?.error?.message ||
-            "No se encontró un ticket activo para este cupo.";
+            err?.error?.message || this.texts.toasts.noActiveTicketForSlot;
           this.toast.showToast({ message: msg, type: "error" });
         },
         next: (ticket) => {
@@ -510,15 +491,15 @@ export class OperationsPageComponent {
       }
     }
 
-    let identifier = "Código escaneado";
+    let identifier: string = this.texts.toasts.qrScannedFallback;
     if (data.ticketId) {
-      identifier = `Ticket #${data.ticketId.slice(0, 8)}`;
+      identifier = this.texts.toasts.qrTicketPrefix(data.ticketId.slice(0, 8));
     } else if (data.plate) {
-      identifier = `Placa ${data.plate}`;
+      identifier = this.texts.toasts.qrPlatePrefix(data.plate);
     }
 
     this.toast.showToast({
-      message: `${identifier} no encontrado en taquilla o ya fue liquidado.`,
+      message: this.texts.toasts.qrNotFound(identifier),
       type: "error",
     });
   }
@@ -536,7 +517,7 @@ export class OperationsPageComponent {
 
     if (cleanPlate.length < 3 || cleanPlate.length > 7) {
       this.toast.showToast({
-        message: "Por favor ingresa una placa válida.",
+        message: this.texts.toasts.invalidPlate,
         type: "error",
       });
       return;
@@ -548,13 +529,14 @@ export class OperationsPageComponent {
     );
 
     if (!availableSlot) {
-      const vehicleLabels = {
-        BIKE: "bicicletas",
-        CAR: "carros",
-        MOTORCYCLE: "motos",
-      } satisfies Record<VehicleType, string>;
+      const vehicleLabels = this.texts.toasts.vehicleLabels satisfies Record<
+        VehicleType,
+        string
+      >;
       this.toast.showToast({
-        message: `No hay cupos disponibles para ${vehicleLabels[targetType]}.`,
+        message: this.texts.toasts.noAvailableSlotsForVehicle(
+          vehicleLabels[targetType]
+        ),
         type: "error",
       });
       return;

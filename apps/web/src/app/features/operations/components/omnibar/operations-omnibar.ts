@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -20,12 +19,12 @@ import {
 import { ButtonComponent, DividerComponent } from "@nivo-sass/design-system";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { PlateMaskDirective } from "@shared/directives/plate-mask";
+import { normalizeRawPlate } from "@shared/utils/plate.utils";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ButtonComponent,
-    CommonModule,
     DividerComponent,
     FormsModule,
     NgIcon,
@@ -80,6 +79,14 @@ export class OperationsOmnibarComponent {
   }
 
   onSubmitCheckIn(): void {
+    const cleanPlate = normalizeRawPlate(this.expressPlate());
+    if (
+      this.isSubmittingExpressCheckIn() ||
+      cleanPlate.length < 3 ||
+      cleanPlate.length > 7
+    ) {
+      return;
+    }
     this.submitExpressCheckIn.emit();
   }
 
@@ -88,7 +95,7 @@ export class OperationsOmnibarComponent {
   }
 
   onSearchEnter(): void {
-    if (this.searchTicketQuery().trim().length >= 2) {
+    if (this.searchTicketQuery().trim().length >= 1) {
       this.submitExpressCheckOut.emit();
     }
   }

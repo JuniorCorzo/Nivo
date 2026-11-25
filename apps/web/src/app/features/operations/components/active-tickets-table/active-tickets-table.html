@@ -124,14 +124,15 @@
                 "
                 class="px-1.5 py-0.5 font-mono text-[10px] font-bold"
               >
-                {{ ticket.plateCountry === "UNPLATED" ? "SP" :
-                ticket.plateCountry || "CO" }}
+                {{ ticket.plateCountry === "UNPLATED" ? texts.unplatedShortBadge
+                : ticket.plateCountry || texts.defaultCountryBadge }}
               </nv-badge>
             </div>
           </td>
           <td class="px-4 py-3 sm:px-6">
             <div class="text-foreground font-medium tabular-nums">
-              {{ ticket.slotNumber ? "Bahía " + ticket.slotNumber : "—" }}
+              {{ ticket.slotNumber ? texts.slotPrefix + " " + ticket.slotNumber
+              : texts.emptySlotPlaceholder }}
             </div>
             @if (ticket.slotType) {
             <span class="text-muted-foreground text-[10px] uppercase">

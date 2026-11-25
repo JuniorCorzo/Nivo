@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideBike, lucideCar, lucideGauge } from "@ng-icons/lucide";
@@ -7,7 +6,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeComponent, CommonModule, NgIcon],
+  imports: [BadgeComponent, NgIcon],
   providers: [
     provideIcons({
       lucideBike,

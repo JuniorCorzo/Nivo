@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,7 +11,6 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideBike,
   lucideCar,
-  lucideClock,
   lucideLogOut,
   lucideParkingSquare,
   lucidePlus,
@@ -22,12 +20,11 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, CommonModule, NgIcon],
+  imports: [ButtonComponent, NgIcon],
   providers: [
     provideIcons({
       lucideBike,
       lucideCar,
-      lucideClock,
       lucideLogOut,
       lucideParkingSquare,
       lucidePlus,
@@ -57,7 +54,12 @@ export class OperationsSlotsGridComponent {
         map.set(ticket.slotId, ticket);
       }
       if (ticket.slotNumber) {
-        map.set(`num-${ticket.slotNumber}`, ticket);
+        const key = ticket.slotNumber.includes("-")
+          ? ticket.slotNumber
+          : `num-${ticket.slotNumber}`;
+        if (!map.has(key)) {
+          map.set(key, ticket);
+        }
       }
     }
     return map;
@@ -65,10 +67,25 @@ export class OperationsSlotsGridComponent {
 
   getActiveTicketForSlot(slot: SlotSummary): TicketSummary | undefined {
     const map = this.activeTicketsMap();
-    return (
-      map.get(slot.id) ??
-      (slot.slotNumber ? map.get(`num-${slot.slotNumber}`) : undefined)
-    );
+    const byId = map.get(slot.id);
+    if (byId) {
+      return byId;
+    }
+    if (slot.prefix && slot.slotNumber) {
+      return map.get(`${slot.prefix}-${slot.slotNumber}`);
+    }
+    return slot.slotNumber ? map.get(`num-${slot.slotNumber}`) : undefined;
+  }
+
+  getSlotAriaLabel(slot: SlotSummary): string {
+    const label = `${slot.prefix ? `${slot.prefix}-` : ""}${slot.slotNumber}`;
+    if (slot.status === "AVAILABLE") {
+      return this.texts.slotAriaAvailable(label, slot.type);
+    }
+    if (slot.status === "OCCUPIED") {
+      return this.texts.slotAriaOccupied(label);
+    }
+    return this.texts.slotAriaStatus(label, slot.status);
   }
 
   onSlotClick(slot: SlotSummary): void {

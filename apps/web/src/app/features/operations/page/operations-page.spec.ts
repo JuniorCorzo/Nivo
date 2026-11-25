@@ -212,7 +212,7 @@ describe("OperationsPageComponent", () => {
     expect(component.isCheckOutModalOpen()).toBe(false);
   });
 
-  it("should render page header with tickets navigation link without redundant action buttons", () => {
+  it("should render page header with projected subtitle and parking-lot tickets route even while parking metadata is loading", () => {
     fixture.detectChanges();
     const pageHeader = fixture.debugElement.query(
       By.directive(PageHeaderComponent)
@@ -221,9 +221,39 @@ describe("OperationsPageComponent", () => {
 
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in page header */
     const pageHeaderEl = pageHeader.nativeElement as HTMLElement;
-    expect(pageHeaderEl.textContent).toContain("Ver Tickets");
+    const actionsEl = pageHeaderEl.querySelector(
+      '[data-testid="page-header-actions"]'
+    );
+    const ticketsLink = actionsEl?.querySelector("a");
+    expect(ticketsLink?.textContent).toContain("Ver Tickets");
+    expect(ticketsLink?.getAttribute("href")).toBe(
+      "/app/parking-lots/p-1/tickets"
+    );
+    expect(pageHeaderEl.textContent).toContain("Parqueadero Central");
+    expect(pageHeaderEl.textContent).toContain(
+      "Control vehicular y gestión de taquilla en tiempo real"
+    );
     expect(pageHeaderEl.textContent).not.toContain("Registrar Ingreso");
     expect(pageHeaderEl.textContent).not.toContain("Procesar Salida");
+
+    // Verify fallback when parking() is still loading (empty parkingLots)
+    parkingServiceSpy.parkingLots = () => [];
+    fixture = TestBed.createComponent(OperationsPageComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const loadingHeaderEl = fixture.debugElement.query(
+      By.directive(PageHeaderComponent)
+    ).nativeElement as HTMLElement;
+    const loadingTicketsLink = loadingHeaderEl.querySelector(
+      '[data-testid="page-header-actions"] a'
+    );
+    expect(loadingTicketsLink?.getAttribute("href")).toBe(
+      "/app/parking-lots/p-1/tickets"
+    );
+    expect(loadingHeaderEl.textContent).toContain(
+      "Control vehicular y gestión de taquilla en tiempo real"
+    );
   });
 
   it("should render Unified KPI Ribbon with global capacity, cars, motos, and active counts accurately", () => {
@@ -463,16 +493,6 @@ describe("OperationsPageComponent", () => {
       // No match
       component.setSearchTicketQuery("nonexistent");
       expect(component.filteredActiveTickets().length).toBe(0);
-    });
-
-    it("should update search ticket query via onSearchQueryChange", () => {
-      const input = document.createElement("input");
-      input.value = "ABC";
-      const event = new Event("input");
-      Object.defineProperty(event, "target", { value: input, writable: false });
-
-      component.onSearchQueryChange(event);
-      expect(component.searchTicketQuery()).toBe("ABC");
     });
 
     it("should display clear button in table search when query is not empty and clear it on click", () => {
@@ -853,34 +873,6 @@ describe("OperationsPageComponent", () => {
       expect(checkOutSpy).not.toHaveBeenCalled();
     });
 
-    it("should find active ticket for slot by slotId or slotNumber in getActiveTicketForSlot", () => {
-      const mockTicket = {
-        entryTime: "2026-10-16T10:00:00Z",
-        id: "t-1",
-        licensePlate: "ABC-123",
-        slotId: "s-2",
-        slotNumber: "102",
-        status: "OPEN" as const,
-      };
-      component.activeTickets.set([mockTicket]);
-
-      const matchingSlot = component.slots().find((s) => s.id === "s-2");
-      expect(matchingSlot).toBeDefined();
-      if (matchingSlot) {
-        expect(component.getActiveTicketForSlot(matchingSlot)).toEqual(
-          mockTicket
-        );
-      }
-
-      const nonMatchingSlot = component.slots().find((s) => s.id === "s-1");
-      expect(nonMatchingSlot).toBeDefined();
-      if (nonMatchingSlot) {
-        expect(
-          component.getActiveTicketForSlot(nonMatchingSlot)
-        ).toBeUndefined();
-      }
-    });
-
     it("should render clean tap cards with accessible attributes and footer badges", () => {
       component.activeTickets.set([
         {
@@ -1170,5 +1162,142 @@ describe("OperationsPageComponent", () => {
     expect(modalInstance.initialPlate()).toBe("");
     expect(modalInstance.facade.isUnplated()).toBe(true);
     expect(modalInstance.facade.plate()).toBe("");
+  });
+
+  it("should clear expressPlate when check-in modal closes so subsequent slot clicks do not inherit stale plate", () => {
+    component.expressPlate.set("ABC-123");
+    component.submitExpressCheckIn();
+    expect(component.isCheckInModalOpen()).toBe(true);
+
+    component.closeCheckInModal();
+    expect(component.expressPlate()).toBe("");
+
+    const [availableSlot] = component.slots();
+    component.onSlotClick(availableSlot);
+    expect(component.checkInModalInitialPlate()).toBe("");
+  });
+
+  it("should default expressVehicleType to MOTORCYCLE for motorcycle-only parking lots and submit check-in cleanly", () => {
+    slotServiceSpy.summaries = () => ({
+      "p-1": [
+        {
+          id: "m-1",
+          parkingName: "Solo Motos",
+          prefix: "M",
+          slotNumber: "01",
+          status: "AVAILABLE",
+          type: "MOTORCYCLE",
+          zone: "Z1",
+        },
+      ],
+    });
+    rateServiceSpy.ratesByParking = () => ({
+      "p-1": [
+        {
+          createdAt: "",
+          description: "",
+          id: "r-moto",
+          minChargeTimeMinutes: 15,
+          name: "Tarifa Moto",
+          parkingId: "p-1",
+          pricePerUnit: 2000,
+          timeUnit: "HOURS",
+          updatedAt: "",
+          vehicleType: "MOTORCYCLE",
+        },
+      ],
+    });
+
+    const motoFixture = TestBed.createComponent(OperationsPageComponent);
+    const motoComp = motoFixture.componentInstance;
+    motoFixture.detectChanges();
+
+    expect(motoComp.hasMultipleVehicleTypes()).toBe(false);
+    expect(motoComp.expressVehicleType()).toBe("MOTORCYCLE");
+
+    motoComp.expressPlate.set("ABC12D");
+    motoComp.submitExpressCheckIn();
+
+    expect(motoComp.isCheckInModalOpen()).toBe(true);
+    expect(motoComp.selectedCheckInSlot()?.id).toBe("m-1");
+    expect(toastSpy.showToast).not.toHaveBeenCalled();
+  });
+
+  it("should default expressVehicleType to BIKE for bike-only parking lots and submit check-in cleanly", () => {
+    slotServiceSpy.summaries = () => ({
+      "p-1": [
+        {
+          id: "b-1",
+          parkingName: "Biciparqueadero",
+          prefix: "B",
+          slotNumber: "01",
+          status: "AVAILABLE",
+          type: "BIKE",
+          zone: "Z1",
+        },
+      ],
+    });
+    rateServiceSpy.ratesByParking = () => ({
+      "p-1": [
+        {
+          createdAt: "",
+          description: "",
+          id: "r-bike",
+          minChargeTimeMinutes: 15,
+          name: "Tarifa Bici",
+          parkingId: "p-1",
+          pricePerUnit: 1000,
+          timeUnit: "HOURS",
+          updatedAt: "",
+          vehicleType: "BIKE",
+        },
+      ],
+    });
+
+    const bikeFixture = TestBed.createComponent(OperationsPageComponent);
+    const bikeComp = bikeFixture.componentInstance;
+    bikeFixture.detectChanges();
+
+    expect(bikeComp.hasMultipleVehicleTypes()).toBe(false);
+    expect(bikeComp.expressVehicleType()).toBe("BIKE");
+
+    bikeComp.expressPlate.set("BIK123");
+    bikeComp.submitExpressCheckIn();
+
+    expect(bikeComp.isCheckInModalOpen()).toBe(true);
+    expect(bikeComp.selectedCheckInSlot()?.id).toBe("b-1");
+  });
+
+  it("should allow 1-char bay search on Enter in omnibar and guard empty/invalid express check-in form submit", () => {
+    fixture.detectChanges();
+    const checkOutSpy = vi.spyOn(component, "submitExpressCheckOutByQuery");
+    const checkInSpy = vi.spyOn(component, "submitExpressCheckIn");
+
+    // 1-char bay query on Enter triggers checkout
+    component.searchTicketQuery.set("1");
+    fixture.detectChanges();
+    const searchInput = fixture.nativeElement.querySelector(
+      "#search-ticket-checkout"
+    ) as HTMLInputElement;
+    searchInput.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    expect(checkOutSpy).toHaveBeenCalledTimes(1);
+
+    // Express plate input must not truncate 9-char Venezuelan plates (no maxlength="8")
+    const plateInput = fixture.nativeElement.querySelector(
+      "#express-plate-input"
+    ) as HTMLInputElement;
+    expect(plateInput.getAttribute("maxlength")).toBeNull();
+
+    // Form submit with empty or invalid plate must not emit submitExpressCheckIn
+    const form = plateInput.closest("form") as HTMLFormElement;
+    component.expressPlate.set("");
+    fixture.detectChanges();
+    form.dispatchEvent(new Event("submit", { cancelable: true }));
+    expect(checkInSpy).not.toHaveBeenCalled();
+
+    component.expressPlate.set("AB");
+    fixture.detectChanges();
+    form.dispatchEvent(new Event("submit", { cancelable: true }));
+    expect(checkInSpy).not.toHaveBeenCalled();
   });
 });

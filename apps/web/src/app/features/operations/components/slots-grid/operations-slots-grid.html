@@ -136,13 +136,7 @@
         [attr.tabindex]="
           slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED' ? 0 : null
         "
-        [attr.aria-label]="
-          slot.status === 'AVAILABLE'
-            ? 'Bahía ' + (slot.prefix ? slot.prefix + '-' : '') + slot.slotNumber + ' disponible para ' + slot.type + '. Clic para asignar ingreso.'
-            : slot.status === 'OCCUPIED'
-              ? 'Bahía ' + (slot.prefix ? slot.prefix + '-' : '') + slot.slotNumber + ' ocupada. Clic para cobrar salida.'
-              : 'Bahía ' + (slot.prefix ? slot.prefix + '-' : '') + slot.slotNumber + ' ' + slot.status
-        "
+        [attr.aria-label]="getSlotAriaLabel(slot)"
         (click)="onSlotClick(slot)"
         (keydown.enter)="onSlotClick(slot)"
         (keydown.space)="onSlotClick(slot); $event.preventDefault()"
