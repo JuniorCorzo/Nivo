@@ -71,10 +71,10 @@ describe("TicketDetailDrawerComponent", () => {
       emittedTicket = t;
     });
 
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll("nv-button")
-    ) as HTMLElement[];
-    const printBtn = buttons.find((b: HTMLElement) =>
+    /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
+    const compiled = fixture.nativeElement as HTMLElement;
+    const buttons = [...compiled.querySelectorAll("nv-button")];
+    const printBtn = buttons.find((b) =>
       b.getAttribute("title")?.includes(component.actionTexts.reprintReceipt)
     );
     expect(printBtn).toBeDefined();
@@ -164,7 +164,7 @@ describe("TicketDetailDrawerComponent", () => {
 
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    const buttons = Array.from(compiled.querySelectorAll("nv-button"));
+    const buttons = [...compiled.querySelectorAll("nv-button")];
     const checkoutBtn = buttons.find((b) =>
       b.textContent?.includes("Cerrar en Taquilla")
     );
@@ -187,7 +187,7 @@ describe("TicketDetailDrawerComponent", () => {
 
     /* SAFETY: nativeElement is guaranteed to be an HTMLElement in test environment */
     const compiled = fixture.nativeElement as HTMLElement;
-    const buttons = Array.from(compiled.querySelectorAll("nv-button"));
+    const buttons = [...compiled.querySelectorAll("nv-button")];
     const checkoutBtn = buttons.find((b) =>
       b.textContent?.includes("Cerrar en Taquilla")
     );

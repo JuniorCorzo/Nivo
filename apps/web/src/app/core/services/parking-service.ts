@@ -30,9 +30,9 @@ export class ParkingService {
   private _parkingLots = signal<ParkingLotListItemModel[]>([]);
   public parkingLots = this._parkingLots.asReadonly();
 
-  private parkingLotsService = inject(ParkingLotsService);
-  private http = inject(HttpClient);
-  private config = inject(ApiConfiguration);
+  private readonly parkingLotsService = inject(ParkingLotsService);
+  private readonly http = inject(HttpClient);
+  private readonly config = inject(ApiConfiguration);
 
   private static httpContext() {
     const context = new HttpContext();
@@ -53,8 +53,8 @@ export class ParkingService {
       error: (err: unknown) => {
         void err;
       },
-      next: (parkintLotsResponse) => {
-        this._parkingLots.set(parkintLotsResponse);
+      next: (parkingLotsResponse) => {
+        this._parkingLots.set(parkingLotsResponse);
       },
     });
   }
@@ -67,7 +67,9 @@ export class ParkingService {
       .listParkingLots({}, ParkingService.httpContext())
       .pipe(
         map((response: ResponseListParkingLotListItemResponse) =>
-          response.data.map((item) => mapToParkingLotListItemModel(item))
+          (response.data ?? []).map((item) =>
+            mapToParkingLotListItemModel(item)
+          )
         )
       );
   }
@@ -132,6 +134,7 @@ export class ParkingService {
         ParkingService.httpContext()
       )
       .pipe(
+        tap(() => this.updateState()),
         map(() => {
           // void return
         })
@@ -162,7 +165,7 @@ export class ParkingService {
    * Get real-time operational telemetry for a parking facility
    */
   getTelemetry(parkingId: string): Observable<ParkingTelemetryModel> {
-    let rootUrl = this.config.rootUrl;
+    let { rootUrl } = this.config;
     while (rootUrl.endsWith("/")) {
       rootUrl = rootUrl.slice(0, -1);
     }

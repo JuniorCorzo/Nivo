@@ -25,7 +25,7 @@ class JwtConfigurationTest {
     when(rsaProperties.getPublicKey()).thenReturn(missingResource);
 
     Environment environment = mock(Environment.class);
-    when(environment.matchesProfiles("prod", "production")).thenReturn(false);
+    when(environment.matchesProfiles("dev", "local", "test")).thenReturn(true);
 
     JwtConfiguration jwtConfiguration = new JwtConfiguration(rsaProperties, environment);
 
@@ -38,8 +38,28 @@ class JwtConfigurationTest {
   }
 
   @Test
-  @DisplayName("Should strictly forbid ephemeral key generation and throw IllegalStateException in production")
-  void shouldThrowIllegalStateExceptionWhenKeysDoNotExistInProduction() {
+  @DisplayName("Should generate matching ephemeral RSA keys when PEM resources are null in dev")
+  void shouldGenerateMatchingEphemeralKeysWhenResourcesAreNullInDev() throws Exception {
+    RSAProperties rsaProperties = mock(RSAProperties.class);
+    when(rsaProperties.getPrivateKey()).thenReturn(null);
+    when(rsaProperties.getPublicKey()).thenReturn(null);
+
+    Environment environment = mock(Environment.class);
+    when(environment.matchesProfiles("dev", "local", "test")).thenReturn(true);
+
+    JwtConfiguration jwtConfiguration = new JwtConfiguration(rsaProperties, environment);
+
+    RSAPrivateKey privateKey = jwtConfiguration.privateKey();
+    RSAPublicKey publicKey = jwtConfiguration.publicKey();
+
+    assertThat(privateKey).isNotNull();
+    assertThat(publicKey).isNotNull();
+    assertThat(privateKey.getModulus()).isEqualTo(publicKey.getModulus());
+  }
+
+  @Test
+  @DisplayName("Should strictly forbid ephemeral key generation when not in dev/local/test profile")
+  void shouldThrowIllegalStateExceptionWhenKeysDoNotExistInNonDevProfile() {
     RSAProperties rsaProperties = mock(RSAProperties.class);
     Resource missingResource = mock(Resource.class);
     when(missingResource.exists()).thenReturn(false);
@@ -47,12 +67,52 @@ class JwtConfigurationTest {
     when(rsaProperties.getPublicKey()).thenReturn(missingResource);
 
     Environment environment = mock(Environment.class);
-    when(environment.matchesProfiles("prod", "production")).thenReturn(true);
+    when(environment.matchesProfiles("dev", "local", "test")).thenReturn(false);
 
     JwtConfiguration jwtConfiguration = new JwtConfiguration(rsaProperties, environment);
 
     assertThatThrownBy(jwtConfiguration::privateKey)
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("strictly forbidden in production");
+      .hasMessageContaining("Ephemeral keys are only permitted in local/dev profiles");
+  }
+
+  @Test
+  @DisplayName("Should throw IllegalStateException when private key exists but public key is missing")
+  void shouldThrowIllegalStateExceptionWhenPrivateKeyExistsAndPublicKeyMissing() {
+    RSAProperties rsaProperties = mock(RSAProperties.class);
+    Resource existingPrivate = mock(Resource.class);
+    when(existingPrivate.exists()).thenReturn(true);
+    when(rsaProperties.getPrivateKey()).thenReturn(existingPrivate);
+    when(rsaProperties.getPublicKey()).thenReturn(null);
+
+    Environment environment = mock(Environment.class);
+
+    JwtConfiguration jwtConfiguration = new JwtConfiguration(rsaProperties, environment);
+
+    assertThatThrownBy(jwtConfiguration::privateKey)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Inconsistent RSA configuration");
+
+    assertThatThrownBy(jwtConfiguration::publicKey)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Inconsistent RSA configuration");
+  }
+
+  @Test
+  @DisplayName("Should throw IllegalStateException when public key exists but private key is missing")
+  void shouldThrowIllegalStateExceptionWhenPublicKeyExistsAndPrivateKeyMissing() {
+    RSAProperties rsaProperties = mock(RSAProperties.class);
+    Resource existingPublic = mock(Resource.class);
+    when(existingPublic.exists()).thenReturn(true);
+    when(rsaProperties.getPrivateKey()).thenReturn(null);
+    when(rsaProperties.getPublicKey()).thenReturn(existingPublic);
+
+    Environment environment = mock(Environment.class);
+
+    JwtConfiguration jwtConfiguration = new JwtConfiguration(rsaProperties, environment);
+
+    assertThatThrownBy(jwtConfiguration::privateKey)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Inconsistent RSA configuration");
   }
 }

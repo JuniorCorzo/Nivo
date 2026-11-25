@@ -17,6 +17,7 @@ import { PlateMaskDirective } from "./plate-mask";
       [country]="country()"
       [vehicleType]="vehicleType()"
       (countryChange)="onCountryChange($event)"
+      (rawPlateChange)="onRawPlateChange($event)"
     />
   `,
 })
@@ -24,9 +25,14 @@ class TestHostComponent {
   readonly country = signal<PlateCountry | "AUTO">("CO");
   readonly vehicleType = signal<VehicleType>("CAR");
   readonly detectedCountry = signal<PlateCountry | null>(null);
+  readonly rawPlate = signal<string>("");
 
   onCountryChange(c: PlateCountry): void {
     this.detectedCountry.set(c);
+  }
+
+  onRawPlateChange(raw: string): void {
+    this.rawPlate.set(raw);
   }
 }
 
@@ -70,6 +76,12 @@ describe("PlateMaskDirective", () => {
       expect(inputEl.value).toBe("ABC-123");
     });
 
+    it("should emit normalized raw plate via rawPlateChange when formatting 'abc-123'", () => {
+      setInputValue("abc-123");
+      expect(inputEl.value).toBe("ABC-123");
+      expect(host.rawPlate()).toBe("ABC123");
+    });
+
     it("should sanitize spaces, dots and symbols", () => {
       setInputValue("a.b-c 1@2#3");
       expect(inputEl.value).toBe("ABC-123");
@@ -103,6 +115,21 @@ describe("PlateMaskDirective", () => {
     it("should strictly truncate to 6 alphanumeric characters when typing 7 or more characters", () => {
       setInputValue("ABC123XYZ");
       expect(inputEl.value).toBe("ABC-123");
+    });
+
+    it("should prevent typing additional characters when maximum length is reached (braking mechanism)", () => {
+      setInputValue("ABC123");
+      expect(inputEl.value).toBe("ABC-123");
+
+      const event = new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        key: "4",
+      });
+      const preventSpy = vi.spyOn(event, "preventDefault");
+      inputEl.dispatchEvent(event);
+
+      expect(preventSpy).toHaveBeenCalled();
     });
   });
 
@@ -219,8 +246,8 @@ describe("PlateMaskDirective", () => {
       });
       inputEl.dispatchEvent(keyEvent);
 
-      // Delimiter backspace should remove 'C' resulting in 'AB'
-      setInputValue("AB123", 2);
+      // Simulate what the browser produces after deleting '-' from "ABC-123"
+      setInputValue("ABC123", 3);
       expect(inputEl.value).toBe("AB-123");
     });
 
@@ -319,6 +346,20 @@ describe("PlateMaskDirective", () => {
       setInputValue("ab123cd");
       expect(inputEl.value).toBe("AB-123-CD");
       expect(host.detectedCountry()).toBe("VE");
+    });
+
+    it("should handle invalid or overlong inputs in AUTO mode without throwing", () => {
+      expect(() => setInputValue("123")).not.toThrow();
+      expect(inputEl.value).toBe("12-3");
+      expect(host.detectedCountry()).toBe("VE");
+
+      expect(() => setInputValue("ABC1234")).not.toThrow();
+      expect(inputEl.value).toBe("ABC-123");
+      expect(host.detectedCountry()).toBe("CO");
+
+      expect(() => setInputValue("ABCD1234")).not.toThrow();
+      expect(inputEl.value).toBe("ABC-D12");
+      expect(host.detectedCountry()).toBe("CO");
     });
   });
 });

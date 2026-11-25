@@ -72,26 +72,38 @@ export class TicketReceiptComponent {
   });
 
   constructor() {
-    effect(async () => {
+    effect((onCleanup) => {
       const url = this.publicUrl();
       if (!url) {
         this.qrDataUrl.set("");
         return;
       }
+      let cancelled = false;
+      onCleanup(() => {
+        cancelled = true;
+      });
 
-      try {
-        const svg = await QRCode.toString(url, {
-          errorCorrectionLevel: "M",
-          margin: 1,
-          type: "svg",
-          width: 160,
-        });
-        this.qrDataUrl.set(
-          `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
-        );
-      } catch {
-        this.qrDataUrl.set("");
-      }
+      const generateQr = async (): Promise<void> => {
+        try {
+          const svg = await QRCode.toString(url, {
+            errorCorrectionLevel: "M",
+            margin: 1,
+            type: "svg",
+            width: 160,
+          });
+          if (!cancelled) {
+            this.qrDataUrl.set(
+              `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+            );
+          }
+        } catch {
+          if (!cancelled) {
+            this.qrDataUrl.set("");
+          }
+        }
+      };
+
+      void generateQr();
     });
   }
 

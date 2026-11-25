@@ -15,7 +15,6 @@ import {
 } from "@core/mappers/rate.mapper";
 import type {
   CreateRateModel,
-  RateCalculationSimulation,
   RateModel,
   SpecialPolicyModel,
   UpdateRateModel,
@@ -139,52 +138,5 @@ export class RateService {
         }),
         tap((policies) => this.specialPoliciesState.set(policies))
       );
-  }
-
-  static simulateCalculation(params: {
-    basePrice: number;
-    durationInMinutes: number;
-    specialPolicy?: SpecialPolicyModel;
-    timeUnit: "DAYS" | "HOURS" | "MINUTES";
-  }): RateCalculationSimulation {
-    const { basePrice, durationInMinutes, specialPolicy, timeUnit } = params;
-
-    let units = 0;
-    if (timeUnit === "MINUTES") {
-      units = Math.max(1, durationInMinutes);
-    } else if (timeUnit === "HOURS") {
-      units = Math.max(1, Math.ceil(durationInMinutes / 60));
-    } else if (timeUnit === "DAYS") {
-      units = Math.max(1, Math.ceil(durationInMinutes / (60 * 24)));
-    }
-
-    const subtotal = units * basePrice;
-    let discountOrSurcharge = 0;
-
-    if (specialPolicy) {
-      if (specialPolicy.operation === "PERCENTAGE") {
-        const factor = specialPolicy.valueToModify / 100;
-        discountOrSurcharge =
-          specialPolicy.modifies === "DISCOUNT"
-            ? -(subtotal * factor)
-            : subtotal * factor;
-      } else if (specialPolicy.operation === "SUBTRACT") {
-        discountOrSurcharge = -specialPolicy.valueToModify;
-      } else {
-        discountOrSurcharge = specialPolicy.valueToModify;
-      }
-    }
-
-    const total = Math.max(0, subtotal + discountOrSurcharge);
-
-    return {
-      basePrice,
-      discountOrSurcharge,
-      durationInMinutes,
-      subtotal,
-      timeUnit,
-      total,
-      unitsCalculated: units,
-    };
   }
 }

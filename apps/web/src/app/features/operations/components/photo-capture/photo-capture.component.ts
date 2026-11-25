@@ -1,12 +1,14 @@
 import { CommonModule } from "@angular/common";
-import type { ElementRef, OnDestroy } from "@angular/core";
+import type { ElementRef, OnDestroy, OnInit } from "@angular/core";
 import {
   ChangeDetectionStrategy,
   Component,
   ViewChild,
+  effect,
   input,
   output,
   signal,
+  untracked,
 } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
@@ -179,11 +181,12 @@ interface Dimensions {
     </div>
   `,
 })
-export class PhotoCaptureComponent implements OnDestroy {
+export class PhotoCaptureComponent implements OnInit, OnDestroy {
   readonly texts = APP_TEXTS.photoCapture;
 
   readonly disabled = input<boolean>(false);
   readonly initialPhoto = input<string | null>(null);
+  readonly autoStart = input<boolean>(false);
 
   readonly photoCaptured = output<string>();
   readonly photoCleared = output();
@@ -196,23 +199,44 @@ export class PhotoCaptureComponent implements OnDestroy {
   @ViewChild("videoElement") videoRef?: ElementRef<HTMLVideoElement>;
 
   private mediaStream: MediaStream | null = null;
+  private isDestroyed = false;
   private readonly MAX_WIDTH = 640;
   private readonly MAX_HEIGHT = 360;
   private readonly QUALITY = 0.7;
 
   constructor() {
-    const init = this.initialPhoto();
-    if (init) {
-      this.setPhoto(init);
+    effect(() => {
+      const init = this.initialPhoto();
+      if (init && !this.photoDataUrl()) {
+        untracked(() => {
+          this.photoDataUrl.set(init);
+          this.photoSizeKb.set(PhotoCaptureComponent.calculateSizeKb(init));
+        });
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    this.isDestroyed = false;
+    if (this.autoStart() && !this.photoDataUrl()) {
+      void this.startCamera();
     }
   }
 
   ngOnDestroy(): void {
+    this.isDestroyed = true;
     this.stopCamera();
   }
 
   async startCamera(): Promise<void> {
     this.errorMessage.set(null);
+    if (!navigator?.mediaDevices?.getUserMedia) {
+      this.errorMessage.set(
+        "No se encontró una cámara en este dispositivo o el navegador no soporta captura."
+      );
+      this.isCameraActive.set(false);
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -221,6 +245,12 @@ export class PhotoCaptureComponent implements OnDestroy {
           width: { ideal: this.MAX_WIDTH },
         },
       });
+      if (this.isDestroyed) {
+        for (const track of stream.getTracks()) {
+          track.stop();
+        }
+        return;
+      }
       this.mediaStream = stream;
       this.isCameraActive.set(true);
 
@@ -229,8 +259,25 @@ export class PhotoCaptureComponent implements OnDestroy {
           this.videoRef.nativeElement.srcObject = stream;
         }
       }, 0);
-    } catch {
-      this.errorMessage.set(this.texts.cameraError);
+    } catch (error_: unknown) {
+      const errorName = error_ instanceof Error ? error_.name : "";
+      if (
+        errorName === "NotFoundError" ||
+        errorName === "DevicesNotFoundError"
+      ) {
+        this.errorMessage.set(
+          "No se encontró una cámara en el dispositivo. Puedes subir una foto."
+        );
+      } else if (
+        errorName === "NotAllowedError" ||
+        errorName === "PermissionDeniedError"
+      ) {
+        this.errorMessage.set(
+          "Permiso de cámara denegado. Habilita el acceso en tu navegador."
+        );
+      } else {
+        this.errorMessage.set(this.texts.cameraError);
+      }
       this.isCameraActive.set(false);
     }
   }

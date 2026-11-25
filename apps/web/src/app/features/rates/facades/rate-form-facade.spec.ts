@@ -111,11 +111,6 @@ describe("RateFormFacade", () => {
     expect(facade.isValid()).toBe(false);
   });
 
-  it("should calculate live simulation correctly via computed signal", () => {
-    const sim = facade.simulation();
-    expect(sim.total).toBe(10_000);
-  });
-
   it("should submit create rate using mapper payload", () => {
     const mockCreatedRate: RateModel = {
       createdAt: "",

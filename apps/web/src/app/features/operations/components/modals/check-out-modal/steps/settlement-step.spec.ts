@@ -139,9 +139,9 @@ describe("SettlementStepComponent", () => {
     const changeVehicleSpy = vi.spyOn(component.changeVehicle, "emit");
 
     /* SAFETY: The change vehicle button is rendered in the header card */
-    const changeBtn = Array.from(
-      fixture.nativeElement.querySelectorAll("button")
-    ).find((btn) =>
+    const changeBtn = [
+      ...fixture.nativeElement.querySelectorAll("button"),
+    ].find((btn) =>
       (btn as HTMLButtonElement).textContent?.includes("Cambiar vehículo")
     ) as HTMLButtonElement;
     expect(changeBtn).toBeTruthy();
@@ -156,9 +156,9 @@ describe("SettlementStepComponent", () => {
     const nextStepSpy = vi.spyOn(component.nextStep, "emit");
 
     /* SAFETY: The continue button is the action button with text 'Continuar al Pago' */
-    const continueBtn = Array.from(
-      fixture.nativeElement.querySelectorAll("button")
-    ).find((btn) =>
+    const continueBtn = [
+      ...fixture.nativeElement.querySelectorAll("button"),
+    ].find((btn) =>
       (btn as HTMLButtonElement).textContent?.includes(
         component.texts.settlement.continueToPayment
       )

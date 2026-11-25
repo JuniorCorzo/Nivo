@@ -130,9 +130,9 @@ describe("PaymentStepComponent", () => {
 
   it("should select different payment methods (EFFECTIVE, PAY_LINK, TRANSFER)", () => {
     /* SAFETY: The payment methods are buttons in the grid */
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll("button")
-    ) as HTMLButtonElement[];
+    const buttons = [
+      ...fixture.nativeElement.querySelectorAll("button"),
+    ] as HTMLButtonElement[];
 
     const cardBtn = buttons.find((btn) =>
       btn.textContent?.includes("Tarjeta / Datáfono")
@@ -183,9 +183,9 @@ describe("PaymentStepComponent", () => {
     mockIsPaymentModuleEnabled.set(false);
     fixture.detectChanges();
 
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll("button")
-    ) as HTMLButtonElement[];
+    const buttons = [
+      ...fixture.nativeElement.querySelectorAll("button"),
+    ] as HTMLButtonElement[];
     const cashBtn = buttons.find((btn) =>
       btn.textContent?.includes("Efectivo")
     );
@@ -211,9 +211,9 @@ describe("PaymentStepComponent", () => {
     );
     expect(deliveryGroup).toBeTruthy();
 
-    const buttons = Array.from(
-      deliveryGroup.querySelectorAll("button")
-    ) as HTMLButtonElement[];
+    const buttons = [
+      ...deliveryGroup.querySelectorAll("button"),
+    ] as HTMLButtonElement[];
     const emailBtn = buttons.find((btn) =>
       btn.textContent?.includes("Correo Electrónico")
     );
@@ -275,10 +275,9 @@ describe("PaymentStepComponent", () => {
     const backSpy = vi.spyOn(component.back, "emit");
 
     /* SAFETY: Action buttons are inside the footer container */
-    const backBtn = Array.from(
-      fixture.nativeElement.querySelectorAll("button")
-    ).find((btn) =>
-      (btn as HTMLButtonElement).textContent?.includes("Volver a Liquidación")
+    const backBtn = [...fixture.nativeElement.querySelectorAll("button")].find(
+      (btn) =>
+        (btn as HTMLButtonElement).textContent?.includes("Volver a Liquidación")
     ) as HTMLButtonElement;
     expect(backBtn).toBeTruthy();
 
@@ -291,9 +290,9 @@ describe("PaymentStepComponent", () => {
     const confirmSpy = vi.spyOn(component.confirm, "emit");
 
     /* SAFETY: Confirm button contains Cobrar y Registrar Salida */
-    const confirmBtn = Array.from(
-      fixture.nativeElement.querySelectorAll("button")
-    ).find((btn) =>
+    const confirmBtn = [
+      ...fixture.nativeElement.querySelectorAll("button"),
+    ].find((btn) =>
       (btn as HTMLButtonElement).textContent?.includes(
         "Cobrar y Registrar Salida"
       )
@@ -309,9 +308,9 @@ describe("PaymentStepComponent", () => {
     mockCanCheckOut.set(false);
     fixture.detectChanges();
 
-    const confirmBtn = Array.from(
-      fixture.nativeElement.querySelectorAll("button")
-    ).find((btn) =>
+    const confirmBtn = [
+      ...fixture.nativeElement.querySelectorAll("button"),
+    ].find((btn) =>
       (btn as HTMLButtonElement).textContent?.includes(
         "Cobrar y Registrar Salida"
       )
@@ -327,9 +326,9 @@ describe("PaymentStepComponent", () => {
     const text = fixture.nativeElement.textContent;
     expect(text).toContain("Procesando Salida...");
 
-    const submitBtn = Array.from(
-      fixture.nativeElement.querySelectorAll("button")
-    ).find((btn) =>
+    const submitBtn = [
+      ...fixture.nativeElement.querySelectorAll("button"),
+    ].find((btn) =>
       (btn as HTMLButtonElement).textContent?.includes("Procesando Salida...")
     ) as HTMLButtonElement;
 

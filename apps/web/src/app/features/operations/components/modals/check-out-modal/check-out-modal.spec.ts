@@ -291,9 +291,9 @@ describe("CheckOutModalComponent", () => {
     component.facade.setPaymentMethod("PAY_LINK");
     fixture.detectChanges();
 
-    const confirmBtn = Array.from(
-      fixture.nativeElement.querySelectorAll("button")
-    ).find((btn) =>
+    const confirmBtn = [
+      ...fixture.nativeElement.querySelectorAll("button"),
+    ].find((btn) =>
       (btn as HTMLButtonElement).textContent?.includes(
         "Cobrar y Registrar Salida"
       )
@@ -330,10 +330,9 @@ describe("CheckOutModalComponent", () => {
     expect(component.facade.activeStep()).toBe(3);
 
     /* SAFETY: Back button contains 'Volver a Liquidación' text */
-    const backBtn = Array.from(
-      fixture.nativeElement.querySelectorAll("button")
-    ).find((btn) =>
-      (btn as HTMLButtonElement).textContent?.includes("Volver a Liquidación")
+    const backBtn = [...fixture.nativeElement.querySelectorAll("button")].find(
+      (btn) =>
+        (btn as HTMLButtonElement).textContent?.includes("Volver a Liquidación")
     ) as HTMLButtonElement;
     expect(backBtn).toBeTruthy();
 
@@ -373,11 +372,11 @@ describe("CheckOutModalComponent", () => {
 
   it("should render 'SIN PLACA' badge when vehicle has plateCountry UNPLATED", () => {
     const unplatedTicket: TicketSummary = {
+      entryTime: "2026-08-27T10:00:00Z",
       id: "ticket-unplated-1",
       licensePlate: "SP-1001",
       plateCountry: "UNPLATED",
       slotNumber: "02",
-      entryTime: "2026-08-27T10:00:00Z",
       status: "OPEN",
     };
 
@@ -395,12 +394,12 @@ describe("CheckOutModalComponent", () => {
 
   it("should render captured entry photo when ticket has photoUrl", () => {
     const ticketWithPhoto: TicketSummary = {
+      entryTime: "2026-08-27T10:00:00Z",
       id: "ticket-photo-1",
       licensePlate: "SP-1002",
-      plateCountry: "UNPLATED",
       photoUrl: "https://example.com/captured-entry.jpg",
+      plateCountry: "UNPLATED",
       slotNumber: "03",
-      entryTime: "2026-08-27T10:00:00Z",
       status: "OPEN",
     };
 
@@ -422,11 +421,11 @@ describe("CheckOutModalComponent", () => {
 
   it("should not render photo container when ticket does not have photoUrl", () => {
     const ticketWithoutPhoto: TicketSummary = {
+      entryTime: "2026-08-27T10:00:00Z",
       id: "ticket-standard-1",
       licensePlate: "XYZ789",
       plateCountry: "CO",
       slotNumber: "04",
-      entryTime: "2026-08-27T10:00:00Z",
       status: "OPEN",
     };
 

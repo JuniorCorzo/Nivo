@@ -248,9 +248,34 @@ describe("ParkingService", () => {
     expect(parkingLotsServiceSpy.listParkingLots).toHaveBeenCalledTimes(2);
   });
 
+  it("deleteSlotGroup() debe llamar a deleteSlotGroup y refrescar el estado", async () => {
+    parkingLotsServiceSpy.deleteSlotGroup.mockReturnValue(of({}));
+
+    await firstValueFrom(
+      service.deleteSlotGroup("lot-1", {
+        count: 10,
+        prefix: "A",
+        type: "CAR",
+        zone: "Norte",
+      })
+    );
+
+    expect(parkingLotsServiceSpy.deleteSlotGroup).toHaveBeenCalledWith(
+      {
+        parkingId: "lot-1",
+        prefix: "A",
+        slotType: "CAR",
+        zone: "Norte",
+      },
+      expect.anything()
+    );
+    expect(parkingLotsServiceSpy.listParkingLots).toHaveBeenCalledTimes(2);
+  });
+
   it("getTelemetry() debe realizar GET a /parking-lots/{id}/telemetry y retornar res.data", async () => {
     const mockTelemetry: ParkingTelemetryModel = {
       activeTickets: 20,
+      availableSlots: 30,
       averageTicketRevenue: 7500,
       avgStayMinutes: 42.5,
       carOccupied: 12,
@@ -263,7 +288,6 @@ describe("ParkingService", () => {
       motoTotal: 20,
       occupancyRate: 40,
       occupiedSlots: 20,
-      availableSlots: 30,
       occupiedSlotsDetail: [
         {
           licensePlate: "ABC123",
@@ -275,7 +299,7 @@ describe("ParkingService", () => {
       ],
       parkingId: "lot-1",
       rotationIndex: 0.9,
-      shiftRevenue: 150000,
+      shiftRevenue: 150_000,
       shiftTargetPercentage: 75.5,
       totalCapacity: 50,
       totalTicketsToday: 45,

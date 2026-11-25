@@ -1,9 +1,15 @@
 import {
+  PLATE_STATE_MACHINE,
   PlateFormatter,
   detectPlateCountry,
   formatPlate,
+  isColombianMotoPlate,
+  isPlateCountry,
+  isPlateCountryMode,
   isUnplatedPlate,
   normalizeRawPlate,
+  resolvePlateCountry,
+  resolvePlatedCountry,
 } from "./plate.utils";
 import type { FormatPlateOptions } from "./plate.utils";
 
@@ -50,9 +56,19 @@ describe("plate.utils", () => {
       expect(detectPlateCountry("XY999ZZ")).toBe("VE");
     });
 
-    it("should detect VE when 3rd char is a digit in progressive or partial plates", () => {
-      expect(detectPlateCountry("AB123")).toBe("VE");
+    it("should detect VE when 3rd char is a digit in progressive or complete plates", () => {
       expect(detectPlateCountry("AB1")).toBe("VE");
+      expect(detectPlateCountry("AB123")).toBe("VE");
+      expect(detectPlateCountry("AB123C")).toBe("VE");
+      expect(detectPlateCountry("AB123CD")).toBe("VE");
+    });
+
+    it("should detect CO for progressive valid prefixes up to 5 characters", () => {
+      expect(detectPlateCountry("A")).toBe("CO");
+      expect(detectPlateCountry("AB")).toBe("CO");
+      expect(detectPlateCountry("ABC")).toBe("CO");
+      expect(detectPlateCountry("ABC1")).toBe("CO");
+      expect(detectPlateCountry("ABC12")).toBe("CO");
     });
 
     it("should detect CO for 6 characters Colombian car (3 letters, 3 digits) or moto (3 letters, 2 digits, 1 letter)", () => {
@@ -62,10 +78,16 @@ describe("plate.utils", () => {
       expect(detectPlateCountry("abc-12d")).toBe("CO");
     });
 
-    it("should default to CO if ambiguous or fewer than 3 characters", () => {
-      expect(detectPlateCountry("AB")).toBe("CO");
-      expect(detectPlateCountry("A")).toBe("CO");
-      expect(detectPlateCountry("ABCD1234")).toBe("CO");
+    it("should throw Error when plate format is invalid or has excessive characters", () => {
+      expect(() => detectPlateCountry("AB12345")).toThrowError(
+        'Placa inválida: formato no reconocido para "AB12345"'
+      );
+      expect(() => detectPlateCountry("ABCD1234")).toThrowError(
+        'Placa inválida: formato no reconocido para "ABCD1234"'
+      );
+      expect(() => detectPlateCountry("ABC1234")).toThrowError(
+        'Placa inválida: formato no reconocido para "ABC1234"'
+      );
     });
   });
 
@@ -221,6 +243,50 @@ describe("plate.utils", () => {
       expect(PlateFormatter.normalizeRaw(" a-b c ")).toBe("ABC");
       expect(PlateFormatter.detectCountry("ab123cd")).toBe("VE");
       expect(PlateFormatter.isUnplated("SP-1001")).toBe(true);
+    });
+  });
+
+  describe("PLATE_STATE_MACHINE and guards", () => {
+    it("should validate PlateCountry and PlateCountryMode via type guards", () => {
+      expect(isPlateCountry("CO")).toBe(true);
+      expect(isPlateCountry("VE")).toBe(true);
+      expect(isPlateCountry("UNPLATED")).toBe(true);
+      expect(isPlateCountry("AUTO")).toBe(false);
+      expect(isPlateCountry(null)).toBe(false);
+
+      expect(isPlateCountryMode("AUTO")).toBe(true);
+      expect(isPlateCountryMode("CO")).toBe(true);
+      expect(isPlateCountryMode("OTHER")).toBe(false);
+    });
+
+    it("should resolve plated and full plate states without throwing", () => {
+      expect(resolvePlatedCountry("AB123CD")).toBe("VE");
+      expect(resolvePlatedCountry("123456")).toBe("VE");
+      expect(resolvePlatedCountry("ABC123")).toBe("CO");
+      expect(resolvePlatedCountry("ABC123", "VE")).toBe("VE");
+
+      expect(resolvePlateCountry(null, "AUTO")).toBe("UNPLATED");
+      expect(resolvePlateCountry("1001", "CO", true)).toBe("UNPLATED");
+      expect(resolvePlateCountry("ABC123", "AUTO")).toBe("CO");
+      expect(resolvePlateCountry("AB123CD", "AUTO")).toBe("VE");
+    });
+
+    it("should detect Colombian motorcycle plates and validate state specs", () => {
+      expect(isColombianMotoPlate("abc-12d")).toBe(true);
+      expect(isColombianMotoPlate("abc-123")).toBe(false);
+
+      expect(PLATE_STATE_MACHINE.CO.maxRawLength).toBe(6);
+      expect(PLATE_STATE_MACHINE.CO.maxFormattedLength).toBe(7);
+      expect(PLATE_STATE_MACHINE.CO.validate("ABC123")).toBe(true);
+      expect(PLATE_STATE_MACHINE.CO.validate("ABC12")).toBe(false);
+
+      expect(PLATE_STATE_MACHINE.VE.maxRawLength).toBe(7);
+      expect(PLATE_STATE_MACHINE.VE.maxFormattedLength).toBe(9);
+      expect(PLATE_STATE_MACHINE.VE.validate("AB123CD")).toBe(true);
+      expect(PLATE_STATE_MACHINE.VE.validate("AB12345")).toBe(false);
+
+      expect(PLATE_STATE_MACHINE.UNPLATED.validate("", true)).toBe(true);
+      expect(PLATE_STATE_MACHINE.UNPLATED.validate("", false)).toBe(false);
     });
   });
 });

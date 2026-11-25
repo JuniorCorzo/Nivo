@@ -66,7 +66,7 @@ export class ParkingStatsGrid {
 
   public readonly carTotal = computed<number>(() => {
     const t = this.telemetry();
-    if (t?.carTotal != null) {
+    if (t?.carTotal !== null && t?.carTotal !== undefined) {
       return t.carTotal;
     }
     const dist = this.slotDistribution() ?? [];
@@ -77,7 +77,7 @@ export class ParkingStatsGrid {
 
   public readonly motoTotal = computed<number>(() => {
     const t = this.telemetry();
-    if (t?.motoTotal != null) {
+    if (t?.motoTotal !== null && t?.motoTotal !== undefined) {
       return t.motoTotal;
     }
     const dist = this.slotDistribution() ?? [];
@@ -88,7 +88,7 @@ export class ParkingStatsGrid {
 
   public readonly carOccupied = computed<number>(() => {
     const t = this.telemetry();
-    if (t?.carOccupied != null) {
+    if (t?.carOccupied !== null && t?.carOccupied !== undefined) {
       return t.carOccupied;
     }
     const total = this.totalSlots();
@@ -101,7 +101,7 @@ export class ParkingStatsGrid {
 
   public readonly carRate = computed<number>(() => {
     const t = this.telemetry();
-    if (t?.carRate != null) {
+    if (t?.carRate !== null && t?.carRate !== undefined) {
       return t.carRate;
     }
     return this.carTotal() > 0
@@ -111,7 +111,7 @@ export class ParkingStatsGrid {
 
   public readonly motoOccupied = computed<number>(() => {
     const t = this.telemetry();
-    if (t?.motoOccupied != null) {
+    if (t?.motoOccupied !== null && t?.motoOccupied !== undefined) {
       return t.motoOccupied;
     }
     const total = this.totalSlots();
@@ -124,7 +124,7 @@ export class ParkingStatsGrid {
 
   public readonly motoRate = computed<number>(() => {
     const t = this.telemetry();
-    if (t?.motoRate != null) {
+    if (t?.motoRate !== null && t?.motoRate !== undefined) {
       return t.motoRate;
     }
     return this.motoTotal() > 0

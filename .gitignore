@@ -67,6 +67,7 @@ deployment/.env.*
 deployment/.env.local
 !*.env.example
 !**/.env.example
+.wt-runner.json
 
 # Local scratch & mockup data
 mockup*.html

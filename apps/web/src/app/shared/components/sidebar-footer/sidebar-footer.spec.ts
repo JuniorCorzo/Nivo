@@ -218,9 +218,9 @@ describe("SidebarFooter", () => {
   describe("formatAddress", () => {
     it("should render formatted street and city when address object is present", () => {
       const lotWithFullAddress = {
+        address: { city: "Bogotá", street: "Cra 10 #20-30" },
         id: "lot-1",
         name: "Sede Centro",
-        address: { street: "Cra 10 #20-30", city: "Bogotá" },
         totalCapacity: 50,
       };
       expect(component.formatAddress(lotWithFullAddress as any)).toBe(
@@ -228,9 +228,9 @@ describe("SidebarFooter", () => {
       );
 
       const lotWithStreetOnly = {
+        address: { city: "", street: "Av Siempre Viva 742" },
         id: "lot-2",
         name: "Sede Norte",
-        address: { street: "Av Siempre Viva 742", city: "" },
         totalCapacity: 30,
       };
       expect(component.formatAddress(lotWithStreetOnly as any)).toBe(
@@ -238,9 +238,9 @@ describe("SidebarFooter", () => {
       );
 
       const lotWithStringAddress = {
+        address: "Calle 100",
         id: "lot-3",
         name: "Sede Sur",
-        address: "Calle 100",
         totalCapacity: 20,
       };
       expect(component.formatAddress(lotWithStringAddress as any)).toBe(
@@ -250,9 +250,9 @@ describe("SidebarFooter", () => {
 
     it("should fall back to totalCapacity Plazas when address is missing or empty", () => {
       const lotWithEmptyAddress = {
+        address: { city: "", street: "" },
         id: "lot-1",
         name: "Sede Centro",
-        address: { street: "", city: "" },
         totalCapacity: 45,
       };
       expect(component.formatAddress(lotWithEmptyAddress as any)).toBe(
@@ -281,9 +281,9 @@ describe("SidebarFooter", () => {
 
     it("should render formatted address in popover and NOT [object Object]", () => {
       const lot = {
+        address: { city: "Medellín", street: "Cra 7 # 12-34" },
         id: "lot-1",
         name: "Sede Centro",
-        address: { street: "Cra 7 # 12-34", city: "Medellín" },
         totalCapacity: 100,
       };
       parkingLotsSignal.set([lot]);

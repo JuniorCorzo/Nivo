@@ -9,9 +9,7 @@ import type {
   ResponseListSlotResponse,
   SlotSummaryResponse,
 } from "@core/api/generated/models";
-import { SlotsService } from "@core/api/generated/services";
 import type { Slot } from "@core/models/slot.model";
-import { of } from "rxjs";
 
 import { mapToSlotSummary, SlotService } from "./slot-service";
 
@@ -114,16 +112,6 @@ describe("SlotService metadata and group operations", () => {
       providers: [
         SlotService,
         ApiConfiguration,
-        {
-          provide: SlotsService,
-          useValue: {
-            batchDelete: vi.fn(),
-            createSlots: vi.fn(),
-            deleteSlot: vi.fn(),
-            listSlotSummaries: vi.fn().mockReturnValue(of({ data: [] })),
-            updateSlot: vi.fn(),
-          },
-        },
         provideHttpClient(),
         provideHttpClientTesting(),
       ],
@@ -179,6 +167,12 @@ describe("SlotService metadata and group operations", () => {
     expect(req.request.body).toEqual(mockPayload);
     req.flush(mockApiResponse);
 
+    const summaryReq = httpTesting.expectOne(
+      (request) =>
+        request.url.endsWith("/slots/list/summary") && request.method === "GET"
+    );
+    summaryReq.flush({ data: [] });
+
     expect(resultSlots).toBeDefined();
     expect(resultSlots?.length).toBe(1);
     expect(resultSlots?.[0].hasCharger).toBe(true);
@@ -228,6 +222,12 @@ describe("SlotService metadata and group operations", () => {
 
     expect(req.request.body).toEqual(mockPayload);
     req.flush(mockApiResponse);
+
+    const summaryReq = httpTesting.expectOne(
+      (request) =>
+        request.url.endsWith("/slots/list/summary") && request.method === "GET"
+    );
+    summaryReq.flush({ data: [] });
 
     expect(resultSlots).toBeDefined();
     expect(resultSlots?.length).toBe(1);

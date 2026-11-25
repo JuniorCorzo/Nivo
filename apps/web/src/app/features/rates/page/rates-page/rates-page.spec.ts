@@ -128,24 +128,18 @@ describe("RatesPageComponent", () => {
     ]);
   });
 
-  it("should switch tabs between rates, calculator and policies", () => {
+  it("should switch tabs between rates and policies", () => {
     expect(component.activeTab()).toBe("rates");
     expect(fixture.nativeElement.querySelector("app-rates-list")).toBeTruthy();
     expect(
-      fixture.nativeElement.querySelector("app-rate-calculator")
+      fixture.nativeElement.querySelector("app-special-policies-config")
     ).toBeFalsy();
-
-    component.activeTab.set("calculator");
-    fixture.detectChanges();
-    expect(
-      fixture.nativeElement.querySelector("app-rate-calculator")
-    ).toBeTruthy();
-    expect(fixture.nativeElement.querySelector("app-rates-list")).toBeFalsy();
 
     component.activeTab.set("policies");
     fixture.detectChanges();
     expect(
       fixture.nativeElement.querySelector("app-special-policies-config")
     ).toBeTruthy();
+    expect(fixture.nativeElement.querySelector("app-rates-list")).toBeFalsy();
   });
 });

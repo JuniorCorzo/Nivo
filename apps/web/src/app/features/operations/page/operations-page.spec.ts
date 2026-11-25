@@ -700,6 +700,7 @@ describe("OperationsPageComponent", () => {
 
       expect(ticketServiceSpy.createTicket).toHaveBeenCalledWith({
         plate: "EXP123",
+        plateCountry: "CO",
         rateId: "r-1",
         slotId: "s-1",
       });
@@ -775,7 +776,7 @@ describe("OperationsPageComponent", () => {
       component.submitExpressCheckIn();
 
       expect(toastSpy.showToast).toHaveBeenCalledWith({
-        message: "Por favor ingresa una placa válida (mínimo 3 caracteres).",
+        message: "Por favor ingresa una placa válida.",
         type: "error",
       });
       expect(ticketServiceSpy.createTicket).not.toHaveBeenCalled();
@@ -785,7 +786,7 @@ describe("OperationsPageComponent", () => {
       component.submitExpressCheckIn();
 
       expect(toastSpy.showToast).toHaveBeenCalledWith({
-        message: "Por favor ingresa una placa válida (mínimo 3 caracteres).",
+        message: "Por favor ingresa una placa válida.",
         type: "error",
       });
       expect(ticketServiceSpy.createTicket).not.toHaveBeenCalled();
@@ -1144,5 +1145,25 @@ describe("OperationsPageComponent", () => {
         expect(customComp.isCheckOutModalOpen()).toBe(false);
       });
     });
+  });
+
+  it("should not pass stale expressPlate to check-in modal when opened in unplated mode", () => {
+    component.expressPlate.set("ABC-123");
+    component.openCheckInModal(true);
+    fixture.detectChanges();
+
+    const modalDebugEl = fixture.debugElement.query(
+      By.css("app-check-in-modal")
+    );
+    const modalInstance = modalDebugEl.componentInstance as {
+      initialPlate: () => string;
+      initialUnplated: () => boolean;
+      facade: { isUnplated: () => boolean; plate: () => string };
+    };
+
+    expect(modalInstance.initialUnplated()).toBe(true);
+    expect(modalInstance.initialPlate()).toBe("");
+    expect(modalInstance.facade.isUnplated()).toBe(true);
+    expect(modalInstance.facade.plate()).toBe("");
   });
 });

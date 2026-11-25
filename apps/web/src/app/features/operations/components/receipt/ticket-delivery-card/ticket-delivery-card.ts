@@ -2,7 +2,9 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
+  inject,
   input,
   linkedSignal,
   output,
@@ -70,6 +72,14 @@ export class TicketDeliveryCardComponent {
   readonly phoneChange = output<string>();
   readonly emailChange = output<string>();
   readonly channelChange = output<DeliveryChannel>();
+  readonly sendEmail = output<string>();
+
+  private readonly destroyRef = inject(DestroyRef);
+  private copyTimeoutId?: ReturnType<typeof setTimeout>;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => clearTimeout(this.copyTimeoutId));
+  }
 
   readonly activeChannel = linkedSignal<DeliveryChannel>(() =>
     this.initialChannel()
@@ -93,26 +103,16 @@ export class TicketDeliveryCardComponent {
     const rawPhone = this.phoneInput().replaceAll(/\D/gu, "");
     let phone = "";
     if (rawPhone) {
-      phone = rawPhone.startsWith("57") ? rawPhone : `57${rawPhone}`;
+      phone =
+        rawPhone.length === 10 && rawPhone.startsWith("3")
+          ? `57${rawPhone}`
+          : rawPhone;
     }
 
     if (phone) {
       return `https://wa.me/${phone}?text=${msg}`;
     }
     return `https://wa.me/?text=${msg}`;
-  });
-
-  readonly emailLink = computed<string>(() => {
-    const t = this.ticket();
-    const url = this.publicUrl();
-    const plate = t?.licensePlate || this.texts.unplatedVehicle;
-    const subject = encodeURIComponent(`Comprobante de Parqueo - ${plate}`);
-    const body = encodeURIComponent(this.texts.whatsAppMessage(plate, url));
-    const to = this.emailInput().trim();
-    if (to) {
-      return `mailto:${to}?subject=${subject}&body=${body}`;
-    }
-    return `mailto:?subject=${subject}&body=${body}`;
   });
 
   setChannel(channel: DeliveryChannel): void {
@@ -138,6 +138,13 @@ export class TicketDeliveryCardComponent {
     }
   }
 
+  onSendEmail(): void {
+    const email = this.emailInput().trim();
+    if (email) {
+      this.sendEmail.emit(email);
+    }
+  }
+
   async copyPublicUrl(): Promise<void> {
     const url = this.publicUrl();
     if (!url) {
@@ -147,10 +154,11 @@ export class TicketDeliveryCardComponent {
       if (globalThis.navigator?.clipboard) {
         await globalThis.navigator.clipboard.writeText(url);
         this.isCopied.set(true);
-        setTimeout(() => this.isCopied.set(false), 2000);
+        clearTimeout(this.copyTimeoutId);
+        this.copyTimeoutId = setTimeout(() => this.isCopied.set(false), 2000);
       }
-    } catch {
-      // Ignore clipboard write failures gracefully
+    } catch (error) {
+      console.warn("Failed to copy ticket URL to clipboard:", error);
     }
   }
 

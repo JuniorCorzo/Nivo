@@ -42,6 +42,10 @@ export interface ResolvedSidebarNavGroup {
   label: string;
 }
 
+const isUrlResolver = (
+  url: string | ((activeId?: string) => string)
+): url is (activeId?: string) => string => typeof url === "function";
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -74,9 +78,9 @@ export class SidebarBase {
 
   private readonly currentUrl = signal(this.router.url.split("?", 1)[0]);
 
-  protected readonly ticketCount = computed(() => {
-    return this.ticketService?.activeTickets?.()?.length ?? 0;
-  });
+  protected readonly ticketCount = computed(
+    () => this.ticketService?.activeTickets?.()?.length ?? 0
+  );
 
   public readonly navGroups = computed<ResolvedSidebarNavGroup[]>(() => {
     const currentRole = this.userService.currentUser()?.role;
@@ -95,8 +99,9 @@ export class SidebarBase {
             return Boolean(currentRole && item.roles.includes(currentRole));
           })
           .map((item) => {
-            const resolvedUrl =
-              typeof item.url === "function" ? item.url(activeId) : item.url;
+            const resolvedUrl = isUrlResolver(item.url)
+              ? item.url(activeId)
+              : item.url;
 
             return {
               ...item,

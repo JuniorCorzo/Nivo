@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import {
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
   HostListener,
   computed,
   inject,
@@ -44,6 +45,10 @@ import { PageHeaderComponent } from "@shared/components/page-header/page-header"
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { PlateMaskDirective } from "@shared/directives/plate-mask";
+import {
+  normalizeRawPlate,
+  resolvePlatedCountry,
+} from "@shared/utils/plate.utils";
 import { of } from "rxjs";
 
 import { CheckInModalComponent } from "../components/modals/check-in-modal/check-in-modal";
@@ -100,6 +105,7 @@ export class OperationsPageComponent {
   private readonly rateService = inject(RateService);
   private readonly ticketService = inject(TicketService);
   private readonly toast = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly parkingId = signal<string | null>(null);
 
@@ -276,15 +282,23 @@ export class OperationsPageComponent {
     if (!id) {
       return;
     }
-    this.slotService.getAllSlotSummariesByParkingId(id).subscribe();
-    this.ticketService.listTicketsByParkingLot(id).subscribe({
-      error: () => this.activeTickets.set([]),
-      next: (tickets) => {
-        const openTickets = (tickets ?? []).filter((t) => t.status === "OPEN");
-        this.activeTickets.set(openTickets);
-        this.tryProcessPendingCheckout(openTickets);
-      },
-    });
+    this.slotService
+      .getAllSlotSummariesByParkingId(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+    this.ticketService
+      .listTicketsByParkingLot(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => this.activeTickets.set([]),
+        next: (tickets) => {
+          const openTickets = (tickets ?? []).filter(
+            (t) => t.status === "OPEN"
+          );
+          this.activeTickets.set(openTickets);
+          this.tryProcessPendingCheckout(openTickets);
+        },
+      });
   }
 
   setVehicleFilter(val: string): void {
@@ -415,18 +429,21 @@ export class OperationsPageComponent {
   }
 
   checkOutSpecificSlot(slot: SlotSummary): void {
-    this.ticketService.getActiveTicketBySlot(slot.id).subscribe({
-      error: (err) => {
-        const msg =
-          err?.error?.message ||
-          "No se encontró un ticket activo para este cupo.";
-        this.toast.showToast({ message: msg, type: "error" });
-      },
-      next: (ticket) => {
-        this.selectedCheckoutTicket.set(ticket);
-        this.isCheckOutModalOpen.set(true);
-      },
-    });
+    this.ticketService
+      .getActiveTicketBySlot(slot.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: (err) => {
+          const msg =
+            err?.error?.message ||
+            "No se encontró un ticket activo para este cupo.";
+          this.toast.showToast({ message: msg, type: "error" });
+        },
+        next: (ticket) => {
+          this.selectedCheckoutTicket.set(ticket);
+          this.isCheckOutModalOpen.set(true);
+        },
+      });
   }
 
   closeCheckOutModal(): void {
@@ -497,13 +514,11 @@ export class OperationsPageComponent {
       return;
     }
     const rawPlate = plateOverride ?? this.expressPlate();
-    const cleanPlate = (rawPlate ?? "")
-      .replaceAll(/[^a-zA-Z0-9]/gu, "")
-      .toUpperCase();
+    const cleanPlate = normalizeRawPlate(rawPlate);
 
-    if (cleanPlate.length < 3) {
+    if (cleanPlate.length < 3 || cleanPlate.length > 7) {
       this.toast.showToast({
-        message: "Por favor ingresa una placa válida (mínimo 3 caracteres).",
+        message: "Por favor ingresa una placa válida.",
         type: "error",
       });
       return;
@@ -515,8 +530,13 @@ export class OperationsPageComponent {
     );
 
     if (!availableSlot) {
+      const vehicleLabels = {
+        BIKE: "bicicletas",
+        CAR: "carros",
+        MOTORCYCLE: "motos",
+      } satisfies Record<VehicleType, string>;
       this.toast.showToast({
-        message: `No hay cupos disponibles para ${targetType === "CAR" ? "carros" : "motos"}.`,
+        message: `No hay cupos disponibles para ${vehicleLabels[targetType]}.`,
         type: "error",
       });
       return;
@@ -536,9 +556,11 @@ export class OperationsPageComponent {
     this.ticketService
       .createTicket({
         plate: cleanPlate,
+        plateCountry: resolvePlatedCountry(cleanPlate),
         rateId: activeRate.id,
         slotId: availableSlot.id,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         error: (err) => {
           this.isSubmittingExpressCheckIn.set(false);

@@ -1,6 +1,6 @@
 <nv-card class="border-border/80 bg-muted/20">
   <nv-card-content class="space-y-3 p-3.5 sm:p-4">
-    <!-- Card Header -->
+    <!-- Header -->
     <div class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-2">
         <div
@@ -16,22 +16,24 @@
           <span
             class="text-foreground block text-xs font-bold tracking-wider uppercase"
           >
-            {{ mode() === 'receipt' ? texts.resendSectionTitle : 'Envío de
-            Ticket Digital' }}
+            {{ mode() === 'receipt' ? texts.resendSectionTitle :
+            texts.checkinSectionTitle }}
           </span>
           @if (mode() === 'checkin') {
           <nv-muted class="text-[10px] leading-tight">
-            Canal de entrega para el cliente
+            {{ texts.deliveryHint }}
           </nv-muted>
           }
         </div>
       </div>
       @if (mode() === 'checkin') {
-      <nv-badge variant="secondary" size="sm"> Opcional </nv-badge>
+      <nv-badge variant="secondary" size="sm">
+        {{ texts.optionalBadge }}
+      </nv-badge>
       }
     </div>
 
-    <!-- Delivery Channel Tabs (Vehicle selector style with nv-button) -->
+    <!-- Delivery Channel Selector -->
     <div
       role="group"
       aria-label="Canal de entrega digital"
@@ -43,12 +45,12 @@
         size="sm"
         type="button"
         (click)="setChannel('WHATSAPP')"
-        class="gap-1.5 font-semibold transition-all duration-150 active:scale-[0.98]"
+        class="gap-1.5 font-semibold transition-all active:scale-[0.98]"
       >
         <ng-icon
           name="simpleWhatsapp"
           size="16"
-          class="shrink-0 scale-90 overflow-visible text-emerald-500 [&>svg]:overflow-visible"
+          class="shrink-0 scale-90 text-emerald-500 [&>svg]:overflow-visible"
         />
         <span>{{ texts.tabWhatsApp }}</span>
       </button>
@@ -58,30 +60,37 @@
         size="sm"
         type="button"
         (click)="setChannel('EMAIL')"
-        class="gap-1.5 font-semibold transition-all duration-150 active:scale-[0.98]"
+        class="gap-1.5 font-semibold transition-all active:scale-[0.98]"
       >
         <ng-icon name="lucideMail" size="14" class="text-primary shrink-0" />
         <span>{{ texts.tabEmail }}</span>
       </button>
     </div>
 
-    <!-- Channel Form Fields -->
-    @if (activeChannel() === 'WHATSAPP') {
-    <div
-      class="space-y-1 transition-opacity duration-150 motion-reduce:transition-none"
-    >
+    <!-- Active Channel Input -->
+    <div class="space-y-1">
+      @if (activeChannel() === 'WHATSAPP') {
       <label
         for="delivery-phone-input"
         class="text-muted-foreground block text-[10px] font-semibold tracking-wider uppercase"
       >
         {{ texts.phoneLabel }}
       </label>
+      } @else {
+      <label
+        for="delivery-email-input"
+        class="text-muted-foreground block text-[10px] font-semibold tracking-wider uppercase"
+      >
+        {{ texts.emailLabel }}
+      </label>
+      }
       <div class="relative flex items-center">
         <ng-icon
-          name="lucidePhone"
+          [name]="activeChannel() === 'WHATSAPP' ? 'lucidePhone' : 'lucideMail'"
           size="14"
           class="text-muted-foreground pointer-events-none absolute left-2.5 shrink-0"
         />
+        @if (activeChannel() === 'WHATSAPP') {
         <input
           id="delivery-phone-input"
           type="tel"
@@ -91,11 +100,23 @@
           autocomplete="tel"
           class="peer border-input bg-background text-foreground placeholder:text-muted-foreground/60 focus:border-ring focus-visible:ring-ring h-9 w-full rounded-lg border py-1.5 pr-2.5 pl-8 text-xs transition-colors focus:outline-hidden focus-visible:ring-1"
         />
+        } @else {
+        <input
+          id="delivery-email-input"
+          type="email"
+          [value]="emailInput()"
+          (input)="onEmailInput($event)"
+          [placeholder]="texts.emailPlaceholder"
+          autocomplete="email"
+          class="peer border-input bg-background text-foreground placeholder:text-muted-foreground/60 focus:border-ring focus-visible:ring-ring h-9 w-full rounded-lg border py-1.5 pr-2.5 pl-8 text-xs transition-colors focus:outline-hidden focus-visible:ring-1"
+        />
+        }
       </div>
     </div>
 
-    <!-- Direct Send Button (Only for receipt/resend mode) -->
-    @if (mode() === 'receipt' && whatsAppLink()) {
+    <!-- Receipt Direct Actions -->
+    @if (mode() === 'receipt') { @if (activeChannel() === 'WHATSAPP' &&
+    whatsAppLink()) {
     <a
       nv-button
       variant="default"
@@ -108,58 +129,29 @@
       <ng-icon
         name="simpleWhatsapp"
         size="16"
-        class="shrink-0 scale-90 overflow-visible [&>svg]:overflow-visible"
+        class="shrink-0 scale-90 [&>svg]:overflow-visible"
       />
       <span>{{ texts.shareWhatsApp }}</span>
     </a>
-    } } @else {
-    <div
-      class="space-y-1 transition-opacity duration-150 motion-reduce:transition-none"
-    >
-      <label
-        for="delivery-email-input"
-        class="text-muted-foreground block text-[10px] font-semibold tracking-wider uppercase"
-      >
-        {{ texts.emailLabel }}
-      </label>
-      <div class="relative flex items-center">
-        <ng-icon
-          name="lucideMail"
-          size="14"
-          class="text-muted-foreground pointer-events-none absolute left-2.5 shrink-0"
-        />
-        <input
-          id="delivery-email-input"
-          type="email"
-          [value]="emailInput()"
-          (input)="onEmailInput($event)"
-          [placeholder]="texts.emailPlaceholder"
-          autocomplete="email"
-          class="peer border-input bg-background text-foreground placeholder:text-muted-foreground/60 focus:border-ring focus-visible:ring-ring h-9 w-full rounded-lg border py-1.5 pr-2.5 pl-8 text-xs transition-colors focus:outline-hidden focus-visible:ring-1"
-        />
-      </div>
-    </div>
-
-    <!-- Direct Send Button (Only for receipt/resend mode) -->
-    @if (mode() === 'receipt' && emailLink()) {
-    <a
+    } @else if (activeChannel() === 'EMAIL') {
+    <button
       nv-button
       variant="default"
       size="md"
-      [href]="emailLink()"
-      target="_blank"
-      rel="noopener noreferrer"
+      type="button"
+      (click)="onSendEmail()"
+      [disabled]="!emailInput().trim()"
       class="w-full gap-2 whitespace-nowrap shadow-xs transition-all active:scale-[0.98]"
     >
       <ng-icon name="lucideMail" size="14" class="shrink-0" />
       <span>{{ texts.sendEmail }}</span>
-    </a>
-    } }
+    </button>
+    }
 
-    <!-- Utility Actions (Only in receipt mode) -->
-    @if (mode() === 'receipt') {
+    <!-- Utilities: Copy link & Web Share -->
     <div class="flex items-center gap-2 pt-0.5">
       <button
+        id="copy-link-btn"
         nv-button
         variant="outline"
         size="sm"

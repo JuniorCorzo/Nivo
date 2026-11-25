@@ -2,13 +2,7 @@ import { AUTH_TEXTS } from "./auth.texts";
 import { DATA_TABLE_TEXTS, SERVER_TEXTS } from "./common.texts";
 import { DASHBOARD_TEXTS } from "./dashboard.texts";
 import { LANDING_TEXTS } from "./landing.texts";
-import {
-  SIDEBAR_TEXTS,
-  type SidebarNavGroup,
-  type SidebarNavItem,
-  sidebarNav,
-  sidebarNavGroups,
-} from "./navigation.texts";
+import { SIDEBAR_TEXTS } from "./navigation.texts";
 import {
   CHECK_IN_TEXTS,
   OPERATIONS_TEXTS,

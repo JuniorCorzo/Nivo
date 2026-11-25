@@ -18,7 +18,6 @@ export interface SidebarNavGroup {
 
 export const sidebarNavGroups: SidebarNavGroup[] = [
   {
-    label: "Operación Diaria",
     items: [
       {
         icon: "lucideLayoutDashboard",
@@ -37,9 +36,9 @@ export const sidebarNavGroups: SidebarNavGroup[] = [
         url: APP_ROUTES.app.tickets,
       },
     ],
+    label: "Operación Diaria",
   },
   {
-    label: "Configuración & Fiscal",
     items: [
       {
         icon: "lucideCoins",
@@ -60,6 +59,7 @@ export const sidebarNavGroups: SidebarNavGroup[] = [
         url: APP_ROUTES.app.users,
       },
     ],
+    label: "Configuración & Fiscal",
   },
 ];
 

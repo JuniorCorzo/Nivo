@@ -34,7 +34,6 @@ import {
   displayOptionFn,
   valueOptionFn,
 } from "../../../shared/rate-presentations";
-import { RatePreviewComponent } from "../../calculator/rate-calculator/rate-preview";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,7 +44,6 @@ import { RatePreviewComponent } from "../../calculator/rate-calculator/rate-prev
     ButtonComponent,
     InputComponent,
     SelectComponent,
-    RatePreviewComponent,
     PageHeaderComponent,
   ],
   providers: [
@@ -159,11 +157,5 @@ export class RateFormComponent {
 
   onPolicyChange(val: string | null | undefined): void {
     this.facade.form.specialPolicyId.set(val ? String(val) : null);
-  }
-
-  onDurationChange(event: Event): void {
-    /* SAFETY: Target is HTMLInputElement */
-    const target = event.target as HTMLInputElement;
-    this.facade.previewDurationMinutes.set(target.valueAsNumber || 0);
   }
 }

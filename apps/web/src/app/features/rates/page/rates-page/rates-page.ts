@@ -16,7 +16,6 @@ import { ButtonComponent } from "@nivo-sass/design-system";
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 
-import { RateCalculatorComponent } from "../../components/calculator/rate-calculator/rate-calculator";
 import { RateListComponent } from "../../components/list/rates-list/rates-list";
 import { SpecialPoliciesConfigComponent } from "../../components/policies/special-policies-config/special-policies-config";
 
@@ -28,7 +27,6 @@ import { SpecialPoliciesConfigComponent } from "../../components/policies/specia
     ButtonComponent,
     PageHeaderComponent,
     RateListComponent,
-    RateCalculatorComponent,
     SpecialPoliciesConfigComponent,
   ],
   providers: [
@@ -50,7 +48,7 @@ export class RatesPageComponent {
 
   protected readonly APP_ROUTES = APP_ROUTES;
   readonly parkingId = signal<string | null>(null);
-  readonly activeTab = signal<"rates" | "calculator" | "policies">("rates");
+  readonly activeTab = signal<"rates" | "policies">("rates");
 
   readonly parking = computed(() => {
     const id = this.parkingId();

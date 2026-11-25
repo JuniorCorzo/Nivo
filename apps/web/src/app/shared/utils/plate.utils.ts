@@ -1,10 +1,45 @@
 import type { PlateCountry } from "@core/models/ticket.model";
 
+export type PlatedCountry = Exclude<PlateCountry, "UNPLATED">;
+export type PlateCountryMode = PlateCountry | "AUTO";
+
+const PLATE_COUNTRIES = ["CO", "VE", "UNPLATED"] as const;
+const PLATE_COUNTRY_MODES = ["CO", "VE", "UNPLATED", "AUTO"] as const;
+
+const PLATE_COUNTRY_SET = new Set<string>(PLATE_COUNTRIES);
+const PLATE_COUNTRY_MODE_SET = new Set<string>(PLATE_COUNTRY_MODES);
+
+export const isPlateCountry = (value: unknown): value is PlateCountry =>
+  typeof value === "string" && PLATE_COUNTRY_SET.has(value);
+
+export const isPlateCountryMode = (value: unknown): value is PlateCountryMode =>
+  typeof value === "string" && PLATE_COUNTRY_MODE_SET.has(value);
+
 export interface FormatPlateOptions {
-  country?: PlateCountry | "AUTO" | null;
+  country?: PlateCountryMode | null;
   isUnplated?: boolean | null;
   fallback?: string;
 }
+
+export interface PlateStateSpec {
+  readonly country: PlateCountry;
+  readonly maxRawLength: number;
+  readonly maxFormattedLength: number;
+  readonly progressivePattern: RegExp;
+  readonly completePattern: RegExp;
+  readonly format: (plateOrRaw: string, fallback?: string) => string;
+  readonly validate: (raw: string, hasPhoto?: boolean) => boolean;
+}
+
+const UNPLATED_KEYWORDS = ["SIN PLACA", "SIN-PLACA", "SINPLACA", ""] as const;
+
+const UNPLATED_SET = new Set<string>(UNPLATED_KEYWORDS);
+
+const CO_PROGRESSIVE_REGEX = /^(?:[A-Z]{1,2}|[A-Z]{3}(?:\d|\d{2}[\dA-Z]?)?)$/u;
+const CO_COMPLETE_REGEX = /^[A-Z]{3}\d{2}[\dA-Z]$/u;
+const CO_MOTO_REGEX = /^[A-Z]{3}\d{2}[A-Z]$/u;
+const VE_PROGRESSIVE_REGEX = /^[A-Z]{2}\d{1,3}[A-Z]{0,2}$/u;
+const VE_COMPLETE_REGEX = /^[A-Z]{2}\d{3}[A-Z]{2}$/u;
 
 /**
  * Strips hyphens, whitespaces, and symbols to return an uppercase alphanumeric string.
@@ -17,6 +52,12 @@ export const normalizeRawPlate = (plate?: string | null): string => {
 };
 
 /**
+ * Returns true when the normalized plate matches Colombian motorcycle format (AAA00A).
+ */
+export const isColombianMotoPlate = (plate?: string | null): boolean =>
+  CO_MOTO_REGEX.test(normalizeRawPlate(plate));
+
+/**
  * Returns true if the plate or country indicates an unplated vehicle.
  */
 export const isUnplatedPlate = (
@@ -27,62 +68,16 @@ export const isUnplatedPlate = (
     return true;
   }
   const trimmed = (plate ?? "").trim().toUpperCase();
-  if (
-    !trimmed ||
-    trimmed === "SIN PLACA" ||
-    trimmed === "SIN-PLACA" ||
-    trimmed === "SINPLACA"
-  ) {
+  if (UNPLATED_SET.has(trimmed) || trimmed.startsWith("SP-")) {
     return true;
   }
-  const raw = normalizeRawPlate(plate);
-  if (trimmed.startsWith("SP-") || /^SP\d+$/u.test(raw)) {
-    return true;
-  }
-  return false;
-};
-
-/**
- * Detects the plate registration country based on plate pattern and prefixes.
- */
-export const detectPlateCountry = (plate?: string | null): PlateCountry => {
-  const trimmed = (plate ?? "").trim().toUpperCase();
-  if (
-    !trimmed ||
-    trimmed === "SIN PLACA" ||
-    trimmed === "SIN-PLACA" ||
-    trimmed === "SINPLACA"
-  ) {
-    return "UNPLATED";
-  }
-  const raw = normalizeRawPlate(plate);
-  if (trimmed.startsWith("SP-") || /^SP\d+$/u.test(raw)) {
-    return "UNPLATED";
-  }
-
-  // Venezuelan: 7 chars (2 letters, 3 digits, 2 letters) or progressive 3rd char digit
-  if (raw.length === 7 && /^[A-Z]{2}\d{3}[A-Z]{2}$/u.test(raw)) {
-    return "VE";
-  }
-  if (raw.length >= 3 && /\d/u.test(raw[2])) {
-    return "VE";
-  }
-
-  // Colombian: 6 chars car (3 letters, 3 digits) or moto (3 letters, 2 digits, 1 letter)
-  if (
-    raw.length === 6 &&
-    (/^[A-Z]{3}\d{3}$/u.test(raw) || /^[A-Z]{3}\d{2}[A-Z]$/u.test(raw))
-  ) {
-    return "CO";
-  }
-
-  return "CO";
+  return /^SP\d+$/u.test(normalizeRawPlate(plate));
 };
 
 /**
  * Formats a raw alphanumeric string into Colombian vehicle format (AAA-000 or AAA-00A).
  */
-export const formatColombian = (rawPlate: string): string => {
+const formatColombian = (rawPlate: string): string => {
   const truncated = rawPlate.slice(0, 6);
   if (truncated.length <= 3) {
     return truncated;
@@ -99,7 +94,7 @@ export const formatColombian = (rawPlate: string): string => {
 /**
  * Formats a raw alphanumeric string into Venezuelan vehicle format (AA-000-AA).
  */
-export const formatVenezuelan = (rawPlate: string): string => {
+const formatVenezuelan = (rawPlate: string): string => {
   const truncated = rawPlate.slice(0, 7);
   if (truncated.length <= 2) {
     return truncated;
@@ -115,22 +110,15 @@ const formatUnplated = (
   fallback = "SIN PLACA"
 ): string => {
   const trimmed = (plate ?? "").trim();
-  if (!trimmed) {
-    return fallback;
-  }
   const upper = trimmed.toUpperCase();
-  if (upper === "SIN PLACA" || upper === "SIN-PLACA" || upper === "SINPLACA") {
+  if (!trimmed || UNPLATED_SET.has(upper)) {
     return fallback;
   }
 
   // Format sequence number with standard SP- prefix
-  const spMatch = upper.match(/^SP[- ]?(?<sequence>\d+)$/u);
+  const spMatch = upper.match(/^(?:SP[- ]?)?(?<sequence>\d+)$/u);
   if (spMatch?.groups?.["sequence"]) {
     return `SP-${spMatch.groups["sequence"]}`;
-  }
-
-  if (/^\d+$/u.test(trimmed)) {
-    return `SP-${trimmed}`;
   }
 
   if (upper.startsWith("SP-")) {
@@ -140,64 +128,140 @@ const formatUnplated = (
   return trimmed;
 };
 
+export const PLATE_STATE_MACHINE = {
+  CO: {
+    completePattern: CO_COMPLETE_REGEX,
+    country: "CO",
+    format: (plateOrRaw) => formatColombian(normalizeRawPlate(plateOrRaw)),
+    maxFormattedLength: 7,
+    maxRawLength: 6,
+    progressivePattern: CO_PROGRESSIVE_REGEX,
+    validate: (raw) => raw.length === 6,
+  },
+  UNPLATED: {
+    completePattern: /^SP\d+$/u,
+    country: "UNPLATED",
+    format: (plateOrRaw, fallback = "SIN PLACA") =>
+      formatUnplated(plateOrRaw, fallback),
+    maxFormattedLength: 15,
+    maxRawLength: 15,
+    progressivePattern: /^SP\d+$/u,
+    validate: (_raw, hasPhoto = false) => hasPhoto,
+  },
+  VE: {
+    completePattern: VE_COMPLETE_REGEX,
+    country: "VE",
+    format: (plateOrRaw) => formatVenezuelan(normalizeRawPlate(plateOrRaw)),
+    maxFormattedLength: 9,
+    maxRawLength: 7,
+    progressivePattern: VE_PROGRESSIVE_REGEX,
+    validate: (raw) => VE_COMPLETE_REGEX.test(raw),
+  },
+} as const satisfies Readonly<Record<PlateCountry, PlateStateSpec>>;
+
+const PLATED_DETECTION_STATES: readonly PlateStateSpec[] = [
+  PLATE_STATE_MACHINE.VE,
+  PLATE_STATE_MACHINE.CO,
+];
+
 /**
- * Formats a license plate string according to country or options.
+ * Detects the plate registration country based on state-machine patterns.
+ * Throws Error if the plate format or length is invalid.
  */
-export const formatPlate = (
-  plate?: string | null,
-  countryOrOptions?: PlateCountry | "AUTO" | FormatPlateOptions | null,
-  isUnplated?: boolean
-): string => {
-  let effectiveCountry: PlateCountry | "AUTO" = "AUTO";
-  let explicitUnplated: boolean | null = null;
-  let fallback = "SIN PLACA";
-
-  if (
-    countryOrOptions === "CO" ||
-    countryOrOptions === "VE" ||
-    countryOrOptions === "UNPLATED" ||
-    countryOrOptions === "AUTO"
-  ) {
-    effectiveCountry = countryOrOptions;
-  } else if (countryOrOptions !== null && countryOrOptions !== undefined) {
-    const {
-      country = "AUTO",
-      fallback: customFallback,
-      isUnplated: optionsUnplated = null,
-    } = countryOrOptions;
-    effectiveCountry = country ?? "AUTO";
-    explicitUnplated = optionsUnplated;
-    if (customFallback !== undefined) {
-      fallback = customFallback;
-    }
-  }
-
-  if (typeof isUnplated === "boolean") {
-    explicitUnplated = isUnplated;
-  }
-
-  if (explicitUnplated === true || effectiveCountry === "UNPLATED") {
-    return formatUnplated(plate, fallback);
-  }
-
-  if (effectiveCountry === "AUTO") {
-    if (isUnplatedPlate(plate)) {
-      return formatUnplated(plate, fallback);
-    }
-    const detected = detectPlateCountry(plate);
-    if (detected === "UNPLATED") {
-      return formatUnplated(plate, fallback);
-    }
-    const raw = normalizeRawPlate(plate);
-    return detected === "VE" ? formatVenezuelan(raw) : formatColombian(raw);
+export const detectPlateCountry = (plate?: string | null): PlateCountry => {
+  if (isUnplatedPlate(plate)) {
+    return "UNPLATED";
   }
 
   const raw = normalizeRawPlate(plate);
-  if (effectiveCountry === "VE") {
-    return formatVenezuelan(raw);
+  const matched = PLATED_DETECTION_STATES.find((state) =>
+    state.progressivePattern.test(raw)
+  );
+  if (matched) {
+    return matched.country;
   }
 
-  return formatColombian(raw);
+  throw new Error(`Placa inválida: formato no reconocido para "${plate}"`);
+};
+
+/**
+ * Deterministic non-throwing transition between plated states ('CO' | 'VE').
+ * 3rd character digit -> 'VE'; otherwise -> 'CO'.
+ */
+export const resolvePlatedCountry = (
+  plate?: string | null,
+  mode: PlateCountryMode = "AUTO"
+): PlatedCountry => {
+  if (mode === "CO" || mode === "VE") {
+    return mode;
+  }
+  const raw = normalizeRawPlate(plate);
+  return raw.length >= 3 && /\d/u.test(raw[2]) ? "VE" : "CO";
+};
+
+/**
+ * Resolves target PlateCountry state ('CO' | 'VE' | 'UNPLATED') without throwing.
+ */
+export const resolvePlateCountry = (
+  plate?: string | null,
+  mode: PlateCountryMode = "AUTO",
+  explicitUnplated?: boolean | null
+): PlateCountry => {
+  if (explicitUnplated || mode === "UNPLATED") {
+    return "UNPLATED";
+  }
+  if (mode === "CO" || mode === "VE") {
+    return mode;
+  }
+  if (isUnplatedPlate(plate)) {
+    return "UNPLATED";
+  }
+  return resolvePlatedCountry(plate, mode);
+};
+
+interface ResolvedPlateOptions {
+  effectiveCountry: PlateCountryMode;
+  explicitUnplated: boolean | null;
+  fallback: string;
+}
+
+const resolveFormatOptions = (
+  countryOrOptions?: PlateCountryMode | FormatPlateOptions | null,
+  isUnplated?: boolean
+): ResolvedPlateOptions => {
+  if (!countryOrOptions || isPlateCountryMode(countryOrOptions)) {
+    return {
+      effectiveCountry: countryOrOptions ?? "AUTO",
+      explicitUnplated: isUnplated ?? null,
+      fallback: "SIN PLACA",
+    };
+  }
+
+  return {
+    effectiveCountry: countryOrOptions.country ?? "AUTO",
+    explicitUnplated: isUnplated ?? countryOrOptions.isUnplated ?? null,
+    fallback: countryOrOptions.fallback ?? "SIN PLACA",
+  };
+};
+
+/**
+ * Formats a license plate string according to country state or options.
+ */
+export const formatPlate = (
+  plate?: string | null,
+  countryOrOptions?: PlateCountryMode | FormatPlateOptions | null,
+  isUnplated?: boolean
+): string => {
+  const { effectiveCountry, explicitUnplated, fallback } = resolveFormatOptions(
+    countryOrOptions,
+    isUnplated
+  );
+  const country = resolvePlateCountry(
+    plate,
+    effectiveCountry,
+    explicitUnplated
+  );
+  return PLATE_STATE_MACHINE[country].format(plate ?? "", fallback);
 };
 
 export const PlateFormatter = {

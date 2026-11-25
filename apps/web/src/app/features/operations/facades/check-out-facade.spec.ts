@@ -1,4 +1,5 @@
-import { signal, type WritableSignal } from "@angular/core";
+import { signal } from "@angular/core";
+import type { WritableSignal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import type { SlotSummary } from "@core/models/slot.model";
 import type {
