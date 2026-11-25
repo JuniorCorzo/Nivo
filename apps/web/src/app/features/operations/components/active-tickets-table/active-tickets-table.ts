@@ -1,4 +1,3 @@
-import { DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -20,14 +19,22 @@ import {
   ButtonComponent,
   InputComponent,
 } from "@nivo-sass/design-system";
+import {
+  DataTableComponent,
+  EmptyStateDirective,
+} from "@shared/components/data-table";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
+import { createAngularTable, getCoreRowModel } from "@tanstack/angular-table";
+
+import { createActiveTicketColumns } from "./active-tickets-columns.definition";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     BadgeComponent,
     ButtonComponent,
-    DatePipe,
+    DataTableComponent,
+    EmptyStateDirective,
     FormsModule,
     InputComponent,
     NgIcon,
@@ -48,7 +55,7 @@ import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 export class OperationsActiveTicketsTableComponent {
   readonly texts = APP_TEXTS.operations.activeTickets;
 
-  readonly filteredActiveTickets = input.required<TicketSummary[]>();
+  readonly filteredActiveTickets = input<TicketSummary[]>([]);
   readonly searchTicketQuery = input<string>("");
 
   readonly searchTicketQueryChange = output<string>();
@@ -59,24 +66,15 @@ export class OperationsActiveTicketsTableComponent {
   readonly kbdClass =
     "border-border bg-muted text-muted-foreground ml-1.5 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:inline-block";
 
-  getCountryBadgeVariant(
-    ticket: TicketSummary
-  ): "info" | "outline" | "warning" {
-    if (ticket.plateCountry === "VE") {
-      return "info";
-    }
-    if (ticket.plateCountry === "UNPLATED") {
-      return "warning";
-    }
-    return "outline";
-  }
+  private readonly columns = createActiveTicketColumns({
+    onCheckOut: (ticket) => this.onTicketCheckOut(ticket),
+  });
 
-  getCountryBadgeLabel(ticket: TicketSummary): string {
-    if (ticket.plateCountry === "UNPLATED") {
-      return this.texts.unplatedShortBadge;
-    }
-    return ticket.plateCountry || this.texts.defaultCountryBadge;
-  }
+  readonly table = createAngularTable(() => ({
+    columns: this.columns,
+    data: this.filteredActiveTickets(),
+    getCoreRowModel: getCoreRowModel(),
+  }));
 
   onSearchChange(value: string): void {
     this.searchTicketQueryChange.emit(value);

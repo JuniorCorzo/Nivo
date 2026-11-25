@@ -67,9 +67,9 @@
     </div>
   </div>
 
-  <div class="overflow-x-auto">
-    @if (filteredActiveTickets().length === 0) {
+  <app-data-table [table]="table" [emptyMessage]="texts.emptyTitle">
     <div
+      emptyState
       class="text-muted-foreground flex flex-col items-center justify-center py-12 text-center text-xs"
     >
       <ng-icon
@@ -82,66 +82,5 @@
         >{{ texts.emptySubtitle }}</span
       >
     </div>
-    } @else {
-    <table class="w-full text-left text-xs">
-      <thead
-        class="border-border bg-muted/50 text-muted-foreground border-b text-[11px] font-semibold tracking-wider uppercase"
-      >
-        <tr>
-          <th class="px-4 py-3 sm:px-6">{{ texts.thPlate }}</th>
-          <th class="px-4 py-3 sm:px-6">{{ texts.thSlot }}</th>
-          <th class="px-4 py-3 sm:px-6">{{ texts.thEntryTime }}</th>
-          <th class="px-4 py-3 text-right sm:px-6">{{ texts.thAction }}</th>
-        </tr>
-      </thead>
-      <tbody class="divide-border divide-y">
-        @for (ticket of filteredActiveTickets(); track ticket.id) {
-        <tr class="hover:bg-accent/40 transition-colors">
-          <td class="px-4 py-3 sm:px-6">
-            <div class="flex items-center gap-2">
-              <span
-                class="text-foreground font-mono text-sm font-bold tracking-wider tabular-nums"
-                >{{ ticket.licensePlate }}</span
-              >
-              <nv-badge
-                [variant]="getCountryBadgeVariant(ticket)"
-                class="px-1.5 py-0.5 font-mono text-[10px] font-bold"
-              >
-                {{ getCountryBadgeLabel(ticket) }}
-              </nv-badge>
-            </div>
-          </td>
-          <td class="px-4 py-3 sm:px-6">
-            <div class="text-foreground font-medium tabular-nums">
-              {{ ticket.slotNumber ? texts.slotPrefix + " " + ticket.slotNumber
-              : texts.emptySlotPlaceholder }}
-            </div>
-            @if (ticket.slotType) {
-            <span class="text-muted-foreground text-[10px] uppercase"
-              >{{ ticket.slotType }}</span
-            >
-            }
-          </td>
-          <td class="px-4 py-3 sm:px-6">
-            <div class="text-foreground font-mono text-xs tabular-nums">
-              {{ ticket.entryTime | date: "dd/MM/yyyy HH:mm" }}
-            </div>
-          </td>
-          <td class="px-4 py-3 text-right sm:px-6">
-            <nv-button
-              size="sm"
-              variant="default"
-              type="button"
-              (click)="onTicketCheckOut(ticket)"
-            >
-              <ng-icon name="lucideLogOut" size="14" class="mr-1" />
-              <span>{{ texts.collectButton }}</span>
-            </nv-button>
-          </td>
-        </tr>
-        }
-      </tbody>
-    </table>
-    }
-  </div>
+  </app-data-table>
 </div>

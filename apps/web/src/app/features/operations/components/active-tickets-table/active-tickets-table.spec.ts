@@ -30,9 +30,9 @@ describe("OperationsActiveTicketsTableComponent", () => {
     component = fixture.componentInstance;
   });
 
-  it("should render active tickets with country badges and emit checkOutWithTicket on row action click", () => {
+  it("should render active tickets via TanStack table with badges, bay numbers, and emit checkOutWithTicket on row action click", () => {
     const selected: TicketSummary[] = [];
-    component.checkOutWithTicket.subscribe((t) => selected.push(t));
+    component.checkOutWithTicket.subscribe((ticket) => selected.push(ticket));
 
     const tickets = [
       createTicket({
@@ -43,6 +43,12 @@ describe("OperationsActiveTicketsTableComponent", () => {
       }),
       createTicket({
         id: "t-2",
+        licensePlate: "AB-123-CD",
+        plateCountry: "VE",
+        slotNumber: undefined,
+      }),
+      createTicket({
+        id: "t-3",
         licensePlate: "SIN-PLACA",
         plateCountry: "UNPLATED",
         slotNumber: "102",
@@ -52,14 +58,19 @@ describe("OperationsActiveTicketsTableComponent", () => {
     fixture.detectChanges();
 
     const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector("app-data-table")).not.toBeNull();
     expect(el.textContent).toContain("ABC-123");
-    expect(el.textContent).toContain("Bahía 101");
+    expect(el.textContent).toContain("CO");
+    expect(el.textContent).toContain("VE");
     expect(el.textContent).toContain("SP");
+    expect(el.textContent).toContain("Bahía 101");
+    expect(el.textContent).toContain("Bahía 102");
+    expect(el.textContent).toContain("—");
 
     const rowButtons = [
       ...el.querySelectorAll<HTMLButtonElement>("tbody button"),
     ];
-    expect(rowButtons.length).toBe(2);
+    expect(rowButtons.length).toBe(3);
     rowButtons[0].click();
     expect(selected).toEqual([tickets[0]]);
   });
@@ -68,7 +79,7 @@ describe("OperationsActiveTicketsTableComponent", () => {
     const queries: string[] = [];
     let checkoutCount = 0;
     let qrCount = 0;
-    component.searchTicketQueryChange.subscribe((q) => queries.push(q));
+    component.searchTicketQueryChange.subscribe((query) => queries.push(query));
     component.submitExpressCheckOut.subscribe(() => {
       checkoutCount += 1;
     });
@@ -81,9 +92,8 @@ describe("OperationsActiveTicketsTableComponent", () => {
     fixture.detectChanges();
 
     const el = fixture.nativeElement as HTMLElement;
-    // All buttons must be Design System nv-button
     const rawButtonsOutsideDs = [...el.querySelectorAll("button")].filter(
-      (b) => !b.hasAttribute("nv-button")
+      (button) => !button.hasAttribute("nv-button")
     );
     expect(rawButtonsOutsideDs).toEqual([]);
 
@@ -104,8 +114,8 @@ describe("OperationsActiveTicketsTableComponent", () => {
     );
     clearBtn?.click();
 
-    const qrBtn = [...el.querySelectorAll("button")].find((b) =>
-      b.textContent?.includes("Escanear QR")
+    const qrBtn = [...el.querySelectorAll("button")].find((button) =>
+      button.textContent?.includes("Escanear QR")
     );
     qrBtn?.click();
 
@@ -114,14 +124,15 @@ describe("OperationsActiveTicketsTableComponent", () => {
     expect(qrCount).toBe(1);
   });
 
-  it("should render empty state when filteredActiveTickets is empty", () => {
+  it("should render empty state inside app-data-table when filteredActiveTickets is empty", () => {
     fixture.componentRef.setInput("filteredActiveTickets", []);
     fixture.detectChanges();
 
     const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector("app-data-table")).not.toBeNull();
     expect(el.textContent).toContain(
       "No hay vehículos activos en este momento."
     );
-    expect(el.querySelector("table")).toBeNull();
+    expect(el.querySelectorAll("tbody button").length).toBe(0);
   });
 });
