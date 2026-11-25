@@ -1,0 +1,148 @@
+@let activeFilters = filters();
+<div
+  class="bg-card text-card-foreground border-border overflow-hidden rounded-2xl border shadow-xs"
+>
+  <div
+    class="border-border flex flex-col justify-between gap-3 border-b p-3.5 sm:flex-row sm:items-center sm:p-5"
+  >
+    <div class="flex items-center gap-2">
+      <h2 class="text-foreground text-sm font-bold sm:text-base">
+        {{ texts.title }}
+      </h2>
+      <span class="text-muted-foreground font-mono text-xs tabular-nums"
+        >({{ filteredSlots().length }})</span
+      >
+    </div>
+
+    <div
+      class="flex w-full items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:pb-0"
+    >
+      <div
+        role="group"
+        [attr.aria-label]="texts.filterByTypeGroup"
+        [class]="filterGroupClass"
+      >
+        @for (opt of vehicleOptions; track opt.value) {
+        <nv-button
+          type="button"
+          size="sm"
+          variant="ghost"
+          (click)="onVehicleFilterSelect(opt.value)"
+          [class]="getFilterBtnClass(opt, activeFilters.vehicleFilter)"
+        >
+          {{ opt.label }}
+        </nv-button>
+        }
+      </div>
+
+      <div
+        role="group"
+        [attr.aria-label]="texts.filterByStatusGroup"
+        [class]="filterGroupClass"
+      >
+        @for (opt of statusOptions; track opt.value) {
+        <nv-button
+          type="button"
+          size="sm"
+          variant="ghost"
+          (click)="onStatusFilterSelect(opt.value)"
+          [class]="getFilterBtnClass(opt, activeFilters.statusFilter)"
+        >
+          {{ opt.label }}
+        </nv-button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="p-3.5 sm:p-5">
+    @if (filteredSlots().length === 0) {
+    <div
+      class="text-muted-foreground flex flex-col items-center justify-center py-12 text-center text-xs"
+    >
+      <ng-icon
+        name="lucideParkingSquare"
+        size="32"
+        class="text-muted-foreground/60 mb-2"
+      />
+      <p class="text-foreground font-medium">{{ texts.emptyTitle }}</p>
+      <span class="text-muted-foreground/80 mt-1 text-[11px]"
+        >{{ texts.emptySubtitle }}</span
+      >
+      <nv-button
+        type="button"
+        size="sm"
+        variant="outline"
+        (click)="onResetFilters()"
+        class="mt-4"
+      >
+        <span>{{ texts.resetFilters }}</span>
+      </nv-button>
+    </div>
+    } @else {
+    <div
+      class="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-6"
+    >
+      @for (slot of filteredSlots(); track slot.id) {
+      <div
+        [attr.role]="slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED' ? 'button' : null"
+        [attr.tabindex]="slot.status === 'AVAILABLE' || slot.status === 'OCCUPIED' ? 0 : null"
+        [attr.aria-label]="getSlotAriaLabel(slot)"
+        (click)="onSlotClick(slot)"
+        (keydown.enter)="onSlotClick(slot)"
+        (keydown.space)="onSlotClick(slot); $event.preventDefault()"
+        [class]="getSlotCardClass(slot)"
+      >
+        <div class="flex items-center justify-between">
+          <span
+            class="text-muted-foreground text-[10px] font-bold tracking-wider uppercase"
+            >{{ slot.zone ? slot.zone : texts.defaultZone }}</span
+          >
+          <span [class]="getSlotDotClass(slot)"></span>
+        </div>
+
+        <div class="my-2.5">
+          <div
+            class="text-foreground truncate font-mono text-base font-bold tabular-nums sm:text-lg"
+          >
+            {{ slot.prefix ? slot.prefix + "-" : "" }}{{ slot.slotNumber }}
+          </div>
+          @if (slot.status === 'AVAILABLE') {
+          <div
+            class="text-muted-foreground mt-0.5 flex items-center gap-1 text-[11px] font-medium uppercase"
+          >
+            <ng-icon
+              [name]="slot.type === 'CAR' ? 'lucideCar' : 'lucideBike'"
+              class="text-xs"
+            />
+            <span>{{ slot.type }}</span>
+          </div>
+          } @else if (slot.status === 'OCCUPIED') { @if
+          (getActiveTicketForSlot(slot); as ticket) {
+          <span [class]="plateBadgeClass">{{ ticket.licensePlate }}</span>
+          } @else {
+          <span [class]="occupiedBadgeClass">{{ texts.occupiedStatus }}</span>
+          } } @else {
+          <span class="text-muted-foreground text-[10px] font-medium uppercase"
+            >{{ slot.type }}</span
+          >
+          }
+        </div>
+
+        <div [class]="getSlotFooterClass(slot)">
+          @if (slot.status === 'AVAILABLE') {
+          <ng-icon name="lucidePlus" class="text-xs" />
+          <span>{{ texts.assignSlot }}</span>
+          } @else if (slot.status === 'OCCUPIED') {
+          <ng-icon name="lucideLogOut" class="text-xs" />
+          <span>{{ texts.collectExit }}</span>
+          } @else {
+          <span>{{ slot.status }}</span>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>

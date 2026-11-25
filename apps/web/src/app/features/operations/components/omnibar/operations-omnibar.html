@@ -1,0 +1,145 @@
+@let s = state();
+<div
+  class="border-border bg-card text-card-foreground rounded-2xl border p-4 shadow-xs sm:p-5"
+>
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-6">
+    <div class="flex flex-1 flex-col gap-2.5">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="bg-success inline-block h-2 w-2 rounded-full"></span>
+          <span [class]="sectionTitleClass"
+            >{{ texts.expressCheckInTitle }}</span
+          >
+          <span class="text-muted-foreground text-xs font-medium"
+            >· {{ texts.expressCheckInSubtitle }}</span
+          >
+        </div>
+        <span [class]="hotkeyHintClass">{{ texts.expressCheckInHotkey }}</span>
+      </div>
+      <form
+        (submit)="$event.preventDefault(); onSubmitCheckIn()"
+        class="flex flex-col gap-2.5"
+      >
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+          @if (s.hasMultipleVehicleTypes) {
+          <div [class]="toggleGroupClass">
+            @for (opt of vehicleToggleOptions(); track opt.type) {
+            <nv-button
+              type="button"
+              size="sm"
+              variant="ghost"
+              (click)="onVehicleTypeSelect(opt.type)"
+              [class]="getVehicleToggleClass(opt.type)"
+            >
+              <ng-icon [name]="opt.icon" class="text-sm" />
+              <span>{{ opt.label }}</span>
+              <span class="text-muted-foreground text-[10px] tabular-nums"
+                >({{ opt.availableCount }})</span
+              >
+            </nv-button>
+            }
+          </div>
+          }
+          <div class="relative w-full flex-1">
+            <label for="express-plate-input" class="sr-only"
+              >{{ texts.plateSrLabel }}</label
+            >
+            <input
+              id="express-plate-input"
+              type="text"
+              appPlateMask
+              [vehicleType]="s.expressVehicleType"
+              [placeholder]="texts.platePlaceholder"
+              [ngModel]="s.expressPlate"
+              (ngModelChange)="onPlateInput($event)"
+              name="expressPlate"
+              [class]="plateInputClass"
+            />
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <nv-button
+            type="button"
+            (click)="onSubmitCheckIn()"
+            [disabled]="s.isSubmittingExpressCheckIn || !s.expressPlate.trim()"
+            class="flex-1 sm:flex-initial"
+          >
+            <ng-icon name="lucideLogIn" class="text-base" />
+            <span>{{ texts.submitEnter }}</span>
+            <kbd [class]="kbdPrimaryClass">{{ texts.enterKey }}</kbd>
+          </nv-button>
+          <nv-button
+            type="button"
+            variant="outline"
+            (click)="onUnplatedClick()"
+            class="shrink-0"
+            [title]="texts.unplatedTitle"
+          >
+            <ng-icon name="lucideCamera" class="text-base" />
+            <span>{{ texts.unplatedBtn }}</span>
+          </nv-button>
+        </div>
+      </form>
+    </div>
+    <nv-divider
+      orientation="vertical"
+      class="hidden h-auto self-stretch lg:block"
+    />
+    <nv-divider class="lg:hidden" />
+    <div class="flex flex-1 flex-col gap-2.5">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="bg-info inline-block h-2 w-2 rounded-full"></span>
+          <span [class]="sectionTitleClass"
+            >{{ texts.expressCheckOutTitle }}</span
+          >
+          <span class="text-muted-foreground text-xs font-medium"
+            >· {{ texts.expressCheckOutSubtitle }}</span
+          >
+        </div>
+        <span [class]="hotkeyHintClass"
+          >{{ texts.expressCheckOutHotkeys }}</span
+        >
+      </div>
+      <div class="flex flex-col gap-2.5">
+        <div class="relative w-full min-w-[160px] flex-1">
+          <label for="search-ticket-checkout" class="sr-only"
+            >{{ texts.searchQuerySrLabel }}</label
+          >
+          <nv-input
+            [id]="'search-ticket-checkout'"
+            name="searchTicketCheckout"
+            startIcon="lucideSearch"
+            [placeholder]="texts.searchQueryPlaceholder"
+            [ngModel]="s.searchTicketQuery"
+            (ngModelChange)="onSearchChange($event)"
+            (keydown.enter)="onSearchEnter()"
+          />
+        </div>
+        <div class="flex items-center gap-2">
+          <nv-button
+            type="button"
+            variant="secondary"
+            (click)="onSubmitCheckOut()"
+            class="flex-1 sm:flex-initial"
+          >
+            <ng-icon name="lucideLogOut" class="text-base" />
+            <span>{{ texts.collectExit }}</span>
+            <kbd [class]="kbdMutedClass">{{ texts.hotkeyO }}</kbd>
+          </nv-button>
+          <nv-button
+            type="button"
+            variant="outline"
+            (click)="onScanQrClick()"
+            class="shrink-0"
+            [title]="texts.scanQrTitle"
+          >
+            <ng-icon name="lucideQrCode" class="text-primary text-base" />
+            <span>{{ texts.scanQrBtn }}</span>
+            <kbd [class]="kbdMutedClass">{{ texts.hotkeyQ }}</kbd>
+          </nv-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

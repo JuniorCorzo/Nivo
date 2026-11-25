@@ -1,0 +1,123 @@
+@let currentMetrics = metrics();
+<div
+  data-testid="operations-kpi-ribbon"
+  class="border-border bg-card text-card-foreground rounded-2xl border p-4 shadow-xs sm:p-5"
+>
+  <div
+    class="divide-border/60 grid grid-cols-2 gap-4 lg:auto-cols-fr lg:grid-flow-col lg:divide-x"
+  >
+    <!-- Capacidad Global -->
+    <div class="flex flex-col justify-between gap-2 lg:pr-4">
+      <div class="flex min-w-0 items-center gap-2">
+        <div
+          class="bg-primary/10 text-primary border-primary/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
+        >
+          <ng-icon name="lucideGauge" size="18" class="shrink-0" />
+        </div>
+        <span class="text-foreground text-xs font-bold sm:text-sm">
+          {{ texts.globalCapacity }}
+        </span>
+        <span class="sr-only"> {{ currentMetrics.occupationPercentage }}%</span>
+      </div>
+      <div>
+        <div class="flex items-center justify-between gap-1">
+          <p class="text-muted-foreground text-xs">
+            <strong class="text-foreground font-semibold tabular-nums"
+              >{{ currentMetrics.availableSlotsCount }}</strong
+            >
+            {{ texts.freeOf }}
+            <span class="tabular-nums"
+              >{{ currentMetrics.totalSlotsCount }}</span
+            >
+          </p>
+          <nv-badge
+            aria-hidden="true"
+            [variant]="badgeVariant()"
+            class="shrink-0 px-1.5 py-0.5 font-mono text-[10px] tabular-nums"
+          >
+            {{ currentMetrics.occupationPercentage }}%
+          </nv-badge>
+        </div>
+        <div class="bg-muted mt-2 h-1.5 w-full overflow-hidden rounded-full">
+          <div
+            [class]="occupationBarClass()"
+            [style.width.%]="currentMetrics.occupationBarPercentage"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vehicle Type Cards (Carros / Motos) -->
+    @for (card of vehicleCards(); track card.id) {
+    <div class="flex flex-col justify-between gap-2 lg:px-4">
+      <div class="flex min-w-0 items-center gap-2">
+        <div
+          [class]="card.iconBoxClass"
+          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
+        >
+          <ng-icon [name]="card.icon" size="18" class="shrink-0" />
+        </div>
+        <span
+          class="text-muted-foreground truncate text-xs font-semibold tracking-wider uppercase"
+        >
+          {{ card.label }}
+        </span>
+      </div>
+      <div>
+        <div class="flex items-baseline gap-1.5">
+          <span
+            class="text-foreground font-mono text-lg font-bold tabular-nums sm:text-xl"
+          >
+            {{ card.available }}
+          </span>
+          <span class="text-muted-foreground font-mono text-xs">
+            {{ texts.freeSlash }}
+            <span class="tabular-nums">{{ card.total }}</span>
+          </span>
+        </div>
+        <div class="bg-muted mt-2 h-1.5 w-full overflow-hidden rounded-full">
+          <div
+            [class]="card.barClass"
+            class="h-full rounded-full transition-all duration-500"
+            [style.width.%]="card.occupiedPct"
+          ></div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Vehículos Activos -->
+    <div class="flex flex-col justify-between gap-2 lg:pl-4">
+      <div class="flex min-w-0 items-center gap-2">
+        <div
+          class="bg-info/10 text-info border-info/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
+        >
+          <ng-icon name="lucideCar" size="18" class="shrink-0" />
+        </div>
+        <span
+          class="text-muted-foreground truncate text-xs font-semibold tracking-wider uppercase"
+        >
+          {{ texts.activeVehicles }}
+        </span>
+      </div>
+      <div>
+        <div class="flex items-baseline gap-1.5">
+          <span
+            class="text-foreground font-mono text-lg font-bold tabular-nums sm:text-xl"
+          >
+            {{ currentMetrics.occupiedSlotsCount }}
+          </span>
+          <span class="text-muted-foreground font-mono text-xs">
+            {{ texts.activeLabel }}
+          </span>
+        </div>
+        <div class="bg-muted mt-2 h-1.5 w-full overflow-hidden rounded-full">
+          <div
+            class="bg-info/80 h-full rounded-full transition-all duration-500"
+            [style.width.%]="activeSlotsPct()"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

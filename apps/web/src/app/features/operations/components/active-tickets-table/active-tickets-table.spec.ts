@@ -1,0 +1,151 @@
+import type { ComponentFixture } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
+import type { TicketSummary } from "@core/models/ticket.model";
+
+import { OperationsActiveTicketsTableComponent } from "./active-tickets-table";
+
+const createTicket = (
+  overrides: Partial<TicketSummary> = {}
+): TicketSummary => ({
+  entryTime: "2026-10-16T10:00:00Z",
+  id: "t-1",
+  licensePlate: "ABC-123",
+  plateCountry: "CO",
+  slotNumber: "101",
+  slotType: "CAR",
+  status: "OPEN",
+  ...overrides,
+});
+
+describe("OperationsActiveTicketsTableComponent", () => {
+  let fixture: ComponentFixture<OperationsActiveTicketsTableComponent>;
+  let component: OperationsActiveTicketsTableComponent;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [OperationsActiveTicketsTableComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(OperationsActiveTicketsTableComponent);
+    component = fixture.componentInstance;
+  });
+
+  it("should render active tickets via TanStack table with badges, bay numbers, and emit checkOutWithTicket on row action click", () => {
+    const selected: TicketSummary[] = [];
+    component.checkOutWithTicket.subscribe((ticket) => selected.push(ticket));
+
+    const tickets = [
+      createTicket({
+        id: "t-1",
+        licensePlate: "ABC-123",
+        plateCountry: "CO",
+        slotNumber: "101",
+      }),
+      createTicket({
+        id: "t-2",
+        licensePlate: "AB-123-CD",
+        plateCountry: "VE",
+        slotNumber: undefined,
+      }),
+      createTicket({
+        id: "t-3",
+        licensePlate: "SIN-PLACA",
+        plateCountry: "UNPLATED",
+        slotNumber: "102",
+      }),
+    ];
+    fixture.componentRef.setInput("filteredActiveTickets", tickets);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector("app-data-table")).not.toBeNull();
+    expect(el.textContent).toContain("ABC-123");
+    expect(el.textContent).toContain("CO");
+    expect(el.textContent).toContain("VE");
+    expect(el.textContent).toContain("SP");
+    expect(el.textContent).toContain("Bahía 101");
+    expect(el.textContent).toContain("Bahía 102");
+    expect(el.textContent).toContain("—");
+
+    const rowButtons = [
+      ...el.querySelectorAll<HTMLButtonElement>("tbody button"),
+    ];
+    expect(rowButtons.length).toBe(3);
+    rowButtons[0].click();
+    expect(selected).toEqual([tickets[0]]);
+  });
+
+  it("should emit searchTicketQueryChange on input/clear, submitExpressCheckOut on Enter, and openQrScanner on QR button click", () => {
+    const queries: string[] = [];
+    let checkoutCount = 0;
+    let qrCount = 0;
+    component.searchTicketQueryChange.subscribe((query) => queries.push(query));
+    component.submitExpressCheckOut.subscribe(() => {
+      checkoutCount += 1;
+    });
+    component.openQrScanner.subscribe(() => {
+      qrCount += 1;
+    });
+
+    fixture.componentRef.setInput("filteredActiveTickets", [createTicket()]);
+    fixture.componentRef.setInput("searchTicketQuery", "ABC");
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    const rawButtonsOutsideDs = [...el.querySelectorAll("button")].filter(
+      (button) => !button.hasAttribute("nv-button")
+    );
+    expect(rawButtonsOutsideDs).toEqual([]);
+
+    const searchInput = el.querySelector<HTMLInputElement>(
+      "#search-ticket-mobile"
+    );
+    expect(searchInput).toBeTruthy();
+    if (searchInput) {
+      searchInput.value = "XYZ";
+      searchInput.dispatchEvent(new Event("input"));
+      searchInput.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "Enter" })
+      );
+    }
+
+    const clearBtn = el.querySelector<HTMLElement>(
+      '[aria-label="Limpiar búsqueda"]'
+    );
+    clearBtn?.click();
+
+    const qrBtn = [...el.querySelectorAll("button")].find((button) =>
+      button.textContent?.includes("Escanear QR")
+    );
+    qrBtn?.click();
+
+    expect(queries).toEqual(["XYZ", ""]);
+    expect(checkoutCount).toBe(1);
+    expect(qrCount).toBe(1);
+  });
+
+  it("should render empty state inside app-data-table when filteredActiveTickets is empty", () => {
+    fixture.componentRef.setInput("filteredActiveTickets", []);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector("app-data-table")).not.toBeNull();
+    expect(el.textContent).toContain(
+      "No hay vehículos activos en este momento."
+    );
+    expect(el.querySelectorAll("tbody button").length).toBe(0);
+  });
+
+  it("should render entryTime formatted as dd/MM/yyyy HH:mm", () => {
+    fixture.componentRef.setInput("filteredActiveTickets", [
+      createTicket({
+        entryTime: "2026-10-16T14:35:00",
+        id: "t-date",
+      }),
+    ]);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain("16/10/2026 14:35");
+  });
+});

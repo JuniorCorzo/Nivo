@@ -3,8 +3,10 @@ export const OPERATIONS_TEXTS = {
     clearSearch: "Limpiar búsqueda",
     collectButton: "Cobrar",
     collectButtonTitle: "Procesar cobro y salida",
+    defaultCountryBadge: "CO",
     defaultRateName: "Tarifa",
     directCollectAction: "Cobrar Salida Directa",
+    emptySlotPlaceholder: "—",
     emptySubtitle:
       "Los vehículos registrados aparecerán aquí para cobro y salida rápida.",
     emptyTitle: "No hay vehículos activos en este momento.",
@@ -14,12 +16,14 @@ export const OPERATIONS_TEXTS = {
     scanQrTitle: "Escanear ticket QR para cobrar salida",
     searchPlaceholder: "Buscar placa o bahía...",
     searchSrLabel: "Buscar placa o bahía",
+    slotPrefix: "Bahía",
     thAction: "Acción",
     thEntryTime: "Hora de Ingreso",
     thPlate: "Placa / Matrícula",
     thSlot: "Bahía / Cupo",
     title: "Vehículos Activos en Taquilla",
     unplatedBadge: "Sin placa",
+    unplatedShortBadge: "SP",
     viewPhotoTitle: "Ver fotografía capturada en el ingreso",
   },
   checkoutModal: {
@@ -161,6 +165,7 @@ export const OPERATIONS_TEXTS = {
     assignSlot: "Asignar bahía",
     availableStatus: "LIBRE",
     collectExit: "Cobrar Salida",
+    defaultZone: "P",
     emptySubtitle: "Prueba cambiando el tipo de vehículo o el estado.",
     emptyTitle: "No se encontraron bahías con los filtros seleccionados.",
     filterAll: "Todos",
@@ -174,7 +179,33 @@ export const OPERATIONS_TEXTS = {
     occupiedStatus: "OCUPADO",
     photoTitle: "Vehículo registrado con fotografía de ingreso",
     resetFilters: "Restablecer filtros",
+    slotAriaAvailable: (label: string, type: string) =>
+      `Bahía ${label} disponible para ${type}. Clic para asignar ingreso.`,
+    slotAriaOccupied: (label: string) =>
+      `Bahía ${label} ocupada. Clic para cobrar salida.`,
+    slotAriaStatus: (label: string, status: string) =>
+      `Bahía ${label} ${status}`,
     title: "Estado de Cupos y Ocupación",
+  },
+  toasts: {
+    invalidPlate: "Por favor ingresa una placa válida.",
+    multipleVehiclesMatch:
+      "Múltiples vehículos coinciden. Selecciona uno de la lista.",
+    noActiveTicketForSlot: "No se encontró un ticket activo para este cupo.",
+    noAvailableSlotsForVehicle: (vehicleLabel: string) =>
+      `No hay cupos disponibles para ${vehicleLabel}.`,
+    noMatchingVehicle:
+      "No se encontró ningún vehículo activo con ese criterio.",
+    qrNotFound: (identifier: string) =>
+      `${identifier} no encontrado en taquilla o ya fue liquidado.`,
+    qrPlatePrefix: (plate: string) => `Placa ${plate}`,
+    qrScannedFallback: "Código escaneado",
+    qrTicketPrefix: (shortId: string) => `Ticket #${shortId}`,
+    vehicleLabels: {
+      BIKE: "bicicletas",
+      CAR: "carros",
+      MOTORCYCLE: "motos",
+    },
   },
 } as const;
 
