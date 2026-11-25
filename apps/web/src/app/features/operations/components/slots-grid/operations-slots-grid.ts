@@ -120,7 +120,10 @@ export class OperationsSlotsGridComponent {
       return byId;
     }
     if (slot.prefix && slot.slotNumber) {
-      return map.get(`${slot.prefix}-${slot.slotNumber}`);
+      const byPrefixed = map.get(`${slot.prefix}-${slot.slotNumber}`);
+      if (byPrefixed) {
+        return byPrefixed;
+      }
     }
     return slot.slotNumber ? map.get(`num-${slot.slotNumber}`) : undefined;
   }

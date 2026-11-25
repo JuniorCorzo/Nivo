@@ -103,6 +103,74 @@ describe("OperationsSlotsGridComponent", () => {
     );
   });
 
+  it("should fall back to numeric slot key for prefixed occupied bay without slotId while still preferring prefixed keys when present", () => {
+    const prefixedFallbackSlot = createSlot({
+      id: "s-pref",
+      prefix: "A",
+      slotNumber: "102",
+      status: "OCCUPIED",
+    });
+
+    fixture.componentRef.setInput("filteredSlots", [prefixedFallbackSlot]);
+    fixture.componentRef.setInput("activeTickets", [
+      createTicket({
+        id: "t-unpref",
+        licensePlate: "PLT-102",
+        slotId: undefined,
+        slotNumber: "102",
+      }),
+    ]);
+    fixture.detectChanges();
+
+    expect(
+      component.getActiveTicketForSlot(prefixedFallbackSlot)?.licensePlate
+    ).toBe("PLT-102");
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain("PLT-102");
+    expect(el.textContent).not.toContain("OCUPADO");
+
+    // Still prefers exact prefixed keys ("A-102" vs "B-102") when present
+    const slotB102 = createSlot({
+      id: "s-b102",
+      prefix: "B",
+      slotNumber: "102",
+      status: "OCCUPIED",
+    });
+    fixture.componentRef.setInput("filteredSlots", [
+      prefixedFallbackSlot,
+      slotB102,
+    ]);
+    fixture.componentRef.setInput("activeTickets", [
+      createTicket({
+        id: "t-a102",
+        licensePlate: "PLT-A102",
+        slotId: undefined,
+        slotNumber: "A-102",
+      }),
+      createTicket({
+        id: "t-b102",
+        licensePlate: "PLT-B102",
+        slotId: undefined,
+        slotNumber: "B-102",
+      }),
+      createTicket({
+        id: "t-unpref",
+        licensePlate: "PLT-102",
+        slotId: undefined,
+        slotNumber: "102",
+      }),
+    ]);
+    fixture.detectChanges();
+
+    expect(
+      component.getActiveTicketForSlot(prefixedFallbackSlot)?.licensePlate
+    ).toBe("PLT-A102");
+    expect(component.getActiveTicketForSlot(slotB102)?.licensePlate).toBe(
+      "PLT-B102"
+    );
+  });
+
   it("should emit vehicle and status filter actions via Design System nv-button controls", () => {
     const filterEvents: OperationsSlotsFilterAction[] = [];
     component.filterAction.subscribe((e) => filterEvents.push(e));
