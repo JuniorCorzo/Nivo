@@ -33,5 +33,7 @@ public interface SlotsRepository {
 
   void batchDelete(List<UUID> ids);
 
+  void batchDelete(List<UUID> ids, UUID tenantId);
+
   int softDeleteByParkingLotsId(UUID parkingLotsId);
 }

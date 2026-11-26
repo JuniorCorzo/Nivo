@@ -24,7 +24,12 @@ public class CheckOutVehicleUseCase {
     final ParkingTickets ticket = this.parkingTicketsRepository.findById(ticketId)
       .orElseThrow(() -> new ProcessPaymentException(new PaymentError.TicketNotFound(ticketId)));
 
-    if (ticket.getStatus() == ParkingTicketStatus.CLOSED) {
+    if (command.tenantId() != null && ticket.getTenant() != null
+      && !command.tenantId().equals(ticket.getTenant().id())) {
+      throw new ProcessPaymentException(new PaymentError.TicketNotFound(ticketId));
+    }
+
+    if (ticket.getStatus() != ParkingTicketStatus.OPEN) {
       throw new ProcessPaymentException(new PaymentError.Duplicate(ticketId));
     }
 

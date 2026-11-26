@@ -22,8 +22,6 @@ public record PublicTicketDTO(
 
   @Schema(description = "URL to photo proof of vehicle", example = "https://storage.nivo.dev/photos/bike-123.jpg", requiredMode = Schema.RequiredMode.NOT_REQUIRED) String photoUrl,
 
-  @Schema(description = "Driver phone number for notifications", example = "+573001234567", requiredMode = Schema.RequiredMode.NOT_REQUIRED) String phoneNumber,
-
   @Schema(description = "Vehicle entry timestamp in Bogota timezone", requiredMode = Schema.RequiredMode.REQUIRED) ZonedDateTime entryTime,
 
   @Schema(description = "Vehicle exit timestamp in Bogota timezone", requiredMode = Schema.RequiredMode.NOT_REQUIRED) ZonedDateTime exitTime,

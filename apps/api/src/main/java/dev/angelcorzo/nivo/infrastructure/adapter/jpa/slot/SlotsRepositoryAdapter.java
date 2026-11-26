@@ -92,6 +92,21 @@ public class SlotsRepositoryAdapter extends AdapterOperations<Slots, SlotsData, 
 
   @Override
   public void batchDelete(final List<UUID> ids) {
-    super.repository.deleteAllByIdInBatch(ids);
+    if (ids == null || ids.isEmpty()) {
+      return;
+    }
+    super.repository.softDeleteByIds(ids);
+  }
+
+  @Override
+  public void batchDelete(final List<UUID> ids, final UUID tenantId) {
+    if (ids == null || ids.isEmpty()) {
+      return;
+    }
+    if (tenantId != null) {
+      super.repository.softDeleteByIdsAndTenantId(ids, tenantId);
+    } else {
+      this.batchDelete(ids);
+    }
   }
 }

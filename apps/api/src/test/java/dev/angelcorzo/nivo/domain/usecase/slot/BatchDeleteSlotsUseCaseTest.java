@@ -13,12 +13,15 @@ import org.junit.jupiter.api.Test;
 class BatchDeleteSlotsUseCaseTest {
 
   private SlotsRepository slotsRepository;
+  private dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway authenticationContext;
   private BatchDeleteSlotsUseCase useCase;
 
   @BeforeEach
   void setUp() {
     slotsRepository = mock(SlotsRepository.class);
-    useCase = new BatchDeleteSlotsUseCase(slotsRepository);
+    authenticationContext = mock(
+      dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationContextGateway.class);
+    useCase = new BatchDeleteSlotsUseCase(slotsRepository, authenticationContext);
   }
 
   @Test
@@ -29,5 +32,25 @@ class BatchDeleteSlotsUseCaseTest {
     useCase.execute(slotIds);
 
     verify(slotsRepository).batchDelete(slotIds);
+  }
+
+  @Test
+  @DisplayName("Should batch delete slots with tenantId")
+  void shouldBatchDeleteSlotsWithTenantId() {
+    List<UUID> slotIds = List.of(UUID.randomUUID(), UUID.randomUUID());
+    UUID tenantId = UUID.randomUUID();
+
+    useCase.execute(slotIds, tenantId);
+
+    verify(slotsRepository).batchDelete(slotIds, tenantId);
+  }
+
+  @Test
+  @DisplayName("Should safely ignore null or empty slot ID lists")
+  void shouldSafelyIgnoreNullOrEmptyLists() {
+    useCase.execute(null);
+    useCase.execute(List.of());
+
+    verifyNoInteractions(slotsRepository);
   }
 }

@@ -87,4 +87,22 @@ class UserInvitationsRepositoryAdapterTest {
     assertThat(result).isTrue();
     verify(repository).revokeInvitation(id);
   }
+
+  @Test
+  @DisplayName("Should save and reload invitation")
+  void shouldSaveInvitation() {
+    UUID id = UUID.randomUUID();
+    UserInvitations entity = UserInvitations.builder().id(id).build();
+    UserInvitationsData data = new UserInvitationsData();
+
+    when(mapper.toData(any())).thenReturn(data);
+    when(repository.saveAndFlush(any())).thenReturn(data);
+    when(mapper.toEntity(any())).thenReturn(entity);
+    when(repository.findById(any())).thenReturn(Optional.of(data));
+
+    UserInvitations result = adapter.save(entity);
+
+    assertThat(result).isNotNull().isEqualTo(entity);
+    verify(repository).saveAndFlush(any());
+  }
 }

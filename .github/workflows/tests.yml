@@ -60,6 +60,7 @@ jobs:
           path: |
             apps/api/build/reports/jacoco.xml
             apps/api/build/classes/java/main
+            apps/api/build/classes/java/test
           retention-days: 1
 
   test-frontend:
@@ -141,6 +142,7 @@ jobs:
         run: |
           echo "=== Checking SonarCloud input files ==="
           ls -ld apps/api/build/classes/java/main || true
+          ls -ld apps/api/build/classes/java/test || true
           ls -l apps/api/build/reports/jacoco.xml || true
           ls -l apps/web/coverage/web/lcov.info || true
 

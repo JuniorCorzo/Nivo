@@ -53,7 +53,7 @@ class SlotsRepositoryPersistenceIntegrationTest {
 
   @BeforeEach
   void setUp() {
-    this.editSlotUseCase = new EditSlotUseCase(slotsRepositoryAdapter);
+    this.editSlotUseCase = new EditSlotUseCase(slotsRepositoryAdapter, null);
 
     this.testTenant = TenantsData.builder().companyName("Nivo Test Tenant").build();
     entityManager.persist(testTenant);

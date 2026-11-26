@@ -112,7 +112,10 @@ public class UserRepositoryAdapter extends AdapterOperations<Users, UsersData, U
     if (entity.getDeletedAt() != null) {
       return userCreated;
     }
-    return findById(userCreated.getId()).orElseThrow();
+    return Optional.ofNullable(userCreated)
+      .map(Users::getId)
+      .flatMap(this::findById)
+      .orElse(userCreated);
   }
 
   /**
