@@ -1,5 +1,12 @@
 import { expect, setupMockTenantApi, test } from "../fixtures/auth.fixture";
 
+interface CapturedCheckInPayload {
+  email?: string;
+  phoneNumber?: string;
+  plate?: string;
+  plateCountry?: string;
+}
+
 test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () => {
   const parkingId = "lot-55555555-5555-5555-5555-555555555555";
   const slotAvailableId = "slot-avail-5555-5555-555555555555";
@@ -83,7 +90,7 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
 
   const mockActiveTicket = {
     createdAt: new Date().toISOString(),
-    entryTime: new Date(Date.now() - 3600000).toISOString(),
+    entryTime: new Date(Date.now() - 3_600_000).toISOString(),
     id: activeTicketId,
     licensePlate: "XYZ789",
     parkingId,
@@ -113,39 +120,51 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
   test.beforeEach(async ({ page, tenantA }) => {
     await setupMockTenantApi(page, tenantA);
 
-    await page.route(/\/api(\/v1)?\/parking-lots(\/list)?(\?.*)?$/u, async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        json: { data: [mockParkingLot], status: 200 },
-        status: 200,
-      });
-    });
+    await page.route(
+      /\/api(?:\/v1)?\/parking-lots(?:\/list)?(?:\?.*)?$/u,
+      async (route) => {
+        await route.fulfill({
+          contentType: "application/json",
+          json: { data: [mockParkingLot], status: 200 },
+          status: 200,
+        });
+      }
+    );
 
-    await page.route(new RegExp(`/api(/v1)?/parking-lots/${parkingId}`, "u"), async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        json: { data: mockParkingLot, status: 200 },
-        status: 200,
-      });
-    });
+    await page.route(
+      new RegExp(`/api(?:/v1)?/parking-lots/${parkingId}$`, "u"),
+      async (route) => {
+        await route.fulfill({
+          contentType: "application/json",
+          json: { data: mockParkingLot, status: 200 },
+          status: 200,
+        });
+      }
+    );
 
-    await page.route(/\/api(\/v1)?\/slots(\/list)?\/summary/u, async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        json: { data: mockSlots, status: 200 },
-        status: 200,
-      });
-    });
+    await page.route(
+      /\/api(?:\/v1)?\/slots(?:\/list)?\/summary/u,
+      async (route) => {
+        await route.fulfill({
+          contentType: "application/json",
+          json: { data: mockSlots, status: 200 },
+          status: 200,
+        });
+      }
+    );
 
-    await page.route(new RegExp(`/api(/v1)?/parking-lots/${parkingId}/rates`, "u"), async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        json: { data: mockRates, status: 200 },
-        status: 200,
-      });
-    });
+    await page.route(
+      new RegExp(`/api(?:/v1)?/parking-lots/${parkingId}/rates$`, "u"),
+      async (route) => {
+        await route.fulfill({
+          contentType: "application/json",
+          json: { data: mockRates, status: 200 },
+          status: 200,
+        });
+      }
+    );
 
-    await page.route(/\/api(\/v1)?\/tickets\/active/u, async (route) => {
+    await page.route(/\/api(?:\/v1)?\/tickets\/active/u, async (route) => {
       await route.fulfill({
         contentType: "application/json",
         json: { data: mockActiveTicket, status: 200 },
@@ -153,7 +172,7 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
       });
     });
 
-    await page.route(/\/api(\/v1)?\/rates\/.*\/calculate/u, async (route) => {
+    await page.route(/\/api(?:\/v1)?\/rates\/.*\/calculate/u, async (route) => {
       await route.fulfill({
         contentType: "application/json",
         json: {
@@ -171,44 +190,51 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
       });
     });
 
-    await page.route(/\/api(\/v1)?\/tickets(\/list)?(\?.*)?$/u, async (route) => {
-      if (route.request().method() === "GET") {
-        await route.fulfill({
-          contentType: "application/json",
-          json: { data: [mockActiveTicket], status: 200 },
-          status: 200,
-        });
-      } else {
-        await route.fallback();
+    await page.route(
+      /\/api(?:\/v1)?\/tickets(?:\/list)?(?:\?.*)?$/u,
+      async (route) => {
+        await (route.request().method() === "GET"
+          ? route.fulfill({
+              contentType: "application/json",
+              json: { data: [mockActiveTicket], status: 200 },
+              status: 200,
+            })
+          : route.fallback());
       }
-    });
+    );
   });
 
   test("should perform express check-in via Omnibar with formatted plate and digital WhatsApp channel", async ({
     page,
   }) => {
-    let capturedPayload: unknown = null;
+    let capturedPayload: CapturedCheckInPayload | null = null;
 
-    await page.route(/\/api(\/v1)?\/tickets(\/check-in)?$/u, async (route) => {
-      if (route.request().method() === "POST") {
-        capturedPayload = route.request().postDataJSON();
-        await route.fulfill({
-          contentType: "application/json",
-          json: {
-            data: {
-              ...mockActiveTicket,
-              id: "ticket-new-created",
-              licensePlate: "ABC123",
-              phoneNumber: "3119876543",
+    await page.route(
+      /\/api(?:\/v1)?\/tickets(?:\/check-in)?$/u,
+      async (route) => {
+        if (route.request().method() === "POST") {
+          /* SAFETY: postDataJSON parses the JSON check-in request body into CapturedCheckInPayload */
+          capturedPayload = route
+            .request()
+            .postDataJSON() as CapturedCheckInPayload | null;
+          await route.fulfill({
+            contentType: "application/json",
+            json: {
+              data: {
+                ...mockActiveTicket,
+                id: "ticket-new-created",
+                licensePlate: "ABC123",
+                phoneNumber: "3119876543",
+              },
+              status: 201,
             },
             status: 201,
-          },
-          status: 201,
-        });
-      } else {
-        await route.fallback();
+          });
+        } else {
+          await route.fallback();
+        }
       }
-    });
+    );
 
     await page.goto(`/app/parking-lots/${parkingId}/operations`);
     await expect(page.locator("app-operations-omnibar")).toBeVisible();
@@ -216,23 +242,30 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
     // 1. Enter plate in omnibar and trigger express check-in
     const omnibarPlate = page.locator("#express-plate-input");
     await omnibarPlate.fill("abc123");
-    await page.locator("app-operations-omnibar button:has-text('Ingresar')").click();
+    await page
+      .locator("app-operations-omnibar button:has-text('Ingresar')")
+      .click();
 
-    // 2. Modal opens with read-only validation display
-    const modalBackdrop = page.locator("app-check-in-modal .animate-modal-backdrop");
+    // 2. Modal opens with editable plate input and country badge
+    const modalBackdrop = page.locator(
+      "app-check-in-modal .animate-modal-backdrop"
+    );
     await expect(modalBackdrop).toBeVisible();
-    await expect(modalBackdrop.locator("#plate-display")).toContainText("ABC-123");
-    await expect(modalBackdrop.getByText("CO", { exact: true })).toBeVisible();
+    await expect(modalBackdrop.locator("#plate-input")).toHaveValue("ABC-123");
+    await expect(modalBackdrop.locator("#plate-country-badge")).toContainText(
+      "CO"
+    );
 
-    // 3. Select WhatsApp channel tab and enter phone number
+    // 3. Enter phone number directly in default WhatsApp channel (syncs deliveryMethod automatically)
     const deliveryCard = modalBackdrop.locator("app-ticket-delivery-card");
     await expect(deliveryCard).toBeVisible();
-    await deliveryCard.getByRole("button", { name: /WhatsApp/iu }).first().click();
     const phoneInput = deliveryCard.locator("#delivery-phone-input");
     await phoneInput.fill("3119876543");
 
     // 4. Submit Check-in and inspect API payload
-    await modalBackdrop.getByRole("button", { name: /Emitir Ticket|Confirmar Ingreso/iu }).click();
+    await modalBackdrop
+      .getByRole("button", { name: /Emitir Ticket|Confirmar Ingreso/iu })
+      .click();
 
     await expect.poll(() => capturedPayload).not.toBeNull();
     expect(capturedPayload).toMatchObject({
@@ -240,19 +273,26 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
       plate: "ABC-123",
       plateCountry: "CO",
     });
-    expect((capturedPayload as { email?: string })?.email).toBeUndefined();
+    expect(capturedPayload?.email).toBeUndefined();
 
     // 5. Verify receipt modal opens and contains WhatsApp share button with link
-    const receiptBackdrop = page.locator("app-ticket-receipt .animate-modal-backdrop");
+    const receiptBackdrop = page.locator(
+      "app-ticket-receipt .animate-modal-backdrop"
+    );
     await expect(receiptBackdrop).toBeVisible();
-    const whatsappLink = receiptBackdrop.locator("a:has-text('Enviar por WhatsApp')");
+    const whatsappLink = receiptBackdrop.locator(
+      "a:has-text('Enviar por WhatsApp')"
+    );
     await expect(whatsappLink).toBeVisible();
     const href = await whatsappLink.getAttribute("href");
     expect(href).toContain("573119876543");
     expect(href).toContain("ABC123");
 
     // Close receipt
-    await receiptBackdrop.getByRole("button", { name: /Cerrar/iu }).first().click();
+    await receiptBackdrop
+      .getByRole("button", { name: /Cerrar/iu })
+      .first()
+      .click();
     await expect(receiptBackdrop).toBeHidden();
   });
 
@@ -264,23 +304,29 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
 
     // 1. Press 'I' without input focus -> opens CheckIn modal
     await page.keyboard.press("i");
-    const checkInModalBackdrop = page.locator("app-check-in-modal .animate-modal-backdrop");
+    const checkInModalBackdrop = page.locator(
+      "app-check-in-modal .animate-modal-backdrop"
+    );
     await expect(checkInModalBackdrop).toBeVisible();
 
     // Close via Cancel button
-    const cancelBtn = checkInModalBackdrop.getByRole("button", { name: "Cancelar" });
+    const cancelBtn = checkInModalBackdrop.getByRole("button", {
+      name: "Cancelar",
+    });
     await cancelBtn.click();
     await expect(checkInModalBackdrop).toBeHidden();
 
     // 2. Press 'O' without input focus -> opens CheckOut modal
     await page.keyboard.press("o");
-    const checkOutModalContent = page.locator("app-check-out-modal .fixed.inset-0");
-    await expect(checkOutModalContent).toBeVisible();
+    const checkOutModal = page.locator("app-check-out-modal");
+    await expect(checkOutModal.getByRole("heading")).toBeVisible();
 
     // Close checkout modal
-    const closeBtn = checkOutModalContent.getByRole("button", { name: /Cancelar|Cerrar/iu }).first();
+    const closeBtn = checkOutModal
+      .getByRole("button", { name: /Cancelar|Cerrar/iu })
+      .first();
     await closeBtn.click();
-    await expect(checkOutModalContent).toBeHidden();
+    await expect(checkOutModal.getByRole("heading")).toBeHidden();
 
     // 3. Typing 'i' inside the search input must NOT open check-in modal
     const searchInput = page.locator("#search-ticket-checkout");
@@ -288,7 +334,8 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
     await page.keyboard.type("i");
 
     await expect(checkInModalBackdrop).toBeHidden();
-    expect((await searchInput.inputValue()).toUpperCase()).toBe("I");
+    const searchValue = await searchInput.inputValue();
+    expect(searchValue.toUpperCase()).toBe("I");
   });
 
   test("should interact with tactical slots grid to pre-select available slot or initiate checkout", async ({
@@ -305,12 +352,18 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
     await availableSlotCard.click();
 
     // Check-in modal opens with preselected slot banner
-    const checkInModalBackdrop = page.locator("app-check-in-modal .animate-modal-backdrop");
+    const checkInModalBackdrop = page.locator(
+      "app-check-in-modal .animate-modal-backdrop"
+    );
     await expect(checkInModalBackdrop).toBeVisible();
-    await expect(checkInModalBackdrop.locator("text=Bahía Asignada: A-101 (CAR)")).toBeVisible();
+    await expect(
+      checkInModalBackdrop.locator("text=Bahía Asignada: A-101 (CAR)")
+    ).toBeVisible();
 
     // Close check-in modal
-    await checkInModalBackdrop.getByRole("button", { name: "Cancelar" }).click();
+    await checkInModalBackdrop
+      .getByRole("button", { name: "Cancelar" })
+      .click();
     await expect(checkInModalBackdrop).toBeHidden();
 
     // 2. Click on OCCUPIED slot B-102
@@ -321,11 +374,11 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
     await occupiedSlotCard.click();
 
     // Check-out modal opens for the active ticket
-    const checkOutModalContent = page.locator("app-check-out-modal .fixed.inset-0");
-    await expect(checkOutModalContent).toBeVisible();
+    const checkOutModal = page.locator("app-check-out-modal");
+    await expect(checkOutModal.getByRole("heading")).toBeVisible();
   });
 
-  test("should inspect ticket in detail drawer, verify mailto target and trigger reprint", async ({
+  test("should inspect ticket in detail drawer, verify delivery card and trigger reprint", async ({
     page,
   }) => {
     await page.goto("/app/tickets");
@@ -340,29 +393,41 @@ test.describe("CUJ 05: Operations Cockpit, Omnibar & Multichannel Delivery", () 
     await expect(drawerAside).toBeVisible();
     await expect(drawerAside.locator("text=XYZ789")).toBeVisible();
 
-    // 2. Inspect Ticket Delivery Card in drawer
+    // 2. Inspect Ticket Delivery Card in drawer (WhatsApp link + Email button)
     const drawerDelivery = drawerAside.locator("app-ticket-delivery-card");
     await expect(drawerDelivery).toBeVisible();
+    const whatsappLink = drawerDelivery.locator(
+      "a:has-text('Enviar por WhatsApp')"
+    );
+    await expect(whatsappLink).toBeVisible();
+    const whatsappHref = await whatsappLink.getAttribute("href");
+    expect(whatsappHref).toContain("XYZ789");
 
-    // Switch to Email channel
-    await drawerDelivery.getByRole("button", { name: /Correo/iu }).first().click();
-    const emailInput = drawerDelivery.locator("#delivery-email-input");
-    await emailInput.fill("conductor@ejemplo.com");
-
-    const emailButton = drawerDelivery.locator("a:has-text('Enviar por Correo')");
-    await expect(emailButton).toBeVisible();
-
-    // Verify email link does not have target="_blank"
-    const targetAttr = await emailButton.getAttribute("target");
-    expect(targetAttr).toBeNull();
-    const hrefAttr = await emailButton.getAttribute("href");
-    expect(hrefAttr).toContain("mailto:conductor@ejemplo.com");
+    // Switch to Email channel and verify button activates when email is filled
+    await drawerDelivery
+      .getByRole("button", { name: /Correo/iu })
+      .first()
+      .click();
+    const sendEmailButton = drawerDelivery
+      .getByRole("button", {
+        name: /Enviar por Correo/iu,
+      })
+      .last();
+    await expect(sendEmailButton).toBeDisabled();
+    await drawerDelivery
+      .locator("#delivery-email-input")
+      .fill("conductor@ejemplo.com");
+    await expect(sendEmailButton).toBeEnabled();
 
     // 3. Click reprint button in drawer -> opens ticket receipt modal
-    const reprintBtn = drawerAside.locator("nv-button[title*='Reimprimir'], button:has-text('Reimprimir')").first();
+    const reprintBtn = drawerAside
+      .locator("nv-button[title*='Reimprimir'], button:has-text('Reimprimir')")
+      .first();
     await reprintBtn.click();
 
-    const receiptBackdrop = page.locator("app-ticket-receipt .animate-modal-backdrop");
+    const receiptBackdrop = page.locator(
+      "app-ticket-receipt .animate-modal-backdrop"
+    );
     await expect(receiptBackdrop).toBeVisible();
     await expect(receiptBackdrop.locator("text=XYZ-789")).toBeVisible();
   });
