@@ -24,7 +24,17 @@ export class DashboardPage {
     await this.page.goto("/app/parking-lots");
   }
 
+  async openUserMenu(): Promise<void> {
+    const trigger = this.userMenu.locator("button").first();
+    const expanded = await trigger.getAttribute("aria-expanded");
+    if (expanded !== "true") {
+      await trigger.click();
+    }
+    await expect(this.page.locator("div[role='menu']")).toBeVisible();
+  }
+
   async logout(): Promise<void> {
+    await this.openUserMenu();
     await this.logoutButton.click();
   }
 
@@ -42,7 +52,8 @@ export class DashboardPage {
   }
 
   async expectUserEmail(email: string): Promise<void> {
-    await expect(this.userMenu).toContainText(email);
+    await this.openUserMenu();
+    await expect(this.page.locator("div[role='menu']")).toContainText(email);
   }
 
   async expectUserName(name: string): Promise<void> {

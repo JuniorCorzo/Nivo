@@ -16,8 +16,6 @@ export class ParkingLotsPage {
   readonly cancelFormButton: Locator;
   readonly cityInput: Locator;
   readonly closeTimeInput: Locator;
-  readonly confirmDeleteButton: Locator;
-  readonly deleteButton: Locator;
   readonly editButton: Locator;
   readonly emptyCreateButton: Locator;
   readonly emptyState: Locator;
@@ -34,70 +32,67 @@ export class ParkingLotsPage {
 
   constructor(page: Page) {
     this.activeLotTitle = page.locator("app-parking-lot-selector");
-    this.cancelFormButton = page
-      .locator("app-parking-form")
-      .getByRole("button", { name: "Cancelar" });
-    this.cityInput = page.locator("input#city");
-    this.closeTimeInput = page.locator(
-      "input#closeTime, input[placeholder='Ej. 20:00']"
+    this.cancelFormButton = page.locator(
+      "[data-testid='parking-form-header-cancel'] button"
     );
-    this.confirmDeleteButton = page
-      .locator("app-delete-parking-modal")
-      .getByRole("button", { name: "Sí, eliminar" });
-    this.deleteButton = page.getByRole("button", { name: "Eliminar" });
-    this.editButton = page.getByRole("button", { name: "Editar" });
+    this.cityInput = page.locator("nv-combobox#city input, input#city").first();
+    this.closeTimeInput = page.locator(
+      "input#closeTime, input[placeholder*='20:00']"
+    );
+    this.editButton = page.getByRole("button", {
+      name: /Editar Sede|Editar/iu,
+    });
     this.emptyCreateButton = page
       .locator("app-parking-empty-state")
       .getByRole("button");
     this.emptyState = page.locator("app-parking-empty-state");
-    this.nameInput = page.locator("input#name");
+    this.nameInput = page.locator("nv-input#name input, input#name").first();
     this.openTimeInput = page.locator(
-      "input#openTime, input[placeholder='Ej. 08:00']"
+      "input#openTime, input[placeholder*='08:00']"
     );
-    this.operationsButton = page.getByRole("button", {
-      name: "Operaciones en vivo",
-    });
-    this.page = page;
-    this.ratesButton = page.getByRole("button", { name: "Tarifas" });
-    this.slotsButton = page.getByRole("button", { name: "Espacios / Slots" });
-    this.stateInput = page.locator("input#state");
-    this.streetInput = page.locator("input#street");
-    this.submitFormButton = page
-      .locator("app-parking-form")
+    this.operationsButton = page
       .getByRole("button", {
-        name: /Guardar cambios|Crear Parqueadero|Guardando/iu,
-      });
-    this.zipCodeInput = page.locator("input#zipCode");
+        name: /Ir a Taquilla Directa|Operaciones en vivo/iu,
+      })
+      .first();
+    this.page = page;
+    this.ratesButton = page
+      .getByRole("button", { name: /Configurar Tarifas|Tarifas/iu })
+      .first();
+    this.slotsButton = page
+      .getByRole("button", { name: /Auditar Bahías|Espacios \/ Slots/iu })
+      .first();
+    this.stateInput = page
+      .locator("nv-combobox#state input, input#state")
+      .first();
+    this.streetInput = page
+      .locator("nv-input#street input, input#street")
+      .first();
+    this.submitFormButton = page.locator(
+      "[data-testid='parking-form-header-submit'] button"
+    );
+    this.zipCodeInput = page
+      .locator("nv-input#zipCode input, input#zipCode")
+      .first();
   }
 
   async clickCreateLot(): Promise<void> {
-    const emptyCount = await this.emptyState.count();
-    if (emptyCount > 0 && (await this.emptyState.isVisible())) {
+    const lotSelector = this.page
+      .locator("app-parking-lot-selector button")
+      .first();
+    await this.emptyState.or(lotSelector).first().waitFor({ state: "visible" });
+
+    if (await this.emptyState.isVisible()) {
       await this.emptyCreateButton.click();
       return;
     }
 
-    const lotSelector = this.page
-      .locator("app-parking-lot-selector button")
-      .first();
-    if (await lotSelector.isVisible()) {
-      await lotSelector.click();
-      const newLotButton = this.page.getByRole("button", {
-        name: "+ Nueva sede",
-      });
-      if (await newLotButton.isVisible()) {
-        await newLotButton.click();
-        return;
-      }
-    }
-
-    await this.page.goto("/app/parking-lots/create");
-  }
-
-  async deleteActiveLot(): Promise<void> {
-    await this.deleteButton.click();
-    await expect(this.confirmDeleteButton).toBeVisible();
-    await this.confirmDeleteButton.click();
+    await lotSelector.click();
+    const newLotButton = this.page.getByRole("button", {
+      name: "+ Nueva sede",
+    });
+    await expect(newLotButton).toBeVisible();
+    await newLotButton.click();
   }
 
   async fillForm(data: ParkingLotFormData): Promise<void> {
@@ -108,13 +103,26 @@ export class ParkingLotsPage {
     }
 
     if (data.state) {
+      await this.stateInput.click();
       await this.stateInput.fill(data.state);
-      await this.stateInput.press("Enter");
+      const stateOption = this.page
+        .locator('[role="option"]')
+        .filter({ hasText: data.state })
+        .first();
+      await expect(stateOption).toBeVisible();
+      await stateOption.click();
     }
 
     if (data.city) {
+      await expect(this.cityInput).toBeEnabled();
+      await this.cityInput.click();
       await this.cityInput.fill(data.city);
-      await this.cityInput.press("Enter");
+      const cityOption = this.page
+        .locator('[role="option"]')
+        .filter({ hasText: data.city })
+        .first();
+      await expect(cityOption).toBeVisible();
+      await cityOption.click();
     }
 
     if (data.zipCode) {
@@ -151,6 +159,6 @@ export class ParkingLotsPage {
   }
 
   async expectLoaded(): Promise<void> {
-    await expect(this.page).toHaveURL(/\/app\/parking-lots/u);
+    await expect(this.page).toHaveURL(/\/app\/parking-lots\/?$/u);
   }
 }
