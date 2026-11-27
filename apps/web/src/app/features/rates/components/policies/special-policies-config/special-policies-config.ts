@@ -139,31 +139,36 @@ export class SpecialPoliciesConfigComponent implements OnInit {
   }
 
   onThresholdChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    if (target) {
+    const { target } = event;
+    if (target instanceof HTMLSelectElement) {
       this.overstayThresholdMinutes.set(Number(target.value));
     }
   }
 
   onSurchargeChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    if (target) {
+    const { target } = event;
+    if (target instanceof HTMLInputElement) {
       this.overstaySurcharge.set(Number(target.value) || 0);
     }
   }
 
   formatPolicyType(modifies: RatePolicyTarget): string {
     switch (modifies) {
-      case "SURCHARGE":
+      case "SURCHARGE": {
         return "Recargo adicional";
-      case "DISCOUNT":
+      }
+      case "DISCOUNT": {
         return "Descuento comercial";
-      case "PRICE":
+      }
+      case "PRICE": {
         return "Tarifa fija";
-      case "TIME":
+      }
+      case "TIME": {
         return "Ajuste de tiempo";
-      default:
+      }
+      default: {
         return modifies;
+      }
     }
   }
 

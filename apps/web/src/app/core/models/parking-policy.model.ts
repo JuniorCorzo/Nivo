@@ -52,7 +52,7 @@ export interface SpecialPolicyPreset {
 export const SPECIAL_POLICY_PRESETS: SpecialPolicyPreset[] = [
   {
     badge: "Lavado / Servicio",
-    defaultValue: 18000,
+    defaultValue: 18_000,
     description: "Servicio opcional de lavado y embellecimiento en sede",
     id: "lavado-service",
     modifies: "SURCHARGE",
@@ -79,7 +79,7 @@ export const SPECIAL_POLICY_PRESETS: SpecialPolicyPreset[] = [
   },
   {
     badge: "Tarifa Plana",
-    defaultValue: 15000,
+    defaultValue: 15_000,
     description: "Fijar tarifa total para jornada nocturna o evento",
     id: "flat-rate",
     modifies: "PRICE",

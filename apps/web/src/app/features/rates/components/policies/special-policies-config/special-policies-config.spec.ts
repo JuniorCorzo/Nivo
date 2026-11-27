@@ -1,5 +1,6 @@
 import { signal } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import type { ComponentFixture } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import type { SpecialPolicyModel } from "@core/models/rate.model";
 import { RateService } from "@core/services/rate-service";
@@ -25,7 +26,7 @@ describe("SpecialPoliciesConfigComponent", () => {
       modifies: "SURCHARGE",
       name: "Tarifa de Lavado Ecológico",
       operation: "SET",
-      valueToModify: 18000,
+      valueToModify: 18_000,
     },
     {
       active: true,
@@ -111,7 +112,7 @@ describe("SpecialPoliciesConfigComponent", () => {
     const select = document.createElement("select");
     const option = document.createElement("option");
     option.value = "600";
-    select.appendChild(option);
+    select.append(option);
     select.value = "600";
     const selectEvent = new Event("change");
     Object.defineProperty(selectEvent, "target", { value: select });
@@ -124,7 +125,7 @@ describe("SpecialPoliciesConfigComponent", () => {
     const inputEvent = new Event("input");
     Object.defineProperty(inputEvent, "target", { value: input });
     component.onSurchargeChange(inputEvent);
-    expect(component.overstaySurcharge()).toBe(8_000);
+    expect(component.overstaySurcharge()).toBe(8000);
     expect(component.formattedOverstaySurcharge()).toBe("$8.000 COP");
   });
 

@@ -24,7 +24,8 @@ import type {
   SpecialPolicyModel,
   UpdateRateModel,
 } from "@core/models/rate.model";
-import { Observable, of } from "rxjs";
+import type { Observable } from "rxjs";
+import { of } from "rxjs";
 import { map, tap } from "rxjs/operators";
 
 @Injectable({
@@ -169,6 +170,7 @@ export class RateService {
       .createAtSpecialPolicies({ body }, RateService.httpContext())
       .pipe(
         map((response) => {
+          /* SAFETY: Created special policy response data is defined */
           const data = response.data as SpecialPoliciesDto;
           const policy = mapToSpecialPolicyModel(data);
           if (!policy) {

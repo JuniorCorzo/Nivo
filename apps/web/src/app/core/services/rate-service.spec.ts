@@ -104,7 +104,7 @@ describe("RateService", () => {
             modifies: "SURCHARGE" as const,
             name: "Lavado",
             operation: "SET" as const,
-            valueToModify: 18000,
+            valueToModify: 18_000,
           },
         ],
         message: "Success",

@@ -116,7 +116,7 @@ export class SpecialPolicyModalComponent {
       nonNullable: true,
       validators: [Validators.required],
     }),
-    valueToModify: new FormControl<number>(18000, {
+    valueToModify: new FormControl<number>(18_000, {
       nonNullable: true,
       validators: [Validators.required, Validators.min(1)],
     }),

@@ -121,7 +121,7 @@ describe("SpecialPolicyModalComponent", () => {
     expect(component.form.controls.valueToModify.valid).toBe(true);
 
     component.onOperationChange("SET");
-    component.form.controls.valueToModify.setValue(50000);
+    component.form.controls.valueToModify.setValue(50_000);
     expect(component.form.controls.valueToModify.valid).toBe(true);
     expect(component.valueLabel()).toBe("Monto a Aplicar ($ COP)");
   });
