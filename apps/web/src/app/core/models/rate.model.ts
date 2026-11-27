@@ -48,13 +48,25 @@ export interface UpdateRateModel {
   specialPolicyId?: string;
 }
 
+export interface SimulateRateSpecialPolicyParams {
+  name?: string;
+  modifies: RatePolicyTarget;
+  operation: RatePolicyOperation;
+  valueToModify: number;
+  active?: boolean;
+}
+
 export interface SimulateRateParams {
   vehicleType: VehicleType;
   minutesStayed: number;
   pricePerUnit?: number;
   timeUnit?: TimeUnit;
   gracePeriodMinutes?: number;
+  gracePeriodPrice?: number;
+  minChargeTimeMinutes?: number;
   ivaRate?: number;
+  rateName?: string;
+  specialPolicy?: SimulateRateSpecialPolicyParams;
 }
 
 export interface SimulateRatePriceLine {

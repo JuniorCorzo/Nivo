@@ -1,11 +1,19 @@
 export const RATES_TEXTS = {
   calculator: {
+    configuredContextTitle: "Configuración del parqueadero",
     gracePeriodLabel: "Tiempo de gracia (minutos)",
     gracePeriodPlaceholder: "15",
+    gracePeriodPriceLabel: "Cobro en gracia",
+    ivaLabel: "IVA configurado",
+    minChargeLabel: "Cobro mínimo",
     minutesStayedLabel: "Duración estimada (minutos)",
+    minutesStayedMaxHint: "Máximo permitido: 525,600 min (1 año)",
     minutesStayedPlaceholder: "90",
+    noConfiguredRateWarning:
+      "No hay una tarifa configurada para este tipo de vehículo en el parqueadero. Se usará la tarifa estándar.",
     pricePerUnitLabel: "Precio base por unidad ($)",
     pricePerUnitPlaceholder: "Tarifa estándar",
+    specialPolicyLabel: "Política especial",
     subtitle: "Ingresá los parámetros de estancia para simular el cobro",
     tabLabel: "Calculadora & simulador",
     timeUnitLabel: "Unidad de tiempo",

@@ -114,14 +114,29 @@ export const mapFormToUpdateRateModel = (
 
 export const mapToSimulateRateRequest = (
   params: SimulateRateParams
-): SimulateRateRequest => ({
-  gracePeriodMinutes: params.gracePeriodMinutes,
-  ivaRate: params.ivaRate,
-  minutesStayed: params.minutesStayed,
-  pricePerUnit: params.pricePerUnit,
-  timeUnit: params.timeUnit,
-  vehicleType: params.vehicleType,
-});
+): SimulateRateRequest => {
+  const request: SimulateRateRequest = {
+    gracePeriodMinutes: params.gracePeriodMinutes,
+    ivaRate: params.ivaRate,
+    minutesStayed: params.minutesStayed,
+    pricePerUnit: params.pricePerUnit,
+    timeUnit: params.timeUnit,
+    vehicleType: params.vehicleType,
+  };
+  if (params.gracePeriodPrice !== undefined) {
+    request.gracePeriodPrice = params.gracePeriodPrice;
+  }
+  if (params.minChargeTimeMinutes !== undefined) {
+    request.minChargeTimeMinutes = params.minChargeTimeMinutes;
+  }
+  if (params.rateName !== undefined) {
+    request.rateName = params.rateName;
+  }
+  if (params.specialPolicy !== undefined) {
+    request.specialPolicy = params.specialPolicy;
+  }
+  return request;
+};
 
 export const mapToSimulateRateResult = (
   dto: SimulateRateResponse

@@ -33,7 +33,10 @@ describe("RatesPageComponent", () => {
       coordinates: { latitude: 4.6, longitude: -74 },
       createdAt: "",
       currency: "COP",
+      gracePeriodMinutes: 10,
+      gracePeriodPrice: 1500,
       id: "parking-1",
+      ivaRate: 0.19,
       name: "Parqueadero Central",
       occuppationRate: 0,
       ownerName: "Admin",
@@ -164,5 +167,37 @@ describe("RatesPageComponent", () => {
       fixture.nativeElement.querySelector("app-rate-calculator")
     ).toBeFalsy();
     expect(fixture.nativeElement.querySelector("app-rates-list")).toBeFalsy();
+  });
+
+  it("should bind selected parking and configured rates into app-rate-calculator", async () => {
+    vi.useFakeTimers();
+    try {
+      mockRateService.simulateRate.mockClear();
+      component.activeTab.set("calculator");
+      fixture.detectChanges();
+
+      const calculatorEl = fixture.nativeElement.querySelector(
+        "app-rate-calculator"
+      );
+      expect(calculatorEl).toBeTruthy();
+      expect(calculatorEl.textContent).toContain("Parqueadero Central");
+
+      vi.advanceTimersByTime(250);
+      fixture.detectChanges();
+
+      expect(mockRateService.simulateRate).toHaveBeenCalledWith({
+        gracePeriodMinutes: 10,
+        gracePeriodPrice: 1500,
+        ivaRate: 0.19,
+        minChargeTimeMinutes: 15,
+        minutesStayed: 90,
+        pricePerUnit: 5000,
+        rateName: "Carro Estándar",
+        timeUnit: "HOURS",
+        vehicleType: "CAR",
+      });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

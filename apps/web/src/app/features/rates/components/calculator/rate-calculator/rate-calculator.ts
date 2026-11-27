@@ -3,13 +3,19 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
+  input,
   signal,
+  untracked,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import type { ParkingLotListItemModel } from "@core/models/parking.model";
 import type {
+  RateModel,
   SimulateRateParams,
   SimulateRateResult,
+  SpecialPolicyModel,
   TimeUnit,
   VehicleType,
 } from "@core/models/rate.model";
@@ -27,6 +33,8 @@ import {
   valueOptionFn,
 } from "../../../shared/rate-presentations";
 import { RatePreviewComponent } from "./rate-preview";
+
+export const MAX_SIMULATION_MINUTES = 525_600;
 
 const VALID_VEHICLE_TYPES = new Set<string>(["CAR", "MOTORCYCLE", "BIKE"]);
 const VALID_TIME_UNITS = new Set<string>(["MINUTES", "HOURS", "DAYS"]);
@@ -67,6 +75,54 @@ const readInputValue = (event: Event): string =>
           </div>
         </div>
 
+        @if (parking(); as activeParking) {
+          <div
+            class="bg-muted/40 border-border flex flex-col gap-2 rounded-xl border p-3 text-xs"
+            data-testid="parking-rate-context"
+          >
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-foreground font-semibold">
+                {{ texts.configuredContextTitle }}: {{ activeParking.name }}
+              </span>
+              @if (ivaRate() !== null) {
+                <span class="text-muted-foreground font-medium">
+                  {{ texts.ivaLabel }}: {{ ivaPercent() }}%
+                </span>
+              }
+            </div>
+
+            @if (matchedRate(); as configuredRate) {
+              <div class="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
+                <span>
+                  {{ texts.minChargeLabel }}:
+                  <strong class="text-foreground"
+                    >{{ configuredRate.minChargeTimeMinutes }} min</strong
+                  >
+                </span>
+                @if ((gracePeriodPrice() ?? 0) > 0) {
+                  <span>
+                    {{ texts.gracePeriodPriceLabel }}:
+                    <strong class="text-foreground">{{
+                      gracePeriodPrice()
+                        | currency: "COP" : "symbol-narrow" : "1.0-0"
+                    }}</strong>
+                  </span>
+                }
+                @if (configuredRate.specialPolicy; as policy) {
+                  <span>
+                    {{ texts.specialPolicyLabel }}:
+                    <strong class="text-foreground">{{ policy.name }}</strong>
+                  </span>
+                }
+              </div>
+            } @else {
+              <p class="font-medium text-amber-600 dark:text-amber-400">
+                {{ texts.noConfiguredRateWarning }}
+              </p>
+            }
+          </div>
+        }
+
         <div class="mt-1 flex flex-col gap-4">
           <nv-select
             class="w-full"
@@ -101,6 +157,8 @@ const readInputValue = (event: Event): string =>
             [label]="texts.minutesStayedLabel"
             type="number"
             min="0"
+            [attr.max]="maxMinutesStayed"
+            [hint]="texts.minutesStayedMaxHint"
             [placeholder]="texts.minutesStayedPlaceholder"
             [value]="'' + minutesStayed()"
             (input)="onMinutesStayedInput($event)"
@@ -131,7 +189,12 @@ const readInputValue = (event: Event): string =>
 export class RateCalculatorComponent {
   private readonly rateService = inject(RateService);
 
+  readonly parkingId = input<string | null>(null);
+  readonly parking = input<ParkingLotListItemModel | null>(null);
+  readonly rates = input<RateModel[]>([]);
+
   protected readonly texts = APP_TEXTS.rates.calculator;
+  protected readonly maxMinutesStayed = MAX_SIMULATION_MINUTES;
   readonly vehicleTypeOptions = VEHICLE_TYPE_OPTIONS;
   readonly timeUnitOptions = TIME_UNIT_OPTIONS;
   readonly displayOptionFn = displayOptionFn;
@@ -142,20 +205,89 @@ export class RateCalculatorComponent {
   readonly pricePerUnit = signal<number | undefined>(4000);
   readonly minutesStayed = signal<number>(90);
   readonly gracePeriodMinutes = signal<number>(15);
+  readonly gracePeriodPrice = signal<number | null>(null);
+  readonly minChargeTimeMinutes = signal<number | null>(null);
+  readonly ivaRate = signal<number | null>(null);
+  readonly specialPolicy = signal<SpecialPolicyModel | null>(null);
+  readonly rateName = signal<string | null>(null);
+
+  readonly matchedRate = computed(
+    () => this.rates().find((r) => r.vehicleType === this.vehicleType()) ?? null
+  );
+  readonly ivaPercent = computed(() => Math.round((this.ivaRate() ?? 0) * 100));
 
   readonly simulation = signal<SimulateRateResult | null>(null);
   readonly isLoading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
 
-  readonly simulationParams = computed<SimulateRateParams>(() => ({
-    gracePeriodMinutes: this.gracePeriodMinutes(),
-    minutesStayed: this.minutesStayed(),
-    pricePerUnit: this.pricePerUnit(),
-    timeUnit: this.timeUnit(),
-    vehicleType: this.vehicleType(),
-  }));
+  readonly simulationParams = computed<SimulateRateParams>(() => {
+    const params: SimulateRateParams = {
+      gracePeriodMinutes: this.gracePeriodMinutes(),
+      minutesStayed: this.minutesStayed(),
+      pricePerUnit: this.pricePerUnit(),
+      timeUnit: this.timeUnit(),
+      vehicleType: this.vehicleType(),
+    };
+
+    const gracePrice = this.gracePeriodPrice();
+    if (gracePrice !== null) {
+      params.gracePeriodPrice = gracePrice;
+    }
+
+    const iva = this.ivaRate();
+    if (iva !== null) {
+      params.ivaRate = iva;
+    }
+
+    const minCharge = this.minChargeTimeMinutes();
+    if (minCharge !== null) {
+      params.minChargeTimeMinutes = minCharge;
+    }
+
+    const name = this.rateName();
+    if (name !== null) {
+      params.rateName = name;
+    }
+
+    const policy = this.specialPolicy();
+    if (policy) {
+      params.specialPolicy = {
+        active: policy.active,
+        modifies: policy.modifies,
+        name: policy.name,
+        operation: policy.operation,
+        valueToModify: policy.valueToModify,
+      };
+    }
+
+    return params;
+  });
 
   constructor() {
+    effect(() => {
+      const activeParking = this.parking();
+      const configuredRates = this.rates();
+
+      untracked(() => {
+        if (activeParking) {
+          this.gracePeriodMinutes.set(activeParking.gracePeriodMinutes ?? 15);
+          this.gracePeriodPrice.set(activeParking.gracePeriodPrice ?? 0);
+          this.ivaRate.set(activeParking.ivaRate ?? null);
+        }
+
+        if (configuredRates.length > 0) {
+          const currentVehicle = this.vehicleType();
+          const targetRate =
+            configuredRates.find((r) => r.vehicleType === currentVehicle) ??
+            configuredRates[0];
+          this.vehicleType.set(targetRate.vehicleType);
+          this.applyConfiguredRate(targetRate);
+        } else if (activeParking) {
+          this.clearConfiguredRate();
+        }
+      });
+    });
+
     toObservable(this.simulationParams)
       .pipe(
         tap(() => {
@@ -186,9 +318,25 @@ export class RateCalculatorComponent {
     const matched = VEHICLE_TYPE_OPTIONS.find(
       (opt) => opt.value === value && VALID_VEHICLE_TYPES.has(opt.value)
     );
-    if (matched) {
-      /* SAFETY: Select options are restricted to valid VehicleType values */
-      this.vehicleType.set(matched.value as VehicleType);
+    if (!matched) {
+      return;
+    }
+
+    /* SAFETY: Select options are restricted to valid VehicleType values */
+    const nextVehicleType = matched.value as VehicleType;
+    this.vehicleType.set(nextVehicleType);
+
+    const configuredRates = this.rates();
+    if (this.parking() !== null || configuredRates.length > 0) {
+      const rateForVehicle = configuredRates.find(
+        (r) => r.vehicleType === nextVehicleType
+      );
+      if (rateForVehicle) {
+        this.applyConfiguredRate(rateForVehicle);
+      } else {
+        this.clearConfiguredRate();
+        this.pricePerUnit.set(undefined);
+      }
     }
   }
 
@@ -215,7 +363,9 @@ export class RateCalculatorComponent {
   onMinutesStayedInput(event: Event): void {
     const parsed = Number(readInputValue(event));
     this.minutesStayed.set(
-      Number.isFinite(parsed) && parsed >= 0 ? Math.trunc(parsed) : 0
+      Number.isFinite(parsed) && parsed >= 0
+        ? Math.min(MAX_SIMULATION_MINUTES, Math.trunc(parsed))
+        : 0
     );
   }
 
@@ -224,5 +374,19 @@ export class RateCalculatorComponent {
     this.gracePeriodMinutes.set(
       Number.isFinite(parsed) && parsed >= 0 ? Math.trunc(parsed) : 0
     );
+  }
+
+  private applyConfiguredRate(rate: RateModel): void {
+    this.timeUnit.set(rate.timeUnit);
+    this.pricePerUnit.set(rate.pricePerUnit);
+    this.minChargeTimeMinutes.set(rate.minChargeTimeMinutes);
+    this.specialPolicy.set(rate.specialPolicy ?? null);
+    this.rateName.set(rate.name);
+  }
+
+  private clearConfiguredRate(): void {
+    this.minChargeTimeMinutes.set(null);
+    this.specialPolicy.set(null);
+    this.rateName.set(null);
   }
 }
