@@ -107,10 +107,25 @@ test.describe("CUJ 04: Multi-Tenant Data Isolation & IDOR Protection", () => {
 
   test("Tenant B session only lists Tenant B's resources and never leaks Tenant A data", async ({
     dashboardPage,
+    loginPage,
     page,
+    parkingLotsPage,
     tenantB,
   }) => {
     await setupMockTenantApi(page, tenantB);
+
+    let loggedIn = false;
+    await page.route(/\/api(?:\/v1)?\/auth\/refresh/u, async (route) => {
+      if (!loggedIn) {
+        await route.fulfill({
+          contentType: "application/json",
+          json: { message: "Unauthorized", status: 401 },
+          status: 401,
+        });
+        return;
+      }
+      await route.fallback();
+    });
 
     await page.route(
       /\/api(?:\/v1)?\/parking-lots(?:\/list)?(?:\?.*)?$/u,
@@ -126,7 +141,33 @@ test.describe("CUJ 04: Multi-Tenant Data Isolation & IDOR Protection", () => {
       }
     );
 
-    await page.goto("/app/parking-lots");
+    await page.route(
+      /\/api(?:\/v1)?\/parking-lots\/[^/]+\/telemetry(?:\?.*)?$/u,
+      async (route) => {
+        await route.fulfill({
+          contentType: "application/json",
+          json: {
+            data: {
+              activeTickets: 0,
+              availableSlots: 20,
+              occupiedSlots: 80,
+              revenueToday: 0,
+            },
+            status: 200,
+          },
+          status: 200,
+        });
+      }
+    );
+
+    await loginPage.goto();
+    await loginPage.expectLoaded();
+    loggedIn = true;
+    await loginPage.login(tenantB.email, tenantB.password);
+    await page.waitForURL(/\/app/u);
+
+    await parkingLotsPage.goto();
+    await dashboardPage.expectLoaded();
     await dashboardPage.expectUserEmail(tenantB.email);
 
     await expect(page.getByText("Tenant B Poblado").first()).toBeVisible();
