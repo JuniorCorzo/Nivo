@@ -41,16 +41,19 @@ test.describe("CUJ 02: Parking Lots Management", () => {
     tenantA,
   }) => {
     await setupMockTenantApi(page, tenantA);
-    await page.route("**/api/v1/parking-lots", async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        json: {
-          data: [],
+    await page.route(
+      /\/api(?:\/v1)?\/parking-lots(?:\/list)?(?:\?.*)?$/u,
+      async (route) => {
+        await route.fulfill({
+          contentType: "application/json",
+          json: {
+            data: [],
+            status: 200,
+          },
           status: 200,
-        },
-        status: 200,
-      });
-    });
+        });
+      }
+    );
 
     await parkingLotsPage.goto();
     await parkingLotsPage.expectEmptyState();
@@ -69,8 +72,16 @@ test.describe("CUJ 02: Parking Lots Management", () => {
     await setupMockTenantApi(page, tenantA);
 
     let createdLot = false;
-    await page.route("**/api/v1/parking-lots", async (route) => {
-      if (route.request().method() === "POST") {
+    let createPayload:
+      | { address?: { city?: string; state?: string }; name?: string }
+      | undefined;
+    await page.route(
+      /\/api(?:\/v1)?\/parking-lots\/create$/u,
+      async (route) => {
+        createPayload = route.request().postDataJSON() as {
+          address?: { city?: string; state?: string };
+          name?: string;
+        };
         createdLot = true;
         await route.fulfill({
           contentType: "application/json",
@@ -80,24 +91,39 @@ test.describe("CUJ 02: Parking Lots Management", () => {
           },
           status: 201,
         });
-        return;
       }
+    );
 
-      await route.fulfill({
-        contentType: "application/json",
-        json: {
-          data: createdLot ? [mockParkingLot] : [],
+    await page.route(
+      /\/api(?:\/v1)?\/parking-lots(?:\/list)?(?:\?.*)?$/u,
+      async (route) => {
+        await route.fulfill({
+          contentType: "application/json",
+          json: {
+            data: createdLot ? [mockParkingLot] : [],
+            status: 200,
+          },
           status: 200,
-        },
-        status: 200,
-      });
-    });
+        });
+      }
+    );
+
+    await page.route(
+      /\/api(?:\/v1)?\/parking-lots\/[^/]+\/telemetry(?:\?.*)?$/u,
+      async (route) => {
+        await route.fulfill({
+          contentType: "application/json",
+          json: { data: null, status: 200 },
+          status: 200,
+        });
+      }
+    );
 
     await parkingLotsPage.goto();
     await parkingLotsPage.clickCreateLot();
 
     await parkingLotsPage.fillForm({
-      city: "Bogotá",
+      city: "Soacha",
       closeTime: "22:00",
       name: "Parqueadero Norte Central",
       openTime: "06:00",
@@ -108,49 +134,43 @@ test.describe("CUJ 02: Parking Lots Management", () => {
 
     await parkingLotsPage.submitForm();
     await parkingLotsPage.expectLoaded();
-    await expect(page).toHaveURL(/\/app\/parking-lots/u);
+    expect(createPayload).toMatchObject({
+      address: {
+        city: "Soacha",
+        state: "Cundinamarca",
+      },
+      name: "Parqueadero Norte Central",
+    });
+    await parkingLotsPage.expectActiveLotName(mockParkingLot.name);
   });
 
-  test("should render active parking lot details and allow deletion", async ({
+  test("should render active parking lot details, switch tabs and navigate to edit", async ({
     page,
     parkingLotsPage,
     tenantA,
   }) => {
     await setupMockTenantApi(page, tenantA);
 
-    let deleted = false;
-    await page.route("**/api/v1/parking-lots", async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        json: {
-          data: deleted ? [] : [mockParkingLot],
-          status: 200,
-        },
-        status: 200,
-      });
-    });
-
     await page.route(
-      `**/api/v1/parking-lots/${mockParkingLot.id}`,
+      /\/api(?:\/v1)?\/parking-lots(?:\/list)?(?:\?.*)?$/u,
       async (route) => {
-        if (route.request().method() === "DELETE") {
-          deleted = true;
-          await route.fulfill({
-            contentType: "application/json",
-            json: {
-              status: 204,
-            },
-            status: 204,
-          });
-          return;
-        }
-
         await route.fulfill({
           contentType: "application/json",
           json: {
-            data: mockParkingLot,
+            data: [mockParkingLot],
             status: 200,
           },
+          status: 200,
+        });
+      }
+    );
+
+    await page.route(
+      /\/api(?:\/v1)?\/parking-lots\/[^/]+\/telemetry(?:\?.*)?$/u,
+      async (route) => {
+        await route.fulfill({
+          contentType: "application/json",
+          json: { data: null, status: 200 },
           status: 200,
         });
       }
@@ -159,7 +179,15 @@ test.describe("CUJ 02: Parking Lots Management", () => {
     await parkingLotsPage.goto();
     await parkingLotsPage.expectActiveLotName(mockParkingLot.name);
 
-    await parkingLotsPage.deleteActiveLot();
-    await expect(page.locator("app-parking-empty-state")).toBeVisible();
+    await page.getByRole("tab", { name: /Sede, Mapa & Políticas/iu }).click();
+    await expect(page.locator("app-parking-general-info")).toBeVisible();
+    await expect(
+      page.locator("app-parking-general-info").getByText("Carrera 7 # 123-45")
+    ).toBeVisible();
+
+    await parkingLotsPage.editButton.click();
+    await expect(page).toHaveURL(
+      new RegExp(`/app/parking-lots/${mockParkingLot.id}/edit`, "u")
+    );
   });
 });

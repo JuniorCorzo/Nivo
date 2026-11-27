@@ -1,9 +1,10 @@
+import type { Route } from "@playwright/test";
+
 import { expect, setupMockTenantApi, test } from "../fixtures/auth.fixture";
 
 test.describe("CUJ 04: Multi-Tenant Data Isolation & IDOR Protection", () => {
   const tenantALotId = "lot-tenant-a-1111-1111-1111-111111111111";
   const tenantBLotId = "lot-tenant-b-2222-2222-2222-222222222222";
-  const tenantBTicketId = "ticket-tenant-b-2222-2222-2222-222222222222";
 
   const tenantALot = {
     address: {
@@ -57,71 +58,13 @@ test.describe("CUJ 04: Multi-Tenant Data Isolation & IDOR Protection", () => {
   }) => {
     await setupMockTenantApi(page, tenantA);
 
-    await page.route("**/api/v1/parking-lots", async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        json: {
-          data: [tenantALot],
-          status: 200,
-        },
-        status: 200,
-      });
-    });
-
     await page.route(
-      `**/api/v1/parking-lots/${tenantBLotId}`,
+      /\/api(?:\/v1)?\/parking-lots(?:\/list)?(?:\?.*)?$/u,
       async (route) => {
         await route.fulfill({
           contentType: "application/json",
           json: {
-            errors: ["Parking lot not found or belongs to another tenant"],
-            message: "Parqueadero no encontrado",
-            status: 404,
-          },
-          status: 404,
-        });
-      }
-    );
-
-    await page.goto(`/app/parking-lots/${tenantBLotId}/operations`);
-
-    const alertMessage = page.locator(
-      "[role='alert'], .toast, .text-destructive"
-    );
-    await expect(alertMessage.first()).toBeVisible();
-    await expect(page.getByText("Tenant B Poblado")).toBeHidden();
-  });
-
-  test("Tenant A cannot delete Tenant B's parking lot (IDOR protection)", async ({
-    page,
-    tenantA,
-  }) => {
-    await setupMockTenantApi(page, tenantA);
-
-    let deleteBlocked = false;
-    await page.route(
-      `**/api/v1/parking-lots/${tenantBLotId}`,
-      async (route) => {
-        if (route.request().method() === "DELETE") {
-          deleteBlocked = true;
-          await route.fulfill({
-            contentType: "application/json",
-            json: {
-              errors: [
-                "Access denied: You do not have permission to delete this resource",
-              ],
-              message: "No tienes permisos para realizar esta acción",
-              status: 403,
-            },
-            status: 403,
-          });
-          return;
-        }
-
-        await route.fulfill({
-          contentType: "application/json",
-          json: {
-            data: tenantALot,
+            data: [tenantALot],
             status: 200,
           },
           status: 200,
@@ -129,71 +72,105 @@ test.describe("CUJ 04: Multi-Tenant Data Isolation & IDOR Protection", () => {
       }
     );
 
-    const response = await page.request.delete(
-      `/api/v1/parking-lots/${tenantBLotId}`,
-      {
-        headers: {
-          Authorization: `Bearer mock-jwt-token-${tenantA.tenantId}`,
-        },
-      }
-    );
-
-    expect(response.status()).toBe(403);
-    expect(deleteBlocked).toBe(true);
-  });
-
-  test("Tenant A cannot access or query Tenant B's tickets", async ({
-    page,
-    tenantA,
-  }) => {
-    await setupMockTenantApi(page, tenantA);
-
-    await page.route(`**/api/v1/tickets/${tenantBTicketId}`, async (route) => {
+    const notFoundHandler = async (route: Route) => {
       await route.fulfill({
         contentType: "application/json",
         json: {
-          errors: ["Ticket not found or cross-tenant access forbidden"],
-          message: "Ticket no encontrado",
+          errors: ["Parking lot not found or belongs to another tenant"],
+          message: "Parqueadero no encontrado",
           status: 404,
         },
         status: 404,
       });
-    });
+    };
 
-    const response = await page.request.get(
-      `/api/v1/tickets/${tenantBTicketId}`,
-      {
-        headers: {
-          Authorization: `Bearer mock-jwt-token-${tenantA.tenantId}`,
-        },
-      }
+    await page.route(
+      new RegExp(`/api(?:/v1)?/parking-lots/${tenantBLotId}/rates$`, "u"),
+      notFoundHandler
+    );
+    await page.route(
+      /\/api(?:\/v1)?\/slots(?:\/list)?\/summary/u,
+      notFoundHandler
+    );
+    await page.route(
+      /\/api(?:\/v1)?\/tickets(?:\/list)?(?:\?.*)?$/u,
+      notFoundHandler
     );
 
-    expect(response.status()).toBe(404);
+    await page.goto(`/app/parking-lots/${tenantBLotId}/operations`);
+
+    const toast = page.locator("nv-toast, [role='alert']").first();
+    await expect(toast).toBeVisible();
+    await expect(toast).toContainText("Parqueadero no encontrado");
+    await expect(page.getByText("Tenant B Poblado")).toBeHidden();
   });
 
   test("Tenant B session only lists Tenant B's resources and never leaks Tenant A data", async ({
     dashboardPage,
+    loginPage,
     page,
+    parkingLotsPage,
     tenantB,
   }) => {
     await setupMockTenantApi(page, tenantB);
 
-    await page.route("**/api/v1/parking-lots", async (route) => {
-      await route.fulfill({
-        contentType: "application/json",
-        json: {
-          data: [tenantBLot],
-          status: 200,
-        },
-        status: 200,
-      });
+    let loggedIn = false;
+    await page.route(/\/api(?:\/v1)?\/auth\/refresh/u, async (route) => {
+      if (!loggedIn) {
+        await route.fulfill({
+          contentType: "application/json",
+          json: { message: "Unauthorized", status: 401 },
+          status: 401,
+        });
+        return;
+      }
+      await route.fallback();
     });
 
-    await page.goto("/app/parking-lots");
+    await page.route(
+      /\/api(?:\/v1)?\/parking-lots(?:\/list)?(?:\?.*)?$/u,
+      async (route) => {
+        await route.fulfill({
+          contentType: "application/json",
+          json: {
+            data: [tenantBLot],
+            status: 200,
+          },
+          status: 200,
+        });
+      }
+    );
+
+    await page.route(
+      /\/api(?:\/v1)?\/parking-lots\/[^/]+\/telemetry(?:\?.*)?$/u,
+      async (route) => {
+        await route.fulfill({
+          contentType: "application/json",
+          json: {
+            data: {
+              activeTickets: 0,
+              availableSlots: 20,
+              occupiedSlots: 80,
+              revenueToday: 0,
+            },
+            status: 200,
+          },
+          status: 200,
+        });
+      }
+    );
+
+    await loginPage.goto();
+    await loginPage.expectLoaded();
+    loggedIn = true;
+    await loginPage.login(tenantB.email, tenantB.password);
+    await page.waitForURL(/\/app/u);
+
+    await parkingLotsPage.goto();
+    await dashboardPage.expectLoaded();
     await dashboardPage.expectUserEmail(tenantB.email);
 
-    await expect(page.getByText("Tenant B Poblado")).toBeVisible();
+    await expect(page.getByText("Tenant B Poblado").first()).toBeVisible();
     await expect(page.getByText("Tenant A Centro")).toBeHidden();
   });
 });

@@ -114,9 +114,122 @@ jobs:
       - name: Run Design System Tests
         run: pnpm --filter @nivo-sass/design-system test
 
+  test-e2e:
+    name: Frontend E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: nivo_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nivo_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Java 25
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
+        with:
+          distribution: "temurin"
+          java-version: "25"
+          cache: "gradle"
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@7088e561eb65bb68695d245aa206f005ef30921d # v4.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter web exec playwright install --with-deps chromium
+
+      - name: Initialize PostgreSQL Schema & PostGIS
+        run: |
+          PGPASSWORD=postgres psql -h 127.0.0.1 -U postgres -d nivo_db -v ON_ERROR_STOP=1 -c "
+            CREATE SCHEMA IF NOT EXISTS nivo;
+            CREATE EXTENSION IF NOT EXISTS postgis;
+            ALTER DATABASE nivo_db SET search_path TO nivo, public;
+          "
+
+      - name: Build and Start Backend API
+        run: |
+          chmod +x apps/api/gradlew
+          ./apps/api/gradlew -p apps/api bootJar --no-daemon
+          API_JAR=$(find apps/api/build/libs -maxdepth 1 -name '*.jar' ! -name '*-plain.jar' | head -n 1)
+          export AES_SECRET_KEY=$(openssl rand -base64 24)
+          java -jar "$API_JAR" --spring.profiles.active=dev > /tmp/nivo-api.log 2>&1 &
+          echo $! > /tmp/nivo-api.pid
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:8080/api/actuator/health > /dev/null; then
+              echo "Backend API is healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/nivo-api.log
+          exit 1
+        env:
+          SPRING_PROFILES_ACTIVE: dev
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_NAME: nivo_db
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          DB_SSL_MODE: disable
+          DB_CHANNEL_BINDING: disable
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+          CORS_ALLOWED_ORIGINS: "http://127.0.0.1:4200,http://localhost:4200"
+
+      - name: Run Playwright E2E Tests
+        run: pnpm --filter web test:e2e:chromium
+        env:
+          E2E_BASE_URL: "http://127.0.0.1:4200"
+
+      - name: Upload Backend Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: e2e-backend-logs
+          path: /tmp/nivo-api.log
+          retention-days: 7
+
+      - name: Upload Playwright Artifacts on Failure
+        if: failure()
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: playwright-artifacts
+          path: |
+            apps/web/test-results/
+            apps/web/playwright-report/
+          retention-days: 7
+
   sonarcloud:
     name: SonarCloud Analysis
-    needs: [test-backend, test-frontend, test-design-system]
+    needs: [test-backend, test-frontend, test-design-system, test-e2e]
     runs-on: ubuntu-latest
     if: success()
     steps:

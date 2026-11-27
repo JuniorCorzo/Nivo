@@ -6,22 +6,17 @@ export interface CheckInFormData {
   plate: string;
   rateId?: string;
   slotId?: string;
-  vehicleType?: "CAR" | "MOTORCYCLE";
 }
 
 export class CheckInPage {
   readonly cancelCheckInButton: Locator;
   readonly cancelCheckOutButton: Locator;
-  readonly carVehicleButton: Locator;
   readonly checkInModal: Locator;
   readonly checkOutModal: Locator;
   readonly checkoutSubmitButton: Locator;
   readonly closeReceiptButton: Locator;
   readonly emailInput: Locator;
   readonly headerTitle: Locator;
-  readonly motorcycleVehicleButton: Locator;
-  readonly openCheckInButton: Locator;
-  readonly openCheckOutButton: Locator;
   readonly page: Page;
   readonly plateInput: Locator;
   readonly rateSelect: Locator;
@@ -36,40 +31,36 @@ export class CheckInPage {
     this.cancelCheckOutButton = page
       .locator("app-check-out-modal")
       .getByRole("button", { name: /Cancelar|Cerrar/iu });
-    this.carVehicleButton = page
-      .locator("app-check-in-modal button")
-      .filter({ hasText: "Automóvil" });
-    this.checkInModal = page.locator("app-check-in-modal");
+    this.checkInModal = page.locator(
+      "app-check-in-modal .animate-modal-backdrop"
+    );
     this.checkOutModal = page.locator("app-check-out-modal");
     this.checkoutSubmitButton = page
-      .locator("app-check-out-modal")
+      .locator("app-check-out-modal app-payment-step")
       .getByRole("button", {
         name: /Cobrar y Registrar Salida|Autorizar Salida Gratuita/iu,
       });
     this.closeReceiptButton = page
-      .locator("app-ticket-receipt")
-      .getByRole("button", { name: /Cerrar/iu });
-    this.emailInput = page.locator("input#email-input");
-    this.headerTitle = page.getByRole("heading", {
-      name: "Operaciones de Parqueo",
-    });
-    this.motorcycleVehicleButton = page
-      .locator("app-check-in-modal button")
-      .filter({ hasText: "Motocicleta" });
-    this.openCheckInButton = page.getByRole("button", {
-      name: "Registrar Ingreso",
-    });
-    this.openCheckOutButton = page.getByRole("button", {
-      name: "Procesar Salida",
-    });
+      .locator("app-ticket-receipt .animate-modal-backdrop")
+      .getByRole("button", { name: /Cerrar/iu })
+      .first();
+    this.emailInput = page.locator(
+      "input#delivery-email-input, input#email-input"
+    );
+    this.headerTitle = page
+      .locator("app-page-header")
+      .getByText("Operaciones de Parqueo")
+      .first();
     this.page = page;
     this.plateInput = page.locator("input#plate-input");
     this.rateSelect = page.locator("select#rate-select");
-    this.receiptModal = page.locator("app-ticket-receipt");
+    this.receiptModal = page.locator(
+      "app-ticket-receipt .animate-modal-backdrop"
+    );
     this.slotSelect = page.locator("select#slot-select");
     this.submitCheckInButton = page
       .locator("app-check-in-modal")
-      .getByRole("button", { name: "Emitir Ticket" });
+      .getByRole("button", { name: /Emitir Ticket|Confirmar Ingreso/iu });
   }
 
   async closeReceipt(): Promise<void> {
@@ -80,17 +71,19 @@ export class CheckInPage {
   }
 
   async confirmCheckOut(): Promise<void> {
+    const continueButton = this.checkOutModal
+      .locator("app-settlement-step")
+      .getByRole("button", {
+        name: /Continuar al Pago|Autorizar Salida Gratuita/iu,
+      });
+    await expect(continueButton).toBeVisible();
+    await continueButton.click();
+
     await expect(this.checkoutSubmitButton).toBeVisible();
     await this.checkoutSubmitButton.click();
   }
 
   async fillCheckIn(data: CheckInFormData): Promise<void> {
-    if (data.vehicleType === "MOTORCYCLE") {
-      await this.motorcycleVehicleButton.click();
-    } else if (data.vehicleType === "CAR") {
-      await this.carVehicleButton.click();
-    }
-
     await this.plateInput.fill(data.plate);
 
     if (data.slotId) {
@@ -111,13 +104,17 @@ export class CheckInPage {
   }
 
   async openCheckInModal(): Promise<void> {
-    await this.openCheckInButton.click();
+    await expect(this.page.locator("app-operations-omnibar")).toBeVisible();
+    await this.page.keyboard.press("i");
     await expect(this.checkInModal).toBeVisible();
   }
 
   async openCheckOutModal(): Promise<void> {
-    await this.openCheckOutButton.click();
-    await expect(this.checkOutModal).toBeVisible();
+    await expect(this.page.locator("app-operations-omnibar")).toBeVisible();
+    await this.page.keyboard.press("o");
+    await expect(
+      this.checkOutModal.getByRole("heading", { name: /Procesar Salida/iu })
+    ).toBeVisible();
   }
 
   async selectSlotForCheckout(slotPrefixOrNumber?: string): Promise<void> {
