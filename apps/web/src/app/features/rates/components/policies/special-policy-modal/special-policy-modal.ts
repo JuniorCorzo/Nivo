@@ -128,17 +128,38 @@ export class SpecialPolicyModalComponent {
     { label: "Tarifa plana / Precio fijado", value: "PRICE" },
   ];
 
-  readonly operationOptions: OperationOption[] = [
+  private readonly allOperationOptions: OperationOption[] = [
     { label: "Monto fijo en dinero ($)", value: "SET" },
     { label: "Porcentaje de cálculo (%)", value: "PERCENTAGE" },
     { label: "Deducción directa en valor (-$)", value: "SUBTRACT" },
   ];
+
+  private readonly allowedOperationsByTarget = {
+    DISCOUNT: ["SUBTRACT", "PERCENTAGE"],
+    PRICE: ["SET"],
+    SURCHARGE: ["SET", "PERCENTAGE"],
+  } satisfies Record<"SURCHARGE" | "DISCOUNT" | "PRICE", RatePolicyOperation[]>;
 
   readonly displayModifies = displayModifiesOption;
   readonly modifiesValue = modifiesOptionValue;
 
   readonly displayOperation = displayOperationOption;
   readonly operationValue = operationOptionValue;
+
+  private readonly formValues = toSignal(this.form.valueChanges, {
+    initialValue: this.form.getRawValue(),
+  });
+
+  readonly operationOptions = computed<OperationOption[]>(() => {
+    const mod = this.formValues().modifies;
+    const allowed: readonly RatePolicyOperation[] =
+      mod === "SURCHARGE" || mod === "DISCOUNT" || mod === "PRICE"
+        ? this.allowedOperationsByTarget[mod]
+        : ["SET"];
+    return this.allOperationOptions.filter((option) =>
+      allowed.includes(option.value)
+    );
+  });
 
   readonly valueLabel = computed(() =>
     this.formValues().operation === "PERCENTAGE"
@@ -156,10 +177,6 @@ export class SpecialPolicyModalComponent {
       : "lucideReceipt"
   );
 
-  private readonly formValues = toSignal(this.form.valueChanges, {
-    initialValue: this.form.getRawValue(),
-  });
-
   readonly previewText = computed(() => {
     const values = this.formValues();
     const rawVal = values.valueToModify;
@@ -168,14 +185,17 @@ export class SpecialPolicyModalComponent {
 
     const val = Number(rawVal) || 0;
     if (op === "PERCENTAGE") {
-      return mod === "DISCOUNT" ? `-${val}% Descuento` : `+${val}% Recargo`;
+      return mod === "SURCHARGE" ? `+${val}% Recargo` : `-${val}% Descuento`;
     }
     if (op === "SUBTRACT") {
-      return `-$${val.toLocaleString("es-CO")} COP`;
+      return mod === "SURCHARGE"
+        ? `+$${val.toLocaleString("es-CO")} COP`
+        : `-$${val.toLocaleString("es-CO")} COP`;
     }
-    return mod === "DISCOUNT"
-      ? `-$${val.toLocaleString("es-CO")} COP`
-      : `+$${val.toLocaleString("es-CO")} COP`;
+    if (mod === "PRICE" || mod === "DISCOUNT") {
+      return `$${val.toLocaleString("es-CO")} COP`;
+    }
+    return `+$${val.toLocaleString("es-CO")} COP`;
   });
 
   readonly previewIsDiscount = computed(
@@ -185,12 +205,28 @@ export class SpecialPolicyModalComponent {
   onModifiesChange(newMod: unknown): void {
     if (newMod === "SURCHARGE" || newMod === "DISCOUNT" || newMod === "PRICE") {
       this.form.controls.modifies.setValue(newMod);
+      const allowed: readonly RatePolicyOperation[] =
+        this.allowedOperationsByTarget[newMod];
+      const currentOp = this.form.controls.operation.value;
+      if (!allowed.includes(currentOp)) {
+        const [nextOp] = allowed;
+        this.form.controls.operation.setValue(nextOp);
+        this.updateValueValidators(nextOp);
+      }
       this.onCustomPreset();
     }
   }
 
   onOperationChange(newOp: unknown): void {
     if (newOp === "SET" || newOp === "PERCENTAGE" || newOp === "SUBTRACT") {
+      const mod = this.form.controls.modifies.value;
+      if (mod === "SURCHARGE" || mod === "DISCOUNT" || mod === "PRICE") {
+        const allowed: readonly RatePolicyOperation[] =
+          this.allowedOperationsByTarget[mod];
+        if (!allowed.includes(newOp)) {
+          return;
+        }
+      }
       this.form.controls.operation.setValue(newOp);
       this.updateValueValidators(newOp);
       this.onCustomPreset();

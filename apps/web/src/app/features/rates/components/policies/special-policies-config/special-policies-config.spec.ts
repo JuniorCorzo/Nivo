@@ -103,30 +103,13 @@ describe("SpecialPoliciesConfigComponent", () => {
     expect(el.textContent).toContain("19%");
   });
 
-  it("should toggle overstay editing and update threshold and surcharge signals", () => {
-    expect(component.isEditingOverstay()).toBe(false);
-
-    component.toggleEditOverstay();
-    expect(component.isEditingOverstay()).toBe(true);
-
-    const select = document.createElement("select");
-    const option = document.createElement("option");
-    option.value = "600";
-    select.append(option);
-    select.value = "600";
-    const selectEvent = new Event("change");
-    Object.defineProperty(selectEvent, "target", { value: select });
-    component.onThresholdChange(selectEvent);
-    expect(component.overstayThresholdMinutes()).toBe(600);
-    expect(component.formattedOverstayThreshold()).toBe("10h 00m");
-
-    const input = document.createElement("input");
-    input.value = "8000";
-    const inputEvent = new Event("input");
-    Object.defineProperty(inputEvent, "target", { value: input });
-    component.onSurchargeChange(inputEvent);
-    expect(component.overstaySurcharge()).toBe(8000);
-    expect(component.formattedOverstaySurcharge()).toBe("$8.000 COP");
+  it("should render overstay parameters as read-only without unpersisted editable controls", () => {
+    /* SAFETY: fixture.nativeElement is guaranteed to be an HTMLElement in test environment */
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain("Solo lectura (valores por defecto)");
+    expect(el.querySelector("#overstayThresholdSelect")).toBeNull();
+    expect(el.querySelector("#overstaySurchargeInput")).toBeNull();
+    expect(el.textContent).not.toContain("Ajustar umbrales de sede");
   });
 
   it("should render special policies list with clear formatting", () => {

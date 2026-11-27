@@ -119,7 +119,7 @@
 
           <nv-select
             label="Tipo de cálculo"
-            [items]="operationOptions"
+            [items]="operationOptions()"
             [displayFn]="displayOperation"
             [valueFn]="operationValue"
             [value]="form.controls.operation.value"

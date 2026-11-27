@@ -126,6 +126,43 @@ describe("SpecialPolicyModalComponent", () => {
     expect(component.valueLabel()).toBe("Monto a Aplicar ($ COP)");
   });
 
+  it("should restrict operation options per target and auto-switch incompatible operation", () => {
+    // Default is SURCHARGE -> SET & PERCENTAGE only (no SUBTRACT)
+    expect(component.operationOptions().map((o) => o.value)).toEqual([
+      "SET",
+      "PERCENTAGE",
+    ]);
+
+    // Switching to DISCOUNT from SURCHARGE+SET auto-switches to SUBTRACT
+    component.onModifiesChange("DISCOUNT");
+    expect(component.operationOptions().map((o) => o.value)).toEqual([
+      "PERCENTAGE",
+      "SUBTRACT",
+    ]);
+    expect(component.form.controls.operation.value).toBe("SUBTRACT");
+
+    // Switching to PRICE from DISCOUNT+SUBTRACT auto-switches to SET
+    component.onModifiesChange("PRICE");
+    expect(component.operationOptions().map((o) => o.value)).toEqual(["SET"]);
+    expect(component.form.controls.operation.value).toBe("SET");
+  });
+
+  it("should match backend billing semantics in previewText for flat PRICE, DISCOUNT, and SURCHARGE", () => {
+    component.onModifiesChange("PRICE");
+    component.form.controls.valueToModify.setValue(15_000);
+    expect(component.previewText()).toBe("$15.000 COP");
+
+    component.onModifiesChange("DISCOUNT");
+    component.onOperationChange("SUBTRACT");
+    component.form.controls.valueToModify.setValue(2000);
+    expect(component.previewText()).toBe("-$2.000 COP");
+
+    component.onModifiesChange("SURCHARGE");
+    component.onOperationChange("PERCENTAGE");
+    component.form.controls.valueToModify.setValue(15);
+    expect(component.previewText()).toBe("+15% Recargo");
+  });
+
   it("should show error toast on creation failure", () => {
     mockRateService.createSpecialPolicy.mockReturnValue(
       throwError(() => new Error("Network error"))

@@ -1,5 +1,5 @@
 import { HttpContext } from "@angular/common/http";
-import { inject, Injectable, signal } from "@angular/core";
+import { effect, inject, Injectable, signal } from "@angular/core";
 import type {
   CreateSpecialPolicies,
   RatesDto,
@@ -24,6 +24,8 @@ import type {
   SpecialPolicyModel,
   UpdateRateModel,
 } from "@core/models/rate.model";
+import { AuthService } from "@core/services/auth-service";
+import { UserService } from "@core/services/user/user-service";
 import type { Observable } from "rxjs";
 import { of } from "rxjs";
 import { map, tap } from "rxjs/operators";
@@ -35,12 +37,46 @@ export class RateService {
   private parkingLotsService = inject(ParkingLotsService);
   private ratesService = inject(RatesService);
   private tenantsService = inject(TenantsService);
+  private authService = inject(AuthService);
+  private userService = inject(UserService);
+
+  private activeScopeKey: string | null = null;
 
   private readonly ratesState = signal<Record<string, RateModel[]>>({});
   readonly ratesByParking = this.ratesState.asReadonly();
 
   private readonly specialPoliciesState = signal<SpecialPolicyModel[]>([]);
   readonly specialPolicies = this.specialPoliciesState.asReadonly();
+
+  constructor() {
+    effect(() => {
+      this.syncScope(this.resolveScopeKey());
+    });
+  }
+
+  private resolveScopeKey(): string | null {
+    const token = this.authService.accessTokenSignal();
+    if (!token) {
+      return null;
+    }
+    const tenantId = this.userService.currentUser()?.tenant?.id;
+    return tenantId ? `tenant:${tenantId}` : `session:${token}`;
+  }
+
+  private syncScope(scopeKey: string | null): void {
+    if (
+      scopeKey === null ||
+      (this.activeScopeKey !== null && this.activeScopeKey !== scopeKey)
+    ) {
+      this.clearCache();
+    }
+    this.activeScopeKey = scopeKey;
+  }
+
+  clearCache(): void {
+    this.ratesState.set({});
+    this.specialPoliciesState.set([]);
+  }
 
   private static httpContext() {
     const context = new HttpContext();
@@ -52,6 +88,7 @@ export class RateService {
     parkingId: string,
     force = false
   ): Observable<RateModel[]> {
+    this.syncScope(this.resolveScopeKey());
     const existing = this.ratesState()[parkingId];
     if (!force && existing !== undefined) {
       return of(existing);
@@ -139,6 +176,7 @@ export class RateService {
   }
 
   loadSpecialPolicies(force = false): Observable<SpecialPolicyModel[]> {
+    this.syncScope(this.resolveScopeKey());
     const existing = this.specialPoliciesState();
     if (!force && existing.length > 0) {
       return of(existing);

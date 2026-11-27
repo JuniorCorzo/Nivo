@@ -24,78 +24,14 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <nv-button
-          type="button"
-          variant="secondary"
-          size="sm"
-          (click)="toggleEditOverstay()"
-        >
-          <ng-icon name="lucideSliders" size="14" class="mr-1.5" />
-          <span
-            >{{ isEditingOverstay() ? 'Cerrar ajustes' : 'Ajustar umbrales de
-            sede' }}</span
-          >
-        </nv-button>
-      </div>
-    </div>
-
-    <!-- Quick Overstay / Mora Tuning Form (when expanded) -->
-    @if (isEditingOverstay()) {
-    <div
-      class="border-border bg-muted/20 flex flex-col gap-4 rounded-xl border p-4 sm:p-5"
-    >
-      <div class="flex items-center justify-between">
         <span
-          class="text-foreground text-xs font-bold tracking-wider uppercase"
+          class="border-border bg-muted/50 text-muted-foreground inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium"
         >
-          Configurar Umbrales de Sede
+          <ng-icon name="lucideShieldCheck" size="14" />
+          <span>Solo lectura (valores por defecto)</span>
         </span>
-        <span class="text-muted-foreground text-xs">
-          Impacta el contador de mora en taquilla y telemetría
-        </span>
-      </div>
-
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="flex flex-col gap-1.5">
-          <label
-            class="text-foreground text-xs font-semibold"
-            for="overstayThresholdSelect"
-          >
-            Umbral de Estancia Prolongada (Horas)
-          </label>
-          <select
-            id="overstayThresholdSelect"
-            class="border-input bg-card text-foreground focus:border-primary h-9 rounded-lg border px-3 text-xs outline-none"
-            [value]="overstayThresholdMinutes()"
-            (change)="onThresholdChange($event)"
-          >
-            <option [value]="360">6 horas (360 min)</option>
-            <option [value]="480">8 horas (480 min - Estándar)</option>
-            <option [value]="600">10 horas (600 min)</option>
-            <option [value]="720">12 horas (720 min)</option>
-            <option [value]="1440">24 horas (Día completo)</option>
-          </select>
-        </div>
-
-        <div class="flex flex-col gap-1.5">
-          <label
-            class="text-foreground text-xs font-semibold"
-            for="overstaySurchargeInput"
-          >
-            Recargo por Exceso de Mora ($ COP)
-          </label>
-          <input
-            id="overstaySurchargeInput"
-            type="number"
-            class="border-input bg-card text-foreground focus:border-primary h-9 rounded-lg border px-3 font-mono text-xs outline-none"
-            [value]="overstaySurcharge()"
-            (input)="onSurchargeChange($event)"
-            placeholder="5000"
-          />
-        </div>
       </div>
     </div>
-    }
 
     <!-- Sede Metrics Ribbon -->
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">

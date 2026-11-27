@@ -23,7 +23,6 @@ import {
   lucidePlus,
   lucideReceipt,
   lucideShieldCheck,
-  lucideSliders,
   lucideSparkles,
   lucideTimer,
 } from "@ng-icons/lucide";
@@ -58,7 +57,6 @@ import { SpecialPolicyModalComponent } from "../special-policy-modal/special-pol
       lucidePlus,
       lucideReceipt,
       lucideShieldCheck,
-      lucideSliders,
       lucideSparkles,
       lucideTimer,
     }),
@@ -75,10 +73,9 @@ export class SpecialPoliciesConfigComponent implements OnInit {
 
   readonly policies = this.rateService.specialPolicies;
   readonly isModalOpen = signal<boolean>(false);
-  readonly isEditingOverstay = signal<boolean>(false);
 
-  readonly overstayThresholdMinutes = signal<number>(480);
-  readonly overstaySurcharge = signal<number>(5000);
+  readonly overstayThresholdMinutes = 480;
+  readonly overstaySurcharge = 5000;
 
   readonly gracePeriodMinutes = computed(
     () => this.parking()?.gracePeriodMinutes ?? 15
@@ -91,7 +88,7 @@ export class SpecialPoliciesConfigComponent implements OnInit {
   readonly isGraceFree = computed(() => this.gracePeriodPrice() === 0);
 
   readonly formattedOverstayThreshold = computed(() => {
-    const mins = this.overstayThresholdMinutes();
+    const mins = this.overstayThresholdMinutes;
     const h = Math.floor(mins / 60);
     const m = mins % 60;
     const hStr = h < 10 ? `0${h}` : `${h}`;
@@ -100,11 +97,11 @@ export class SpecialPoliciesConfigComponent implements OnInit {
   });
 
   readonly overstayThresholdHours = computed(() =>
-    Math.floor(this.overstayThresholdMinutes() / 60).toString()
+    Math.floor(this.overstayThresholdMinutes / 60).toString()
   );
 
   readonly formattedOverstaySurcharge = computed(
-    () => `$${this.overstaySurcharge().toLocaleString("es-CO")} COP`
+    () => `$${this.overstaySurcharge.toLocaleString("es-CO")} COP`
   );
 
   readonly formattedGracePrice = computed(() =>
@@ -134,24 +131,6 @@ export class SpecialPoliciesConfigComponent implements OnInit {
     this.rateService.loadSpecialPolicies(true).subscribe();
   }
 
-  toggleEditOverstay(): void {
-    this.isEditingOverstay.update((v) => !v);
-  }
-
-  onThresholdChange(event: Event): void {
-    const { target } = event;
-    if (target instanceof HTMLSelectElement) {
-      this.overstayThresholdMinutes.set(Number(target.value));
-    }
-  }
-
-  onSurchargeChange(event: Event): void {
-    const { target } = event;
-    if (target instanceof HTMLInputElement) {
-      this.overstaySurcharge.set(Number(target.value) || 0);
-    }
-  }
-
   formatPolicyType(modifies: RatePolicyTarget): string {
     switch (modifies) {
       case "SURCHARGE": {
@@ -174,15 +153,18 @@ export class SpecialPoliciesConfigComponent implements OnInit {
 
   formatPolicyEffect(policy: SpecialPolicyModel): string {
     if (policy.operation === "PERCENTAGE") {
-      return policy.modifies === "DISCOUNT"
-        ? `-${policy.valueToModify}% Descuento`
-        : `+${policy.valueToModify}% Recargo`;
+      return policy.modifies === "SURCHARGE"
+        ? `+${policy.valueToModify}% Recargo`
+        : `-${policy.valueToModify}% Descuento`;
     }
     if (policy.operation === "SUBTRACT") {
-      return `-$${policy.valueToModify.toLocaleString("es-CO")} COP`;
+      return policy.modifies === "SURCHARGE"
+        ? `+$${policy.valueToModify.toLocaleString("es-CO")} COP`
+        : `-$${policy.valueToModify.toLocaleString("es-CO")} COP`;
     }
-    return policy.modifies === "DISCOUNT"
-      ? `-$${policy.valueToModify.toLocaleString("es-CO")} COP`
-      : `+$${policy.valueToModify.toLocaleString("es-CO")} COP`;
+    if (policy.modifies === "PRICE" || policy.modifies === "DISCOUNT") {
+      return `$${policy.valueToModify.toLocaleString("es-CO")} COP`;
+    }
+    return `+$${policy.valueToModify.toLocaleString("es-CO")} COP`;
   }
 }
