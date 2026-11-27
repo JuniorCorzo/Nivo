@@ -146,4 +146,71 @@ class PublicSimulatorControllerTest {
           .content(payload))
       .andExpect(status().isBadRequest());
   }
+
+  @Test
+  @DisplayName("POST /public/simulator/calculate should return 400 when minutesStayed exceeds maximum")
+  void shouldReturnBadRequestWhenMinutesStayedExceedsMaximum() throws Exception {
+    final String payload = """
+      {
+        "vehicleType": "CAR",
+        "minutesStayed": 525601
+      }
+      """;
+
+    this.mockMvc
+      .perform(
+        post("/public/simulator/calculate")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(payload))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("POST /public/simulator/calculate should forward configured rate, grace price, min charge, and special policy")
+  void shouldForwardConfiguredRateAndPolicyFields() throws Exception {
+    final PriceDetailed priceDetailed = PriceDetailed.of("Simulador Nivo");
+    priceDetailed.addLine(
+      PriceLine.of("Carro Estándar (1 Horas * 5000 COP/Horas)", new BigDecimal("5000.00")));
+    priceDetailed.setIvaRate(new BigDecimal("0.19"));
+
+    when(this.simulateRateUseCase.execute(any())).thenReturn(priceDetailed);
+
+    final String payload = """
+      {
+        "vehicleType": "CAR",
+        "minutesStayed": 30,
+        "pricePerUnit": 5000.00,
+        "timeUnit": "HOURS",
+        "gracePeriodMinutes": 10,
+        "gracePeriodPrice": 1500.00,
+        "minChargeTimeMinutes": 60,
+        "ivaRate": 0.19,
+        "rateName": "Carro Estándar",
+        "specialPolicy": {
+          "name": "Descuento 10%",
+          "modifies": "DISCOUNT",
+          "operation": "PERCENTAGE",
+          "valueToModify": 10.00,
+          "active": true
+        }
+      }
+      """;
+
+    this.mockMvc
+      .perform(
+        post("/public/simulator/calculate")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(payload))
+      .andExpect(status().isOk());
+
+    final ArgumentCaptor<SimulateRateCommand> captor = ArgumentCaptor.forClass(SimulateRateCommand.class);
+    verify(this.simulateRateUseCase).execute(captor.capture());
+
+    final SimulateRateCommand command = captor.getValue();
+    assertEquals(60, command.minChargeTimeMinutes());
+    assertEquals(new BigDecimal("1500.00"), command.gracePeriodPrice());
+    assertEquals("Carro Estándar", command.rateName());
+    assertNotNull(command.specialPolicy());
+    assertEquals("Descuento 10%", command.specialPolicy().name());
+  }
 }

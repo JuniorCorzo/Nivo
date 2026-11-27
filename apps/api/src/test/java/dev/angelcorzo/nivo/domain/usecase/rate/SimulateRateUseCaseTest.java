@@ -90,4 +90,35 @@ class SimulateRateUseCaseTest {
     assertThat(result.getIvaAmount()).isEqualByComparingTo(new BigDecimal("760.00"));
     assertThat(result.getTotal()).isEqualByComparingTo(new BigDecimal("4760.00"));
   }
+
+  @Test
+  @DisplayName("Should apply gracePeriodPrice when stay is within grace period")
+  void shouldApplyGracePeriodPriceWhenWithinGracePeriod() {
+    final SimulateRateCommand command = SimulateRateCommand.builder()
+      .vehicleType(VehicleType.CAR)
+      .minutesStayed(10L)
+      .pricePerUnit(new BigDecimal("5000.00"))
+      .timeUnit(TimeUnitsRate.HOURS)
+      .gracePeriodMinutes(15)
+      .gracePeriodPrice(new BigDecimal("1500.00"))
+      .ivaRate(new BigDecimal("0.19"))
+      .build();
+
+    final PriceDetailed result = this.useCase.execute(command);
+
+    assertThat(result.getSubtotal()).isEqualByComparingTo(new BigDecimal("1500.00"));
+    assertThat(result.getIvaAmount()).isEqualByComparingTo(new BigDecimal("285.00"));
+    assertThat(result.getTotal()).isEqualByComparingTo(new BigDecimal("1785.00"));
+  }
+
+  @Test
+  @DisplayName("Should clamp minutesStayed to MAX_MINUTES_STAYED in domain command")
+  void shouldClampMinutesStayedToMaximum() {
+    final SimulateRateCommand command = SimulateRateCommand.builder()
+      .vehicleType(VehicleType.CAR)
+      .minutesStayed(1_000_000L)
+      .build();
+
+    assertThat(command.minutesStayed()).isEqualTo(SimulateRateCommand.MAX_MINUTES_STAYED);
+  }
 }
