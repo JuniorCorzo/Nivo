@@ -194,5 +194,69 @@ describe("SpecialPoliciesConfigComponent", () => {
         valueToModify: 10,
       })
     ).toBe("+10% Recargo");
+
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "5",
+        modifies: "TIME",
+        name: "Time Set",
+        operation: "SET",
+        valueToModify: 30,
+      })
+    ).toBe("30 min");
+
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "6",
+        modifies: "TIME",
+        name: "Time Subtract",
+        operation: "SUBTRACT",
+        valueToModify: 15,
+      })
+    ).toBe("-15 min");
+
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "7",
+        modifies: "TIME",
+        name: "Time Percent",
+        operation: "PERCENTAGE",
+        valueToModify: 50,
+      })
+    ).toBe("-50% tiempo");
+
+    expect(
+      component.isDiscountEffect({
+        active: true,
+        id: "2",
+        modifies: "PRICE",
+        name: "Price Subtract",
+        operation: "SUBTRACT",
+        valueToModify: 3000,
+      })
+    ).toBe(true);
+    expect(
+      component.isDiscountEffect({
+        active: true,
+        id: "6",
+        modifies: "TIME",
+        name: "Time Subtract",
+        operation: "SUBTRACT",
+        valueToModify: 15,
+      })
+    ).toBe(true);
+    expect(
+      component.isDiscountEffect({
+        active: true,
+        id: "1",
+        modifies: "PRICE",
+        name: "Flat",
+        operation: "SET",
+        valueToModify: 15_000,
+      })
+    ).toBe(false);
   });
 });

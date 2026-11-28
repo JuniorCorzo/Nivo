@@ -2,7 +2,7 @@ import type { ComponentFixture } from "@angular/core/testing";
 import { TestBed } from "@angular/core/testing";
 import { RateService } from "@core/services/rate-service";
 import { ToastService } from "@nivo-sass/design-system";
-import { of, throwError } from "rxjs";
+import { EMPTY, of, throwError } from "rxjs";
 
 import { SpecialPolicyModalComponent } from "./special-policy-modal";
 
@@ -202,6 +202,27 @@ describe("SpecialPolicyModalComponent", () => {
         operation: "PERCENTAGE" as const,
         value: 25,
       },
+      {
+        expectedDiscount: false,
+        expectedPreview: "30 min",
+        modifies: "TIME" as const,
+        operation: "SET" as const,
+        value: 30,
+      },
+      {
+        expectedDiscount: true,
+        expectedPreview: "-15 min",
+        modifies: "TIME" as const,
+        operation: "SUBTRACT" as const,
+        value: 15,
+      },
+      {
+        expectedDiscount: true,
+        expectedPreview: "-50% tiempo",
+        modifies: "TIME" as const,
+        operation: "PERCENTAGE" as const,
+        value: 50,
+      },
     ];
 
     for (const testCase of cases) {
@@ -235,6 +256,29 @@ describe("SpecialPolicyModalComponent", () => {
         valueToModify: testCase.value,
       });
     }
+  });
+
+  it("should reject whitespace-only name and prevent submission", () => {
+    component.form.controls.name.setValue("   ");
+    expect(component.form.controls.name.invalid).toBe(true);
+    expect(component.form.invalid).toBe(true);
+
+    component.onSubmit();
+    expect(mockRateService.createSpecialPolicy).not.toHaveBeenCalled();
+  });
+
+  it("should reset form and selectedPresetId on cancel and reset isSubmitting if observable completes without emitting", () => {
+    component.onModifiesChange("TIME");
+    expect(component.selectedPresetId()).toBe("custom");
+    expect(component.valueLabel()).toBe("Minutos a Aplicar (min)");
+
+    component.onCancel();
+    expect(component.selectedPresetId()).toBe("lavado-service");
+    expect(component.form.controls.modifies.value).toBe("SURCHARGE");
+
+    mockRateService.createSpecialPolicy.mockReturnValueOnce(EMPTY);
+    component.onSubmit();
+    expect(component.isSubmitting()).toBe(false);
   });
 
   it("should match backend billing semantics in previewText for flat PRICE, DISCOUNT, and SURCHARGE", () => {

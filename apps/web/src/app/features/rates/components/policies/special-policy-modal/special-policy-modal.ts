@@ -8,6 +8,11 @@ import {
   signal,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import type {
+  AbstractControl,
+  ValidationErrors,
+  ValidatorFn,
+} from "@angular/forms";
 import {
   FormControl,
   FormGroup,
@@ -27,6 +32,7 @@ import { RateService } from "@core/services/rate-service";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
   lucideCheck,
+  lucideClock,
   lucideHandshake,
   lucidePercent,
   lucidePlus,
@@ -45,6 +51,21 @@ import {
   ToastService,
   TypographyH3,
 } from "@nivo-sass/design-system";
+import { finalize } from "rxjs";
+
+const trimmedMinLengthValidator =
+  (minLength: number): ValidatorFn =>
+  (control: AbstractControl): ValidationErrors | null => {
+    const value = String(control.value ?? "").trim();
+    return value.length >= minLength
+      ? null
+      : {
+          minlength: {
+            actualLength: value.length,
+            requiredLength: minLength,
+          },
+        };
+  };
 
 export interface ModifiesOption {
   label: string;
@@ -76,6 +97,7 @@ const operationOptionValue = (item: OperationOption): string => item.value;
   providers: [
     provideIcons({
       lucideCheck,
+      lucideClock,
       lucideHandshake,
       lucidePercent,
       lucidePlus,
@@ -110,7 +132,7 @@ export class SpecialPolicyModalComponent {
     }),
     name: new FormControl<string>("Tarifa de Lavado Ecológico", {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(3)],
+      validators: [Validators.required, trimmedMinLengthValidator(3)],
     }),
     operation: new FormControl<RatePolicyOperation>("SET", {
       nonNullable: true,
@@ -126,6 +148,7 @@ export class SpecialPolicyModalComponent {
     { label: "Recargo adicional a la tarifa", value: "SURCHARGE" },
     { label: "Descuento sobre la liquidación", value: "DISCOUNT" },
     { label: "Tarifa plana / Precio fijado", value: "PRICE" },
+    { label: "Ajuste de tiempo de estadía", value: "TIME" },
   ];
 
   private readonly allOperationOptions: OperationOption[] = [
@@ -138,7 +161,8 @@ export class SpecialPolicyModalComponent {
     DISCOUNT: ["SUBTRACT", "PERCENTAGE"],
     PRICE: ["SET", "SUBTRACT", "PERCENTAGE"],
     SURCHARGE: ["SET", "PERCENTAGE"],
-  } satisfies Record<"SURCHARGE" | "DISCOUNT" | "PRICE", RatePolicyOperation[]>;
+    TIME: ["SET", "SUBTRACT", "PERCENTAGE"],
+  } satisfies Record<RatePolicyTarget, RatePolicyOperation[]>;
 
   readonly displayModifies = displayModifiesOption;
   readonly modifiesValue = modifiesOptionValue;
@@ -153,7 +177,7 @@ export class SpecialPolicyModalComponent {
   readonly operationOptions = computed<OperationOption[]>(() => {
     const mod = this.formValues().modifies;
     const allowed: readonly RatePolicyOperation[] =
-      mod === "SURCHARGE" || mod === "DISCOUNT" || mod === "PRICE"
+      mod && mod in this.allowedOperationsByTarget
         ? this.allowedOperationsByTarget[mod]
         : ["SET"];
     return this.allOperationOptions.filter((option) =>
@@ -161,21 +185,38 @@ export class SpecialPolicyModalComponent {
     );
   });
 
-  readonly valueLabel = computed(() =>
-    this.formValues().operation === "PERCENTAGE"
-      ? "Porcentaje a Aplicar (%)"
-      : "Monto a Aplicar ($ COP)"
-  );
+  readonly valueLabel = computed(() => {
+    const { modifies, operation } = this.formValues();
+    if (operation === "PERCENTAGE") {
+      return "Porcentaje a Aplicar (%)";
+    }
+    if (modifies === "TIME") {
+      return "Minutos a Aplicar (min)";
+    }
+    return "Monto a Aplicar ($ COP)";
+  });
 
-  readonly valuePlaceholder = computed(() =>
-    this.formValues().operation === "PERCENTAGE" ? "Ej. 15" : "Ej. 18000"
-  );
+  readonly valuePlaceholder = computed(() => {
+    const { modifies, operation } = this.formValues();
+    if (operation === "PERCENTAGE") {
+      return "Ej. 15";
+    }
+    if (modifies === "TIME") {
+      return "Ej. 30";
+    }
+    return "Ej. 18000";
+  });
 
-  readonly valueStartIcon = computed(() =>
-    this.formValues().operation === "PERCENTAGE"
-      ? "lucidePercent"
-      : "lucideReceipt"
-  );
+  readonly valueStartIcon = computed(() => {
+    const { modifies, operation } = this.formValues();
+    if (operation === "PERCENTAGE") {
+      return "lucidePercent";
+    }
+    if (modifies === "TIME") {
+      return "lucideClock";
+    }
+    return "lucideReceipt";
+  });
 
   readonly previewText = computed(() => {
     const values = this.formValues();
@@ -184,6 +225,15 @@ export class SpecialPolicyModalComponent {
     const mod = values.modifies;
 
     const val = Number(rawVal) || 0;
+    if (mod === "TIME") {
+      if (op === "PERCENTAGE") {
+        return `-${val}% tiempo`;
+      }
+      if (op === "SUBTRACT") {
+        return `-${val} min`;
+      }
+      return `${val} min`;
+    }
     if (op === "PERCENTAGE") {
       return mod === "SURCHARGE" ? `+${val}% Recargo` : `-${val}% Descuento`;
     }
@@ -202,13 +252,18 @@ export class SpecialPolicyModalComponent {
     const { modifies, operation } = this.formValues();
     return (
       modifies === "DISCOUNT" ||
-      (modifies === "PRICE" &&
+      ((modifies === "PRICE" || modifies === "TIME") &&
         (operation === "SUBTRACT" || operation === "PERCENTAGE"))
     );
   });
 
   onModifiesChange(newMod: unknown): void {
-    if (newMod === "SURCHARGE" || newMod === "DISCOUNT" || newMod === "PRICE") {
+    if (
+      newMod === "SURCHARGE" ||
+      newMod === "DISCOUNT" ||
+      newMod === "PRICE" ||
+      newMod === "TIME"
+    ) {
       this.form.controls.modifies.setValue(newMod);
       const allowed: readonly RatePolicyOperation[] =
         this.allowedOperationsByTarget[newMod];
@@ -225,7 +280,7 @@ export class SpecialPolicyModalComponent {
   onOperationChange(newOp: unknown): void {
     if (newOp === "SET" || newOp === "PERCENTAGE" || newOp === "SUBTRACT") {
       const mod = this.form.controls.modifies.value;
-      if (mod === "SURCHARGE" || mod === "DISCOUNT" || mod === "PRICE") {
+      if (mod in this.allowedOperationsByTarget) {
         const allowed: readonly RatePolicyOperation[] =
           this.allowedOperationsByTarget[mod];
         if (!allowed.includes(newOp)) {
@@ -268,7 +323,19 @@ export class SpecialPolicyModalComponent {
     this.selectedPresetId.set("custom");
   }
 
+  private resetForm(): void {
+    this.selectedPresetId.set("lavado-service");
+    this.updateValueValidators("SET");
+    this.form.reset({
+      modifies: "SURCHARGE",
+      name: "Tarifa de Lavado Ecológico",
+      operation: "SET",
+      valueToModify: 18_000,
+    });
+  }
+
   onCancel(): void {
+    this.resetForm();
     this.closed.emit();
   }
 
@@ -288,23 +355,25 @@ export class SpecialPolicyModalComponent {
 
     this.isSubmitting.set(true);
 
-    this.rateService.createSpecialPolicy(model).subscribe({
-      error: () => {
-        this.isSubmitting.set(false);
-        this.toastService.showToast({
-          message: "Error al crear la política especial",
-          type: "error",
-        });
-      },
-      next: () => {
-        this.isSubmitting.set(false);
-        this.toastService.showToast({
-          message: "Política especial creada con éxito",
-          type: "success",
-        });
-        this.policyCreated.emit(model);
-        this.closed.emit();
-      },
-    });
+    this.rateService
+      .createSpecialPolicy(model)
+      .pipe(finalize(() => this.isSubmitting.set(false)))
+      .subscribe({
+        error: () => {
+          this.toastService.showToast({
+            message: "Error al crear la política especial",
+            type: "error",
+          });
+        },
+        next: () => {
+          this.toastService.showToast({
+            message: "Política especial creada con éxito",
+            type: "success",
+          });
+          this.policyCreated.emit(model);
+          this.resetForm();
+          this.closed.emit();
+        },
+      });
   }
 }

@@ -35,6 +35,7 @@ describe("RateService", () => {
   let ratesServiceSpy: MockRatesService;
   let tenantsServiceSpy: MockTenantsService;
   let accessTokenSignal: ReturnType<typeof signal<string | null>>;
+  let sessionGenerationSignal: ReturnType<typeof signal<number>>;
   let currentUserSignal: ReturnType<typeof signal<UserModel | null>>;
 
   const makeUser = (tenantId: string): UserModel => ({
@@ -53,6 +54,7 @@ describe("RateService", () => {
 
   beforeEach(() => {
     accessTokenSignal = signal<string | null>("token-tenant-a");
+    sessionGenerationSignal = signal<number>(1);
     currentUserSignal = signal<UserModel | null>(makeUser("tenant-a"));
 
     parkingLotsServiceSpy = {
@@ -74,7 +76,10 @@ describe("RateService", () => {
         RateService,
         {
           provide: AuthService,
-          useValue: { accessTokenSignal: accessTokenSignal.asReadonly() },
+          useValue: {
+            accessTokenSignal: accessTokenSignal.asReadonly(),
+            sessionGenerationSignal: sessionGenerationSignal.asReadonly(),
+          },
         },
         {
           provide: UserService,
@@ -397,12 +402,14 @@ describe("RateService", () => {
         receivedA.push(policies);
       });
 
-      // Logout and re-login (even if same tenant, scope generation incremented)
+      // Logout and re-login (even if same tenant, sessionGeneration incremented)
       accessTokenSignal.set(null);
       currentUserSignal.set(null);
+      sessionGenerationSignal.update((n) => n + 1);
       TestBed.flushEffects();
 
       currentUserSignal.set(makeUser("tenant-a"));
+      sessionGenerationSignal.update((n) => n + 1);
       accessTokenSignal.set("token-tenant-a-new");
       TestBed.flushEffects();
 
@@ -463,6 +470,44 @@ describe("RateService", () => {
       createA$.complete();
 
       expect(service.specialPolicies()).toEqual([]);
+    });
+
+    it("should NOT clear cache or abort in-flight requests on routine JWT token refresh", async () => {
+      const rates$ = new Subject<ResponseIterableRatesDto>();
+      parkingLotsServiceSpy.showRatesByParkingId.mockReturnValueOnce(
+        rates$.asObservable()
+      );
+
+      let resolvedRates: unknown[] | undefined;
+      service.getRatesByParkingId("parking-1").subscribe((rates) => {
+        resolvedRates = rates;
+      });
+
+      // Routine JWT rotation: accessToken changes, sessionGeneration & tenant stay the same
+      accessTokenSignal.set("token-tenant-a-refreshed");
+      TestBed.flushEffects();
+
+      rates$.next({
+        data: [
+          {
+            createdAt: "2024-01-01T00:00:00Z",
+            description: "Tenant A Rate",
+            id: "rate-a",
+            minChargeTimeMinutes: "15",
+            name: "Rate A",
+            pricePerUnit: 3000,
+            timeUnit: "HOURS",
+            vehicleType: "CAR",
+          },
+        ],
+        message: "Success",
+        status: "OK",
+        timestamp: "2024-01-01T00:00:00Z",
+      });
+      rates$.complete();
+
+      expect(resolvedRates).toHaveLength(1);
+      expect(service.ratesByParking()["parking-1"]).toHaveLength(1);
     });
   });
 });

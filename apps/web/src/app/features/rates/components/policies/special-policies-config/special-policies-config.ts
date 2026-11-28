@@ -152,6 +152,15 @@ export class SpecialPoliciesConfigComponent implements OnInit {
   }
 
   formatPolicyEffect(policy: SpecialPolicyModel): string {
+    if (policy.modifies === "TIME") {
+      if (policy.operation === "PERCENTAGE") {
+        return `-${policy.valueToModify}% tiempo`;
+      }
+      if (policy.operation === "SUBTRACT") {
+        return `-${policy.valueToModify} min`;
+      }
+      return `${policy.valueToModify} min`;
+    }
     if (policy.operation === "PERCENTAGE") {
       return policy.modifies === "SURCHARGE"
         ? `+${policy.valueToModify}% Recargo`
@@ -166,5 +175,13 @@ export class SpecialPoliciesConfigComponent implements OnInit {
       return `$${policy.valueToModify.toLocaleString("es-CO")} COP`;
     }
     return `+$${policy.valueToModify.toLocaleString("es-CO")} COP`;
+  }
+
+  isDiscountEffect(policy: SpecialPolicyModel): boolean {
+    return (
+      policy.modifies === "DISCOUNT" ||
+      ((policy.modifies === "PRICE" || policy.modifies === "TIME") &&
+        (policy.operation === "SUBTRACT" || policy.operation === "PERCENTAGE"))
+    );
   }
 }

@@ -19,6 +19,9 @@ export class AuthService {
   public accessTokenSignal = this.accessToken.asReadonly();
   public isAuthenticate = computed(() => !!this.accessTokenSignal());
 
+  private sessionGeneration = signal<number>(0);
+  public sessionGenerationSignal = this.sessionGeneration.asReadonly();
+
   private authController = inject(AuthenticationService);
   private router = inject(Router);
   private userService = inject(UserService);
@@ -36,7 +39,12 @@ export class AuthService {
       .pipe(
         map((response) => mapToLoginResponseModel(response.data)),
         map(({ accessToken }) => {
+          this.userService.clearCurrentUser();
+          this.sessionGeneration.update((n) => n + 1);
           this.accessToken.set(accessToken);
+          if (accessToken) {
+            this.userService.loadCurrentUser().subscribe();
+          }
           return !!accessToken;
         }),
         catchError(() => of(false))
@@ -50,6 +58,9 @@ export class AuthService {
         map(({ data }) => {
           const { accessToken } = data;
           this.accessToken.set(accessToken);
+          if (accessToken) {
+            this.userService.loadCurrentUser().subscribe();
+          }
           return accessToken;
         })
       );
@@ -58,8 +69,9 @@ export class AuthService {
   logout() {
     this.accessToken.set(null);
     this.userService.clearCurrentUser();
+    this.sessionGeneration.update((n) => n + 1);
     this.authController
-      .logout({}, new HttpContext().set(ADD_WITH_CREDENTIALS, true))
+      .logout({}, AuthService.httpContext())
       .pipe(
         catchError(() => EMPTY),
         finalize(() => {

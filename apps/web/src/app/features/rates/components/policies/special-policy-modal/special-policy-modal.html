@@ -103,7 +103,7 @@
           placeholder="Ej. Tarifa de Lavado Ecológico"
           formControlName="name"
           startIcon="lucideTag"
-          (focus)="onCustomPreset()"
+          (focusin)="onCustomPreset()"
         />
 
         <!-- Row: Modifies & Operation -->
@@ -134,7 +134,7 @@
           [placeholder]="valuePlaceholder()"
           formControlName="valueToModify"
           [startIcon]="valueStartIcon()"
-          (focus)="onCustomPreset()"
+          (focusin)="onCustomPreset()"
         />
 
         <!-- Live Preview Banner using semantic tokens -->

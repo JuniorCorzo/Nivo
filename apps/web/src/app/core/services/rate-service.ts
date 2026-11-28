@@ -66,8 +66,11 @@ export class RateService {
     if (!token) {
       return null;
     }
+    const sessionGeneration = this.authService.sessionGenerationSignal();
     const tenantId = this.userService.currentUser()?.tenant?.id;
-    return tenantId ? `tenant:${tenantId}` : `session:${token}`;
+    return tenantId
+      ? `session:${sessionGeneration}:tenant:${tenantId}`
+      : `session:${sessionGeneration}`;
   }
 
   private syncScope(scopeKey: string | null): void {

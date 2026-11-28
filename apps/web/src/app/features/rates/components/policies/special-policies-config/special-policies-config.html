@@ -235,8 +235,8 @@
           <span class="text-muted-foreground">Efecto en cobro:</span>
           <span
             class="font-mono text-sm font-extrabold"
-            [class.text-success]="policy.modifies === 'DISCOUNT'"
-            [class.text-foreground]="policy.modifies !== 'DISCOUNT'"
+            [class.text-success]="isDiscountEffect(policy)"
+            [class.text-foreground]="!isDiscountEffect(policy)"
           >
             {{ formatPolicyEffect(policy) }}
           </span>
@@ -276,9 +276,11 @@
   </nv-card>
 
   <!-- Special Policy Modal Component -->
+  @if (isModalOpen()) {
   <app-special-policy-modal
     [isOpen]="isModalOpen()"
     (closed)="closeModal()"
     (policyCreated)="onPolicyCreated()"
   />
+  }
 </div>

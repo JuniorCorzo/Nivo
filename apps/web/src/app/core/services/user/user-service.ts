@@ -21,10 +21,6 @@ export class UserService {
 
   private usersService = inject(UsersService);
 
-  constructor() {
-    this.loadCurrentUser().subscribe();
-  }
-
   public clearCurrentUser(): void {
     this.userGeneration += 1;
     this.currentUserSignal.set(null);
@@ -51,6 +47,7 @@ export class UserService {
         catchError(() => {
           if (this.userGeneration === requestGeneration) {
             this.currentUserSignal.set(null);
+            this.currentUserRequest$ = null;
           }
           return of(null);
         }),
