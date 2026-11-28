@@ -304,7 +304,8 @@ describe("RateCalculatorComponent", () => {
       APP_TEXTS.rates.calculator.noConfiguredRateWarning
     );
     expect(simulateRateSpy).toHaveBeenLastCalledWith({
-      gracePeriodMinutes: 15,
+      gracePeriodMinutes: 10,
+      gracePeriodPrice: 1200,
       ivaRate: 0.19,
       minutesStayed: 90,
       pricePerUnit: 4000,
@@ -313,7 +314,7 @@ describe("RateCalculatorComponent", () => {
     });
   });
 
-  it("should reset timeUnit, pricePerUnit, gracePeriod, and metadata to fallback defaults when switching from non-default configured rate to unconfigured vehicle", () => {
+  it("should reset rate-specific fields while preserving active parking grace policy when switching from non-default configured rate to unconfigured vehicle", () => {
     const parking: ParkingLotListItemModel = {
       address: {
         city: "Bogotá",
@@ -376,14 +377,15 @@ describe("RateCalculatorComponent", () => {
 
     expect(component.timeUnit()).toBe("HOURS");
     expect(component.pricePerUnit()).toBe(4000);
-    expect(component.gracePeriodMinutes()).toBe(15);
-    expect(component.gracePeriodPrice()).toBeNull();
+    expect(component.gracePeriodMinutes()).toBe(5);
+    expect(component.gracePeriodPrice()).toBe(900);
     expect(component.minChargeTimeMinutes()).toBeNull();
     expect(component.specialPolicy()).toBeNull();
     expect(component.rateName()).toBeNull();
 
     expect(simulateRateSpy).toHaveBeenLastCalledWith({
-      gracePeriodMinutes: 15,
+      gracePeriodMinutes: 5,
+      gracePeriodPrice: 900,
       ivaRate: 0.19,
       minutesStayed: 90,
       pricePerUnit: 4000,
@@ -504,6 +506,181 @@ describe("RateCalculatorComponent", () => {
       minutesStayed: 90,
       pricePerUnit: 5000,
       rateName: "Carro Estándar",
+      timeUnit: "HOURS",
+      vehicleType: "CAR",
+    });
+  });
+
+  it("should retain priced grace policy when rates become empty or vehicle is unmatched on an active parking", () => {
+    const parking: ParkingLotListItemModel = {
+      address: {
+        city: "Bogotá",
+        country: "Colombia",
+        state: "Cundinamarca",
+        street: "Cll 100",
+        zipCode: "110111",
+      },
+      coordinates: { latitude: 4.6, longitude: -74 },
+      createdAt: "",
+      currency: "COP",
+      gracePeriodMinutes: 20,
+      gracePeriodPrice: 1500,
+      id: "parking-priced-grace",
+      ivaRate: 0.19,
+      name: "Parqueadero Gracia Paga",
+      occuppationRate: 0,
+      ownerName: "Admin",
+      slotDistribution: [],
+      totalCapacity: 50,
+      updatedAt: "",
+    };
+
+    fixture.componentRef.setInput("parking", parking);
+    fixture.componentRef.setInput("rates", []);
+    fixture.detectChanges();
+    vi.advanceTimersByTime(250);
+
+    expect(component.gracePeriodMinutes()).toBe(20);
+    expect(component.gracePeriodPrice()).toBe(1500);
+    expect(simulateRateSpy).toHaveBeenLastCalledWith({
+      gracePeriodMinutes: 20,
+      gracePeriodPrice: 1500,
+      ivaRate: 0.19,
+      minutesStayed: 90,
+      pricePerUnit: 4000,
+      timeUnit: "HOURS",
+      vehicleType: "CAR",
+    });
+
+    component.onVehicleTypeChange("MOTORCYCLE");
+    fixture.detectChanges();
+    vi.advanceTimersByTime(250);
+
+    expect(simulateRateSpy).toHaveBeenLastCalledWith({
+      gracePeriodMinutes: 20,
+      gracePeriodPrice: 1500,
+      ivaRate: 0.19,
+      minutesStayed: 90,
+      pricePerUnit: 2000,
+      timeUnit: "HOURS",
+      vehicleType: "MOTORCYCLE",
+    });
+  });
+
+  it("should retain zero grace policy and omit gracePeriodPrice when rates are empty or vehicle is unmatched", () => {
+    const parking: ParkingLotListItemModel = {
+      address: {
+        city: "Bogotá",
+        country: "Colombia",
+        state: "Cundinamarca",
+        street: "Cll 100",
+        zipCode: "110111",
+      },
+      coordinates: { latitude: 4.6, longitude: -74 },
+      createdAt: "",
+      currency: "COP",
+      gracePeriodMinutes: 0,
+      gracePeriodPrice: 0,
+      id: "parking-zero-grace",
+      ivaRate: 0.19,
+      name: "Parqueadero Sin Gracia",
+      occuppationRate: 0,
+      ownerName: "Admin",
+      slotDistribution: [],
+      totalCapacity: 50,
+      updatedAt: "",
+    };
+
+    const rates: RateModel[] = [
+      {
+        createdAt: "",
+        description: "Tarifa carros",
+        id: "rate-car",
+        minChargeTimeMinutes: 30,
+        name: "Carro Estándar",
+        parkingId: "parking-zero-grace",
+        pricePerUnit: 5000,
+        timeUnit: "HOURS",
+        updatedAt: "",
+        vehicleType: "CAR",
+      },
+    ];
+
+    fixture.componentRef.setInput("parking", parking);
+    fixture.componentRef.setInput("rates", rates);
+    fixture.detectChanges();
+    vi.advanceTimersByTime(250);
+
+    component.onVehicleTypeChange("BIKE");
+    fixture.detectChanges();
+    vi.advanceTimersByTime(250);
+
+    expect(component.gracePeriodMinutes()).toBe(0);
+    expect(simulateRateSpy).toHaveBeenLastCalledWith({
+      gracePeriodMinutes: 0,
+      ivaRate: 0.19,
+      minutesStayed: 90,
+      pricePerUnit: 4000,
+      timeUnit: "HOURS",
+      vehicleType: "BIKE",
+    });
+
+    fixture.componentRef.setInput("rates", []);
+    fixture.detectChanges();
+    vi.advanceTimersByTime(250);
+
+    expect(component.gracePeriodMinutes()).toBe(0);
+    expect(simulateRateSpy).toHaveBeenLastCalledWith({
+      gracePeriodMinutes: 0,
+      ivaRate: 0.19,
+      minutesStayed: 90,
+      pricePerUnit: 4000,
+      timeUnit: "HOURS",
+      vehicleType: "BIKE",
+    });
+  });
+
+  it("should fall back to default 15-minute free grace when parking is cleared to null", () => {
+    const parking: ParkingLotListItemModel = {
+      address: {
+        city: "Bogotá",
+        country: "Colombia",
+        state: "Cundinamarca",
+        street: "Cll 100",
+        zipCode: "110111",
+      },
+      coordinates: { latitude: 4.6, longitude: -74 },
+      createdAt: "",
+      currency: "COP",
+      gracePeriodMinutes: 0,
+      gracePeriodPrice: 1500,
+      id: "parking-1",
+      ivaRate: 0.19,
+      name: "Parqueadero Central",
+      occuppationRate: 0,
+      ownerName: "Admin",
+      slotDistribution: [],
+      totalCapacity: 50,
+      updatedAt: "",
+    };
+
+    fixture.componentRef.setInput("parking", parking);
+    fixture.componentRef.setInput("rates", []);
+    fixture.detectChanges();
+    vi.advanceTimersByTime(250);
+
+    expect(component.gracePeriodMinutes()).toBe(0);
+
+    fixture.componentRef.setInput("parking", null);
+    fixture.detectChanges();
+    vi.advanceTimersByTime(250);
+
+    expect(component.gracePeriodMinutes()).toBe(15);
+    expect(component.gracePeriodPrice()).toBeNull();
+    expect(simulateRateSpy).toHaveBeenLastCalledWith({
+      gracePeriodMinutes: 15,
+      minutesStayed: 90,
+      pricePerUnit: 4000,
       timeUnit: "HOURS",
       vehicleType: "CAR",
     });

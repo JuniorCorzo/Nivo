@@ -282,17 +282,7 @@ export class RateCalculatorComponent {
       const configuredRates = this.rates();
 
       untracked(() => {
-        if (activeParking) {
-          this.gracePeriodMinutes.set(
-            activeParking.gracePeriodMinutes ?? DEFAULT_GRACE_PERIOD_MINUTES
-          );
-          this.gracePeriodPrice.set(activeParking.gracePeriodPrice ?? 0);
-          this.ivaRate.set(activeParking.ivaRate ?? null);
-        } else {
-          this.gracePeriodMinutes.set(DEFAULT_GRACE_PERIOD_MINUTES);
-          this.gracePeriodPrice.set(null);
-          this.ivaRate.set(null);
-        }
+        this.applyParkingPolicy(activeParking);
 
         if (configuredRates.length > 0) {
           const currentVehicle = this.vehicleType();
@@ -353,6 +343,7 @@ export class RateCalculatorComponent {
       if (rateForVehicle) {
         this.applyConfiguredRate(rateForVehicle);
       } else {
+        this.applyParkingPolicy(this.parking());
         this.clearConfiguredRate();
       }
     }
@@ -396,14 +387,26 @@ export class RateCalculatorComponent {
     );
   }
 
-  private applyConfiguredRate(rate: RateModel): void {
-    const activeParking = this.parking();
+  private applyParkingPolicy(
+    activeParking: ParkingLotListItemModel | null
+  ): void {
     if (activeParking) {
       this.gracePeriodMinutes.set(
         activeParking.gracePeriodMinutes ?? DEFAULT_GRACE_PERIOD_MINUTES
       );
       this.gracePeriodPrice.set(activeParking.gracePeriodPrice ?? 0);
       this.ivaRate.set(activeParking.ivaRate ?? null);
+    } else {
+      this.gracePeriodMinutes.set(DEFAULT_GRACE_PERIOD_MINUTES);
+      this.gracePeriodPrice.set(null);
+      this.ivaRate.set(null);
+    }
+  }
+
+  private applyConfiguredRate(rate: RateModel): void {
+    const activeParking = this.parking();
+    if (activeParking) {
+      this.applyParkingPolicy(activeParking);
     }
     this.timeUnit.set(rate.timeUnit);
     this.pricePerUnit.set(rate.pricePerUnit);
@@ -415,8 +418,6 @@ export class RateCalculatorComponent {
   private clearConfiguredRate(): void {
     this.timeUnit.set(DEFAULT_TIME_UNIT);
     this.pricePerUnit.set(DEFAULT_PRICE_BY_VEHICLE[this.vehicleType()]);
-    this.gracePeriodMinutes.set(DEFAULT_GRACE_PERIOD_MINUTES);
-    this.gracePeriodPrice.set(null);
     this.minChargeTimeMinutes.set(null);
     this.specialPolicy.set(null);
     this.rateName.set(null);
