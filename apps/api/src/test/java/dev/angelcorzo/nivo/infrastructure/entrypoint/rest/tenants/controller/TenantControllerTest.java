@@ -11,17 +11,21 @@ import dev.angelcorzo.nivo.domain.model.authentication.gateway.AuthenticationCon
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.model.users.Users;
 import dev.angelcorzo.nivo.domain.model.users.enums.Roles;
+import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.ModifiesTypes;
+import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.OperationsTypes;
 import dev.angelcorzo.nivo.domain.usecase.policy.CreateSpecialPolicyUseCase;
 import dev.angelcorzo.nivo.domain.usecase.policy.ShowSpecialPoliciesByTenantUseCase;
 import dev.angelcorzo.nivo.domain.usecase.tenant.RegisterTenantUseCase;
 import dev.angelcorzo.nivo.domain.model.tenants.exceptions.AccountCreationDisabledException;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.exception.ExceptionHandlerController;
+import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.specialpolicies.dto.CreateSpecialPolicies;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.specialpolicies.mapper.SpecialPoliciesMapper;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.tenants.dto.RegisterTenantDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.tenants.enums.TenantsMessages;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.dto.CreatedUserDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.dto.UserDTO;
 import dev.angelcorzo.nivo.infrastructure.entrypoint.rest.users.mappers.UserMapper;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -182,5 +186,21 @@ class TenantControllerTest {
       .content(objectMapper.writeValueAsString(requestDto)))
       .andExpect(status().isForbidden())
       .andExpect(jsonPath("$.code").value("ACCOUNT_CREATION_DISABLED"));
+  }
+
+  @Test
+  @DisplayName("POST /tenants/create/special-policy - Should return 400 Bad Request for unsupported combination")
+  void createSpecialPolicy_shouldReturn400_whenCombinationUnsupported() throws Exception {
+    CreateSpecialPolicies requestDto = CreateSpecialPolicies.builder()
+      .name("Invalid Surcharge Subtract")
+      .modifies(ModifiesTypes.SURCHARGE)
+      .operation(OperationsTypes.SUBTRACT)
+      .valueToModify(BigDecimal.valueOf(5000))
+      .build();
+
+    mockMvc.perform(post("/tenants/create/special-policy").contentType(MediaType.APPLICATION_JSON)
+      .content(objectMapper.writeValueAsString(requestDto)))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
   }
 }

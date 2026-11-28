@@ -10,20 +10,33 @@ import {
   BehaviorSubject,
   catchError,
   filter,
+  finalize,
+  map,
   mergeMap,
+  of,
   switchMap,
   take,
+  tap,
   throwError,
 } from "rxjs";
 
 import { AUTHORIZED } from "../context/auth.token";
 
+type RefreshResult = { token: string } | { error: unknown };
+
+class StaleSessionError extends Error {
+  constructor() {
+    super("Session invalidated during refresh");
+    this.name = "StaleSessionError";
+  }
+}
+
 let isRefresh = false;
-const newToken$ = new BehaviorSubject<string | null>(null);
+const refreshResult$ = new BehaviorSubject<RefreshResult | null>(null);
 
 export const _resetRefreshTokenState = () => {
   isRefresh = false;
-  newToken$.next(null);
+  refreshResult$.next(null);
 };
 
 const withToken = (req: HttpRequest<unknown>, token: string) =>
@@ -39,22 +52,34 @@ const refreshToken = (
   authService: AuthService
 ) => {
   isRefresh = true;
-  newToken$.next(null);
+  refreshResult$.next(null);
+
+  let settled = false;
+  const publish = (result: RefreshResult) => {
+    settled = true;
+    isRefresh = false;
+    refreshResult$.next(result);
+  };
 
   return authService.refreshSession().pipe(
-    switchMap((token) => {
-      isRefresh = false;
-      newToken$.next(token);
-
-      return next(withToken(req, token));
-    }),
-    catchError((failure) => {
-      isRefresh = false;
-      newToken$.next(null);
+    map((token): RefreshResult =>
+      token ? { token } : { error: new StaleSessionError() }
+    ),
+    catchError((failure: unknown) => {
       authService.logout();
-
-      return throwError(() => failure);
-    })
+      return of<RefreshResult>({ error: failure });
+    }),
+    tap(publish),
+    finalize(() => {
+      if (!settled) {
+        publish({ error: new StaleSessionError() });
+      }
+    }),
+    switchMap((result) =>
+      "token" in result
+        ? next(withToken(req, result.token))
+        : throwError(() => result.error)
+    )
   );
 };
 
@@ -67,10 +92,14 @@ const handleUnauthorized = (
     return refreshToken(req, next, authService);
   }
 
-  return newToken$.pipe(
-    filter((token): token is string => token !== null),
+  return refreshResult$.pipe(
+    filter((result): result is RefreshResult => result !== null),
     take(1),
-    mergeMap((token) => next(withToken(req, token)))
+    mergeMap((result) =>
+      "error" in result
+        ? throwError(() => result.error)
+        : next(withToken(req, result.token))
+    )
   );
 };
 

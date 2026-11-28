@@ -75,11 +75,14 @@ describe("UserService", () => {
     service = TestBed.inject(UserService);
   });
 
-  it("should be created", () => {
+  it("should be created without eagerly fetching current user", () => {
     expect(service).toBeTruthy();
+    expect(usersServiceSpy.getCurrentUser).not.toHaveBeenCalled();
   });
 
-  it("should load and map current user on initialization", () => {
+  it("should load and map current user when loadCurrentUser is called", () => {
+    service.loadCurrentUser().subscribe();
+
     expect(usersServiceSpy.getCurrentUser).toHaveBeenCalledTimes(1);
     const currentUser = service.currentUser();
     expect(currentUser).toBeTruthy();
@@ -133,6 +136,7 @@ describe("UserService", () => {
   });
 
   it("should invite user with role and return observable", () => {
+    service.loadCurrentUser().subscribe();
     usersServiceSpy.inviteUserWithRol.mockReturnValue(of({ message: "OK" }));
 
     let emitted = false;
@@ -154,6 +158,7 @@ describe("UserService", () => {
   });
 
   it("should modify user role and emit updated domain model", () => {
+    service.loadCurrentUser().subscribe();
     const updatedDto: UserDto = { ...mockUserDto2, role: "MANAGER" };
     usersServiceSpy.modifyRol.mockReturnValue(
       of({ data: updatedDto, message: "OK", status: "200", timestamp: "" })
@@ -191,6 +196,7 @@ describe("UserService", () => {
   });
 
   it("should deactivate user and remove user from state", () => {
+    service.loadCurrentUser().subscribe();
     const mockVoidResponse: ResponseVoid = {
       data: null,
       message: "OK",
@@ -228,6 +234,7 @@ describe("UserService", () => {
 
   describe("loadCurrentUser", () => {
     it("should return cached user without re-invoking API when user is already loaded", () => {
+      service.loadCurrentUser().subscribe();
       expect(service.currentUser()?.id).toBe("user-1");
       expect(usersServiceSpy.getCurrentUser).toHaveBeenCalledTimes(1);
 
@@ -272,9 +279,9 @@ describe("UserService", () => {
       expect(newService.currentUser()?.id).toBe("user-1");
     });
 
-    it("should catch API error and emit null", () => {
+    it("should catch API error, emit null, and allow subsequent retry without clearCurrentUser", () => {
       usersServiceSpy.getCurrentUser.mockReset();
-      usersServiceSpy.getCurrentUser.mockReturnValue(
+      usersServiceSpy.getCurrentUser.mockReturnValueOnce(
         throwError(() => new Error("Network error"))
       );
 
@@ -288,6 +295,53 @@ describe("UserService", () => {
 
       expect(emitted).toBeNull();
       expect(newService.currentUser()).toBeNull();
+
+      // Next call should retry instead of returning a permanently cached of(null)
+      usersServiceSpy.getCurrentUser.mockReturnValueOnce(
+        of({
+          data: mockUserDto,
+          message: "OK",
+          status: "200",
+          timestamp: "2026-01-01T00:00:00.000Z",
+        })
+      );
+
+      let retried: UserModel | null | undefined;
+      newService.loadCurrentUser().subscribe((u) => {
+        retried = u;
+      });
+
+      expect(retried?.id).toBe("user-1");
+      expect(newService.currentUser()?.id).toBe("user-1");
+      expect(usersServiceSpy.getCurrentUser).toHaveBeenCalledTimes(2);
+    });
+
+    it("should clear cached user and ignore stale in-flight getCurrentUser after clearCurrentUser", () => {
+      service.loadCurrentUser().subscribe();
+      expect(service.currentUser()?.id).toBe("user-1");
+
+      service.clearCurrentUser();
+      expect(service.currentUser()).toBeNull();
+      expect(service.users()).toEqual([]);
+
+      // In-flight request started before clearCurrentUser should not repopulate signal
+      const staleSubject = new Subject<ResponseUserDto>();
+      usersServiceSpy.getCurrentUser.mockReturnValueOnce(
+        staleSubject.asObservable()
+      );
+      service.loadCurrentUser().subscribe();
+
+      service.clearCurrentUser();
+
+      staleSubject.next({
+        data: mockUserDto,
+        message: "OK",
+        status: "200",
+        timestamp: "2026-01-01T00:00:00.000Z",
+      });
+      staleSubject.complete();
+
+      expect(service.currentUser()).toBeNull();
     });
   });
 });

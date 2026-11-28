@@ -1,8 +1,11 @@
 package dev.angelcorzo.nivo.infrastructure.entrypoint.rest.specialpolicies.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.ModifiesTypes;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.OperationsTypes;
+import dev.angelcorzo.nivo.domain.usecase.policy.CreateSpecialPolicyUseCase;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -19,4 +22,14 @@ public record CreateSpecialPolicies(
   @Schema(description = "Operation type (e.g. DISCOUNT, SURCHARGE)", example = "DISCOUNT", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull OperationsTypes operation,
 
   @Schema(description = "Value to apply for modification", example = "15.00", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull @Min(value = 0) BigDecimal valueToModify) {
+
+  @JsonIgnore
+  @Schema(hidden = true)
+  @AssertTrue(message = "Unsupported combination of modifies and operation")
+  public boolean isSupportedCombination() {
+    if (modifies == null || operation == null) {
+      return true;
+    }
+    return CreateSpecialPolicyUseCase.isSupportedCombination(modifies, operation);
+  }
 }

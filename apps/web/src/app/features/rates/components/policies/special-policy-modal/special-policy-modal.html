@@ -1,0 +1,189 @@
+<nv-modal
+  [isOpen]="isOpen()"
+  size="lg"
+  role="dialog"
+  titleId="special-policy-title"
+  descriptionId="special-policy-description"
+  (closed)="onCancel()"
+>
+  <div class="flex max-h-[min(85vh,700px)] flex-col">
+    <!-- Header (Fixed at top) -->
+    <div
+      modal-header
+      class="border-border flex shrink-0 items-center justify-between border-b pb-4"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="bg-primary/10 text-primary border-primary/20 grid h-10 w-10 shrink-0 place-items-center rounded-xl border"
+        >
+          <ng-icon name="lucideSparkles" size="20" />
+        </div>
+        <div>
+          <nv-h3
+            id="special-policy-title"
+            class="text-foreground text-base font-bold sm:text-lg"
+          >
+            Configurar Política Especial de Cobro
+          </nv-h3>
+          <span
+            id="special-policy-description"
+            class="text-muted-foreground text-xs"
+          >
+            Reglas de recargo, tarifas especiales o convenios de liquidación
+          </span>
+        </div>
+      </div>
+      <nv-button
+        variant="ghost"
+        size="icon"
+        (click)="onCancel()"
+        aria-label="Cerrar modal"
+        class="text-muted-foreground hover:text-foreground"
+      >
+        <ng-icon name="lucideX" size="18" />
+      </nv-button>
+    </div>
+
+    <!-- Scrollable Body Container -->
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+      class="flex flex-1 flex-col overflow-hidden pt-4"
+    >
+      <div class="no-scrollbar flex flex-1 flex-col gap-4 overflow-y-auto pr-1">
+        <!-- Preset Selection (Uniform 2x2 grid with equal height and accessible focus) -->
+        <div>
+          <div class="mb-2 flex items-center justify-between">
+            <span
+              class="text-muted-foreground text-[11px] font-bold tracking-wider uppercase"
+            >
+              Plantillas recomendadas
+            </span>
+            <span class="text-muted-foreground text-[10px]">
+              Seleccioná una para autocompletar
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            @for (preset of presets; track preset.id) {
+            <button
+              type="button"
+              (click)="applyPreset(preset)"
+              [class.border-primary]="selectedPresetId() === preset.id"
+              [class.bg-primary/5]="selectedPresetId() === preset.id"
+              [class.ring-1]="selectedPresetId() === preset.id"
+              [class.ring-primary/40]="selectedPresetId() === preset.id"
+              class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 focus-visible:ring-primary group flex h-[82px] cursor-pointer flex-col justify-between rounded-xl border p-2.5 text-left transition-all focus-visible:ring-2 focus-visible:outline-none"
+            >
+              <div class="flex w-full items-center justify-between gap-1.5">
+                <span
+                  class="text-foreground group-hover:text-primary truncate text-xs font-bold transition-colors"
+                >
+                  {{ preset.title }}
+                </span>
+                <span
+                  class="border-border bg-muted/50 text-muted-foreground shrink-0 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold"
+                >
+                  {{ preset.badge }}
+                </span>
+              </div>
+              <span
+                class="text-muted-foreground line-clamp-2 text-[11px] leading-snug"
+              >
+                {{ preset.description }}
+              </span>
+            </button>
+            }
+          </div>
+        </div>
+
+        <!-- Policy Name -->
+        <nv-input
+          label="Nombre de la Política"
+          placeholder="Ej. Tarifa de Lavado Ecológico"
+          formControlName="name"
+          startIcon="lucideTag"
+          (focusin)="onCustomPreset()"
+        />
+
+        <!-- Row: Modifies & Operation -->
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <nv-select
+            label="Efecto en la tarifa"
+            [items]="modifiesOptions"
+            [displayFn]="displayModifies"
+            [valueFn]="modifiesValue"
+            [value]="form.controls.modifies.value"
+            (valueChange)="onModifiesChange($event)"
+          />
+
+          <nv-select
+            label="Tipo de cálculo"
+            [items]="operationOptions()"
+            [displayFn]="displayOperation"
+            [valueFn]="operationValue"
+            [value]="form.controls.operation.value"
+            (valueChange)="onOperationChange($event)"
+          />
+        </div>
+
+        <!-- Value to Modify (Contextual label and placeholder) -->
+        <nv-input
+          type="number"
+          [label]="valueLabel()"
+          [placeholder]="valuePlaceholder()"
+          formControlName="valueToModify"
+          [startIcon]="valueStartIcon()"
+          (focusin)="onCustomPreset()"
+        />
+
+        <!-- Live Preview Banner using semantic tokens -->
+        <div
+          class="border-border bg-secondary flex items-center justify-between rounded-xl border p-3.5 text-xs"
+        >
+          <div>
+            <span class="text-foreground block font-bold">
+              Simulación de Impacto
+            </span>
+            <span class="text-muted-foreground text-[11px]">
+              Efecto aplicado sobre la liquidación del ticket
+            </span>
+          </div>
+          <span
+            class="font-mono text-base font-extrabold"
+            [class.text-success]="previewIsDiscount()"
+            [class.text-primary]="!previewIsDiscount()"
+          >
+            {{ previewText() }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Actions Footer (Pinned at bottom) -->
+      <div
+        class="border-border mt-3 flex shrink-0 items-center justify-end gap-2.5 border-t pt-3.5"
+      >
+        <nv-button
+          type="button"
+          variant="secondary"
+          size="md"
+          (click)="onCancel()"
+          [disabled]="isSubmitting()"
+        >
+          Cancelar
+        </nv-button>
+
+        <nv-button
+          type="submit"
+          variant="default"
+          size="md"
+          [disabled]="isSubmitting() || form.invalid"
+          [loading]="isSubmitting()"
+        >
+          <ng-icon name="lucideCheck" size="16" class="mr-1.5" />
+          <span>Guardar Política</span>
+        </nv-button>
+      </div>
+    </form>
+  </div>
+</nv-modal>

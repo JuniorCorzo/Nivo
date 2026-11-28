@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "chosen": "01-policies-dashboard-and-modal.html",
+  "handoffs": {
+    "01-policies-dashboard-and-modal.html": {
+      "status": "implemented",
+      "queued": false,
+      "sentAt": "2026-11-07T21:30:06.878Z",
+      "startedAt": "2026-11-07T21:30:12.006Z",
+      "implementedAt": "2026-11-07T21:51:12.622Z",
+      "note": "Implemented SpecialPoliciesConfigComponent, SpecialPolicyModalComponent, RateService.createSpecialPolicy, and ParkingLotPolicy overstay/mora models in apps/web"
+    }
+  }
+}

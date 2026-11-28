@@ -1,0 +1,262 @@
+import { signal } from "@angular/core";
+import type { ComponentFixture } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
+import type { ParkingLotListItemModel } from "@core/models/parking.model";
+import type { SpecialPolicyModel } from "@core/models/rate.model";
+import { RateService } from "@core/services/rate-service";
+import { ToastService } from "@nivo-sass/design-system";
+import { of } from "rxjs";
+
+import { SpecialPoliciesConfigComponent } from "./special-policies-config";
+
+describe("SpecialPoliciesConfigComponent", () => {
+  let component: SpecialPoliciesConfigComponent;
+  let fixture: ComponentFixture<SpecialPoliciesConfigComponent>;
+  let mockRateService: {
+    specialPolicies: ReturnType<typeof signal<SpecialPolicyModel[]>>;
+    loadSpecialPolicies: ReturnType<typeof vi.fn>;
+    createSpecialPolicy: ReturnType<typeof vi.fn>;
+  };
+  let mockToastService: { showToast: ReturnType<typeof vi.fn> };
+
+  const mockPolicies: SpecialPolicyModel[] = [
+    {
+      active: true,
+      id: "sp-1",
+      modifies: "SURCHARGE",
+      name: "Tarifa de Lavado Ecológico",
+      operation: "SET",
+      valueToModify: 18_000,
+    },
+    {
+      active: true,
+      id: "sp-2",
+      modifies: "DISCOUNT",
+      name: "Convenio Gimnasio",
+      operation: "PERCENTAGE",
+      valueToModify: 15,
+    },
+  ];
+
+  const mockParking: ParkingLotListItemModel = {
+    address: {
+      city: "Bogotá",
+      country: "Colombia",
+      state: "Cundinamarca",
+      street: "Calle 100 # 15-20",
+      zipCode: "110111",
+    },
+    coordinates: { latitude: 4.68, longitude: -74.05 },
+    createdAt: "2024-01-01T00:00:00Z",
+    currency: "COP",
+    gracePeriodMinutes: 15,
+    gracePeriodPrice: 0,
+    id: "parking-1",
+    ivaRate: 0.19,
+    name: "Parqueadero Centro",
+    occuppationRate: 45,
+    operatingHours: { closeTime: "22:00", openTime: "06:00" },
+    ownerName: "Owner Test",
+    slotDistribution: [],
+    totalCapacity: 50,
+    updatedAt: "2024-01-01T00:00:00Z",
+  };
+
+  beforeEach(async () => {
+    mockRateService = {
+      createSpecialPolicy: vi.fn(),
+      loadSpecialPolicies: vi.fn().mockReturnValue(of(mockPolicies)),
+      specialPolicies: signal<SpecialPolicyModel[]>(mockPolicies),
+    };
+    mockToastService = {
+      showToast: vi.fn(),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [SpecialPoliciesConfigComponent],
+      providers: [
+        { provide: RateService, useValue: mockRateService },
+        { provide: ToastService, useValue: mockToastService },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SpecialPoliciesConfigComponent);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput("parking", mockParking);
+    fixture.detectChanges();
+  });
+
+  it("should create component and load special policies on init", () => {
+    expect(component).toBeTruthy();
+    expect(mockRateService.loadSpecialPolicies).toHaveBeenCalled();
+  });
+
+  it("should render ParkingLotPolicy sede metrics ribbon", () => {
+    /* SAFETY: fixture.nativeElement is guaranteed to be an HTMLElement in test environment */
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain(
+      "Parámetros de Liquidación de Sede (ParkingLotPolicy)"
+    );
+    expect(el.textContent).toContain("08h 00m");
+    expect(el.textContent).toContain("$5.000 COP");
+    expect(el.textContent).toContain("15 min");
+    expect(el.textContent).toContain("19%");
+  });
+
+  it("should render overstay parameters as read-only without unpersisted editable controls", () => {
+    /* SAFETY: fixture.nativeElement is guaranteed to be an HTMLElement in test environment */
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain("Solo lectura (valores por defecto)");
+    expect(el.querySelector("#overstayThresholdSelect")).toBeNull();
+    expect(el.querySelector("#overstaySurchargeInput")).toBeNull();
+    expect(el.textContent).not.toContain("Ajustar umbrales de sede");
+  });
+
+  it("should render special policies list with clear formatting", () => {
+    /* SAFETY: fixture.nativeElement is guaranteed to be an HTMLElement in test environment */
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain("Tarifa de Lavado Ecológico");
+    expect(el.textContent).toContain("Recargo adicional");
+    expect(el.textContent).toContain("+$18.000 COP");
+    expect(el.textContent).toContain("Convenio Gimnasio");
+    expect(el.textContent).toContain("Descuento comercial");
+    expect(el.textContent).toContain("-15% Descuento");
+  });
+
+  it("should open and close special policy modal", () => {
+    expect(component.isModalOpen()).toBe(false);
+
+    component.openModal();
+    expect(component.isModalOpen()).toBe(true);
+
+    component.closeModal();
+    expect(component.isModalOpen()).toBe(false);
+  });
+
+  it("should reload policies when onPolicyCreated is called", () => {
+    mockRateService.loadSpecialPolicies.mockClear();
+    component.onPolicyCreated();
+    expect(mockRateService.loadSpecialPolicies).toHaveBeenCalled();
+  });
+
+  it("should show empty state when no special policies exist", () => {
+    mockRateService.specialPolicies.set([]);
+    fixture.detectChanges();
+
+    /* SAFETY: fixture.nativeElement is guaranteed to be an HTMLElement in test environment */
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain(
+      "No hay políticas especiales configuradas"
+    );
+  });
+
+  it("should format policy effects accurately for all supported (target, operation) combinations", () => {
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "1",
+        modifies: "PRICE",
+        name: "Flat",
+        operation: "SET",
+        valueToModify: 15_000,
+      })
+    ).toBe("$15.000 COP");
+
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "2",
+        modifies: "PRICE",
+        name: "Price Subtract",
+        operation: "SUBTRACT",
+        valueToModify: 3000,
+      })
+    ).toBe("-$3.000 COP");
+
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "3",
+        modifies: "PRICE",
+        name: "Price Percent",
+        operation: "PERCENTAGE",
+        valueToModify: 25,
+      })
+    ).toBe("-25% Descuento");
+
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "4",
+        modifies: "SURCHARGE",
+        name: "Surcharge Percent",
+        operation: "PERCENTAGE",
+        valueToModify: 10,
+      })
+    ).toBe("+10% Recargo");
+
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "5",
+        modifies: "TIME",
+        name: "Time Set",
+        operation: "SET",
+        valueToModify: 2,
+      })
+    ).toBe("2 unidad(es)");
+
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "6",
+        modifies: "TIME",
+        name: "Time Subtract",
+        operation: "SUBTRACT",
+        valueToModify: 1,
+      })
+    ).toBe("-1 unidad(es)");
+
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "7",
+        modifies: "TIME",
+        name: "Time Percent",
+        operation: "PERCENTAGE",
+        valueToModify: 50,
+      })
+    ).toBe("-50% tiempo");
+
+    expect(
+      component.isDiscountEffect({
+        active: true,
+        id: "2",
+        modifies: "PRICE",
+        name: "Price Subtract",
+        operation: "SUBTRACT",
+        valueToModify: 3000,
+      })
+    ).toBe(true);
+    expect(
+      component.isDiscountEffect({
+        active: true,
+        id: "6",
+        modifies: "TIME",
+        name: "Time Subtract",
+        operation: "SUBTRACT",
+        valueToModify: 15,
+      })
+    ).toBe(true);
+    expect(
+      component.isDiscountEffect({
+        active: true,
+        id: "1",
+        modifies: "PRICE",
+        name: "Flat",
+        operation: "SET",
+        valueToModify: 15_000,
+      })
+    ).toBe(false);
+  });
+});

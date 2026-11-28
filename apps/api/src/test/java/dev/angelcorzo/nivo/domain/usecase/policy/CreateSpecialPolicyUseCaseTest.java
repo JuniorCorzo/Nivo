@@ -1,12 +1,14 @@
 package dev.angelcorzo.nivo.domain.usecase.policy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import dev.angelcorzo.nivo.domain.model.specialpolicies.SpecialPolicies;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.ModifiesTypes;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.OperationsTypes;
+import dev.angelcorzo.nivo.domain.model.specialpolicies.exceptions.InvalidSpecialPolicyCombinationException;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.gateways.SpecialPoliciesRepository;
 import dev.angelcorzo.nivo.domain.model.tenants.Tenants;
 import dev.angelcorzo.nivo.domain.model.tenants.gateways.TenantsRepository;
@@ -53,6 +55,39 @@ class CreateSpecialPolicyUseCaseTest {
     assertThat(result).isNotNull();
     assertThat(result.getName()).isEqualTo("Weekend Discount");
     assertThat(result.getValueToModify()).isEqualTo(BigDecimal.valueOf(15));
+    assertThat(result.isActive()).isTrue();
     verify(specialPoliciesRepository).save(any(SpecialPolicies.class));
+  }
+
+  @Test
+  @DisplayName("Should reject SURCHARGE with SUBTRACT operation")
+  void shouldRejectSurchargeWithSubtract() {
+    CreateSpecialPolicyUseCase.CreateSpecialPolicyCommand command = CreateSpecialPolicyUseCase.CreateSpecialPolicyCommand
+      .builder()
+      .name("Invalid Surcharge")
+      .tenantId(UUID.randomUUID())
+      .modifies(ModifiesTypes.SURCHARGE)
+      .operation(OperationsTypes.SUBTRACT)
+      .valueToModify(BigDecimal.valueOf(5000))
+      .build();
+
+    assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(InvalidSpecialPolicyCombinationException.class);
+    verify(specialPoliciesRepository, never()).save(any());
+  }
+
+  @Test
+  @DisplayName("Should reject DISCOUNT with SET operation")
+  void shouldRejectDiscountWithSet() {
+    CreateSpecialPolicyUseCase.CreateSpecialPolicyCommand command = CreateSpecialPolicyUseCase.CreateSpecialPolicyCommand
+      .builder()
+      .name("Invalid Discount")
+      .tenantId(UUID.randomUUID())
+      .modifies(ModifiesTypes.DISCOUNT)
+      .operation(OperationsTypes.SET)
+      .valueToModify(BigDecimal.valueOf(5000))
+      .build();
+
+    assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(InvalidSpecialPolicyCombinationException.class);
+    verify(specialPoliciesRepository, never()).save(any());
   }
 }
