@@ -10,6 +10,7 @@ import dev.angelcorzo.nivo.domain.model.parkinglots.valueobject.GracePeriod;
 import dev.angelcorzo.nivo.domain.model.rates.enums.TimeUnitsRate;
 import dev.angelcorzo.nivo.domain.model.rates.enums.VehicleType;
 import dev.angelcorzo.nivo.domain.model.rates.valueobject.RateReference;
+import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.ModifiesTypes;
 import dev.angelcorzo.nivo.domain.model.specialpolicies.valueobjects.SpecialPoliciesReference;
 
 @Builder
@@ -36,9 +37,28 @@ public record SimulateRateCommand(
         : new BigDecimal("4000.00");
     }
     timeUnit = timeUnit != null ? timeUnit : TimeUnitsRate.HOURS;
-    gracePeriodMinutes = gracePeriodMinutes != null ? gracePeriodMinutes : 15;
+    gracePeriodMinutes = gracePeriodMinutes != null
+      ? Math.min((int) MAX_MINUTES_STAYED, Math.max(0, gracePeriodMinutes))
+      : 15;
+    if (minChargeTimeMinutes != null) {
+      minChargeTimeMinutes = Math.min((int) MAX_MINUTES_STAYED, Math.max(0, minChargeTimeMinutes));
+    }
     ivaRate = ivaRate != null ? ivaRate : new BigDecimal("0.19");
     gracePeriodPrice = gracePeriodPrice != null ? gracePeriodPrice : BigDecimal.ZERO;
+    if (specialPolicy != null && specialPolicy.modifies() == ModifiesTypes.TIME
+      && specialPolicy.valueToModify() != null) {
+      final BigDecimal maxTimeValue = BigDecimal.valueOf(MAX_MINUTES_STAYED);
+      final BigDecimal clamped = specialPolicy.valueToModify().max(BigDecimal.ZERO).min(maxTimeValue);
+      if (clamped.compareTo(specialPolicy.valueToModify()) != 0) {
+        specialPolicy = new SpecialPoliciesReference(
+          specialPolicy.id(),
+          specialPolicy.name(),
+          specialPolicy.modifies(),
+          specialPolicy.operation(),
+          clamped,
+          specialPolicy.active());
+      }
+    }
   }
 
   public SimulateRateCommand(

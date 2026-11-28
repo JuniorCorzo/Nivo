@@ -213,4 +213,48 @@ class PublicSimulatorControllerTest {
     assertNotNull(command.specialPolicy());
     assertEquals("Descuento 10%", command.specialPolicy().name());
   }
+
+  @Test
+  @DisplayName("POST /public/simulator/calculate should return 400 when specialPolicy.valueToModify is out of range")
+  void shouldReturnBadRequestWhenSpecialPolicyValueToModifyOutOfRange() throws Exception {
+    final String payload = """
+      {
+        "vehicleType": "CAR",
+        "minutesStayed": 60,
+        "timeUnit": "DAYS",
+        "specialPolicy": {
+          "name": "Overflow",
+          "modifies": "TIME",
+          "operation": "SET",
+          "valueToModify": 999999999999999
+        }
+      }
+      """;
+
+    this.mockMvc
+      .perform(
+        post("/public/simulator/calculate")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(payload))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("POST /public/simulator/calculate should return 400 when pricePerUnit exceeds BigDecimal bounds")
+  void shouldReturnBadRequestWhenPricePerUnitExceedsBounds() throws Exception {
+    final String payload = """
+      {
+        "vehicleType": "CAR",
+        "minutesStayed": 60,
+        "pricePerUnit": 9999999999999.99
+      }
+      """;
+
+    this.mockMvc
+      .perform(
+        post("/public/simulator/calculate")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(payload))
+      .andExpect(status().isBadRequest());
+  }
 }
