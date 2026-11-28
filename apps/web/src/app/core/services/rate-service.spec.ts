@@ -9,7 +9,7 @@ import {
 import type { UserModel } from "@core/models/user.model";
 import { AuthService } from "@core/services/auth-service";
 import { UserService } from "@core/services/user/user-service";
-import { firstValueFrom, of } from "rxjs";
+import { firstValueFrom, of, Subject } from "rxjs";
 
 import { RateService } from "./rate-service";
 
@@ -311,6 +311,158 @@ describe("RateService", () => {
       expect(parkingLotsServiceSpy.showRatesByParkingId).toHaveBeenCalledTimes(
         2
       );
+    });
+
+    it("should ignore in-flight getRatesByParkingId from Tenant A that resolves after switching to Tenant B", async () => {
+      const tenantARates$ = new Subject<ResponseIterableRatesDto>();
+      parkingLotsServiceSpy.showRatesByParkingId.mockReturnValueOnce(
+        tenantARates$.asObservable()
+      );
+
+      const receivedA: unknown[] = [];
+      service.getRatesByParkingId("parking-1").subscribe((rates) => {
+        receivedA.push(rates);
+      });
+
+      // Logout and switch to Tenant B while Tenant A request is in flight
+      accessTokenSignal.set(null);
+      currentUserSignal.set(null);
+      TestBed.flushEffects();
+
+      currentUserSignal.set(makeUser("tenant-b"));
+      accessTokenSignal.set("token-tenant-b");
+      TestBed.flushEffects();
+
+      // Tenant A's stale in-flight response arrives now
+      tenantARates$.next({
+        data: [
+          {
+            createdAt: "2024-01-01T00:00:00Z",
+            description: "Tenant A Rate",
+            id: "rate-a",
+            minChargeTimeMinutes: "15",
+            name: "Rate A",
+            pricePerUnit: 3000,
+            timeUnit: "HOURS",
+            vehicleType: "CAR",
+          },
+        ],
+        message: "Success",
+        status: "OK",
+        timestamp: "2024-01-01T00:00:00Z",
+      });
+      tenantARates$.complete();
+
+      expect(receivedA).toEqual([]);
+      expect(service.ratesByParking()).toEqual({});
+
+      // Tenant B must fetch from API, not read Tenant A's data from cache
+      parkingLotsServiceSpy.showRatesByParkingId.mockReturnValueOnce(
+        of({
+          data: [
+            {
+              createdAt: "2024-01-01T00:00:00Z",
+              description: "Tenant B Rate",
+              id: "rate-b",
+              minChargeTimeMinutes: "15",
+              name: "Rate B",
+              pricePerUnit: 6000,
+              timeUnit: "HOURS",
+              vehicleType: "CAR",
+            },
+          ],
+          message: "Success",
+          status: "OK",
+          timestamp: "2024-01-01T00:00:00Z",
+        })
+      );
+
+      const ratesB = await firstValueFrom(
+        service.getRatesByParkingId("parking-1")
+      );
+      expect(ratesB.map((r) => r.name)).toEqual(["Rate B"]);
+      expect(parkingLotsServiceSpy.showRatesByParkingId).toHaveBeenCalledTimes(
+        2
+      );
+    });
+
+    it("should ignore in-flight loadSpecialPolicies from Tenant A that resolves after logout and re-login", async () => {
+      const tenantAPolicies$ = new Subject<never>();
+      tenantsServiceSpy.showSpecialPoliciesByTenant.mockReturnValueOnce(
+        tenantAPolicies$.asObservable()
+      );
+
+      const receivedA: unknown[] = [];
+      service.loadSpecialPolicies().subscribe((policies) => {
+        receivedA.push(policies);
+      });
+
+      // Logout and re-login (even if same tenant, scope generation incremented)
+      accessTokenSignal.set(null);
+      currentUserSignal.set(null);
+      TestBed.flushEffects();
+
+      currentUserSignal.set(makeUser("tenant-a"));
+      accessTokenSignal.set("token-tenant-a-new");
+      TestBed.flushEffects();
+
+      // Stale response from previous session arrives
+      tenantAPolicies$.next({
+        data: [
+          {
+            active: true,
+            id: "sp-stale",
+            modifies: "SURCHARGE",
+            name: "Stale Policy",
+            operation: "SET",
+            valueToModify: 9999,
+          },
+        ],
+        message: "Success",
+        status: "OK",
+        timestamp: "2024-01-01T00:00:00Z",
+      } as never);
+      tenantAPolicies$.complete();
+
+      expect(receivedA).toEqual([]);
+      expect(service.specialPolicies()).toEqual([]);
+    });
+
+    it("should not mutate Tenant B cache when an in-flight createSpecialPolicy from Tenant A resolves after tenant switch", async () => {
+      const createA$ = new Subject<never>();
+      tenantsServiceSpy.createAtSpecialPolicies.mockReturnValueOnce(
+        createA$.asObservable()
+      );
+
+      service
+        .createSpecialPolicy({
+          modifies: "SURCHARGE",
+          name: "Tenant A Created",
+          operation: "SET",
+          valueToModify: 5000,
+        })
+        .subscribe();
+
+      // Switch to Tenant B before response arrives (without flushing effects to also test synchronous guard)
+      currentUserSignal.set(makeUser("tenant-b"));
+      accessTokenSignal.set("token-tenant-b");
+
+      createA$.next({
+        data: {
+          active: true,
+          id: "sp-a-created",
+          modifies: "SURCHARGE",
+          name: "Tenant A Created",
+          operation: "SET",
+          valueToModify: 5000,
+        },
+        message: "Created",
+        status: "CREATED",
+        timestamp: "2024-01-01T00:00:00Z",
+      } as never);
+      createA$.complete();
+
+      expect(service.specialPolicies()).toEqual([]);
     });
   });
 });

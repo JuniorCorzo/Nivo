@@ -149,4 +149,50 @@ describe("SpecialPoliciesConfigComponent", () => {
       "No hay políticas especiales configuradas"
     );
   });
+
+  it("should format policy effects accurately for all supported (target, operation) combinations", () => {
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "1",
+        modifies: "PRICE",
+        name: "Flat",
+        operation: "SET",
+        valueToModify: 15_000,
+      })
+    ).toBe("$15.000 COP");
+
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "2",
+        modifies: "PRICE",
+        name: "Price Subtract",
+        operation: "SUBTRACT",
+        valueToModify: 3000,
+      })
+    ).toBe("-$3.000 COP");
+
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "3",
+        modifies: "PRICE",
+        name: "Price Percent",
+        operation: "PERCENTAGE",
+        valueToModify: 25,
+      })
+    ).toBe("-25% Descuento");
+
+    expect(
+      component.formatPolicyEffect({
+        active: true,
+        id: "4",
+        modifies: "SURCHARGE",
+        name: "Surcharge Percent",
+        operation: "PERCENTAGE",
+        valueToModify: 10,
+      })
+    ).toBe("+10% Recargo");
+  });
 });

@@ -141,10 +141,100 @@ describe("SpecialPolicyModalComponent", () => {
     ]);
     expect(component.form.controls.operation.value).toBe("SUBTRACT");
 
-    // Switching to PRICE from DISCOUNT+SUBTRACT auto-switches to SET
+    // Switching to PRICE from DISCOUNT+SUBTRACT keeps SUBTRACT and exposes SET, PERCENTAGE, SUBTRACT
     component.onModifiesChange("PRICE");
-    expect(component.operationOptions().map((o) => o.value)).toEqual(["SET"]);
-    expect(component.form.controls.operation.value).toBe("SET");
+    expect(component.operationOptions().map((o) => o.value)).toEqual([
+      "SET",
+      "PERCENTAGE",
+      "SUBTRACT",
+    ]);
+    expect(component.form.controls.operation.value).toBe("SUBTRACT");
+  });
+
+  it("should support selecting, previewing, and submitting every backend-supported (target, operation) pair", () => {
+    const cases = [
+      {
+        expectedDiscount: false,
+        expectedPreview: "+$18.000 COP",
+        modifies: "SURCHARGE" as const,
+        operation: "SET" as const,
+        value: 18_000,
+      },
+      {
+        expectedDiscount: false,
+        expectedPreview: "+15% Recargo",
+        modifies: "SURCHARGE" as const,
+        operation: "PERCENTAGE" as const,
+        value: 15,
+      },
+      {
+        expectedDiscount: true,
+        expectedPreview: "-$2.000 COP",
+        modifies: "DISCOUNT" as const,
+        operation: "SUBTRACT" as const,
+        value: 2000,
+      },
+      {
+        expectedDiscount: true,
+        expectedPreview: "-20% Descuento",
+        modifies: "DISCOUNT" as const,
+        operation: "PERCENTAGE" as const,
+        value: 20,
+      },
+      {
+        expectedDiscount: false,
+        expectedPreview: "$15.000 COP",
+        modifies: "PRICE" as const,
+        operation: "SET" as const,
+        value: 15_000,
+      },
+      {
+        expectedDiscount: true,
+        expectedPreview: "-$3.000 COP",
+        modifies: "PRICE" as const,
+        operation: "SUBTRACT" as const,
+        value: 3000,
+      },
+      {
+        expectedDiscount: true,
+        expectedPreview: "-25% Descuento",
+        modifies: "PRICE" as const,
+        operation: "PERCENTAGE" as const,
+        value: 25,
+      },
+    ];
+
+    for (const testCase of cases) {
+      mockRateService.createSpecialPolicy.mockClear();
+      mockRateService.createSpecialPolicy.mockReturnValue(
+        of({
+          active: true,
+          id: "sp-test",
+          modifies: testCase.modifies,
+          name: "Política Test",
+          operation: testCase.operation,
+          valueToModify: testCase.value,
+        })
+      );
+
+      component.onModifiesChange(testCase.modifies);
+      component.onOperationChange(testCase.operation);
+      component.form.controls.name.setValue("Política Test");
+      component.form.controls.valueToModify.setValue(testCase.value);
+
+      expect(component.form.controls.modifies.value).toBe(testCase.modifies);
+      expect(component.form.controls.operation.value).toBe(testCase.operation);
+      expect(component.previewText()).toBe(testCase.expectedPreview);
+      expect(component.previewIsDiscount()).toBe(testCase.expectedDiscount);
+
+      component.onSubmit();
+      expect(mockRateService.createSpecialPolicy).toHaveBeenCalledWith({
+        modifies: testCase.modifies,
+        name: "Política Test",
+        operation: testCase.operation,
+        valueToModify: testCase.value,
+      });
+    }
   });
 
   it("should match backend billing semantics in previewText for flat PRICE, DISCOUNT, and SURCHARGE", () => {

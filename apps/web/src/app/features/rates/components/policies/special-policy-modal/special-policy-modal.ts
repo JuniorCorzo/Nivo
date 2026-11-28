@@ -136,7 +136,7 @@ export class SpecialPolicyModalComponent {
 
   private readonly allowedOperationsByTarget = {
     DISCOUNT: ["SUBTRACT", "PERCENTAGE"],
-    PRICE: ["SET"],
+    PRICE: ["SET", "SUBTRACT", "PERCENTAGE"],
     SURCHARGE: ["SET", "PERCENTAGE"],
   } satisfies Record<"SURCHARGE" | "DISCOUNT" | "PRICE", RatePolicyOperation[]>;
 
@@ -198,9 +198,14 @@ export class SpecialPolicyModalComponent {
     return `+$${val.toLocaleString("es-CO")} COP`;
   });
 
-  readonly previewIsDiscount = computed(
-    () => this.formValues().modifies === "DISCOUNT"
-  );
+  readonly previewIsDiscount = computed(() => {
+    const { modifies, operation } = this.formValues();
+    return (
+      modifies === "DISCOUNT" ||
+      (modifies === "PRICE" &&
+        (operation === "SUBTRACT" || operation === "PERCENTAGE"))
+    );
+  });
 
   onModifiesChange(newMod: unknown): void {
     if (newMod === "SURCHARGE" || newMod === "DISCOUNT" || newMod === "PRICE") {

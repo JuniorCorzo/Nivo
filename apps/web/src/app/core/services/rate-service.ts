@@ -27,8 +27,13 @@ import type {
 import { AuthService } from "@core/services/auth-service";
 import { UserService } from "@core/services/user/user-service";
 import type { Observable } from "rxjs";
-import { of } from "rxjs";
-import { map, tap } from "rxjs/operators";
+import { of, Subject } from "rxjs";
+import { map, takeUntil, tap } from "rxjs/operators";
+
+interface ScopeSnapshot {
+  key: string | null;
+  generation: number;
+}
 
 @Injectable({
   providedIn: "root",
@@ -41,6 +46,8 @@ export class RateService {
   private userService = inject(UserService);
 
   private activeScopeKey: string | null = null;
+  private scopeGeneration = 0;
+  private readonly scopeChanged$ = new Subject<void>();
 
   private readonly ratesState = signal<Record<string, RateModel[]>>({});
   readonly ratesByParking = this.ratesState.asReadonly();
@@ -64,13 +71,31 @@ export class RateService {
   }
 
   private syncScope(scopeKey: string | null): void {
-    if (
-      scopeKey === null ||
-      (this.activeScopeKey !== null && this.activeScopeKey !== scopeKey)
-    ) {
-      this.clearCache();
+    if (this.activeScopeKey !== scopeKey) {
+      if (scopeKey === null || this.activeScopeKey !== null) {
+        this.clearCache();
+      }
+      this.activeScopeKey = scopeKey;
+      this.scopeGeneration += 1;
+      this.scopeChanged$.next();
     }
-    this.activeScopeKey = scopeKey;
+  }
+
+  private captureScope(): ScopeSnapshot {
+    this.syncScope(this.resolveScopeKey());
+    return {
+      generation: this.scopeGeneration,
+      key: this.activeScopeKey,
+    };
+  }
+
+  private isScopeCurrent(snapshot: ScopeSnapshot): boolean {
+    this.syncScope(this.resolveScopeKey());
+    return (
+      snapshot.key !== null &&
+      this.activeScopeKey === snapshot.key &&
+      this.scopeGeneration === snapshot.generation
+    );
   }
 
   clearCache(): void {
@@ -88,7 +113,7 @@ export class RateService {
     parkingId: string,
     force = false
   ): Observable<RateModel[]> {
-    this.syncScope(this.resolveScopeKey());
+    const scope = this.captureScope();
     const existing = this.ratesState()[parkingId];
     if (!force && existing !== undefined) {
       return of(existing);
@@ -96,31 +121,40 @@ export class RateService {
     return this.parkingLotsService
       .showRatesByParkingId({ parkingId }, RateService.httpContext())
       .pipe(
+        takeUntil(this.scopeChanged$),
         map((response) => {
           /* SAFETY: Response data represents RatesDto array from API */
           const items = (response.data ?? []) as RatesDto[];
           return items.map((item: RatesDto) => mapToRateModel(item));
         }),
-        tap((rates) =>
+        tap((rates) => {
+          if (!this.isScopeCurrent(scope)) {
+            return;
+          }
           this.ratesState.update((state) => ({
             ...state,
             [parkingId]: rates,
-          }))
-        )
+          }));
+        })
       );
   }
 
   createRate(model: CreateRateModel): Observable<RateModel> {
+    const scope = this.captureScope();
     const dto = mapToCreateRateDto(model);
     return this.parkingLotsService
       .createRateForParking({ body: dto }, RateService.httpContext())
       .pipe(
+        takeUntil(this.scopeChanged$),
         map((response) => {
           /* SAFETY: Created rate response data is defined */
           const data = response.data as RatesDto;
           return mapToRateModel(data);
         }),
         tap((createdRate) => {
+          if (!this.isScopeCurrent(scope)) {
+            return;
+          }
           this.ratesState.update((state) => {
             const current = state[model.parkingId] ?? [];
             return {
@@ -133,16 +167,21 @@ export class RateService {
   }
 
   updateRate(model: UpdateRateModel, parkingId: string): Observable<RateModel> {
+    const scope = this.captureScope();
     const dto = mapToUpdateRateDto(model);
     return this.ratesService
       .updateRate({ body: dto }, RateService.httpContext())
       .pipe(
+        takeUntil(this.scopeChanged$),
         map((response) => {
           /* SAFETY: Updated rate response data is defined */
           const data = response.data as RatesDto;
           return mapToRateModel(data);
         }),
         tap((updatedRate) => {
+          if (!this.isScopeCurrent(scope)) {
+            return;
+          }
           this.ratesState.update((state) => {
             const current = state[parkingId] ?? [];
             return {
@@ -157,13 +196,18 @@ export class RateService {
   }
 
   deleteRate(rateId: string, parkingId: string): Observable<void> {
+    const scope = this.captureScope();
     return this.ratesService
       .deleteRate({ id: rateId }, RateService.httpContext())
       .pipe(
+        takeUntil(this.scopeChanged$),
         map(() => {
           // void return
         }),
         tap(() => {
+          if (!this.isScopeCurrent(scope)) {
+            return;
+          }
           this.ratesState.update((state) => {
             const current = state[parkingId] ?? [];
             return {
@@ -176,7 +220,7 @@ export class RateService {
   }
 
   loadSpecialPolicies(force = false): Observable<SpecialPolicyModel[]> {
-    this.syncScope(this.resolveScopeKey());
+    const scope = this.captureScope();
     const existing = this.specialPoliciesState();
     if (!force && existing.length > 0) {
       return of(existing);
@@ -184,6 +228,7 @@ export class RateService {
     return this.tenantsService
       .showSpecialPoliciesByTenant(undefined, RateService.httpContext())
       .pipe(
+        takeUntil(this.scopeChanged$),
         map((response) => {
           /* SAFETY: Special policies response data is an array of SpecialPoliciesDto */
           const items = (response.data ?? []) as SpecialPoliciesDto[];
@@ -191,12 +236,18 @@ export class RateService {
             .map((item) => mapToSpecialPolicyModel(item))
             .filter((p): p is SpecialPolicyModel => !!p);
         }),
-        tap((policies) => this.specialPoliciesState.set(policies))
+        tap((policies) => {
+          if (!this.isScopeCurrent(scope)) {
+            return;
+          }
+          this.specialPoliciesState.set(policies);
+        })
       );
   }
   createSpecialPolicy(
     model: CreateSpecialPolicyModel
   ): Observable<SpecialPolicyModel> {
+    const scope = this.captureScope();
     const body: CreateSpecialPolicies = {
       modifies: model.modifies,
       name: model.name,
@@ -207,6 +258,7 @@ export class RateService {
     return this.tenantsService
       .createAtSpecialPolicies({ body }, RateService.httpContext())
       .pipe(
+        takeUntil(this.scopeChanged$),
         map((response) => {
           /* SAFETY: Created special policy response data is defined */
           const data = response.data as SpecialPoliciesDto;
@@ -217,6 +269,9 @@ export class RateService {
           return policy;
         }),
         tap((createdPolicy) => {
+          if (!this.isScopeCurrent(scope)) {
+            return;
+          }
           this.specialPoliciesState.update((policies) => [
             ...policies,
             createdPolicy,

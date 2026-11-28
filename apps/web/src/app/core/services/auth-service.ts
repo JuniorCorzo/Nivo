@@ -6,9 +6,10 @@ import { AuthenticationService } from "@core/api/generated/services";
 import { ADD_WITH_CREDENTIALS } from "@core/http/context/add-with-credentials.token";
 import { AUTHORIZED } from "@core/http/context/auth.token";
 import { mapToLoginResponseModel } from "@core/mappers/auth.mapper";
+import { UserService } from "@core/services/user/user-service";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import type { Observable } from "rxjs";
-import { catchError, map, of } from "rxjs";
+import { catchError, EMPTY, finalize, map, of } from "rxjs";
 
 @Injectable({
   providedIn: "root",
@@ -20,6 +21,7 @@ export class AuthService {
 
   private authController = inject(AuthenticationService);
   private router = inject(Router);
+  private userService = inject(UserService);
 
   private static httpContext() {
     const httpContext = new HttpContext();
@@ -54,13 +56,16 @@ export class AuthService {
   }
 
   logout() {
+    this.accessToken.set(null);
+    this.userService.clearCurrentUser();
     this.authController
       .logout({}, new HttpContext().set(ADD_WITH_CREDENTIALS, true))
-      .subscribe({
-        next: () => {
-          this.accessToken.set(null);
+      .pipe(
+        catchError(() => EMPTY),
+        finalize(() => {
           this.router.navigate([APP_ROUTES.auth.login]);
-        },
-      });
+        })
+      )
+      .subscribe();
   }
 }

@@ -289,5 +289,32 @@ describe("UserService", () => {
       expect(emitted).toBeNull();
       expect(newService.currentUser()).toBeNull();
     });
+
+    it("should clear cached user and ignore stale in-flight getCurrentUser after clearCurrentUser", () => {
+      expect(service.currentUser()?.id).toBe("user-1");
+
+      service.clearCurrentUser();
+      expect(service.currentUser()).toBeNull();
+      expect(service.users()).toEqual([]);
+
+      // In-flight request started before clearCurrentUser should not repopulate signal
+      const staleSubject = new Subject<ResponseUserDto>();
+      usersServiceSpy.getCurrentUser.mockReturnValueOnce(
+        staleSubject.asObservable()
+      );
+      service.loadCurrentUser().subscribe();
+
+      service.clearCurrentUser();
+
+      staleSubject.next({
+        data: mockUserDto,
+        message: "OK",
+        status: "200",
+        timestamp: "2026-01-01T00:00:00.000Z",
+      });
+      staleSubject.complete();
+
+      expect(service.currentUser()).toBeNull();
+    });
   });
 });

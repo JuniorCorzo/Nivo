@@ -14,6 +14,7 @@ export class UserService {
   public currentUser = this.currentUserSignal.asReadonly();
 
   private currentUserRequest$: Observable<UserModel | null> | null = null;
+  private userGeneration = 0;
 
   private usersSignal = signal<UserModel[]>([]);
   public users = this.usersSignal.asReadonly();
@@ -24,19 +25,33 @@ export class UserService {
     this.loadCurrentUser().subscribe();
   }
 
+  public clearCurrentUser(): void {
+    this.userGeneration += 1;
+    this.currentUserSignal.set(null);
+    this.currentUserRequest$ = null;
+    this.usersSignal.set([]);
+  }
+
   public loadCurrentUser(): Observable<UserModel | null> {
     if (this.currentUserSignal() !== null) {
       return of(this.currentUserSignal());
     }
 
     if (!this.currentUserRequest$) {
+      const requestGeneration = this.userGeneration;
       this.currentUserRequest$ = this.usersService.getCurrentUser().pipe(
         map((response) =>
           response.data ? mapToUserModel(response.data) : null
         ),
-        tap((user) => this.currentUserSignal.set(user)),
+        tap((user) => {
+          if (this.userGeneration === requestGeneration) {
+            this.currentUserSignal.set(user);
+          }
+        }),
         catchError(() => {
-          this.currentUserSignal.set(null);
+          if (this.userGeneration === requestGeneration) {
+            this.currentUserSignal.set(null);
+          }
           return of(null);
         }),
         shareReplay(1)
