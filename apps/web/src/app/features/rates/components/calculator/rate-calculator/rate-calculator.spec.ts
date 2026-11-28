@@ -305,13 +305,144 @@ describe("RateCalculatorComponent", () => {
       APP_TEXTS.rates.calculator.noConfiguredRateWarning
     );
     expect(simulateRateSpy).toHaveBeenLastCalledWith({
-      gracePeriodMinutes: 10,
-      gracePeriodPrice: 1200,
+      gracePeriodMinutes: 15,
       ivaRate: 0.19,
       minutesStayed: 90,
-      pricePerUnit: undefined,
-      timeUnit: "MINUTES",
+      pricePerUnit: 4000,
+      timeUnit: "HOURS",
       vehicleType: "BIKE",
+    });
+  });
+
+  it("should reset timeUnit, pricePerUnit, gracePeriod, and metadata to fallback defaults when switching from non-default configured rate to unconfigured vehicle", () => {
+    const parking: ParkingLotListItemModel = {
+      address: {
+        city: "Bogotá",
+        country: "Colombia",
+        state: "Cundinamarca",
+        street: "Cll 100",
+        zipCode: "110111",
+      },
+      coordinates: { latitude: 4.6, longitude: -74 },
+      createdAt: "",
+      currency: "COP",
+      gracePeriodMinutes: 5,
+      gracePeriodPrice: 900,
+      id: "parking-1",
+      ivaRate: 0.19,
+      name: "Parqueadero Central",
+      occuppationRate: 0,
+      ownerName: "Admin",
+      slotDistribution: [],
+      totalCapacity: 50,
+      updatedAt: "",
+    };
+
+    const rates: RateModel[] = [
+      {
+        createdAt: "",
+        description: "Tarifa motos por minuto",
+        id: "rate-moto",
+        minChargeTimeMinutes: 20,
+        name: "Moto Minuto",
+        parkingId: "parking-1",
+        pricePerUnit: 120,
+        specialPolicy: {
+          active: true,
+          id: "pol-moto",
+          modifies: "SURCHARGE",
+          name: "Recargo nocturno",
+          operation: "SET",
+          valueToModify: 500,
+        },
+        timeUnit: "MINUTES",
+        updatedAt: "",
+        vehicleType: "MOTORCYCLE",
+      },
+    ];
+
+    fixture.componentRef.setInput("parkingId", "parking-1");
+    fixture.componentRef.setInput("parking", parking);
+    fixture.componentRef.setInput("rates", rates);
+    fixture.detectChanges();
+    vi.advanceTimersByTime(250);
+
+    expect(component.vehicleType()).toBe("MOTORCYCLE");
+    expect(component.timeUnit()).toBe("MINUTES");
+    expect(component.pricePerUnit()).toBe(120);
+
+    component.onVehicleTypeChange("BIKE");
+    fixture.detectChanges();
+    vi.advanceTimersByTime(250);
+
+    expect(component.timeUnit()).toBe("HOURS");
+    expect(component.pricePerUnit()).toBe(4000);
+    expect(component.gracePeriodMinutes()).toBe(15);
+    expect(component.gracePeriodPrice()).toBeNull();
+    expect(component.minChargeTimeMinutes()).toBeNull();
+    expect(component.specialPolicy()).toBeNull();
+    expect(component.rateName()).toBeNull();
+
+    expect(simulateRateSpy).toHaveBeenLastCalledWith({
+      gracePeriodMinutes: 15,
+      ivaRate: 0.19,
+      minutesStayed: 90,
+      pricePerUnit: 4000,
+      timeUnit: "HOURS",
+      vehicleType: "BIKE",
+    });
+  });
+
+  it("should reset timeUnit, pricePerUnit, and rate metadata to defaults when rates input becomes empty while mounted", () => {
+    const rates: RateModel[] = [
+      {
+        createdAt: "",
+        description: "Tarifa motos por minuto",
+        id: "rate-moto",
+        minChargeTimeMinutes: 20,
+        name: "Moto Minuto",
+        parkingId: "parking-1",
+        pricePerUnit: 150,
+        specialPolicy: {
+          active: true,
+          id: "pol-moto",
+          modifies: "DISCOUNT",
+          name: "Descuento 5%",
+          operation: "PERCENTAGE",
+          valueToModify: 5,
+        },
+        timeUnit: "MINUTES",
+        updatedAt: "",
+        vehicleType: "MOTORCYCLE",
+      },
+    ];
+
+    fixture.componentRef.setInput("rates", rates);
+    fixture.detectChanges();
+    vi.advanceTimersByTime(250);
+
+    expect(component.vehicleType()).toBe("MOTORCYCLE");
+    expect(component.timeUnit()).toBe("MINUTES");
+    expect(component.pricePerUnit()).toBe(150);
+
+    fixture.componentRef.setInput("rates", []);
+    fixture.detectChanges();
+    vi.advanceTimersByTime(250);
+
+    expect(component.timeUnit()).toBe("HOURS");
+    expect(component.pricePerUnit()).toBe(2000);
+    expect(component.gracePeriodMinutes()).toBe(15);
+    expect(component.gracePeriodPrice()).toBeNull();
+    expect(component.minChargeTimeMinutes()).toBeNull();
+    expect(component.specialPolicy()).toBeNull();
+    expect(component.rateName()).toBeNull();
+
+    expect(simulateRateSpy).toHaveBeenLastCalledWith({
+      gracePeriodMinutes: 15,
+      minutesStayed: 90,
+      pricePerUnit: 2000,
+      timeUnit: "HOURS",
+      vehicleType: "MOTORCYCLE",
     });
   });
 });

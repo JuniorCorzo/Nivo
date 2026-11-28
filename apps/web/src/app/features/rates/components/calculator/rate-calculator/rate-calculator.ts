@@ -35,6 +35,13 @@ import {
 import { RatePreviewComponent } from "./rate-preview";
 
 export const MAX_SIMULATION_MINUTES = 525_600;
+export const DEFAULT_GRACE_PERIOD_MINUTES = 15;
+export const DEFAULT_TIME_UNIT: TimeUnit = "HOURS";
+const DEFAULT_PRICE_BY_VEHICLE = {
+  BIKE: 4000,
+  CAR: 4000,
+  MOTORCYCLE: 2000,
+} as const satisfies Record<VehicleType, number>;
 
 const VALID_VEHICLE_TYPES = new Set<string>(["CAR", "MOTORCYCLE", "BIKE"]);
 const VALID_TIME_UNITS = new Set<string>(["MINUTES", "HOURS", "DAYS"]);
@@ -201,10 +208,12 @@ export class RateCalculatorComponent {
   readonly valueOptionFn = valueOptionFn;
 
   readonly vehicleType = signal<VehicleType>("CAR");
-  readonly timeUnit = signal<TimeUnit>("HOURS");
-  readonly pricePerUnit = signal<number | undefined>(4000);
+  readonly timeUnit = signal<TimeUnit>(DEFAULT_TIME_UNIT);
+  readonly pricePerUnit = signal<number | undefined>(
+    DEFAULT_PRICE_BY_VEHICLE.CAR
+  );
   readonly minutesStayed = signal<number>(90);
-  readonly gracePeriodMinutes = signal<number>(15);
+  readonly gracePeriodMinutes = signal<number>(DEFAULT_GRACE_PERIOD_MINUTES);
   readonly gracePeriodPrice = signal<number | null>(null);
   readonly minChargeTimeMinutes = signal<number | null>(null);
   readonly ivaRate = signal<number | null>(null);
@@ -270,9 +279,13 @@ export class RateCalculatorComponent {
 
       untracked(() => {
         if (activeParking) {
-          this.gracePeriodMinutes.set(activeParking.gracePeriodMinutes ?? 15);
+          this.gracePeriodMinutes.set(
+            activeParking.gracePeriodMinutes ?? DEFAULT_GRACE_PERIOD_MINUTES
+          );
           this.gracePeriodPrice.set(activeParking.gracePeriodPrice ?? 0);
           this.ivaRate.set(activeParking.ivaRate ?? null);
+        } else {
+          this.ivaRate.set(null);
         }
 
         if (configuredRates.length > 0) {
@@ -282,7 +295,7 @@ export class RateCalculatorComponent {
             configuredRates[0];
           this.vehicleType.set(targetRate.vehicleType);
           this.applyConfiguredRate(targetRate);
-        } else if (activeParking) {
+        } else {
           this.clearConfiguredRate();
         }
       });
@@ -335,7 +348,6 @@ export class RateCalculatorComponent {
         this.applyConfiguredRate(rateForVehicle);
       } else {
         this.clearConfiguredRate();
-        this.pricePerUnit.set(undefined);
       }
     }
   }
@@ -377,6 +389,14 @@ export class RateCalculatorComponent {
   }
 
   private applyConfiguredRate(rate: RateModel): void {
+    const activeParking = this.parking();
+    if (activeParking) {
+      this.gracePeriodMinutes.set(
+        activeParking.gracePeriodMinutes ?? DEFAULT_GRACE_PERIOD_MINUTES
+      );
+      this.gracePeriodPrice.set(activeParking.gracePeriodPrice ?? 0);
+      this.ivaRate.set(activeParking.ivaRate ?? null);
+    }
     this.timeUnit.set(rate.timeUnit);
     this.pricePerUnit.set(rate.pricePerUnit);
     this.minChargeTimeMinutes.set(rate.minChargeTimeMinutes);
@@ -385,6 +405,10 @@ export class RateCalculatorComponent {
   }
 
   private clearConfiguredRate(): void {
+    this.timeUnit.set(DEFAULT_TIME_UNIT);
+    this.pricePerUnit.set(DEFAULT_PRICE_BY_VEHICLE[this.vehicleType()]);
+    this.gracePeriodMinutes.set(DEFAULT_GRACE_PERIOD_MINUTES);
+    this.gracePeriodPrice.set(null);
     this.minChargeTimeMinutes.set(null);
     this.specialPolicy.set(null);
     this.rateName.set(null);
