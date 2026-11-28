@@ -10,9 +10,13 @@ import {
   BehaviorSubject,
   catchError,
   filter,
+  finalize,
+  map,
   mergeMap,
+  of,
   switchMap,
   take,
+  tap,
   throwError,
 } from "rxjs";
 
@@ -50,26 +54,32 @@ const refreshToken = (
   isRefresh = true;
   refreshResult$.next(null);
 
+  let settled = false;
+  const publish = (result: RefreshResult) => {
+    settled = true;
+    isRefresh = false;
+    refreshResult$.next(result);
+  };
+
   return authService.refreshSession().pipe(
-    switchMap((token) => {
-      if (!token) {
-        return throwError(() => new StaleSessionError());
-      }
-
-      isRefresh = false;
-      refreshResult$.next({ token });
-
-      return next(withToken(req, token));
+    map((token): RefreshResult =>
+      token ? { token } : { error: new StaleSessionError() }
+    ),
+    catchError((failure: unknown) => {
+      authService.logout();
+      return of<RefreshResult>({ error: failure });
     }),
-    catchError((failure) => {
-      isRefresh = false;
-      refreshResult$.next({ error: failure });
-      if (!(failure instanceof StaleSessionError)) {
-        authService.logout();
+    tap(publish),
+    finalize(() => {
+      if (!settled) {
+        publish({ error: new StaleSessionError() });
       }
-
-      return throwError(() => failure);
-    })
+    }),
+    switchMap((result) =>
+      "token" in result
+        ? next(withToken(req, result.token))
+        : throwError(() => result.error)
+    )
   );
 };
 

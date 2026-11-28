@@ -302,4 +302,82 @@ describe("refreshTokenInterceptor", () => {
     expect(req2Calls).toBe(1);
     expect(authServiceMock.logout).toHaveBeenCalledTimes(1);
   });
+
+  it("should reset isRefresh when request 1 is unsubscribed mid-refresh, fail queued request 2, and allow a fresh refresh afterward", async () => {
+    const mkReq = (url: string) =>
+      new HttpRequest("GET", url, {
+        context: new HttpContext().set(AUTHORIZED, true),
+      });
+    const error401 = new HttpErrorResponse({
+      status: 401,
+      statusText: "Unauthorized",
+    });
+    const refreshSubject = new Subject<string | null>();
+    authServiceMock.refreshSession.mockReturnValue(
+      refreshSubject.asObservable()
+    );
+    const failing: HttpHandlerFn = () => throwError(() => error401);
+
+    const sub1 = runInterceptor(mkReq("/api/1"), failing).subscribe({
+      error: () => undefined,
+    });
+    const p2 = firstValueFrom(runInterceptor(mkReq("/api/2"), failing));
+
+    sub1.unsubscribe();
+
+    await expect(p2).rejects.toThrow("Session invalidated during refresh");
+    expect(authServiceMock.logout).not.toHaveBeenCalled();
+
+    authServiceMock.refreshSession.mockReturnValue(of("new-token"));
+    let calls = 0;
+    const next3 = vi.fn<HttpHandlerFn>(() => {
+      calls += 1;
+      return calls === 1
+        ? throwError(() => error401)
+        : of(new HttpResponse({ body: "ok", status: 200 }));
+    });
+
+    const res = await firstValueFrom(runInterceptor(mkReq("/api/3"), next3));
+    expect((res as HttpResponse<string>).body).toBe("ok");
+    expect(authServiceMock.refreshSession).toHaveBeenCalledTimes(2);
+    expect(next3.mock.calls[1]?.[0].headers.get("Authorization")).toBe(
+      "Bearer new-token"
+    );
+  });
+
+  it.each([400, 500])(
+    "should propagate %i from the retried request after a successful refresh without calling logout",
+    async (status) => {
+      const req = new HttpRequest("GET", "/api/protected", {
+        context: new HttpContext().set(AUTHORIZED, true),
+      });
+      const error401 = new HttpErrorResponse({
+        status: 401,
+        statusText: "Unauthorized",
+      });
+      const retryError = new HttpErrorResponse({
+        status,
+        statusText: "Retry Failure",
+      });
+      let calls = 0;
+      const next = vi.fn<HttpHandlerFn>(() => {
+        calls += 1;
+        return throwError(() => (calls === 1 ? error401 : retryError));
+      });
+      authServiceMock.refreshSession.mockReturnValue(of("fresh-token"));
+
+      await expect(firstValueFrom(runInterceptor(req, next))).rejects.toBe(
+        retryError
+      );
+      expect(authServiceMock.logout).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(2);
+
+      // isRefresh must be reset: a later 401 triggers a new refresh
+      calls = 0;
+      await expect(firstValueFrom(runInterceptor(req, next))).rejects.toBe(
+        retryError
+      );
+      expect(authServiceMock.refreshSession).toHaveBeenCalledTimes(2);
+    }
+  );
 });
