@@ -13,9 +13,19 @@ export interface SimulateRateRequest {
   gracePeriodMinutes?: number;
 
   /**
+   * Flat fee charged when stay is within grace period. Optional; defaults to 0
+   */
+  gracePeriodPrice?: number;
+
+  /**
    * Applicable IVA/VAT rate in decimal format. Optional; defaults to 0.19
    */
   ivaRate?: number;
+
+  /**
+   * Minimum charge time in minutes. Optional; defaults to 60 (or 1 when timeUnit is MINUTES)
+   */
+  minChargeTimeMinutes?: number;
 
   /**
    * Total stay duration in minutes
@@ -26,6 +36,22 @@ export interface SimulateRateRequest {
    * Base price per time unit. Optional; defaults to standard vehicle rate if omitted
    */
   pricePerUnit?: number;
+
+  /**
+   * Optional display name for the simulated rate
+   */
+  rateName?: string;
+
+  /**
+   * Optional special policy applied to the rate
+   */
+  specialPolicy?: {
+    active?: boolean;
+    modifies: 'DISCOUNT' | 'PRICE' | 'SURCHARGE' | 'TIME';
+    name?: string;
+    operation: 'PERCENTAGE' | 'SET' | 'SUBTRACT';
+    valueToModify: number;
+  };
 
   /**
    * Time unit associated with price. Optional; defaults to HOURS

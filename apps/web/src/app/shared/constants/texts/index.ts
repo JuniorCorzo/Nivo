@@ -9,6 +9,7 @@ import {
   PHOTO_CAPTURE_TEXTS,
 } from "./operations.texts";
 import { PARKING_TEXTS } from "./parking.texts";
+import { RATES_TEXTS } from "./rates.texts";
 import { SLOTS_TEXTS } from "./slots.texts";
 import {
   PUBLIC_TICKET_TEXTS,
@@ -24,6 +25,7 @@ export * from "./landing.texts";
 export * from "./navigation.texts";
 export * from "./operations.texts";
 export * from "./parking.texts";
+export * from "./rates.texts";
 export * from "./slots.texts";
 export * from "./tickets.texts";
 export * from "./users.texts";
@@ -38,6 +40,7 @@ export const APP_TEXTS = {
   parking: PARKING_TEXTS,
   photoCapture: PHOTO_CAPTURE_TEXTS,
   publicTicket: PUBLIC_TICKET_TEXTS,
+  rates: RATES_TEXTS,
   server: SERVER_TEXTS,
   sidebar: SIDEBAR_TEXTS,
   slots: SLOTS_TEXTS,

@@ -15,7 +15,9 @@ import { lucideArrowLeft, lucideCoins, lucidePlus } from "@ng-icons/lucide";
 import { ButtonComponent } from "@nivo-sass/design-system";
 import { PageHeaderComponent } from "@shared/components/page-header/page-header";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
+import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 
+import { RateCalculatorComponent } from "../../components/calculator/rate-calculator/rate-calculator";
 import { RateListComponent } from "../../components/list/rates-list/rates-list";
 import { SpecialPoliciesConfigComponent } from "../../components/policies/special-policies-config/special-policies-config";
 
@@ -26,6 +28,7 @@ import { SpecialPoliciesConfigComponent } from "../../components/policies/specia
     NgIcon,
     ButtonComponent,
     PageHeaderComponent,
+    RateCalculatorComponent,
     RateListComponent,
     SpecialPoliciesConfigComponent,
   ],
@@ -47,8 +50,9 @@ export class RatesPageComponent {
   private readonly parkingService = inject(ParkingService);
 
   protected readonly APP_ROUTES = APP_ROUTES;
+  protected readonly calculatorTabLabel = APP_TEXTS.rates.calculator.tabLabel;
   readonly parkingId = signal<string | null>(null);
-  readonly activeTab = signal<"rates" | "policies">("rates");
+  readonly activeTab = signal<"rates" | "calculator" | "policies">("rates");
 
   readonly parking = computed(() => {
     const id = this.parkingId();

@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.angelcorzo.nivo.domain.model.rates.enums.TimeUnitsRate;
 import dev.angelcorzo.nivo.domain.model.rates.enums.VehicleType;
+import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.ModifiesTypes;
+import dev.angelcorzo.nivo.domain.model.specialpolicies.enums.OperationsTypes;
+import dev.angelcorzo.nivo.domain.model.specialpolicies.valueobjects.SpecialPoliciesReference;
 import dev.angelcorzo.nivo.domain.usecase.rate.dtos.PriceDetailed;
 import dev.angelcorzo.nivo.domain.usecase.rate.dtos.SimulateRateCommand;
 import dev.angelcorzo.nivo.domain.usecase.rate.engine.PricingEngine;
@@ -16,6 +19,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -89,5 +93,61 @@ class SimulateRateUseCaseTest {
     assertThat(result.getIvaRate()).isEqualByComparingTo(new BigDecimal("0.19"));
     assertThat(result.getIvaAmount()).isEqualByComparingTo(new BigDecimal("760.00"));
     assertThat(result.getTotal()).isEqualByComparingTo(new BigDecimal("4760.00"));
+  }
+
+  @Test
+  @DisplayName("Should apply gracePeriodPrice when stay is within grace period")
+  void shouldApplyGracePeriodPriceWhenWithinGracePeriod() {
+    final SimulateRateCommand command = SimulateRateCommand.builder()
+      .vehicleType(VehicleType.CAR)
+      .minutesStayed(10L)
+      .pricePerUnit(new BigDecimal("5000.00"))
+      .timeUnit(TimeUnitsRate.HOURS)
+      .gracePeriodMinutes(15)
+      .gracePeriodPrice(new BigDecimal("1500.00"))
+      .ivaRate(new BigDecimal("0.19"))
+      .build();
+
+    final PriceDetailed result = this.useCase.execute(command);
+
+    assertThat(result.getSubtotal()).isEqualByComparingTo(new BigDecimal("1500.00"));
+    assertThat(result.getIvaAmount()).isEqualByComparingTo(new BigDecimal("285.00"));
+    assertThat(result.getTotal()).isEqualByComparingTo(new BigDecimal("1785.00"));
+  }
+
+  @Test
+  @DisplayName("Should clamp minutesStayed to MAX_MINUTES_STAYED in domain command")
+  void shouldClampMinutesStayedToMaximum() {
+    final SimulateRateCommand command = SimulateRateCommand.builder()
+      .vehicleType(VehicleType.CAR)
+      .minutesStayed(1_000_000L)
+      .build();
+
+    assertThat(command.minutesStayed()).isEqualTo(SimulateRateCommand.MAX_MINUTES_STAYED);
+  }
+
+  @Test
+  @DisplayName("Should clamp out-of-range TIME specialPolicy valueToModify and minChargeTimeMinutes without overflowing")
+  void shouldClampExtremeTimePolicyAndMinChargeMinutes() {
+    final SimulateRateCommand command = SimulateRateCommand.builder()
+      .vehicleType(VehicleType.CAR)
+      .minutesStayed(120L)
+      .timeUnit(TimeUnitsRate.DAYS)
+      .minChargeTimeMinutes(1_000_000)
+      .specialPolicy(new SpecialPoliciesReference(
+        UUID.randomUUID(),
+        "Extreme time policy",
+        ModifiesTypes.TIME,
+        OperationsTypes.SET,
+        new BigDecimal("999999999999999"),
+        true))
+      .build();
+
+    assertThat(command.minChargeTimeMinutes()).isEqualTo((int) SimulateRateCommand.MAX_MINUTES_STAYED);
+    assertThat(command.specialPolicy().valueToModify())
+      .isEqualByComparingTo(BigDecimal.valueOf(SimulateRateCommand.MAX_MINUTES_STAYED));
+
+    final PriceDetailed result = this.useCase.execute(command);
+    assertThat(result).isNotNull();
   }
 }

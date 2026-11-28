@@ -24,6 +24,14 @@
     </nv-button>
     <nv-button
       type="button"
+      [variant]="activeTab() === 'calculator' ? 'default' : 'ghost'"
+      size="sm"
+      (click)="activeTab.set('calculator')"
+    >
+      {{ calculatorTabLabel }}
+    </nv-button>
+    <nv-button
+      type="button"
       [variant]="activeTab() === 'policies' ? 'default' : 'ghost'"
       size="sm"
       (click)="activeTab.set('policies')"
@@ -34,6 +42,12 @@
 
   @if (activeTab() === "rates") {
   <app-rates-list [parkingId]="parkingId()" />
+  } @if (activeTab() === "calculator") {
+  <app-rate-calculator
+    [parkingId]="parkingId()"
+    [parking]="p"
+    [rates]="allRates()"
+  />
   } @if (activeTab() === "policies") {
   <app-special-policies-config />
   }
