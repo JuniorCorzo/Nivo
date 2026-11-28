@@ -4,7 +4,7 @@ import { AuthenticationService } from "@core/api/generated/services";
 import { AUTHORIZED } from "@core/http/context/auth.token";
 import { UserService } from "@core/services/user/user-service";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
-import { of, throwError } from "rxjs";
+import { of, Subject, throwError } from "rxjs";
 
 import { AuthService } from "./auth-service";
 
@@ -71,7 +71,7 @@ describe("AuthService", () => {
       of({ data: { accessToken: "refreshed-token" } })
     );
 
-    let token = "";
+    let token: string | null = "";
     service.refreshSession().subscribe((t) => {
       token = t;
     });
@@ -94,7 +94,7 @@ describe("AuthService", () => {
 
     expect(service.accessTokenSignal()).toBeNull();
     expect(service.sessionGenerationSignal()).toBe(genBeforeLogout + 1);
-    expect(userServiceSpy.clearCurrentUser).toHaveBeenCalledTimes(1);
+    expect(userServiceSpy.clearCurrentUser).toHaveBeenCalledTimes(2);
     expect(authControllerSpy.logout).toHaveBeenCalledWith(
       {},
       expect.objectContaining({
@@ -119,7 +119,81 @@ describe("AuthService", () => {
     service.logout();
 
     expect(service.accessTokenSignal()).toBeNull();
-    expect(userServiceSpy.clearCurrentUser).toHaveBeenCalledTimes(1);
+    expect(userServiceSpy.clearCurrentUser).toHaveBeenCalledTimes(2);
     expect(routerSpy.navigate).toHaveBeenCalledWith([APP_ROUTES.auth.login]);
+  });
+
+  it("should ignore in-flight refreshSession response if logout occurred before it resolved", () => {
+    authControllerSpy.login.mockReturnValue(
+      of({ data: { accessToken: "token-a" } })
+    );
+    service.login("a@test.com", "secret").subscribe();
+    userServiceSpy.loadCurrentUser.mockClear();
+
+    const refreshSubject = new Subject<{ data: { accessToken: string } }>();
+    authControllerSpy.refreshSession.mockReturnValue(
+      refreshSubject.asObservable()
+    );
+
+    let refreshedToken: string | null = "uninitialized";
+    service.refreshSession().subscribe((token) => {
+      refreshedToken = token;
+    });
+
+    service.logout();
+
+    refreshSubject.next({ data: { accessToken: "stale-refreshed-token" } });
+    refreshSubject.complete();
+
+    expect(refreshedToken).toBeNull();
+    expect(service.accessTokenSignal()).toBeNull();
+    expect(userServiceSpy.loadCurrentUser).not.toHaveBeenCalled();
+  });
+
+  it("should ignore in-flight refreshSession response if a new login occurred before it resolved", () => {
+    const refreshSubject = new Subject<{ data: { accessToken: string } }>();
+    authControllerSpy.refreshSession.mockReturnValue(
+      refreshSubject.asObservable()
+    );
+
+    let refreshedToken: string | null = "uninitialized";
+    service.refreshSession().subscribe((token) => {
+      refreshedToken = token;
+    });
+
+    authControllerSpy.login.mockReturnValue(
+      of({ data: { accessToken: "token-b" } })
+    );
+    service.login("b@test.com", "secret").subscribe();
+    userServiceSpy.loadCurrentUser.mockClear();
+
+    refreshSubject.next({ data: { accessToken: "stale-refreshed-token" } });
+    refreshSubject.complete();
+
+    expect(refreshedToken).toBeNull();
+    expect(service.accessTokenSignal()).toBe("token-b");
+    expect(userServiceSpy.loadCurrentUser).not.toHaveBeenCalled();
+  });
+
+  it("should not clobber a new login if an in-flight logout finishes afterward", () => {
+    authControllerSpy.login.mockReturnValue(
+      of({ data: { accessToken: "token-a" } })
+    );
+    service.login("a@test.com", "secret").subscribe();
+
+    const logoutSubject = new Subject<void>();
+    authControllerSpy.logout.mockReturnValue(logoutSubject.asObservable());
+    service.logout();
+
+    authControllerSpy.login.mockReturnValue(
+      of({ data: { accessToken: "token-b" } })
+    );
+    service.login("b@test.com", "secret").subscribe();
+
+    logoutSubject.next();
+    logoutSubject.complete();
+
+    expect(service.accessTokenSignal()).toBe("token-b");
+    expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 });

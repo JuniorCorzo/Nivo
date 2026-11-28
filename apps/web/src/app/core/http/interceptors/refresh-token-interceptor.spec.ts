@@ -213,4 +213,93 @@ describe("refreshTokenInterceptor", () => {
     expect(authServiceMock.refreshSession).toHaveBeenCalledTimes(1);
     expect(authServiceMock.logout).toHaveBeenCalledTimes(1);
   });
+
+  it("should fail queued 401 requests cleanly when refreshSession returns null without retrying or calling logout", async () => {
+    const req1 = new HttpRequest("GET", "/api/resource-1", {
+      context: new HttpContext().set(AUTHORIZED, true),
+    });
+    const req2 = new HttpRequest("GET", "/api/resource-2", {
+      context: new HttpContext().set(AUTHORIZED, true),
+    });
+
+    const error401 = new HttpErrorResponse({
+      status: 401,
+      statusText: "Unauthorized",
+    });
+    const refreshSubject = new Subject<string | null>();
+    authServiceMock.refreshSession.mockReturnValue(
+      refreshSubject.asObservable()
+    );
+
+    let req1Calls = 0;
+    let req2Calls = 0;
+
+    const next1 = vi.fn<HttpHandlerFn>(() => {
+      req1Calls += 1;
+      return throwError(() => error401);
+    });
+    const next2 = vi.fn<HttpHandlerFn>(() => {
+      req2Calls += 1;
+      return throwError(() => error401);
+    });
+
+    const p1 = firstValueFrom(runInterceptor(req1, next1));
+    const p2 = firstValueFrom(runInterceptor(req2, next2));
+
+    refreshSubject.next(null);
+    refreshSubject.complete();
+
+    await expect(p1).rejects.toThrow("Session invalidated during refresh");
+    await expect(p2).rejects.toThrow("Session invalidated during refresh");
+
+    expect(req1Calls).toBe(1);
+    expect(req2Calls).toBe(1);
+    expect(authServiceMock.logout).not.toHaveBeenCalled();
+  });
+
+  it("should fail queued 401 requests cleanly when refreshSession errors", async () => {
+    const req1 = new HttpRequest("GET", "/api/resource-1", {
+      context: new HttpContext().set(AUTHORIZED, true),
+    });
+    const req2 = new HttpRequest("GET", "/api/resource-2", {
+      context: new HttpContext().set(AUTHORIZED, true),
+    });
+
+    const error401 = new HttpErrorResponse({
+      status: 401,
+      statusText: "Unauthorized",
+    });
+    const refreshError = new HttpErrorResponse({
+      status: 401,
+      statusText: "Refresh Expired",
+    });
+    const refreshSubject = new Subject<string | null>();
+    authServiceMock.refreshSession.mockReturnValue(
+      refreshSubject.asObservable()
+    );
+
+    let req1Calls = 0;
+    let req2Calls = 0;
+
+    const next1 = vi.fn<HttpHandlerFn>(() => {
+      req1Calls += 1;
+      return throwError(() => error401);
+    });
+    const next2 = vi.fn<HttpHandlerFn>(() => {
+      req2Calls += 1;
+      return throwError(() => error401);
+    });
+
+    const p1 = firstValueFrom(runInterceptor(req1, next1));
+    const p2 = firstValueFrom(runInterceptor(req2, next2));
+
+    refreshSubject.error(refreshError);
+
+    await expect(p1).rejects.toBe(refreshError);
+    await expect(p2).rejects.toBe(refreshError);
+
+    expect(req1Calls).toBe(1);
+    expect(req2Calls).toBe(1);
+    expect(authServiceMock.logout).toHaveBeenCalledTimes(1);
+  });
 });

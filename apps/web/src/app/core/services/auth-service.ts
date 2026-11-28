@@ -9,7 +9,7 @@ import { mapToLoginResponseModel } from "@core/mappers/auth.mapper";
 import { UserService } from "@core/services/user/user-service";
 import { APP_ROUTES } from "@shared/constants/app-routes.constant";
 import type { Observable } from "rxjs";
-import { catchError, EMPTY, finalize, map, of } from "rxjs";
+import { catchError, EMPTY, finalize, map, of, throwError } from "rxjs";
 
 @Injectable({
   providedIn: "root",
@@ -51,17 +51,27 @@ export class AuthService {
       );
   }
 
-  refreshSession(): Observable<string> {
+  refreshSession(): Observable<string | null> {
+    const requestGeneration = this.sessionGenerationSignal();
     return this.authController
       .refreshSession({}, AuthService.httpContext())
       .pipe(
         map(({ data }) => {
+          if (this.sessionGenerationSignal() !== requestGeneration) {
+            return null;
+          }
           const { accessToken } = data;
           this.accessToken.set(accessToken);
           if (accessToken) {
             this.userService.loadCurrentUser().subscribe();
           }
           return accessToken;
+        }),
+        catchError((failure: unknown) => {
+          if (this.sessionGenerationSignal() !== requestGeneration) {
+            return of(null);
+          }
+          return throwError(() => failure);
         })
       );
   }
@@ -70,12 +80,17 @@ export class AuthService {
     this.accessToken.set(null);
     this.userService.clearCurrentUser();
     this.sessionGeneration.update((n) => n + 1);
+    const logoutGeneration = this.sessionGenerationSignal();
     this.authController
       .logout({}, AuthService.httpContext())
       .pipe(
         catchError(() => EMPTY),
         finalize(() => {
-          this.router.navigate([APP_ROUTES.auth.login]);
+          if (this.sessionGenerationSignal() === logoutGeneration) {
+            this.accessToken.set(null);
+            this.userService.clearCurrentUser();
+            this.router.navigate([APP_ROUTES.auth.login]);
+          }
         })
       )
       .subscribe();

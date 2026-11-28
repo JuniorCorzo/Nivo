@@ -18,12 +18,21 @@ import {
 
 import { AUTHORIZED } from "../context/auth.token";
 
+type RefreshResult = { token: string } | { error: unknown };
+
+class StaleSessionError extends Error {
+  constructor() {
+    super("Session invalidated during refresh");
+    this.name = "StaleSessionError";
+  }
+}
+
 let isRefresh = false;
-const newToken$ = new BehaviorSubject<string | null>(null);
+const refreshResult$ = new BehaviorSubject<RefreshResult | null>(null);
 
 export const _resetRefreshTokenState = () => {
   isRefresh = false;
-  newToken$.next(null);
+  refreshResult$.next(null);
 };
 
 const withToken = (req: HttpRequest<unknown>, token: string) =>
@@ -39,19 +48,25 @@ const refreshToken = (
   authService: AuthService
 ) => {
   isRefresh = true;
-  newToken$.next(null);
+  refreshResult$.next(null);
 
   return authService.refreshSession().pipe(
     switchMap((token) => {
+      if (!token) {
+        return throwError(() => new StaleSessionError());
+      }
+
       isRefresh = false;
-      newToken$.next(token);
+      refreshResult$.next({ token });
 
       return next(withToken(req, token));
     }),
     catchError((failure) => {
       isRefresh = false;
-      newToken$.next(null);
-      authService.logout();
+      refreshResult$.next({ error: failure });
+      if (!(failure instanceof StaleSessionError)) {
+        authService.logout();
+      }
 
       return throwError(() => failure);
     })
@@ -67,10 +82,14 @@ const handleUnauthorized = (
     return refreshToken(req, next, authService);
   }
 
-  return newToken$.pipe(
-    filter((token): token is string => token !== null),
+  return refreshResult$.pipe(
+    filter((result): result is RefreshResult => result !== null),
     take(1),
-    mergeMap((token) => next(withToken(req, token)))
+    mergeMap((result) =>
+      "error" in result
+        ? throwError(() => result.error)
+        : next(withToken(req, result.token))
+    )
   );
 };
 
