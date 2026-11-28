@@ -34,9 +34,9 @@ import {
 } from "../../../shared/rate-presentations";
 import { RatePreviewComponent } from "./rate-preview";
 
-export const MAX_SIMULATION_MINUTES = 525_600;
-export const DEFAULT_GRACE_PERIOD_MINUTES = 15;
-export const DEFAULT_TIME_UNIT: TimeUnit = "HOURS";
+const MAX_SIMULATION_MINUTES = 525_600;
+const DEFAULT_GRACE_PERIOD_MINUTES = 15;
+const DEFAULT_TIME_UNIT: TimeUnit = "HOURS";
 const DEFAULT_PRICE_BY_VEHICLE = {
   BIKE: 4000,
   CAR: 4000,
@@ -106,7 +106,9 @@ const readInputValue = (event: Event): string =>
                     >{{ configuredRate.minChargeTimeMinutes }} min</strong
                   >
                 </span>
-                @if ((gracePeriodPrice() ?? 0) > 0) {
+                @if (
+                  (gracePeriodPrice() ?? 0) > 0 && gracePeriodMinutes() > 0
+                ) {
                   <span>
                     {{ texts.gracePeriodPriceLabel }}:
                     <strong class="text-foreground">{{
@@ -116,10 +118,12 @@ const readInputValue = (event: Event): string =>
                   </span>
                 }
                 @if (configuredRate.specialPolicy; as policy) {
-                  <span>
-                    {{ texts.specialPolicyLabel }}:
-                    <strong class="text-foreground">{{ policy.name }}</strong>
-                  </span>
+                  @if (policy.active) {
+                    <span>
+                      {{ texts.specialPolicyLabel }}:
+                      <strong class="text-foreground">{{ policy.name }}</strong>
+                    </span>
+                  }
                 }
               </div>
             } @else {
@@ -239,7 +243,7 @@ export class RateCalculatorComponent {
     };
 
     const gracePrice = this.gracePeriodPrice();
-    if (gracePrice !== null) {
+    if (gracePrice !== null && this.gracePeriodMinutes() > 0) {
       params.gracePeriodPrice = gracePrice;
     }
 
@@ -285,6 +289,8 @@ export class RateCalculatorComponent {
           this.gracePeriodPrice.set(activeParking.gracePeriodPrice ?? 0);
           this.ivaRate.set(activeParking.ivaRate ?? null);
         } else {
+          this.gracePeriodMinutes.set(DEFAULT_GRACE_PERIOD_MINUTES);
+          this.gracePeriodPrice.set(null);
           this.ivaRate.set(null);
         }
 
@@ -384,7 +390,9 @@ export class RateCalculatorComponent {
   onGracePeriodInput(event: Event): void {
     const parsed = Number(readInputValue(event));
     this.gracePeriodMinutes.set(
-      Number.isFinite(parsed) && parsed >= 0 ? Math.trunc(parsed) : 0
+      Number.isFinite(parsed) && parsed >= 0
+        ? Math.min(MAX_SIMULATION_MINUTES, Math.trunc(parsed))
+        : 0
     );
   }
 

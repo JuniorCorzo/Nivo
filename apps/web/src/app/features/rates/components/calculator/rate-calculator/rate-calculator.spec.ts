@@ -7,10 +7,9 @@ import { RateService } from "@core/services/rate-service";
 import { APP_TEXTS } from "@shared/constants/app-texts.constant";
 import { Subject, of, throwError } from "rxjs";
 
-import {
-  MAX_SIMULATION_MINUTES,
-  RateCalculatorComponent,
-} from "./rate-calculator";
+import { RateCalculatorComponent } from "./rate-calculator";
+
+const MAX_SIMULATION_MINUTES = 525_600;
 
 describe("RateCalculatorComponent", () => {
   let component: RateCalculatorComponent;
@@ -443,6 +442,70 @@ describe("RateCalculatorComponent", () => {
       pricePerUnit: 2000,
       timeUnit: "HOURS",
       vehicleType: "MOTORCYCLE",
+    });
+  });
+
+  it("should omit gracePeriodPrice when gracePeriodMinutes is set to 0 on a lot with gracePeriodPrice > 0", () => {
+    const parking: ParkingLotListItemModel = {
+      address: {
+        city: "Bogotá",
+        country: "Colombia",
+        state: "Cundinamarca",
+        street: "Cll 100",
+        zipCode: "110111",
+      },
+      coordinates: { latitude: 4.6, longitude: -74 },
+      createdAt: "",
+      currency: "COP",
+      gracePeriodMinutes: 10,
+      gracePeriodPrice: 1500,
+      id: "parking-1",
+      ivaRate: 0.19,
+      name: "Parqueadero Central",
+      occuppationRate: 0,
+      ownerName: "Admin",
+      slotDistribution: [],
+      totalCapacity: 50,
+      updatedAt: "",
+    };
+
+    const rates: RateModel[] = [
+      {
+        createdAt: "",
+        description: "Tarifa carros",
+        id: "rate-car",
+        minChargeTimeMinutes: 30,
+        name: "Carro Estándar",
+        parkingId: "parking-1",
+        pricePerUnit: 5000,
+        timeUnit: "HOURS",
+        updatedAt: "",
+        vehicleType: "CAR",
+      },
+    ];
+
+    fixture.componentRef.setInput("parking", parking);
+    fixture.componentRef.setInput("rates", rates);
+    fixture.detectChanges();
+    vi.advanceTimersByTime(250);
+
+    const graceInput = document.createElement("input");
+    graceInput.value = "0";
+    component.onGracePeriodInput({
+      target: graceInput,
+    } as unknown as Event);
+    fixture.detectChanges();
+    vi.advanceTimersByTime(250);
+
+    expect(simulateRateSpy).toHaveBeenLastCalledWith({
+      gracePeriodMinutes: 0,
+      ivaRate: 0.19,
+      minChargeTimeMinutes: 30,
+      minutesStayed: 90,
+      pricePerUnit: 5000,
+      rateName: "Carro Estándar",
+      timeUnit: "HOURS",
+      vehicleType: "CAR",
     });
   });
 });
