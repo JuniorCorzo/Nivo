@@ -202,9 +202,9 @@ describe("SpecialPoliciesConfigComponent", () => {
         modifies: "TIME",
         name: "Time Set",
         operation: "SET",
-        valueToModify: 30,
+        valueToModify: 2,
       })
-    ).toBe("30 min");
+    ).toBe("2 unidad(es)");
 
     expect(
       component.formatPolicyEffect({
@@ -213,9 +213,9 @@ describe("SpecialPoliciesConfigComponent", () => {
         modifies: "TIME",
         name: "Time Subtract",
         operation: "SUBTRACT",
-        valueToModify: 15,
+        valueToModify: 1,
       })
-    ).toBe("-15 min");
+    ).toBe("-1 unidad(es)");
 
     expect(
       component.formatPolicyEffect({

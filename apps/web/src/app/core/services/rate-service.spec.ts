@@ -509,5 +509,47 @@ describe("RateService", () => {
       expect(resolvedRates).toHaveLength(1);
       expect(service.ratesByParking()["parking-1"]).toHaveLength(1);
     });
+
+    it("should preserve in-flight requests and cache when scope upgrades from session:<N> to session:<N>:tenant:<id>", async () => {
+      // Simulate initial deep-link load before currentUser resolves
+      currentUserSignal.set(null);
+      TestBed.flushEffects();
+
+      const rates$ = new Subject<ResponseIterableRatesDto>();
+      parkingLotsServiceSpy.showRatesByParkingId.mockReturnValueOnce(
+        rates$.asObservable()
+      );
+
+      let resolvedRates: unknown[] | undefined;
+      service.getRatesByParkingId("parking-1").subscribe((rates) => {
+        resolvedRates = rates;
+      });
+
+      // GET /users/me resolves for the same sessionGeneration
+      currentUserSignal.set(makeUser("tenant-a"));
+      TestBed.flushEffects();
+
+      rates$.next({
+        data: [
+          {
+            createdAt: "2024-01-01T00:00:00Z",
+            description: "Tenant A Rate",
+            id: "rate-a",
+            minChargeTimeMinutes: "15",
+            name: "Rate A",
+            pricePerUnit: 3000,
+            timeUnit: "HOURS",
+            vehicleType: "CAR",
+          },
+        ],
+        message: "Success",
+        status: "OK",
+        timestamp: "2024-01-01T00:00:00Z",
+      });
+      rates$.complete();
+
+      expect(resolvedRates).toHaveLength(1);
+      expect(service.ratesByParking()["parking-1"]).toHaveLength(1);
+    });
   });
 });

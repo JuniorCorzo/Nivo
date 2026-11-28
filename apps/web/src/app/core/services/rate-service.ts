@@ -75,6 +75,14 @@ export class RateService {
 
   private syncScope(scopeKey: string | null): void {
     if (this.activeScopeKey !== scopeKey) {
+      if (
+        this.activeScopeKey !== null &&
+        scopeKey !== null &&
+        scopeKey.startsWith(`${this.activeScopeKey}:tenant:`)
+      ) {
+        this.activeScopeKey = scopeKey;
+        return;
+      }
       if (scopeKey === null || this.activeScopeKey !== null) {
         this.clearCache();
       }
@@ -94,11 +102,13 @@ export class RateService {
 
   private isScopeCurrent(snapshot: ScopeSnapshot): boolean {
     this.syncScope(this.resolveScopeKey());
-    return (
-      snapshot.key !== null &&
-      this.activeScopeKey === snapshot.key &&
-      this.scopeGeneration === snapshot.generation
-    );
+    if (snapshot.key === null || this.activeScopeKey === null) {
+      return false;
+    }
+    const matchesOrUpgraded =
+      this.activeScopeKey === snapshot.key ||
+      this.activeScopeKey.startsWith(`${snapshot.key}:tenant:`);
+    return matchesOrUpgraded && this.scopeGeneration === snapshot.generation;
   }
 
   clearCache(): void {

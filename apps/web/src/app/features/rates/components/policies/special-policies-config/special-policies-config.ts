@@ -157,9 +157,9 @@ export class SpecialPoliciesConfigComponent implements OnInit {
         return `-${policy.valueToModify}% tiempo`;
       }
       if (policy.operation === "SUBTRACT") {
-        return `-${policy.valueToModify} min`;
+        return `-${policy.valueToModify} unidad(es)`;
       }
-      return `${policy.valueToModify} min`;
+      return `${policy.valueToModify} unidad(es)`;
     }
     if (policy.operation === "PERCENTAGE") {
       return policy.modifies === "SURCHARGE"

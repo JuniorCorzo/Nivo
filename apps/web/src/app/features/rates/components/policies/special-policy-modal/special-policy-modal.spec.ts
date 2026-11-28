@@ -204,17 +204,17 @@ describe("SpecialPolicyModalComponent", () => {
       },
       {
         expectedDiscount: false,
-        expectedPreview: "30 min",
+        expectedPreview: "2 unidad(es)",
         modifies: "TIME" as const,
         operation: "SET" as const,
-        value: 30,
+        value: 2,
       },
       {
         expectedDiscount: true,
-        expectedPreview: "-15 min",
+        expectedPreview: "-1 unidad(es)",
         modifies: "TIME" as const,
         operation: "SUBTRACT" as const,
-        value: 15,
+        value: 1,
       },
       {
         expectedDiscount: true,
@@ -270,7 +270,12 @@ describe("SpecialPolicyModalComponent", () => {
   it("should reset form and selectedPresetId on cancel and reset isSubmitting if observable completes without emitting", () => {
     component.onModifiesChange("TIME");
     expect(component.selectedPresetId()).toBe("custom");
-    expect(component.valueLabel()).toBe("Minutos a Aplicar (min)");
+    expect(component.valueLabel()).toBe("Unidades de tiempo (según tarifa)");
+    expect(component.operationOptions().map((o) => o.label)).toEqual([
+      "Tiempo fijo (unidades de tarifa)",
+      "Porcentaje de tiempo (%)",
+      "Deducción de tiempo (-unidades)",
+    ]);
 
     component.onCancel();
     expect(component.selectedPresetId()).toBe("lavado-service");

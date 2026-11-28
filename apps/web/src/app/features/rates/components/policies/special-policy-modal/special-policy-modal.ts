@@ -157,6 +157,12 @@ export class SpecialPolicyModalComponent {
     { label: "Deducción directa en valor (-$)", value: "SUBTRACT" },
   ];
 
+  private readonly timeOperationOptions: OperationOption[] = [
+    { label: "Tiempo fijo (unidades de tarifa)", value: "SET" },
+    { label: "Porcentaje de tiempo (%)", value: "PERCENTAGE" },
+    { label: "Deducción de tiempo (-unidades)", value: "SUBTRACT" },
+  ];
+
   private readonly allowedOperationsByTarget = {
     DISCOUNT: ["SUBTRACT", "PERCENTAGE"],
     PRICE: ["SET", "SUBTRACT", "PERCENTAGE"],
@@ -180,9 +186,9 @@ export class SpecialPolicyModalComponent {
       mod && mod in this.allowedOperationsByTarget
         ? this.allowedOperationsByTarget[mod]
         : ["SET"];
-    return this.allOperationOptions.filter((option) =>
-      allowed.includes(option.value)
-    );
+    const sourceOptions =
+      mod === "TIME" ? this.timeOperationOptions : this.allOperationOptions;
+    return sourceOptions.filter((option) => allowed.includes(option.value));
   });
 
   readonly valueLabel = computed(() => {
@@ -191,7 +197,7 @@ export class SpecialPolicyModalComponent {
       return "Porcentaje a Aplicar (%)";
     }
     if (modifies === "TIME") {
-      return "Minutos a Aplicar (min)";
+      return "Unidades de tiempo (según tarifa)";
     }
     return "Monto a Aplicar ($ COP)";
   });
@@ -202,7 +208,7 @@ export class SpecialPolicyModalComponent {
       return "Ej. 15";
     }
     if (modifies === "TIME") {
-      return "Ej. 30";
+      return "Ej. 1";
     }
     return "Ej. 18000";
   });
@@ -230,9 +236,9 @@ export class SpecialPolicyModalComponent {
         return `-${val}% tiempo`;
       }
       if (op === "SUBTRACT") {
-        return `-${val} min`;
+        return `-${val} unidad(es)`;
       }
-      return `${val} min`;
+      return `${val} unidad(es)`;
     }
     if (op === "PERCENTAGE") {
       return mod === "SURCHARGE" ? `+${val}% Recargo` : `-${val}% Descuento`;
